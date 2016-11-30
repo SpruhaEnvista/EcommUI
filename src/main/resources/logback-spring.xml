@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration scan="true">
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+
+    <logger name="com.envista.msi.api" level="@logback.loglevel@"/>
+    <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+        <resetJUL>true</resetJUL>
+    </contextListener>
+    
+    <logger name="org.springframework.web" level="WARN"/>
+    <logger name="org.springframework.security" level="WARN"/>
+    <!--  <logger name="org.hibernate" level="DEBUG"/> -->
+
+    <root level="@logback.loglevel@">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+
+</configuration>

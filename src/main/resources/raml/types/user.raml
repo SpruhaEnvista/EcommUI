@@ -1,0 +1,34 @@
+#%RAML 1.0 DataType
+type: object
+properties:
+  id:
+    type: integer
+    displayName: User ID
+    description: ID of the user
+    required: true
+  firstName:
+    type: string
+    displayName: First Name
+    description: First name of the user
+    required: true
+  lastName:
+    type: string
+    displayName: Last Name
+    description: Last name of the user
+    required: true
+  email:
+    type: string
+    displayName: E-mail
+    description: E-mail address of the user
+    required: true
+  userName:
+    type: string
+    displayName: User Name
+    description: User name of the user
+    required: true
+example:
+  id: 12345
+  firstName: John
+  lastName: Smith
+  email: jsmith@example.com
+  userName: jsmith

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jboss-deployment-structure>
+	<deployment>
+		<dependencies>
+
+            <!-- Add some dependencies because of javaee.api exclusion -->
+            <module name="javax.xml.bind.api" />
+            <module name="javax.xml.ws.api" />
+            <module name="javax.jws.api" />
+            <module name="javax.annotation.api" />
+
+        </dependencies>
+
+        <exclude-subsystems>
+            <subsystem name="webservices" />
+            <subsystem name="jaxrs" />
+            <subsystem name="jpa" />
+        </exclude-subsystems>
+        <exclusions>
+            <module name="org.slf4j" />
+            <module name="org.slf4j.impl" />
+            <module name="org.slf4j.jcl-over-slf4j" />
+           <!--  <module name="org.apache.commons.logging" /> -->
+            <module name="org.jboss.logging" />
+            <module name="org.apache.log4j" />
+
+            <module name="javaee.api" />
+
+        </exclusions>
+	</deployment>
+</jboss-deployment-structure>
+
+
