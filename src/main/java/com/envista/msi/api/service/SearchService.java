@@ -1,11 +1,8 @@
 package com.envista.msi.api.service;
 
-import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -14,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -180,7 +176,7 @@ public class SearchService {
 				new PageRequest(pageNumber - 1, numberOfElements, new Sort(Sort.Direction.ASC, "nspInvoiceDetailsId")),
 				searchCriteria);
 	}
-	
+
 	@Transactional(readOnly = true)
 	public Page<InvoiceDetails> findInvoiceDetails(final PageRequest request, final SearchCriteria searchCriteria)
 			throws Exception {
@@ -198,7 +194,7 @@ public class SearchService {
 				searchResultPage.getTotalElements());
 
 	}
-	
+
 	@Transactional(readOnly = true)
 	public Page<InvoiceDetails> findInvoiceDetails(int pageNumber, int numberOfElements, String sortColumn,
 			String sortOrder, SearchCriteria searchCriteria) throws Exception {

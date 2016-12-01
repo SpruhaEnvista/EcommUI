@@ -20,16 +20,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.envista.msi.api.freight.ui.pojo.PickupAddress;
 import com.envista.msi.api.security.SecurityUtils;
 import com.envista.msi.api.service.SearchService;
 import com.envista.msi.api.web.rest.dto.CarrierScacName;
 import com.envista.msi.api.web.rest.dto.InvoiceDetails;
 import com.envista.msi.api.web.rest.dto.SearchCriteria;
 import com.envista.msi.api.web.rest.dto.SearchMetadata;
-import com.envista.msi.api.web.rest.freight.InvoiceDetailResource;
-
-import Util.MultiStopData;
 
 /**
  * @author SANKER
@@ -42,7 +38,7 @@ public class SearchResource {
 	@Autowired
 	private SearchService searchService;
 
-	private final Logger log = LoggerFactory.getLogger(InvoiceDetailResource.class);
+	private final Logger log = LoggerFactory.getLogger(SearchResource.class);
 
 	@RequestMapping(value = "/meta/staticdata", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<SearchMetadata> getAssignedCustomers() {
@@ -66,15 +62,10 @@ public class SearchResource {
 		}
 	}
 
-	@RequestMapping(value = "/results", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-	public List<PickupAddress> getMultiStopData() {
-		return MultiStopData.getMultiStopData();
-	}
-
 	/**
 	 * get invoicedetails for given criteria
 	 */
-	@RequestMapping(value = "/results/pageBySearchCriteria", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/pageBySearchCriteria", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public Page<InvoiceDetails> getPageBySearchCriteria(@RequestBody SearchCriteria criteria,
 			@RequestParam(value = "pageNumber", required = false) Integer pageNumber,
 			@RequestParam(value = "numberOfElements", required = false) Integer numberOfElements,

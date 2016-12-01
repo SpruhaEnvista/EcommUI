@@ -20,7 +20,7 @@ public class SearchMetaTest extends WebappTestEnvironment {
 
 	private static final String SEARCH_API_BASE_PATH_VALUE = "/api/search";
 	private static final String META_API_BASE_PATH_VALUE = SEARCH_API_BASE_PATH_VALUE + "/meta";
-	private static final String RESULTS_API_BASE_PATH_VALUE = SEARCH_API_BASE_PATH_VALUE + "/results";;
+	private static final String RESULTS_API_BASE_PATH_VALUE = SEARCH_API_BASE_PATH_VALUE; //SEARCH_API_BASE_PATH_VALUE + "/results";;
 
 	@Test
 	public void testAssignedCustomers() throws Exception {
@@ -31,12 +31,6 @@ public class SearchMetaTest extends WebappTestEnvironment {
 	@Test
 	public void testCarrierScacNames() throws Exception {
 		mockRestMvc().perform(get(META_API_BASE_PATH_VALUE + "/carriers/{id}", 17980)).andExpect(status().isOk())
-				.andExpect(content().contentType(MediaType.APPLICATION_JSON));
-	}
-
-	@Test
-	public void testResults() throws Exception {
-		mockRestMvc().perform(post(RESULTS_API_BASE_PATH_VALUE)).andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON));
 	}
 
