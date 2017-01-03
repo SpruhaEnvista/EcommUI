@@ -61,4 +61,15 @@ public class CustomAuditEventRepository implements AuditEventRepository {
             persistenceAuditEventRepository.save(persistentAuditEvent);
         }
     }
+
+	@Override
+	public List<AuditEvent> find(Date arg0) {
+		return find(null, arg0);
+	}
+
+	@Override
+	public List<AuditEvent> find(String principal, Date after, String type) {
+		// TODO Auto-generated method stub
+		return find(principal, after);
+	}
 }

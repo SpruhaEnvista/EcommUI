@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.envista.msi.api.security.SecurityUtils;
 import com.envista.msi.api.service.UserService;
-import com.envista.msi.api.web.rest.dto.UserProfileBean;
+import com.envista.msi.api.web.rest.dto.UserProfileDto;
 import com.envista.msi.api.web.rest.util.WebConstants;
 
 /**
@@ -33,7 +33,7 @@ public class LoginController {
 
 	@RequestMapping(value = "/profile", method = { RequestMethod.GET, RequestMethod.POST,
 			RequestMethod.OPTIONS }, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<UserProfileBean> authorize() {
+	public ResponseEntity<UserProfileDto> authorize() {
 		if (SecurityUtils.isAuthenticated()) {
 			if (null == httpSession.getAttribute(WebConstants.USER_IN_SESSION)) {
 				try {
@@ -41,16 +41,16 @@ public class LoginController {
 							userService.getUserProfileByUserName(SecurityUtils.getCurrentUserLogin()));
 				} catch (Exception exp) {
 					exp.printStackTrace();
-					return new ResponseEntity<UserProfileBean>(
-							(UserProfileBean) httpSession.getAttribute(WebConstants.USER_IN_SESSION_OTHERWISE),
+					return new ResponseEntity<UserProfileDto>(
+							(UserProfileDto) httpSession.getAttribute(WebConstants.USER_IN_SESSION_OTHERWISE),
 							HttpStatus.INTERNAL_SERVER_ERROR);
 				}
 			}
-			return new ResponseEntity<UserProfileBean>(
-					(UserProfileBean) httpSession.getAttribute(WebConstants.USER_IN_SESSION), HttpStatus.OK);
+			return new ResponseEntity<UserProfileDto>(
+					(UserProfileDto) httpSession.getAttribute(WebConstants.USER_IN_SESSION), HttpStatus.OK);
 		}
-		return new ResponseEntity<UserProfileBean>(
-				(UserProfileBean) httpSession.getAttribute(WebConstants.USER_IN_SESSION_OTHERWISE),
+		return new ResponseEntity<UserProfileDto>(
+				(UserProfileDto) httpSession.getAttribute(WebConstants.USER_IN_SESSION_OTHERWISE),
 				HttpStatus.UNAUTHORIZED);
 	}
 

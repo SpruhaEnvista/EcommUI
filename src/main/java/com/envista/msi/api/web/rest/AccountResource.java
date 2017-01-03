@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.envista.msi.api.security.SecurityUtils;
 import com.envista.msi.api.service.UserService;
-import com.envista.msi.api.web.rest.dto.UserProfileBean;
+import com.envista.msi.api.web.rest.dto.UserProfileDto;
 
 /**
  * REST controller for managing the current user's account.
@@ -58,7 +58,7 @@ public class AccountResource {
 	 */
 	@RequestMapping(value = "/account", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 
-	public ResponseEntity<UserProfileBean> getAccount() throws Exception {
+	public ResponseEntity<UserProfileDto> getAccount() throws Exception {
 		if (null == SecurityUtils.getCurrentUserLogin())
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		return Optional.ofNullable(userService.getUserProfileByUserName(SecurityUtils.getCurrentUserLogin()))

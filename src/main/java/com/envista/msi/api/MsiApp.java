@@ -67,7 +67,7 @@ public class MsiApp {
             env.getProperty("server.port"),
             InetAddress.getLocalHost().getHostAddress(),
             env.getProperty("server.port"));
-        System.out.println(String.format("Application MSI APP is running at http://%s:%s/msiapi ", InetAddress.getLocalHost().getHostAddress(), env.getProperty("server.port")));
+        log.info(String.format("Application MSI APP is running at http://%s:%s/msiapi ", InetAddress.getLocalHost().getHostAddress(), env.getProperty("server.port")));
     }
 
     /**

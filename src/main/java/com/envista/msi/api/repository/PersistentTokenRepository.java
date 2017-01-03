@@ -6,7 +6,8 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.envista.msi.api.domain.PersistentToken;
-import com.envista.msi.api.domain.freight.ShpUserProfileTb;
+import com.envista.msi.api.domain.ShpUserProfileTb;
+
 
 /**
  * Spring Data JPA repository for the PersistentToken entity.

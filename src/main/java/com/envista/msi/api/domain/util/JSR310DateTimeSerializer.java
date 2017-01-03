@@ -9,6 +9,10 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
+/**
+ * @author SANKER
+ *
+ */
 public final class JSR310DateTimeSerializer extends JsonSerializer<TemporalAccessor> {
 
     private static final DateTimeFormatter ISOFormatter =

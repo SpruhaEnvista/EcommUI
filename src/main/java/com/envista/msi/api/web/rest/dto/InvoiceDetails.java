@@ -3,12 +3,10 @@ package com.envista.msi.api.web.rest.dto;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.Date;
-import java.util.List;
 
-import com.envista.msi.api.domain.freight.ShpCarrierTb;
-import com.envista.msi.api.domain.freight.ShpCustomerProfileTb;
-import com.envista.msi.api.domain.freight.ShpNspCodeValuesTb;
-import com.envista.msi.api.domain.freight.ShpNspTaskTb;
+//import com.envista.msi.api.domain.freight.ShpCarrierTb;
+//import com.envista.msi.api.domain.freight.ShpCustomerProfileTb;
+//import com.envista.msi.api.domain.freight.ShpNspTaskTb;
 
 public class InvoiceDetails{
 
@@ -216,9 +214,9 @@ public class InvoiceDetails{
 	private BigDecimal usdTotalCharges;
 	private String vendorNumber;
 	
-	//join column attributes
+	/*//join column attributes
 	private ShpCarrierTb carrier;
-	private ShpCustomerProfileTb customerProfile;
+	private ShpCustomerProfileTb customerProfile;*/
 	/*private ShpNspCodeValuesTb shpNspCodeValuesTb1;*/
 	private String invoiceStatus;
 //	private ShpNspCodeValuesTb shpNspCodeValuesTb2;
@@ -227,7 +225,7 @@ public class InvoiceDetails{
 	private String invoiceMode;
 	//private ShpNspCodeValuesTb shpNspCodeValuesTb4;
 	private String totalWeightUOM;
-	private List<ShpNspTaskTb> shpNspTaskTbs;
+	/*private List<ShpNspTaskTb> shpNspTaskTbs;*/
 	
 	
 	
@@ -1407,7 +1405,7 @@ public class InvoiceDetails{
 	public void setVendorNumber(String vendorNumber) {
 		this.vendorNumber = vendorNumber;
 	}
-	public ShpCarrierTb getShpCarrierTb() {
+	/*public ShpCarrierTb getShpCarrierTb() {
 		return carrier;
 	}
 	public void setShpCarrierTb(ShpCarrierTb shpCarrierTb) {
@@ -1418,7 +1416,7 @@ public class InvoiceDetails{
 	}
 	public void setShpCustomerProfileTb(ShpCustomerProfileTb shpCustomerProfileTb) {
 		this.customerProfile = shpCustomerProfileTb;
-	}
+	}*/
 	/*public ShpNspCodeValuesTb getShpNspCodeValuesTb1() {
 		return shpNspCodeValuesTb1;
 	}
@@ -1469,10 +1467,10 @@ public class InvoiceDetails{
 	public void setShpNspCodeValuesTb4(ShpNspCodeValuesTb shpNspCodeValuesTb4) {
 		this.shpNspCodeValuesTb4 = shpNspCodeValuesTb4;
 	}*/
-	public List<ShpNspTaskTb> getShpNspTaskTbs() {
+	/*public List<ShpNspTaskTb> getShpNspTaskTbs() {
 		return shpNspTaskTbs;
 	}
 	public void setShpNspTaskTbs(List<ShpNspTaskTb> shpNspTaskTbs) {
 		this.shpNspTaskTbs = shpNspTaskTbs;
-	}
+	}*/
 }

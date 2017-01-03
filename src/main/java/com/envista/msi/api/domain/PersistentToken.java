@@ -1,6 +1,5 @@
 package com.envista.msi.api.domain;
 
-import com.envista.msi.api.domain.freight.ShpUserProfileTb;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.Cache;

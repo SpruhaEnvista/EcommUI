@@ -25,8 +25,8 @@ import com.fasterxml.jackson.datatype.hibernate4.Hibernate4Module;
 import com.zaxxer.hikari.HikariDataSource;
 
 @Configuration
-@EnableJpaRepositories("com.envista.msi.api.repository")
-@EnableJpaAuditing(auditorAwareRef = "springSecurityAuditorAware")
+/*@EnableJpaRepositories("com.envista.msi.api.repository")
+@EnableJpaAuditing(auditorAwareRef = "springSecurityAuditorAware")*/
 @EnableTransactionManagement
 public class DatabaseConfiguration {
 

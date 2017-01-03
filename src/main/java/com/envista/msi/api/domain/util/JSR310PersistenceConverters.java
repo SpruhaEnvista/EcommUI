@@ -8,6 +8,10 @@ import javax.persistence.Converter;
 
 import com.envista.msi.api.domain.util.JSR310DateConverters.*;
 
+/**
+ * @author SANKER
+ *
+ */
 public final class JSR310PersistenceConverters {
 
     private JSR310PersistenceConverters() {}
