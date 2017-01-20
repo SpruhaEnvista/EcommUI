@@ -9,7 +9,7 @@ import java.io.Serializable;
 
 @NamedStoredProcedureQueries({
         @NamedStoredProcedureQuery(name = "DashAppliedFilterTb.getUserAppliedFilter", procedureName = "SHP_DASH_GET_APPLIED_FLTR_PRO",
-                resultClasses = DashboardsDto.class,
+                resultClasses = DashboardAppliedFilterDto.class,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_user_id", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "applied_filter_data", type = void.class)
@@ -17,7 +17,7 @@ import java.io.Serializable;
 })
 
 @Entity
-public class DashboardsDto implements Serializable {
+public class DashboardAppliedFilterDto implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

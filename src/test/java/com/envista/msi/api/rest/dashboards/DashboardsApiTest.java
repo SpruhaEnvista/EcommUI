@@ -19,6 +19,8 @@ public class DashboardsApiTest extends WebappTestEnvironment {
     public void testGetUserAppliedFilter() throws Exception {
         mockRestMvc().perform(get(SEARCH_API_BASE_PATH_VALUE + "/appliedFilter").param("userId","23166")).andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE));
+
+        System.out.println("Output:"+get(SEARCH_API_BASE_PATH_VALUE + "/appliedFilter").param("userId","23166").toString());
     }
 
 }

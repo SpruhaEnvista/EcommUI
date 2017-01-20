@@ -1,7 +1,7 @@
 package com.envista.msi.api.service;
 
 import com.envista.msi.api.dao.DashboardsDao;
-import com.envista.msi.api.web.rest.dto.DashboardsDto;
+import com.envista.msi.api.web.rest.dto.DashboardAppliedFilterDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +20,7 @@ public class DashboardsService {
     private DashboardsDao dashboardsDao;
 
     @Transactional(readOnly = true)
-    public DashboardsDto getUserAppliedFilter(long userId) {
+    public DashboardAppliedFilterDto getUserAppliedFilter(long userId) {
         return  dashboardsDao.getUserAppliedFilter(userId);
     }
 }

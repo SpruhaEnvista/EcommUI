@@ -1,7 +1,7 @@
 package com.envista.msi.api.web.rest;
 
 import com.envista.msi.api.service.DashboardsService;
-import com.envista.msi.api.web.rest.dto.DashboardsDto;
+import com.envista.msi.api.web.rest.dto.DashboardAppliedFilterDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -29,12 +29,12 @@ public class DashboardsController {
 
 
     @RequestMapping(value = "/appliedFilter", method = { RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DashboardsDto> getAppliedFilterDetails(@RequestParam(value = "userId" , required = true) String userId  ){
+    public ResponseEntity<DashboardAppliedFilterDto> getAppliedFilterDetails(@RequestParam(value = "userId" , required = true) String userId  ){
 
         try {
-            return new ResponseEntity<DashboardsDto>( dashboardsService.getUserAppliedFilter(Long.parseLong(userId)) , HttpStatus.OK );
+            return new ResponseEntity<DashboardAppliedFilterDto>( dashboardsService.getUserAppliedFilter(Long.parseLong(userId)) , HttpStatus.OK );
         } catch (Exception e) {
-            return new ResponseEntity<DashboardsDto>( new DashboardsDto() ,HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<DashboardAppliedFilterDto>( new DashboardAppliedFilterDto() ,HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
     }
