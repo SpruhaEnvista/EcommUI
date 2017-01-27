@@ -90,7 +90,60 @@ public class DashboardsController {
         dbData.setService(services);
         dbData.setFromDate(fromDate);
         dbData.setToDate(toDate);*/
-        List<NetSpendDto> netSpendDtoList = dashboardsService.getNetSpendByModes(dbData, false);
+        //List<NetSpendDto> netSpendDtoList = dashboardsService.getNetSpendByModes(dbData, false);
+
+        //keeping dummy data.
+        List<NetSpendDto> netSpendDtoList = new ArrayList<NetSpendDto>();
+        NetSpendDto netSpendDto1 = new NetSpendDto();
+        netSpendDto1.setId(1L);
+        netSpendDto1.setModes("Small Package");
+        netSpendDto1.setSpend(25268097.58);
+        netSpendDto1.setScoreType("Total");
+
+        NetSpendDto netSpendDto2 = new NetSpendDto();
+        netSpendDto2.setId(2L);
+        netSpendDto2.setModes("Brokerage");
+        netSpendDto2.setSpend(19320.12);
+        netSpendDto2.setScoreType("Total");
+
+        NetSpendDto netSpendDto3 = new NetSpendDto();
+        netSpendDto3.setId(3L);
+        netSpendDto3.setModes("TL");
+        netSpendDto3.setSpend(16341707.34);
+        netSpendDto3.setScoreType("Total");
+
+        NetSpendDto netSpendDto4 = new NetSpendDto();
+        netSpendDto4.setId(4L);
+        netSpendDto4.setModes("Air");
+        netSpendDto4.setSpend(65488264.93);
+        netSpendDto4.setScoreType("Total");
+
+        NetSpendDto netSpendDto5 = new NetSpendDto();
+        netSpendDto5.setId(4L);
+        netSpendDto5.setModes("Ocean");
+        netSpendDto5.setSpend(10556346.82);
+        netSpendDto5.setScoreType("Total");
+
+        NetSpendDto netSpendDto6 = new NetSpendDto();
+        netSpendDto6.setId(6L);
+        netSpendDto6.setModes("LTL");
+        netSpendDto6.setSpend(30463628.24);
+        netSpendDto6.setScoreType("Total");
+
+        NetSpendDto netSpendDto7 = new NetSpendDto();
+        netSpendDto7.setId(3L);
+        netSpendDto7.setModes("FTL");
+        netSpendDto7.setSpend(89409.01);
+        netSpendDto7.setScoreType("Total");
+
+        netSpendDtoList.add(netSpendDto1);
+        netSpendDtoList.add(netSpendDto2);
+        netSpendDtoList.add(netSpendDto3);
+        netSpendDtoList.add(netSpendDto4);
+        netSpendDtoList.add(netSpendDto5);
+        netSpendDtoList.add(netSpendDto6);
+        netSpendDtoList.add(netSpendDto7);
+
         JSONObject netSpendJsonData = new JSONObject();
         try{
             netSpendJsonData = JSONUtil.prepareNetSpendByModesJson(netSpendDtoList);
