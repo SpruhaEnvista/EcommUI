@@ -13,8 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.envista.msi.api.web.rest.dto.CarrierScacName;
 import com.envista.msi.api.web.rest.dto.InvoiceDetails;
-import com.envista.msi.api.web.rest.dto.SearchCriteria;
-import com.envista.msi.api.web.rest.dto.SearchMetadata;
 import com.envista.msi.api.web.rest.dto.UserAssignedCustomer;
 import com.envista.msi.api.web.rest.util.WebConstants;
 
@@ -33,67 +31,21 @@ public class SearchService {
 	private static final String COLUMN_SPLITTER = "_999_";
 
 	/**
-	 * @param userId
-	 * @return
-	 */
-	public SearchMetadata getStaticSearchMetadata(String userName) {
-		SearchMetadata searchMetadata = new SearchMetadata();
-
-		List<UserAssignedCustomer> customers = getUserAssignedCustomerIdNames(userName);
-		searchMetadata.setCustomers(customers);
-		// Lazy loading.. by another api call
-		// searchMetadata.setCustomerCarriers(customerCarriers);
-		// searchMetadata.setCarrierScacs(carrierIdScacs);
-
-		searchMetadata
-				.setDateCriterias(getCodeValuesByCodeGroupId(WebConstants.InvoiceLookup.INVOICE_LOOKUP_DATE_CRITERIA));
-		searchMetadata.setCarrierModes(getCodeValuesByCodeGroupId(WebConstants.InvoiceLookup.CARRIER_MODES));
-		searchMetadata
-				.setFreightInvoiceTypes(getCodeValuesByCodeGroupId(WebConstants.InvoiceLookup.FREIGHT_INVOICE_TYPE));
-		searchMetadata
-				.setInvoiceStatusReports(getCodeValuesByCodeGroupId(WebConstants.InvoiceLookup.INVOICE_STATUS_REPORT));
-		searchMetadata.setServiceLevels(getCodeValuesByCodeGroupId(WebConstants.InvoiceLookup.SERVICE_LEVEL));
-
-		return searchMetadata;
-	}
-
-	/**
-	 * @param userId
+	 * @param userName
 	 * @return
 	 */
 	@Transactional(readOnly = true)
 	public List<UserAssignedCustomer> getUserAssignedCustomerIdNames(String userName) {
 		List<UserAssignedCustomer> customerIdNames = new ArrayList<UserAssignedCustomer>();
-		/*
-		 * ShpCustomerProfileTb shpCustomerProfile = new ShpCustomerProfileTb();
-		 * 
-		 * //Get it using Dao and StoredProcedure List<ShpCustomerProfileTb>
-		 * assignedCustomers = new ArrayList<ShpCustomerProfileTb>();
-		 * assignedCustomers.add(shpCustomerProfile); for (ShpCustomerProfileTb
-		 * shpCustomerProfileTb : assignedCustomers) { UserAssignedCustomer uac
-		 * = new UserAssignedCustomer(shpCustomerProfileTb.getCustomerId(),
-		 * shpCustomerProfileTb.getCustomerName()); ShpCustomerProfileTb parent
-		 * = shpCustomerProfileTb.getShpCustomerProfileTb(); if (parent != null)
-		 * { uac.setParent(new BasicIdNamePair<Long>(parent.getCustomerId(),
-		 * parent.getCustomerName())); } customerIdNames.add(uac); }
-		 */
 		return customerIdNames;
 	}
 
 	/**
-	 * @param customerId
 	 * @return
 	 */
 	@Transactional(readOnly = true)
 	public List<CarrierScacName> getCarrierScac() {
 		List<CarrierScacName> carrierIdNames = new ArrayList<CarrierScacName>();
-		/*
-		 * for (ShpCarrierTb shpCarrierTb : carrierTbRepo.findAll()) { if
-		 * (shpCarrierTb.getIsActive() != null &&
-		 * shpCarrierTb.getIsActive().compareTo(BigDecimal.ZERO) > 0) {
-		 * carrierIdNames.add(new CarrierScacName(shpCarrierTb.getCarrierId(),
-		 * shpCarrierTb.getCarrierName(), shpCarrierTb.getScacCode())); } }
-		 */
 		return carrierIdNames;
 	}
 
@@ -105,14 +57,6 @@ public class SearchService {
 	public List<CarrierScacName> getCarrierScac(Long customerId) {
 
 		List<CarrierScacName> carrierIdNames = new ArrayList<CarrierScacName>();
-		/*
-		 * List<ShpCarrierTb> carriers =
-		 * carrierTbRepo.findByCarrierId(customerId); for (ShpCarrierTb
-		 * shpCarrierTb : carriers) { if (shpCarrierTb.getIsActive() != null &&
-		 * shpCarrierTb.getIsActive().compareTo(BigDecimal.ZERO) > 0) {
-		 * carrierIdNames.add(new CarrierScacName(shpCarrierTb.getCarrierId(),
-		 * shpCarrierTb.getCarrierName(), shpCarrierTb.getScacCode())); } }
-		 */
 		return carrierIdNames;
 	}
 
@@ -123,75 +67,10 @@ public class SearchService {
 	@Transactional(readOnly = true)
 	private ArrayList<String> getCodeValuesByCodeGroupId(String codeGroupName) {
 		ArrayList<String> codeValues = new ArrayList<String>();
-
-		/*
-		 * for (ShpNspCodeValuesTb shpNspCodeValuesTb : codeValuesService
-		 * .getAllByShpNspCodeValueGroupsTb_CodeGroupName(codeGroupName)) {
-		 * codeValues.add(shpNspCodeValuesTb.getCodeValue()); }
-		 */
 		return codeValues;
 	}
 
-	public List/* <ShpNspInvoiceDetailsTb> */ getInvoiceDetails(int pageNumber, int totalRecords) {
-		/*
-		 * if (totalRecords < 1) { totalRecords =
-		 * PaginationUtil.DEFAULT_PAGE_SIZE; } PageRequest request = new
-		 * PageRequest(pageNumber - 1, totalRecords, Sort.Direction.DESC,
-		 * "nspInvoiceDetailsId"); Page<ShpNspInvoiceDetailsTb> currPage =
-		 * invoiceDetailsRepo.findAll(request); if (currPage != null) { return
-		 * currPage.getContent(); }
-		 */
-
-		return new ArrayList/* <ShpNspInvoiceDetailsTb> */();
-	}
-
-	@Transactional(readOnly = true)
-	public Page<InvoiceDetails> findInvoiceDetails(int pageNumber, int numberOfElements,
-			final SearchCriteria searchCriteria) throws Exception {
-		return findInvoiceDetails(
-				new PageRequest(pageNumber - 1, numberOfElements, new Sort(Sort.Direction.ASC, "nspInvoiceDetailsId")),
-				searchCriteria);
-	}
-
-	@Transactional(readOnly = true)
-	public Page<InvoiceDetails> findInvoiceDetails(final PageRequest request, final SearchCriteria searchCriteria)
-			throws Exception {
-
-		PageRequest pageRequest = request;
-		if (pageRequest == null) {
-			pageRequest = new PageRequest(0, 50, new Sort(Sort.Direction.ASC, "nspInvoiceDetailsId")
-					.and(new Sort(Sort.Direction.ASC, "shpCustomerProfileTb.customerName")));
-		}
-
-		/*
-		 * Page<ShpNspInvoiceDetailsTb> searchResultPage = invoiceDetailsRepo
-		 * .findAll(InvoiceDetailsSpecs.buildCriteria(searchCriteria),
-		 * pageRequest);
-		 */
-
-		return null;// InvoiceDetailsMapper.mapToDTO(/*searchResultPage.getContent()*/
-					// new ArrayList<InvoiceDetails>(), pageRequest,
-		/// *searchResultPage.getTotalElements()*/ 0);
-
-	}
-
-	@Transactional(readOnly = true)
-	public Page<InvoiceDetails> findInvoiceDetails(int pageNumber, int numberOfElements, String sortColumn,
-			String sortOrder, SearchCriteria searchCriteria) throws Exception {
-
-		/*
-		 * String sortableColumn =
-		 * InvoiceDetailsMapper.getSortableProperty(sortColumn); Sort sort =
-		 * sortableColumn == null ? null : new
-		 * Sort(!StringUtils.isEmpty(sortOrder) &&
-		 * sortOrder.toUpperCase().startsWith("DESC") ? Sort.Direction.DESC :
-		 * Sort.Direction.ASC, sortableColumn); return sort == null ?
-		 * findInvoiceDetails(pageNumber, numberOfElements, searchCriteria) :
-		 * findInvoiceDetails(new PageRequest(pageNumber - 1, numberOfElements,
-		 * sort), searchCriteria);
-		 */
-
-		return null;
-
+	public List getInvoiceDetails(int pageNumber, int totalRecords) {
+		return new ArrayList();
 	}
 }
