@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
+import com.envista.msi.api.security.SecurityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -61,6 +62,15 @@ public class UserService {
 
 */
 	public UserProfileDto getUserProfileByUserName(String userName) throws Exception {
-		return getUserWithAuthoritiesByUserName(userName).orElse(new UserProfileDto());
+		if(SecurityUtils.getUserCache().containsKey(userName)){
+			return (UserProfileDto) SecurityUtils.getUserCache().get(userName);
+		}else{
+			UserProfileDto user = null;
+			user = getUserWithAuthoritiesByUserName(userName).orElse(null);
+			if(null != user){
+				SecurityUtils.getUserCache().put(userName, user);
+			}
+			return user;
+		}
 	}
 }

@@ -1,6 +1,8 @@
 package com.envista.msi.api.web.rest.util;
 
-import com.envista.msi.api.web.rest.dto.NetSpendDto;
+import com.envista.msi.api.web.rest.dto.common.CommonValuesForChartDto;
+import com.envista.msi.api.web.rest.dto.netspend.*;
+import com.envista.msi.api.web.rest.dto.taxspend.TaxSpendDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
@@ -14,6 +16,34 @@ import java.util.*;
  *
  */
 public class JSONUtil {
+	static ArrayList<String> colorsList = new ArrayList<String>();
+	static{
+		if (colorsList.isEmpty()) {
+
+			colorsList.add("#673FB4");
+			colorsList.add("Green");
+			colorsList.add("Red");
+			colorsList.add("Magenta");// Pink
+			colorsList.add("CornflowerBlue");
+			colorsList.add("#1d3549");
+			colorsList.add("SlateGray");
+			colorsList.add("Brown");
+			colorsList.add("Aqua");
+			colorsList.add("Gold");
+			colorsList.add("Maroon");
+			colorsList.add("LawnGreen");
+			colorsList.add("MediumOrchid");
+			colorsList.add("BurlyWood");
+			colorsList.add("Orange");
+			colorsList.add("DarkOliveGreen");
+			colorsList.add("DimGray");
+			colorsList.add("Yellow");
+			colorsList.add("Black");
+			colorsList.add("#000080");
+			colorsList.add("#C21D55");// Rose color
+		}
+	}
+
 	/**
 	 * @param obj
 	 * @return JSONString
@@ -48,7 +78,7 @@ public class JSONUtil {
 		return ret;
 	}
 
-	public static JSONObject prepareNetSpendByModesJson(List<NetSpendDto> netSpendDtoList) throws JSONException {
+	public static JSONObject prepareNetSpendByModesJson(List<NetSpendByModeDto> netSpendDtoList) throws JSONException {
 		JSONObject netSpendJsonData = new JSONObject();
 		JSONArray valuesArray = new JSONArray();
 		JSONArray seriesArray = new JSONArray();
@@ -56,7 +86,7 @@ public class JSONUtil {
 		Map<String, HashMap<String, Double>> modesValuesMap = new LinkedHashMap<String, HashMap<String, Double>>();
 		List<String> scortypeList = new ArrayList<String>();
 
-		for(NetSpendDto netSpendDto: netSpendDtoList){
+		for(NetSpendByModeDto netSpendDto: netSpendDtoList){
 			if(netSpendDto != null && netSpendDto.getSpend() != 0){
 				String mode = netSpendDto.getModes();
 				String scoreType = netSpendDto.getScoreType();
@@ -114,41 +144,198 @@ public class JSONUtil {
 		return netSpendJsonData;
 	}
 
-	public static JSONObject prepareJsonForMonthlyChart(List<NetSpendDto> netSpendDtoList){
-		JSONObject netSpenfChatJson = new JSONObject();
-        /*JSONArray jsonArr = new JSONArray();
-        int count = 0;
-        long fromDate = 0;
-        long toDate = 0;
+	public static JSONObject prepareMonthlyChartJson(List<NetSpendMonthlyChartDto> netSpendMonthlyChartDtos) throws JSONException {
+		JSONObject returnJson = new JSONObject();
+		JSONArray returnArray = null;
+		int count = 0;
+		long fromDate = 0;
+		long toDate = 0;
 
-        try{
-            if(netSpendDtoList != null && netSpendDtoList.size() > 0){
-                for(NetSpendDto netSpendDto : netSpendDtoList){
-                    JSONArray dataArray = new JSONArray();
-                    long dateInMilliSecs = netSpendDto.getBillDate().getTime();
-                    dataArray.put(dateInMilliSecs);
-                    dataArray.put(netSpendDto.getAmount());
+		if(netSpendMonthlyChartDtos != null && netSpendMonthlyChartDtos.size() > 0){
+			returnArray = new JSONArray();
+			for(NetSpendMonthlyChartDto monthlyChartDto : netSpendMonthlyChartDtos){
+				if(monthlyChartDto != null){
+					JSONArray dataArray = new JSONArray();
+					long dateInMilliSecs = 0L;
+					if(monthlyChartDto.getBillDate() != null){
+						dateInMilliSecs = monthlyChartDto.getBillDate().getTime();
+					}
 
-                    jsonArr.put(dataArray);
+					dataArray.put(dateInMilliSecs);
+					dataArray.put(monthlyChartDto.getAmount());
+					returnArray.put(dataArray);
+					if (count == 0) {
+						fromDate = dateInMilliSecs;
+					}
+					toDate = dateInMilliSecs;
+					dataArray = null;
 
-                    if(count == 0){
-                        fromDate = dateInMilliSecs;
-                    }
-                    toDate = dateInMilliSecs;
-                    dataArray = null;
-                    count++;
-                }
+					count++;
+				}
+			}
+			if (fromDate == toDate) {
+				toDate = toDate + 1;
+			}
 
-                if (fromDate == toDate) {
-                    toDate = toDate + 1;
-                }
-                netSpenfChatJson.put("values", jsonArr);
-                netSpenfChatJson.put("fromDate", fromDate);
-                netSpenfChatJson.put("toDate", toDate);
-            }
-        }catch(Exception e){
-            //handle here
-        }*/
-		return netSpenfChatJson;
+			returnJson.put("values", returnArray);
+			returnJson.put("fromDate", fromDate);
+			returnJson.put("toDate", toDate);
+		}
+		return returnJson;
+	}
+
+	public static JSONObject prepareNetSpendOverTimeJson(List<NetSpendOverTimeDto> netSpendOverTimeDtos) throws JSONException {
+		JSONObject returnObject = new JSONObject();
+		JSONArray valuesArray = new JSONArray();
+		JSONArray seriesArray = new JSONArray();
+		LinkedHashMap<String, HashMap<String, Double>> datesValuesMap = new LinkedHashMap<String, HashMap<String, Double>>();
+		ArrayList<String> carriersList = new ArrayList<String>();
+
+		if(netSpendOverTimeDtos != null && netSpendOverTimeDtos.size() > 0){
+			for(NetSpendOverTimeDto overTimeDto : netSpendOverTimeDtos){
+				if(overTimeDto != null){
+					String billDate = overTimeDto.getBillDate();
+					String carrierName = overTimeDto.getCarrierName();
+					long carrierId = overTimeDto.getCarrierId();
+					Double spend = overTimeDto.getNetCharges();
+
+					if (spend != 0) {
+						String concatCarrier = carrierId+"#@#"+carrierName;
+						if (!carriersList.contains(concatCarrier)) {
+							carriersList.add(concatCarrier);
+						}
+
+						if (datesValuesMap.containsKey(billDate)) {
+							datesValuesMap.get(billDate).put(carrierName, spend);
+						} else {
+							HashMap<String, Double> tempHashMap = new HashMap<String, Double>();
+							tempHashMap.put(carrierName, spend);
+							datesValuesMap.put(billDate, tempHashMap);
+						}
+					}
+				}
+			}
+
+			// Bar Chart
+			int counter = 1;
+			Iterator<String> datesIterator = datesValuesMap.keySet().iterator();
+
+			while (datesIterator.hasNext()) {
+				JSONObject jsonObject = new JSONObject();
+
+				String date = datesIterator.next();
+				HashMap<String, Double> carrierFlagMap = datesValuesMap.get(date);
+
+				Iterator<String> carrierFlagIterator = carrierFlagMap.keySet().iterator();
+
+				jsonObject.put("name", date);
+				jsonObject.put("counter", counter);
+
+				while (carrierFlagIterator.hasNext()) {
+					String carrierFlag = carrierFlagIterator.next();
+					double spend = carrierFlagMap.get(carrierFlag);
+					jsonObject.put(carrierFlag, spend);
+				}
+
+				valuesArray.put(jsonObject);
+				counter++;
+			}
+
+			String append = "\"";
+			counter = 1;
+
+			for (String carrierDetails : carriersList) {
+				String carrierId = carrierDetails.split("#@#")[0];
+				String carrierName = carrierDetails.split("#@#")[1];
+
+				carrierId = append + carrierId + append;
+				carrierName = append + carrierName + append;
+				String seriesId = append + "S" + counter + append;
+				String object = "{\"id\":" + seriesId + ",\"name\":" + carrierName + ", \"carrierId\":" + carrierId + ",\"data\": {\"field\":" + carrierName
+						+ "},\"type\":\"line\",\"style\":{\"lineWidth\": 2,smoothing: true, marker: {shape: \"circle\", width: 5},";
+
+				object = object + "lineColor: \"" + colorsList.get(counter - 1) + "\"";
+				object = object + "}}";
+
+				seriesArray.put(new JSONObject(object));
+				counter++;
+				if(counter == colorsList.size()){
+					counter = 1;
+				}
+			}
+
+			returnObject.put("values", valuesArray);
+			returnObject.put("series", seriesArray);
+			returnObject.put("carrierDetails", new JSONArray().put(carriersList));
+		}
+		return returnObject;
+	}
+
+	public static JSONObject prepareTaxSpendJson(List<TaxSpendDto> taxSpendList) throws JSONException {
+		JSONObject returnObject = new JSONObject();
+		JSONArray taxesArray = new JSONArray();
+		HashMap<String, Double> taxMap = new HashMap<>();
+		ArrayList<String> taxesList = new ArrayList<String>();
+
+		if(taxSpendList != null && taxSpendList.size() > 0){
+			for(TaxSpendDto taxSpend : taxSpendList){
+				if(taxSpend != null){
+					String tax = taxSpend.getTax();
+					Double spend = taxSpend.getSpend();
+
+					if (spend > 0) {
+						if (!taxesList.contains(tax)) {
+							taxesList.add(tax);
+						}
+
+						if (taxMap.containsKey(tax)) {
+							double spendAmount = taxMap.get(tax);
+							spendAmount += spend;
+							taxMap.put(tax, spendAmount);
+						} else {
+							taxMap.put(tax, spend);
+						}
+					}
+				}
+			}
+
+			// Donut Chart
+			Iterator<String> taxIterator = taxMap.keySet().iterator();
+			while (taxIterator.hasNext()) {
+				String tax = taxIterator.next();
+				double spend = taxMap.get(tax);
+
+				JSONObject taxesJson = new JSONObject();
+				taxesJson.put("name", tax);
+				taxesJson.put("value", spend);
+
+				taxesArray.put(taxesJson);
+				taxesJson = null;
+			}
+			returnObject.put("donutChartvalues", taxesArray);
+		}
+		return returnObject;
+	}
+
+	public static JSONObject prepareCommonJsonForChart(List<CommonValuesForChartDto> dataList) throws JSONException {
+		JSONObject returnJson = new JSONObject();
+		JSONArray returnArray = new JSONArray();
+		JSONObject statusJson = null;
+
+		if(dataList != null && dataList.size() > 0){
+			for(CommonValuesForChartDto chartData : dataList){
+				if(chartData != null){
+					statusJson = new JSONObject();
+					statusJson.put("name", chartData.getName());
+					statusJson.put("value", chartData.getValue());
+					statusJson.put("id", chartData.getId());
+
+					returnArray.put(statusJson);
+					statusJson = null;
+				}
+			}
+			returnJson.put("values", returnArray);
+		}
+		return returnJson;
 	}
 }

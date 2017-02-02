@@ -1,12 +1,17 @@
 package com.envista.msi.api.dao;
 
 import com.envista.msi.api.domain.PersistentContext;
+import com.envista.msi.api.domain.util.DashboardSroredProcParam;
 import com.envista.msi.api.domain.util.QueryParameter;
 import com.envista.msi.api.domain.util.StoredProcedureParameter;
 import com.envista.msi.api.web.rest.dto.DashboardAppliedFilterDto;
-import com.envista.msi.api.web.rest.dto.DashboardDataDto;
-import com.envista.msi.api.web.rest.dto.NetSpendDto;
+import com.envista.msi.api.web.rest.dto.DashboardsFilterCriteria;
+import com.envista.msi.api.web.rest.dto.netspend.*;
+import com.envista.msi.api.web.rest.dto.taxspend.TaxSpendByCarrierDto;
+import com.envista.msi.api.web.rest.dto.taxspend.TaxSpendByMonthDto;
+import com.envista.msi.api.web.rest.dto.taxspend.TaxSpendDto;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -26,54 +31,185 @@ public class DashboardsDao {
                StoredProcedureParameter.with("p_user_id", userId));
     }
 
-    public List<NetSpendDto> getNetSpendByModes(DashboardDataDto dbDto, boolean isTopTenAccessorial){
-        QueryParameter queryParameter = StoredProcedureParameter.with("p_date_type", dbDto.getDateType())
-                /*.and("p_currency_id", dbDto.getConvertCurrencyId())
-                .and("p_converted_curr_code", dbDto.getConvertCurrencyCode())
-                .and("p_customer_ids", dbDto.getCustomerIdsCSV())
-                .and("p_carrier_id", dbDto.getCarriers())
-                .and("p_modes", dbDto.getModes())
-                .and("p_services", dbDto.getServices())
-                .and("p_lanes_info", dbDto.getLanes())
-                .and("p_accessorial_name", "")
-                .and("p_from_date", dbDto.getFromDate())
-                .and("p_to_date", dbDto.getToDate())
-                .and("p_is_top_ten_accessorial", isTopTenAccessorial ? 1 : 0)*/;
+    /**
+     * Get bet spend based on the applied filter.
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    @Transactional( readOnly = true )
+    public List<NetSpendByModeDto> getNetSpendByModes(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.NetSpendParams.DATE_TYPE_PARAM, filter.getDateType())
+                .and(DashboardSroredProcParam.NetSpendParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
+                .and(DashboardSroredProcParam.NetSpendParams.CONVERTED_CURR_PARAM, filter.getConvertCurrencyCode())
+                .and(DashboardSroredProcParam.NetSpendParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
+                .and(DashboardSroredProcParam.NetSpendParams.CARRIER_ID_PARAM, filter.getCarriers())
+                .and(DashboardSroredProcParam.NetSpendParams.MODES_PARAM, filter.getModes())
+                .and(DashboardSroredProcParam.NetSpendParams.SERVICES_PARAM, filter.getServices())
+                .and(DashboardSroredProcParam.NetSpendParams.LANES_PARAM, filter.getLanes())
+                .and(DashboardSroredProcParam.NetSpendParams.ACCESSORIAL_NAME_PARAM, filter.getAccessorialName())
+                .and(DashboardSroredProcParam.NetSpendParams.FROM_DATE_PARAM, filter.getFromDate())
+                .and(DashboardSroredProcParam.NetSpendParams.TO_DATE_PARAM, filter.getToDate())
+                .and(DashboardSroredProcParam.NetSpendParams.TOP_TEN_ACCESSORIAL_PARAM, isTopTenAccessorial ? 1L : 0L);
 
-        return persistentContext.findEntities("NetSpendDto.getNetSpendByMode", StoredProcedureParameter.with("p_date_type", dbDto.getDateType()));
+        return persistentContext.findEntities("NetSpendByModeDto.getNetSpendByMode", queryParameter);
     }
 
-    public List<NetSpendDto> getNetSpendByMonth(DashboardDataDto dbDto, boolean isTopTenAccessorial){
-        QueryParameter queryParameter = StoredProcedureParameter.with("p_date_type", dbDto.getDateType())
-                .and("p_currency_id", dbDto.getConvertCurrencyId())
-                .and("p_converted_curr_code", dbDto.getConvertCurrencyCode())
-                .and("p_customer_ids", dbDto.getCustomerIdsCSV())
-                .and("p_carrier_id", dbDto.getCarriers())
-                .and("p_modes", dbDto.getModes())
-                .and("p_services", dbDto.getServices())
-                .and("p_lanes_info", dbDto.getLanes())
-                .and("p_accessorial_name", "")
-                .and("p_from_date", dbDto.getFromDate())
-                .and("p_to_date", dbDto.getToDate())
-                .and("p_is_top_ten_accessorial", isTopTenAccessorial ? 1 : 0);
+    /**
+     *
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<NetSpendOverTimeByMonthDto> getNetSpendOverTimeByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.NetSpendParams.DATE_TYPE_PARAM, filter.getDateType())
+                .and(DashboardSroredProcParam.NetSpendParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
+                .and(DashboardSroredProcParam.NetSpendParams.CONVERTED_CURR_PARAM, filter.getConvertCurrencyCode())
+                .and(DashboardSroredProcParam.NetSpendParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
+                .and(DashboardSroredProcParam.NetSpendParams.CARRIER_ID_PARAM, filter.getCarriers())
+                .and(DashboardSroredProcParam.NetSpendParams.MODES_PARAM, filter.getModes())
+                .and(DashboardSroredProcParam.NetSpendParams.SERVICES_PARAM, filter.getServices())
+                .and(DashboardSroredProcParam.NetSpendParams.LANES_PARAM, filter.getLanes())
+                .and(DashboardSroredProcParam.NetSpendParams.ACCESSORIAL_NAME_PARAM, filter.getAccessorialName())
+                .and(DashboardSroredProcParam.NetSpendParams.FROM_DATE_PARAM, filter.getFromDate())
+                .and(DashboardSroredProcParam.NetSpendParams.TO_DATE_PARAM, filter.getToDate())
+                .and(DashboardSroredProcParam.NetSpendParams.TOP_TEN_ACCESSORIAL_PARAM, isTopTenAccessorial ? 1L : 0L);
 
-        return persistentContext.findEntities("NetSpendDto.getNetSpendByMonth", queryParameter);
+        return persistentContext.findEntities("NetSpendOverTimeByMonthDto.getNetSpendOverTimeByMonth", queryParameter);
     }
 
-    public List<NetSpendDto> getNetSpendByOverTime(DashboardDataDto dbDto, boolean isTopTenAccessorial){
-        QueryParameter queryParameter = StoredProcedureParameter.with("p_date_type", dbDto.getDateType())
-                .and("p_currency_id", dbDto.getConvertCurrencyId())
-                .and("p_converted_curr_code", dbDto.getConvertCurrencyCode())
-                .and("p_customer_ids", dbDto.getCustomerIdsCSV())
-                .and("p_carrier_id", dbDto.getCarriers())
-                .and("p_modes", dbDto.getModes())
-                .and("p_services", dbDto.getServices())
-                .and("p_lanes_info", dbDto.getLanes())
-                .and("p_accessorial_name", "")
-                .and("p_from_date", dbDto.getFromDate())
-                .and("p_to_date", dbDto.getToDate())
-                .and("p_is_top_ten_accessorial", isTopTenAccessorial ? 1 : 0);
+    /**
+     *
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<NetSpendOverTimeDto> getNetSpendByOverTime(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.NetSpendParams.DATE_TYPE_PARAM, filter.getDateType())
+                .and(DashboardSroredProcParam.NetSpendParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
+                .and(DashboardSroredProcParam.NetSpendParams.CONVERTED_CURR_PARAM, filter.getConvertCurrencyCode())
+                .and(DashboardSroredProcParam.NetSpendParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
+                .and(DashboardSroredProcParam.NetSpendParams.CARRIER_ID_PARAM, filter.getCarriers())
+                .and(DashboardSroredProcParam.NetSpendParams.MODES_PARAM, filter.getModes())
+                .and(DashboardSroredProcParam.NetSpendParams.SERVICES_PARAM, filter.getServices())
+                .and(DashboardSroredProcParam.NetSpendParams.LANES_PARAM, filter.getLanes())
+                .and(DashboardSroredProcParam.NetSpendParams.ACCESSORIAL_NAME_PARAM, filter.getAccessorialName())
+                .and(DashboardSroredProcParam.NetSpendParams.FROM_DATE_PARAM, filter.getFromDate())
+                .and(DashboardSroredProcParam.NetSpendParams.TO_DATE_PARAM, filter.getToDate())
+                .and(DashboardSroredProcParam.NetSpendParams.TOP_TEN_ACCESSORIAL_PARAM, isTopTenAccessorial ? 1L : 0L);
 
-        return persistentContext.findEntities("NetSpendDto.getNetSpendByOverTime", queryParameter);
+        return persistentContext.findEntities("NetSpendOverTimeDto.getNetSpendByOverTime", queryParameter);
+    }
+
+    /**
+     *
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    @Transactional( readOnly = true )
+    public List<NetSpendByCarrierDto> getNetSpendByCarrier(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.NetSpendParams.DATE_TYPE_PARAM, filter.getDateType())
+                .and(DashboardSroredProcParam.NetSpendParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
+                .and(DashboardSroredProcParam.NetSpendParams.CONVERTED_CURR_PARAM, filter.getConvertCurrencyCode())
+                .and(DashboardSroredProcParam.NetSpendParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
+                .and(DashboardSroredProcParam.NetSpendParams.CARRIER_ID_PARAM, filter.getCarriers())
+                .and(DashboardSroredProcParam.NetSpendParams.MODES_PARAM, filter.getModes())
+                .and(DashboardSroredProcParam.NetSpendParams.SERVICES_PARAM, filter.getServices())
+                .and(DashboardSroredProcParam.NetSpendParams.LANES_PARAM, filter.getLanes())
+                .and(DashboardSroredProcParam.NetSpendParams.ACCESSORIAL_NAME_PARAM, filter.getAccessorialName())
+                .and(DashboardSroredProcParam.NetSpendParams.FROM_DATE_PARAM, filter.getFromDate())
+                .and(DashboardSroredProcParam.NetSpendParams.TO_DATE_PARAM, filter.getToDate())
+                .and(DashboardSroredProcParam.NetSpendParams.TOP_TEN_ACCESSORIAL_PARAM, isTopTenAccessorial ? 1L : 0L)
+                .and(DashboardSroredProcParam.NetSpendParams.MODE_NAMES_PARAM, filter.getModeNames());
+
+        return persistentContext.findEntities("NetSpendByCarrierDto.getNetSpendByCarrier", queryParameter);
+    }
+
+    /**
+     *
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<NetSpendByMonthDto> getNetSpendByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.NetSpendParams.DATE_TYPE_PARAM, filter.getDateType())
+                .and(DashboardSroredProcParam.NetSpendParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
+                .and(DashboardSroredProcParam.NetSpendParams.CONVERTED_CURR_PARAM, filter.getConvertCurrencyCode())
+                .and(DashboardSroredProcParam.NetSpendParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
+                .and(DashboardSroredProcParam.NetSpendParams.CARRIER_ID_PARAM, filter.getCarriers())
+                .and(DashboardSroredProcParam.NetSpendParams.MODES_PARAM, filter.getModes())
+                .and(DashboardSroredProcParam.NetSpendParams.SERVICES_PARAM, filter.getServices())
+                .and(DashboardSroredProcParam.NetSpendParams.LANES_PARAM, filter.getLanes())
+                .and(DashboardSroredProcParam.NetSpendParams.ACCESSORIAL_NAME_PARAM, filter.getAccessorialName())
+                .and(DashboardSroredProcParam.NetSpendParams.FROM_DATE_PARAM, filter.getFromDate())
+                .and(DashboardSroredProcParam.NetSpendParams.TO_DATE_PARAM, filter.getToDate())
+                .and(DashboardSroredProcParam.NetSpendParams.TOP_TEN_ACCESSORIAL_PARAM, isTopTenAccessorial ? 1L : 0L)
+                .and(DashboardSroredProcParam.NetSpendParams.MODE_NAMES_PARAM, filter.getModeNames())
+                .and(DashboardSroredProcParam.NetSpendParams.SCORE_TYPE_PARAM, filter.getScoreType());
+
+        return persistentContext.findEntities("NetSpendByMonthDto.getNetSpendByMonth", queryParameter);
+    }
+
+    /**
+     *
+     * @param filter
+     * @return
+     */
+    public List<TaxSpendDto> getTaxSpend(DashboardsFilterCriteria filter){
+        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.NetSpendParams.DATE_TYPE_PARAM, filter.getDateType())
+                .and(DashboardSroredProcParam.TaxSpendParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
+                .and(DashboardSroredProcParam.TaxSpendParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
+                .and(DashboardSroredProcParam.TaxSpendParams.CARRIER_ID_PARAM, filter.getCarriers())
+                .and(DashboardSroredProcParam.TaxSpendParams.MODES_PARAM, filter.getModes())
+                .and(DashboardSroredProcParam.TaxSpendParams.SERVICES_PARAM, filter.getServices())
+                .and(DashboardSroredProcParam.TaxSpendParams.LANES_PARAM, filter.getLanes())
+                .and(DashboardSroredProcParam.TaxSpendParams.FROM_DATE_PARAM, filter.getFromDate())
+                .and(DashboardSroredProcParam.TaxSpendParams.TO_DATE_PARAM, filter.getToDate())
+                .and(DashboardSroredProcParam.TaxSpendParams.MODE_NAMES_PARAM, filter.getModeNames());
+
+        return persistentContext.findEntities("TaxSpendDto.getTaxSpend", queryParameter);
+    }
+
+    /**
+     *
+     * @param filter
+     * @return
+     */
+    public List<TaxSpendByCarrierDto> getTaxSpendByCarrier(DashboardsFilterCriteria filter){
+        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.NetSpendParams.DATE_TYPE_PARAM, filter.getDateType())
+                .and(DashboardSroredProcParam.TaxSpendParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
+                .and(DashboardSroredProcParam.TaxSpendParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
+                .and(DashboardSroredProcParam.TaxSpendParams.CARRIER_ID_PARAM, filter.getCarriers())
+                .and(DashboardSroredProcParam.TaxSpendParams.MODES_PARAM, filter.getModes())
+                .and(DashboardSroredProcParam.TaxSpendParams.SERVICES_PARAM, filter.getServices())
+                .and(DashboardSroredProcParam.TaxSpendParams.LANES_PARAM, filter.getLanes())
+                .and(DashboardSroredProcParam.TaxSpendParams.FROM_DATE_PARAM, filter.getFromDate())
+                .and(DashboardSroredProcParam.TaxSpendParams.TO_DATE_PARAM, filter.getToDate())
+                .and(DashboardSroredProcParam.TaxSpendParams.MODE_NAMES_PARAM, filter.getModeNames())
+                .and(DashboardSroredProcParam.TaxSpendParams.TAX_PARAM, filter.getTax());;
+
+        return persistentContext.findEntities("TaxSpendByCarrierDto.getTaxSpendByCarrier", queryParameter);
+    }
+
+    /**
+     *
+     * @param filter
+     * @return
+     */
+    public List<TaxSpendByMonthDto> getTaxSpendByMonth(DashboardsFilterCriteria filter){
+        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.NetSpendParams.DATE_TYPE_PARAM, filter.getDateType())
+                .and(DashboardSroredProcParam.TaxSpendParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
+                .and(DashboardSroredProcParam.TaxSpendParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
+                .and(DashboardSroredProcParam.TaxSpendParams.CARRIER_ID_PARAM, filter.getCarriers())
+                .and(DashboardSroredProcParam.TaxSpendParams.MODES_PARAM, filter.getModes())
+                .and(DashboardSroredProcParam.TaxSpendParams.SERVICES_PARAM, filter.getServices())
+                .and(DashboardSroredProcParam.TaxSpendParams.LANES_PARAM, filter.getLanes())
+                .and(DashboardSroredProcParam.TaxSpendParams.FROM_DATE_PARAM, filter.getFromDate())
+                .and(DashboardSroredProcParam.TaxSpendParams.TO_DATE_PARAM, filter.getToDate())
+                .and(DashboardSroredProcParam.TaxSpendParams.MODE_NAMES_PARAM, filter.getModeNames())
+                .and(DashboardSroredProcParam.TaxSpendParams.TAX_PARAM, filter.getTax());;
+
+        return persistentContext.findEntities("TaxSpendByMonthDto.getTaxSpendByMonth", queryParameter);
     }
 }
