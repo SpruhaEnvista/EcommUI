@@ -8,7 +8,7 @@ import java.io.Serializable;
  */
 
 @NamedStoredProcedureQueries({
-        @NamedStoredProcedureQuery(name = "DashAppliedFilterTb.getUserAppliedFilter", procedureName = "SHP_DASH_GET_APPLIED_FLTR_PRO",
+        @NamedStoredProcedureQuery(name = "DashAppliedFilterTb.getUserAppliedFilter", procedureName = "SHP_DB_GET_APPLIED_FILTER_PROC",
                 resultClasses = DashboardAppliedFilterDto.class,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_user_id", type = Long.class),

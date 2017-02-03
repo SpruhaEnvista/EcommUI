@@ -11,6 +11,7 @@ import com.envista.msi.api.web.rest.dto.taxspend.TaxSpendByCarrierDto;
 import com.envista.msi.api.web.rest.dto.taxspend.TaxSpendByMonthDto;
 import com.envista.msi.api.web.rest.dto.taxspend.TaxSpendDto;
 import com.envista.msi.api.web.rest.util.JSONUtil;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.el.MethodNotFoundException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -50,7 +52,8 @@ public class DashboardsController extends DashboardBaseController {
         NET_SPEND_BY_CARRIER,
         NET_SPEND_BY_MONTH;
     }
-    @RequestMapping(value = "/appliedFilter", method = { RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
+
+    @RequestMapping(value = "/appliedFilter", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DashboardAppliedFilterDto> getAppliedFilterDetails(@RequestParam(value = "userId" , required = true) String userId  ){
         DashboardAppliedFilterDto dashboardAppliedFilterDto = null;
         try {
@@ -88,8 +91,8 @@ public class DashboardsController extends DashboardBaseController {
         return new ResponseEntity<String>(netSpendJsonData.toString(), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/netSpendOvrTmByMoth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getNetSpendByMonth(){
+    @RequestMapping(value = "/netSpendOvrTmByMnth", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getNetSpendByMonth(@RequestParam String carrierName, @RequestParam String invoiceDate, @RequestBody String carrierDetails){
         JSONObject netSpendJsonData = new JSONObject();
         try{
             UserProfileDto user = getUserProfile();
@@ -97,6 +100,22 @@ public class DashboardsController extends DashboardBaseController {
                 return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
             }
             DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            if(filter != null){
+                if (carrierName != null && !carrierName.isEmpty() && carrierDetails != null && !carrierDetails.isEmpty()) {
+                    JSONArray carrierDetailsArr = new JSONArray(carrierDetails);
+                    int carriersLen = carrierDetailsArr.length();
+                    for ( int i = 0; i < carriersLen; i++) {
+                        JSONObject carrierInfo = carrierDetailsArr.getJSONObject(i);
+                        if ( carrierName.equalsIgnoreCase(carrierInfo.getString("carrierName") ) ) {
+                            filter.setCarriers(carrierInfo.getString("carrierId"));
+                            break;
+                        }
+                    }
+                }
+                if (invoiceDate != null) {
+                    setDatesFromMonth(filter, invoiceDate);
+                }
+            }
             JSONObject nspData = loadNetSpendJsonData(NetSpendConstant.NET_SPEND_OVER_TIME_BY_MONTH, user, filter);
             if(nspData != null){
                 netSpendJsonData = nspData;
@@ -105,6 +124,45 @@ public class DashboardsController extends DashboardBaseController {
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(netSpendJsonData.toString(), HttpStatus.OK);
+    }
+
+    private void setDatesFromMonth(DashboardsFilterCriteria filter, String monthAndYear) throws Exception {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yyyy");
+        String selectedMonth = monthAndYear.split(" ")[0];
+        String lastTwoDigitsOfYear = monthAndYear.split(" ")[1].replace("-", "");
+
+        String yearOfFromDate = filter.getFromDate().split("-")[2];
+        String monthOfFromDate = filter.getFromDate().split("-")[1];
+        String yearOfToDate=filter.getToDate().split("-")[2];
+        String monthOfToDate = filter.getToDate().split("-")[1];
+        String firstTwoDigitsOfYear = yearOfFromDate.substring(0, 2);
+        int year = 0;
+        if (lastTwoDigitsOfYear.length() != 4) {
+            year = Integer.parseInt(firstTwoDigitsOfYear + lastTwoDigitsOfYear);
+        } else {
+            year = Integer.parseInt(lastTwoDigitsOfYear);
+        }
+
+        Calendar c = Calendar.getInstance();
+        Date date = (Date) new SimpleDateFormat("MMM", Locale.ENGLISH).parse(selectedMonth);
+        c.setTime(date);
+        int numericMonth = c.get(Calendar.MONTH);
+        c.set(year, numericMonth, 1);
+        c.set(Calendar.DAY_OF_MONTH, c.getActualMaximum(Calendar.DAY_OF_MONTH));
+        String toDate = sdf.format(c.getTime());
+        if (selectedMonth.equalsIgnoreCase(monthOfFromDate) && yearOfFromDate.equals(String.valueOf(year))) {
+            if (!selectedMonth.equalsIgnoreCase(monthOfToDate)) {
+                filter.setToDate(toDate);
+            }
+        } else if (selectedMonth.equalsIgnoreCase(monthOfToDate) && yearOfToDate.equals(String.valueOf(year))) {
+            if (!selectedMonth.equalsIgnoreCase(monthOfFromDate)) {
+                filter.setFromDate("01-" + selectedMonth + "-" + year);
+            }
+        } else {
+            filter.setFromDate("01-" + selectedMonth + "-" + year);
+            filter.setToDate(toDate);
+        }
+
     }
 
     @RequestMapping(value = "/netSpendByOverTime", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
