@@ -1,20 +1,19 @@
-package com.envista.msi.api.web.rest.dto.netspend;
+package com.envista.msi.api.web.rest.dto.dashboard.netspend;
 
 import com.envista.msi.api.domain.util.DashboardSroredProcParam;
 
 import javax.persistence.*;
-import java.io.Serializable;
 
 /**
- * Created by Sujit kumar on 30/01/2017.
+ * Created by Sujit kumar on 31/01/2017.
  */
 @NamedStoredProcedureQueries({
-        @NamedStoredProcedureQuery(name = "NetSpendByModeDto.getNetSpendByMode", procedureName = "SHP_DB_NET_SPEND_BY_MODE_PROC",
-                resultClasses = NetSpendByModeDto.class,
+        @NamedStoredProcedureQuery(name = "NetSpendOverTimeDto.getNetSpendByOverTime", procedureName = "SHP_DB_NET_OVER_TIME_PROC",
+                resultClasses = NetSpendOverTimeDto.class,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.NetSpendParams.DATE_TYPE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.NetSpendParams.CURRENCY_ID_PARAM, type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.NetSpendParams.CONVERTED_CURR_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.NetSpendParams.CONVERTED_CURRENCY_CODE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.NetSpendParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.NetSpendParams.CARRIER_ID_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.NetSpendParams.MODES_PARAM, type = String.class),
@@ -29,19 +28,22 @@ import java.io.Serializable;
 })
 
 @Entity
-public class NetSpendByModeDto implements Serializable{
+public class NetSpendOverTimeDto {
     @Id
     @Column(name = "NET_SPEND_ID")
     private Long id;
 
-    @Column(name = "MODES")
-    private String modes;
+    @Column(name = "BILL_DATE")
+    private String billDate;
 
-    @Column(name = "SPEND")
-    private Double spend;
+    @Column(name = "CARRIER_NAME")
+    private String carrierName;
 
-    @Column(name = "SCORE_TYPE")
-    private String scoreType;
+    @Column(name = "CARRIER_ID")
+    private Long carrierId;
+
+    @Column(name = "NET_CHARGES")
+    private Double netCharges;
 
     public Long getId() {
         return id;
@@ -51,27 +53,35 @@ public class NetSpendByModeDto implements Serializable{
         this.id = id;
     }
 
-    public String getModes() {
-        return modes;
+    public String getBillDate() {
+        return billDate;
     }
 
-    public void setModes(String modes) {
-        this.modes = modes;
+    public void setBillDate(String billDate) {
+        this.billDate = billDate;
     }
 
-    public Double getSpend() {
-        return spend;
+    public String getCarrierName() {
+        return carrierName;
     }
 
-    public void setSpend(Double spend) {
-        this.spend = spend;
+    public void setCarrierName(String carrierName) {
+        this.carrierName = carrierName;
     }
 
-    public String getScoreType() {
-        return scoreType;
+    public Long getCarrierId() {
+        return carrierId;
     }
 
-    public void setScoreType(String scoreType) {
-        this.scoreType = scoreType;
+    public void setCarrierId(Long carrierId) {
+        this.carrierId = carrierId;
+    }
+
+    public Double getNetCharges() {
+        return netCharges;
+    }
+
+    public void setNetCharges(Double netCharges) {
+        this.netCharges = netCharges;
     }
 }

@@ -1,6 +1,9 @@
-package com.envista.msi.api.web.rest.dto.netspend;
+package com.envista.msi.api.web.rest.dto.dashboard.common;
 
-import com.envista.msi.api.web.rest.dto.taxspend.TaxSpendByMonthDto;
+import com.envista.msi.api.web.rest.dto.dashboard.accessorialspend.AccessorialSpendDto;
+import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendByMonthDto;
+import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendOverTimeByMonthDto;
+import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendByMonthDto;
 
 import java.util.Date;
 
@@ -26,6 +29,11 @@ public class NetSpendMonthlyChartDto {
     public NetSpendMonthlyChartDto(TaxSpendByMonthDto taxSpend){
         this.billDate = taxSpend.getBillDate();
         this.amount = taxSpend.getAmount();
+    }
+
+    public NetSpendMonthlyChartDto(AccessorialSpendDto accSpend){
+        this.billDate = accSpend.getBillingDate();
+        this.amount = accSpend.getAmount();
     }
 
     public Date getBillDate() {

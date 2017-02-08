@@ -1,18 +1,16 @@
-package com.envista.msi.api.web.rest.dto.taxspend;
+package com.envista.msi.api.web.rest.dto.dashboard.taxspend;
 
 import com.envista.msi.api.domain.util.DashboardSroredProcParam;
-import com.envista.msi.api.web.rest.dto.netspend.NetSpendByCarrierDto;
 
 import javax.persistence.*;
-import java.util.Date;
 
 /**
  * Created by Sujit kumar on 01/02/2017.
  */
 
 @NamedStoredProcedureQueries({
-        @NamedStoredProcedureQuery(name = "TaxSpendByMonthDto.getTaxSpendByMonth", procedureName = "SHP_DB_TAX_SPEND_BY_MONTH_PROC",
-                resultClasses = NetSpendByCarrierDto.class,
+        @NamedStoredProcedureQuery(name = "TaxSpendByCarrierDto.getTaxSpendByCarrier", procedureName = "SHP_DB_TAX_SPEND_BY_CARR_PROC",
+                resultClasses = TaxSpendByCarrierDto.class,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.TaxSpendParams.DATE_TYPE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.TaxSpendParams.CURRENCY_ID_PARAM, type = Long.class),
@@ -29,16 +27,19 @@ import java.util.Date;
                 })
 })
 @Entity
-public class TaxSpendByMonthDto {
+public class TaxSpendByCarrierDto {
     @Id
     @Column(name = "TAX_SPEND_ID")
     private Long id;
 
-    @Column(name = "BILL_DATE")
-    private Date billDate;
+    @Column(name = "NAME")
+    private String name;
 
-    @Column(name = "AMOUNT")
-    private Double amount;
+    @Column(name = "VALUE")
+    private Double value;
+
+    @Column(name = "CARRIER_ID")
+    private Long carrierId;
 
     public Long getId() {
         return id;
@@ -48,19 +49,28 @@ public class TaxSpendByMonthDto {
         this.id = id;
     }
 
-    public Date getBillDate() {
-        return billDate;
+    public String getName() {
+        return name;
     }
 
-    public void setBillDate(Date billDate) {
-        this.billDate = billDate;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public Double getAmount() {
-        return amount;
+    public Double getValue() {
+        return value;
     }
 
-    public void setAmount(Double amount) {
-        this.amount = amount;
+    public void setValue(Double value) {
+        this.value = value;
     }
+
+    public Long getCarrierId() {
+        return carrierId;
+    }
+
+    public void setCarrierId(Long carrierId) {
+        this.carrierId = carrierId;
+    }
+
 }

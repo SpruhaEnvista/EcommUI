@@ -2,13 +2,12 @@ package com.envista.msi.api.web.rest;
 
 import com.envista.msi.api.security.SecurityUtils;
 import com.envista.msi.api.service.UserService;
-import com.envista.msi.api.web.rest.dto.DashboardAppliedFilterDto;
-import com.envista.msi.api.web.rest.dto.DashboardsFilterCriteria;
 import com.envista.msi.api.web.rest.dto.UserProfileDto;
+import com.envista.msi.api.web.rest.dto.dashboard.DashboardAppliedFilterDto;
+import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.inject.Inject;
-import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpSession;
 
 /**

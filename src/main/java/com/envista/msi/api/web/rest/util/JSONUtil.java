@@ -1,8 +1,12 @@
 package com.envista.msi.api.web.rest.util;
 
-import com.envista.msi.api.web.rest.dto.common.CommonValuesForChartDto;
+import com.envista.msi.api.web.rest.dto.dashboard.accessorialspend.AccessorialSpendDto;
+import com.envista.msi.api.web.rest.dto.dashboard.common.CommonValuesForChartDto;
+import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendCommonDto;
+import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendMonthlyChartDto;
+import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendByModeDto;
+import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendOverTimeDto;
 import com.envista.msi.api.web.rest.dto.netspend.*;
-import com.envista.msi.api.web.rest.dto.taxspend.TaxSpendDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
@@ -78,69 +82,80 @@ public class JSONUtil {
 		return ret;
 	}
 
+	/**
+	 *
+	 * @param netSpendDtoList
+	 * @return
+	 * @throws JSONException
+	 */
 	public static JSONObject prepareNetSpendByModesJson(List<NetSpendByModeDto> netSpendDtoList) throws JSONException {
 		JSONObject netSpendJsonData = new JSONObject();
-		JSONArray valuesArray = new JSONArray();
-		JSONArray seriesArray = new JSONArray();
+		JSONArray valuesArray = null;
+		JSONArray seriesArray = null;
 
-		Map<String, HashMap<String, Double>> modesValuesMap = new LinkedHashMap<String, HashMap<String, Double>>();
-		List<String> scortypeList = new ArrayList<String>();
+		if(netSpendDtoList != null && netSpendDtoList.size() > 0){
+			valuesArray = new JSONArray();
+			seriesArray = new JSONArray();
 
-		for(NetSpendByModeDto netSpendDto: netSpendDtoList){
-			if(netSpendDto != null && netSpendDto.getSpend() != 0){
-				String mode = netSpendDto.getModes();
-				String scoreType = netSpendDto.getScoreType();
-				Double spend = netSpendDto.getSpend();
+			Map<String, HashMap<String, Double>> modesValuesMap = new LinkedHashMap<String, HashMap<String, Double>>();
+			List<String> scortypeList = new ArrayList<String>();
 
-				if (!scortypeList.contains(scoreType)) {
-					scortypeList.add(scoreType);
-				}
+			for(NetSpendByModeDto netSpendDto: netSpendDtoList){
+				if(netSpendDto != null && netSpendDto.getSpend() != 0){
+					String mode = netSpendDto.getModes();
+					String scoreType = netSpendDto.getScoreType();
+					Double spend = netSpendDto.getSpend();
 
-				if (modesValuesMap.containsKey(mode)) {
-					modesValuesMap.get(mode).put(scoreType, spend);
-				} else {
-					HashMap<String, Double> tempHashMap = new HashMap<String, Double>();
-					tempHashMap.put(scoreType, spend);
-					modesValuesMap.put(mode, tempHashMap);
+					if (!scortypeList.contains(scoreType)) {
+						scortypeList.add(scoreType);
+					}
+
+					if (modesValuesMap.containsKey(mode)) {
+						modesValuesMap.get(mode).put(scoreType, spend);
+					} else {
+						HashMap<String, Double> tempHashMap = new HashMap<String, Double>();
+						tempHashMap.put(scoreType, spend);
+						modesValuesMap.put(mode, tempHashMap);
+					}
 				}
 			}
-		}
 
-		int counter = 1;
-		Iterator<String> modesIterator = modesValuesMap.keySet().iterator();
+			int counter = 1;
+			Iterator<String> modesIterator = modesValuesMap.keySet().iterator();
 
-		while (modesIterator.hasNext()) {
-			JSONObject jsonObject = new JSONObject();
-			String mode = modesIterator.next();
-			HashMap<String, Double> scoreTypeMap = modesValuesMap.get(mode);
-			Iterator<String> scoreTypesIterator = scoreTypeMap.keySet().iterator();
+			while (modesIterator.hasNext()) {
+				JSONObject jsonObject = new JSONObject();
+				String mode = modesIterator.next();
+				HashMap<String, Double> scoreTypeMap = modesValuesMap.get(mode);
+				Iterator<String> scoreTypesIterator = scoreTypeMap.keySet().iterator();
 
-			jsonObject.put("name", mode);
-			jsonObject.put("counter", counter);
+				jsonObject.put("name", mode);
+				jsonObject.put("counter", counter);
 
-			while (scoreTypesIterator.hasNext()) {
-				String scoreType = scoreTypesIterator.next();
-				double spend = scoreTypeMap.get(scoreType);
-				jsonObject.put(scoreType, spend);
+				while (scoreTypesIterator.hasNext()) {
+					String scoreType = scoreTypesIterator.next();
+					double spend = scoreTypeMap.get(scoreType);
+					jsonObject.put(scoreType, spend);
+				}
+
+				valuesArray.put(jsonObject);
+				counter++;
 			}
 
-			valuesArray.put(jsonObject);
-			counter++;
+			String append = "\"";
+			counter = 1;
+
+			for (String scoreType : scortypeList) {
+				scoreType = append + scoreType + append;
+				String seriesId = append + "S" + counter + append;
+				String object = "{\"id\":" + seriesId + ",\"name\":" + scoreType + ", \"data\": {\"field\":" + scoreType + "},style: { depth: 4, gradient: 0.9,fillColor: \"#00E5FF\" }}";
+				seriesArray.put(new JSONObject(object));
+				counter++;
+			}
+
+			netSpendJsonData.put("values", valuesArray);
+			netSpendJsonData.put("series", seriesArray);
 		}
-
-		String append = "\"";
-		counter = 1;
-
-		for (String scoreType : scortypeList) {
-			scoreType = append + scoreType + append;
-			String seriesId = append + "S" + counter + append;
-			String object = "{\"id\":" + seriesId + ",\"name\":" + scoreType + ", \"data\": {\"field\":" + scoreType + "},style: { depth: 4, gradient: 0.9,fillColor: \"#00E5FF\" }}";
-			seriesArray.put(new JSONObject(object));
-			counter++;
-		}
-
-		netSpendJsonData.put("values", valuesArray);
-		netSpendJsonData.put("series", seriesArray);
 		return netSpendJsonData;
 	}
 
@@ -186,12 +201,17 @@ public class JSONUtil {
 
 	public static JSONObject prepareNetSpendOverTimeJson(List<NetSpendOverTimeDto> netSpendOverTimeDtos) throws JSONException {
 		JSONObject returnObject = new JSONObject();
-		JSONArray valuesArray = new JSONArray();
-		JSONArray seriesArray = new JSONArray();
-		LinkedHashMap<String, HashMap<String, Double>> datesValuesMap = new LinkedHashMap<String, HashMap<String, Double>>();
-		ArrayList<String> carriersList = new ArrayList<String>();
+		JSONArray valuesArray = null;
+		JSONArray seriesArray = null;
+		LinkedHashMap<String, HashMap<String, Double>> datesValuesMap = null;
+		ArrayList<String> carriersList = null;
 
 		if(netSpendOverTimeDtos != null && netSpendOverTimeDtos.size() > 0){
+			valuesArray = new JSONArray();
+			seriesArray = new JSONArray();
+			datesValuesMap = new LinkedHashMap<String, HashMap<String, Double>>();
+			carriersList = new ArrayList<String>();
+
 			for(NetSpendOverTimeDto overTimeDto : netSpendOverTimeDtos){
 				if(overTimeDto != null){
 					String billDate = overTimeDto.getBillDate();
@@ -271,58 +291,56 @@ public class JSONUtil {
 		return returnObject;
 	}
 
-	public static JSONObject prepareTaxSpendJson(List<TaxSpendDto> taxSpendList) throws JSONException {
+	public static JSONObject prepareCommonSpendJson(List<NetSpendCommonDto> spendList) throws JSONException {
 		JSONObject returnObject = new JSONObject();
-		JSONArray taxesArray = new JSONArray();
-		HashMap<String, Double> taxMap = new HashMap<>();
-		ArrayList<String> taxesList = new ArrayList<String>();
+		JSONArray spendArray = null;
+		HashMap<String, Double> spendMap = null;
 
-		if(taxSpendList != null && taxSpendList.size() > 0){
-			for(TaxSpendDto taxSpend : taxSpendList){
+		if(spendList != null && spendList.size() > 0){
+			spendArray = new JSONArray();
+			spendMap = new HashMap<>();
+
+			for(NetSpendCommonDto taxSpend : spendList){
 				if(taxSpend != null){
-					String tax = taxSpend.getTax();
+					String spendTypeName = taxSpend.getSpendTypeName();
 					Double spend = taxSpend.getSpend();
-
 					if (spend > 0) {
-						if (!taxesList.contains(tax)) {
-							taxesList.add(tax);
-						}
-
-						if (taxMap.containsKey(tax)) {
-							double spendAmount = taxMap.get(tax);
+						if (spendMap.containsKey(spendTypeName)) {
+							double spendAmount = spendMap.get(spendTypeName);
 							spendAmount += spend;
-							taxMap.put(tax, spendAmount);
+							spendMap.put(spendTypeName, spendAmount);
 						} else {
-							taxMap.put(tax, spend);
+							spendMap.put(spendTypeName, spend);
 						}
 					}
 				}
 			}
 
 			// Donut Chart
-			Iterator<String> taxIterator = taxMap.keySet().iterator();
+			Iterator<String> taxIterator = spendMap.keySet().iterator();
 			while (taxIterator.hasNext()) {
 				String tax = taxIterator.next();
-				double spend = taxMap.get(tax);
+				double spend = spendMap.get(tax);
 
 				JSONObject taxesJson = new JSONObject();
 				taxesJson.put("name", tax);
 				taxesJson.put("value", spend);
 
-				taxesArray.put(taxesJson);
+				spendArray.put(taxesJson);
 				taxesJson = null;
 			}
-			returnObject.put("donutChartvalues", taxesArray);
+			returnObject.put("donutChartvalues", spendArray);
 		}
 		return returnObject;
 	}
 
 	public static JSONObject prepareCommonJsonForChart(List<CommonValuesForChartDto> dataList) throws JSONException {
 		JSONObject returnJson = new JSONObject();
-		JSONArray returnArray = new JSONArray();
+		JSONArray returnArray = null;
 		JSONObject statusJson = null;
 
 		if(dataList != null && dataList.size() > 0){
+			returnArray = new JSONArray();
 			for(CommonValuesForChartDto chartData : dataList){
 				if(chartData != null){
 					statusJson = new JSONObject();
@@ -337,5 +355,87 @@ public class JSONUtil {
 			returnJson.put("values", returnArray);
 		}
 		return returnJson;
+	}
+
+	public static JSONObject prepareTopAccessorialSpendJson(List<AccessorialSpendDto> accessorialSpendList) throws JSONException {
+		JSONObject returnObject = new JSONObject();
+		JSONArray valuesArray = null;
+		JSONArray seriesArray = null;
+		LinkedHashMap<String, HashMap<String, Double>> datesValuesMap = null;
+		ArrayList<String> serviceFlagList = null;
+
+		if(accessorialSpendList != null){
+			valuesArray = new JSONArray();
+			seriesArray = new JSONArray();
+			datesValuesMap = new LinkedHashMap<String, HashMap<String, Double>>();
+			serviceFlagList = new ArrayList<String>();
+
+			for(AccessorialSpendDto accSpend : accessorialSpendList){
+				if(accSpend != null){
+					String billDate = accSpend.getBillDate();
+					String service = accSpend.getAccessorialName();
+					Double spend = accSpend.getSpend();
+
+					if (spend != 0) {
+
+						if (!serviceFlagList.contains(service)) {
+							serviceFlagList.add(service);
+						}
+
+						if (datesValuesMap.containsKey(billDate)) {
+							datesValuesMap.get(billDate).put(service, spend);
+						} else {
+							HashMap<String, Double> tempHashMap = new HashMap<String, Double>();
+							tempHashMap.put(service, spend);
+							datesValuesMap.put(billDate, tempHashMap);
+						}
+
+					}
+				}
+			}
+
+			// Bar Chart
+			int counter = 1;
+			Iterator<String> datesIterator = datesValuesMap.keySet().iterator();
+
+			while (datesIterator.hasNext()) {
+				JSONObject jsonObject = new JSONObject();
+
+				String date = datesIterator.next();
+				HashMap<String, Double> serviceFlagMap = datesValuesMap.get(date);
+
+				Iterator<String> serviceFlagIterator = serviceFlagMap.keySet().iterator();
+
+				jsonObject.put("name", date);
+				jsonObject.put("counter", counter);
+
+				while (serviceFlagIterator.hasNext()) {
+					String serviceFlag = serviceFlagIterator.next();
+					double spend = serviceFlagMap.get(serviceFlag);
+					jsonObject.put(serviceFlag, spend);
+				}
+
+				valuesArray.put(jsonObject);
+				counter++;
+			}
+
+			String append = "\"";
+			counter = 1;
+
+			for (String serviceFlag : serviceFlagList) {
+				serviceFlag = append + serviceFlag + append;
+				String seriesId = append + "S" + counter + append;
+				String object = "{\"id\":" + seriesId + ",\"name\":" + serviceFlag + ", \"data\": {\"field\":" + serviceFlag
+						+ "},\"type\":\"line\",\"style\":{\"lineWidth\": 2,smoothing: true, marker: {shape: \"circle\", width: 5},";
+				object = object + "lineColor: \"" + colorsList.get(counter - 1) + append;
+				object = object + "}}";
+				seriesArray.put(new JSONObject(object));
+				counter++;
+			}
+
+			returnObject.put("values", valuesArray);
+			returnObject.put("series", seriesArray);
+		}
+		return returnObject;
 	}
 }

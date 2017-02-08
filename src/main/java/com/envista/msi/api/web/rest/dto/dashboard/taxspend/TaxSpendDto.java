@@ -1,17 +1,15 @@
-package com.envista.msi.api.web.rest.dto.taxspend;
+package com.envista.msi.api.web.rest.dto.dashboard.taxspend;
 
 import com.envista.msi.api.domain.util.DashboardSroredProcParam;
-import com.envista.msi.api.web.rest.dto.netspend.NetSpendByCarrierDto;
 
 import javax.persistence.*;
 
 /**
  * Created by Sujit kumar on 01/02/2017.
  */
-
 @NamedStoredProcedureQueries({
-        @NamedStoredProcedureQuery(name = "TaxSpendByCarrierDto.getTaxSpendByCarrier", procedureName = "SHP_DB_TAX_SPEND_BY_CARR_PROC",
-                resultClasses = NetSpendByCarrierDto.class,
+        @NamedStoredProcedureQuery(name = "TaxSpendDto.getTaxSpend", procedureName = "SHP_DB_TAX_SPEND_PROC",
+                resultClasses = TaxSpendDto.class,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.TaxSpendParams.DATE_TYPE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.TaxSpendParams.CURRENCY_ID_PARAM, type = Long.class),
@@ -23,24 +21,23 @@ import javax.persistence.*;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.TaxSpendParams.FROM_DATE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.TaxSpendParams.TO_DATE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.TaxSpendParams.MODE_NAMES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.TaxSpendParams.TAX_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.TaxSpendParams.TAX_SPEND_PARAM, type = Void.class)
                 })
 })
 @Entity
-public class TaxSpendByCarrierDto {
+public class TaxSpendDto {
     @Id
     @Column(name = "TAX_SPEND_ID")
     private Long id;
 
-    @Column(name = "NAME")
-    private String name;
+    @Column(name = "RANK")
+    private Long rank;
 
-    @Column(name = "VALUE")
-    private Double value;
+    @Column(name = "TAX")
+    private String tax;
 
-    @Column(name = "CARRIER_ID")
-    private Long carrierId;
+    @Column(name = "SPEND")
+    private Double spend;
 
     public Long getId() {
         return id;
@@ -50,27 +47,27 @@ public class TaxSpendByCarrierDto {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public Long getRank() {
+        return rank;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setRank(Long rank) {
+        this.rank = rank;
     }
 
-    public Double getValue() {
-        return value;
+    public String getTax() {
+        return tax;
     }
 
-    public void setValue(Double value) {
-        this.value = value;
+    public void setTax(String tax) {
+        this.tax = tax;
     }
 
-    public Long getCarrierId() {
-        return carrierId;
+    public Double getSpend() {
+        return spend;
     }
 
-    public void setCarrierId(Long carrierId) {
-        this.carrierId = carrierId;
+    public void setSpend(Double spend) {
+        this.spend = spend;
     }
 }

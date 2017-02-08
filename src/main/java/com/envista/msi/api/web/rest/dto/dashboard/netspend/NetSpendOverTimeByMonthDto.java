@@ -1,19 +1,20 @@
-package com.envista.msi.api.web.rest.dto.netspend;
+package com.envista.msi.api.web.rest.dto.dashboard.netspend;
 
 import com.envista.msi.api.domain.util.DashboardSroredProcParam;
 
 import javax.persistence.*;
+import java.util.Date;
 
 /**
  * Created by Sujit kumar on 31/01/2017.
  */
 @NamedStoredProcedureQueries({
-        @NamedStoredProcedureQuery(name = "NetSpendOverTimeDto.getNetSpendByOverTime", procedureName = "SHP_DB_NET_OVER_TIME_PROC",
-                resultClasses = NetSpendOverTimeDto.class,
+        @NamedStoredProcedureQuery(name = "NetSpendOverTimeByMonthDto.getNetSpendOverTimeByMonth", procedureName = "SHP_DB_NET_OVR_TIME_MNTH_PROC",
+                resultClasses = NetSpendOverTimeByMonthDto.class,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.NetSpendParams.DATE_TYPE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.NetSpendParams.CURRENCY_ID_PARAM, type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.NetSpendParams.CONVERTED_CURR_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.NetSpendParams.CONVERTED_CURRENCY_CODE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.NetSpendParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.NetSpendParams.CARRIER_ID_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.NetSpendParams.MODES_PARAM, type = String.class),
@@ -28,22 +29,16 @@ import javax.persistence.*;
 })
 
 @Entity
-public class NetSpendOverTimeDto {
+public class NetSpendOverTimeByMonthDto {
     @Id
     @Column(name = "NET_SPEND_ID")
     private Long id;
 
     @Column(name = "BILL_DATE")
-    private String billDate;
+    private Date billDate;
 
-    @Column(name = "CARRIER_NAME")
-    private String carrierName;
-
-    @Column(name = "CARRIER_ID")
-    private Long carrierId;
-
-    @Column(name = "NET_CHARGES")
-    private Double netCharges;
+    @Column(name = "AMOUNT")
+    private Double amount;
 
     public Long getId() {
         return id;
@@ -53,35 +48,19 @@ public class NetSpendOverTimeDto {
         this.id = id;
     }
 
-    public String getBillDate() {
+    public Date getBillDate() {
         return billDate;
     }
 
-    public void setBillDate(String billDate) {
+    public void setBillDate(Date billDate) {
         this.billDate = billDate;
     }
 
-    public String getCarrierName() {
-        return carrierName;
+    public Double getAmount() {
+        return amount;
     }
 
-    public void setCarrierName(String carrierName) {
-        this.carrierName = carrierName;
-    }
-
-    public Long getCarrierId() {
-        return carrierId;
-    }
-
-    public void setCarrierId(Long carrierId) {
-        this.carrierId = carrierId;
-    }
-
-    public Double getNetCharges() {
-        return netCharges;
-    }
-
-    public void setNetCharges(Double netCharges) {
-        this.netCharges = netCharges;
+    public void setAmount(Double amount) {
+        this.amount = amount;
     }
 }

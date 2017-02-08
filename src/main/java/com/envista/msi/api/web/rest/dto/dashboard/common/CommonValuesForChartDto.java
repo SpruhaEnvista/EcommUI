@@ -1,11 +1,10 @@
-package com.envista.msi.api.web.rest.dto.common;
+package com.envista.msi.api.web.rest.dto.dashboard.common;
 
-import com.envista.msi.api.web.rest.dto.netspend.NetSpendByCarrierDto;
-import com.envista.msi.api.web.rest.dto.taxspend.TaxSpendByCarrierDto;
+import com.envista.msi.api.web.rest.dto.dashboard.accessorialspend.AccessorialSpendDto;
+import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendByCarrierDto;
+import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendByCarrierDto;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Sujit kumar on 02/02/2017.
@@ -27,6 +26,12 @@ public class CommonValuesForChartDto implements Serializable{
         this.id = taxSpend.getCarrierId();
         this.name = taxSpend.getName();
         this.value = taxSpend.getValue();
+    }
+
+    public CommonValuesForChartDto(AccessorialSpendDto accSpend){
+        this.id = accSpend.getCarrierId();
+        this.name = accSpend.getCarrierName();
+        this.value = accSpend.getSpend();
     }
 
     public String getName() {

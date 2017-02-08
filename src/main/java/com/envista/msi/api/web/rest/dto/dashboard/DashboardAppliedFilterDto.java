@@ -1,4 +1,4 @@
-package com.envista.msi.api.web.rest.dto;
+package com.envista.msi.api.web.rest.dto.dashboard;
 
 import javax.persistence.*;
 import java.io.Serializable;

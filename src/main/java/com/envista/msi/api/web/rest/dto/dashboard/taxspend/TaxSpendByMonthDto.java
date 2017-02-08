@@ -1,16 +1,17 @@
-package com.envista.msi.api.web.rest.dto.taxspend;
+package com.envista.msi.api.web.rest.dto.dashboard.taxspend;
 
 import com.envista.msi.api.domain.util.DashboardSroredProcParam;
-import com.envista.msi.api.web.rest.dto.netspend.NetSpendByCarrierDto;
 
 import javax.persistence.*;
+import java.util.Date;
 
 /**
  * Created by Sujit kumar on 01/02/2017.
  */
+
 @NamedStoredProcedureQueries({
-        @NamedStoredProcedureQuery(name = "TaxSpendDto.getTaxSpend", procedureName = "SHP_DB_TAX_SPEND_PROC",
-                resultClasses = TaxSpendDto.class,
+        @NamedStoredProcedureQuery(name = "TaxSpendByMonthDto.getTaxSpendByMonth", procedureName = "SHP_DB_TAX_SPEND_BY_MONTH_PROC",
+                resultClasses = TaxSpendByMonthDto.class,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.TaxSpendParams.DATE_TYPE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.TaxSpendParams.CURRENCY_ID_PARAM, type = Long.class),
@@ -22,23 +23,21 @@ import javax.persistence.*;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.TaxSpendParams.FROM_DATE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.TaxSpendParams.TO_DATE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.TaxSpendParams.MODE_NAMES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.TaxSpendParams.TAX_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.TaxSpendParams.TAX_SPEND_PARAM, type = Void.class)
                 })
 })
 @Entity
-public class TaxSpendDto {
+public class TaxSpendByMonthDto {
     @Id
     @Column(name = "TAX_SPEND_ID")
     private Long id;
 
-    @Column(name = "RANK")
-    private Long rank;
+    @Column(name = "BILL_DATE")
+    private Date billDate;
 
-    @Column(name = "TAX")
-    private String tax;
-
-    @Column(name = "SPEND")
-    private Double spend;
+    @Column(name = "AMOUNT")
+    private Double amount;
 
     public Long getId() {
         return id;
@@ -48,27 +47,19 @@ public class TaxSpendDto {
         this.id = id;
     }
 
-    public Long getRank() {
-        return rank;
+    public Date getBillDate() {
+        return billDate;
     }
 
-    public void setRank(Long rank) {
-        this.rank = rank;
+    public void setBillDate(Date billDate) {
+        this.billDate = billDate;
     }
 
-    public String getTax() {
-        return tax;
+    public Double getAmount() {
+        return amount;
     }
 
-    public void setTax(String tax) {
-        this.tax = tax;
-    }
-
-    public Double getSpend() {
-        return spend;
-    }
-
-    public void setSpend(Double spend) {
-        this.spend = spend;
+    public void setAmount(Double amount) {
+        this.amount = amount;
     }
 }
