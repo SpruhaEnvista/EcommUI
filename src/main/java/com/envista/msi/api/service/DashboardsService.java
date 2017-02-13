@@ -4,6 +4,7 @@ import com.envista.msi.api.dao.DashboardsDao;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
 import com.envista.msi.api.web.rest.dto.dashboard.accessorialspend.AccessorialSpendDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardAppliedFilterDto;
+import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.*;
 import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendByCarrierDto;
 import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendByMonthDto;
@@ -153,7 +154,7 @@ public class DashboardsService {
      * @return
      */
     public List<AccessorialSpendDto> getAccessorialSpend(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
-        return dashboardsDao.getTopAccessorialSpend(filter, isTopTenAccessorial);
+        return dashboardsDao.getAccessorialSpend(filter, isTopTenAccessorial);
     }
 
     /**
@@ -174,5 +175,91 @@ public class DashboardsService {
      */
     public List<AccessorialSpendDto> getAccessorialSpendByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
         return dashboardsDao.getTopAccessorialSpendByMonth(filter, isTopTenAccessorial);
+    }
+
+    public List<InvoiceStatusCountDto> getInvoiceStatusCount(DashboardsFilterCriteria filter){
+        return dashboardsDao.getInvoiceStatusCount(filter);
+    }
+
+    public List<InvoiceStatusCountDto> getInvoiceStatusCountByCarrier(DashboardsFilterCriteria filter){
+        return dashboardsDao.getInvoiceStatusCountByCarrier(filter);
+    }
+
+    public List<InvoiceStatusCountDto> getInvoiceStatusCountByMonth(DashboardsFilterCriteria filter){
+        return dashboardsDao.getInvoiceStatusCountByMonth(filter);
+    }
+
+    public List<InvoiceStatusAmountDto> getInvoiceStatusAmount(DashboardsFilterCriteria filter){
+        return dashboardsDao.getInvoiceStatusAmount(filter);
+    }
+
+    public List<InvoiceStatusAmountDto> getInvoiceStatusAmountByCarrier(DashboardsFilterCriteria filter){
+        return dashboardsDao.getInvoiceStatusAmountByCarrier(filter);
+    }
+
+    public List<InvoiceStatusAmountDto> getInvoiceStatusAmountByMonth(DashboardsFilterCriteria filter){
+        return dashboardsDao.getInvoiceStatusAmountByMonth(filter);
+    }
+
+    public List<InvoiceMethodScoreDto> getInvoiceMethodScore(DashboardsFilterCriteria filter){
+        return dashboardsDao.getInvoiceMethodScore(filter);
+    }
+
+    public List<InvoiceMethodScoreDto> getInvoiceMethodScoreByCarrier(DashboardsFilterCriteria filter){
+        return dashboardsDao.getInvoiceMethodScoreByCarrier(filter);
+    }
+
+    public List<InvoiceMethodScoreDto> getInvoiceMethodScoreByMonth(DashboardsFilterCriteria filter){
+        return dashboardsDao.getInvoiceMethodScoreByMonth(filter);
+    }
+
+    public List<OrderMatchDto> getOrderMatchStatus(DashboardsFilterCriteria filter){
+        return dashboardsDao.getOrderMatchStatus(filter);
+    }
+
+    public List<OrderMatchDto> getOrderMatchByCarrier(DashboardsFilterCriteria filter){
+        return dashboardsDao.getOrderMatchByCarrier(filter);
+    }
+
+    public List<OrderMatchDto> getOrderMatchByMonth(DashboardsFilterCriteria filter){
+        return dashboardsDao.getOrderMatchByMonth(filter);
+    }
+
+    public List<BilledVsApprovedDto> getBilledVsApprovedData(DashboardsFilterCriteria filter){
+        return dashboardsDao.getBilledVsApprovedData(filter);
+    }
+
+    public List<BilledVsApprovedDto> getBilledVsApprovedByMonth(DashboardsFilterCriteria filter){
+        return dashboardsDao.getBilledVsApprovedByMonth(filter);
+    }
+
+    public List<RecoveryAdjustmentDto> getRecoveryAdjustment(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        return dashboardsDao.getRecoveryAdjustment(filter, isTopTenAccessorial);
+    }
+
+    public List<RecoveryAdjustmentDto> getRecoveryAdjustmentByCarrier(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        return dashboardsDao.getRecoveryAdjustmentByCarrier(filter, isTopTenAccessorial);
+    }
+
+    public List<RecoveryAdjustmentDto> getRecoveryAdjustmentByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        return dashboardsDao.getRecoveryAdjustmentByMonth(filter, isTopTenAccessorial);
+    }
+
+    public List<RecoveryServiceDto> getRecoveryServices(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        return dashboardsDao.getRecoveryServices(filter, isTopTenAccessorial);
+    }
+
+    public List<RecoveryServiceDto> getRecoveryServicesByCarrier(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        if(filter.getServices() != null && !filter.getServices().isEmpty()){
+            //load all services
+        }
+        return dashboardsDao.getRecoveryServicesByCarrier(filter, isTopTenAccessorial);
+    }
+
+    public List<RecoveryServiceDto> getRecoveryServicesByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        if(filter.getServices() != null && !filter.getServices().isEmpty()){
+            //load all services
+        }
+        return dashboardsDao.getRecoveryServicesByMonth(filter, isTopTenAccessorial);
     }
 }

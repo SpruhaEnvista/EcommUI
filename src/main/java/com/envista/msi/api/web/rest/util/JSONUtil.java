@@ -1,12 +1,12 @@
 package com.envista.msi.api.web.rest.util;
 
 import com.envista.msi.api.web.rest.dto.dashboard.accessorialspend.AccessorialSpendDto;
+import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
 import com.envista.msi.api.web.rest.dto.dashboard.common.CommonValuesForChartDto;
 import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendCommonDto;
 import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendMonthlyChartDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendByModeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendOverTimeDto;
-import com.envista.msi.api.web.rest.dto.netspend.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
@@ -148,7 +148,7 @@ public class JSONUtil {
 			for (String scoreType : scortypeList) {
 				scoreType = append + scoreType + append;
 				String seriesId = append + "S" + counter + append;
-				String object = "{\"id\":" + seriesId + ",\"name\":" + scoreType + ", \"data\": {\"field\":" + scoreType + "},style: { depth: 4, gradient: 0.9,fillColor: \"#00E5FF\" }}";
+				String object = "{\"id\":" + seriesId + ",\"name\":" + scoreType + ", \"data\": {\"field\":" + scoreType + "},style: { depth: 4, gradient: 0.9,fillColor: \"#65ABE8\" }}";
 				seriesArray.put(new JSONObject(object));
 				counter++;
 			}
@@ -357,6 +357,29 @@ public class JSONUtil {
 		return returnJson;
 	}
 
+	public static JSONObject prepareInvoiceMethodScoreJson(List<InvoiceMethodScoreDto> dataList) throws JSONException {
+		JSONObject returnJson = new JSONObject();
+		JSONArray returnArray = null;
+		JSONObject statusJson = null;
+
+		if(dataList != null && dataList.size() > 0){
+			returnArray = new JSONArray();
+			for(InvoiceMethodScoreDto chartData : dataList){
+				if(chartData != null){
+					statusJson = new JSONObject();
+					statusJson.put("name", chartData.getName());
+					statusJson.put("value", chartData.getValue());
+					statusJson.put("id", chartData.getInvoiceMethodId());
+
+					returnArray.put(statusJson);
+					statusJson = null;
+				}
+			}
+			returnJson.put("values", returnArray);
+		}
+		return returnJson;
+	}
+
 	public static JSONObject prepareTopAccessorialSpendJson(List<AccessorialSpendDto> accessorialSpendList) throws JSONException {
 		JSONObject returnObject = new JSONObject();
 		JSONArray valuesArray = null;
@@ -435,6 +458,216 @@ public class JSONUtil {
 
 			returnObject.put("values", valuesArray);
 			returnObject.put("series", seriesArray);
+		}
+		return returnObject;
+	}
+
+	public static JSONObject prepareOrderMatchJson(List<OrderMatchDto> orderMatchList) throws JSONException {
+		JSONObject returnJson = new JSONObject();
+		JSONArray returnArray = null;
+		JSONObject statusJson = null;
+		if(orderMatchList != null && orderMatchList.size() > 0){
+			returnArray = new JSONArray();
+			statusJson = new JSONObject();
+			statusJson.put("name", "Status");
+			statusJson.put("id", "1");
+
+			for(OrderMatchDto orderMatch : orderMatchList){
+				if(orderMatch != null){
+					if ("Matched".equals(orderMatch.getStatus())) {
+						statusJson.put("Matched", orderMatch.getValue());
+					} else {
+						statusJson.put("UnMatched", orderMatch.getValue());
+					}
+				}
+			}
+
+			returnArray.put(statusJson);
+			returnJson.put("values", returnArray);
+		}
+		return returnJson;
+	}
+
+	public static JSONObject prepareBilledVsApprovedJson(List<BilledVsApprovedDto> billedVsApprovedList) throws JSONException {
+		JSONObject returnJson = new JSONObject();
+		JSONArray returnArray = new JSONArray();;
+		JSONObject statusJson = null;
+		if(billedVsApprovedList != null && billedVsApprovedList.size() > 0){
+			for(BilledVsApprovedDto billedVsApproved : billedVsApprovedList){
+				if(billedVsApproved != null){
+					statusJson = new JSONObject();
+					statusJson.put("id", billedVsApproved.getCarrierId());
+					statusJson.put("name", billedVsApproved.getCarrierName());
+					statusJson.put("Billed", billedVsApproved.getBilledAmount());
+					statusJson.put("Approved", billedVsApproved.getApprovedAmount());
+					statusJson.put("Recovered", billedVsApproved.getRecoveredAmount());
+
+					returnArray.put(statusJson);
+					statusJson = null;
+				}
+			}
+			returnJson.put("values", returnArray);
+		}
+		return returnJson;
+	}
+
+	public static JSONObject prepareRecoveryAdjustmentJson(List<RecoveryAdjustmentDto> recoveryAdjustmentList) throws JSONException {
+		JSONObject returnObject = new JSONObject();
+		JSONArray valuesArray = null;
+		JSONArray seriesArray = null;
+
+		if(recoveryAdjustmentList != null && !recoveryAdjustmentList.isEmpty()){
+			valuesArray = new JSONArray();
+			seriesArray = new JSONArray();
+			LinkedHashMap<String, HashMap<String, Double>> monthsMap = new LinkedHashMap<String, HashMap<String, Double>>();
+			ArrayList<String> servicesList = new ArrayList<String>();
+			for(RecoveryAdjustmentDto recoveryAdjustment : recoveryAdjustmentList){
+				if(recoveryAdjustment != null){
+					String month = recoveryAdjustment.getMonth();
+					String service = recoveryAdjustment.getService();
+					Double spend = recoveryAdjustment.getSpend();
+
+					if (spend != 0) {
+						if (!servicesList.contains(service)) {
+							servicesList.add(service);
+						}
+
+						if (monthsMap.containsKey(month)) {
+							monthsMap.get(month).put(service, spend);
+						} else {
+							HashMap<String, Double> tempHashMap = new HashMap<String, Double>();
+							tempHashMap.put(service, spend);
+							monthsMap.put(month, tempHashMap);
+						}
+
+					}
+				}
+			}
+
+			// Bar Chart
+			int counter = 1;
+			Iterator<String> monthsIterator = monthsMap.keySet().iterator();
+
+			while (monthsIterator.hasNext()) {
+				JSONObject jsonObject = new JSONObject();
+				String month = monthsIterator.next();
+				HashMap<String, Double> servicesMap = monthsMap.get(month);
+				Iterator<String> serivcesIterator = servicesMap.keySet().iterator();
+
+				jsonObject.put("name", month);
+				jsonObject.put("counter", counter);
+
+				while (serivcesIterator.hasNext()) {
+					String service = serivcesIterator.next();
+					double spend = servicesMap.get(service);
+					jsonObject.put(service, spend);
+				}
+
+				valuesArray.put(jsonObject);
+				counter++;
+			}
+
+			String append = "\"";
+			counter = 1;
+
+			for (String service : servicesList) {
+				service = append + service + append;
+				String seriesId = append + "S" + counter + append;
+
+				String object = "{\"id\":" + seriesId + ",\"name\":" + service + ", \"data\": {\"field\":" + service
+						+ "},\"type\":\"line\",\"style\":{\"lineWidth\": 2,smoothing: true, marker: {shape: \"circle\", width: 5},";
+
+				object = object + "lineColor: \"" + colorsList.get(counter - 1) + "\"";
+				object = object + "}}";
+				seriesArray.put(new JSONObject(object));
+				counter++;
+			}
+
+			returnObject.put("values", valuesArray);
+			returnObject.put("series", seriesArray);
+		}else{
+			returnObject.put("values", new JSONArray());
+			returnObject.put("series", new JSONArray());
+		}
+		return returnObject;
+	}
+
+	public static JSONObject prepareTotalCreditRecoveryByServiceLevelJson(List<RecoveryServiceDto> recoveryServiceList) throws JSONException {
+		JSONObject returnObject = new JSONObject();
+		JSONArray valuesArray = null;
+		JSONArray seriesArray = null;
+
+		if(recoveryServiceList != null && !recoveryServiceList.isEmpty()){
+			valuesArray = new JSONArray();
+			seriesArray = new JSONArray();
+			LinkedHashMap<String, HashMap<String, Double>> servicesMap = new LinkedHashMap<String, HashMap<String, Double>>();
+			ArrayList<String> carriersList = new ArrayList<String>();
+
+			for(RecoveryServiceDto recoveryService : recoveryServiceList){
+				if(recoveryService != null){
+					String service = recoveryService.getBucketType();
+					String carrieName = recoveryService.getCarrierName();
+					Double spend = recoveryService.getCreditAmount();
+
+					if (spend != null && spend != 0) {
+						if (!carriersList.contains(carrieName)) {
+							carriersList.add(carrieName);
+						}
+
+						if (servicesMap.containsKey(service)) {
+							servicesMap.get(service).put(carrieName, spend);
+						} else {
+							HashMap<String, Double> tempHashMap = new HashMap<String, Double>();
+							tempHashMap.put(carrieName, spend);
+							servicesMap.put(service, tempHashMap);
+						}
+
+					}
+				}
+			}
+
+			// Bar Chart
+			int counter = 1;
+			Iterator<String> servicesIterator = servicesMap.keySet().iterator();
+
+			while (servicesIterator.hasNext()) {
+				JSONObject jsonObject = new JSONObject();
+
+				String service = servicesIterator.next();
+				HashMap<String, Double> carriersMap = servicesMap.get(service);
+
+				Iterator<String> carriersIterator = carriersMap.keySet().iterator();
+
+				jsonObject.put("name", service);
+				jsonObject.put("counter", counter);
+
+				while (carriersIterator.hasNext()) {
+					String carrierName = carriersIterator.next();
+					double spend = carriersMap.get(carrierName);
+					jsonObject.put(carrierName, spend);
+				}
+
+				valuesArray.put(jsonObject);
+				counter++;
+			}
+
+			String append = "\"";
+			counter = 1;
+
+			for (String carrier : carriersList) {
+				carrier = append + carrier + append;
+				String seriesId = append + "S" + counter + append;
+
+				String object = "{\"id\":" + seriesId + ",\"name\":" + carrier + ", \"data\": {\"field\":" + carrier + "},style: { depth: 4, gradient: 0.9 }}";
+				seriesArray.put(new JSONObject(object));
+				counter++;
+			}
+
+			returnObject.put("values", valuesArray);
+			returnObject.put("series", seriesArray);
+		} else{
+			returnObject.put("values", new JSONArray());
+			returnObject.put("series", new JSONArray());
 		}
 		return returnObject;
 	}

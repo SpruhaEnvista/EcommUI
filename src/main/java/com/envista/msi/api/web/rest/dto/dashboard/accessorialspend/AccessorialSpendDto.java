@@ -73,7 +73,7 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.LANES_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.FROM_DATE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.TO_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.MODE_NAMES_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.MODE_NAMES_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.AccessorialSpendParams.ACCESSORIAL_SPEND_PARAM, type = Void.class)
                 }),
         @NamedStoredProcedureQuery(name = "AccessorialSpendDto.getAccessorialSpendByCarrier", procedureName = "SHP_DB_ACC_SPEND_CARR_PROC",
