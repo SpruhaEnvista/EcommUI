@@ -11,6 +11,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendCommonDto;
 import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendMonthlyChartDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.*;
+import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.AverageSpendPerShipmentDto;
 import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendByCarrierDto;
 import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendByMonthDto;
 import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendDto;
@@ -63,6 +64,14 @@ public class DashboardsController extends DashboardBaseController {
         ACCESSORIAL_SPEND,
         ACCESSORIAL_SPEND_BY_CARRIER,
         ACCESSORIAL_SPEND_BY_MONTH,
+    }
+
+    public enum ShipmentOverviewConstant{
+        AVG_SPEND_PER_SHIPMT,
+        NET_SPEND_OVER_TIME_BY_MONTH,
+        NET_SPEND_BY_OVER_TIME,
+        NET_SPEND_BY_CARRIER,
+        NET_SPEND_BY_MONTH;
     }
 
     @RequestMapping(value = "/appliedFilter", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -396,6 +405,24 @@ public class DashboardsController extends DashboardBaseController {
         return new ResponseEntity<String>(accSpendJson.toString(), HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/avgSpendPerShepment", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getAvgSpendPerShipment(){
+        JSONObject avgSpendPerShipmtJsonData = null;
+        try{
+            UserProfileDto user = getUserProfile();
+            if(null == user){
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            JSONObject avgShipmentData = loadShipmentOverviewJsonData(ShipmentOverviewConstant.AVG_SPEND_PER_SHIPMT, filter);
+            avgSpendPerShipmtJsonData = (avgShipmentData != null ? avgShipmentData : new JSONObject());
+        }catch(Exception e){
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>(avgSpendPerShipmtJsonData.toString(), HttpStatus.OK);
+    }
+
+
     private JSONObject loadNetSpendJsonData(NetSpendConstant netSpendType, DashboardsFilterCriteria filter) throws JSONException {
         JSONObject netSpendJson = null;
         switch (netSpendType){
@@ -666,4 +693,42 @@ public class DashboardsController extends DashboardBaseController {
         }
         return accSpendJson;
     }
+
+    private JSONObject loadShipmentOverviewJsonData(ShipmentOverviewConstant shipmentOverviewType, DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject netSpendJson = null;
+
+        switch (shipmentOverviewType){
+            case AVG_SPEND_PER_SHIPMT:
+                netSpendJson = loadAvgSpendPerShipmtJson(filter);
+                break;
+            case NET_SPEND_BY_OVER_TIME:
+                netSpendJson = loadNetSpendByOverTimeJson(filter);
+                break;
+            case NET_SPEND_OVER_TIME_BY_MONTH:
+                netSpendJson = loadNetSpendOverTimeByMonthJson(filter);
+                break;
+            case NET_SPEND_BY_CARRIER:
+                netSpendJson = loadNetSpendByCarrierJson(filter);
+                break;
+            case NET_SPEND_BY_MONTH:
+                netSpendJson = loadNetSpendByMonthJson(filter);
+                break;
+            default:
+                throw new MethodNotFoundException("Method param value not matched");
+        }
+        return netSpendJson;
+    }
+
+
+
+    private JSONObject loadAvgSpendPerShipmtJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject avgSpendShipmentJson = null;
+
+        List<AverageSpendPerShipmentDto> avgPerShipmentList = dashboardsService.getAvgSpendPerShipment(filter,false);
+        if(avgPerShipmentList != null && avgPerShipmentList.size() > 0){
+            avgSpendShipmentJson = JSONUtil.prepareAverageWeightOrSpendJson(avgPerShipmentList);//errorr
+        }
+        return avgSpendShipmentJson;
+    }
+
 }

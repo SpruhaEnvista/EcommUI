@@ -6,7 +6,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendCommonDto;
 import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendMonthlyChartDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendByModeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendOverTimeDto;
-import com.envista.msi.api.web.rest.dto.netspend.*;
+import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.AverageSpendPerShipmentDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
@@ -64,7 +64,7 @@ public class JSONUtil {
 		}
 		return jsonInString;
 	}
-	
+
 	/**
 	 * @param <T>
 	 * @param jsonInString
@@ -438,4 +438,75 @@ public class JSONUtil {
 		}
 		return returnObject;
 	}
+
+	public static JSONObject prepareAverageWeightOrSpendJson(   List<AverageSpendPerShipmentDto> avgPerShipmentList) throws JSONException {
+		JSONObject returnObject = new JSONObject();
+		JSONArray valuesArray = new JSONArray();
+		JSONArray seriesArray = new JSONArray();
+		LinkedHashMap<String, HashMap<String, Double>> datesValuesMap = new LinkedHashMap<String, HashMap<String, Double>>();
+		ArrayList<String> modeFlagList = new ArrayList<String>();
+
+			for (AverageSpendPerShipmentDto perShipmentDto:avgPerShipmentList){
+				String billDate = perShipmentDto.getBillDate();
+				String mode = perShipmentDto.getModes();
+				Double spend = perShipmentDto.getNetWeight();
+
+				if (spend != 0) {
+
+					if (!modeFlagList.contains(mode)) {
+						modeFlagList.add(mode);
+					}
+
+					if (datesValuesMap.containsKey(billDate)) {
+						datesValuesMap.get(billDate).put(mode, spend);
+					} else {
+						HashMap<String, Double> tempHashMap = new HashMap<String, Double>();
+						tempHashMap.put(mode, spend);
+						datesValuesMap.put(billDate, tempHashMap);
+					}
+
+				}
+
+			}
+			// Bar Chart
+			int counter = 1;
+			Iterator<String> datesIterator = datesValuesMap.keySet().iterator();
+
+			while (datesIterator.hasNext()) {
+				JSONObject jsonObject = new JSONObject();
+
+				String date = datesIterator.next();
+				HashMap<String, Double> modeFlagMap = datesValuesMap.get(date);
+				Iterator<String> modeFlagIterator = modeFlagMap.keySet().iterator();
+
+				jsonObject.put("name", date);
+				jsonObject.put("counter", counter);
+
+				while (modeFlagIterator.hasNext()) {
+					String modeFlag = modeFlagIterator.next();
+					double spend = modeFlagMap.get(modeFlag);
+					jsonObject.put(modeFlag, spend);
+				}
+				valuesArray.put(jsonObject);
+				counter++;
+			}
+
+			String append = "\"";
+			counter = 1;
+			for (String modeFlag : modeFlagList) {
+				modeFlag = append + modeFlag + append;
+				String seriesId = append + "S" + counter + append;
+				String object = "{\"id\":" + seriesId + ",\"name\":" + modeFlag + ", \"data\": {\"field\":" + modeFlag
+						+ "},\"type\":\"line\",\"style\":{\"lineWidth\": 2,smoothing: true, marker: {shape: \"circle\", width: 5},";
+				object = object + "lineColor: \"" + colorsList.get(counter - 1) + "\"";
+				object = object + "}}";
+				seriesArray.put(new JSONObject(object));
+				counter++;
+			}
+			returnObject.put("values", valuesArray);
+			returnObject.put("series", seriesArray);
+
+		return returnObject;
+	}
+
 }
