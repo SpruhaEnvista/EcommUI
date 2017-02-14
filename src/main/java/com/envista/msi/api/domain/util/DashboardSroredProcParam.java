@@ -69,8 +69,23 @@ public class DashboardSroredProcParam {
         public static final String TO_DATE_PARAM = "p_to_date";
         public static final String CARRIER_ID_PARAM = "p_carrier_id";
         public static final String CUSTOMER_IDS_CSV_PARAM = "p_customer_ids";
-        public static final String TOP_ACCESSORIAL_SPEND_PARAM = "p_top_accessorial_spend";
-        public static final String NET_SPEND_PARAM = "p_net_spend";
+        public static final String TOP_ACCESSORIAL_SPEND_PARAM = "p_is_top_ten_accessorial";
+        public static final String AVG_SPEND_PER_SHIPMT_PARAM = "p_avg_spend_per_shipmt";
+    }
+
+    public static class AverageWeightByModeShipmtParam{
+        public static final String DATE_TYPE_PARAM = "p_date_type";
+        public static final String CONVERTED_WEIGHT_UNIT_PARAM = "p_converted_weight_unit";
+        public static final String MODES_PARAM = "p_modes";
+        public static final String SERVICES_PARAM = "p_services";
+        public static final String ACCESSORIAL_NAME_PARAM = "p_accessorial_name";
+        public static final String LANES_PARAM = "p_lanes_info";
+        public static final String FROM_DATE_PARAM = "p_from_date";
+        public static final String TO_DATE_PARAM = "p_to_date";
+        public static final String CARRIER_ID_PARAM = "p_carrier_id";
+        public static final String CUSTOMER_IDS_CSV_PARAM = "p_customer_ids";
+        public static final String TOP_ACCESSORIAL_SPEND_PARAM = "p_is_top_ten_accessorial";
+        public static final String AVG_WEGT_MODE_SHIPMT_PARAM = "p_avg_wegt_by_mode_shipmt";
     }
 
 }

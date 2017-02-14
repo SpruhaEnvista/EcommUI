@@ -4,32 +4,33 @@ import com.envista.msi.api.domain.util.DashboardSroredProcParam;
 
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 /**
  * Created by Siddhant on 13/02/2017.
  */
 @NamedStoredProcedureQueries({
         @NamedStoredProcedureQuery(name = "AverageSpendPerShipmentDto.getAverageSpendPerShipment", procedureName = "SHP_DB_AVG_SPN_PER_SHPMT_PROC",
-                resultSetMappings = "AvgSpendPerShipmentMapping",
+                resultSetMappings = "AverageSpendPerShipmentDto.AvgSpendPerShipmentMapping",
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AverageSpendShipmentParam.DATE_TYPE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AverageSpendShipmentParam.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AverageSpendShipmentParam.CONVERTED_CURRENCY_CODE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AverageSpendShipmentParam.CUSTOMER_IDS_CSV_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AverageSpendShipmentParam.CARRIER_ID_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AverageSpendShipmentParam.MODES_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AverageSpendShipmentParam.SERVICES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AverageSpendShipmentParam.LANES_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AverageSpendShipmentParam.ACCESSORIAL_NAME_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AverageSpendShipmentParam.LANES_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AverageSpendShipmentParam.FROM_DATE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AverageSpendShipmentParam.TO_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AverageSpendShipmentParam.CARRIER_ID_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AverageSpendShipmentParam.CUSTOMER_IDS_CSV_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AverageSpendShipmentParam.TOP_ACCESSORIAL_SPEND_PARAM, type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.AverageSpendShipmentParam.NET_SPEND_PARAM, type = Void.class)
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.AverageSpendShipmentParam.AVG_SPEND_PER_SHIPMT_PARAM, type = Void.class)
                 })
 })
 
 @SqlResultSetMappings({
-        @SqlResultSetMapping(name = "AvgSpendPerShipmentMapping", classes = {
+        @SqlResultSetMapping(name = "AverageSpendPerShipmentDto.AvgSpendPerShipmentMapping", classes = {
                 @ConstructorResult(
                         targetClass = AverageSpendPerShipmentDto.class,
                         columns = {
@@ -42,7 +43,7 @@ import javax.persistence.*;
 })
 
 @Entity
-public class AverageSpendPerShipmentDto {
+public class AverageSpendPerShipmentDto implements Serializable{
     @Id
     private Long id;
 

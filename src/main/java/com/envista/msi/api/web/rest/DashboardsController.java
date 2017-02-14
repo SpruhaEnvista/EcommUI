@@ -12,6 +12,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendMonthlyChartDto
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.*;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.AverageSpendPerShipmentDto;
+import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.AverageWeightModeShipmtDto;
 import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendByCarrierDto;
 import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendByMonthDto;
 import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendDto;
@@ -68,7 +69,7 @@ public class DashboardsController extends DashboardBaseController {
 
     public enum ShipmentOverviewConstant{
         AVG_SPEND_PER_SHIPMT,
-        NET_SPEND_OVER_TIME_BY_MONTH,
+        AVG_WEIGHT_BY_MODE_SHIPMT,
         NET_SPEND_BY_OVER_TIME,
         NET_SPEND_BY_CARRIER,
         NET_SPEND_BY_MONTH;
@@ -405,7 +406,7 @@ public class DashboardsController extends DashboardBaseController {
         return new ResponseEntity<String>(accSpendJson.toString(), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/avgSpendPerShepment", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/avgSpendPerShipment", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<String> getAvgSpendPerShipment(){
         JSONObject avgSpendPerShipmtJsonData = null;
         try{
@@ -422,6 +423,22 @@ public class DashboardsController extends DashboardBaseController {
         return new ResponseEntity<String>(avgSpendPerShipmtJsonData.toString(), HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/avgWeightByModeShipment", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getAverageWeightByModeShipment(){
+        JSONObject avgWeightModeShipmtJsonData = null;
+        try{
+            UserProfileDto user = getUserProfile();
+            if(null == user){
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            JSONObject avgShipmentData = loadShipmentOverviewJsonData(ShipmentOverviewConstant.AVG_WEIGHT_BY_MODE_SHIPMT, filter);
+            avgWeightModeShipmtJsonData = (avgShipmentData != null ? avgShipmentData : new JSONObject());
+        }catch(Exception e){
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>(avgWeightModeShipmtJsonData.toString(), HttpStatus.OK);
+    }
 
     private JSONObject loadNetSpendJsonData(NetSpendConstant netSpendType, DashboardsFilterCriteria filter) throws JSONException {
         JSONObject netSpendJson = null;
@@ -695,28 +712,25 @@ public class DashboardsController extends DashboardBaseController {
     }
 
     private JSONObject loadShipmentOverviewJsonData(ShipmentOverviewConstant shipmentOverviewType, DashboardsFilterCriteria filter) throws JSONException {
-        JSONObject netSpendJson = null;
+        JSONObject avgShipmentJson = null;
 
         switch (shipmentOverviewType){
             case AVG_SPEND_PER_SHIPMT:
-                netSpendJson = loadAvgSpendPerShipmtJson(filter);
+                avgShipmentJson = loadAvgSpendPerShipmtJson(filter);
                 break;
-            case NET_SPEND_BY_OVER_TIME:
-                netSpendJson = loadNetSpendByOverTimeJson(filter);
-                break;
-            case NET_SPEND_OVER_TIME_BY_MONTH:
-                netSpendJson = loadNetSpendOverTimeByMonthJson(filter);
+            case AVG_WEIGHT_BY_MODE_SHIPMT:
+                avgShipmentJson = loadNetSpendByOverTimeJson(filter);
                 break;
             case NET_SPEND_BY_CARRIER:
-                netSpendJson = loadNetSpendByCarrierJson(filter);
+                avgShipmentJson = loadNetSpendByCarrierJson(filter);
                 break;
             case NET_SPEND_BY_MONTH:
-                netSpendJson = loadNetSpendByMonthJson(filter);
+                avgShipmentJson = loadNetSpendByMonthJson(filter);
                 break;
             default:
                 throw new MethodNotFoundException("Method param value not matched");
         }
-        return netSpendJson;
+        return avgShipmentJson;
     }
 
 
@@ -726,9 +740,19 @@ public class DashboardsController extends DashboardBaseController {
 
         List<AverageSpendPerShipmentDto> avgPerShipmentList = dashboardsService.getAvgSpendPerShipment(filter,false);
         if(avgPerShipmentList != null && avgPerShipmentList.size() > 0){
-            avgSpendShipmentJson = JSONUtil.prepareAverageWeightOrSpendJson(avgPerShipmentList);//errorr
+            avgSpendShipmentJson = JSONUtil.prepareAverageWeightOrSpendJson(avgPerShipmentList);
         }
         return avgSpendShipmentJson;
+    }
+
+    private JSONObject loadAvgWeightByModeShipmtJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject avgShipmentJson = null;
+
+        List<AverageWeightModeShipmtDto> avgShipmentList = dashboardsService.getAverageWeightByModeShipmt(filter,false);
+        if(avgShipmentList != null && avgShipmentList.size() > 0){
+            avgShipmentJson = JSONUtil.prepareAverageWeightJson(avgShipmentList);
+        }
+        return avgShipmentJson;
     }
 
 }

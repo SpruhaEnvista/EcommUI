@@ -7,6 +7,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendMonthlyChartDto
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendByModeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendOverTimeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.AverageSpendPerShipmentDto;
+import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.AverageWeightModeShipmtDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
@@ -439,7 +440,7 @@ public class JSONUtil {
 		return returnObject;
 	}
 
-	public static JSONObject prepareAverageWeightOrSpendJson(   List<AverageSpendPerShipmentDto> avgPerShipmentList) throws JSONException {
+	public static JSONObject prepareAverageWeightOrSpendJson(List<AverageSpendPerShipmentDto> avgPerShipmentList) throws JSONException {
 		JSONObject returnObject = new JSONObject();
 		JSONArray valuesArray = new JSONArray();
 		JSONArray seriesArray = new JSONArray();
@@ -505,6 +506,77 @@ public class JSONUtil {
 			}
 			returnObject.put("values", valuesArray);
 			returnObject.put("series", seriesArray);
+
+		return returnObject;
+	}
+
+
+	public static JSONObject prepareAverageWeightJson(   List<AverageWeightModeShipmtDto> avgWeigthModeShpmtList) throws JSONException {
+		JSONObject returnObject = new JSONObject();
+		JSONArray valuesArray = new JSONArray();
+		JSONArray seriesArray = new JSONArray();
+		LinkedHashMap<String, HashMap<String, Double>> datesValuesMap = new LinkedHashMap<String, HashMap<String, Double>>();
+		ArrayList<String> modeFlagList = new ArrayList<String>();
+
+		for (AverageWeightModeShipmtDto perWeightShipmentDto:avgWeigthModeShpmtList){
+			String billDate = perWeightShipmentDto.getBillDate();
+			String mode = perWeightShipmentDto.getModes();
+			Double spend = perWeightShipmentDto.getNetWeight();
+
+			if (spend != 0) {
+
+				if (!modeFlagList.contains(mode)) {
+					modeFlagList.add(mode);
+				}
+
+				if (datesValuesMap.containsKey(billDate)) {
+					datesValuesMap.get(billDate).put(mode, spend);
+				} else {
+					HashMap<String, Double> tempHashMap = new HashMap<String, Double>();
+					tempHashMap.put(mode, spend);
+					datesValuesMap.put(billDate, tempHashMap);
+				}
+
+			}
+
+		}
+		// Bar Chart
+		int counter = 1;
+		Iterator<String> datesIterator = datesValuesMap.keySet().iterator();
+
+		while (datesIterator.hasNext()) {
+			JSONObject jsonObject = new JSONObject();
+
+			String date = datesIterator.next();
+			HashMap<String, Double> modeFlagMap = datesValuesMap.get(date);
+			Iterator<String> modeFlagIterator = modeFlagMap.keySet().iterator();
+
+			jsonObject.put("name", date);
+			jsonObject.put("counter", counter);
+
+			while (modeFlagIterator.hasNext()) {
+				String modeFlag = modeFlagIterator.next();
+				double spend = modeFlagMap.get(modeFlag);
+				jsonObject.put(modeFlag, spend);
+			}
+			valuesArray.put(jsonObject);
+			counter++;
+		}
+
+		String append = "\"";
+		counter = 1;
+		for (String modeFlag : modeFlagList) {
+			modeFlag = append + modeFlag + append;
+			String seriesId = append + "S" + counter + append;
+			String object = "{\"id\":" + seriesId + ",\"name\":" + modeFlag + ", \"data\": {\"field\":" + modeFlag
+					+ "},\"type\":\"line\",\"style\":{\"lineWidth\": 2,smoothing: true, marker: {shape: \"circle\", width: 5},";
+			object = object + "lineColor: \"" + colorsList.get(counter - 1) + "\"";
+			object = object + "}}";
+			seriesArray.put(new JSONObject(object));
+			counter++;
+		}
+		returnObject.put("values", valuesArray);
+		returnObject.put("series", seriesArray);
 
 		return returnObject;
 	}
