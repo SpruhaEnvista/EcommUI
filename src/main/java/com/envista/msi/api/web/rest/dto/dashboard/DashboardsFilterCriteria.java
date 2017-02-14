@@ -52,6 +52,7 @@ public class DashboardsFilterCriteria implements Serializable {
     private String originalDateType;
     private boolean handleParcelServices;
     private boolean parcelDashlettes;
+    private long noOfLanes;
 
     public String getCustomerIdsCSV() {
         return customerIdsCSV;
@@ -411,6 +412,14 @@ public class DashboardsFilterCriteria implements Serializable {
 
     public void setParcelDashlettes(boolean parcelDashlettes) {
         this.parcelDashlettes = parcelDashlettes;
+    }
+
+    public long getNoOfLanes() {
+        return noOfLanes;
+    }
+
+    public void setNoOfLanes(long noOfLanes) {
+        this.noOfLanes = noOfLanes;
     }
 
     public class FreightDashboardsDataBean {

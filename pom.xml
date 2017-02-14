@@ -237,6 +237,52 @@
 			<artifactId>spring-security-oauth2</artifactId>
 			<version>${spring-security-oauth2.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-core-asl</artifactId>
+			<version>1.8.5</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-jaxrs</artifactId>
+			<version>1.8.5</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-mapper-asl</artifactId>
+			<version>1.8.5</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-xc</artifactId>
+			<version>1.8.5</version>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-core-asl</artifactId>
+			<version>1.8.5</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-jaxrs</artifactId>
+			<version>1.8.5</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-mapper-asl</artifactId>
+			<version>1.8.5</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-xc</artifactId>
+			<version>1.8.5</version>
+		</dependency>
 	</dependencies>
     <repositories>
         <repository>
@@ -297,7 +343,7 @@
                             </pluginExecutions>
                         </lifecycleMappingMetadata>
                     </configuration>
-                </plugin>            
+                </plugin>
             <plugin>
                 <groupId>com.github.ekryd.sortpom</groupId>
                 <artifactId>sortpom-maven-plugin</artifactId>
@@ -353,7 +399,7 @@
                     <runOrder>alphabetical</runOrder>
                 </configuration>
             </plugin>
-            
+
             <plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
@@ -361,7 +407,7 @@
 					<target>${java.version}</target>
 				</configuration>
 			</plugin>
-            
+
             <plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
@@ -406,7 +452,7 @@
                 <dependencies>
                     <dependency>
                         <groupId>org.mapstruct</groupId>
-                        <artifactId>mapstruct-processor</artifactId> 
+                        <artifactId>mapstruct-processor</artifactId>
                         <version>${mapstruct.version}</version>
                     </dependency>
                 </dependencies>
@@ -420,7 +466,7 @@
                         <mapstruct.defaultComponentModel>spring</mapstruct.defaultComponentModel>
                     </options>
                 </configuration>
-            </plugin> 
+            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>sonar-maven-plugin</artifactId>
@@ -467,7 +513,7 @@
                     </arguments>
                 </configuration>
             </plugin>
-           
+
             </plugins>
         </pluginManagement>
     </build>

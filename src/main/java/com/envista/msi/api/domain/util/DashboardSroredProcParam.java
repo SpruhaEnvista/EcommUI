@@ -163,4 +163,20 @@ public class DashboardSroredProcParam {
         public static final String TOP_TEN_ACCESSORIAL_PARAM =  "p_is_top_ten_accessorial";
         public static final String RECOVERY_SERVICE_DATA_PARAM = "p_recov_service_data";
     }
+
+    public static class ShipmentRegionParams{
+        public static final String DATE_TYPE_PARAM = "p_date_type";
+        public static final String CUSTOMER_IDS_CSV_PARAM = "p_customer_ids";
+        public static final String CARRIER_ID_PARAM = "p_carrier_id";
+        public static final String MODES_PARAM = "p_modes";
+        public static final String SERVICES_PARAM = "p_services";
+        public static final String LANES_PARAM = "p_lanes_info";
+        public static final String ACCESSORIAL_NAME_PARAM = "p_accessorial_name";
+        public static final String FROM_DATE_PARAM = "p_from_date";
+        public static final String TO_DATE_PARAM = "p_to_date";
+        public static final String NO_OF_LANES_PARAM = "p_no_of_lanes";
+        public static final String RESULTS_DATA_PARAM = "p_results_out";
+        public static final String SHIPPER_CITY = "p_shipper_city";
+        public static final String RECEIVER_CITY = "p_receiver_city";
+    }
 }

@@ -1,12 +1,15 @@
 package com.envista.msi.api.web.rest.util;
 
+import com.envista.msi.api.web.rest.dto.MapCoordinatesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.accessorialspend.AccessorialSpendDto;
 import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
+import com.envista.msi.api.web.rest.dto.dashboard.common.CommonMonthlyChartDto;
 import com.envista.msi.api.web.rest.dto.dashboard.common.CommonValuesForChartDto;
 import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendCommonDto;
 import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendMonthlyChartDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendByModeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendOverTimeDto;
+import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentRegionDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
@@ -157,46 +160,6 @@ public class JSONUtil {
 			netSpendJsonData.put("series", seriesArray);
 		}
 		return netSpendJsonData;
-	}
-
-	public static JSONObject prepareMonthlyChartJson(List<NetSpendMonthlyChartDto> netSpendMonthlyChartDtos) throws JSONException {
-		JSONObject returnJson = new JSONObject();
-		JSONArray returnArray = null;
-		int count = 0;
-		long fromDate = 0;
-		long toDate = 0;
-
-		if(netSpendMonthlyChartDtos != null && netSpendMonthlyChartDtos.size() > 0){
-			returnArray = new JSONArray();
-			for(NetSpendMonthlyChartDto monthlyChartDto : netSpendMonthlyChartDtos){
-				if(monthlyChartDto != null){
-					JSONArray dataArray = new JSONArray();
-					long dateInMilliSecs = 0L;
-					if(monthlyChartDto.getBillDate() != null){
-						dateInMilliSecs = monthlyChartDto.getBillDate().getTime();
-					}
-
-					dataArray.put(dateInMilliSecs);
-					dataArray.put(monthlyChartDto.getAmount());
-					returnArray.put(dataArray);
-					if (count == 0) {
-						fromDate = dateInMilliSecs;
-					}
-					toDate = dateInMilliSecs;
-					dataArray = null;
-
-					count++;
-				}
-			}
-			if (fromDate == toDate) {
-				toDate = toDate + 1;
-			}
-
-			returnJson.put("values", returnArray);
-			returnJson.put("fromDate", fromDate);
-			returnJson.put("toDate", toDate);
-		}
-		return returnJson;
 	}
 
 	public static JSONObject prepareNetSpendOverTimeJson(List<NetSpendOverTimeDto> netSpendOverTimeDtos) throws JSONException {
@@ -670,5 +633,120 @@ public class JSONUtil {
 			returnObject.put("series", new JSONArray());
 		}
 		return returnObject;
+	}
+
+	public static JSONObject prepareShipmentByRegionLanesJson (List<ShipmentRegionDto> shipmentRegionDtoList) throws Exception {
+
+		JSONObject resultData = new JSONObject();
+		JSONArray linksArray = new JSONArray();
+		JSONObject linksObject = null ;
+		JSONArray addressArray = new JSONArray();
+
+
+		for ( ShipmentRegionDto shipmentRegionDto : shipmentRegionDtoList) {
+			String shipperCity = shipmentRegionDto.getShipperCity().replaceAll("\\s+", " ");
+			String receiverCity = shipmentRegionDto.getReceiverCity().replaceAll("\\s+", " ");
+			String shipperAddress = shipmentRegionDto.getShipperAddress().toUpperCase();
+			String receiverAddress = shipmentRegionDto.getReceiverAddress().toUpperCase();
+
+			boolean matched = false;
+			for (int i = 0; i < linksArray.length(); i++) {
+				JSONObject jsonobject = linksArray.getJSONObject(i);
+				if (jsonobject.get("from").toString().equalsIgnoreCase(shipperCity) && jsonobject.get("to").toString().equalsIgnoreCase(receiverCity)) {
+					matched = true;
+					int count = Integer.parseInt(jsonobject.get("count").toString());
+					count = count + shipmentRegionDto.getLaneCount();
+					jsonobject.remove("count");
+					jsonobject.put("count", count);
+					linksArray.put(i, jsonobject);
+					break;
+				}
+			}
+			if (matched == false) {
+				linksObject = new JSONObject();
+				linksObject.put("from", shipperCity);
+				linksObject.put("to", receiverCity);
+				linksObject.put("count", shipmentRegionDto.getLaneCount());
+			}
+
+			addressArray.put(shipperAddress);
+			addressArray.put(receiverAddress);
+
+			linksArray.put(linksObject);
+		}
+
+		resultData.put("links",linksArray);
+		resultData.put("addressList",addressArray);
+
+		return resultData;
+	}
+
+	public static JSONObject prepareShipmentByRegionNodesJson(List<MapCoordinatesDto> mapCoordinatesDtoList, JSONObject resultJsonData) throws Exception{
+		int counter = 0 ;
+		JSONArray nodesArray = new JSONArray();
+
+		for ( MapCoordinatesDto mapCoordinatesDto : mapCoordinatesDtoList ) {
+
+			JSONArray longLatJsonArray = new JSONArray();
+			JSONObject nodeObj = new JSONObject();
+
+			if( counter == 0) {
+				resultJsonData.put("longitude", mapCoordinatesDto.getLatitude());
+				resultJsonData.put("latitude", mapCoordinatesDto.getLongitude());
+			}
+
+			longLatJsonArray.put(mapCoordinatesDto.getLongitude());
+			longLatJsonArray.put(mapCoordinatesDto.getLatitude());
+
+			nodeObj.put("id", mapCoordinatesDto.getAddress().split(",")[0]);
+			nodeObj.put("coordinates", longLatJsonArray);
+			nodesArray.put(nodeObj);
+
+			counter++;
+		}
+
+		resultJsonData.put("nodes", nodesArray);
+
+		return resultJsonData;
+	}
+
+	public static JSONObject prepareMonthlyChartJson(List<CommonMonthlyChartDto> monthlyChartDtoList) throws JSONException {
+		JSONObject returnJson = new JSONObject();
+		JSONArray returnArray = null;
+		int count = 0;
+		long fromDate = 0;
+		long toDate = 0;
+
+		if(monthlyChartDtoList != null && monthlyChartDtoList.size() > 0){
+			returnArray = new JSONArray();
+			for(CommonMonthlyChartDto monthlyChartDto : monthlyChartDtoList){
+				if(monthlyChartDto != null){
+					JSONArray dataArray = new JSONArray();
+					long dateInMilliSecs = 0L;
+					if(monthlyChartDto.getBillDate() != null){
+						dateInMilliSecs = monthlyChartDto.getBillDate().getTime();
+					}
+
+					dataArray.put(dateInMilliSecs);
+					dataArray.put(monthlyChartDto.getAmount());
+					returnArray.put(dataArray);
+					if (count == 0) {
+						fromDate = dateInMilliSecs;
+					}
+					toDate = dateInMilliSecs;
+					dataArray = null;
+
+					count++;
+				}
+			}
+			if (fromDate == toDate) {
+				toDate = toDate + 1;
+			}
+
+			returnJson.put("values", returnArray);
+			returnJson.put("fromDate", fromDate);
+			returnJson.put("toDate", toDate);
+		}
+		return returnJson;
 	}
 }
