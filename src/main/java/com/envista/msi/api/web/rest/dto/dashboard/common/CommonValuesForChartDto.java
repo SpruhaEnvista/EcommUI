@@ -73,6 +73,12 @@ public class CommonValuesForChartDto implements Serializable{
         this.value = recoveryServ.getValue();
     }
 
+    public CommonValuesForChartDto(PackageExceptionDto packageException){
+        this.id = packageException.getId();
+        this.name = packageException.getName();
+        this.value = packageException.getValue();
+    }
+
     public static List<CommonValuesForChartDto> buildRecoveryAdjustmentListToCommonValueForChartList(List<RecoveryAdjustmentDto> recoveryAdjustmentList){
         if(recoveryAdjustmentList == null || recoveryAdjustmentList.isEmpty()) return null;
 
@@ -92,6 +98,18 @@ public class CommonValuesForChartDto implements Serializable{
         for(RecoveryServiceDto recoveryServ : recoveryServiceList){
             if(recoveryServ != null){
                 commonValuesForChartList.add(new CommonValuesForChartDto(recoveryServ));
+            }
+        }
+        return commonValuesForChartList;
+    }
+
+    public static List<CommonValuesForChartDto> buildPackageExceptionListToCommonValueForChartList(List<PackageExceptionDto> packageExceptionList){
+        if(packageExceptionList == null || packageExceptionList.isEmpty()) return null;
+
+        List<CommonValuesForChartDto> commonValuesForChartList = new ArrayList<>();
+        for(PackageExceptionDto packageException : packageExceptionList){
+            if(packageException != null){
+                commonValuesForChartList.add(new CommonValuesForChartDto(packageException));
             }
         }
         return commonValuesForChartList;

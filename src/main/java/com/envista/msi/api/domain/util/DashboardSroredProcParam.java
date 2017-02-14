@@ -161,6 +161,22 @@ public class DashboardSroredProcParam {
         public static final String ACCESSORIAL_NAME_PARAM = "p_accessorial_name";
         public static final String MODE_NAMES_PARAM = "p_mode_names";
         public static final String TOP_TEN_ACCESSORIAL_PARAM =  "p_is_top_ten_accessorial";
+        public static final String SERVICE_PARAM = "p_service";
         public static final String RECOVERY_SERVICE_DATA_PARAM = "p_recov_service_data";
+    }
+
+    public static class PackageExceptionParams{
+        public static final String DATE_TYPE_PARAM = "p_date_type";
+        public static final String CUSTOMER_IDS_CSV_PARAM = "p_customer_ids";
+        public static final String CARRIER_IDS_PARAM = "p_carrier_ids";
+        public static final String MODES_PARAM = "p_modes";
+        public static final String SERVICES_PARAM = "p_services";
+        public static final String LANES_PARAM = "p_lanes_info";
+        public static final String FROM_DATE_PARAM = "p_from_date";
+        public static final String TO_DATE_PARAM = "p_to_date";
+        public static final String ACCESSORIAL_NAME_PARAM = "p_accessorial_name";
+        public static final String TOP_TEN_ACCESSORIAL_PARAM =  "p_is_top_ten_accessorial";
+        public static final String DELIVERY_FLAG_PARAM = "p_delivery_flag";
+        public static final String PACKAGE_EXCEPTION_DATA_PARAM = "p_pkg_excp_data";
     }
 }

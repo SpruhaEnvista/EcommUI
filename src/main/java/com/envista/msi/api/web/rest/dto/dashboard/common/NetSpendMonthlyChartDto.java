@@ -75,6 +75,11 @@ public class NetSpendMonthlyChartDto {
         this.amount = recoveryAdjustment.getAmount();
     }
 
+    public NetSpendMonthlyChartDto(PackageExceptionDto packageException){
+        this.billDate = packageException.getBillDate();
+        this.amount = packageException.getAmount();
+    }
+
     public static List<NetSpendMonthlyChartDto> buildRecoveryAdjustmentListToMonthlyChartList(List<RecoveryAdjustmentDto> recoveryAdjustmentList){
         List<NetSpendMonthlyChartDto> monthlyChartList = null;
         if(recoveryAdjustmentList != null && !recoveryAdjustmentList.isEmpty()){
@@ -95,6 +100,19 @@ public class NetSpendMonthlyChartDto {
             for(RecoveryServiceDto recoveryService : recoveryServiceList){
                 if(recoveryService != null){
                     monthlyChartList.add(new NetSpendMonthlyChartDto(recoveryService));
+                }
+            }
+        }
+        return monthlyChartList;
+    }
+
+    public static List<NetSpendMonthlyChartDto> buildackageExceptionListToMonthlyChartList(List<PackageExceptionDto> packageExceptionList){
+        List<NetSpendMonthlyChartDto> monthlyChartList = null;
+        if(packageExceptionList != null && !packageExceptionList.isEmpty()){
+            monthlyChartList = new ArrayList<NetSpendMonthlyChartDto>();
+            for(PackageExceptionDto packageException : packageExceptionList){
+                if(packageException != null){
+                    monthlyChartList.add(new NetSpendMonthlyChartDto(packageException));
                 }
             }
         }

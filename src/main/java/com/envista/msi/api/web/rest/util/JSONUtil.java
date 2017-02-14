@@ -600,25 +600,33 @@ public class JSONUtil {
 		if(recoveryServiceList != null && !recoveryServiceList.isEmpty()){
 			valuesArray = new JSONArray();
 			seriesArray = new JSONArray();
-			LinkedHashMap<String, HashMap<String, Double>> servicesMap = new LinkedHashMap<String, HashMap<String, Double>>();
+			Map<String, HashMap<String, Double>> servicesMap = new LinkedHashMap<String, HashMap<String, Double>>();
+			Map<String, Long> carrierMap = new HashMap<String, Long>();
 			ArrayList<String> carriersList = new ArrayList<String>();
+			ArrayList<String> concatCarriersList = new ArrayList<String>();
 
 			for(RecoveryServiceDto recoveryService : recoveryServiceList){
 				if(recoveryService != null){
 					String service = recoveryService.getBucketType();
-					String carrieName = recoveryService.getCarrierName();
+					String carrierName = recoveryService.getCarrierName();
+					Long carrierId = recoveryService.getCarrierId();
 					Double spend = recoveryService.getCreditAmount();
-
+					carrierMap.put(carrierName, carrierId);
 					if (spend != null && spend != 0) {
-						if (!carriersList.contains(carrieName)) {
-							carriersList.add(carrieName);
+						String concatCarrier = carrierId + "#@#" + carrierName;
+						if (!concatCarriersList.contains(concatCarrier)) {
+							concatCarriersList.add(concatCarrier);
+						}
+
+						if (!carriersList.contains(carrierName)) {
+							carriersList.add(carrierName);
 						}
 
 						if (servicesMap.containsKey(service)) {
-							servicesMap.get(service).put(carrieName, spend);
+							servicesMap.get(service).put(carrierName, spend);
 						} else {
 							HashMap<String, Double> tempHashMap = new HashMap<String, Double>();
-							tempHashMap.put(carrieName, spend);
+							tempHashMap.put(carrierName, spend);
 							servicesMap.put(service, tempHashMap);
 						}
 
@@ -655,17 +663,111 @@ public class JSONUtil {
 			counter = 1;
 
 			for (String carrier : carriersList) {
+				String carrierName = carrier;
 				carrier = append + carrier + append;
 				String seriesId = append + "S" + counter + append;
 
-				String object = "{\"id\":" + seriesId + ",\"name\":" + carrier + ", \"data\": {\"field\":" + carrier + "},style: { depth: 4, gradient: 0.9 }}";
+				String object = "{\"id\":" + seriesId + ",\"name\":" + carrier + ", \"data\": {\"field\":" + carrier + ",\"carrierId\" : "+ carrierMap.get(carrierName) +"},style: { depth: 4, gradient: 0.9 }}";
 				seriesArray.put(new JSONObject(object));
 				counter++;
 			}
 
 			returnObject.put("values", valuesArray);
 			returnObject.put("series", seriesArray);
+			returnObject.put("carrierDetails", new JSONArray().put(concatCarriersList));
 		} else{
+			returnObject.put("values", new JSONArray());
+			returnObject.put("series", new JSONArray());
+			returnObject.put("carrierDetails", new JSONArray());
+		}
+		return returnObject;
+	}
+
+	public static JSONObject preparePackageExceptionJson(List<PackageExceptionDto> packageExceptionList) throws JSONException {
+		JSONObject returnObject = new JSONObject();
+
+		if(packageExceptionList != null && !packageExceptionList.isEmpty()){
+			JSONArray valuesArray = new JSONArray();
+			JSONArray seriesArray = new JSONArray();
+			LinkedHashMap<String, HashMap<String, Integer>> datesValuesMap = new LinkedHashMap<String, HashMap<String, Integer>>();
+			ArrayList<String> deliveryFlagList = new ArrayList<String>();
+
+			for(PackageExceptionDto packageException : packageExceptionList){
+				if(packageException != null){
+					String billDate = packageException.getBillingDate();
+					String deliveryFlag = packageException.getDeliveryFlag();
+					Integer spend = packageException.getDeliveryFlagCount();
+
+					if (spend != 0) {
+
+						if ("NoPods".equalsIgnoreCase(deliveryFlag)) {
+							deliveryFlag = "No POD";
+						}
+
+						if (!deliveryFlagList.contains(deliveryFlag)) {
+							deliveryFlagList.add(deliveryFlag);
+						}
+
+						if (datesValuesMap.containsKey(billDate)) {
+							datesValuesMap.get(billDate).put(deliveryFlag, spend);
+						} else {
+							HashMap<String, Integer> tempHashMap = new HashMap<String, Integer>();
+							tempHashMap.put(deliveryFlag, spend);
+							datesValuesMap.put(billDate, tempHashMap);
+						}
+
+					}
+				}
+			}
+			// Bar Chart
+			int counter = 1;
+			Iterator<String> datesIterator = datesValuesMap.keySet().iterator();
+
+			while (datesIterator.hasNext()) {
+				JSONObject jsonObject = new JSONObject();
+
+				String date = datesIterator.next();
+				HashMap<String, Integer> deliveryFlagMap = datesValuesMap.get(date);
+
+				Iterator<String> deliveryFlagIterator = deliveryFlagMap.keySet().iterator();
+
+				jsonObject.put("name", date);
+				jsonObject.put("counter", counter);
+
+				while (deliveryFlagIterator.hasNext()) {
+					String deliveryFlag = deliveryFlagIterator.next();
+					double spend = deliveryFlagMap.get(deliveryFlag);
+					jsonObject.put(deliveryFlag, spend);
+				}
+
+				valuesArray.put(jsonObject);
+				counter++;
+			}
+
+			String append = "\"";
+			counter = 1;
+
+			for (String deliveryFlag : deliveryFlagList) {
+				deliveryFlag = append + deliveryFlag + append;
+				String seriesId = append + "S" + counter + append;
+				String object = "{\"id\":" + seriesId + ",\"name\":" + deliveryFlag + ", \"data\": {\"field\":" + deliveryFlag + "},";
+
+				if ("\"LATE\"".equalsIgnoreCase(deliveryFlag)) {
+					object = object + " style: { depth: 4, gradient: 0.9 ,fillColor: \"#673FB4\" }}";
+				}
+				if ("\"MNS\"".equalsIgnoreCase(deliveryFlag)) {
+					object = object + " style: { depth: 4, gradient: 0.9 ,fillColor: \"#2B98F0\" }}";
+				}
+				if ("\"No POD\"".equalsIgnoreCase(deliveryFlag)) {
+					object = object + " style: { depth: 4, gradient: 0.9 ,fillColor: \"#FF9801\" }}";
+				}
+				seriesArray.put(new JSONObject(object));
+				counter++;
+			}
+
+			returnObject.put("values", valuesArray);
+			returnObject.put("series", seriesArray);
+		}else{
 			returnObject.put("values", new JSONArray());
 			returnObject.put("series", new JSONArray());
 		}
