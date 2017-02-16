@@ -4,6 +4,11 @@ import com.envista.msi.api.dao.DashboardsDao;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardAppliedFilterDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
 import com.envista.msi.api.web.rest.dto.dashboard.accessorialspend.AccessorialSpendDto;
+<<<<<<< HEAD
+=======
+import com.envista.msi.api.web.rest.dto.dashboard.DashboardAppliedFilterDto;
+import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
+>>>>>>> refs/remotes/origin/Standard_Branch_for_UAT_Demo
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.*;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.*;
 import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendByCarrierDto;
@@ -154,7 +159,7 @@ public class DashboardsService {
      * @return
      */
     public List<AccessorialSpendDto> getAccessorialSpend(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
-        return dashboardsDao.getTopAccessorialSpend(filter, isTopTenAccessorial);
+        return dashboardsDao.getAccessorialSpend(filter, isTopTenAccessorial);
     }
 
     /**
@@ -234,5 +239,157 @@ public class DashboardsService {
      */
     public List<OutboundSpendDto> getOutboundSpendByMonth(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
         return dashboardsDao.getOutboundSpendByMonth(filter, isTopTenAccessorial);
+    }
+    /**
+     * Mthod to get Invoice Status count.
+     * @param filter
+     * @return
+     */
+    public List<InvoiceStatusCountDto> getInvoiceStatusCount(DashboardsFilterCriteria filter){
+        return dashboardsDao.getInvoiceStatusCount(filter);
+    }
+
+    /**
+     * Method to get Invoice Status Count By Carrier
+     * @param filter
+     * @return
+     */
+    public List<InvoiceStatusCountDto> getInvoiceStatusCountByCarrier(DashboardsFilterCriteria filter){
+        return dashboardsDao.getInvoiceStatusCountByCarrier(filter);
+    }
+
+    /**
+     * Method to get Invoice Status Count By Month
+     * @param filter
+     * @return
+     */
+    public List<InvoiceStatusCountDto> getInvoiceStatusCountByMonth(DashboardsFilterCriteria filter){
+        return dashboardsDao.getInvoiceStatusCountByMonth(filter);
+    }
+
+    /**
+     * Method to get Invoice Status Amount
+     * @param filter
+     * @return
+     */
+    public List<InvoiceStatusAmountDto> getInvoiceStatusAmount(DashboardsFilterCriteria filter){
+        return dashboardsDao.getInvoiceStatusAmount(filter);
+    }
+
+    /**
+     * Method to get Invoice Status Amount By Carrier
+     * @param filter
+     * @return
+     */
+    public List<InvoiceStatusAmountDto> getInvoiceStatusAmountByCarrier(DashboardsFilterCriteria filter){
+        return dashboardsDao.getInvoiceStatusAmountByCarrier(filter);
+    }
+
+    /**
+     * Method to get Invoice Status Amount By Month
+     * @param filter
+     * @return
+     */
+    public List<InvoiceStatusAmountDto> getInvoiceStatusAmountByMonth(DashboardsFilterCriteria filter){
+        return dashboardsDao.getInvoiceStatusAmountByMonth(filter);
+    }
+
+    /**
+     * Method to get Invoice Method Score Details.
+     * @param filter
+     * @return
+     */
+    public List<InvoiceMethodScoreDto> getInvoiceMethodScore(DashboardsFilterCriteria filter){
+        return dashboardsDao.getInvoiceMethodScore(filter);
+    }
+
+    /**
+     * Method to get Invoice Method Score details By Carrier.
+     * @param filter
+     * @return
+     */
+    public List<InvoiceMethodScoreDto> getInvoiceMethodScoreByCarrier(DashboardsFilterCriteria filter){
+        return dashboardsDao.getInvoiceMethodScoreByCarrier(filter);
+    }
+
+    /**
+     * Method to get Invoice Method Score details By Month.
+     * @param filter
+     * @return
+     */
+    public List<InvoiceMethodScoreDto> getInvoiceMethodScoreByMonth(DashboardsFilterCriteria filter){
+        return dashboardsDao.getInvoiceMethodScoreByMonth(filter);
+    }
+
+    /**
+     * Method to get Order Match Status details.
+     * @param filter
+     * @return
+     */
+    public List<OrderMatchDto> getOrderMatchStatus(DashboardsFilterCriteria filter){
+        return dashboardsDao.getOrderMatchStatus(filter);
+    }
+
+    /**
+     * Method to get Order Match Status details by carrier.
+     * @param filter
+     * @return
+     */
+    public List<OrderMatchDto> getOrderMatchByCarrier(DashboardsFilterCriteria filter){
+        return dashboardsDao.getOrderMatchByCarrier(filter);
+    }
+
+    /**
+     * Method to get Order Match Status details by month.
+     * @param filter
+     * @return
+     */
+    public List<OrderMatchDto> getOrderMatchByMonth(DashboardsFilterCriteria filter){
+        return dashboardsDao.getOrderMatchByMonth(filter);
+    }
+
+    /**
+     * Method to get Billed Vs Approved Data.
+     * @param filter
+     * @return
+     */
+    public List<BilledVsApprovedDto> getBilledVsApprovedData(DashboardsFilterCriteria filter){
+        return dashboardsDao.getBilledVsApprovedData(filter);
+    }
+
+    public List<BilledVsApprovedDto> getBilledVsApprovedByMonth(DashboardsFilterCriteria filter){
+        return dashboardsDao.getBilledVsApprovedByMonth(filter);
+    }
+
+    public List<RecoveryAdjustmentDto> getRecoveryAdjustment(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        return dashboardsDao.getRecoveryAdjustment(filter, isTopTenAccessorial);
+    }
+
+    public List<RecoveryAdjustmentDto> getRecoveryAdjustmentByCarrier(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        return dashboardsDao.getRecoveryAdjustmentByCarrier(filter, isTopTenAccessorial);
+    }
+
+    public List<RecoveryAdjustmentDto> getRecoveryAdjustmentByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        return dashboardsDao.getRecoveryAdjustmentByMonth(filter, isTopTenAccessorial);
+    }
+
+    public List<RecoveryServiceDto> getRecoveryServices(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        return dashboardsDao.getRecoveryServices(filter, isTopTenAccessorial);
+    }
+
+    public List<RecoveryServiceDto> getRecoveryServicesByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        return dashboardsDao.getRecoveryServicesByMonth(filter, isTopTenAccessorial);
+    }
+
+    public List<PackageExceptionDto> getPackageExceptions(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        return dashboardsDao.getPackageExceptions(filter, isTopTenAccessorial);
+    }
+
+    public List<PackageExceptionDto> getPackageExceptionsByCarrier(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        return dashboardsDao.getPackageExceptionsByCarrier(filter, isTopTenAccessorial);
+    }
+
+    public List<PackageExceptionDto> getPackageExceptionsByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        return dashboardsDao.getPackageExceptionsByMonth(filter, isTopTenAccessorial);
     }
 }

@@ -6,6 +6,7 @@ import com.envista.msi.api.service.UserService;
 import com.envista.msi.api.web.rest.dto.UserProfileDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardAppliedFilterDto;
 import com.envista.msi.api.web.rest.dto.dashboard.accessorialspend.AccessorialSpendDto;
+import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
 import com.envista.msi.api.web.rest.dto.dashboard.common.CommonValuesForChartDto;
 import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendCommonDto;
 import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendMonthlyChartDto;
@@ -43,13 +44,13 @@ public class DashboardsController extends DashboardBaseController {
     @Autowired
     private DashboardsService dashboardsService;
 
-    public enum TaxSpendConstant{
+    enum TaxSpendConstant{
         TAX_SPEND,
         TAX_SPEND_BY_CARRIER,
         TAX_SPEND_BY_MONTH;
     }
 
-    public enum NetSpendConstant{
+    enum NetSpendConstant{
         NET_SPEND_BY_MODE,
         NET_SPEND_OVER_TIME_BY_MONTH,
         NET_SPEND_BY_OVER_TIME,
@@ -57,7 +58,7 @@ public class DashboardsController extends DashboardBaseController {
         NET_SPEND_BY_MONTH;
     }
 
-    public enum AccessorialSpendConstant{
+    enum AccessorialSpendConstant{
         TOP_ACCESSORIAL_SPEND,
         TOP_ACCESSORIAL_SPEND_BY_CARRIER,
         TOP_ACCESSORIAL_SPEND_BY_MONTH,
@@ -82,6 +83,52 @@ public class DashboardsController extends DashboardBaseController {
     enum OutboundSpendConstant{
         OUTBOUND_SPEND,
         OUTBOUND_SPEND_BY_MONTH;
+    }
+    
+    enum InvoiceStatusCountConstant{
+        INVOICE_STATUS_COUNT,
+        INVOICE_STATUS_COUNT_BY_CARRIER,
+        INVOICE_STATUS_COUNT_BY_MONTH
+    }
+
+    enum InvoiceStatusAmountConstant{
+        INVOICE_STATUS_AMOUNT,
+        INVOICE_STATUS_AMOUNT_BY_CARRIER,
+        INVOICE_STATUS_AMOUNT_BY_MONTH
+    }
+
+    enum InvoiceMethodScoreConstant{
+        INVOICE_METHOD_SCORE,
+        INVOICE_METHOD_SCORE_BY_CARRIER,
+        INVOICE_METHOD_SCORE_BY_MONTH
+    }
+
+    enum OrderMatchConstant{
+        ORDER_MATCH,
+        ORDER_MATCH_BY_CARRIER,
+        ORDER_MATCH_BY_MONTH
+    }
+
+    enum BilledVsApprovedConstant{
+        BILLED_VS_APPROVED,
+        BILLED_VS_APPROVED_BY_MONTH
+    }
+
+    enum RecoveryAdjustmentConstants{
+        RECOVERY_ADJUSTMENT,
+        RECOVERY_ADJUSTMENT_BY_CARRIER,
+        RECOVERY_ADJUSTMENT_BY_MONTH
+    }
+
+    enum RecoveryServiceConstants{
+        RECOVERY_SERVICE,
+        RECOVERY_SERVICE_BY_MONTH
+    }
+
+    enum PackageExceptionConstants{
+        PACKAGE_EXCEPTION,
+        PACKAGE_EXCEPTION_BY_CARRIER,
+        PACKAGE_EXCEPTION_BY_MONTH,
     }
 
     @RequestMapping(value = "/appliedFilter", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -155,8 +202,6 @@ public class DashboardsController extends DashboardBaseController {
         }
         return new ResponseEntity<String>(netSpendJsonData.toString(), HttpStatus.OK);
     }
-
-
 
     @RequestMapping(value = "/netSpendByOverTime", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<String> getNetSpendByOverTime(){
@@ -603,6 +648,872 @@ public class DashboardsController extends DashboardBaseController {
         List<InboundSpendDto> inboundSpendList = dashboardsService.getInboundSpend(filter, false);
         List<NetSpendCommonDto> spendlist = NetSpendCommonDto.buildInboundSpendListToNetSpendCommonList(inboundSpendList);
         return JSONUtil.prepareInAndOutBuondJson(spendlist);
+    }
+    
+    @RequestMapping(value = "/invStsCnt", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getInvoiceStatusCount(){
+        JSONObject invStsCountJson = null;
+        try {
+            UserProfileDto user = getUserProfile();
+            if (null == user) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            JSONObject stsCntJson = loadInvoiceStatusCountJsonData(InvoiceStatusCountConstant.INVOICE_STATUS_COUNT, filter);
+            invStsCountJson = (stsCntJson != null ? stsCntJson : new JSONObject());
+        }catch(Exception e){
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>(invStsCountJson.toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/invStsCntByCarr", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getInvoiceStatusCountByCarrier(@RequestParam String invoiceStatusId){
+        JSONObject invStsCountJson = null;
+        try {
+            UserProfileDto user = getUserProfile();
+            if (null == user) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            if(filter != null){
+                filter.setInvoiceStatusId(invoiceStatusId);
+            }
+            JSONObject stsCntJson = loadInvoiceStatusCountJsonData(InvoiceStatusCountConstant.INVOICE_STATUS_COUNT_BY_CARRIER, filter);
+            invStsCountJson = (stsCntJson != null ? stsCntJson : new JSONObject());
+        }catch(Exception e){
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>(invStsCountJson.toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/invStsCntByMnth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getInvoiceStatusCountByMonth(@RequestParam String carrierId, @RequestParam String invoiceStatusId){
+        JSONObject invStsCountJson = null;
+        try {
+            UserProfileDto user = getUserProfile();
+            if (null == user) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            if(filter != null){
+                filter.setCarriers(carrierId);
+                filter.setInvoiceStatusId(invoiceStatusId);
+            }
+            JSONObject stsCntJson = loadInvoiceStatusCountJsonData(InvoiceStatusCountConstant.INVOICE_STATUS_COUNT_BY_MONTH, filter);
+            invStsCountJson = (stsCntJson != null ? stsCntJson : new JSONObject());
+        }catch(Exception e){
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>(invStsCountJson.toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/invStsAmt", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getInvoiceStatusAmount(){
+        JSONObject invStsAmountJson = null;
+        try {
+            UserProfileDto user = getUserProfile();
+            if (null == user) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            JSONObject stsAmtJson = loadInvoiceStatusAmountJsonData(InvoiceStatusAmountConstant.INVOICE_STATUS_AMOUNT, filter);
+            invStsAmountJson = (stsAmtJson != null ? stsAmtJson : new JSONObject());
+        }catch(Exception e){
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>(invStsAmountJson.toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/invStsAmtByCarr", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getInvoiceStatusAmountByCarrier(@RequestParam String invoiceStatusId){
+        JSONObject invStsAmountJson = null;
+        try {
+            UserProfileDto user = getUserProfile();
+            if (null == user) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            if(filter != null){
+                filter.setInvoiceStatusId(invoiceStatusId);
+            }
+            JSONObject stsAmtJson = loadInvoiceStatusAmountJsonData(InvoiceStatusAmountConstant.INVOICE_STATUS_AMOUNT_BY_CARRIER, filter);
+            invStsAmountJson = (stsAmtJson != null ? stsAmtJson : new JSONObject());
+        }catch(Exception e){
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>(invStsAmountJson.toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/invStsAmtByMnth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getInvoiceStatusAmountByMonth(@RequestParam String carrierId, @RequestParam String invoiceStatusId){
+        JSONObject invStsAmountJson = null;
+        try {
+            UserProfileDto user = getUserProfile();
+            if (null == user) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            if(filter != null){
+                filter.setCarriers(carrierId);
+                filter.setInvoiceStatusId(invoiceStatusId);
+            }
+            JSONObject stsAmtJson = loadInvoiceStatusAmountJsonData(InvoiceStatusAmountConstant.INVOICE_STATUS_AMOUNT_BY_MONTH, filter);
+            invStsAmountJson = (stsAmtJson != null ? stsAmtJson : new JSONObject());
+        }catch(Exception e){
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>(invStsAmountJson.toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/invMthdScore", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getInvoiceMethodScore(){
+        JSONObject invMethodScoreJson = null;
+        try {
+            UserProfileDto user = getUserProfile();
+            if (null == user) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            JSONObject invScoreJson = loadInvoiceMethodScoreJsonData(InvoiceMethodScoreConstant.INVOICE_METHOD_SCORE, filter);
+            invMethodScoreJson = (invScoreJson != null ? invScoreJson : new JSONObject());
+        }catch(Exception e){
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>(invMethodScoreJson.toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/invMthdScoreByCarr", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getInvoiceMethodScoreByCarrier(@RequestParam String invoiceMethod){
+        JSONObject invMethodScoreJson = null;
+        try {
+            UserProfileDto user = getUserProfile();
+            if (null == user) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            if(filter != null){
+                filter.setInvoiceMethod(invoiceMethod);
+            }
+            JSONObject invScoreJson = loadInvoiceMethodScoreJsonData(InvoiceMethodScoreConstant.INVOICE_METHOD_SCORE_BY_CARRIER, filter);
+            invMethodScoreJson = (invScoreJson != null ? invScoreJson : new JSONObject());
+        }catch(Exception e){
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>(invMethodScoreJson.toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/invMthdScoreByMnth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getInvoiceMethodScoreByMonth(@RequestParam String invoiceMethod, @RequestParam String carrierId){
+        JSONObject invMethodScoreJson = null;
+        try {
+            UserProfileDto user = getUserProfile();
+            if (null == user) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            if(filter != null){
+                filter.setInvoiceMethod(invoiceMethod);
+                filter.setCarriers(carrierId);
+            }
+            JSONObject invScoreJson = loadInvoiceMethodScoreJsonData(InvoiceMethodScoreConstant.INVOICE_METHOD_SCORE_BY_MONTH, filter);
+            invMethodScoreJson = (invScoreJson != null ? invScoreJson : new JSONObject());
+        }catch(Exception e){
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>(invMethodScoreJson.toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/orderMatch", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getOrderMatchStatus(){
+        JSONObject orderMatchJson = null;
+        try {
+            UserProfileDto user = getUserProfile();
+            if (null == user) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            JSONObject ordMchJson = loadOrderMatchJsonData(OrderMatchConstant.ORDER_MATCH, filter);
+            orderMatchJson = (ordMchJson != null ? ordMchJson : new JSONObject());
+        }catch(Exception e){
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>(orderMatchJson.toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/orderMatchByCarr", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getOrderMatchByCarrier(@RequestParam String orderMatchValue){
+        JSONObject orderMatchJson = null;
+        try {
+            UserProfileDto user = getUserProfile();
+            if (null == user) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            if(filter != null){
+                filter.setOrderMatch(orderMatchValue);
+            }
+            JSONObject ordMchJson = loadOrderMatchJsonData(OrderMatchConstant.ORDER_MATCH_BY_CARRIER, filter);
+            orderMatchJson = (ordMchJson != null ? ordMchJson : new JSONObject());
+        }catch(Exception e){
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>(orderMatchJson.toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/orderMatchByMnth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getOrderMatchByMonth(@RequestParam String carrierId, @RequestParam String orderMatchValue){
+        JSONObject orderMatchJson = null;
+        try {
+            UserProfileDto user = getUserProfile();
+            if (null == user) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            if(filter != null){
+                filter.setCarriers(carrierId);
+                filter.setOrderMatch(orderMatchValue);
+            }
+            JSONObject ordMchJson = loadOrderMatchJsonData(OrderMatchConstant.ORDER_MATCH_BY_MONTH, filter);
+            orderMatchJson = (ordMchJson != null ? ordMchJson : new JSONObject());
+        }catch(Exception e){
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>(orderMatchJson.toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/billedVsApproved", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getBilledVsApproved(){
+        JSONObject billedVsApprovedJson = null;
+        try {
+            UserProfileDto user = getUserProfile();
+            if (null == user) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            JSONObject bvaJson = loadBilledVsApprovedJsonData(BilledVsApprovedConstant.BILLED_VS_APPROVED, filter);
+            billedVsApprovedJson = (bvaJson != null ? bvaJson : new JSONObject());
+        }catch(Exception e){
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>(billedVsApprovedJson.toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/billedVsApprovedByMnth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getBilledVsApprovedByMonth(@RequestParam String carrierId, @RequestParam String billedVsApproved){
+        JSONObject billedVsApprovedJson = null;
+        try {
+            UserProfileDto user = getUserProfile();
+            if (null == user) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            if(filter != null){
+                filter.setCarriers(carrierId);
+                filter.setBilledVsApproved(billedVsApproved);
+            }
+            JSONObject bvaJson = loadBilledVsApprovedJsonData(BilledVsApprovedConstant.BILLED_VS_APPROVED_BY_MONTH, filter);
+            billedVsApprovedJson = (bvaJson != null ? bvaJson : new JSONObject());
+        }catch(Exception e){
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>(billedVsApprovedJson.toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/recovAdj", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getRecoveryAdjustment(){
+        JSONObject recovAdjJson = null;
+        try{
+            UserProfileDto user = getUserProfile();
+            if (null == user) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            JSONObject raJson = loadRecoveryAdjustmentJsonData(RecoveryAdjustmentConstants.RECOVERY_ADJUSTMENT, filter);
+            recovAdjJson = (raJson != null ? raJson : new JSONObject());
+        }catch (Exception e){
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>(recovAdjJson.toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/recovAdjByCarr", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getRecoveryAdjustmentByCarrier(@RequestParam String service, @RequestParam String invoiceDate){
+        JSONObject recovAdjJson = null;
+        try{
+            UserProfileDto user = getUserProfile();
+            if (null == user) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            if(filter != null){
+                if (service != null && !service.isEmpty()){
+                    filter.setService(service);
+                }
+                if(invoiceDate != null && !invoiceDate.isEmpty()){
+                    DashboardUtil.setDatesFromMonth(filter, invoiceDate);
+                }
+            }
+            JSONObject raJson = loadRecoveryAdjustmentJsonData(RecoveryAdjustmentConstants.RECOVERY_ADJUSTMENT_BY_CARRIER, filter);
+            recovAdjJson = (raJson != null ? raJson : new JSONObject());
+        }catch (Exception e){
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>(recovAdjJson.toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/recovAdjByMnth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getRecoveryAdjustmentByMonth(@RequestParam String service, @RequestParam String invoiceDate, @RequestParam String carrierId){
+        JSONObject recovAdjJson = null;
+        try{
+            UserProfileDto user = getUserProfile();
+            if (null == user) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            if(filter != null){
+                if (service != null && !service.isEmpty()){
+                    filter.setService(service);
+                }
+                if(invoiceDate != null && !invoiceDate.isEmpty()){
+                    DashboardUtil.setDatesFromMonth(filter, invoiceDate);
+                }
+                if(carrierId != null && !carrierId.isEmpty()){
+                    filter.setCarriers(carrierId);
+                }
+            }
+            JSONObject raJson = loadRecoveryAdjustmentJsonData(RecoveryAdjustmentConstants.RECOVERY_ADJUSTMENT_BY_MONTH, filter);
+            recovAdjJson = (raJson != null ? raJson : new JSONObject());
+        }catch (Exception e){
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>(recovAdjJson.toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/recovServ", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getRecoveryServices(){
+        JSONObject recovServJson = null;
+        try{
+            UserProfileDto user = getUserProfile();
+            if (null == user) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            JSONObject rsJson = loadRecoveryServicesJsonData(RecoveryServiceConstants.RECOVERY_SERVICE, filter);
+            recovServJson = (rsJson != null ? rsJson : new JSONObject());
+        }catch (Exception e){
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>(recovServJson.toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/recovServByMnth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getRecoveryServicesByMonth(@RequestParam String carrierId, @RequestParam String service){
+        JSONObject recovServJson = null;
+        try{
+            UserProfileDto user = getUserProfile();
+            if (null == user) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            if(filter != null){
+                if(carrierId != null && !carrierId.isEmpty()){
+                    filter.setCarriers(carrierId);
+                }
+                if(service != null && !service.isEmpty()){
+                    filter.setService(service);
+                }
+            }
+            JSONObject rsJson = loadRecoveryServicesJsonData(RecoveryServiceConstants.RECOVERY_SERVICE_BY_MONTH, filter);
+            recovServJson = (rsJson != null ? rsJson : new JSONObject());
+        }catch (Exception e){
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>(recovServJson.toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/pkgExcp", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getPackageExceptions(){
+        JSONObject pkgExcpJson = null;
+        try{
+            UserProfileDto user = getUserProfile();
+            if (null == user) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            JSONObject rsJson = loadPackageExceptionsJsonData(PackageExceptionConstants.PACKAGE_EXCEPTION, filter);
+            pkgExcpJson = (rsJson != null ? rsJson : new JSONObject());
+        }catch (Exception e){
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>(pkgExcpJson.toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/pkgExcpByCarr", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getPackageExceptionsByCarrier(@RequestParam String invoiceDate, @RequestParam String deliveryFlag){
+        JSONObject pkgExcpJson = null;
+        try{
+            UserProfileDto user = getUserProfile();
+            if (null == user) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            if(filter != null){
+                if (deliveryFlag != null && !deliveryFlag.isEmpty())
+                    filter.setDeliveryFlag(deliveryFlag);
+                DashboardUtil.setDatesFromMonth(filter, invoiceDate);
+            }
+            JSONObject rsJson = loadPackageExceptionsJsonData(PackageExceptionConstants.PACKAGE_EXCEPTION_BY_CARRIER, filter);
+            pkgExcpJson = (rsJson != null ? rsJson : new JSONObject());
+        }catch (Exception e){
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>(pkgExcpJson.toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/pkgExcpByMnth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getPackageExceptionsByMonth(@RequestParam String invoiceDate, @RequestParam String deliveryFlag,@RequestParam String carrierId){
+        JSONObject pkgExcpJson = null;
+        try{
+            UserProfileDto user = getUserProfile();
+            if (null == user) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            if(filter != null){
+                if(carrierId != null && !carrierId.isEmpty()){
+                    filter.setCarriers(carrierId);
+                }
+                if (deliveryFlag != null && !deliveryFlag.isEmpty()){
+                    filter.setDeliveryFlag(deliveryFlag);
+                }
+                DashboardUtil.setDatesFromMonth(filter, invoiceDate);
+            }
+            JSONObject rsJson = loadPackageExceptionsJsonData(PackageExceptionConstants.PACKAGE_EXCEPTION_BY_MONTH, filter);
+            pkgExcpJson = (rsJson != null ? rsJson : new JSONObject());
+        }catch (Exception e){
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>(pkgExcpJson.toString(), HttpStatus.OK);
+    }
+
+    private JSONObject loadPackageExceptionsJsonData(PackageExceptionConstants packageExceptionType, DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject pkgExcpJson = null;
+        switch (packageExceptionType){
+            case PACKAGE_EXCEPTION:
+                pkgExcpJson = loadPackageExceptionsJson(filter);
+                break;
+            case PACKAGE_EXCEPTION_BY_CARRIER:
+                pkgExcpJson = loadPackageExceptionsByCarrierJson(filter);
+                break;
+            case PACKAGE_EXCEPTION_BY_MONTH:
+                pkgExcpJson = loadPackageExceptionsByMonthJson(filter);
+                break;
+            default:
+                throw new MethodNotFoundException("Method param value not matched");
+        }
+        return pkgExcpJson;
+    }
+
+    private JSONObject loadPackageExceptionsByMonthJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject pkgExcpJson = null;
+        List<PackageExceptionDto> packageExceptionList = dashboardsService.getPackageExceptionsByMonth(filter, false);
+        if(packageExceptionList != null && !packageExceptionList.isEmpty()){
+            List<NetSpendMonthlyChartDto> monthlyChartList = NetSpendMonthlyChartDto.buildackageExceptionListToMonthlyChartList(packageExceptionList);
+            pkgExcpJson = JSONUtil.prepareMonthlyChartJson(monthlyChartList);
+        }
+        return pkgExcpJson;
+    }
+
+    private JSONObject loadPackageExceptionsByCarrierJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject pkgExcpJson = null;
+        List<PackageExceptionDto> packageExceptionList = dashboardsService.getPackageExceptionsByCarrier(filter, false);
+        if(packageExceptionList != null && !packageExceptionList.isEmpty()){
+            List<CommonValuesForChartDto> commonValuesForChartList = CommonValuesForChartDto.buildPackageExceptionListToCommonValueForChartList(packageExceptionList);
+            pkgExcpJson = JSONUtil.prepareCommonJsonForChart(commonValuesForChartList);
+        }
+        return pkgExcpJson;
+    }
+
+    private JSONObject loadPackageExceptionsJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject pkgExcpJson = null;
+        List<PackageExceptionDto> packageExceptionList = dashboardsService.getPackageExceptions(filter, false);
+        if(packageExceptionList != null && !packageExceptionList.isEmpty()){
+            pkgExcpJson = JSONUtil.preparePackageExceptionJson(packageExceptionList);
+        }
+        return pkgExcpJson;
+    }
+
+    private JSONObject loadRecoveryServicesJsonData(RecoveryServiceConstants recoveryServiceType, DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject recovServJson = null;
+        switch (recoveryServiceType){
+            case RECOVERY_SERVICE:
+                recovServJson = loadRecoveryServicesJson(filter);
+                break;
+            case RECOVERY_SERVICE_BY_MONTH:
+                recovServJson = loadRecoveryServicesByMonthJson(filter);
+                break;
+            default:
+                throw new MethodNotFoundException("Method param value not matched");
+        }
+        return recovServJson;
+    }
+
+    private JSONObject loadRecoveryServicesByMonthJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject recovServJson = null;
+        List<RecoveryServiceDto> recoveryServiceList = dashboardsService.getRecoveryServicesByMonth(filter, false);
+        if(recoveryServiceList != null && !recoveryServiceList.isEmpty()){
+            List<NetSpendMonthlyChartDto> monthlyChartList = NetSpendMonthlyChartDto.buildRecoveryServiceListToMonthlyChartList(recoveryServiceList);
+            recovServJson = JSONUtil.prepareMonthlyChartJson(monthlyChartList);
+        }
+        return recovServJson;
+    }
+
+    private JSONObject loadRecoveryServicesJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject recovServJson = null;
+        List<RecoveryServiceDto> recoveryServiceList = dashboardsService.getRecoveryServices(filter, false);
+        if(recoveryServiceList != null && !recoveryServiceList.isEmpty()){
+            recovServJson = JSONUtil.prepareTotalCreditRecoveryByServiceLevelJson(recoveryServiceList);
+        }
+        return recovServJson;
+    }
+
+    private JSONObject loadRecoveryAdjustmentJsonData(RecoveryAdjustmentConstants recoveryAdjustmentType, DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject recovAdjJson = null;
+        switch (recoveryAdjustmentType){
+            case RECOVERY_ADJUSTMENT:
+                recovAdjJson = loadRecoveryAdjustmentJson(filter);
+                break;
+            case RECOVERY_ADJUSTMENT_BY_CARRIER:
+                recovAdjJson = loadRecoveryAdjustmentByCarrierJson(filter);
+                break;
+            case RECOVERY_ADJUSTMENT_BY_MONTH:
+                recovAdjJson = loadRecoveryAdjustmentByMonthJson(filter);
+                break;
+            default:
+                throw new MethodNotFoundException("Method param value not matched");
+        }
+        return recovAdjJson;
+    }
+
+    private JSONObject loadRecoveryAdjustmentByMonthJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject recovAdjJson = null;
+        List<RecoveryAdjustmentDto> recoveryAdjustmentList = dashboardsService.getRecoveryAdjustmentByMonth(filter, false);
+        if(recoveryAdjustmentList != null && !recoveryAdjustmentList.isEmpty()){
+            List<NetSpendMonthlyChartDto> monthlyChartList = NetSpendMonthlyChartDto.buildRecoveryAdjustmentListToMonthlyChartList(recoveryAdjustmentList);
+            recovAdjJson = JSONUtil.prepareMonthlyChartJson(monthlyChartList);
+        }
+        return recovAdjJson;
+    }
+
+    private JSONObject loadRecoveryAdjustmentByCarrierJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject recovAdjJson = null;
+        List<RecoveryAdjustmentDto> recoveryAdjustmentList = dashboardsService.getRecoveryAdjustmentByCarrier(filter, false);
+        if(recoveryAdjustmentList != null && !recoveryAdjustmentList.isEmpty()){
+            List<CommonValuesForChartDto> commonValuesForChartList = CommonValuesForChartDto.buildRecoveryAdjustmentListToCommonValueForChartList(recoveryAdjustmentList);
+            recovAdjJson = JSONUtil.prepareCommonJsonForChart(commonValuesForChartList);
+        }
+        return recovAdjJson;
+    }
+
+    private JSONObject loadRecoveryAdjustmentJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject recovAdjJson = null;
+        List<RecoveryAdjustmentDto> recoveryAdjustmentList = dashboardsService.getRecoveryAdjustment(filter, false);
+        if(recoveryAdjustmentList != null && !recoveryAdjustmentList.isEmpty()){
+            recovAdjJson = JSONUtil.prepareRecoveryAdjustmentJson(recoveryAdjustmentList);
+        }
+        return recovAdjJson;
+    }
+
+    private JSONObject loadBilledVsApprovedJsonData(BilledVsApprovedConstant billedVsApprovedType, DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject billedVsApprovedJson = null;
+        switch (billedVsApprovedType){
+            case BILLED_VS_APPROVED:
+                billedVsApprovedJson = loadBilledVsApprovedJson(filter);
+                break;
+            case BILLED_VS_APPROVED_BY_MONTH:
+                billedVsApprovedJson = loadBilledVsApprovedByMonthJson(filter);
+                break;
+            default:
+                throw new MethodNotFoundException("Method param value not matched");
+        }
+        return billedVsApprovedJson;
+    }
+
+    private JSONObject loadBilledVsApprovedByMonthJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject billedVsApprovedJson = null;
+        List<BilledVsApprovedDto> billedVsApprovedList = dashboardsService.getBilledVsApprovedByMonth(filter);
+        List<NetSpendMonthlyChartDto> monthChartValueList = null;
+        if(billedVsApprovedList != null && billedVsApprovedList.size() > 0){
+            monthChartValueList = new ArrayList<NetSpendMonthlyChartDto>();
+            for(BilledVsApprovedDto billedVsApproved : billedVsApprovedList){
+                if(billedVsApproved != null){
+                    monthChartValueList.add(new NetSpendMonthlyChartDto(billedVsApproved));
+                }
+            }
+            billedVsApprovedJson = JSONUtil.prepareMonthlyChartJson(monthChartValueList);
+        }
+        return billedVsApprovedJson;
+    }
+
+    private JSONObject loadBilledVsApprovedJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject billedVsApprovedJson = null;
+        List<BilledVsApprovedDto> billedVsApprovedList = dashboardsService.getBilledVsApprovedData(filter);
+        if(billedVsApprovedList != null && billedVsApprovedList.size() > 0){
+            billedVsApprovedJson = JSONUtil.prepareBilledVsApprovedJson(billedVsApprovedList);
+        }
+        return billedVsApprovedJson;
+    }
+
+    private JSONObject loadOrderMatchJsonData(OrderMatchConstant orderMatchType, DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject orderMatchJson = null;
+        switch (orderMatchType){
+            case ORDER_MATCH:
+                orderMatchJson = loadOrdeMatchStatusJson(filter);
+                break;
+            case ORDER_MATCH_BY_CARRIER:
+                orderMatchJson = loadOrdeMatchByCarrierJson(filter);
+                break;
+            case ORDER_MATCH_BY_MONTH:
+                orderMatchJson = loadOrdeMatchByMonthJson(filter);
+                break;
+            default:
+                throw new MethodNotFoundException("Method param value not matched");
+        }
+        return orderMatchJson;
+    }
+
+    private JSONObject loadOrdeMatchByMonthJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject orderMatchJson = null;
+        List<OrderMatchDto> orderMatchList = dashboardsService.getOrderMatchByMonth(filter);
+        List<NetSpendMonthlyChartDto> monthChartValueList = null;
+        if(orderMatchList != null && orderMatchList.size() > 0){
+            monthChartValueList = new ArrayList<NetSpendMonthlyChartDto>();
+            for(OrderMatchDto orderMatch : orderMatchList){
+                if(orderMatch != null){
+                    monthChartValueList.add(new NetSpendMonthlyChartDto(orderMatch));
+                }
+            }
+            orderMatchJson = JSONUtil.prepareMonthlyChartJson(monthChartValueList);
+        }
+        return orderMatchJson;
+    }
+
+    private JSONObject loadOrdeMatchByCarrierJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject orderMatchJson = null;
+        List<OrderMatchDto> orderMatchList = dashboardsService.getOrderMatchByCarrier(filter);
+        List<CommonValuesForChartDto> chartValueList = null;
+        if(orderMatchList != null && orderMatchList.size() > 0){
+            chartValueList = new ArrayList<CommonValuesForChartDto>();
+            for(OrderMatchDto orderMatch : orderMatchList){
+                if(orderMatch != null){
+                    chartValueList.add(new CommonValuesForChartDto(orderMatch));
+                }
+            }
+            orderMatchJson = JSONUtil.prepareCommonJsonForChart(chartValueList);
+        }
+        return orderMatchJson;
+    }
+
+    private JSONObject loadOrdeMatchStatusJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject orderMatchJson = null;
+        List<OrderMatchDto> orderMatchList = dashboardsService.getOrderMatchStatus(filter);
+        if(orderMatchList != null && orderMatchList.size() > 0){
+            orderMatchJson = JSONUtil.prepareOrderMatchJson(orderMatchList);
+        }
+        return orderMatchJson;
+    }
+
+    private JSONObject loadInvoiceMethodScoreJsonData(InvoiceMethodScoreConstant invoiceMethodScoreType, DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject invMethodScoreJson = null;
+        switch (invoiceMethodScoreType){
+            case INVOICE_METHOD_SCORE:
+                invMethodScoreJson = loadInvoiceMethodScoreJson(filter);
+                break;
+            case INVOICE_METHOD_SCORE_BY_CARRIER:
+                invMethodScoreJson = loadInvoiceMethodScoreByCarrierJson(filter);
+                break;
+            case INVOICE_METHOD_SCORE_BY_MONTH:
+                invMethodScoreJson = loadInvoiceMethodScoreByMonthJson(filter);
+                break;
+            default:
+                throw new MethodNotFoundException("Method param value not matched");
+        }
+        return invMethodScoreJson;
+    }
+
+    private JSONObject loadInvoiceMethodScoreByMonthJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject invMethodScoreJson = null;
+        List<InvoiceMethodScoreDto> invMthScrList = dashboardsService.getInvoiceMethodScoreByMonth(filter);
+        List<NetSpendMonthlyChartDto> monthChartValueList = null;
+        if(invMthScrList != null && invMthScrList.size() > 0){
+            monthChartValueList = new ArrayList<NetSpendMonthlyChartDto>();
+            for(InvoiceMethodScoreDto invoiceMethodScore : invMthScrList){
+                if(invoiceMethodScore != null){
+                    monthChartValueList.add(new NetSpendMonthlyChartDto(invoiceMethodScore));
+                }
+            }
+            invMethodScoreJson = JSONUtil.prepareMonthlyChartJson(monthChartValueList);
+        }
+        return invMethodScoreJson;
+    }
+
+    private JSONObject loadInvoiceMethodScoreByCarrierJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject invMethodScoreJson = null;
+        List<InvoiceMethodScoreDto> invMthScrList = dashboardsService.getInvoiceMethodScoreByCarrier(filter);
+        List<CommonValuesForChartDto> chartValueList = null;
+        if(invMthScrList != null && invMthScrList.size() > 0){
+            chartValueList = new ArrayList<CommonValuesForChartDto>();
+            for(InvoiceMethodScoreDto invoiceMethodScore : invMthScrList){
+                if(invoiceMethodScore != null){
+                    chartValueList.add(new CommonValuesForChartDto(invoiceMethodScore));
+                }
+            }
+            invMethodScoreJson = JSONUtil.prepareCommonJsonForChart(chartValueList);
+        }
+        return invMethodScoreJson;
+    }
+
+    private JSONObject loadInvoiceMethodScoreJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject invMethodScoreJson = null;
+        List<InvoiceMethodScoreDto> invMthScrList = dashboardsService.getInvoiceMethodScore(filter);
+        List<CommonValuesForChartDto> chartValueList = null;
+        if(invMthScrList != null && invMthScrList.size() > 0){
+            invMethodScoreJson = JSONUtil.prepareInvoiceMethodScoreJson(invMthScrList);
+        }
+        return invMethodScoreJson;
+    }
+
+    private JSONObject loadInvoiceStatusAmountJsonData(InvoiceStatusAmountConstant invStsType, DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject invStsJson = null;
+        switch (invStsType){
+            case INVOICE_STATUS_AMOUNT:
+                invStsJson = loadInvoiceStatusAmountJson(filter);
+                break;
+            case INVOICE_STATUS_AMOUNT_BY_CARRIER:
+                invStsJson = loadInvoiceStatusAmountByCarrierJson(filter);
+                break;
+            case INVOICE_STATUS_AMOUNT_BY_MONTH:
+                invStsJson = loadInvoiceStatusAmountByMonthJson(filter);
+                break;
+            default:
+                throw new MethodNotFoundException("Method param value not matched");
+        }
+        return invStsJson;
+    }
+
+    private JSONObject loadInvoiceStatusAmountByMonthJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject invStsJson = null;
+        List<InvoiceStatusAmountDto> invStsAmtList = dashboardsService.getInvoiceStatusAmountByMonth(filter);
+        List<NetSpendMonthlyChartDto> monthChartValueList = null;
+        if(invStsAmtList != null && invStsAmtList.size() > 0){
+            monthChartValueList = new ArrayList<NetSpendMonthlyChartDto>();
+            for(InvoiceStatusAmountDto invStatusAmt : invStsAmtList){
+                if(invStatusAmt != null){
+                    monthChartValueList.add(new NetSpendMonthlyChartDto(invStatusAmt));
+                }
+            }
+            invStsJson = JSONUtil.prepareMonthlyChartJson(monthChartValueList);
+        }
+        return invStsJson;
+    }
+
+    private JSONObject loadInvoiceStatusAmountByCarrierJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject invStsJson = null;
+        List<InvoiceStatusAmountDto> invStsAmtList = dashboardsService.getInvoiceStatusAmountByCarrier(filter);
+        List<CommonValuesForChartDto> chartValueList = null;
+        if(invStsAmtList != null && invStsAmtList.size() > 0){
+            chartValueList = new ArrayList<CommonValuesForChartDto>();
+            for(InvoiceStatusAmountDto invStatusAmt : invStsAmtList){
+                if(invStatusAmt != null){
+                    chartValueList.add(new CommonValuesForChartDto(invStatusAmt));
+                }
+            }
+            invStsJson = JSONUtil.prepareCommonJsonForChart(chartValueList);
+        }
+        return invStsJson;
+    }
+
+    private JSONObject loadInvoiceStatusAmountJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject invStsJson = null;
+        List<InvoiceStatusAmountDto> invStsAmtList = dashboardsService.getInvoiceStatusAmount(filter);
+        List<CommonValuesForChartDto> chartValueList = null;
+        if(invStsAmtList != null && invStsAmtList.size() > 0){
+            chartValueList = new ArrayList<CommonValuesForChartDto>();
+            for(InvoiceStatusAmountDto invStsAmt : invStsAmtList){
+                if(invStsAmt != null){
+                    chartValueList.add(new CommonValuesForChartDto(invStsAmt));
+                }
+            }
+            invStsJson = JSONUtil.prepareCommonJsonForChart(chartValueList);
+        }
+        return invStsJson;
+    }
+
+    private JSONObject loadInvoiceStatusCountJsonData(InvoiceStatusCountConstant invStsType, DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject invStsJson = null;
+        switch (invStsType){
+            case INVOICE_STATUS_COUNT:
+                invStsJson = loadInvoiceStatusJson(filter);
+                break;
+            case INVOICE_STATUS_COUNT_BY_CARRIER:
+                invStsJson = loadInvoiceStatusByCarrierJson(filter);
+                break;
+            case INVOICE_STATUS_COUNT_BY_MONTH:
+                invStsJson = loadInvoiceStatusByMonthJson(filter);
+                break;
+            default:
+                throw new MethodNotFoundException("Method param value not matched");
+        }
+        return invStsJson;
+    }
+
+    private JSONObject loadInvoiceStatusByMonthJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject invStsJson = null;
+        List<InvoiceStatusCountDto> invStsCountList = dashboardsService.getInvoiceStatusCountByMonth(filter);
+        List<NetSpendMonthlyChartDto> monthChartValueList = null;
+        if(invStsCountList != null && invStsCountList.size() > 0){
+            monthChartValueList = new ArrayList<NetSpendMonthlyChartDto>();
+            for(InvoiceStatusCountDto invStatusCount : invStsCountList){
+                if(invStatusCount != null){
+                    monthChartValueList.add(new NetSpendMonthlyChartDto(invStatusCount));
+                }
+            }
+            invStsJson = JSONUtil.prepareMonthlyChartJson(monthChartValueList);
+        }
+        return invStsJson;
+    }
+
+    private JSONObject loadInvoiceStatusByCarrierJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject invStsJson = null;
+        List<InvoiceStatusCountDto> invStsCountList = dashboardsService.getInvoiceStatusCountByCarrier(filter);
+        List<CommonValuesForChartDto> chartValueList = null;
+        if(invStsCountList != null && invStsCountList.size() > 0){
+            chartValueList = new ArrayList<CommonValuesForChartDto>();
+            for(InvoiceStatusCountDto invStatusCount : invStsCountList){
+                if(invStatusCount != null){
+                    chartValueList.add(new CommonValuesForChartDto(invStatusCount));
+                }
+            }
+            invStsJson = JSONUtil.prepareCommonJsonForChart(chartValueList);
+        }
+        return invStsJson;
+    }
+
+    private JSONObject loadInvoiceStatusJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject invStsJson = null;
+        List<InvoiceStatusCountDto> invStsCountList = dashboardsService.getInvoiceStatusCount(filter);
+        List<CommonValuesForChartDto> chartValueList = null;
+        if(invStsCountList != null && invStsCountList.size() > 0){
+            chartValueList = new ArrayList<CommonValuesForChartDto>();
+            for(InvoiceStatusCountDto invStatusCount : invStsCountList){
+                if(invStatusCount != null){
+                    chartValueList.add(new CommonValuesForChartDto(invStatusCount));
+                }
+            }
+            invStsJson = JSONUtil.prepareCommonJsonForChart(chartValueList);
+        }
+        return invStsJson;
     }
 
     private JSONObject loadNetSpendJsonData(NetSpendConstant netSpendType, DashboardsFilterCriteria filter) throws JSONException {
