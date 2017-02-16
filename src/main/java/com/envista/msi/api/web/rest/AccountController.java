@@ -26,9 +26,9 @@ import com.envista.msi.api.web.rest.dto.UserProfileDto;
  */
 @RestController
 @RequestMapping("/api")
-public class AccountResource {
+public class AccountController {
 
-	private final Logger log = LoggerFactory.getLogger(AccountResource.class);
+	private final Logger log = LoggerFactory.getLogger(AccountController.class);
 
 	@Inject
 	private UserService userService;
@@ -64,5 +64,23 @@ public class AccountResource {
 		return Optional.ofNullable(userService.getUserProfileByUserName(SecurityUtils.getCurrentUserLogin()))
 				.map(user -> new ResponseEntity<>(user, HttpStatus.OK))
 				.orElse(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
+	}
+	
+	@RequestMapping(value = "/user/profile", method = { RequestMethod.GET, RequestMethod.POST,
+			RequestMethod.OPTIONS }, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<UserProfileDto> authorize() {
+		if (SecurityUtils.isAuthenticated()) {
+				try {
+					return new ResponseEntity<UserProfileDto>(
+							userService.getUserProfileByUserName(SecurityUtils.getCurrentUserLogin()), HttpStatus.OK);
+				} catch (Exception exp) {
+					exp.printStackTrace();
+					return new ResponseEntity<UserProfileDto>(
+							new UserProfileDto(),
+							HttpStatus.INTERNAL_SERVER_ERROR);
+				}
+			}
+			
+		return new ResponseEntity<UserProfileDto>(new UserProfileDto(), HttpStatus.UNAUTHORIZED);
 	}
 }

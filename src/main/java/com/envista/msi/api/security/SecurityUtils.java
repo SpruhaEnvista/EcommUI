@@ -2,6 +2,7 @@ package com.envista.msi.api.security;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Hashtable;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -24,6 +25,7 @@ import com.envista.msi.api.web.rest.dto.UserProfileDto;
 public final class SecurityUtils {
 
 	private final static String USER_IN_SESSION = "USER_IN_SESSION";
+	private static Hashtable<String, Object> userCache = new Hashtable<String, Object>();
 
 	/*
 	 * @Autowired private UserService userService;
@@ -164,5 +166,13 @@ public final class SecurityUtils {
 			user = (UserProfileDto) httpSession.getAttribute(USER_IN_SESSION);
 		}
 		return user;
+	}
+
+	public static Hashtable<String, Object> getUserCache() {
+		return userCache;
+	}
+
+	public static String getUserInSession() {
+		return USER_IN_SESSION;
 	}
 }
