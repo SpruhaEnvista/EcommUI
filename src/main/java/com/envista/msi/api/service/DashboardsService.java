@@ -1,11 +1,16 @@
 package com.envista.msi.api.service;
 
 import com.envista.msi.api.dao.DashboardsDao;
+import com.envista.msi.api.web.rest.dto.dashboard.DashboardAppliedFilterDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
 import com.envista.msi.api.web.rest.dto.dashboard.accessorialspend.AccessorialSpendDto;
+<<<<<<< HEAD
+=======
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardAppliedFilterDto;
 import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
+>>>>>>> refs/remotes/origin/Standard_Branch_for_UAT_Demo
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.*;
+import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.*;
 import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendByCarrierDto;
 import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendByMonthDto;
 import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendDto;
@@ -177,6 +182,64 @@ public class DashboardsService {
         return dashboardsDao.getTopAccessorialSpendByMonth(filter, isTopTenAccessorial);
     }
 
+    public List<AverageSpendPerShipmentDto> getAvgSpendPerShipment(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
+        return dashboardsDao.getAvgSpendPerShipmt(filter,  isTopTenAccessorial);
+    }
+
+    public List<AverageWeightModeShipmtDto> getAverageWeightByModeShipmt(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
+        return dashboardsDao.getAverageWeightByModeShipmt(filter,  isTopTenAccessorial);
+    }
+
+    /**
+     * Method to get service level usage performance details.
+     *
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<ServiceLevelUsageAndPerformanceDto> getServiceLevelUsageAndPerformance(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
+        return dashboardsDao.getServiceLevelUsageAndPerformance(filter, isTopTenAccessorial);
+    }
+
+    /**
+     * Method to get Inbound spend details.
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<InboundSpendDto> getInboundSpend(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
+        return dashboardsDao.getInboundSpend(filter, isTopTenAccessorial);
+    }
+
+    /**
+     * Method to get Inbound spend details by month.
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<InboundSpendDto> getInboundSpendByMonth(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
+        return dashboardsDao.getInboundSpendByMonth(filter, isTopTenAccessorial);
+    }
+
+    /**
+     * Method to get Outbound spend details.
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<OutboundSpendDto> getOutboundSpend(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
+        return dashboardsDao.getOutboundSpend(filter, isTopTenAccessorial);
+    }
+
+    /**
+     * Method to get Outbound spend details by month.
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<OutboundSpendDto> getOutboundSpendByMonth(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
+        return dashboardsDao.getOutboundSpendByMonth(filter, isTopTenAccessorial);
+    }
     /**
      * Mthod to get Invoice Status count.
      * @param filter

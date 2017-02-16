@@ -7,12 +7,19 @@ import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendCommonDto;
 import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendMonthlyChartDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendByModeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendOverTimeDto;
+<<<<<<< HEAD
+import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.AverageSpendPerShipmentDto;
+import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.AverageWeightModeShipmtDto;
+import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.ServiceLevelUsageAndPerformanceDto;
+=======
+>>>>>>> refs/remotes/origin/Standard_Branch_for_UAT_Demo
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.xml.ws.Service;
 import java.util.*;
 
 /**
@@ -64,7 +71,7 @@ public class JSONUtil {
 		}
 		return jsonInString;
 	}
-	
+
 	/**
 	 * @param <T>
 	 * @param jsonInString
@@ -462,6 +469,356 @@ public class JSONUtil {
 		return returnObject;
 	}
 
+	public static JSONObject prepareAverageWeightOrSpendJson(List<AverageSpendPerShipmentDto> avgPerShipmentList) throws JSONException {
+		JSONObject returnObject = new JSONObject();
+		JSONArray valuesArray = new JSONArray();
+		JSONArray seriesArray = new JSONArray();
+		LinkedHashMap<String, HashMap<String, Double>> datesValuesMap = new LinkedHashMap<String, HashMap<String, Double>>();
+		ArrayList<String> modeFlagList = new ArrayList<String>();
+
+			for (AverageSpendPerShipmentDto perShipmentDto:avgPerShipmentList){
+				String billDate = perShipmentDto.getBillDate();
+				String mode = perShipmentDto.getModes();
+				Double spend = perShipmentDto.getNetWeight();
+
+				if (spend != 0) {
+
+					if (!modeFlagList.contains(mode)) {
+						modeFlagList.add(mode);
+					}
+
+					if (datesValuesMap.containsKey(billDate)) {
+						datesValuesMap.get(billDate).put(mode, spend);
+					} else {
+						HashMap<String, Double> tempHashMap = new HashMap<String, Double>();
+						tempHashMap.put(mode, spend);
+						datesValuesMap.put(billDate, tempHashMap);
+					}
+
+				}
+
+			}
+			// Bar Chart
+			int counter = 1;
+			Iterator<String> datesIterator = datesValuesMap.keySet().iterator();
+
+			while (datesIterator.hasNext()) {
+				JSONObject jsonObject = new JSONObject();
+
+				String date = datesIterator.next();
+				HashMap<String, Double> modeFlagMap = datesValuesMap.get(date);
+				Iterator<String> modeFlagIterator = modeFlagMap.keySet().iterator();
+
+				jsonObject.put("name", date);
+				jsonObject.put("counter", counter);
+
+				while (modeFlagIterator.hasNext()) {
+					String modeFlag = modeFlagIterator.next();
+					double spend = modeFlagMap.get(modeFlag);
+					jsonObject.put(modeFlag, spend);
+				}
+				valuesArray.put(jsonObject);
+				counter++;
+			}
+
+			String append = "\"";
+			counter = 1;
+			for (String modeFlag : modeFlagList) {
+				modeFlag = append + modeFlag + append;
+				String seriesId = append + "S" + counter + append;
+				String object = "{\"id\":" + seriesId + ",\"name\":" + modeFlag + ", \"data\": {\"field\":" + modeFlag
+						+ "},\"type\":\"line\",\"style\":{\"lineWidth\": 2,smoothing: true, marker: {shape: \"circle\", width: 5},";
+				object = object + "lineColor: \"" + colorsList.get(counter - 1) + "\"";
+				object = object + "}}";
+				seriesArray.put(new JSONObject(object));
+				counter++;
+			}
+			returnObject.put("values", valuesArray);
+			returnObject.put("series", seriesArray);
+
+		return returnObject;
+	}
+
+
+	public static JSONObject prepareAverageWeightJson(   List<AverageWeightModeShipmtDto> avgWeigthModeShpmtList) throws JSONException {
+		JSONObject returnObject = new JSONObject();
+		JSONArray valuesArray = new JSONArray();
+		JSONArray seriesArray = new JSONArray();
+		LinkedHashMap<String, HashMap<String, Double>> datesValuesMap = new LinkedHashMap<String, HashMap<String, Double>>();
+		ArrayList<String> modeFlagList = new ArrayList<String>();
+
+		for (AverageWeightModeShipmtDto perWeightShipmentDto:avgWeigthModeShpmtList){
+			String billDate = perWeightShipmentDto.getBillDate();
+			String mode = perWeightShipmentDto.getModes();
+			Double spend = perWeightShipmentDto.getNetWeight();
+
+			if (spend != 0) {
+
+				if (!modeFlagList.contains(mode)) {
+					modeFlagList.add(mode);
+				}
+
+				if (datesValuesMap.containsKey(billDate)) {
+					datesValuesMap.get(billDate).put(mode, spend);
+				} else {
+					HashMap<String, Double> tempHashMap = new HashMap<String, Double>();
+					tempHashMap.put(mode, spend);
+					datesValuesMap.put(billDate, tempHashMap);
+				}
+
+			}
+
+		}
+		// Bar Chart
+		int counter = 1;
+		Iterator<String> datesIterator = datesValuesMap.keySet().iterator();
+
+		while (datesIterator.hasNext()) {
+			JSONObject jsonObject = new JSONObject();
+
+			String date = datesIterator.next();
+			HashMap<String, Double> modeFlagMap = datesValuesMap.get(date);
+			Iterator<String> modeFlagIterator = modeFlagMap.keySet().iterator();
+
+			jsonObject.put("name", date);
+			jsonObject.put("counter", counter);
+
+			while (modeFlagIterator.hasNext()) {
+				String modeFlag = modeFlagIterator.next();
+				double spend = modeFlagMap.get(modeFlag);
+				jsonObject.put(modeFlag, spend);
+			}
+			valuesArray.put(jsonObject);
+			counter++;
+		}
+
+		String append = "\"";
+		counter = 1;
+		for (String modeFlag : modeFlagList) {
+			modeFlag = append + modeFlag + append;
+			String seriesId = append + "S" + counter + append;
+			String object = "{\"id\":" + seriesId + ",\"name\":" + modeFlag + ", \"data\": {\"field\":" + modeFlag
+					+ "},\"type\":\"line\",\"style\":{\"lineWidth\": 2,smoothing: true, marker: {shape: \"circle\", width: 5},";
+			object = object + "lineColor: \"" + colorsList.get(counter - 1) + "\"";
+			object = object + "}}";
+			seriesArray.put(new JSONObject(object));
+			counter++;
+		}
+		returnObject.put("values", valuesArray);
+		returnObject.put("series", seriesArray);
+
+		return returnObject;
+	}
+
+	public static JSONObject prepareServiceLevelUsageAndPerfromanceJson(List<ServiceLevelUsageAndPerformanceDto> performanceList) throws JSONException {
+		JSONObject finalJsonObj = new JSONObject();
+		JSONArray valuesArray = null;
+		JSONArray seriesArray = null;
+
+		if(performanceList != null && !performanceList.isEmpty()){
+			valuesArray = new JSONArray();
+			seriesArray = new JSONArray();
+			HashMap<String, Double> carriersValuesMap = new LinkedHashMap<String, Double>();
+			Set<String> categories = new TreeSet<String>(Arrays.asList("DAY2", "DAY3", "GROUND", "INTL", "NDA", "POSTALINTG"));
+			Set<String> attributes = new TreeSet<String>();
+
+			for(ServiceLevelUsageAndPerformanceDto serviceLevelUsage : performanceList){
+				if(serviceLevelUsage != null){
+					int c = 0;
+					for(String category : categories){
+						String carrierName = serviceLevelUsage.getCarrierName();
+						if(c == 0){
+							attributes.add(carrierName + "COUNT");
+							attributes.add(carrierName + "PERC");
+							attributes.add(carrierName + "LATEPERC");
+							c++;
+						}
+						String key = carrierName + "#@#" + category;
+						switch (category){
+							case "DAY2":
+								carriersValuesMap.put(key + "#@#COUNT", serviceLevelUsage.getDay2Count());
+								carriersValuesMap.put(key + "#@#PERC", serviceLevelUsage.getDay2Percentage());
+								carriersValuesMap.put(key + "#@#LATEPERC", serviceLevelUsage.getDay2LatePercentage());
+								break;
+							case "DAY3":
+								carriersValuesMap.put(key + "#@#COUNT", serviceLevelUsage.getDay3Count());
+								carriersValuesMap.put(key + "#@#PERC", serviceLevelUsage.getDay3Percentage());
+								carriersValuesMap.put(key + "#@#LATEPERC", serviceLevelUsage.getDay3LatePercentage());
+								break;
+							case "GROUND":
+								carriersValuesMap.put(key + "#@#COUNT", serviceLevelUsage.getGroundCount());
+								carriersValuesMap.put(key + "#@#PERC", serviceLevelUsage.getGroundPercentage());
+								carriersValuesMap.put(key + "#@#LATEPERC", serviceLevelUsage.getGroundLatePercentage());
+								break;
+							case "INTL":
+								carriersValuesMap.put(key + "#@#COUNT", serviceLevelUsage.getInternationalCount());
+								carriersValuesMap.put(key + "#@#PERC", serviceLevelUsage.getInternationalPercentage());
+								carriersValuesMap.put(key + "#@#LATEPERC", serviceLevelUsage.getInternationalLatePercentage());
+								break;
+							case "NDA":
+								carriersValuesMap.put(key + "#@#COUNT", serviceLevelUsage.getNdaCount());
+								carriersValuesMap.put(key + "#@#PERC", serviceLevelUsage.getNdaPercentage());
+								carriersValuesMap.put(key + "#@#LATEPERC", serviceLevelUsage.getNdaLatePercentage());
+								break;
+							case "POSTALINTG":
+								carriersValuesMap.put(key + "#@#COUNT", serviceLevelUsage.getPostalIntgCount());
+								carriersValuesMap.put(key + "#@#PERC", serviceLevelUsage.getPostalIntgPercentage());
+								carriersValuesMap.put(key + "#@#LATEPERC", serviceLevelUsage.getPostalIntgLatePercentage());
+								break;
+						}
+					}
+				}
+			}
+
+			Iterator<String> categoriesIterator = categories.iterator();
+
+			while (categoriesIterator.hasNext()) {
+				String service = categoriesIterator.next();
+				JSONObject finalValues = new JSONObject();
+				finalValues.put("name", service);
+				Iterator<String> carrierIterator = carriersValuesMap.keySet().iterator();
+				while (carrierIterator.hasNext()) {
+					String carrierMapKey = carrierIterator.next();
+					double amount = carriersValuesMap.get(carrierMapKey);
+					String carrierName = carrierMapKey.split("#@#")[0];
+					String serviceName = carrierMapKey.split("#@#")[1];
+					String columnName = carrierMapKey.split("#@#")[2];
+
+					if (service.equalsIgnoreCase(serviceName)) {
+						finalValues.put(carrierName + columnName, amount);
+					}
+				}
+				valuesArray.put(finalValues);
+			}
+
+			String append = "\"";
+			int counter = 1;
+			for (String seriesName : attributes) {
+				String seriesId = append + "S" + counter + append;
+				StringBuffer seriesObject = new StringBuffer();
+
+				seriesObject.append("{\"id\":" + seriesId + ",\"name\":" + append + seriesName + append + ", \"data\": {\"field\":" + seriesName + "}");
+				if (seriesName.contains("COUNT")) {
+					seriesObject.append(",\"type\":\"line\",\"style\":{\"lineWidth\": 2,depth: 4, gradient: 0.9 ,smoothing: true, marker: {shape: \"circle\", width: 5}, ");
+					seriesObject.append("lineColor: \"" + colorsList.get(counter - 1) + "\"");
+					seriesObject.append("}");
+				}else {
+					seriesObject.append(",style: { depth: 4, gradient: 0.9 }");
+				}
+
+				seriesObject.append("}");
+				seriesArray.put(new JSONObject(seriesObject.toString()));
+				counter++;
+			}
+			finalJsonObj.put("values", valuesArray);
+			finalJsonObj.put("series", seriesArray);
+		} else {
+			finalJsonObj.put("values", new JSONArray());
+			finalJsonObj.put("series", new JSONArray());
+		}
+		return finalJsonObj;
+	}
+
+	public static JSONObject prepareInAndOutBuondJson(List<NetSpendCommonDto> spendList) throws JSONException {
+		JSONObject returnObject = new JSONObject();
+		JSONArray valuesArray = null;
+		JSONArray seriesArray = null;
+
+		if(spendList != null && !spendList.isEmpty()){
+			valuesArray = new JSONArray();
+			seriesArray = new JSONArray();
+			LinkedHashMap<String, HashMap<String, Double>> datesValuesMap = new LinkedHashMap<String, HashMap<String, Double>>();
+			ArrayList<String> modeFlagList = new ArrayList<String>();
+			ArrayList<String> carriersList = new ArrayList<String>();
+			for(NetSpendCommonDto spendDto : spendList){
+				if(spendDto != null){
+					String billDate = spendDto.getBillingDate();
+					String carrierScacCode = spendDto.getCarrierName();
+					Double spend = spendDto.getNetDueAmount();
+					Long carrierId = spendDto.getCarrierId();
+					String carrierIaAndName = carrierId + "#@#" + carrierScacCode;
+					if(!carriersList.contains(carrierIaAndName)){
+						carriersList.add(carrierIaAndName);
+					}
+
+					if (spend != 0) {
+						if (!modeFlagList.contains(carrierScacCode)) {
+							modeFlagList.add(carrierScacCode);
+						}
+						if (datesValuesMap.containsKey(billDate)) {
+							datesValuesMap.get(billDate).put(carrierScacCode, spend);
+						} else {
+							HashMap<String, Double> tempHashMap = new HashMap<String, Double>();
+							tempHashMap.put(carrierScacCode, spend);
+							datesValuesMap.put(billDate, tempHashMap);
+						}
+					}
+				}
+			}
+
+			// Bar Chart
+			int counter = 1;
+			Iterator<String> datesIterator = datesValuesMap.keySet().iterator();
+
+			while (datesIterator.hasNext()) {
+				JSONObject jsonObject = new JSONObject();
+
+				String date = datesIterator.next();
+				HashMap<String, Double> modeFlagMap = datesValuesMap.get(date);
+
+				Iterator<String> modeFlagIterator = modeFlagMap.keySet().iterator();
+
+				jsonObject.put("name", date);
+				jsonObject.put("counter", counter);
+
+				while (modeFlagIterator.hasNext()) {
+					String modeFlag = modeFlagIterator.next();
+					double spend = modeFlagMap.get(modeFlag);
+					jsonObject.put(modeFlag, spend);
+				}
+
+				valuesArray.put(jsonObject);
+				counter++;
+			}
+
+			String append = "\"";
+			counter = 1;
+
+			for (String modeFlag : modeFlagList) {
+				modeFlag = append + modeFlag + append;
+				String seriesId = append + "S" + counter + append;
+				String object = "{\"id\":" + seriesId + ",\"name\":" + modeFlag + ", \"data\": {\"field\":" + modeFlag
+						+ "},\"type\":\"line\",\"style\":{\"lineWidth\": 2,smoothing: true, marker: {shape: \"circle\", width: 5},";
+				object = object + "lineColor: \"" + colorsList.get(counter - 1) + "\"";
+				object = object + "}}";
+				seriesArray.put(new JSONObject(object));
+				counter++;
+			}
+
+			counter = 1;
+
+			for (String carrierDetails : carriersList) {
+				String carrierId = carrierDetails.split("#@#")[0];
+				String carrierName = carrierDetails.split("#@#")[1];
+
+				carrierId = append + carrierId + append;
+				carrierName = append + carrierName + append;
+				String seriesId = append + "S" + counter + append;
+				String object = "{\"id\":" + seriesId + ",\"name\":" + carrierName + ", \"carrierId\":" + carrierId + ",\"data\": {\"field\":" + carrierName
+						+ "},\"type\":\"line\",\"style\":{\"lineWidth\": 2,smoothing: true, marker: {shape: \"circle\", width: 5},";
+
+				object = object + "lineColor: \"" + colorsList.get(counter - 1) + "\"";
+				object = object + "}}";
+
+				seriesArray.put(new JSONObject(object));
+				counter++;
+			}
+
+			returnObject.put("values", valuesArray);
+			returnObject.put("series", seriesArray);
+			returnObject.put("carrierDetails", new JSONArray().put(carriersList));
+		}
+	}
 	public static JSONObject prepareOrderMatchJson(List<OrderMatchDto> orderMatchList) throws JSONException {
 		JSONObject returnJson = new JSONObject();
 		JSONArray returnArray = null;
