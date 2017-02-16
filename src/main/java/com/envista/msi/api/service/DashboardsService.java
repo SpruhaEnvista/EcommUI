@@ -1,11 +1,15 @@
 package com.envista.msi.api.service;
 
 import com.envista.msi.api.dao.DashboardsDao;
+import com.envista.msi.api.web.rest.dto.MapCoordinatesDto;
+import com.envista.msi.api.web.rest.dto.ZipCodesTimeZonesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardAppliedFilterDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
 import com.envista.msi.api.web.rest.dto.dashboard.accessorialspend.AccessorialSpendDto;
 import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.*;
+import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentRegionDto;
+import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShippingLanesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.*;
 import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendByCarrierDto;
 import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendByMonthDto;
@@ -375,6 +379,42 @@ public class DashboardsService {
 
     public List<RecoveryServiceDto> getRecoveryServicesByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
         return dashboardsDao.getRecoveryServicesByMonth(filter, isTopTenAccessorial);
+    }
+
+    public List<ShipmentRegionDto> getShipmentByRegion(DashboardsFilterCriteria dashboardsFilterCriteria ) {
+        return dashboardsDao.getShipmentByRegion(dashboardsFilterCriteria);
+    }
+
+    public List<MapCoordinatesDto> getMapCooridantes(String address) {
+        return dashboardsDao.getMapCoordinates(address);
+    }
+
+    public List<ZipCodesTimeZonesDto> getMapCooridantes(String city, String state) {
+        return dashboardsDao.getMapCoordinates(city,state);
+    }
+
+    public void insertMapCoordinates(MapCoordinatesDto mapCoordinatesDto) {
+        dashboardsDao.insertMapCoordinates(mapCoordinatesDto);
+    }
+
+    public List<ShipmentRegionDto> getShipmentRegionByCarrierJson (DashboardsFilterCriteria filterCriteria) {
+        return dashboardsDao.getShipmentRegionByCarrierJson(filterCriteria);
+    }
+
+    public List<ShipmentRegionDto> getShipmentRegionByMonthJson (DashboardsFilterCriteria filterCriteria) {
+        return dashboardsDao.getShipmentRegionByMonthJson(filterCriteria);
+    }
+
+    public List<ShippingLanesDto> loadTopShippingLanesJsonData (DashboardsFilterCriteria filterCriteria) {
+        return dashboardsDao.getTopShippingLanesJsonData(filterCriteria);
+    }
+
+    public List<ShippingLanesDto> getShippingLanesByCarrierJson (DashboardsFilterCriteria filterCriteria) {
+        return dashboardsDao.getShippingLanesByCarrierJson(filterCriteria);
+    }
+
+    public List<ShippingLanesDto> getShippingLanesByMonthJson (DashboardsFilterCriteria filterCriteria) {
+        return dashboardsDao.getShippingLanesByMonthJson(filterCriteria);
     }
 
     public List<PackageExceptionDto> getPackageExceptions(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){

@@ -52,6 +52,12 @@ public class DashboardsFilterCriteria implements Serializable {
     private String originalDateType;
     private boolean handleParcelServices;
     private boolean parcelDashlettes;
+    private long noOfLanes;
+    private String shipperAddress;
+    private String receiverAddress;
+    private String pol;
+    private String pod;
+
 
     public String getCustomerIdsCSV() {
         return customerIdsCSV;
@@ -411,6 +417,46 @@ public class DashboardsFilterCriteria implements Serializable {
 
     public void setParcelDashlettes(boolean parcelDashlettes) {
         this.parcelDashlettes = parcelDashlettes;
+    }
+
+    public long getNoOfLanes() {
+        return noOfLanes;
+    }
+
+    public void setNoOfLanes(long noOfLanes) {
+        this.noOfLanes = noOfLanes;
+    }
+
+    public String getShipperAddress() {
+        return shipperAddress;
+    }
+
+    public void setShipperAddress(String shipperAddress) {
+        this.shipperAddress = shipperAddress;
+    }
+
+    public String getReceiverAddress() {
+        return receiverAddress;
+    }
+
+    public void setReceiverAddress(String receiverAddress) {
+        this.receiverAddress = receiverAddress;
+    }
+
+    public String getPol() {
+        return pol;
+    }
+
+    public void setPol(String pol) {
+        this.pol = pol;
+    }
+
+    public String getPod() {
+        return pod;
+    }
+
+    public void setPod(String pod) {
+        this.pod = pod;
     }
 
     public class FreightDashboardsDataBean {

@@ -4,11 +4,15 @@ import com.envista.msi.api.domain.PersistentContext;
 import com.envista.msi.api.domain.util.DashboardSroredProcParam;
 import com.envista.msi.api.domain.util.QueryParameter;
 import com.envista.msi.api.domain.util.StoredProcedureParameter;
+import com.envista.msi.api.web.rest.dto.MapCoordinatesDto;
+import com.envista.msi.api.web.rest.dto.ZipCodesTimeZonesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardAppliedFilterDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
 import com.envista.msi.api.web.rest.dto.dashboard.accessorialspend.AccessorialSpendDto;
 import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.*;
+import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentRegionDto;
+import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShippingLanesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.*;
 import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendByCarrierDto;
 import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendByMonthDto;
@@ -29,9 +33,9 @@ public class DashboardsDao {
     @Inject
     private PersistentContext persistentContext;
 
-   public DashboardAppliedFilterDto getUserAppliedFilter(Long userId) {
-      return persistentContext.findEntity("DashAppliedFilterTb.getUserAppliedFilter",
-               StoredProcedureParameter.with("p_user_id", userId));
+    public DashboardAppliedFilterDto getUserAppliedFilter(Long userId) {
+        return persistentContext.findEntity("DashAppliedFilterTb.getUserAppliedFilter",
+                StoredProcedureParameter.with("p_user_id", userId));
     }
 
     /**
@@ -754,6 +758,132 @@ public class DashboardsDao {
                 .and(DashboardSroredProcParam.PackageExceptionParams.ACCESSORIAL_NAME_PARAM, filter.getAccessorialName())
                 .and(DashboardSroredProcParam.PackageExceptionParams.TOP_TEN_ACCESSORIAL_PARAM, isTopTenAccessorial ? 1L : 0L);
         return persistentContext.findEntities("PackageExceptionDto.getPackageException", queryParameter);
+    }
+
+    @Transactional( readOnly = true )
+    public List<ShipmentRegionDto> getShipmentByRegion(DashboardsFilterCriteria filter){
+        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.ShipmentRegionParams.DATE_TYPE_PARAM, filter.getDateType())
+                .and(DashboardSroredProcParam.ShipmentRegionParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
+                .and(DashboardSroredProcParam.ShipmentRegionParams.CARRIER_ID_PARAM, filter.getCarriers())
+                .and(DashboardSroredProcParam.ShipmentRegionParams.MODES_PARAM, filter.getModes())
+                .and(DashboardSroredProcParam.ShipmentRegionParams.SERVICES_PARAM, filter.getServices())
+                .and(DashboardSroredProcParam.ShipmentRegionParams.LANES_PARAM, filter.getLanes())
+                .and(DashboardSroredProcParam.ShipmentRegionParams.ACCESSORIAL_NAME_PARAM, filter.getAccessorialName())
+                .and(DashboardSroredProcParam.ShipmentRegionParams.FROM_DATE_PARAM, filter.getFromDate())
+                .and(DashboardSroredProcParam.ShipmentRegionParams.TO_DATE_PARAM, filter.getToDate())
+                .and(DashboardSroredProcParam.ShipmentRegionParams.NO_OF_LANES_PARAM, filter.getNoOfLanes());
+
+        return persistentContext.findEntities("ShipmentRegionDto.getShipmentByRegion", queryParameter);
+    }
+
+    public List<MapCoordinatesDto> getMapCoordinates(String address)  {
+        return persistentContext.findEntities("MapCoordinatesDto.getMapCooridantes",
+                StoredProcedureParameter.with("p_address", address));
+    }
+
+    public List<ZipCodesTimeZonesDto> getMapCoordinates(String city, String state) {
+        return  persistentContext.findEntities("ZipCodesTimeZonesDto.getMapCooridantes",
+                StoredProcedureParameter.with("p_city", city)
+                        .and("p_state", state));
+    }
+
+    public void insertMapCoordinates(MapCoordinatesDto mapCoordinatesDto) {
+        persistentContext.findEntities("MapCoordinatesDto.insertMapCooridantes",
+                StoredProcedureParameter.with("p_address", mapCoordinatesDto.getAddress())
+                        .and("p_latitude", mapCoordinatesDto.getLatitude())
+                        .and("p_longitude", mapCoordinatesDto.getLongitude()));
+    }
+
+    public List<ShipmentRegionDto> getShipmentRegionByCarrierJson(DashboardsFilterCriteria filterCriteria) {
+        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.ShipmentRegionParams.DATE_TYPE_PARAM, filterCriteria.getDateType())
+                .and(DashboardSroredProcParam.ShipmentRegionParams.CURRENCY_ID_PARAM, filterCriteria.getConvertCurrencyId())
+                .and(DashboardSroredProcParam.ShipmentRegionParams.CURRENCY_CODE_PARAM, filterCriteria.getConvertCurrencyCode())
+                .and(DashboardSroredProcParam.ShipmentRegionParams.CUSTOMER_IDS_CSV_PARAM, filterCriteria.getCustomerIdsCSV())
+                .and(DashboardSroredProcParam.ShipmentRegionParams.CARRIER_ID_PARAM, filterCriteria.getCarriers())
+                .and(DashboardSroredProcParam.ShipmentRegionParams.MODES_PARAM, filterCriteria.getModes())
+                .and(DashboardSroredProcParam.ShipmentRegionParams.SERVICES_PARAM, filterCriteria.getServices())
+                .and(DashboardSroredProcParam.ShipmentRegionParams.LANES_PARAM, filterCriteria.getLanes())
+                .and(DashboardSroredProcParam.ShipmentRegionParams.ACCESSORIAL_NAME_PARAM, filterCriteria.getAccessorialName())
+                .and(DashboardSroredProcParam.ShipmentRegionParams.FROM_DATE_PARAM, filterCriteria.getFromDate())
+                .and(DashboardSroredProcParam.ShipmentRegionParams.TO_DATE_PARAM, filterCriteria.getToDate())
+                .and(DashboardSroredProcParam.ShipmentRegionParams.SHIPPER_CITY, filterCriteria.getShipperCity())
+                .and(DashboardSroredProcParam.ShipmentRegionParams.RECEIVER_CITY, filterCriteria.getReceiverCity());
+
+        return persistentContext.findEntities("ShipmentRegionDto.getShipmentRegionByCarrier", queryParameter);
+
+    }
+
+    public List<ShipmentRegionDto> getShipmentRegionByMonthJson(DashboardsFilterCriteria filterCriteria) {
+        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.ShipmentRegionParams.DATE_TYPE_PARAM, filterCriteria.getDateType())
+                .and(DashboardSroredProcParam.ShipmentRegionParams.CUSTOMER_IDS_CSV_PARAM, filterCriteria.getCustomerIdsCSV())
+                .and(DashboardSroredProcParam.ShipmentRegionParams.CURRENCY_ID_PARAM, filterCriteria.getConvertCurrencyId())
+                .and(DashboardSroredProcParam.ShipmentRegionParams.CURRENCY_CODE_PARAM, filterCriteria.getConvertCurrencyCode())
+                .and(DashboardSroredProcParam.ShipmentRegionParams.CARRIER_ID_PARAM, filterCriteria.getCarriers())
+                .and(DashboardSroredProcParam.ShipmentRegionParams.MODES_PARAM, filterCriteria.getModes())
+                .and(DashboardSroredProcParam.ShipmentRegionParams.SERVICES_PARAM, filterCriteria.getServices())
+                .and(DashboardSroredProcParam.ShipmentRegionParams.LANES_PARAM, filterCriteria.getLanes())
+                .and(DashboardSroredProcParam.ShipmentRegionParams.ACCESSORIAL_NAME_PARAM, filterCriteria.getAccessorialName())
+                .and(DashboardSroredProcParam.ShipmentRegionParams.FROM_DATE_PARAM, filterCriteria.getFromDate())
+                .and(DashboardSroredProcParam.ShipmentRegionParams.TO_DATE_PARAM, filterCriteria.getToDate())
+                .and(DashboardSroredProcParam.ShipmentRegionParams.SHIPPER_CITY, filterCriteria.getShipperCity())
+                .and(DashboardSroredProcParam.ShipmentRegionParams.RECEIVER_CITY, filterCriteria.getReceiverCity());
+
+        return persistentContext.findEntities("ShipmentRegionDto.getShipmentRegionByMonth", queryParameter);
+
+    }
+
+    public List<ShippingLanesDto> getTopShippingLanesJsonData(DashboardsFilterCriteria filter){
+        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.ShippingLanesParams.DATE_TYPE_PARAM, filter.getDateType())
+                .and(DashboardSroredProcParam.ShippingLanesParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
+                .and(DashboardSroredProcParam.ShippingLanesParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
+                .and(DashboardSroredProcParam.ShippingLanesParams.CARRIER_ID_PARAM, filter.getCarriers())
+                .and(DashboardSroredProcParam.ShippingLanesParams.MODES_PARAM, filter.getModes())
+                .and(DashboardSroredProcParam.ShippingLanesParams.SERVICES_PARAM, filter.getServices())
+                .and(DashboardSroredProcParam.ShippingLanesParams.LANES_PARAM, filter.getLanes())
+                .and(DashboardSroredProcParam.ShippingLanesParams.FROM_DATE_PARAM, filter.getFromDate())
+                .and(DashboardSroredProcParam.ShippingLanesParams.TO_DATE_PARAM, filter.getToDate());
+
+        return persistentContext.findEntities("ShippingLanesDto.getTopShippingLanes", queryParameter);
+    }
+
+    public List<ShippingLanesDto> getShippingLanesByCarrierJson(DashboardsFilterCriteria filter){
+        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.ShippingLanesParams.DATE_TYPE_PARAM, filter.getDateType())
+                .and(DashboardSroredProcParam.ShippingLanesParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
+                .and(DashboardSroredProcParam.ShippingLanesParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
+                .and(DashboardSroredProcParam.ShippingLanesParams.CARRIER_ID_PARAM, filter.getCarriers())
+                .and(DashboardSroredProcParam.ShippingLanesParams.MODES_PARAM, filter.getModes())
+                .and(DashboardSroredProcParam.ShippingLanesParams.SERVICES_PARAM, filter.getServices())
+                .and(DashboardSroredProcParam.ShippingLanesParams.LANES_PARAM, filter.getLanes())
+                .and(DashboardSroredProcParam.ShippingLanesParams.FROM_DATE_PARAM, filter.getFromDate())
+                .and(DashboardSroredProcParam.ShippingLanesParams.TO_DATE_PARAM, filter.getToDate())
+                .and(DashboardSroredProcParam.ShippingLanesParams.SHIPPER_CITY, filter.getShipperAddress().split(",")[0].replace("'","''"))
+                .and(DashboardSroredProcParam.ShippingLanesParams.SHIPPER_STATE, filter.getShipperAddress().split(",")[1].replace("'","''"))
+                .and(DashboardSroredProcParam.ShippingLanesParams.SHIPPER_COUNTRY, filter.getShipperAddress().split(",")[2].replace("'","''"))
+                .and(DashboardSroredProcParam.ShippingLanesParams.RECEIVER_CITY, filter.getReceiverAddress().split(",")[0].replace("'","''"))
+                .and(DashboardSroredProcParam.ShippingLanesParams.RECEIVER_STATE, filter.getReceiverAddress().split(",")[1].replace("'","''"))
+                .and(DashboardSroredProcParam.ShippingLanesParams.RECEIVER_COUNTRY, filter.getReceiverAddress().split(",")[2].replace("'","''"));
+
+        return persistentContext.findEntities("ShippingLanesDto.getShippingLanesByCarrier", queryParameter);
+    }
+
+    public List<ShippingLanesDto> getShippingLanesByMonthJson(DashboardsFilterCriteria filter){
+        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.ShippingLanesParams.DATE_TYPE_PARAM, filter.getDateType())
+                .and(DashboardSroredProcParam.ShippingLanesParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
+                .and(DashboardSroredProcParam.ShippingLanesParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
+                .and(DashboardSroredProcParam.ShippingLanesParams.CARRIER_ID_PARAM, filter.getCarriers())
+                .and(DashboardSroredProcParam.ShippingLanesParams.MODES_PARAM, filter.getModes())
+                .and(DashboardSroredProcParam.ShippingLanesParams.SERVICES_PARAM, filter.getServices())
+                .and(DashboardSroredProcParam.ShippingLanesParams.LANES_PARAM, filter.getLanes())
+                .and(DashboardSroredProcParam.ShippingLanesParams.FROM_DATE_PARAM, filter.getFromDate())
+                .and(DashboardSroredProcParam.ShippingLanesParams.TO_DATE_PARAM, filter.getToDate())
+                .and(DashboardSroredProcParam.ShippingLanesParams.SHIPPER_CITY, filter.getShipperAddress().split(",")[0].replace("'","''"))
+                .and(DashboardSroredProcParam.ShippingLanesParams.SHIPPER_STATE, filter.getShipperAddress().split(",")[1].replace("'","''"))
+                .and(DashboardSroredProcParam.ShippingLanesParams.SHIPPER_COUNTRY, filter.getShipperAddress().split(",")[2].replace("'","''"))
+                .and(DashboardSroredProcParam.ShippingLanesParams.RECEIVER_CITY, filter.getReceiverAddress().split(",")[0].replace("'","''"))
+                .and(DashboardSroredProcParam.ShippingLanesParams.RECEIVER_STATE, filter.getReceiverAddress().split(",")[1].replace("'","''"))
+                .and(DashboardSroredProcParam.ShippingLanesParams.RECEIVER_COUNTRY, filter.getReceiverAddress().split(",")[2].replace("'","''"));
+
+        return persistentContext.findEntities("ShippingLanesDto.getShippingLanesByMonth", queryParameter);
     }
 
     public List<PackageExceptionDto> getPackageExceptionsByCarrier(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){

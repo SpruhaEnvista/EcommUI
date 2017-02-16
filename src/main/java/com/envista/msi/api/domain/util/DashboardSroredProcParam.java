@@ -291,4 +291,41 @@ public class DashboardSroredProcParam {
         public static final String AVG_SPEND_PER_SHIPMT_PARAM = "p_avg_spend_shipmt_bymomth";
     }
 
+    public static class ShipmentRegionParams{
+        public static final String DATE_TYPE_PARAM = "p_date_type";
+        public static final String CURRENCY_ID_PARAM = "p_currency_id";
+        public static final String CURRENCY_CODE_PARAM = "p_converted_curr_code";
+        public static final String CUSTOMER_IDS_CSV_PARAM = "p_customer_ids";
+        public static final String CARRIER_ID_PARAM = "p_carrier_id";
+        public static final String MODES_PARAM = "p_modes";
+        public static final String SERVICES_PARAM = "p_services";
+        public static final String LANES_PARAM = "p_lanes_info";
+        public static final String ACCESSORIAL_NAME_PARAM = "p_accessorial_name";
+        public static final String FROM_DATE_PARAM = "p_from_date";
+        public static final String TO_DATE_PARAM = "p_to_date";
+        public static final String NO_OF_LANES_PARAM = "p_no_of_lanes";
+        public static final String SHIPPER_CITY = "p_shipper_city";
+        public static final String RECEIVER_CITY = "p_receiver_city";
+        public static final String RESULTS_DATA_PARAM = "p_results_out";
+    }
+
+    public static class ShippingLanesParams{
+        public static final String DATE_TYPE_PARAM = "p_date_type";
+        public static final String CURRENCY_ID_PARAM = "p_currency_id";
+        public static final String CUSTOMER_IDS_CSV_PARAM = "p_customer_ids";
+        public static final String CARRIER_ID_PARAM = "p_carrier_id";
+        public static final String MODES_PARAM = "p_modes";
+        public static final String SERVICES_PARAM = "p_services";
+        public static final String LANES_PARAM = "p_lanes_info";
+        public static final String FROM_DATE_PARAM = "p_from_date";
+        public static final String TO_DATE_PARAM = "p_to_date";
+        public static final String SHIPPER_CITY = "p_shipper_city";
+        public static final String SHIPPER_STATE = "p_shipper_state";
+        public static final String SHIPPER_COUNTRY = "p_shipper_country";
+        public static final String RECEIVER_CITY = "p_receiver_city";
+        public static final String RECEIVER_STATE = "p_receiver_state";
+        public static final String RECEIVER_COUNTRY = "p_receiver_country";
+        public static final String RESULTS_DATA_PARAM = "p_results_out";
+    }
+
 }

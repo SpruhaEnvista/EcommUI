@@ -1,5 +1,6 @@
 package com.envista.msi.api.web.rest.util;
 
+import com.envista.msi.api.web.rest.dto.MapCoordinatesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.accessorialspend.AccessorialSpendDto;
 import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
 import com.envista.msi.api.web.rest.dto.dashboard.common.CommonMonthlyChartDto;
@@ -8,6 +9,8 @@ import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendCommonDto;
 import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendMonthlyChartDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendByModeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendOverTimeDto;
+import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentRegionDto;
+import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShippingLanesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.AverageSpendPerShipmentDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.AverageWeightModeShipmtDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.ServiceLevelUsageAndPerformanceDto;
@@ -165,45 +168,6 @@ public class JSONUtil {
 		return netSpendJsonData;
 	}
 
-	public static JSONObject prepareMonthlyChartJson(List<NetSpendMonthlyChartDto> netSpendMonthlyChartDtos) throws JSONException {
-		JSONObject returnJson = new JSONObject();
-		JSONArray returnArray = null;
-		int count = 0;
-		long fromDate = 0;
-		long toDate = 0;
-
-		if(netSpendMonthlyChartDtos != null && netSpendMonthlyChartDtos.size() > 0){
-			returnArray = new JSONArray();
-			for(NetSpendMonthlyChartDto monthlyChartDto : netSpendMonthlyChartDtos){
-				if(monthlyChartDto != null){
-					JSONArray dataArray = new JSONArray();
-					long dateInMilliSecs = 0L;
-					if(monthlyChartDto.getBillDate() != null){
-						dateInMilliSecs = monthlyChartDto.getBillDate().getTime();
-					}
-
-					dataArray.put(dateInMilliSecs);
-					dataArray.put(monthlyChartDto.getAmount());
-					returnArray.put(dataArray);
-					if (count == 0) {
-						fromDate = dateInMilliSecs;
-					}
-					toDate = dateInMilliSecs;
-					dataArray = null;
-
-					count++;
-				}
-			}
-			if (fromDate == toDate) {
-				toDate = toDate + 1;
-			}
-
-			returnJson.put("values", returnArray);
-			returnJson.put("fromDate", fromDate);
-			returnJson.put("toDate", toDate);
-		}
-		return returnJson;
-	}
 
 	public static JSONObject prepareNetSpendOverTimeJson(List<NetSpendOverTimeDto> netSpendOverTimeDtos) throws JSONException {
 		JSONObject returnObject = new JSONObject();
@@ -475,65 +439,65 @@ public class JSONUtil {
 		LinkedHashMap<String, HashMap<String, Double>> datesValuesMap = new LinkedHashMap<String, HashMap<String, Double>>();
 		ArrayList<String> modeFlagList = new ArrayList<String>();
 
-			for (AverageSpendPerShipmentDto perShipmentDto:avgPerShipmentList){
-				String billDate = perShipmentDto.getBillDate();
-				String mode = perShipmentDto.getModes();
-				Double spend = perShipmentDto.getNetWeight();
+		for (AverageSpendPerShipmentDto perShipmentDto:avgPerShipmentList){
+			String billDate = perShipmentDto.getBillDate();
+			String mode = perShipmentDto.getModes();
+			Double spend = perShipmentDto.getNetWeight();
 
-				if (spend != 0) {
+			if (spend != 0) {
 
-					if (!modeFlagList.contains(mode)) {
-						modeFlagList.add(mode);
-					}
+				if (!modeFlagList.contains(mode)) {
+					modeFlagList.add(mode);
+				}
 
-					if (datesValuesMap.containsKey(billDate)) {
-						datesValuesMap.get(billDate).put(mode, spend);
-					} else {
-						HashMap<String, Double> tempHashMap = new HashMap<String, Double>();
-						tempHashMap.put(mode, spend);
-						datesValuesMap.put(billDate, tempHashMap);
-					}
-
+				if (datesValuesMap.containsKey(billDate)) {
+					datesValuesMap.get(billDate).put(mode, spend);
+				} else {
+					HashMap<String, Double> tempHashMap = new HashMap<String, Double>();
+					tempHashMap.put(mode, spend);
+					datesValuesMap.put(billDate, tempHashMap);
 				}
 
 			}
-			// Bar Chart
-			int counter = 1;
-			Iterator<String> datesIterator = datesValuesMap.keySet().iterator();
 
-			while (datesIterator.hasNext()) {
-				JSONObject jsonObject = new JSONObject();
+		}
+		// Bar Chart
+		int counter = 1;
+		Iterator<String> datesIterator = datesValuesMap.keySet().iterator();
 
-				String date = datesIterator.next();
-				HashMap<String, Double> modeFlagMap = datesValuesMap.get(date);
-				Iterator<String> modeFlagIterator = modeFlagMap.keySet().iterator();
+		while (datesIterator.hasNext()) {
+			JSONObject jsonObject = new JSONObject();
 
-				jsonObject.put("name", date);
-				jsonObject.put("counter", counter);
+			String date = datesIterator.next();
+			HashMap<String, Double> modeFlagMap = datesValuesMap.get(date);
+			Iterator<String> modeFlagIterator = modeFlagMap.keySet().iterator();
 
-				while (modeFlagIterator.hasNext()) {
-					String modeFlag = modeFlagIterator.next();
-					double spend = modeFlagMap.get(modeFlag);
-					jsonObject.put(modeFlag, spend);
-				}
-				valuesArray.put(jsonObject);
-				counter++;
+			jsonObject.put("name", date);
+			jsonObject.put("counter", counter);
+
+			while (modeFlagIterator.hasNext()) {
+				String modeFlag = modeFlagIterator.next();
+				double spend = modeFlagMap.get(modeFlag);
+				jsonObject.put(modeFlag, spend);
 			}
+			valuesArray.put(jsonObject);
+			counter++;
+		}
 
-			String append = "\"";
-			counter = 1;
-			for (String modeFlag : modeFlagList) {
-				modeFlag = append + modeFlag + append;
-				String seriesId = append + "S" + counter + append;
-				String object = "{\"id\":" + seriesId + ",\"name\":" + modeFlag + ", \"data\": {\"field\":" + modeFlag
-						+ "},\"type\":\"line\",\"style\":{\"lineWidth\": 2,smoothing: true, marker: {shape: \"circle\", width: 5},";
-				object = object + "lineColor: \"" + colorsList.get(counter - 1) + "\"";
-				object = object + "}}";
-				seriesArray.put(new JSONObject(object));
-				counter++;
-			}
-			returnObject.put("values", valuesArray);
-			returnObject.put("series", seriesArray);
+		String append = "\"";
+		counter = 1;
+		for (String modeFlag : modeFlagList) {
+			modeFlag = append + modeFlag + append;
+			String seriesId = append + "S" + counter + append;
+			String object = "{\"id\":" + seriesId + ",\"name\":" + modeFlag + ", \"data\": {\"field\":" + modeFlag
+					+ "},\"type\":\"line\",\"style\":{\"lineWidth\": 2,smoothing: true, marker: {shape: \"circle\", width: 5},";
+			object = object + "lineColor: \"" + colorsList.get(counter - 1) + "\"";
+			object = object + "}}";
+			seriesArray.put(new JSONObject(object));
+			counter++;
+		}
+		returnObject.put("values", valuesArray);
+		returnObject.put("series", seriesArray);
 
 		return returnObject;
 	}
@@ -1132,8 +1096,82 @@ public class JSONUtil {
 		return returnObject;
 	}
 
-	//kept it for demo purpose, we will remove later.
-	public static JSONObject prepareMonthlyChartJson1(List<CommonMonthlyChartDto> monthlyChartDtoList) throws JSONException {
+	public static JSONObject prepareShipmentByRegionLanesJson (List<ShipmentRegionDto> shipmentRegionDtoList) throws Exception {
+
+		JSONObject resultData = new JSONObject();
+		JSONArray linksArray = new JSONArray();
+		JSONObject linksObject = null ;
+		JSONArray addressArray = new JSONArray();
+
+
+		for ( ShipmentRegionDto shipmentRegionDto : shipmentRegionDtoList) {
+			String shipperCity = shipmentRegionDto.getShipperCity().replaceAll("\\s+", " ");
+			String receiverCity = shipmentRegionDto.getReceiverCity().replaceAll("\\s+", " ");
+			String shipperAddress = shipmentRegionDto.getShipperAddress().toUpperCase();
+			String receiverAddress = shipmentRegionDto.getReceiverAddress().toUpperCase();
+
+			boolean matched = false;
+			for (int i = 0; i < linksArray.length(); i++) {
+				JSONObject jsonobject = linksArray.getJSONObject(i);
+				if (jsonobject.get("from").toString().equalsIgnoreCase(shipperCity) && jsonobject.get("to").toString().equalsIgnoreCase(receiverCity)) {
+					matched = true;
+					int count = Integer.parseInt(jsonobject.get("count").toString());
+					count = count + shipmentRegionDto.getLaneCount();
+					jsonobject.remove("count");
+					jsonobject.put("count", count);
+					linksArray.put(i, jsonobject);
+					break;
+				}
+			}
+			if (matched == false) {
+				linksObject = new JSONObject();
+				linksObject.put("from", shipperCity);
+				linksObject.put("to", receiverCity);
+				linksObject.put("count", shipmentRegionDto.getLaneCount());
+			}
+
+			addressArray.put(shipperAddress);
+			addressArray.put(receiverAddress);
+
+			linksArray.put(linksObject);
+		}
+
+		resultData.put("links",linksArray);
+		resultData.put("addressList",addressArray);
+
+		return resultData;
+	}
+
+	public static JSONObject prepareShipmentByRegionNodesJson(List<MapCoordinatesDto> mapCoordinatesDtoList, JSONObject resultJsonData) throws Exception{
+		int counter = 0 ;
+		JSONArray nodesArray = new JSONArray();
+
+		for ( MapCoordinatesDto mapCoordinatesDto : mapCoordinatesDtoList ) {
+
+			JSONArray longLatJsonArray = new JSONArray();
+			JSONObject nodeObj = new JSONObject();
+
+			if( counter == 0) {
+				resultJsonData.put("longitude", mapCoordinatesDto.getLatitude());
+				resultJsonData.put("latitude", mapCoordinatesDto.getLongitude());
+			}
+
+			longLatJsonArray.put(mapCoordinatesDto.getLongitude());
+			longLatJsonArray.put(mapCoordinatesDto.getLatitude());
+
+			nodeObj.put("id", mapCoordinatesDto.getAddress().split(",")[0]);
+			nodeObj.put("coordinates", longLatJsonArray);
+			nodesArray.put(nodeObj);
+
+			counter++;
+		}
+
+		resultJsonData.put("nodes", nodesArray);
+
+		return resultJsonData;
+	}
+
+	public static JSONObject prepareMonthlyChartJson(List<CommonMonthlyChartDto> monthlyChartDtoList) throws JSONException {
 		JSONObject returnJson = new JSONObject();
 		JSONArray returnArray = null;
 		int count = 0;
@@ -1173,5 +1211,22 @@ public class JSONUtil {
 		return returnJson;
 	}
 
+	public static JSONObject prepareTabularFormatJson(List<ShippingLanesDto> shippingLanesDtoList) throws JSONException {
+		JSONObject returnJson = new JSONObject();
+		JSONArray  lanesArray = new JSONArray();
+		for( ShippingLanesDto shippingLanesDto : shippingLanesDtoList) {
+			JSONObject laneInfoJson = new JSONObject();
+			laneInfoJson.put("rank",shippingLanesDto.getRank());
+			laneInfoJson.put("shipperAddress", shippingLanesDto.getShipperAddress());
+			laneInfoJson.put("receiverAddress", shippingLanesDto.getReceiverAddress());
+			laneInfoJson.put("laneTotal", shippingLanesDto.getLaneTotal());
+
+			lanesArray.put(laneInfoJson);
+		}
+
+		returnJson.put("data",lanesArray);
+
+		return returnJson;
+	}
 
 }
