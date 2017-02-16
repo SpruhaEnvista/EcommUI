@@ -591,7 +591,7 @@ public class JSONUtil {
 		if(performanceList != null && !performanceList.isEmpty()){
 			valuesArray = new JSONArray();
 			seriesArray = new JSONArray();
-			HashMap<String, Double> carriersValuesMap = new HashMap<String, Double>();
+			HashMap<String, Double> carriersValuesMap = new LinkedHashMap<String, Double>();
 			Set<String> categories = new TreeSet<String>(Arrays.asList("DAY2", "DAY3", "GROUND", "INTL", "NDA", "POSTALINTG"));
 			Set<String> attributes = new TreeSet<String>();
 
@@ -609,34 +609,34 @@ public class JSONUtil {
 						String key = carrierName + "#@#" + category;
 						switch (category){
 							case "DAY2":
-								carriersValuesMap.put(key + "#@#DAY2COUNT", serviceLevelUsage.getDay2Count());
-								carriersValuesMap.put(key + "#@#DAY2PERC", serviceLevelUsage.getDay2Percentage());
-								carriersValuesMap.put(key + "#@#DAY2LATEPERC", serviceLevelUsage.getDay2LatePercentage());
+								carriersValuesMap.put(key + "#@#COUNT", serviceLevelUsage.getDay2Count());
+								carriersValuesMap.put(key + "#@#PERC", serviceLevelUsage.getDay2Percentage());
+								carriersValuesMap.put(key + "#@#LATEPERC", serviceLevelUsage.getDay2LatePercentage());
 								break;
 							case "DAY3":
-								carriersValuesMap.put(key + "#@#DAY3COUNT", serviceLevelUsage.getDay2Count());
-								carriersValuesMap.put(key + "#@#DAY3PERC", serviceLevelUsage.getDay2Percentage());
-								carriersValuesMap.put(key + "#@#DAY3LATEPERC", serviceLevelUsage.getDay2LatePercentage());
+								carriersValuesMap.put(key + "#@#COUNT", serviceLevelUsage.getDay3Count());
+								carriersValuesMap.put(key + "#@#PERC", serviceLevelUsage.getDay3Percentage());
+								carriersValuesMap.put(key + "#@#LATEPERC", serviceLevelUsage.getDay3LatePercentage());
 								break;
 							case "GROUND":
-								carriersValuesMap.put(key + "#@#GROUNDCOUNT", serviceLevelUsage.getGroundCount());
-								carriersValuesMap.put(key + "#@#GROUNDPERC", serviceLevelUsage.getGroundPercentage());
-								carriersValuesMap.put(key + "G#@#ROUNDLATEPERC", serviceLevelUsage.getGroundLatePercentage());
+								carriersValuesMap.put(key + "#@#COUNT", serviceLevelUsage.getGroundCount());
+								carriersValuesMap.put(key + "#@#PERC", serviceLevelUsage.getGroundPercentage());
+								carriersValuesMap.put(key + "#@#LATEPERC", serviceLevelUsage.getGroundLatePercentage());
 								break;
 							case "INTL":
-								carriersValuesMap.put(key + "I#@#NTLCOUNT", serviceLevelUsage.getInternationalCount());
-								carriersValuesMap.put(key + "#@#INTLPERC", serviceLevelUsage.getInternationalPercentage());
-								carriersValuesMap.put(key + "I#@#NTLLATEPERC", serviceLevelUsage.getInternationalLatePercentage());
+								carriersValuesMap.put(key + "#@#COUNT", serviceLevelUsage.getInternationalCount());
+								carriersValuesMap.put(key + "#@#PERC", serviceLevelUsage.getInternationalPercentage());
+								carriersValuesMap.put(key + "#@#LATEPERC", serviceLevelUsage.getInternationalLatePercentage());
 								break;
 							case "NDA":
-								carriersValuesMap.put(key + "#@#NDACOUNT", serviceLevelUsage.getNdaCount());
-								carriersValuesMap.put(key + "#@#NDAPERC", serviceLevelUsage.getNdaPercentage());
-								carriersValuesMap.put(key + "#@#NDALATEPERC", serviceLevelUsage.getNdaLatePercentage());
+								carriersValuesMap.put(key + "#@#COUNT", serviceLevelUsage.getNdaCount());
+								carriersValuesMap.put(key + "#@#PERC", serviceLevelUsage.getNdaPercentage());
+								carriersValuesMap.put(key + "#@#LATEPERC", serviceLevelUsage.getNdaLatePercentage());
 								break;
 							case "POSTALINTG":
-								carriersValuesMap.put(key + "#@#POSTALINTGCOUNT", serviceLevelUsage.getPostalIntgCount());
-								carriersValuesMap.put(key + "#@#POSTALINTGPERC", serviceLevelUsage.getPostalIntgPercentage());
-								carriersValuesMap.put(key + "#@#POSTALINTGLATEPERC", serviceLevelUsage.getPostalIntgLatePercentage());
+								carriersValuesMap.put(key + "#@#COUNT", serviceLevelUsage.getPostalIntgCount());
+								carriersValuesMap.put(key + "#@#PERC", serviceLevelUsage.getPostalIntgPercentage());
+								carriersValuesMap.put(key + "#@#LATEPERC", serviceLevelUsage.getPostalIntgLatePercentage());
 								break;
 						}
 					}
@@ -672,7 +672,7 @@ public class JSONUtil {
 
 				seriesObject.append("{\"id\":" + seriesId + ",\"name\":" + append + seriesName + append + ", \"data\": {\"field\":" + seriesName + "}");
 				if (seriesName.contains("COUNT")) {
-					seriesObject.append(",\"type\":\"line\",\"style\":{\"lineWidth\": 2,depth: 4, gradient: 0.9 ,smoothing: true, marker: {shape: \"circle\", width: 5},");
+					seriesObject.append(",\"type\":\"line\",\"style\":{\"lineWidth\": 2,depth: 4, gradient: 0.9 ,smoothing: true, marker: {shape: \"circle\", width: 5}, ");
 					seriesObject.append("lineColor: \"" + colorsList.get(counter - 1) + "\"");
 					seriesObject.append("}");
 				}else {
