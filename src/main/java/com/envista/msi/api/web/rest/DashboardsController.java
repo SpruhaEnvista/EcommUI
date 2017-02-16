@@ -7,6 +7,7 @@ import com.envista.msi.api.web.rest.dto.UserProfileDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardAppliedFilterDto;
 import com.envista.msi.api.web.rest.dto.dashboard.accessorialspend.AccessorialSpendDto;
 import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
+import com.envista.msi.api.web.rest.dto.dashboard.common.CommonMonthlyChartDto;
 import com.envista.msi.api.web.rest.dto.dashboard.common.CommonValuesForChartDto;
 import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendCommonDto;
 import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendMonthlyChartDto;
@@ -20,6 +21,7 @@ import com.envista.msi.api.web.rest.util.JSONUtil;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -67,12 +69,11 @@ public class DashboardsController extends DashboardBaseController {
         ACCESSORIAL_SPEND_BY_MONTH,
     }
 
-    public enum ShipmentOverviewConstant{
+    enum ShipmentOverviewConstant{
         AVG_SPEND_PER_SHIPMT,
         AVG_WEIGHT_BY_MODE_SHIPMT,
-        NET_SPEND_BY_OVER_TIME,
-        NET_SPEND_BY_CARRIER,
-        NET_SPEND_BY_MONTH;
+        AVG_SPEND_PER_SHIPMT_BY_CARRIER,
+        AVG_SPEND_PER_SHIPMT_BY_MONTH;
     }
 
     enum InboundSpendConstant{
@@ -1097,6 +1098,63 @@ public class DashboardsController extends DashboardBaseController {
         return new ResponseEntity<String>(pkgExcpJson.toString(), HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/avgSpendPerShipmentByCarrier", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getAverageSpendPerShipmentByCarrier(@RequestParam String service, @RequestParam String invoiceDate){
+        JSONObject avgSpendPerShipmtByCarrierJsonData = null;
+        try{
+            UserProfileDto user = getUserProfile();
+            if(null == user){
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+
+            if(filter !=  null){
+                if(service != null && !service.isEmpty()){
+                    filter.setService(service);
+                }
+                if(invoiceDate != null && !invoiceDate.isEmpty()){
+                    DashboardUtil.setDatesFromMonth(filter, invoiceDate);
+                }
+            }
+
+            JSONObject avgShipmentData = loadShipmentOverviewJsonData(ShipmentOverviewConstant.AVG_SPEND_PER_SHIPMT_BY_CARRIER, filter);
+            avgSpendPerShipmtByCarrierJsonData = (avgShipmentData != null ? avgShipmentData : new JSONObject());
+        }catch(Exception e){
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>(avgSpendPerShipmtByCarrierJsonData.toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/avgSpendPerShipmentByMonth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getAverageSpendPerShipmentByMonth(@RequestParam String invoiceDate,@RequestParam String carrierId,@RequestParam String service){
+        JSONObject avgSpendPerShipmtByCarrierJsonData = null;
+        try{
+            UserProfileDto user = getUserProfile();
+            if(null == user){
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+
+            if(filter !=  null){
+                if(service != null && !service.isEmpty()){
+                    filter.setService(service);
+                }
+                if(invoiceDate != null && !invoiceDate.isEmpty()){
+                    DashboardUtil.setDatesFromMonth(filter, invoiceDate);
+                }
+                if(carrierId != null && !carrierId.isEmpty()){
+                    filter.setCarriers(carrierId);
+                }
+            }
+
+            JSONObject avgShipmentData = loadShipmentOverviewJsonData(ShipmentOverviewConstant.AVG_SPEND_PER_SHIPMT_BY_MONTH, filter);
+            avgSpendPerShipmtByCarrierJsonData = (avgShipmentData != null ? avgShipmentData : new JSONObject());
+        }catch(Exception e){
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>(avgSpendPerShipmtByCarrierJsonData.toString(), HttpStatus.OK);
+    }
+
     private JSONObject loadPackageExceptionsJsonData(PackageExceptionConstants packageExceptionType, DashboardsFilterCriteria filter) throws JSONException {
         JSONObject pkgExcpJson = null;
         switch (packageExceptionType){
@@ -1797,11 +1855,11 @@ public class DashboardsController extends DashboardBaseController {
             case AVG_WEIGHT_BY_MODE_SHIPMT:
                 avgShipmentJson = loadNetSpendByOverTimeJson(filter);
                 break;
-            case NET_SPEND_BY_CARRIER:
-                avgShipmentJson = loadNetSpendByCarrierJson(filter);
+            case AVG_SPEND_PER_SHIPMT_BY_CARRIER:
+                avgShipmentJson = loadAvgSpendPerShipmtByCarrierJson(filter);
                 break;
-            case NET_SPEND_BY_MONTH:
-                avgShipmentJson = loadNetSpendByMonthJson(filter);
+            case AVG_SPEND_PER_SHIPMT_BY_MONTH:
+                avgShipmentJson = loadAvgSpendPerShipmtByMonthJson(filter);
                 break;
             default:
                 throw new MethodNotFoundException("Method param value not matched");
@@ -1827,6 +1885,42 @@ public class DashboardsController extends DashboardBaseController {
         List<AverageWeightModeShipmtDto> avgShipmentList = dashboardsService.getAverageWeightByModeShipmt(filter,false);
         if(avgShipmentList != null && avgShipmentList.size() > 0){
             avgShipmentJson = JSONUtil.prepareAverageWeightJson(avgShipmentList);
+        }
+        return avgShipmentJson;
+    }
+
+    private JSONObject loadAvgSpendPerShipmtByCarrierJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject avgShipmentJson = null;
+
+        List<AverageSpendPerShipmentByCarrierDto> avgShipmentList = dashboardsService.getAvgSpendPerShipmtByCarrier(filter,false);
+        if(avgShipmentList != null && avgShipmentList.size() > 0){
+            List<CommonValuesForChartDto> commonValueList = new ArrayList<CommonValuesForChartDto>();
+            for(AverageSpendPerShipmentByCarrierDto avgShipmtByCarrier : avgShipmentList){
+                if(avgShipmtByCarrier != null){
+                    CommonValuesForChartDto commonValueChartDto=new CommonValuesForChartDto();
+                    BeanUtils.copyProperties(avgShipmtByCarrier , commonValueChartDto);
+                    commonValueList.add(commonValueChartDto);
+                }
+            }
+            avgShipmentJson = JSONUtil.prepareCommonJsonForChart(commonValueList);
+        }
+        return avgShipmentJson;
+    }
+
+    private JSONObject loadAvgSpendPerShipmtByMonthJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject avgShipmentJson = null;
+
+        List<AverageSpendPerShipmentByMonthDto> avgShipmentList = dashboardsService.getAvgSpendPerShipmtByMonth(filter,false);
+        if(avgShipmentList!=null) {
+            List<CommonMonthlyChartDto> commonMonthlyChartDtoList = new ArrayList<CommonMonthlyChartDto>();
+            for (AverageSpendPerShipmentByMonthDto avgShipmtByMonthDto : avgShipmentList) {
+                if (avgShipmtByMonthDto != null) {
+                    CommonMonthlyChartDto commonMonthlyChartDto = new CommonMonthlyChartDto();
+                    BeanUtils.copyProperties(avgShipmtByMonthDto, commonMonthlyChartDto);
+                    commonMonthlyChartDtoList.add(commonMonthlyChartDto);
+                }
+            }
+            avgShipmentJson = JSONUtil.prepareMonthlyChartJson1(commonMonthlyChartDtoList);
         }
         return avgShipmentJson;
     }
