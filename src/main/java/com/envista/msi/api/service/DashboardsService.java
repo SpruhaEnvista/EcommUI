@@ -9,6 +9,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.DashboardAppliedFilterDto;
 import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.*;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentRegionDto;
+import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShippingLanesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendByCarrierDto;
 import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendByMonthDto;
 import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendDto;
@@ -288,5 +289,17 @@ public class DashboardsService {
 
     public List<ShipmentRegionDto> getShipmentRegionByMonthJson (DashboardsFilterCriteria filterCriteria) {
         return dashboardsDao.getShipmentRegionByMonthJson(filterCriteria);
+    }
+
+    public List<ShippingLanesDto> loadTopShippingLanesJsonData (DashboardsFilterCriteria filterCriteria) {
+        return dashboardsDao.getTopShippingLanesJsonData(filterCriteria);
+    }
+
+    public List<ShippingLanesDto> getShippingLanesByCarrierJson (DashboardsFilterCriteria filterCriteria) {
+        return dashboardsDao.getShippingLanesByCarrierJson(filterCriteria);
+    }
+
+    public List<ShippingLanesDto> getShippingLanesByMonthJson (DashboardsFilterCriteria filterCriteria) {
+        return dashboardsDao.getShippingLanesByMonthJson(filterCriteria);
     }
 }

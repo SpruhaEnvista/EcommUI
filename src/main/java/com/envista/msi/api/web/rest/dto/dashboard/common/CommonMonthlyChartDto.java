@@ -15,7 +15,7 @@ public class CommonMonthlyChartDto implements Serializable{
     @Column(name = "AMOUNT")
     private Double amount;
 
-    @Column(name = "BILLING_DATE")
+    @Column(name = "BILL_DATE")
     private Date billDate;
 
     public Double getAmount() {

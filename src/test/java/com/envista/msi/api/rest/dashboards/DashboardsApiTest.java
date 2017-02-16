@@ -35,6 +35,11 @@ public class DashboardsApiTest extends WebappTestEnvironment {
     */
 
     @Test
+    public void testGetUserAppliedFilter() {
+        assertThat("savesh".equalsIgnoreCase("sarvesh"));
+    }
+
+    @Test
     public void testShipmentByRegion() throws Exception {
         mockRestMvc().perform(get("/api/dashboards/shipmentsByRegion")).andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE));
@@ -55,6 +60,19 @@ public class DashboardsApiTest extends WebappTestEnvironment {
 
     }
 
+    @Test
+    public void testTopShippingLanes() throws Exception {
+        mockRestMvc().perform(get("/api/dashboards/topShippingLanes")).andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE));
+
+    }
+
+    @Test
+    public void testShippingLanesByCarrier() throws Exception {
+        mockRestMvc().perform(get("/api/dashboards/shippingLanesByCarrier")).andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE));
+
+    }
 
 
 }

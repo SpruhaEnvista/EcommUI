@@ -12,7 +12,7 @@ import java.util.Date;
 
 @NamedStoredProcedureQueries({
         @NamedStoredProcedureQuery(name = "ShipmentRegionDto.getShipmentByRegion", procedureName = "SHP_DB_SHMNT_MAP_PROC",
-                resultClasses = ShipmentRegionDto.class,
+                resultSetMappings =  "ShipmentRegionMapping",
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.DATE_TYPE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
@@ -27,9 +27,11 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.ShipmentRegionParams.RESULTS_DATA_PARAM, type = Void.class)
                 }),
         @NamedStoredProcedureQuery(name = "ShipmentRegionDto.getShipmentRegionByCarrier", procedureName = "SHP_DB_SHMNT_MAP_CARR_PROC",
-                resultClasses = ShipmentRegionDto.class,
+                resultSetMappings =  "ShipmentRegionCarrierMapping",
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.DATE_TYPE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.CURRENCY_ID_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.CURRENCY_CODE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.CARRIER_ID_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.MODES_PARAM, type = String.class),
@@ -42,10 +44,12 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.RECEIVER_CITY, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.ShipmentRegionParams.RESULTS_DATA_PARAM, type = Void.class)
                 }),
-        @NamedStoredProcedureQuery(name = "ShipmentRegionDto.getShipmentRegionByMonth", procedureName = "SHP_DB_SHMNT_MAP_CARR_PROC",
-                resultClasses = ShipmentRegionDto.class,
+        @NamedStoredProcedureQuery(name = "ShipmentRegionDto.getShipmentRegionByMonth", procedureName = "SHP_DB_SHMNT_MAP_MNTH_PROC",
+                resultSetMappings =  "ShipmentRegionMonthMapping",
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.DATE_TYPE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.CURRENCY_ID_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.CURRENCY_CODE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.CARRIER_ID_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.MODES_PARAM, type = String.class),
@@ -61,12 +65,48 @@ import java.util.Date;
 })
 
 
+@SqlResultSetMappings({
+        @SqlResultSetMapping(name = "ShipmentRegionMapping", classes = {
+                @ConstructorResult(
+                        targetClass = ShipmentRegionDto.class,
+                        columns = {
+                                @ColumnResult(name = "RANK", type = Long.class),
+                                @ColumnResult(name = "SHIPPER_CITY", type = String.class),
+                                @ColumnResult(name = "SHIPPERADDRESS", type = String.class),
+                                @ColumnResult(name = "RECEIVER_CITY", type = String.class),
+                                @ColumnResult(name = "RECEIVERADDRESS", type = String.class),
+                                @ColumnResult(name = "LANE_COUNT", type = Integer.class),
+                        })
+        }),
+        @SqlResultSetMapping(name = "ShipmentRegionCarrierMapping", classes = {
+                @ConstructorResult(
+                        targetClass = ShipmentRegionDto.class,
+                        columns = {
+                                @ColumnResult(name = "CARRIER_ID", type = Long.class),
+                                @ColumnResult(name = "CARRIER_NAME", type = String.class),
+                                @ColumnResult(name = "SPEND", type = Double.class),
+                        })
+        }),
+        @SqlResultSetMapping(name = "ShipmentRegionMonthMapping", classes = {
+                @ConstructorResult(
+                        targetClass = ShipmentRegionDto.class,
+                        columns = {
+                                @ColumnResult(name = "BILL_DATE", type = Date.class),
+                                @ColumnResult(name = "AMOUNT", type = Double.class),
+                        })
+        })
+})
+
+
 @Entity
 public class ShipmentRegionDto implements Serializable {
 
     @Id
     @Column(name = "LANE_ID")
     private Long id;
+
+    @Column(name = "RANK")
+    private Long rank;
 
     @Column(name = "SHIPPER_CITY")
     private String shipperCity;
@@ -95,17 +135,13 @@ public class ShipmentRegionDto implements Serializable {
     @Column(name = "AMOUNT")
     private Double amount;
 
-    @Column(name = "BILLING_DATE")
+    @Column(name = "BILL_DATE")
     private Date billDate;
 
 
-   public ShipmentRegionDto () {
-
-    }
-
-    public ShipmentRegionDto (Long id, String shipperCity, String shipperAddress, String receiverCity
+    public ShipmentRegionDto (Long rank, String shipperCity, String shipperAddress, String receiverCity
             , String receiverAddress, int laneCount) {
-        this.id = id;
+        this.setRank(rank);
         this.setShipperCity(shipperCity);
         this.setShipperAddress(shipperAddress);
         this.setReceiverCity(receiverCity);
@@ -113,13 +149,16 @@ public class ShipmentRegionDto implements Serializable {
         this.setLaneCount(laneCount);
     }
 
-    public ShipmentRegionDto ( String shipperCity, String shipperAddress, String receiverCity
-            , String receiverAddress, int laneCount) {
-        this.setShipperCity(shipperCity);
-        this.setShipperAddress(shipperAddress);
-        this.setReceiverCity(receiverCity);
-        this.setReceiverAddress(receiverAddress);
-        this.setLaneCount(laneCount);
+
+    public ShipmentRegionDto (Long carrierId, String carrierName,Double spend) {
+        this.setCarrierId(carrierId);
+        this.setCarrierName(carrierName);
+        this.setSpend(spend);
+    }
+
+    public ShipmentRegionDto (Date billDate,Double amount) {
+        this.setBillDate(billDate);
+        this.setAmount(amount);
     }
 
 
@@ -209,5 +248,13 @@ public class ShipmentRegionDto implements Serializable {
 
     public void setBillDate(Date billDate) {
         this.billDate = billDate;
+    }
+
+    public Long getRank() {
+        return rank;
+    }
+
+    public void setRank(Long rank) {
+        this.rank = rank;
     }
 }

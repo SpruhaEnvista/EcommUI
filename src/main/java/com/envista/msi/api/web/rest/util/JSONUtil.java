@@ -10,6 +10,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendMonthlyChartDto
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendByModeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendOverTimeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentRegionDto;
+import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShippingLanesDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
@@ -749,4 +750,23 @@ public class JSONUtil {
 		}
 		return returnJson;
 	}
+
+	public static JSONObject prepareTabularFormatJson(List<ShippingLanesDto> shippingLanesDtoList) throws JSONException {
+		JSONObject returnJson = new JSONObject();
+		JSONArray  lanesArray = new JSONArray();
+		for( ShippingLanesDto shippingLanesDto : shippingLanesDtoList) {
+			JSONObject laneInfoJson = new JSONObject();
+			laneInfoJson.put("rank",shippingLanesDto.getRank());
+			laneInfoJson.put("shipperAddress", shippingLanesDto.getShipperAddress());
+			laneInfoJson.put("receiverAddress", shippingLanesDto.getReceiverAddress());
+			laneInfoJson.put("laneTotal", shippingLanesDto.getLaneTotal());
+
+			lanesArray.put(laneInfoJson);
+		}
+
+		returnJson.put("data",lanesArray);
+
+		return returnJson;
+	}
+
 }
