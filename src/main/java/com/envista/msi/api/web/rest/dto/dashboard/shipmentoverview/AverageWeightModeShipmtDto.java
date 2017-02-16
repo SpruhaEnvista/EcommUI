@@ -9,7 +9,7 @@ import java.io.Serializable;
  * Created by Siddhant on 14/02/2017.
  */
 @NamedStoredProcedureQueries({
-        @NamedStoredProcedureQuery(name = "AverageWeightModeShipmtDto.getAverageWeightModeShipment", procedureName = "SHP_DB_AVG_WET_MODE_SHPMT_PROC",
+        @NamedStoredProcedureQuery(name = "AverageWeightModeShipmtDto.getAverageWeightModeShipment", procedureName = "SHP_DB_AVG_WGT_PROC",
                 resultSetMappings = "AverageWeightModeShipmtDto.AvgWeightByModeShipmentMapping",
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AverageWeightByModeShipmtParam.DATE_TYPE_PARAM, type = String.class),

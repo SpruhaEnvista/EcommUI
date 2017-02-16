@@ -4,11 +4,12 @@ import com.envista.msi.api.domain.PersistentContext;
 import com.envista.msi.api.domain.util.DashboardSroredProcParam;
 import com.envista.msi.api.domain.util.QueryParameter;
 import com.envista.msi.api.domain.util.StoredProcedureParameter;
-import com.envista.msi.api.web.rest.dto.dashboard.accessorialspend.AccessorialSpendDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardAppliedFilterDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
+import com.envista.msi.api.web.rest.dto.dashboard.accessorialspend.AccessorialSpendDto;
 import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.*;
+import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.*;
 import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendByCarrierDto;
 import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendByMonthDto;
 import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendDto;
@@ -447,7 +448,7 @@ public class DashboardsDao {
         return persistentContext.findEntities("OutboundSpendDto.getOutboundSpend", queryParameter);
     }
 
-    public List<OutboundSpendDto> getOutboundSpendByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+    public List<OutboundSpendDto> getOutboundSpendByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
         QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.InboundSpendParams.DATE_TYPE_PARAM, filter.getDateType())
                 .and(DashboardSroredProcParam.InboundSpendParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
                 .and(DashboardSroredProcParam.InboundSpendParams.CONVERTED_CURRENCY_CODE_PARAM, filter.getConvertCurrencyCode())
@@ -461,8 +462,7 @@ public class DashboardsDao {
                 .and(DashboardSroredProcParam.InboundSpendParams.ACCESSORIAL_NAME_PARAM, filter.getAccessorialName())
                 .and(DashboardSroredProcParam.InboundSpendParams.TOP_TEN_ACCESSORIAL_PARAM, isTopTenAccessorial ? 1L : 0L);
         return persistentContext.findEntities("OutboundSpendDto.getOutboundSpendByMonth", queryParameter);
-
-
+    }
     public List<InvoiceStatusCountDto> getInvoiceStatusCount(DashboardsFilterCriteria filter){
         QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.InvoiceStatusCountParams.DATE_TYPE_PARAM, filter.getDateType())
                 .and(DashboardSroredProcParam.InvoiceStatusCountParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
@@ -628,6 +628,7 @@ public class DashboardsDao {
                 .and(DashboardSroredProcParam.OrderMatchParams.MODE_NAMES_PARAM, filter.getModeNames())
                 .and(DashboardSroredProcParam.OrderMatchParams.ORDER_MATCH_PARAM, filter.getOrderMatch());
         return persistentContext.findEntities("OrderMatchDto.getOrderMatchByMonth", queryParameter);
+
     }
 
     public List<BilledVsApprovedDto> getBilledVsApprovedData(DashboardsFilterCriteria filter){
@@ -786,4 +787,53 @@ public class DashboardsDao {
         return persistentContext.findEntities("PackageExceptionDto.getPackageExceptionByMonth", queryParameter);
 
     }
-}
+
+        /**
+         *
+         * @param filter
+         * @param isTopTenAccessorial
+         * @return
+         */
+        public List<AverageSpendPerShipmentByCarrierDto>   getAverageSpendPerShipmentByCarrier(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+            QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.AverageSpendShipmentByCarrierParam.DATE_TYPE_PARAM, filter.getDateType())
+                    .and(DashboardSroredProcParam.AverageSpendShipmentByCarrierParam.CONVERTED_CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
+                    .and(DashboardSroredProcParam.AverageSpendShipmentByCarrierParam.CONVERTED_CURRENCY_CODE_PARAM, filter.getConvertCurrencyCode())
+                    .and(DashboardSroredProcParam.AverageSpendShipmentByCarrierParam.MODES_PARAM, filter.getModes())
+                    .and(DashboardSroredProcParam.AverageSpendShipmentByCarrierParam.SERVICES_PARAM, filter.getServices())
+                    .and(DashboardSroredProcParam.AverageSpendShipmentByCarrierParam.ACCESSORIAL_NAME_PARAM, filter.getAccessorialName())
+                    .and(DashboardSroredProcParam.AverageSpendShipmentByCarrierParam.LANES_PARAM, filter.getLanes())
+                    .and(DashboardSroredProcParam.AverageSpendShipmentByCarrierParam.FROM_DATE_PARAM, filter.getFromDate())
+                    .and(DashboardSroredProcParam.AverageSpendShipmentByCarrierParam.TO_DATE_PARAM, filter.getToDate())
+                    .and(DashboardSroredProcParam.AverageSpendShipmentByCarrierParam.CARRIER_ID_PARAM, filter.getCarriers())
+                    .and(DashboardSroredProcParam.AverageSpendShipmentByCarrierParam.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
+                    .and(DashboardSroredProcParam.AverageSpendShipmentByCarrierParam.ORIGINAL_FROM_DATE_PARAM, filter.getOriginalFromDate())
+                    .and(DashboardSroredProcParam.AverageSpendShipmentByCarrierParam.ORIGINAL_TO_DATE_PARAM, filter.getOriginalToDate())
+                    .and(DashboardSroredProcParam.AverageSpendShipmentByCarrierParam.TOP_ACCESSORIAL_SPEND_PARAM, isTopTenAccessorial ? 1L : 0L);
+
+            return persistentContext.findEntities("AverageSpendPerShipmentByCarrierDto.getAverageSpendPerShipmentByCarrier", queryParameter);
+        }
+
+        /**
+         *
+         * @param filter
+         * @param isTopTenAccessorial
+         * @return
+         */
+        public List<AverageSpendPerShipmentByMonthDto>   getAverageSpendPerShipmentByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+            QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.AverageSpendShipmentByMonthParam.DATE_TYPE_PARAM, filter.getDateType())
+                    .and(DashboardSroredProcParam.AverageSpendShipmentByMonthParam.CONVERTED_CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
+                    .and(DashboardSroredProcParam.AverageSpendShipmentByMonthParam.CONVERTED_CURRENCY_CODE_PARAM, filter.getConvertCurrencyCode())
+                    .and(DashboardSroredProcParam.AverageSpendShipmentByMonthParam.MODES_PARAM, filter.getModes())
+                    .and(DashboardSroredProcParam.AverageSpendShipmentByMonthParam.SERVICES_PARAM, filter.getServices())
+                    .and(DashboardSroredProcParam.AverageSpendShipmentByMonthParam.ACCESSORIAL_NAME_PARAM, filter.getAccessorialName())
+                    .and(DashboardSroredProcParam.AverageSpendShipmentByMonthParam.LANES_PARAM, filter.getLanes())
+                    .and(DashboardSroredProcParam.AverageSpendShipmentByMonthParam.FROM_DATE_PARAM, filter.getFromDate())
+                    .and(DashboardSroredProcParam.AverageSpendShipmentByMonthParam.TO_DATE_PARAM, filter.getToDate())
+                    .and(DashboardSroredProcParam.AverageSpendShipmentByMonthParam.CARRIER_ID_PARAM, filter.getCarriers())
+                    .and(DashboardSroredProcParam.AverageSpendShipmentByMonthParam.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
+                    .and(DashboardSroredProcParam.AverageSpendShipmentByMonthParam.TOP_ACCESSORIAL_SPEND_PARAM, isTopTenAccessorial ? 1L : 0L);
+
+            return persistentContext.findEntities("AverageSpendPerShipmentByMonthDto.getAverageSpendPerShipmentByMonth", queryParameter);
+        }
+
+    }

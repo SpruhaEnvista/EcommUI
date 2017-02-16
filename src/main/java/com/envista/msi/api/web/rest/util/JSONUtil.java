@@ -2,19 +2,18 @@ package com.envista.msi.api.web.rest.util;
 
 import com.envista.msi.api.web.rest.dto.dashboard.accessorialspend.AccessorialSpendDto;
 import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
+import com.envista.msi.api.web.rest.dto.dashboard.common.CommonMonthlyChartDto;
 import com.envista.msi.api.web.rest.dto.dashboard.common.CommonValuesForChartDto;
 import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendCommonDto;
 import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendMonthlyChartDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendByModeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendOverTimeDto;
-<<<<<<< HEAD
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.AverageSpendPerShipmentDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.AverageWeightModeShipmtDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.ServiceLevelUsageAndPerformanceDto;
-=======
->>>>>>> refs/remotes/origin/Standard_Branch_for_UAT_Demo
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import oracle.net.aso.r;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -818,7 +817,9 @@ public class JSONUtil {
 			returnObject.put("series", seriesArray);
 			returnObject.put("carrierDetails", new JSONArray().put(carriersList));
 		}
+		return returnObject;
 	}
+
 	public static JSONObject prepareOrderMatchJson(List<OrderMatchDto> orderMatchList) throws JSONException {
 		JSONObject returnJson = new JSONObject();
 		JSONArray returnArray = null;
@@ -1130,4 +1131,47 @@ public class JSONUtil {
 		}
 		return returnObject;
 	}
+
+	//kept it for demo purpose, we will remove later.
+	public static JSONObject prepareMonthlyChartJson1(List<CommonMonthlyChartDto> monthlyChartDtoList) throws JSONException {
+		JSONObject returnJson = new JSONObject();
+		JSONArray returnArray = null;
+		int count = 0;
+		long fromDate = 0;
+		long toDate = 0;
+
+		if(monthlyChartDtoList != null && monthlyChartDtoList.size() > 0){
+			returnArray = new JSONArray();
+			for(CommonMonthlyChartDto monthlyChartDto : monthlyChartDtoList){
+				if(monthlyChartDto != null){
+					JSONArray dataArray = new JSONArray();
+					long dateInMilliSecs = 0L;
+					if(monthlyChartDto.getBillDate() != null){
+						dateInMilliSecs = monthlyChartDto.getBillDate().getTime();
+					}
+
+					dataArray.put(dateInMilliSecs);
+					dataArray.put(monthlyChartDto.getAmount());
+					returnArray.put(dataArray);
+					if (count == 0) {
+						fromDate = dateInMilliSecs;
+					}
+					toDate = dateInMilliSecs;
+					dataArray = null;
+
+					count++;
+				}
+			}
+			if (fromDate == toDate) {
+				toDate = toDate + 1;
+			}
+
+			returnJson.put("values", returnArray);
+			returnJson.put("fromDate", fromDate);
+			returnJson.put("toDate", toDate);
+		}
+		return returnJson;
+	}
+
+
 }
