@@ -29,24 +29,6 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryServiceParams.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.RecoveryServiceParams.RECOVERY_SERVICE_DATA_PARAM, type = Void.class)
                 }),
-        @NamedStoredProcedureQuery(name = "RecoveryServiceDto.getRecoveryServiceByCarrier", procedureName = "SHP_DB_RECVRY_SERVC_CARR_PROC",
-                resultSetMappings = "RecoveryServiceDto.RecoveryServiceByCarrierMapping",
-                parameters = {
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryServiceParams.DATE_TYPE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryServiceParams.CURRENCY_ID_PARAM, type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryServiceParams.CONVERTED_CURRENCY_CODE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryServiceParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryServiceParams.CARRIER_IDS_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryServiceParams.MODES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryServiceParams.SERVICES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryServiceParams.LANES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryServiceParams.FROM_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryServiceParams.TO_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryServiceParams.ACCESSORIAL_NAME_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryServiceParams.MODE_NAMES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryServiceParams.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.RecoveryServiceParams.RECOVERY_SERVICE_DATA_PARAM, type = Void.class)
-                }),
         @NamedStoredProcedureQuery(name = "RecoveryServiceDto.getRecoveryServiceByMonth", procedureName = "SHP_DB_RECVRY_SERVC_MNTH_PROC",
                 resultSetMappings = "RecoveryServiceDto.RecoveryServiceByMonthMapping",
                 parameters = {
@@ -63,6 +45,7 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryServiceParams.ACCESSORIAL_NAME_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryServiceParams.MODE_NAMES_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryServiceParams.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryServiceParams.SERVICE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.RecoveryServiceParams.RECOVERY_SERVICE_DATA_PARAM, type = Void.class)
                 })
 })
@@ -72,6 +55,7 @@ import java.util.Date;
                 @ConstructorResult(
                         targetClass = RecoveryServiceDto.class,
                         columns = {
+                                @ColumnResult(name = "CARRIER_ID", type = Long.class),
                                 @ColumnResult(name = "CARRIER_NAME", type = String.class),
                                 @ColumnResult(name = "BUCKET_TYPE", type = String.class),
                                 @ColumnResult(name = "CREDIT_AMOUNT", type = Double.class)
@@ -111,6 +95,9 @@ public class RecoveryServiceDto implements Serializable {
     @Column(name = "VALUE")
     private Double value;
 
+    @Column(name = "CARRIER_ID")
+    private Long carrierId;
+
     @Column(name = "CARRIER_NAME")
     private String carrierName;
 
@@ -128,7 +115,8 @@ public class RecoveryServiceDto implements Serializable {
 
     public RecoveryServiceDto(){}
 
-    public RecoveryServiceDto(String carrierName, String bucketType, Double creditAmount) {
+    public RecoveryServiceDto(Long carrierId, String carrierName, String bucketType, Double creditAmount) {
+        this.carrierId = carrierId;
         this.carrierName = carrierName;
         this.bucketType = bucketType;
         this.creditAmount = creditAmount;
@@ -207,5 +195,13 @@ public class RecoveryServiceDto implements Serializable {
 
     public void setAmount(Double amount) {
         this.amount = amount;
+    }
+
+    public Long getCarrierId() {
+        return carrierId;
+    }
+
+    public void setCarrierId(Long carrierId) {
+        this.carrierId = carrierId;
     }
 }

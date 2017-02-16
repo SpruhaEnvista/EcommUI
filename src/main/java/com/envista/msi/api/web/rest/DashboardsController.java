@@ -20,6 +20,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendMonthlyChartDto
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.*;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentRegionDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShippingLanesDto;
+import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.*;
 import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendByCarrierDto;
 import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendByMonthDto;
 import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendDto;
@@ -76,6 +77,24 @@ public class DashboardsController extends DashboardBaseController {
         ACCESSORIAL_SPEND_BY_MONTH,
     }
 
+    public enum ShipmentOverviewConstant{
+        AVG_SPEND_PER_SHIPMT,
+        AVG_WEIGHT_BY_MODE_SHIPMT,
+        NET_SPEND_BY_OVER_TIME,
+        NET_SPEND_BY_CARRIER,
+        NET_SPEND_BY_MONTH;
+    }
+
+    enum InboundSpendConstant{
+        INBOUND_SPEND,
+        INBOUND_SPEND_BY_MONTH;
+    }
+
+    enum OutboundSpendConstant{
+        OUTBOUND_SPEND,
+        OUTBOUND_SPEND_BY_MONTH;
+    }
+    
     enum InvoiceStatusCountConstant{
         INVOICE_STATUS_COUNT,
         INVOICE_STATUS_COUNT_BY_CARRIER,
@@ -126,6 +145,11 @@ public class DashboardsController extends DashboardBaseController {
         SHIPPING_LANES,
         SHIPPING_LANES_BY_CARRIER,
         SHIPPING_LANES_BY_MONTH
+    }
+    enum PackageExceptionConstants{
+        PACKAGE_EXCEPTION,
+        PACKAGE_EXCEPTION_BY_CARRIER,
+        PACKAGE_EXCEPTION_BY_MONTH,
     }
 
     @RequestMapping(value = "/appliedFilter", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -591,6 +615,196 @@ public class DashboardsController extends DashboardBaseController {
         return new ResponseEntity<String>(resultsJsonObj.toString(), HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/avgSpendPerShipment", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getAvgSpendPerShipment(){
+        JSONObject avgSpendPerShipmtJsonData = null;
+        try{
+            UserProfileDto user = getUserProfile();
+            if(null == user){
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            JSONObject avgShipmentData = loadShipmentOverviewJsonData(ShipmentOverviewConstant.AVG_SPEND_PER_SHIPMT, filter);
+            avgSpendPerShipmtJsonData = (avgShipmentData != null ? avgShipmentData : new JSONObject());
+        }catch(Exception e){
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>(avgSpendPerShipmtJsonData.toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/avgWeightByModeShipment", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getAverageWeightByModeShipment(){
+        JSONObject avgWeightModeShipmtJsonData = null;
+        try{
+            UserProfileDto user = getUserProfile();
+            if(null == user){
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            JSONObject avgShipmentData = loadShipmentOverviewJsonData(ShipmentOverviewConstant.AVG_WEIGHT_BY_MODE_SHIPMT, filter);
+            avgWeightModeShipmtJsonData = (avgShipmentData != null ? avgShipmentData : new JSONObject());
+        }catch(Exception e){
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>(avgWeightModeShipmtJsonData.toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/serviceUsagePerf", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getServiceLevelUsageAndPerformance(){
+        JSONObject serviceLvlPerf = null;
+        try{
+            UserProfileDto user = getUserProfile();
+            if(null == user){
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            List<ServiceLevelUsageAndPerformanceDto> serviceLevelUsageAndPerfList = dashboardsService.getServiceLevelUsageAndPerformance(filter, false);
+            JSONObject sfJson = JSONUtil.prepareServiceLevelUsageAndPerfromanceJson(serviceLevelUsageAndPerfList);
+            serviceLvlPerf = sfJson != null ? sfJson : new JSONObject();
+        }catch(Exception e){
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>(serviceLvlPerf.toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/inboundSpend", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getInboundSpend(){
+        JSONObject inboundSpendJson = null;
+        try{
+            UserProfileDto user = getUserProfile();
+            if(null == user){
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            JSONObject inbSpendJson = loadInboundSpendJsonData(InboundSpendConstant.INBOUND_SPEND, filter);
+            inboundSpendJson = inbSpendJson != null ? inbSpendJson : new JSONObject();
+        }catch (Exception e){
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>(inboundSpendJson.toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/inboundSpendByMnth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getInboundSpendByMonth(@RequestParam String carrierId, @RequestParam String invoiceDate){
+        JSONObject inboundSpendJson = null;
+        try{
+            UserProfileDto user = getUserProfile();
+            if(null == user){
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            if(filter != null){
+                if(carrierId != null && !carrierId.isEmpty()){
+                    filter.setCarriers(carrierId);
+                }
+                if(invoiceDate != null && !invoiceDate.isEmpty()){
+                    DashboardUtil.setDatesFromMonth(filter, invoiceDate);
+                }
+            }
+            JSONObject inbSpendJson = loadInboundSpendJsonData(InboundSpendConstant.INBOUND_SPEND_BY_MONTH, filter);
+            inboundSpendJson = inbSpendJson != null ? inbSpendJson : new JSONObject();
+        }catch (Exception e){
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>(inboundSpendJson.toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/outboundSpend", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getoutboundSpend(){
+        JSONObject outboundSpendJson = null;
+        try{
+            UserProfileDto user = getUserProfile();
+            if(null == user){
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            JSONObject outbSpendJson = loadOutboundSpendJsonData(OutboundSpendConstant.OUTBOUND_SPEND, filter);
+            outboundSpendJson = outbSpendJson != null ? outbSpendJson : new JSONObject();
+        }catch (Exception e){
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>(outboundSpendJson.toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/outboundSpendByMnth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getoutboundSpendByMonth(@RequestParam String carrierId, @RequestParam String invoiceDate){
+        JSONObject outboundSpendJson = null;
+        try{
+            UserProfileDto user = getUserProfile();
+            if(null == user){
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            if(filter != null){
+                if(carrierId != null && !carrierId.isEmpty()){
+                    filter.setCarriers(carrierId);
+                }
+                if(invoiceDate != null && !invoiceDate.isEmpty()){
+                    DashboardUtil.setDatesFromMonth(filter, invoiceDate);
+                }
+            }
+            JSONObject outbSpendJson = loadOutboundSpendJsonData(OutboundSpendConstant.OUTBOUND_SPEND_BY_MONTH, filter);
+            outboundSpendJson = outbSpendJson != null ? outbSpendJson : new JSONObject();
+        }catch (Exception e){
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>(outboundSpendJson.toString(), HttpStatus.OK);
+    }
+
+    private JSONObject loadOutboundSpendJsonData(OutboundSpendConstant outboundSpendType, DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject inboundSpendJson = null;
+        switch (outboundSpendType){
+            case OUTBOUND_SPEND:
+                inboundSpendJson = loadOutboundSpendJson(filter);
+                break;
+            case OUTBOUND_SPEND_BY_MONTH:
+                inboundSpendJson = loadOutboundSpendByMonthJson(filter);
+                break;
+            default:
+                throw new MethodNotFoundException("Method param value not matched");
+        }
+        return inboundSpendJson;
+    }
+
+    private JSONObject loadOutboundSpendByMonthJson(DashboardsFilterCriteria filter) throws JSONException {
+        List<OutboundSpendDto> outboundSpendList = dashboardsService.getOutboundSpendByMonth(filter, false);
+        List<NetSpendMonthlyChartDto> monthlyChartDtos = NetSpendMonthlyChartDto.buildOutboundSpendListToNetSpendMonthlyChartList(outboundSpendList);
+        return JSONUtil.prepareMonthlyChartJson(monthlyChartDtos);
+    }
+
+    private JSONObject loadOutboundSpendJson(DashboardsFilterCriteria filter) throws JSONException {
+        List<OutboundSpendDto> outboundSpendList = dashboardsService.getOutboundSpend(filter, false);
+        List<NetSpendCommonDto> spendlist = NetSpendCommonDto.buildOutboundSpendListToNetSpendCommonList(outboundSpendList);
+        return JSONUtil.prepareInAndOutBuondJson(spendlist);
+    }
+
+    private JSONObject loadInboundSpendJsonData(InboundSpendConstant inboundSpendType, DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject inboundSpendJson = null;
+        switch (inboundSpendType){
+            case INBOUND_SPEND:
+                inboundSpendJson = loadInboundSpendJson(filter);
+                break;
+            case INBOUND_SPEND_BY_MONTH:
+                inboundSpendJson = loadInboundSpendByMonthJson(filter);
+                break;
+            default:
+                throw new MethodNotFoundException("Method param value not matched");
+        }
+        return inboundSpendJson;
+    }
+
+    private JSONObject loadInboundSpendByMonthJson(DashboardsFilterCriteria filter) throws JSONException {
+        List<InboundSpendDto> inboundSpendList = dashboardsService.getInboundSpendByMonth(filter, false);
+        List<NetSpendMonthlyChartDto> monthlyChartDtos = NetSpendMonthlyChartDto.buildInboundSpendListToNetSpendMonthlyChartList(inboundSpendList);
+        return JSONUtil.prepareMonthlyChartJson(monthlyChartDtos);
+    }
+
+    private JSONObject loadInboundSpendJson(DashboardsFilterCriteria filter) throws JSONException {
+        List<InboundSpendDto> inboundSpendList = dashboardsService.getInboundSpend(filter, false);
+        List<NetSpendCommonDto> spendlist = NetSpendCommonDto.buildInboundSpendListToNetSpendCommonList(inboundSpendList);
+        return JSONUtil.prepareInAndOutBuondJson(spendlist);
+    }
+    
     @RequestMapping(value = "/invStsCnt", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<String> getInvoiceStatusCount(){
         JSONObject invStsCountJson = null;
@@ -949,7 +1163,7 @@ public class DashboardsController extends DashboardBaseController {
     }
 
     @RequestMapping(value = "/recovServByMnth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getRecoveryServicesByMonth(@RequestParam String carrier, @RequestParam String service){
+    public ResponseEntity<String> getRecoveryServicesByMonth(@RequestParam String carrierId, @RequestParam String service){
         JSONObject recovServJson = null;
         try{
             UserProfileDto user = getUserProfile();
@@ -958,8 +1172,8 @@ public class DashboardsController extends DashboardBaseController {
             }
             DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
             if(filter != null){
-                if(carrier != null && !carrier.isEmpty()){
-                    filter.setCarriers(carrier);
+                if(carrierId != null && !carrierId.isEmpty()){
+                    filter.setCarriers(carrierId);
                 }
                 if(service != null && !service.isEmpty()){
                     filter.setService(service);
@@ -971,6 +1185,118 @@ public class DashboardsController extends DashboardBaseController {
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(recovServJson.toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/pkgExcp", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getPackageExceptions(){
+        JSONObject pkgExcpJson = null;
+        try{
+            UserProfileDto user = getUserProfile();
+            if (null == user) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            JSONObject rsJson = loadPackageExceptionsJsonData(PackageExceptionConstants.PACKAGE_EXCEPTION, filter);
+            pkgExcpJson = (rsJson != null ? rsJson : new JSONObject());
+        }catch (Exception e){
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>(pkgExcpJson.toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/pkgExcpByCarr", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getPackageExceptionsByCarrier(@RequestParam String invoiceDate, @RequestParam String deliveryFlag){
+        JSONObject pkgExcpJson = null;
+        try{
+            UserProfileDto user = getUserProfile();
+            if (null == user) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            if(filter != null){
+                if (deliveryFlag != null && !deliveryFlag.isEmpty())
+                    filter.setDeliveryFlag(deliveryFlag);
+                DashboardUtil.setDatesFromMonth(filter, invoiceDate);
+            }
+            JSONObject rsJson = loadPackageExceptionsJsonData(PackageExceptionConstants.PACKAGE_EXCEPTION_BY_CARRIER, filter);
+            pkgExcpJson = (rsJson != null ? rsJson : new JSONObject());
+        }catch (Exception e){
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>(pkgExcpJson.toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/pkgExcpByMnth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getPackageExceptionsByMonth(@RequestParam String invoiceDate, @RequestParam String deliveryFlag,@RequestParam String carrierId){
+        JSONObject pkgExcpJson = null;
+        try{
+            UserProfileDto user = getUserProfile();
+            if (null == user) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            if(filter != null){
+                if(carrierId != null && !carrierId.isEmpty()){
+                    filter.setCarriers(carrierId);
+                }
+                if (deliveryFlag != null && !deliveryFlag.isEmpty()){
+                    filter.setDeliveryFlag(deliveryFlag);
+                }
+                DashboardUtil.setDatesFromMonth(filter, invoiceDate);
+            }
+            JSONObject rsJson = loadPackageExceptionsJsonData(PackageExceptionConstants.PACKAGE_EXCEPTION_BY_MONTH, filter);
+            pkgExcpJson = (rsJson != null ? rsJson : new JSONObject());
+        }catch (Exception e){
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>(pkgExcpJson.toString(), HttpStatus.OK);
+    }
+
+    private JSONObject loadPackageExceptionsJsonData(PackageExceptionConstants packageExceptionType, DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject pkgExcpJson = null;
+        switch (packageExceptionType){
+            case PACKAGE_EXCEPTION:
+                pkgExcpJson = loadPackageExceptionsJson(filter);
+                break;
+            case PACKAGE_EXCEPTION_BY_CARRIER:
+                pkgExcpJson = loadPackageExceptionsByCarrierJson(filter);
+                break;
+            case PACKAGE_EXCEPTION_BY_MONTH:
+                pkgExcpJson = loadPackageExceptionsByMonthJson(filter);
+                break;
+            default:
+                throw new MethodNotFoundException("Method param value not matched");
+        }
+        return pkgExcpJson;
+    }
+
+    private JSONObject loadPackageExceptionsByMonthJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject pkgExcpJson = null;
+        List<PackageExceptionDto> packageExceptionList = dashboardsService.getPackageExceptionsByMonth(filter, false);
+        if(packageExceptionList != null && !packageExceptionList.isEmpty()){
+            List<NetSpendMonthlyChartDto> monthlyChartList = NetSpendMonthlyChartDto.buildackageExceptionListToMonthlyChartList(packageExceptionList);
+            pkgExcpJson = JSONUtil.prepareMonthlyChartJson(monthlyChartList);
+        }
+        return pkgExcpJson;
+    }
+
+    private JSONObject loadPackageExceptionsByCarrierJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject pkgExcpJson = null;
+        List<PackageExceptionDto> packageExceptionList = dashboardsService.getPackageExceptionsByCarrier(filter, false);
+        if(packageExceptionList != null && !packageExceptionList.isEmpty()){
+            List<CommonValuesForChartDto> commonValuesForChartList = CommonValuesForChartDto.buildPackageExceptionListToCommonValueForChartList(packageExceptionList);
+            pkgExcpJson = JSONUtil.prepareCommonJsonForChart(commonValuesForChartList);
+        }
+        return pkgExcpJson;
+    }
+
+    private JSONObject loadPackageExceptionsJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject pkgExcpJson = null;
+        List<PackageExceptionDto> packageExceptionList = dashboardsService.getPackageExceptions(filter, false);
+        if(packageExceptionList != null && !packageExceptionList.isEmpty()){
+            pkgExcpJson = JSONUtil.preparePackageExceptionJson(packageExceptionList);
+        }
+        return pkgExcpJson;
     }
 
     private JSONObject loadRecoveryServicesJsonData(RecoveryServiceConstants recoveryServiceType, DashboardsFilterCriteria filter) throws Exception {
@@ -1008,7 +1334,10 @@ public class DashboardsController extends DashboardBaseController {
         if(recoveryServicesList != null && !recoveryServicesList.isEmpty()){
             List<CommonValuesForChartDto> commonValuesForChartList = CommonValuesForChartDto.buildRecoveryServiceListToCommonValueForChartList(recoveryServicesList);
             recovServJson = JSONUtil.prepareCommonJsonForChart(commonValuesForChartList);
-        }
+        if(recoveryServiceList != null && !recoveryServiceList.isEmpty()){
+            List<NetSpendMonthlyChartDto> monthlyChartList = NetSpendMonthlyChartDto.buildRecoveryServiceListToMonthlyChartList(recoveryServiceList);
+            recovServJson = JSONUtil.prepareMonthlyChartJson(monthlyChartList);
+k        }
         return recovServJson;
     }
 
@@ -1755,5 +2084,49 @@ public class DashboardsController extends DashboardBaseController {
         return  JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList);
     }
 
+
+    private JSONObject loadShipmentOverviewJsonData(ShipmentOverviewConstant shipmentOverviewType, DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject avgShipmentJson = null;
+
+        switch (shipmentOverviewType){
+            case AVG_SPEND_PER_SHIPMT:
+                avgShipmentJson = loadAvgSpendPerShipmtJson(filter);
+                break;
+            case AVG_WEIGHT_BY_MODE_SHIPMT:
+                avgShipmentJson = loadNetSpendByOverTimeJson(filter);
+                break;
+            case NET_SPEND_BY_CARRIER:
+                avgShipmentJson = loadNetSpendByCarrierJson(filter);
+                break;
+            case NET_SPEND_BY_MONTH:
+                avgShipmentJson = loadNetSpendByMonthJson(filter);
+                break;
+            default:
+                throw new MethodNotFoundException("Method param value not matched");
+        }
+        return avgShipmentJson;
+    }
+
+
+
+    private JSONObject loadAvgSpendPerShipmtJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject avgSpendShipmentJson = null;
+
+        List<AverageSpendPerShipmentDto> avgPerShipmentList = dashboardsService.getAvgSpendPerShipment(filter,false);
+        if(avgPerShipmentList != null && avgPerShipmentList.size() > 0){
+            avgSpendShipmentJson = JSONUtil.prepareAverageWeightOrSpendJson(avgPerShipmentList);
+        }
+        return avgSpendShipmentJson;
+    }
+
+    private JSONObject loadAvgWeightByModeShipmtJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject avgShipmentJson = null;
+
+        List<AverageWeightModeShipmtDto> avgShipmentList = dashboardsService.getAverageWeightByModeShipmt(filter,false);
+        if(avgShipmentList != null && avgShipmentList.size() > 0){
+            avgShipmentJson = JSONUtil.prepareAverageWeightJson(avgShipmentList);
+        }
+        return avgShipmentJson;
+    }
 
 }
