@@ -69,12 +69,9 @@ public class DashboardsController extends DashboardBaseController {
         ACCESSORIAL_SPEND_BY_MONTH,
     }
 
-    public enum ShipmentOverviewConstant{
+    enum ShipmentOverviewConstant{
         AVG_SPEND_PER_SHIPMT,
         AVG_WEIGHT_BY_MODE_SHIPMT,
-        NET_SPEND_BY_OVER_TIME,
-        NET_SPEND_BY_CARRIER,
-        NET_SPEND_BY_MONTH,
         AVG_SPEND_PER_SHIPMT_BY_CARRIER,
         AVG_SPEND_PER_SHIPMT_BY_MONTH;
     }
@@ -1857,12 +1854,6 @@ public class DashboardsController extends DashboardBaseController {
                 break;
             case AVG_WEIGHT_BY_MODE_SHIPMT:
                 avgShipmentJson = loadNetSpendByOverTimeJson(filter);
-                break;
-            case NET_SPEND_BY_CARRIER:
-                avgShipmentJson = loadNetSpendByCarrierJson(filter);
-                break;
-            case NET_SPEND_BY_MONTH:
-                avgShipmentJson = loadNetSpendByMonthJson(filter);
                 break;
             case AVG_SPEND_PER_SHIPMT_BY_CARRIER:
                 avgShipmentJson = loadAvgSpendPerShipmtByCarrierJson(filter);
