@@ -833,4 +833,51 @@ public class DashboardsDao {
 
         return persistentContext.findEntities("AverageSpendPerShipmentByMonthDto.getAverageSpendPerShipmentByMonth", queryParameter);
     }
+
+    /**
+     *
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<AverageWeightModeByCarrierDto>   getAverageWeightModeByCarrier(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.AverageWeightShipmentByCarrierParam.DATE_TYPE_PARAM, filter.getDateType())
+                .and(DashboardSroredProcParam.AverageWeightShipmentByCarrierParam.MODES_PARAM, filter.getModes())
+                .and(DashboardSroredProcParam.AverageWeightShipmentByCarrierParam.SERVICES_PARAM, filter.getServices())
+                .and(DashboardSroredProcParam.AverageWeightShipmentByCarrierParam.ACCESSORIAL_NAME_PARAM, filter.getAccessorialName())
+                .and(DashboardSroredProcParam.AverageWeightShipmentByCarrierParam.LANES_PARAM, filter.getLanes())
+                .and(DashboardSroredProcParam.AverageWeightShipmentByCarrierParam.FROM_DATE_PARAM, filter.getFromDate())
+                .and(DashboardSroredProcParam.AverageWeightShipmentByCarrierParam.TO_DATE_PARAM, filter.getToDate())
+                .and(DashboardSroredProcParam.AverageWeightShipmentByCarrierParam.ORIGINAL_FROM_DATE_PARAM, filter.getOriginalFromDate())
+                .and(DashboardSroredProcParam.AverageWeightShipmentByCarrierParam.ORIGINAL_TO_DATE_PARAM, filter.getOriginalToDate())
+                .and(DashboardSroredProcParam.AverageWeightShipmentByCarrierParam.CONVERTE_WEIGHT_UNIT_PARAM, filter.getConvertWeightUnit())
+                .and(DashboardSroredProcParam.AverageWeightShipmentByCarrierParam.CARRIER_ID_PARAM, filter.getCarriers())
+                .and(DashboardSroredProcParam.AverageWeightShipmentByCarrierParam.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
+                .and(DashboardSroredProcParam.AverageWeightShipmentByCarrierParam.TOP_ACCESSORIAL_SPEND_PARAM, isTopTenAccessorial ? 1L : 0L);
+
+        return persistentContext.findEntities("AverageWeightModeByCarrierDto.getAverageWeightModeByCarrier", queryParameter);
+    }
+
+    /**
+     *
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<AverageWeightModeByMonthDto>   getAverageWeightModeByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.AverageWeightShipmentByMonthParam.DATE_TYPE_PARAM, filter.getDateType())
+                .and(DashboardSroredProcParam.AverageWeightShipmentByMonthParam.MODES_PARAM, filter.getModes())
+                .and(DashboardSroredProcParam.AverageWeightShipmentByMonthParam.SERVICES_PARAM, filter.getServices())
+                .and(DashboardSroredProcParam.AverageWeightShipmentByMonthParam.ACCESSORIAL_NAME_PARAM, filter.getAccessorialName())
+                .and(DashboardSroredProcParam.AverageWeightShipmentByMonthParam.LANES_PARAM, filter.getLanes())
+                .and(DashboardSroredProcParam.AverageWeightShipmentByMonthParam.FROM_DATE_PARAM, filter.getFromDate())
+                .and(DashboardSroredProcParam.AverageWeightShipmentByMonthParam.TO_DATE_PARAM, filter.getToDate())
+                .and(DashboardSroredProcParam.AverageWeightShipmentByMonthParam.CONVERTE_WEIGHT_UNIT_PARAM, filter.getConvertWeightUnit())
+                .and(DashboardSroredProcParam.AverageWeightShipmentByMonthParam.CARRIER_ID_PARAM, filter.getCarriers())
+                .and(DashboardSroredProcParam.AverageWeightShipmentByMonthParam.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
+                .and(DashboardSroredProcParam.AverageWeightShipmentByMonthParam.TOP_ACCESSORIAL_SPEND_PARAM, isTopTenAccessorial ? 1L : 0L);
+
+        return persistentContext.findEntities("AverageWeightModeByMonthDto.getAverageWeightModeByMonth", queryParameter);
+    }
+
 }

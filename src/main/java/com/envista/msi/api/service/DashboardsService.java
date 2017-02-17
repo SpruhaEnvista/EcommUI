@@ -396,4 +396,12 @@ public class DashboardsService {
     public List<AverageSpendPerShipmentByMonthDto> getAvgSpendPerShipmtByMonth(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
         return dashboardsDao.getAverageSpendPerShipmentByMonth(filter,  isTopTenAccessorial);
     }
+
+    public List<AverageWeightModeByCarrierDto> getAverageWeightModeByCarrier(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
+        return dashboardsDao.getAverageWeightModeByCarrier(filter,  isTopTenAccessorial);
+    }
+
+    public List<AverageWeightModeByMonthDto> getAverageWeightModeByMonth(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
+        return dashboardsDao.getAverageWeightModeByMonth(filter,  isTopTenAccessorial);
+    }
 }

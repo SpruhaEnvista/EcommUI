@@ -291,4 +291,34 @@ public class DashboardSroredProcParam {
         public static final String AVG_SPEND_PER_SHIPMT_PARAM = "p_avg_spend_shipmt_bymomth";
     }
 
+    public static class AverageWeightShipmentByCarrierParam{
+        public static final String DATE_TYPE_PARAM = "p_date_type";
+        public static final String MODES_PARAM = "p_modes";
+        public static final String SERVICES_PARAM = "p_services";
+        public static final String ACCESSORIAL_NAME_PARAM = "p_accessorial_name";
+        public static final String LANES_PARAM = "p_lanes_info";
+        public static final String FROM_DATE_PARAM = "p_from_date";
+        public static final String TO_DATE_PARAM = "p_to_date";
+        public static final String ORIGINAL_FROM_DATE_PARAM = "p_original_from_date";
+        public static final String ORIGINAL_TO_DATE_PARAM = "p_original_to_date";
+        public static final String CONVERTE_WEIGHT_UNIT_PARAM = "p_converte_weight_unit";
+        public static final String CARRIER_ID_PARAM = "p_carrier_id";
+        public static final String CUSTOMER_IDS_CSV_PARAM = "p_customer_ids";
+        public static final String TOP_ACCESSORIAL_SPEND_PARAM = "p_is_top_ten_accessorial";
+        public static final String AVG_WGT_SHIPMT_BY_CARR_PARAM = "p_avg_wegt_by_carrier";
+    }
+    public static class AverageWeightShipmentByMonthParam{
+        public static final String DATE_TYPE_PARAM = "p_date_type";
+        public static final String MODES_PARAM = "p_modes";
+        public static final String SERVICES_PARAM = "p_services";
+        public static final String ACCESSORIAL_NAME_PARAM = "p_accessorial_name";
+        public static final String LANES_PARAM = "p_lanes_info";
+        public static final String FROM_DATE_PARAM = "p_from_date";
+        public static final String TO_DATE_PARAM = "p_to_date";
+        public static final String CONVERTE_WEIGHT_UNIT_PARAM = "p_converte_weight_unit";
+        public static final String CARRIER_ID_PARAM = "p_carrier_id";
+        public static final String CUSTOMER_IDS_CSV_PARAM = "p_customer_ids";
+        public static final String TOP_ACCESSORIAL_SPEND_PARAM = "p_is_top_ten_accessorial";
+        public static final String AVG_WGT_SHIPMT_BY_MNTH_PARAM = "p_avg_wegt_by_month";
+    }
 }
