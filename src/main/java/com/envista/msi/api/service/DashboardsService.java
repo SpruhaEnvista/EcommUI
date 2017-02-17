@@ -8,6 +8,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
 import com.envista.msi.api.web.rest.dto.dashboard.accessorialspend.AccessorialSpendDto;
 import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.*;
+import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.PortLanesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentRegionDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShippingLanesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.*;
@@ -415,6 +416,18 @@ public class DashboardsService {
 
     public List<ShippingLanesDto> getShippingLanesByMonthJson (DashboardsFilterCriteria filterCriteria) {
         return dashboardsDao.getShippingLanesByMonthJson(filterCriteria);
+    }
+
+    public List<PortLanesDto> loadTopPortLanesJsonData (DashboardsFilterCriteria filterCriteria) {
+        return dashboardsDao.getTopPortLanesJsonData(filterCriteria);
+    }
+
+    public List<PortLanesDto> getPortLanesByCarrierJson (DashboardsFilterCriteria filterCriteria) {
+        return dashboardsDao.getPortLanesByCarrierJson(filterCriteria);
+    }
+
+    public List<PortLanesDto> getPortLanesByMonthJson (DashboardsFilterCriteria filterCriteria) {
+        return dashboardsDao.getPortLanesByMonthJson(filterCriteria);
     }
 
     public List<PackageExceptionDto> getPackageExceptions(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){

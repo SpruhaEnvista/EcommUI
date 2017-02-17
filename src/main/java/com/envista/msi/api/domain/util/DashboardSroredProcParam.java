@@ -328,4 +328,19 @@ public class DashboardSroredProcParam {
         public static final String RESULTS_DATA_PARAM = "p_results_out";
     }
 
+    public static class PortLanesParams{
+        public static final String DATE_TYPE_PARAM = "p_date_type";
+        public static final String CURRENCY_ID_PARAM = "p_currency_id";
+        public static final String CUSTOMER_IDS_CSV_PARAM = "p_customer_ids";
+        public static final String CARRIER_ID_PARAM = "p_carrier_id";
+        public static final String MODES_PARAM = "p_modes";
+        public static final String SERVICES_PARAM = "p_services";
+        public static final String LANES_PARAM = "p_lanes_info";
+        public static final String FROM_DATE_PARAM = "p_from_date";
+        public static final String TO_DATE_PARAM = "p_to_date";
+        public static final String POL = "p_pol";
+        public static final String POD = "p_pod";
+        public static final String RESULTS_DATA_PARAM = "p_results_out";
+    }
+
 }

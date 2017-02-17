@@ -9,6 +9,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendCommonDto;
 import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendMonthlyChartDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendByModeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendOverTimeDto;
+import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.PortLanesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentRegionDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShippingLanesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.AverageSpendPerShipmentDto;
@@ -21,6 +22,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.sound.sampled.Port;
 import javax.xml.ws.Service;
 import java.util.*;
 
@@ -1211,7 +1213,7 @@ public class JSONUtil {
 		return returnJson;
 	}
 
-	public static JSONObject prepareTabularFormatJson(List<ShippingLanesDto> shippingLanesDtoList) throws JSONException {
+	public static JSONObject prepareTopShippingLanesJson(List<ShippingLanesDto> shippingLanesDtoList) throws JSONException {
 		JSONObject returnJson = new JSONObject();
 		JSONArray  lanesArray = new JSONArray();
 		for( ShippingLanesDto shippingLanesDto : shippingLanesDtoList) {
@@ -1220,6 +1222,24 @@ public class JSONUtil {
 			laneInfoJson.put("shipperAddress", shippingLanesDto.getShipperAddress());
 			laneInfoJson.put("receiverAddress", shippingLanesDto.getReceiverAddress());
 			laneInfoJson.put("laneTotal", shippingLanesDto.getLaneTotal());
+
+			lanesArray.put(laneInfoJson);
+		}
+
+		returnJson.put("data",lanesArray);
+
+		return returnJson;
+	}
+
+	public static JSONObject prepareTopPortLanesJson(List<PortLanesDto> shippingLanesDtoList) throws JSONException {
+		JSONObject returnJson = new JSONObject();
+		JSONArray  lanesArray = new JSONArray();
+		for( PortLanesDto portLanesDto : shippingLanesDtoList) {
+			JSONObject laneInfoJson = new JSONObject();
+			laneInfoJson.put("rank",portLanesDto.getRank());
+			laneInfoJson.put("pol", portLanesDto.getPol());
+			laneInfoJson.put("pod", portLanesDto.getPod());
+			laneInfoJson.put("laneTotal", portLanesDto.getLaneTotal());
 
 			lanesArray.put(laneInfoJson);
 		}
