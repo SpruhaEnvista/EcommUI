@@ -1,5 +1,8 @@
 package com.envista.msi.api.web.rest.dto.reports;
 
+import com.envista.msi.api.domain.util.DashboardSroredProcParam;
+import com.envista.msi.api.web.rest.dto.dashboard.accessorialspend.AccessorialSpendDto;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
@@ -7,14 +10,47 @@ import java.util.Date;
 /**
  * Created by Sreenivas on 2/17/2017.
  */
+
 @NamedStoredProcedureQueries({
         @NamedStoredProcedureQuery(name = "ReportResults.getReportResults", procedureName = "shp_rpt_results_proc",
-                resultClasses = ReportResultsDto.class,
+                resultSetMappings = "ReportResults",
                 parameters = {
-
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "reportsList", type = Void.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "userId", type = Long.class)
+                }),
+        @NamedStoredProcedureQuery(name = "ReportResults.updateExpiryDate", procedureName = "shp_rpt_update_expirydate_proc",
+                resultSetMappings = "UpdateCount",
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.OUT, name = "updateCount", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "expiryDate", type = Date.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "generatedRptId", type = Long.class)
                 })
+})
+@SqlResultSetMappings({
+        @SqlResultSetMapping(name = "UpdateCount", classes = {
+                @ConstructorResult(
+                        targetClass = ReportResultsDto.class,
+                        columns = {
+                                @ColumnResult(name = "updateCount", type = Integer.class)
+                        }
+                )
+        }),
+        @SqlResultSetMapping(name = "ReportResults", classes = {
+                @ConstructorResult(
+                        targetClass = ReportResultsDto.class,
+                        columns = {
+                                @ColumnResult(name = "generated_rpt_det_id", type = Long.class),
+                                @ColumnResult(name = "saved_sched_rpt_id", type = Long.class),
+                                @ColumnResult(name = "file_name", type = String.class),
+                                @ColumnResult(name = "type_name", type = String.class),
+                                @ColumnResult(name = "run_date", type = String.class),
+                                @ColumnResult(name = "expire_date", type = String.class),
+                                @ColumnResult(name = "running_status", type = String.class),
+                                @ColumnResult(name = "completion_date", type = Date.class),
+                                @ColumnResult(name = "expires_date", type = Date.class)
+                        }
+                )
+        })
 })
 
 @Entity
@@ -50,18 +86,16 @@ public class ReportResultsDto implements Serializable {
     @Column(name = "expires_date")
     private Date expiryDate;
 
+    @Column(name="updateCount")
+    private int updateCount;
 
     public Long getGeneratedRptId() {
         return generatedRptId;
     }
 
-    public void setGeneratedRptId(Long generatedRptId) {
-        this.generatedRptId = generatedRptId;
-    }
+    public void setGeneratedRptId(Long generatedRptId) { this.generatedRptId = generatedRptId; }
 
-    public Long getSavedRptId() {
-        return savedRptId;
-    }
+    public Long getSavedRptId() { return savedRptId; }
 
     public void setSavedRptId(Long savedRptId) {
         this.savedRptId = savedRptId;
@@ -83,7 +117,7 @@ public class ReportResultsDto implements Serializable {
         this.fileType = fileType;
     }
 
-   public String getRunDate() {   return runDate;   }
+    public String getRunDate() {   return runDate;   }
 
     public void setRunDate(String runDate) {
         this.runDate = runDate;
@@ -115,5 +149,26 @@ public class ReportResultsDto implements Serializable {
 
     public void setExpiryDate(Date expiryDate) { this.expiryDate = expiryDate;   }
 
+    public int getUpdateCount() {  return updateCount; }
+
+    public void setUpdateCount(int updateCount) { this.updateCount = updateCount; }
+
+    public ReportResultsDto(){}
+
+    public ReportResultsDto(int updateCount) {
+        this.updateCount = updateCount;
+    }
+    public ReportResultsDto(Long generatedRptId, Long savedRptId, String fileName, String fileType,String runDate,
+                            String expireDate,String status,Date completedDate,Date expiryDate) {
+        this.generatedRptId = generatedRptId;
+        this.savedRptId = savedRptId;
+        this.fileName = fileName;
+        this.fileType = fileType;
+        this.runDate = runDate;
+        this.expireDate = expireDate;
+        this.status = status;
+        this.completedDate = completedDate;
+        this.expiryDate = expiryDate;
+    }
 }
 

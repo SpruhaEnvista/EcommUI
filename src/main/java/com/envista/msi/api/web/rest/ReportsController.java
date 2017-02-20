@@ -8,13 +8,11 @@ import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
 import javax.websocket.server.PathParam;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -28,8 +26,18 @@ public class ReportsController {
     @Inject
     private ReportsService reportsService;
 
-    @RequestMapping(value = "/results/{userId}", method = {RequestMethod.GET}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/results/{userId}", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<List<ReportResultsDto>> getReportResults(@PathVariable String userId){
+        List<ReportResultsDto> resultsList = reportsService.getReportResults(Long.parseLong(userId));
+        return new ResponseEntity<List<ReportResultsDto>>(resultsList, HttpStatus.OK);
+    }
+    @RequestMapping(value = "/results/updateexpirydate", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<ReportResultsDto> getReportResults(@RequestParam Long generatedRptId, @RequestParam String expiryDate){
+        ReportResultsDto reportResultsDto = reportsService.updateExpiryDate(generatedRptId, expiryDate );
+        return new ResponseEntity<ReportResultsDto>(reportResultsDto, HttpStatus.OK);
+    }
+    @RequestMapping(value = "/userslist/{userId}", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<List<ReportResultsDto>> getUsersList(@PathVariable String userId){
         List<ReportResultsDto> resultsList = reportsService.getReportResults(Long.parseLong(userId));
         return new ResponseEntity<List<ReportResultsDto>>(resultsList, HttpStatus.OK);
     }

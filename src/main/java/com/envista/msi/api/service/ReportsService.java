@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -22,5 +23,8 @@ public class ReportsService {
 
     public List<ReportResultsDto> getReportResults(long userId) {
         return  reportsDao.getReportResults(userId);
+    }
+    public ReportResultsDto updateExpiryDate(Long generatedRptId,String expiryDate) {
+        return  reportsDao.updateExpiryDate(generatedRptId,expiryDate);
     }
 }

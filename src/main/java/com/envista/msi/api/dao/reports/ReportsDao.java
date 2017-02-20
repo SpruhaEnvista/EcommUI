@@ -12,6 +12,9 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -24,13 +27,37 @@ public class ReportsDao {
     @Inject
     private PersistentContext persistentContext;
     /**
-     * Get bet spend based on the applied filter.
+     * Get bet reports based on userId.
      * @param userId
-     * @return
+     * @return list<ReportResultsDto>
      */
     @Transactional( readOnly = true )
     public List<ReportResultsDto> getReportResults(Long userId) {
         return persistentContext.findEntitiesAndMapFields("ReportResults.getReportResults",
                 StoredProcedureParameter.with("userId", userId));
+    }
+    /**
+     * Update Expiry Date.
+     * @param generatedRptId
+     * @param expiryDate
+     * @return list<ReportResultsDto>
+     */
+    @Transactional
+    public ReportResultsDto updateExpiryDate(Long generatedRptId,String expiryDate) {
+        Date toexpiryDate =convertDateFullYear(expiryDate);
+        QueryParameter queryParameter = StoredProcedureParameter.with("expiryDate", toexpiryDate)
+                .and("generatedRptId", generatedRptId);
+        return persistentContext.findEntityAndMapFields("ReportResults.updateExpiryDate",queryParameter);
+    }
+    public static Date convertDateFullYear(String date)  {
+        Date sdate = new java.sql.Date(System.currentTimeMillis());
+        try {
+            SimpleDateFormat sdfInput = new SimpleDateFormat("MM/dd/yyyy");
+            Date udate = sdfInput.parse(date);
+            sdate = new Date(udate.getTime());
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return sdate;
     }
 }
