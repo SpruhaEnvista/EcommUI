@@ -44,7 +44,7 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShippingLanesParams.RECEIVER_COUNTRY, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.ShippingLanesParams.RESULTS_DATA_PARAM, type = Void.class)
                 }),
-        @NamedStoredProcedureQuery(name = "ShippingLanesDto.getShippingLanesByMonth", procedureName = "SHP_DB_SHMNT_MAP_CARR_PROC",
+        @NamedStoredProcedureQuery(name = "ShippingLanesDto.getShippingLanesByMonth", procedureName = "SHP_DB_SHPING_LANES_MNTH_PROC",
                 resultSetMappings = "ShippingLanesMonthMapping",
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShippingLanesParams.DATE_TYPE_PARAM, type = String.class),
