@@ -8,6 +8,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
 import com.envista.msi.api.web.rest.dto.dashboard.accessorialspend.AccessorialSpendDto;
 import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.*;
+import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.PortLanesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentRegionDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShippingLanesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.*;
@@ -381,18 +382,6 @@ public class DashboardsService {
         return dashboardsDao.getRecoveryServicesByMonth(filter, isTopTenAccessorial);
     }
 
-    public List<PackageExceptionDto> getPackageExceptions(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
-        return dashboardsDao.getPackageExceptions(filter, isTopTenAccessorial);
-    }
-
-    public List<PackageExceptionDto> getPackageExceptionsByCarrier(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
-        return dashboardsDao.getPackageExceptionsByCarrier(filter, isTopTenAccessorial);
-    }
-
-    public List<PackageExceptionDto> getPackageExceptionsByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
-        return dashboardsDao.getPackageExceptionsByMonth(filter, isTopTenAccessorial);
-    }
-
     public List<ShipmentRegionDto> getShipmentByRegion(DashboardsFilterCriteria dashboardsFilterCriteria ) {
         return dashboardsDao.getShipmentByRegion(dashboardsFilterCriteria);
     }
@@ -427,5 +416,37 @@ public class DashboardsService {
 
     public List<ShippingLanesDto> getShippingLanesByMonthJson (DashboardsFilterCriteria filterCriteria) {
         return dashboardsDao.getShippingLanesByMonthJson(filterCriteria);
+    }
+
+    public List<PortLanesDto> loadTopPortLanesJsonData (DashboardsFilterCriteria filterCriteria) {
+        return dashboardsDao.getTopPortLanesJsonData(filterCriteria);
+    }
+
+    public List<PortLanesDto> getPortLanesByCarrierJson (DashboardsFilterCriteria filterCriteria) {
+        return dashboardsDao.getPortLanesByCarrierJson(filterCriteria);
+    }
+
+    public List<PortLanesDto> getPortLanesByMonthJson (DashboardsFilterCriteria filterCriteria) {
+        return dashboardsDao.getPortLanesByMonthJson(filterCriteria);
+    }
+
+    public List<PackageExceptionDto> getPackageExceptions(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        return dashboardsDao.getPackageExceptions(filter, isTopTenAccessorial);
+    }
+
+    public List<PackageExceptionDto> getPackageExceptionsByCarrier(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        return dashboardsDao.getPackageExceptionsByCarrier(filter, isTopTenAccessorial);
+    }
+
+    public List<PackageExceptionDto> getPackageExceptionsByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        return dashboardsDao.getPackageExceptionsByMonth(filter, isTopTenAccessorial);
+    }
+
+    public List<AverageSpendPerShipmentByCarrierDto> getAvgSpendPerShipmtByCarrier(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
+        return dashboardsDao.getAverageSpendPerShipmentByCarrier(filter,  isTopTenAccessorial);
+    }
+
+    public List<AverageSpendPerShipmentByMonthDto> getAvgSpendPerShipmtByMonth(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
+        return dashboardsDao.getAverageSpendPerShipmentByMonth(filter,  isTopTenAccessorial);
     }
 }

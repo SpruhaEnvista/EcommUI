@@ -6,24 +6,20 @@ import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
 import com.envista.msi.api.web.rest.dto.dashboard.common.CommonMonthlyChartDto;
 import com.envista.msi.api.web.rest.dto.dashboard.common.CommonValuesForChartDto;
 import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendCommonDto;
-import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendMonthlyChartDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendByModeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendOverTimeDto;
-<<<<<<< HEAD
+import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.PortLanesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentRegionDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShippingLanesDto;
-=======
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.AverageSpendPerShipmentDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.AverageWeightModeShipmtDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.ServiceLevelUsageAndPerformanceDto;
->>>>>>> refs/remotes/origin/Standard_Branch_for_UAT_Demo
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import javax.xml.ws.Service;
 import java.util.*;
 
 /**
@@ -169,6 +165,7 @@ public class JSONUtil {
 		}
 		return netSpendJsonData;
 	}
+
 
 	public static JSONObject prepareNetSpendOverTimeJson(List<NetSpendOverTimeDto> netSpendOverTimeDtos) throws JSONException {
 		JSONObject returnObject = new JSONObject();
@@ -440,65 +437,65 @@ public class JSONUtil {
 		LinkedHashMap<String, HashMap<String, Double>> datesValuesMap = new LinkedHashMap<String, HashMap<String, Double>>();
 		ArrayList<String> modeFlagList = new ArrayList<String>();
 
-			for (AverageSpendPerShipmentDto perShipmentDto:avgPerShipmentList){
-				String billDate = perShipmentDto.getBillDate();
-				String mode = perShipmentDto.getModes();
-				Double spend = perShipmentDto.getNetWeight();
+		for (AverageSpendPerShipmentDto perShipmentDto:avgPerShipmentList){
+			String billDate = perShipmentDto.getBillDate();
+			String mode = perShipmentDto.getModes();
+			Double spend = perShipmentDto.getNetWeight();
 
-				if (spend != 0) {
+			if (spend != 0) {
 
-					if (!modeFlagList.contains(mode)) {
-						modeFlagList.add(mode);
-					}
+				if (!modeFlagList.contains(mode)) {
+					modeFlagList.add(mode);
+				}
 
-					if (datesValuesMap.containsKey(billDate)) {
-						datesValuesMap.get(billDate).put(mode, spend);
-					} else {
-						HashMap<String, Double> tempHashMap = new HashMap<String, Double>();
-						tempHashMap.put(mode, spend);
-						datesValuesMap.put(billDate, tempHashMap);
-					}
-
+				if (datesValuesMap.containsKey(billDate)) {
+					datesValuesMap.get(billDate).put(mode, spend);
+				} else {
+					HashMap<String, Double> tempHashMap = new HashMap<String, Double>();
+					tempHashMap.put(mode, spend);
+					datesValuesMap.put(billDate, tempHashMap);
 				}
 
 			}
-			// Bar Chart
-			int counter = 1;
-			Iterator<String> datesIterator = datesValuesMap.keySet().iterator();
 
-			while (datesIterator.hasNext()) {
-				JSONObject jsonObject = new JSONObject();
+		}
+		// Bar Chart
+		int counter = 1;
+		Iterator<String> datesIterator = datesValuesMap.keySet().iterator();
 
-				String date = datesIterator.next();
-				HashMap<String, Double> modeFlagMap = datesValuesMap.get(date);
-				Iterator<String> modeFlagIterator = modeFlagMap.keySet().iterator();
+		while (datesIterator.hasNext()) {
+			JSONObject jsonObject = new JSONObject();
 
-				jsonObject.put("name", date);
-				jsonObject.put("counter", counter);
+			String date = datesIterator.next();
+			HashMap<String, Double> modeFlagMap = datesValuesMap.get(date);
+			Iterator<String> modeFlagIterator = modeFlagMap.keySet().iterator();
 
-				while (modeFlagIterator.hasNext()) {
-					String modeFlag = modeFlagIterator.next();
-					double spend = modeFlagMap.get(modeFlag);
-					jsonObject.put(modeFlag, spend);
-				}
-				valuesArray.put(jsonObject);
-				counter++;
+			jsonObject.put("name", date);
+			jsonObject.put("counter", counter);
+
+			while (modeFlagIterator.hasNext()) {
+				String modeFlag = modeFlagIterator.next();
+				double spend = modeFlagMap.get(modeFlag);
+				jsonObject.put(modeFlag, spend);
 			}
+			valuesArray.put(jsonObject);
+			counter++;
+		}
 
-			String append = "\"";
-			counter = 1;
-			for (String modeFlag : modeFlagList) {
-				modeFlag = append + modeFlag + append;
-				String seriesId = append + "S" + counter + append;
-				String object = "{\"id\":" + seriesId + ",\"name\":" + modeFlag + ", \"data\": {\"field\":" + modeFlag
-						+ "},\"type\":\"line\",\"style\":{\"lineWidth\": 2,smoothing: true, marker: {shape: \"circle\", width: 5},";
-				object = object + "lineColor: \"" + colorsList.get(counter - 1) + "\"";
-				object = object + "}}";
-				seriesArray.put(new JSONObject(object));
-				counter++;
-			}
-			returnObject.put("values", valuesArray);
-			returnObject.put("series", seriesArray);
+		String append = "\"";
+		counter = 1;
+		for (String modeFlag : modeFlagList) {
+			modeFlag = append + modeFlag + append;
+			String seriesId = append + "S" + counter + append;
+			String object = "{\"id\":" + seriesId + ",\"name\":" + modeFlag + ", \"data\": {\"field\":" + modeFlag
+					+ "},\"type\":\"line\",\"style\":{\"lineWidth\": 2,smoothing: true, marker: {shape: \"circle\", width: 5},";
+			object = object + "lineColor: \"" + colorsList.get(counter - 1) + "\"";
+			object = object + "}}";
+			seriesArray.put(new JSONObject(object));
+			counter++;
+		}
+		returnObject.put("values", valuesArray);
+		returnObject.put("series", seriesArray);
 
 		return returnObject;
 	}
@@ -784,6 +781,7 @@ public class JSONUtil {
 		}
 		return returnObject;
 	}
+
 	public static JSONObject prepareOrderMatchJson(List<OrderMatchDto> orderMatchList) throws JSONException {
 		JSONObject returnJson = new JSONObject();
 		JSONArray returnArray = null;
@@ -1211,7 +1209,7 @@ public class JSONUtil {
 		return returnJson;
 	}
 
-	public static JSONObject prepareTabularFormatJson(List<ShippingLanesDto> shippingLanesDtoList) throws JSONException {
+	public static JSONObject prepareTopShippingLanesJson(List<ShippingLanesDto> shippingLanesDtoList) throws JSONException {
 		JSONObject returnJson = new JSONObject();
 		JSONArray  lanesArray = new JSONArray();
 		for( ShippingLanesDto shippingLanesDto : shippingLanesDtoList) {
@@ -1220,6 +1218,24 @@ public class JSONUtil {
 			laneInfoJson.put("shipperAddress", shippingLanesDto.getShipperAddress());
 			laneInfoJson.put("receiverAddress", shippingLanesDto.getReceiverAddress());
 			laneInfoJson.put("laneTotal", shippingLanesDto.getLaneTotal());
+
+			lanesArray.put(laneInfoJson);
+		}
+
+		returnJson.put("data",lanesArray);
+
+		return returnJson;
+	}
+
+	public static JSONObject prepareTopPortLanesJson(List<PortLanesDto> shippingLanesDtoList) throws JSONException {
+		JSONObject returnJson = new JSONObject();
+		JSONArray  lanesArray = new JSONArray();
+		for( PortLanesDto portLanesDto : shippingLanesDtoList) {
+			JSONObject laneInfoJson = new JSONObject();
+			laneInfoJson.put("rank",portLanesDto.getRank());
+			laneInfoJson.put("pol", portLanesDto.getPol());
+			laneInfoJson.put("pod", portLanesDto.getPod());
+			laneInfoJson.put("laneTotal", portLanesDto.getLaneTotal());
 
 			lanesArray.put(laneInfoJson);
 		}

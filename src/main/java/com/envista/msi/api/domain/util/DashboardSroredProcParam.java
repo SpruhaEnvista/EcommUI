@@ -241,7 +241,56 @@ public class DashboardSroredProcParam {
         public static final String RECOVERY_SERVICE_DATA_PARAM = "p_recov_service_data";
     }
 
-<<<<<<< HEAD
+    public static class PackageExceptionParams{
+        public static final String DATE_TYPE_PARAM = "p_date_type";
+        public static final String CUSTOMER_IDS_CSV_PARAM = "p_customer_ids";
+        public static final String CARRIER_IDS_PARAM = "p_carrier_ids";
+        public static final String MODES_PARAM = "p_modes";
+        public static final String SERVICES_PARAM = "p_services";
+        public static final String LANES_PARAM = "p_lanes_info";
+        public static final String FROM_DATE_PARAM = "p_from_date";
+        public static final String TO_DATE_PARAM = "p_to_date";
+        public static final String ACCESSORIAL_NAME_PARAM = "p_accessorial_name";
+        public static final String TOP_TEN_ACCESSORIAL_PARAM =  "p_is_top_ten_accessorial";
+        public static final String DELIVERY_FLAG_PARAM = "p_delivery_flag";
+        public static final String PACKAGE_EXCEPTION_DATA_PARAM = "p_pkg_excp_data";
+    }
+
+
+    public static class AverageSpendShipmentByCarrierParam{
+        public static final String DATE_TYPE_PARAM = "p_date_type";
+        public static final String CONVERTED_CURRENCY_ID_PARAM = "p_convert_currency_id";
+        public static final String CONVERTED_CURRENCY_CODE_PARAM = "p_converted_curr_code";
+        public static final String MODES_PARAM = "p_modes";
+        public static final String SERVICES_PARAM = "p_services";
+        public static final String ACCESSORIAL_NAME_PARAM = "p_accessorial_name";
+        public static final String LANES_PARAM = "p_lanes_info";
+        public static final String FROM_DATE_PARAM = "p_from_date";
+        public static final String TO_DATE_PARAM = "p_to_date";
+        public static final String CARRIER_ID_PARAM = "p_carrier_id";
+        public static final String CUSTOMER_IDS_CSV_PARAM = "p_customer_ids";
+        public static final String ORIGINAL_FROM_DATE_PARAM = "p_original_from_date";
+        public static final String ORIGINAL_TO_DATE_PARAM = "p_original_to_date";
+        public static final String TOP_ACCESSORIAL_SPEND_PARAM = "p_is_top_ten_accessorial";
+        public static final String AVG_SPEND_PER_SHIPMT_PARAM = "p_avg_spend_shipmt_bycarrier";
+    }
+
+    public static class AverageSpendShipmentByMonthParam{
+        public static final String DATE_TYPE_PARAM = "p_date_type";
+        public static final String CONVERTED_CURRENCY_ID_PARAM = "p_convert_currency_id";
+        public static final String CONVERTED_CURRENCY_CODE_PARAM = "p_converted_curr_code";
+        public static final String MODES_PARAM = "p_modes";
+        public static final String SERVICES_PARAM = "p_services";
+        public static final String ACCESSORIAL_NAME_PARAM = "p_accessorial_name";
+        public static final String LANES_PARAM = "p_lanes_info";
+        public static final String FROM_DATE_PARAM = "p_from_date";
+        public static final String TO_DATE_PARAM = "p_to_date";
+        public static final String CARRIER_ID_PARAM = "p_carrier_id";
+        public static final String CUSTOMER_IDS_CSV_PARAM = "p_customer_ids";
+        public static final String TOP_ACCESSORIAL_SPEND_PARAM = "p_is_top_ten_accessorial";
+        public static final String AVG_SPEND_PER_SHIPMT_PARAM = "p_avg_spend_shipmt_bymomth";
+    }
+
     public static class ShipmentRegionParams{
         public static final String DATE_TYPE_PARAM = "p_date_type";
         public static final String CURRENCY_ID_PARAM = "p_currency_id";
@@ -277,20 +326,21 @@ public class DashboardSroredProcParam {
         public static final String RECEIVER_STATE = "p_receiver_state";
         public static final String RECEIVER_COUNTRY = "p_receiver_country";
         public static final String RESULTS_DATA_PARAM = "p_results_out";
-=======
-    public static class PackageExceptionParams{
+    }
+
+    public static class PortLanesParams{
         public static final String DATE_TYPE_PARAM = "p_date_type";
+        public static final String CURRENCY_ID_PARAM = "p_currency_id";
         public static final String CUSTOMER_IDS_CSV_PARAM = "p_customer_ids";
-        public static final String CARRIER_IDS_PARAM = "p_carrier_ids";
+        public static final String CARRIER_ID_PARAM = "p_carrier_id";
         public static final String MODES_PARAM = "p_modes";
         public static final String SERVICES_PARAM = "p_services";
         public static final String LANES_PARAM = "p_lanes_info";
         public static final String FROM_DATE_PARAM = "p_from_date";
         public static final String TO_DATE_PARAM = "p_to_date";
-        public static final String ACCESSORIAL_NAME_PARAM = "p_accessorial_name";
-        public static final String TOP_TEN_ACCESSORIAL_PARAM =  "p_is_top_ten_accessorial";
-        public static final String DELIVERY_FLAG_PARAM = "p_delivery_flag";
-        public static final String PACKAGE_EXCEPTION_DATA_PARAM = "p_pkg_excp_data";
->>>>>>> refs/remotes/origin/Standard_Branch_for_UAT_Demo
+        public static final String POL = "p_pol";
+        public static final String POD = "p_pod";
+        public static final String RESULTS_DATA_PARAM = "p_results_out";
     }
+
 }
