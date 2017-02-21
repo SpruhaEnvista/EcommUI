@@ -40,8 +40,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.el.MethodNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
+import java.math.BigDecimal;
+import java.util.*;
 
 /**
  * Created by Sarvesh on 1/18/2017.
@@ -78,7 +78,7 @@ public class DashboardsController extends DashboardBaseController {
         TOP_ACCESSORIAL_SPEND_BY_MONTH,
         ACCESSORIAL_SPEND,
         ACCESSORIAL_SPEND_BY_CARRIER,
-        ACCESSORIAL_SPEND_BY_MONTH,
+        ACCESSORIAL_SPEND_BY_MONTH;
     }
 
     enum ShipmentOverviewConstant{
@@ -101,77 +101,82 @@ public class DashboardsController extends DashboardBaseController {
     enum InvoiceStatusCountConstant{
         INVOICE_STATUS_COUNT,
         INVOICE_STATUS_COUNT_BY_CARRIER,
-        INVOICE_STATUS_COUNT_BY_MONTH
+        INVOICE_STATUS_COUNT_BY_MONTH;
     }
 
     enum InvoiceStatusAmountConstant{
         INVOICE_STATUS_AMOUNT,
         INVOICE_STATUS_AMOUNT_BY_CARRIER,
-        INVOICE_STATUS_AMOUNT_BY_MONTH
+        INVOICE_STATUS_AMOUNT_BY_MONTH;
     }
 
     enum InvoiceMethodScoreConstant{
         INVOICE_METHOD_SCORE,
         INVOICE_METHOD_SCORE_BY_CARRIER,
-        INVOICE_METHOD_SCORE_BY_MONTH
+        INVOICE_METHOD_SCORE_BY_MONTH;
     }
 
     enum OrderMatchConstant{
         ORDER_MATCH,
         ORDER_MATCH_BY_CARRIER,
-        ORDER_MATCH_BY_MONTH
+        ORDER_MATCH_BY_MONTH;
     }
 
     enum BilledVsApprovedConstant{
         BILLED_VS_APPROVED,
-        BILLED_VS_APPROVED_BY_MONTH
+        BILLED_VS_APPROVED_BY_MONTH;
     }
 
     enum RecoveryAdjustmentConstants{
         RECOVERY_ADJUSTMENT,
         RECOVERY_ADJUSTMENT_BY_CARRIER,
-        RECOVERY_ADJUSTMENT_BY_MONTH
+        RECOVERY_ADJUSTMENT_BY_MONTH;
     }
 
     enum RecoveryServiceConstants{
         RECOVERY_SERVICE,
-        RECOVERY_SERVICE_BY_MONTH
+        RECOVERY_SERVICE_BY_MONTH;
     }
 
     enum ShipmentsRegionConstant{
         SHIPMENTS_REGION,
         SHIPMENTS_REGION_BY_CARRIER,
-        SHIPMENTS_REGION_BY_MONTH
+        SHIPMENTS_REGION_BY_MONTH;
     }
 
     enum ShippingLanesConstant{
         SHIPPING_LANES,
         SHIPPING_LANES_BY_CARRIER,
-        SHIPPING_LANES_BY_MONTH
+        SHIPPING_LANES_BY_MONTH;
     }
 
     enum PortLanesConstant{
         PORT_LANES,
         PORT_LANES_BY_CARRIER,
-        PORT_LANES_BY_MONTH
+        PORT_LANES_BY_MONTH;
     }
 
     enum PackageExceptionConstants{
         PACKAGE_EXCEPTION,
         PACKAGE_EXCEPTION_BY_CARRIER,
-        PACKAGE_EXCEPTION_BY_MONTH,
+        PACKAGE_EXCEPTION_BY_MONTH;
     }
 
     enum AnnualSummaryConstants{
         ANNUAL_SUMMARY,
         ANNUAL_SUMMARY_BY_SERVICE,
         ANNUAL_SUMMARY_BY_CARRIER,
-        ANNUAL_SUMMARY_BY_MONTH,
+        ANNUAL_SUMMARY_BY_MONTH;
     }
 
     enum MonthlySpendByModeConstants{
         MONTHLY_SPEND_BY_MODE,
-        MONTHLY_SPEND_BY_MODE_BY_SERVICE,
+        MONTHLY_SPEND_BY_MODE_BY_SERVICE;
+    }
+
+    enum AccountSummaryConstants{
+        ACCOUNT_SUMMARY,
+        PARCEL_ACCOUNT_SUMMARY;
     }
 
     @RequestMapping(value = "/appliedFilter", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -1547,11 +1552,55 @@ public class DashboardsController extends DashboardBaseController {
                 return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
             }
             DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            List<AccountSummaryDto> accountSummaryList = dashboardsService.getAccountSummary(filter, false);
+            JSONObject asJson = loadAccountSummaryJsonData(AccountSummaryConstants.ACCOUNT_SUMMARY, filter);
+            accSummJson = asJson != null ? asJson : new JSONObject();
         }catch (Exception e){
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(accSummJson.toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/parcelAccSumm", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getParcelAccountSummary(){
+        JSONObject accSummJson = null;
+        try {
+            UserProfileDto user = getUserProfile();
+            if (null == user) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            JSONObject asJson = loadAccountSummaryJsonData(AccountSummaryConstants.PARCEL_ACCOUNT_SUMMARY, filter);
+            accSummJson = asJson != null ? asJson : new JSONObject();
+        }catch (Exception e){
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>(accSummJson.toString(), HttpStatus.OK);
+    }
+
+    private JSONObject loadAccountSummaryJsonData(AccountSummaryConstants accountSummaryType, DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject accSummJson = null;
+        switch (accountSummaryType){
+            case ACCOUNT_SUMMARY:
+                accSummJson = loadAccountSummaryJson(filter);
+                break;
+            case PARCEL_ACCOUNT_SUMMARY:
+                accSummJson = loadParcelAccountSummaryJson(filter);
+                break;
+            default:
+                throw new MethodNotFoundException("Method param value not matched");
+        }
+        return accSummJson;
+    }
+
+    private JSONObject loadParcelAccountSummaryJson(DashboardsFilterCriteria filter) throws JSONException {
+        List<AccountSummaryDto> accountSummaryList = dashboardsService.getParcelAccountSummary(filter, false);
+        return JSONUtil.prepareParcelAccountSummaryJson(accountSummaryList, filter);
+    }
+
+    private JSONObject loadAccountSummaryJson(DashboardsFilterCriteria filter) {
+        JSONObject accSummJson = null;
+        List<AccountSummaryDto> accountSummaryList = dashboardsService.getAccountSummary(filter, false);
+        return accSummJson;
     }
 
     private JSONObject loadMonthlySpendByModeJsonData(MonthlySpendByModeConstants monthlySpendByModeType, DashboardsFilterCriteria filter) {

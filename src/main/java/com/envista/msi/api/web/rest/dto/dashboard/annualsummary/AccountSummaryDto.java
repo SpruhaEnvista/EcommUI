@@ -4,6 +4,7 @@ import com.envista.msi.api.domain.util.DashboardSroredProcParam;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
  * Created by Sujit kumar on 20/02/2017.
@@ -25,7 +26,24 @@ import java.io.Serializable;
                 @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccountSummaryParams.ACCESSORIAL_NAME_PARAM, type = String.class),
                 @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccountSummaryParams.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
                 @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.AccountSummaryParams.ACCOUNT_SUMMARY_DATA_PARAM, type = Void.class)
-        })
+        }),
+        @NamedStoredProcedureQuery(name = AccountSummaryDto.Config.StoredProcedureQueryName.PARCEL_ACCOUNT_SUMMARY, procedureName = AccountSummaryDto.Config.StoredProcedureName.PARCEL_ACCOUNT_SUMMARY,
+                resultSetMappings = AccountSummaryDto.Config.ResultMappings.PARCEL_ACCOUNT_SUMMARY_MAPPING,
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccountSummaryParams.DATE_TYPE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccountSummaryParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccountSummaryParams.CONVERTED_CURRENCY_CODE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccountSummaryParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccountSummaryParams.CARRIER_IDS_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccountSummaryParams.MODES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccountSummaryParams.SERVICES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccountSummaryParams.LANES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccountSummaryParams.FROM_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccountSummaryParams.TO_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccountSummaryParams.ACCESSORIAL_NAME_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccountSummaryParams.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.AccountSummaryParams.ACCOUNT_SUMMARY_DATA_PARAM, type = Void.class)
+                })
 })
 
 @SqlResultSetMappings({
@@ -33,8 +51,8 @@ import java.io.Serializable;
                 @ConstructorResult(targetClass = AccountSummaryDto.class,
                 columns = {
                         @ColumnResult(name = "BILL_YEAR", type = String.class),
-                        @ColumnResult(name = "IS_LTL", type = Boolean.class),
-                        @ColumnResult(name = "AMOUNT", type = Double.class),
+                        @ColumnResult(name = "IS_LTL", type = Integer.class),
+                        @ColumnResult(name = "AMOUNT", type = BigDecimal.class),
                         @ColumnResult(name = "CATEGORY", type = String.class),
                 })
         })
@@ -49,15 +67,15 @@ public class AccountSummaryDto implements Serializable {
     private String billYear;
 
     @Column(name = "IS_LTL")
-    private Boolean isLtl;
+    private Integer isLtl;
 
     @Column(name = "AMOUNT")
-    private Double amount;
+    private BigDecimal amount;
 
     @Column(name = "CATEGORY")
     private String category;
 
-    public AccountSummaryDto(String billYear, Boolean isLtl, Double amount, String category) {
+    public AccountSummaryDto(String billYear, Integer isLtl, BigDecimal amount, String category) {
         this.billYear = billYear;
         this.isLtl = isLtl;
         this.amount = amount;
@@ -80,19 +98,19 @@ public class AccountSummaryDto implements Serializable {
         this.billYear = billYear;
     }
 
-    public Boolean getLtl() {
+    public Integer getLtl() {
         return isLtl;
     }
 
-    public void setLtl(Boolean ltl) {
+    public void setLtl(Integer ltl) {
         isLtl = ltl;
     }
 
-    public Double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(Double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 
@@ -107,14 +125,17 @@ public class AccountSummaryDto implements Serializable {
     public static class Config{
         static class ResultMappings{
             static final String ACCOUNT_SUMMARY_MAPPING = "AccountSummaryDto.AccountSummaryMapping";
+            static final String PARCEL_ACCOUNT_SUMMARY_MAPPING = ACCOUNT_SUMMARY_MAPPING;
         }
 
         static class StoredProcedureName{
             static final String ACCOUNT_SUMMARY = "SHP_DB_ACCOUNT_SUMMRY_PROC";
+            static final String PARCEL_ACCOUNT_SUMMARY = "SHP_DB_PARCEL_ACC_SUMMARY_PROC";
         }
 
         public static class StoredProcedureQueryName{
             public static final String ACCOUNT_SUMMARY = "AccountSummaryDto.getAccountSummary";
+            public static final String PARCEL_ACCOUNT_SUMMARY = "AccountSummaryDto.getParcelAccountSummary";
         }
     }
 }

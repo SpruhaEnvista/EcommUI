@@ -9,7 +9,8 @@ import java.io.Serializable;
  * Created by Sujit kumar on 15/02/2017.
  */
 @NamedStoredProcedureQueries({
-        @NamedStoredProcedureQuery(name = "ServiceLevelUsageAndPerformanceDto.getServiceLevelUsageAndPerformance", procedureName = "SHP_DB_SERV_USAGE_PERF_PROC",
+        @NamedStoredProcedureQuery(name = ServiceLevelUsageAndPerformanceDto.Config.StoredProcedureQueryName.SERVICE_LEVEL_USAGE_AND_PERFORMANCE,
+                procedureName = ServiceLevelUsageAndPerformanceDto.Config.StoredProcedureName.SERVICE_LEVEL_USAGE_AND_PERFORMANCE,
             resultClasses = ServiceLevelUsageAndPerformanceDto.class,
             parameters = {
                     @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ServiceLevelUsageAndPerformanceParams.DATE_TYPE_PARAM, type = String.class),
@@ -246,5 +247,15 @@ public class ServiceLevelUsageAndPerformanceDto implements Serializable {
 
     public void setPostalIntgCount(Double postalIntgCount) {
         this.postalIntgCount = postalIntgCount;
+    }
+
+    public static class Config{
+        static class StoredProcedureName{
+            static final String SERVICE_LEVEL_USAGE_AND_PERFORMANCE = "SHP_DB_SERV_USAGE_PERF_PROC";
+        }
+
+        public static class StoredProcedureQueryName{
+            public static final String SERVICE_LEVEL_USAGE_AND_PERFORMANCE = "ServiceLevelUsageAndPerformanceDto.getServiceLevelUsageAndPerformance";
+        }
     }
 }

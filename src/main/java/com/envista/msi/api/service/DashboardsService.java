@@ -522,4 +522,14 @@ public class DashboardsService {
     public List<AccountSummaryDto> getAccountSummary(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
         return dashboardsDao.getAccountSummary(filter, isTopTenAccessorial);
     }
+
+    /**
+     * Method to get parcel account summary details.
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<AccountSummaryDto> getParcelAccountSummary(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
+        return dashboardsDao.getParcelAccountSummary(filter, isTopTenAccessorial);
+    }
 }
