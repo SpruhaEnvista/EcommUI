@@ -6,7 +6,6 @@ import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
 import com.envista.msi.api.web.rest.dto.dashboard.common.CommonMonthlyChartDto;
 import com.envista.msi.api.web.rest.dto.dashboard.common.CommonValuesForChartDto;
 import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendCommonDto;
-import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendMonthlyChartDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendByModeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendOverTimeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.PortLanesDto;
@@ -17,13 +16,10 @@ import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.AverageWeight
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.ServiceLevelUsageAndPerformanceDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import oracle.net.aso.r;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import javax.sound.sampled.Port;
-import javax.xml.ws.Service;
 import java.util.*;
 
 /**
