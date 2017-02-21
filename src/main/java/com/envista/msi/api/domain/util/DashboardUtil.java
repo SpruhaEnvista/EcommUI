@@ -54,6 +54,5 @@ public class DashboardUtil {
             filter.setFromDate("01-" + selectedMonth + "-" + year);
             filter.setToDate(toDate);
         }
-
     }
 }

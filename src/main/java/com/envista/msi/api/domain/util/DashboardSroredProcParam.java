@@ -4,6 +4,23 @@ package com.envista.msi.api.domain.util;
  * Created by Sujit kumar on 25/01/2017.
  */
 public class DashboardSroredProcParam {
+    public static class DashboardFilterParams{
+        public static final String DATE_TYPE_PARAM = "p_date_type";
+        public static final String CONVERTED_CURRENCY_ID_PARAM = "p_currency_id";
+        public static final String CONVERTED_CURRENCY_CODE_PARAM = "p_converted_curr_code";
+        public static final String CUSTOMER_IDS_CSV_PARAM = "p_customer_ids";
+        public static final String CARRIER_IDS_PARAM = "p_carrier_ids";
+        public static final String MODES_PARAM = "p_modes";
+        public static final String SERVICES_PARAM = "p_services";
+        public static final String LANES_PARAM = "p_lanes_info";
+        public static final String FROM_DATE_PARAM = "p_from_date";
+        public static final String TO_DATE_PARAM = "p_to_date";
+        public static final String ACCESSORIAL_NAME_PARAM = "p_accessorial_name";
+        public static final String MODE_NAMES_PARAM = "p_mode_names";
+        public static final String TOP_TEN_ACCESSORIAL_PARAM =  "p_is_top_ten_accessorial";
+        public static final String SERVICE_PARAM = "p_service";
+    }
+
     public static class NetSpendParams{
         public static final String DATE_TYPE_PARAM = "p_date_type";
         public static final String CURRENCY_ID_PARAM = "p_currency_id";
@@ -343,4 +360,15 @@ public class DashboardSroredProcParam {
         public static final String RESULTS_DATA_PARAM = "p_results_out";
     }
 
+    public static class AnnualSummaryParams extends DashboardFilterParams{
+        public static final String ANNUAL_SUMMARY_DATA_PARAM = "p_annual_summary_data";
+    }
+
+    public static class MonthlySpendByModeParams extends DashboardFilterParams{
+        public static final String MONTHLY_SPEND_DATA = "p_monthly_spend_data";
+    }
+
+    public static class AccountSummaryParams extends DashboardFilterParams{
+        public static final String ACCOUNT_SUMMARY_DATA_PARAM = "p_acc_summ_data";
+    }
 }
