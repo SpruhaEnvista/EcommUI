@@ -22,4 +22,10 @@ public class ReportsApiTest extends WebappTestEnvironment {
         mockRestMvc().perform(get(SEARCH_API_BASE_PATH_VALUE+"/results/{userId}" , 23910)).andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE));
     }
+    @Test
+    public void updateExpiryDate() throws Exception {
+        mockRestMvc().perform(get(SEARCH_API_BASE_PATH_VALUE+"/results/updateexpirydate")
+                .param("generatedRptId", "1247400").param("expiryDate", "03/20/2018")).andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE));
+    }
 }

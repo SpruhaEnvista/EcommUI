@@ -50,11 +50,9 @@ public class ReportsDao {
         return persistentContext.findEntityAndMapFields("ReportResults.updateExpiryDate",queryParameter);
     }
     public static Date convertDateFullYear(String date)  {
-        Date sdate = new java.sql.Date(System.currentTimeMillis());
+        Date sdate = new Date(System.currentTimeMillis());
         try {
-            SimpleDateFormat sdfInput = new SimpleDateFormat("MM/dd/yyyy");
-            Date udate = sdfInput.parse(date);
-            sdate = new Date(udate.getTime());
+            sdate = new Date(Long.parseLong(date));
         }catch(Exception e){
             e.printStackTrace();
         }

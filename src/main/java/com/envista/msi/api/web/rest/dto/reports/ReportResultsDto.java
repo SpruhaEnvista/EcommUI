@@ -21,7 +21,7 @@ import java.util.Date;
         @NamedStoredProcedureQuery(name = "ReportResults.updateExpiryDate", procedureName = "shp_rpt_update_expirydate_proc",
                 resultSetMappings = "UpdateCount",
                 parameters = {
-                        @StoredProcedureParameter(mode = ParameterMode.OUT, name = "updateCount", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "updateReturn", type = Void.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "expiryDate", type = Date.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "generatedRptId", type = Long.class)
                 })
@@ -31,7 +31,7 @@ import java.util.Date;
                 @ConstructorResult(
                         targetClass = ReportResultsDto.class,
                         columns = {
-                                @ColumnResult(name = "updateCount", type = Integer.class)
+                                @ColumnResult(name = "updateCount", type = Long.class)
                         }
                 )
         }),
@@ -87,7 +87,7 @@ public class ReportResultsDto implements Serializable {
     private Date expiryDate;
 
     @Column(name="updateCount")
-    private int updateCount;
+    private Long updateCount;
 
     public Long getGeneratedRptId() {
         return generatedRptId;
@@ -149,13 +149,14 @@ public class ReportResultsDto implements Serializable {
 
     public void setExpiryDate(Date expiryDate) { this.expiryDate = expiryDate;   }
 
-    public int getUpdateCount() {  return updateCount; }
+    public Long getUpdateCount() {  return updateCount; }
 
-    public void setUpdateCount(int updateCount) { this.updateCount = updateCount; }
+    public void setUpdateCount(Long updateCount) { this.updateCount = updateCount; }
 
     public ReportResultsDto(){}
 
-    public ReportResultsDto(int updateCount) {
+    public ReportResultsDto(Long updateCount) {
+
         this.updateCount = updateCount;
     }
     public ReportResultsDto(Long generatedRptId, Long savedRptId, String fileName, String fileType,String runDate,

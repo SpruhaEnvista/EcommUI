@@ -32,8 +32,8 @@ public class ReportsController {
         return new ResponseEntity<List<ReportResultsDto>>(resultsList, HttpStatus.OK);
     }
     @RequestMapping(value = "/results/updateexpirydate", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<ReportResultsDto> getReportResults(@RequestParam Long generatedRptId, @RequestParam String expiryDate){
-        ReportResultsDto reportResultsDto = reportsService.updateExpiryDate(generatedRptId, expiryDate );
+    public ResponseEntity<ReportResultsDto> getReportResults(@RequestParam String generatedRptId, @RequestParam String expiryDate){
+        ReportResultsDto reportResultsDto = reportsService.updateExpiryDate(Long.parseLong(generatedRptId), expiryDate );
         return new ResponseEntity<ReportResultsDto>(reportResultsDto, HttpStatus.OK);
     }
     @RequestMapping(value = "/userslist/{userId}", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
