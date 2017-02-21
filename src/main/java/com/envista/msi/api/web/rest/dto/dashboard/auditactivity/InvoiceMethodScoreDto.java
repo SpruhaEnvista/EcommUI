@@ -15,7 +15,7 @@ import java.util.Date;
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceMethodScoreParams.DATE_TYPE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceMethodScoreParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceMethodScoreParams.CARRIER_ID_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceMethodScoreParams.CARRIER_IDS_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceMethodScoreParams.MODES_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceMethodScoreParams.SERVICES_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceMethodScoreParams.LANES_PARAM, type = String.class),
@@ -29,7 +29,7 @@ import java.util.Date;
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceMethodScoreParams.DATE_TYPE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceMethodScoreParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceMethodScoreParams.CARRIER_ID_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceMethodScoreParams.CARRIER_IDS_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceMethodScoreParams.MODES_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceMethodScoreParams.SERVICES_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceMethodScoreParams.LANES_PARAM, type = String.class),
@@ -44,7 +44,7 @@ import java.util.Date;
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceMethodScoreParams.DATE_TYPE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceMethodScoreParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceMethodScoreParams.CARRIER_ID_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceMethodScoreParams.CARRIER_IDS_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceMethodScoreParams.MODES_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceMethodScoreParams.SERVICES_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceMethodScoreParams.LANES_PARAM, type = String.class),

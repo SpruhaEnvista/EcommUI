@@ -6,6 +6,9 @@ import com.envista.msi.api.web.rest.dto.ZipCodesTimeZonesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardAppliedFilterDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
 import com.envista.msi.api.web.rest.dto.dashboard.accessorialspend.AccessorialSpendDto;
+import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AccountSummaryDto;
+import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AnnualSummaryDto;
+import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.MonthlySpendByModeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.*;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.PortLanesDto;
@@ -448,5 +451,85 @@ public class DashboardsService {
 
     public List<AverageSpendPerShipmentByMonthDto> getAvgSpendPerShipmtByMonth(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
         return dashboardsDao.getAverageSpendPerShipmentByMonth(filter,  isTopTenAccessorial);
+    }
+
+    /**
+     * Method to get Annual summary.
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<AnnualSummaryDto> getAnnualSummary(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
+        return dashboardsDao.getAnnualSummary(filter, isTopTenAccessorial);
+    }
+
+    /**
+     * Method to get Annual summary by service.
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<AnnualSummaryDto> getAnnualSummaryByService(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
+        return dashboardsDao.getAnnualSummaryByService(filter, isTopTenAccessorial);
+    }
+
+    /**
+     * Method to get Annual summary by carrier.
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<AnnualSummaryDto> getAnnualSummaryByCarrier(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
+        return dashboardsDao.getAnnualSummaryByCarrier(filter, isTopTenAccessorial);
+    }
+
+    /**
+     * Method to get Annual summary by month.
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<AnnualSummaryDto> getAnnualSummaryByMonth(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
+        return dashboardsDao.getAnnualSummaryByMonth(filter, isTopTenAccessorial);
+    }
+
+    /**
+     * Method to get monthly spend by mode.
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<MonthlySpendByModeDto> getMonthlySpendByMode(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
+        return dashboardsDao.getMonthlySpendByMode(filter, isTopTenAccessorial);
+    }
+
+    /**
+     * Method to get monthly spend by mode by service.
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<MonthlySpendByModeDto> getMonthlySpendByModeByService(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
+        return dashboardsDao.getMonthlySpendByModeByService(filter, isTopTenAccessorial);
+    }
+
+    /**
+     * Method to get account summary details.
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<AccountSummaryDto> getAccountSummary(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
+        return dashboardsDao.getAccountSummary(filter, isTopTenAccessorial);
+    }
+
+    /**
+     * Method to get parcel account summary details.
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<AccountSummaryDto> getParcelAccountSummary(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
+        return dashboardsDao.getParcelAccountSummary(filter, isTopTenAccessorial);
     }
 }

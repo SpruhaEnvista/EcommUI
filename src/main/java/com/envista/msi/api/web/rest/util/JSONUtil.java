@@ -1,7 +1,9 @@
 package com.envista.msi.api.web.rest.util;
 
 import com.envista.msi.api.web.rest.dto.MapCoordinatesDto;
+import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
 import com.envista.msi.api.web.rest.dto.dashboard.accessorialspend.AccessorialSpendDto;
+import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AccountSummaryDto;
 import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
 import com.envista.msi.api.web.rest.dto.dashboard.common.CommonMonthlyChartDto;
 import com.envista.msi.api.web.rest.dto.dashboard.common.CommonValuesForChartDto;
@@ -20,6 +22,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.*;
 
 /**
@@ -28,6 +32,7 @@ import java.util.*;
  */
 public class JSONUtil {
 	static ArrayList<String> colorsList = new ArrayList<String>();
+	static final DecimalFormat commaSeperatedDecimalFormat = new DecimalFormat("#,##0.00");
 	static{
 		if (colorsList.isEmpty()) {
 
@@ -1245,4 +1250,106 @@ public class JSONUtil {
 		return returnJson;
 	}
 
+	public static JSONObject prepareParcelAccountSummaryJson(List<AccountSummaryDto> accountSummaryList, DashboardsFilterCriteria filter) throws JSONException {
+		JSONObject resultJsonObj = new JSONObject();
+		if(accountSummaryList != null && !accountSummaryList.isEmpty()){
+			int counter = 1;
+			Map<String, HashMap<String, BigDecimal>> yearsBasedMap = new LinkedHashMap<String, HashMap<String, BigDecimal>>();
+			ArrayList<String> yearsList = new ArrayList<String>();
+			ArrayList<String> categoriesList = new ArrayList<String>();
+			String toDateYear = null;
+
+			if (filter.getToDate() != null && filter.getToDate().split("-").length > 2) {
+				toDateYear = filter.getToDate().split("-")[2];
+			} else {
+				throw new RuntimeException("Invalid From Date");
+			}
+			int fromDatetYear = Integer.valueOf(toDateYear) - 1;
+
+			yearsList.add(fromDatetYear + "");
+			yearsList.add(toDateYear + "");
+
+			categoriesList.add("Small Package Spend");
+			categoriesList.add("Recovery");
+
+			for(AccountSummaryDto accountSummary : accountSummaryList){
+				if(accountSummary != null){
+					String year = accountSummary.getBillYear();
+					int isLtl = accountSummary.getLtl();
+					BigDecimal amount = accountSummary.getAmount();
+					String category = accountSummary.getCategory();
+
+					if (isLtl == 0 && category.contains("Spend")) {
+						category = "Small Package Spend";
+					} else if (category.contains("Recovery")) {
+						category = "Recovery";
+					}
+
+					if (yearsBasedMap.containsKey(year)) {
+						yearsBasedMap.get(year).put(category, amount);
+					} else {
+						HashMap<String, BigDecimal> tempHashMap = new HashMap<String, BigDecimal>();
+						tempHashMap.put(category, amount);
+						yearsBasedMap.put(year, tempHashMap);
+					}
+				}
+			}
+
+			JSONArray finalValuesArray = new JSONArray();
+			boolean isNoData = true;
+
+			for (String year : yearsList) {
+				JSONObject jsonObject = new JSONObject();
+				if (yearsBasedMap.containsKey(year)) {
+					jsonObject.put("name", year);
+					jsonObject.put("counter", counter);
+
+					if (yearsBasedMap.get(year).containsKey(categoriesList.get(0))) {
+						jsonObject.put(categoriesList.get(0), commaSeperatedDecimalFormat.format(yearsBasedMap.get(year).get(categoriesList.get(0))));
+						isNoData = false;
+					} else {
+						jsonObject.put(categoriesList.get(0), "0");
+					}
+
+					if (yearsBasedMap.get(year).containsKey(categoriesList.get(1))) {
+						jsonObject.put(categoriesList.get(1), commaSeperatedDecimalFormat.format(yearsBasedMap.get(year).get(categoriesList.get(1))));
+						isNoData = false;
+					} else {
+						jsonObject.put(categoriesList.get(1), "0");
+					}
+
+				} else {
+					jsonObject.put("name", year);
+					jsonObject.put("counter", counter);
+					jsonObject.put(categoriesList.get(0), "No Data");
+					jsonObject.put(categoriesList.get(1), "No Data");
+				}
+				counter++;
+				finalValuesArray.put(jsonObject);
+			}
+
+			String append = "\"";
+			counter = 1;
+			JSONArray seriesArray = new JSONArray();
+			for (String category : categoriesList) {
+				category = append + category + append;
+				String seriesId = append + "S" + counter + append;
+				String object = "{\"id\":" + seriesId + ",\"name\":" + category + ", \"data\": {\"field\":" + category + "},";
+
+				if ("\"Small Package Spend\"".equalsIgnoreCase(category)) {
+					object = object + " style: { depth: 4, gradient: 0.9 ,fillColor: \"#673FB4\" }}";
+				}
+				if ("\"Recovery\"".equalsIgnoreCase(category)) {
+					object = object + " style: { depth: 4, gradient: 0.9 ,fillColor: \"#2B98F0\" }}";
+				}
+				seriesArray.put(new JSONObject(object));
+				counter++;
+			}
+
+			resultJsonObj.put("series", seriesArray);
+			resultJsonObj.put("values", finalValuesArray);
+			resultJsonObj.put("isNoData", isNoData);
+		}
+		return resultJsonObj;
+	}
 }
