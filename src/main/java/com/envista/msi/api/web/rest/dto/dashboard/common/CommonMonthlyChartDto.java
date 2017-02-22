@@ -1,22 +1,27 @@
 package com.envista.msi.api.web.rest.dto.dashboard.common;
 
-import com.envista.msi.api.web.rest.dto.dashboard.accessorialspend.AccessorialSpendDto;
-import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendByCarrierDto;
-import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendByCarrierDto;
+import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.AverageSpendPerShipmentByMonthDto;
 
 import javax.persistence.Column;
-import java.io.Serializable;
 import java.util.Date;
 
 /**
- * Created by sarvesh on 02/13/2017.
+ * Created by Siddhant on 15/02/2017.
  */
-public class CommonMonthlyChartDto implements Serializable{
+public class CommonMonthlyChartDto {
     @Column(name = "AMOUNT")
     private Double amount;
 
-    @Column(name = "BILL_DATE")
+    @Column(name = "BILLING_DATE")
     private Date billDate;
+
+    public CommonMonthlyChartDto() {
+    }
+
+    public CommonMonthlyChartDto(Double amount, Date billDate) {
+        this.amount = amount;
+        this.billDate = billDate;
+    }
 
     public Double getAmount() {
         return amount;
