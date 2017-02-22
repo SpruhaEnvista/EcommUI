@@ -2,12 +2,14 @@ package com.envista.msi.api.web.rest.util;
 
 import com.envista.msi.api.web.rest.dto.MapCoordinatesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
-import com.envista.msi.api.web.rest.dto.dashboard.accessorialspend.AccessorialSpendDto;
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AccountSummaryDto;
+import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AnnualSummaryDto;
+import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.MonthlySpendByModeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
 import com.envista.msi.api.web.rest.dto.dashboard.common.CommonMonthlyChartDto;
 import com.envista.msi.api.web.rest.dto.dashboard.common.CommonValuesForChartDto;
 import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendCommonDto;
+import com.envista.msi.api.web.rest.dto.dashboard.netspend.AccessorialSpendDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendByModeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendOverTimeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.PortLanesDto;
@@ -187,7 +189,7 @@ public class JSONUtil {
 
 			for(NetSpendOverTimeDto overTimeDto : netSpendOverTimeDtos){
 				if(overTimeDto != null){
-					String billDate = overTimeDto.getBillDate();
+					String billDate = overTimeDto.getBillingDate();
 					String carrierName = overTimeDto.getCarrierName();
 					long carrierId = overTimeDto.getCarrierId();
 					Double spend = overTimeDto.getNetCharges();
@@ -1351,5 +1353,457 @@ public class JSONUtil {
 			resultJsonObj.put("isNoData", isNoData);
 		}
 		return resultJsonObj;
+	}
+
+	public static JSONObject prepareAccountSummaryJson(List<AccountSummaryDto> accountSummaryList, DashboardsFilterCriteria filter) throws JSONException {
+		JSONObject resultJsonObj = new JSONObject();
+
+		if(accountSummaryList != null && !accountSummaryList.isEmpty()){
+			Map<String, LinkedHashMap<String, BigDecimal>> categoriesBasedMap = new LinkedHashMap<String, LinkedHashMap<String, BigDecimal>>();
+			ArrayList<String> yearsList = new ArrayList<String>();
+			ArrayList<String> categoriesList = new ArrayList<String>();
+			String toDateYear = null;
+
+			if (filter.getToDate() != null && filter.getToDate().split("-").length > 2) {
+				toDateYear = filter.getToDate().split("-")[2];
+			} else {
+				throw new RuntimeException("Invalid From Date");
+			}
+
+			int fromDatetYear = Integer.valueOf(toDateYear) - 1;
+
+			yearsList.add(fromDatetYear + "");
+			yearsList.add(toDateYear + "");
+
+			categoriesList.add("Small Package Spend");
+			categoriesList.add("Freight Spend");
+			categoriesList.add("Total Spend");
+			categoriesList.add("Recovery");
+
+			for(AccountSummaryDto accountSummary : accountSummaryList) {
+				if (accountSummary != null) {
+					String year = accountSummary.getBillYear();
+					int isLtl = accountSummary.getLtl();
+					BigDecimal amount = accountSummary.getAmount();
+					String category = accountSummary.getCategory();
+
+					if (category.contains("YTD")) {
+						category = "Total Spend";
+					} else if (isLtl == 0 && category.contains("Spend")) {
+						category = "Small Package Spend";
+					} else if (isLtl == 1 && category.contains("Spend")) {
+						category = "Freight Spend";
+					} else if (category.contains("Recovery")) {
+						category = "Recovery";
+					}
+
+					if (categoriesBasedMap.containsKey(category)) {
+						if (!categoriesBasedMap.get(category).containsKey(year)) {
+							categoriesBasedMap.get(category).put(year, amount);
+						} else {
+							categoriesBasedMap.get(category).get(year).add(amount);
+						}
+					} else {
+						LinkedHashMap<String, BigDecimal> tempMap = new LinkedHashMap<String, BigDecimal>();
+						tempMap.put(year, amount);
+						categoriesBasedMap.put(category, tempMap);
+					}
+				}
+			}
+			JSONArray finalValuesArray = new JSONArray();
+
+			for (String category : categoriesList) {
+				JSONArray eachCategoryArray = new JSONArray();
+				if (categoriesBasedMap.containsKey(category)) {
+					eachCategoryArray.put(category);
+					if (categoriesBasedMap.get(category).containsKey(yearsList.get(0))) {
+						eachCategoryArray.put(commaSeperatedDecimalFormat.format(categoriesBasedMap.get(category).get(yearsList.get(0))));
+					} else {
+						eachCategoryArray.put("0");
+					}
+
+					if (categoriesBasedMap.get(category).containsKey(yearsList.get(1))) {
+						eachCategoryArray.put(commaSeperatedDecimalFormat.format(categoriesBasedMap.get(category).get(yearsList.get(1))));
+					} else {
+						eachCategoryArray.put("0");
+					}
+				} else {
+					eachCategoryArray.put(category);
+					eachCategoryArray.put("0");
+					eachCategoryArray.put("0");
+				}
+				finalValuesArray.put(eachCategoryArray);
+			}
+
+			JSONArray yearsJsonArray = new JSONArray();
+
+			yearsJsonArray.put(yearsList.get(0));
+			yearsJsonArray.put(yearsList.get(1));
+
+			resultJsonObj.put("years", yearsJsonArray);
+			resultJsonObj.put("values", finalValuesArray);
+		}
+		return resultJsonObj;
+	}
+
+	public static JSONObject prepareAnnualSummaryJson(List<AnnualSummaryDto> annualSummaryList) throws JSONException {
+		JSONObject returnJson = new JSONObject();
+		if(annualSummaryList != null && !annualSummaryList.isEmpty()){
+			Map<String, HashMap<String, HashMap<String, Double>>> modesMap = new LinkedHashMap<>();
+			ArrayList<String> modesList = new ArrayList<>();
+			ArrayList<String> quatersList = new ArrayList<>();
+			Map<String, Double> quaterlyWiseSpend = new HashMap<String, Double>();
+
+			for(AnnualSummaryDto annualSummary : annualSummaryList){
+				if(annualSummary != null){
+					String quater = annualSummary.getQuarter();
+					String mode = annualSummary.getModes();
+					double spend = annualSummary.getSpend();
+					double noOfShipments = annualSummary.getNoOfShipments();
+
+					if (!modesList.contains(mode)) {
+						modesList.add(mode);
+					}
+
+					if (!quatersList.contains(quater)) {
+						quatersList.add(quater);
+					}
+
+					if (modesMap.containsKey(mode)) {
+
+						HashMap<String, HashMap<String, Double>> modesDataMap = modesMap.get(mode);
+
+						if (!modesDataMap.containsKey(quater)) {
+							HashMap<String, Double> eachQuaterData = new HashMap<>();
+
+							eachQuaterData.put("spend", spend);
+							eachQuaterData.put("noOfShipments", noOfShipments);
+							eachQuaterData.put("total", noOfShipments != 0 ? spend / noOfShipments : 0);
+
+							modesDataMap.put(quater, eachQuaterData);
+						} else {
+							HashMap<String, Double> eachQuaterData = modesDataMap.get(quater);
+							eachQuaterData.put("spend", eachQuaterData.get("spend") + spend);
+							eachQuaterData.put("noOfShipments", eachQuaterData.get("noOfShipments") + noOfShipments);
+							eachQuaterData.put("total", eachQuaterData.get("noOfShipments") != 0 ? eachQuaterData.get("spend") / eachQuaterData.get("noOfShipments") : 0);
+						}
+					} else {
+
+						HashMap<String, HashMap<String, Double>> quatersWiseMap = new HashMap<>();
+						HashMap<String, Double> eachQuaterData = new HashMap<>();
+
+						eachQuaterData.put("spend", spend);
+						eachQuaterData.put("noOfShipments", noOfShipments);
+						eachQuaterData.put("total", noOfShipments != 0 ? spend / noOfShipments : 0);
+
+						quatersWiseMap.put(quater, eachQuaterData);
+						modesMap.put(mode, quatersWiseMap);
+					}
+
+					if (quaterlyWiseSpend.containsKey(quater)) {
+						double totalSpend = quaterlyWiseSpend.get(quater);
+						totalSpend += spend;
+						quaterlyWiseSpend.put(quater, totalSpend);
+					} else {
+						quaterlyWiseSpend.put(quater, spend);
+					}
+				}
+			}
+
+			JSONObject finalObject = new JSONObject();
+			JSONArray modesArray = new JSONArray();
+
+			for (String mode : modesList) {
+				JSONObject modeWiseDataObj = new JSONObject();
+				HashMap<String, HashMap<String, Double>> quatersWiseMap = modesMap.get(mode);
+
+				JSONObject allQuatersDataObj = new JSONObject();
+				for (String quater : quatersList) {
+
+					JSONObject quaterInnerDataObj = new JSONObject();
+					if (quatersWiseMap.containsKey(quater)) {
+						HashMap<String, Double> eachQuaterData = quatersWiseMap.get(quater);
+						quaterInnerDataObj.put("spend", commaSeperatedDecimalFormat.format(eachQuaterData.get("spend")));
+						quaterInnerDataObj.put("noOfShipments", eachQuaterData.get("noOfShipments"));
+						quaterInnerDataObj.put("total", commaSeperatedDecimalFormat.format(eachQuaterData.get("total")));
+						if (quaterlyWiseSpend.containsKey(quater)) {
+							quaterInnerDataObj.put("perc",
+									commaSeperatedDecimalFormat.format(quaterlyWiseSpend.get(quater) != 0 ? (eachQuaterData.get("spend") / quaterlyWiseSpend.get(quater)) * 100 : 0) + "%");
+						} else {
+							quaterInnerDataObj.put("perc", "0%");
+						}
+					} else {
+						quaterInnerDataObj.put("spend", "0");
+						quaterInnerDataObj.put("noOfShipments", "0");
+						quaterInnerDataObj.put("total", "0");
+						quaterInnerDataObj.put("perc", "0%");
+					}
+
+					allQuatersDataObj.put(quater, quaterInnerDataObj);
+				}
+				modeWiseDataObj.put(mode, new JSONObject().put("quaters", allQuatersDataObj));
+				modesArray.put(modeWiseDataObj);
+			}
+
+			JSONArray quatersArray = new JSONArray();
+
+			for (String quater : quatersList) {
+				quatersArray.put(quater);
+			}
+			finalObject.put("modes", modesArray);
+			finalObject.put("quaters", quatersArray);
+			returnJson.put("values", finalObject);
+		}
+		return returnJson;
+	}
+
+	public static JSONObject prepareAnnualSummaryByServiceJson(List<AnnualSummaryDto> annualSummaryList) throws JSONException {
+		JSONObject returnJson = new JSONObject();
+		if(annualSummaryList != null && !annualSummaryList.isEmpty()){
+			Map<String, HashMap<String, HashMap<String, Double>>> servicesMap = new LinkedHashMap<>();
+			ArrayList<String> servicesList = new ArrayList<>();
+			ArrayList<String> quatersList = new ArrayList<>();
+			Map<String, Double> quaterlyWiseSpend = new HashMap<String, Double>();
+
+			for(AnnualSummaryDto annualSummary : annualSummaryList){
+				if(annualSummary != null){
+					String quater = annualSummary.getQuarter();
+					String service = annualSummary.getService();
+					double spend = annualSummary.getSpend();
+					double noOfShipments = annualSummary.getNoOfShipments();
+
+					if (!servicesList.contains(service)) {
+						servicesList.add(service);
+					}
+					if (!quatersList.contains(quater)) {
+						quatersList.add(quater);
+					}
+					if (servicesMap.containsKey(service)) {
+						HashMap<String, HashMap<String, Double>> servicesDataMap = servicesMap.get(service);
+						if (!servicesDataMap.containsKey(quater)) {
+							HashMap<String, Double> eachQuaterData = new HashMap<>();
+
+							eachQuaterData.put("spend", spend);
+							eachQuaterData.put("noOfShipments", noOfShipments);
+							eachQuaterData.put("total", noOfShipments != 0 ? spend / noOfShipments : 0);
+							eachQuaterData.put("perc", noOfShipments != 0 ? spend / noOfShipments : 0);
+
+							servicesDataMap.put(quater, eachQuaterData);
+						} else {
+
+							HashMap<String, Double> eachQuaterData = servicesDataMap.get(quater);
+							eachQuaterData.put("spend", eachQuaterData.get("spend") + spend);
+							eachQuaterData.put("noOfShipments", eachQuaterData.get("noOfShipments") + noOfShipments);
+							eachQuaterData.put("total", eachQuaterData.get("noOfShipments") != 0 ? eachQuaterData.get("spend") / eachQuaterData.get("noOfShipments") : 0);
+							eachQuaterData.put("perc", eachQuaterData.get("noOfShipments") != 0 ? eachQuaterData.get("spend") / eachQuaterData.get("noOfShipments") : 0);
+						}
+					} else {
+						HashMap<String, HashMap<String, Double>> quatersWiseMap = new HashMap<>();
+						HashMap<String, Double> eachQuaterData = new HashMap<>();
+
+						eachQuaterData.put("spend", spend);
+						eachQuaterData.put("noOfShipments", noOfShipments);
+						eachQuaterData.put("total", noOfShipments != 0 ? spend / noOfShipments : 0);
+						eachQuaterData.put("perc", noOfShipments != 0 ? spend / noOfShipments : 0);
+
+						quatersWiseMap.put(quater, eachQuaterData);
+						servicesMap.put(service, quatersWiseMap);
+					}
+
+					if (quaterlyWiseSpend.containsKey(quater)) {
+						double totalSpend = quaterlyWiseSpend.get(quater);
+						totalSpend += spend;
+						quaterlyWiseSpend.put(quater, totalSpend);
+					} else {
+						quaterlyWiseSpend.put(quater, spend);
+					}
+				}
+			}
+
+			JSONObject finalObject = new JSONObject();
+			JSONArray servicesArray = new JSONArray();
+
+			for (String service : servicesList) {
+				JSONObject serviceWiseDataObj = new JSONObject();
+				Map<String, HashMap<String, Double>> quatersWiseMap = servicesMap.get(service);
+				JSONObject allQuatersDataObj = new JSONObject();
+				for (String quater : quatersList) {
+					JSONObject quaterInnerDataObj = new JSONObject();
+					if (quatersWiseMap.containsKey(quater)) {
+						Map<String, Double> eachQuaterData = quatersWiseMap.get(quater);
+						quaterInnerDataObj.put("spend", commaSeperatedDecimalFormat.format(eachQuaterData.get("spend")));
+						quaterInnerDataObj.put("noOfShipments", eachQuaterData.get("noOfShipments"));
+						quaterInnerDataObj.put("total", commaSeperatedDecimalFormat.format(eachQuaterData.get("total")));
+						if (quaterlyWiseSpend.containsKey(quater)) {
+							quaterInnerDataObj.put("perc", commaSeperatedDecimalFormat.format(quaterlyWiseSpend.get(quater) != 0 ? (eachQuaterData.get("spend") / quaterlyWiseSpend.get(quater)) * 100 : 0) + "%");
+						} else {
+							quaterInnerDataObj.put("perc", "0%");
+						}
+					} else {
+						quaterInnerDataObj.put("spend", "0");
+						quaterInnerDataObj.put("noOfShipments", "0");
+						quaterInnerDataObj.put("total", "0");
+						quaterInnerDataObj.put("perc", "0%");
+					}
+					allQuatersDataObj.put(quater, quaterInnerDataObj);
+				}
+				serviceWiseDataObj.put(service, new JSONObject().put("quaters", allQuatersDataObj));
+				servicesArray.put(serviceWiseDataObj);
+			}
+
+			JSONArray quatersArray = new JSONArray();
+			for (String quater : quatersList) {
+				quatersArray.put(quater);
+			}
+			finalObject.put("services", servicesArray);
+			finalObject.put("quaters", quatersArray);
+			returnJson.put("values", finalObject);
+		}
+		return returnJson;
+	}
+
+	public static JSONObject prepareMonthlySpendByModeJson(List<MonthlySpendByModeDto> monthlySpendList) throws JSONException {
+		JSONObject returnJson = new JSONObject();
+
+		if(monthlySpendList != null && !monthlySpendList.isEmpty()){
+			Map<String, HashMap<String, HashMap<String, Double>>> modesMap = new LinkedHashMap<>();
+			List<String> modesList = new ArrayList<String>();
+			List<String> monthsList = new ArrayList<String>();
+
+			for(MonthlySpendByModeDto monthlySpend : monthlySpendList){
+				if(monthlySpend != null){
+					String month = monthlySpend.getMonth();
+					String mode = monthlySpend.getModes();
+					Double spend = monthlySpend.getSpend();
+
+					if (!modesList.contains(mode)) {
+						modesList.add(mode);
+					}
+					if (!monthsList.contains(month)) {
+						monthsList.add(month);
+					}
+					if (modesMap.containsKey(mode)) {
+						HashMap<String, HashMap<String, Double>> modesDataMap = modesMap.get(mode);
+						if (!modesDataMap.containsKey(month)) {
+							HashMap<String, Double> eachMonthData = new HashMap<>();
+							eachMonthData.put("spend", spend);
+							modesDataMap.put(month, eachMonthData);
+						} else {
+							HashMap<String, Double> eachQuaterData = modesDataMap.get(month);
+							eachQuaterData.put("spend", eachQuaterData.get("spend") + spend);
+						}
+					} else {
+						HashMap<String, HashMap<String, Double>> monthsWiseMap = new HashMap<>();
+						HashMap<String, Double> eachMonthData = new HashMap<>();
+						eachMonthData.put("spend", spend);
+
+						monthsWiseMap.put(month, eachMonthData);
+						modesMap.put(mode, monthsWiseMap);
+					}
+				}
+			}
+
+			JSONObject finalObject = new JSONObject();
+			JSONArray modesArray = new JSONArray();
+
+			for (String mode : modesList) {
+				JSONObject modeWiseDataObj = new JSONObject();
+				HashMap<String, HashMap<String, Double>> monthsWiseMap = modesMap.get(mode);
+				JSONObject allMonthsDataObj = new JSONObject();
+				for (String month : monthsList) {
+					JSONObject monthInnerDataObj = new JSONObject();
+					if (monthsWiseMap.containsKey(month)) {
+						HashMap<String, Double> eachQuaterData = monthsWiseMap.get(month);
+						monthInnerDataObj.put("spend", commaSeperatedDecimalFormat.format(eachQuaterData.get("spend")));
+					} else {
+						monthInnerDataObj.put("spend", "0");
+					}
+					allMonthsDataObj.put(month, monthInnerDataObj);
+				}
+				modeWiseDataObj.put(mode, new JSONObject().put("quaters", allMonthsDataObj));
+				modesArray.put(modeWiseDataObj);
+			}
+
+			JSONArray monthsArray = new JSONArray();
+			for (String month : monthsList) {
+				monthsArray.put(month);
+			}
+
+			finalObject.put("modes", modesArray);
+			finalObject.put("quaters", monthsArray);
+			returnJson.put("values", finalObject);
+		}
+		return returnJson;
+	}
+
+	public static JSONObject prepareMonthlySpendByModeByServiceJson(List<MonthlySpendByModeDto> monthlySpendList) throws JSONException {
+		JSONObject returnJson = new JSONObject();
+
+		if(monthlySpendList != null && !monthlySpendList.isEmpty()){
+			Map<String, HashMap<String, HashMap<String, Double>>> servicesMap = new LinkedHashMap<>();
+			List<String> servicesList = new ArrayList<>();
+			List<String> quatersList = new ArrayList<>();
+
+			for(MonthlySpendByModeDto monthlySpend : monthlySpendList){
+				if(monthlySpend != null){
+					String quater = monthlySpend.getMonth();
+					String service = monthlySpend.getService();
+					double spend = monthlySpend.getSpend();
+
+					if (!servicesList.contains(service)) {
+						servicesList.add(service);
+					}
+					if (!quatersList.contains(quater)) {
+						quatersList.add(quater);
+					}
+
+					if (servicesMap.containsKey(service)) {
+						HashMap<String, HashMap<String, Double>> servicesDataMap = servicesMap.get(service);
+						if (!servicesDataMap.containsKey(quater)) {
+							HashMap<String, Double> eachQuaterData = new HashMap<>();
+							eachQuaterData.put("spend", spend);
+							servicesDataMap.put(quater, eachQuaterData);
+						}
+					} else {
+						HashMap<String, HashMap<String, Double>> quatersWiseMap = new HashMap<>();
+						HashMap<String, Double> eachQuaterData = new HashMap<>();
+						eachQuaterData.put("spend", spend);
+						quatersWiseMap.put(quater, eachQuaterData);
+						servicesMap.put(service, quatersWiseMap);
+					}
+				}
+			}
+			JSONObject finalObject = new JSONObject();
+			JSONArray servicesArray = new JSONArray();
+
+			for (String service : servicesList) {
+				JSONObject serviceWiseDataObj = new JSONObject();
+				HashMap<String, HashMap<String, Double>> quatersWiseMap = servicesMap.get(service);
+				JSONObject allQuatersDataObj = new JSONObject();
+				for (String quater : quatersList) {
+					JSONObject quaterInnerDataObj = new JSONObject();
+					if (quatersWiseMap.containsKey(quater)) {
+						HashMap<String, Double> eachQuaterData = quatersWiseMap.get(quater);
+						quaterInnerDataObj.put("spend", commaSeperatedDecimalFormat.format(eachQuaterData.get("spend")));
+					} else {
+						quaterInnerDataObj.put("spend", "0");
+					}
+					allQuatersDataObj.put(quater, quaterInnerDataObj);
+				}
+				serviceWiseDataObj.put(service, new JSONObject().put("quaters", allQuatersDataObj));
+				servicesArray.put(serviceWiseDataObj);
+			}
+
+			JSONArray quatersArray = new JSONArray();
+			for (String quater : quatersList) {
+				quatersArray.put(quater);
+			}
+
+			finalObject.put("services", servicesArray);
+			finalObject.put("quaters", quatersList);
+
+			returnJson.put("values", finalObject);
+		}
+		return returnJson;
 	}
 }

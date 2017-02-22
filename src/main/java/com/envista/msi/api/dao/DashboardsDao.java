@@ -9,19 +9,18 @@ import com.envista.msi.api.web.rest.dto.MapCoordinatesDto;
 import com.envista.msi.api.web.rest.dto.ZipCodesTimeZonesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardAppliedFilterDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
-import com.envista.msi.api.web.rest.dto.dashboard.accessorialspend.AccessorialSpendDto;
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AccountSummaryDto;
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AnnualSummaryDto;
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.MonthlySpendByModeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
-import com.envista.msi.api.web.rest.dto.dashboard.netspend.*;
+import com.envista.msi.api.web.rest.dto.dashboard.netspend.AccessorialSpendDto;
+import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendByModeDto;
+import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendOverTimeDto;
+import com.envista.msi.api.web.rest.dto.dashboard.netspend.TaxSpendDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.PortLanesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentRegionDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShippingLanesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.*;
-import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendByCarrierDto;
-import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendByMonthDto;
-import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendDto;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,7 +61,7 @@ public class DashboardsDao {
                 DashboardSroredProcParam.NetSpendParams.TOP_TEN_ACCESSORIAL_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
-        return persistentContext.findEntities("NetSpendByModeDto.getNetSpendByMode", queryParameter);
+        return persistentContext.findEntities(NetSpendByModeDto.Config.StoredProcedureQueryName.NET_SPEND_BY_MODE, queryParameter);
     }
 
     /**
@@ -70,7 +69,7 @@ public class DashboardsDao {
      * @param isTopTenAccessorial
      * @return
      */
-    public List<NetSpendOverTimeByMonthDto> getNetSpendOverTimeByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+    public List<NetSpendOverTimeDto> getNetSpendOverTimeByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
         filter.setTopTenAccessorial(isTopTenAccessorial);
         String[] paramNames = {DashboardSroredProcParam.NetSpendParams.DATE_TYPE_PARAM, DashboardSroredProcParam.NetSpendParams.CONVERTED_CURRENCY_ID_PARAM,
                 DashboardSroredProcParam.NetSpendParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardSroredProcParam.NetSpendParams.CUSTOMER_IDS_CSV_PARAM,
@@ -81,7 +80,7 @@ public class DashboardsDao {
                 DashboardSroredProcParam.NetSpendParams.TOP_TEN_ACCESSORIAL_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
-        return persistentContext.findEntities("NetSpendOverTimeByMonthDto.getNetSpendOverTimeByMonth", queryParameter);
+        return persistentContext.findEntities(NetSpendOverTimeDto.Config.StoredProcedureQueryName.NET_SPEND_OVER_TIME_BY_MONTH, queryParameter);
     }
 
     /**
@@ -100,7 +99,7 @@ public class DashboardsDao {
                 DashboardSroredProcParam.NetSpendParams.TOP_TEN_ACCESSORIAL_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
-        return persistentContext.findEntities("NetSpendOverTimeDto.getNetSpendByOverTime", queryParameter);
+        return persistentContext.findEntities(NetSpendOverTimeDto.Config.StoredProcedureQueryName.NET_SPEND_OVER_TIME, queryParameter);
     }
 
     /**
@@ -109,7 +108,7 @@ public class DashboardsDao {
      * @return
      */
     @Transactional(readOnly = true)
-    public List<NetSpendByCarrierDto> getNetSpendByCarrier(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+    public List<NetSpendByModeDto> getNetSpendByCarrier(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
         filter.setTopTenAccessorial(isTopTenAccessorial);
         String[] paramNames = {DashboardSroredProcParam.NetSpendParams.DATE_TYPE_PARAM, DashboardSroredProcParam.NetSpendParams.CONVERTED_CURRENCY_ID_PARAM,
                 DashboardSroredProcParam.NetSpendParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardSroredProcParam.NetSpendParams.CUSTOMER_IDS_CSV_PARAM,
@@ -121,7 +120,7 @@ public class DashboardsDao {
                 DashboardSroredProcParam.NetSpendParams.MODE_NAMES_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
-        return persistentContext.findEntities("NetSpendByCarrierDto.getNetSpendByCarrier", queryParameter);
+        return persistentContext.findEntities(NetSpendByModeDto.Config.StoredProcedureQueryName.NET_SPEND_BY_CARRIER, queryParameter);
     }
 
     /**
@@ -129,7 +128,7 @@ public class DashboardsDao {
      * @param isTopTenAccessorial
      * @return
      */
-    public List<NetSpendByMonthDto> getNetSpendByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+    public List<NetSpendByModeDto> getNetSpendByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
         filter.setTopTenAccessorial(isTopTenAccessorial);
         String[] paramNames = {DashboardSroredProcParam.NetSpendParams.DATE_TYPE_PARAM, DashboardSroredProcParam.NetSpendParams.CONVERTED_CURRENCY_ID_PARAM,
                 DashboardSroredProcParam.NetSpendParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardSroredProcParam.NetSpendParams.CUSTOMER_IDS_CSV_PARAM,
@@ -141,7 +140,7 @@ public class DashboardsDao {
                 DashboardSroredProcParam.NetSpendParams.MODE_NAMES_PARAM, DashboardSroredProcParam.NetSpendParams.SCORE_TYPE_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
-        return persistentContext.findEntities("NetSpendByMonthDto.getNetSpendByMonth", queryParameter);
+        return persistentContext.findEntities(NetSpendByModeDto.Config.StoredProcedureQueryName.NET_SPEND_BY_MONTH, queryParameter);
     }
 
     /**
@@ -157,14 +156,14 @@ public class DashboardsDao {
                 DashboardSroredProcParam.TaxSpendParams.MODE_NAMES_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
-        return persistentContext.findEntities("TaxSpendDto.getTaxSpend", queryParameter);
+        return persistentContext.findEntities(TaxSpendDto.Config.StoredProcedureQueryName.TAX_SPEND, queryParameter);
     }
 
     /**
      * @param filter
      * @return
      */
-    public List<TaxSpendByCarrierDto> getTaxSpendByCarrier(DashboardsFilterCriteria filter) {
+    public List<TaxSpendDto> getTaxSpendByCarrier(DashboardsFilterCriteria filter) {
         String[] paramNames = {DashboardSroredProcParam.TaxSpendParams.DATE_TYPE_PARAM, DashboardSroredProcParam.TaxSpendParams.CONVERTED_CURRENCY_ID_PARAM,
                 DashboardSroredProcParam.TaxSpendParams.CUSTOMER_IDS_CSV_PARAM,
                 DashboardSroredProcParam.TaxSpendParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.TaxSpendParams.MODES_PARAM,
@@ -173,14 +172,14 @@ public class DashboardsDao {
                 DashboardSroredProcParam.TaxSpendParams.MODE_NAMES_PARAM, DashboardSroredProcParam.TaxSpendParams.TAX_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
-        return persistentContext.findEntities("TaxSpendByCarrierDto.getTaxSpendByCarrier", queryParameter);
+        return persistentContext.findEntities(TaxSpendDto.Config.StoredProcedureQueryName.TAX_SPEND_BY_CARRIER, queryParameter);
     }
 
     /**
      * @param filter
      * @return
      */
-    public List<TaxSpendByMonthDto> getTaxSpendByMonth(DashboardsFilterCriteria filter) {
+    public List<TaxSpendDto> getTaxSpendByMonth(DashboardsFilterCriteria filter) {
         String[] paramNames = {DashboardSroredProcParam.TaxSpendParams.DATE_TYPE_PARAM, DashboardSroredProcParam.TaxSpendParams.CONVERTED_CURRENCY_ID_PARAM,
                 DashboardSroredProcParam.TaxSpendParams.CUSTOMER_IDS_CSV_PARAM,
                 DashboardSroredProcParam.TaxSpendParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.TaxSpendParams.MODES_PARAM,
@@ -189,7 +188,7 @@ public class DashboardsDao {
                 DashboardSroredProcParam.TaxSpendParams.MODE_NAMES_PARAM, DashboardSroredProcParam.TaxSpendParams.TAX_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
-        return persistentContext.findEntities("TaxSpendByMonthDto.getTaxSpendByMonth", queryParameter);
+        return persistentContext.findEntities(TaxSpendDto.Config.StoredProcedureQueryName.TAX_SPEND_BY_MONTH, queryParameter);
     }
 
     /**
@@ -414,7 +413,7 @@ public class DashboardsDao {
                 DashboardSroredProcParam.InvoiceStatusCountParams.MODE_NAMES_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
-        return persistentContext.findEntities("InvoiceStatusCountDto.getInvoiceStatusCount", queryParameter);
+        return persistentContext.findEntities(InvoiceStatusCountDto.Config.StoredProcedureQueryName.INVOICE_STATUS_COUNT, queryParameter);
     }
 
     public List<InvoiceStatusCountDto> getInvoiceStatusCountByCarrier(DashboardsFilterCriteria filter) {
@@ -426,7 +425,7 @@ public class DashboardsDao {
                 DashboardSroredProcParam.InvoiceStatusCountParams.MODE_NAMES_PARAM, DashboardSroredProcParam.InvoiceStatusCountParams.INVOICE_STATUS_ID_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
-        return persistentContext.findEntities("InvoiceStatusCountDto.getInvoiceStatusCountByCarrier", queryParameter);
+        return persistentContext.findEntities(InvoiceStatusCountDto.Config.StoredProcedureQueryName.INVOICE_STATUS_COUNT_BY_CARRIER, queryParameter);
     }
 
     public List<InvoiceStatusCountDto> getInvoiceStatusCountByMonth(DashboardsFilterCriteria filter) {
@@ -438,7 +437,7 @@ public class DashboardsDao {
                 DashboardSroredProcParam.InvoiceStatusCountParams.MODE_NAMES_PARAM, DashboardSroredProcParam.InvoiceStatusCountParams.INVOICE_STATUS_ID_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
-        return persistentContext.findEntities("InvoiceStatusCountDto.getInvoiceStatusCountByMonth", queryParameter);
+        return persistentContext.findEntities(InvoiceStatusCountDto.Config.StoredProcedureQueryName.INVOICE_STATUS_COUNT_BY_MONTH, queryParameter);
     }
 
     public List<InvoiceStatusAmountDto> getInvoiceStatusAmount(DashboardsFilterCriteria filter) {
@@ -450,7 +449,7 @@ public class DashboardsDao {
                 DashboardSroredProcParam.InvoiceStatusAmountParams.MODE_NAMES_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
-        return persistentContext.findEntities("InvoiceStatusAmountDto.getInvoiceStatusAmount", queryParameter);
+        return persistentContext.findEntities(InvoiceStatusAmountDto.Config.StoredProcedureQueryName.INVOICE_STATUS_AMOUNT, queryParameter);
     }
 
     public List<InvoiceStatusAmountDto> getInvoiceStatusAmountByCarrier(DashboardsFilterCriteria filter) {
@@ -462,7 +461,7 @@ public class DashboardsDao {
                 DashboardSroredProcParam.InvoiceStatusAmountParams.MODE_NAMES_PARAM, DashboardSroredProcParam.InvoiceStatusAmountParams.INVOICE_STATUS_ID_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
-        return persistentContext.findEntities("InvoiceStatusAmountDto.getInvoiceStatusAmountByCarrier", queryParameter);
+        return persistentContext.findEntities(InvoiceStatusAmountDto.Config.StoredProcedureQueryName.INVOICE_STATUS_AMOUNT_BY_CARRIER, queryParameter);
     }
 
     public List<InvoiceStatusAmountDto> getInvoiceStatusAmountByMonth(DashboardsFilterCriteria filter) {
@@ -474,7 +473,7 @@ public class DashboardsDao {
                 DashboardSroredProcParam.InvoiceStatusAmountParams.MODE_NAMES_PARAM, DashboardSroredProcParam.InvoiceStatusAmountParams.INVOICE_STATUS_ID_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
-        return persistentContext.findEntities("InvoiceStatusAmountDto.getInvoiceStatusAmountByMonth", queryParameter);
+        return persistentContext.findEntities(InvoiceStatusAmountDto.Config.StoredProcedureQueryName.INVOICE_STATUS_AMOUNT_BY_MONTH, queryParameter);
     }
 
     public List<InvoiceMethodScoreDto> getInvoiceMethodScore(DashboardsFilterCriteria filter) {
@@ -485,7 +484,7 @@ public class DashboardsDao {
                 DashboardSroredProcParam.InvoiceMethodScoreParams.MODE_NAMES_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
-        return persistentContext.findEntities("InvoiceMethodScoreDto.getInvoiceMethodScore", queryParameter);
+        return persistentContext.findEntities(InvoiceMethodScoreDto.Config.StoredProcedureQueryName.INVOICE_METHOD_SCORE, queryParameter);
     }
 
     public List<InvoiceMethodScoreDto> getInvoiceMethodScoreByCarrier(DashboardsFilterCriteria filter) {
@@ -496,7 +495,7 @@ public class DashboardsDao {
                 DashboardSroredProcParam.InvoiceMethodScoreParams.MODE_NAMES_PARAM, DashboardSroredProcParam.InvoiceMethodScoreParams.INVOICE_METHOD_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
-        return persistentContext.findEntities("InvoiceMethodScoreDto.getInvoiceMethodScoreByCarrier", queryParameter);
+        return persistentContext.findEntities(InvoiceMethodScoreDto.Config.StoredProcedureQueryName.INVOICE_METHOD_SCORE_BY_CARRIER, queryParameter);
     }
 
     public List<InvoiceMethodScoreDto> getInvoiceMethodScoreByMonth(DashboardsFilterCriteria filter) {
@@ -507,7 +506,7 @@ public class DashboardsDao {
                 DashboardSroredProcParam.InvoiceMethodScoreParams.MODE_NAMES_PARAM, DashboardSroredProcParam.InvoiceMethodScoreParams.INVOICE_METHOD_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
-        return persistentContext.findEntities("InvoiceMethodScoreDto.getInvoiceMethodScoreByMonth", queryParameter);
+        return persistentContext.findEntities(InvoiceMethodScoreDto.Config.StoredProcedureQueryName.INVOICE_METHOD_SCORE_BY_MONTH, queryParameter);
     }
 
     public List<OrderMatchDto> getOrderMatchStatus(DashboardsFilterCriteria filter) {
@@ -518,7 +517,7 @@ public class DashboardsDao {
                 DashboardSroredProcParam.OrderMatchParams.MODE_NAMES_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
-        return persistentContext.findEntities("OrderMatchDto.getOrderMatch", queryParameter);
+        return persistentContext.findEntities(OrderMatchDto.Config.StoredProcedureQueryName.ORDER_MATCH, queryParameter);
     }
 
     public List<OrderMatchDto> getOrderMatchByCarrier(DashboardsFilterCriteria filter) {
@@ -529,7 +528,7 @@ public class DashboardsDao {
                 DashboardSroredProcParam.OrderMatchParams.MODE_NAMES_PARAM, DashboardSroredProcParam.OrderMatchParams.ORDER_MATCH_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
-        return persistentContext.findEntities("OrderMatchDto.getOrderMatchByCarrier", queryParameter);
+        return persistentContext.findEntities(OrderMatchDto.Config.StoredProcedureQueryName.ORDER_MATCH_BY_CARRIER, queryParameter);
     }
 
     public List<OrderMatchDto> getOrderMatchByMonth(DashboardsFilterCriteria filter) {
@@ -540,7 +539,7 @@ public class DashboardsDao {
                 DashboardSroredProcParam.OrderMatchParams.MODE_NAMES_PARAM, DashboardSroredProcParam.OrderMatchParams.ORDER_MATCH_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
-        return persistentContext.findEntities("OrderMatchDto.getOrderMatchByMonth", queryParameter);
+        return persistentContext.findEntities(OrderMatchDto.Config.StoredProcedureQueryName.ORDER_MATCH_BY_MONTH, queryParameter);
     }
 
     public List<BilledVsApprovedDto> getBilledVsApprovedData(DashboardsFilterCriteria filter) {
@@ -552,7 +551,7 @@ public class DashboardsDao {
                 DashboardSroredProcParam.BilledVsApprovedParams.MODE_NAMES_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
-        return persistentContext.findEntities("BilledVsApprovedDto.getBilledVsApproved", queryParameter);
+        return persistentContext.findEntities(BilledVsApprovedDto.Config.StoredProcedureQueryName.BILLED_VS_APPROVED, queryParameter);
     }
 
     public List<BilledVsApprovedDto> getBilledVsApprovedByMonth(DashboardsFilterCriteria filter) {
@@ -564,7 +563,7 @@ public class DashboardsDao {
                 DashboardSroredProcParam.BilledVsApprovedParams.MODE_NAMES_PARAM, DashboardSroredProcParam.BilledVsApprovedParams.BILLED_APPROVED_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
-        return persistentContext.findEntities("BilledVsApprovedDto.getBilledVsApprovedByMonth", queryParameter);
+        return persistentContext.findEntities(BilledVsApprovedDto.Config.StoredProcedureQueryName.BILLED_VS_APPROVED_BY_MONTH, queryParameter);
     }
 
     public List<RecoveryAdjustmentDto> getRecoveryAdjustment(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
@@ -577,7 +576,7 @@ public class DashboardsDao {
                 DashboardSroredProcParam.RecoveryAdjustmentParams.ACCESSORIAL_NAME_PARAM, DashboardSroredProcParam.RecoveryAdjustmentParams.TOP_TEN_ACCESSORIAL_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
-        return persistentContext.findEntities("RecoveryAdjustmentDto.getRecoveryAdjustment", queryParameter);
+        return persistentContext.findEntities(RecoveryAdjustmentDto.Config.StoredProcedureQueryName.RECOVERY_ADJUSTMENT, queryParameter);
     }
 
     public List<RecoveryAdjustmentDto> getRecoveryAdjustmentByCarrier(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
@@ -590,7 +589,7 @@ public class DashboardsDao {
                 DashboardSroredProcParam.RecoveryAdjustmentParams.ACCESSORIAL_NAME_PARAM, DashboardSroredProcParam.RecoveryAdjustmentParams.TOP_TEN_ACCESSORIAL_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
-        return persistentContext.findEntities("RecoveryAdjustmentDto.getRecoveryAdjustmentByCarrier", queryParameter);
+        return persistentContext.findEntities(RecoveryAdjustmentDto.Config.StoredProcedureQueryName.RECOVERY_ADJUSTMENT_BY_CARRIER, queryParameter);
     }
 
     public List<RecoveryAdjustmentDto> getRecoveryAdjustmentByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
@@ -603,9 +602,16 @@ public class DashboardsDao {
                 DashboardSroredProcParam.RecoveryAdjustmentParams.ACCESSORIAL_NAME_PARAM, DashboardSroredProcParam.RecoveryAdjustmentParams.TOP_TEN_ACCESSORIAL_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
-        return persistentContext.findEntities("RecoveryAdjustmentDto.getRecoveryAdjustmentByMonth", queryParameter);
+        return persistentContext.findEntities(RecoveryAdjustmentDto.Config.StoredProcedureQueryName.RECOVERY_ADJUSTMENT_BY_MONTH, queryParameter);
     }
 
+    /**
+     * Method to get Recovery service details.
+     *
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
     public List<RecoveryServiceDto> getRecoveryServices(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
         filter.setTopTenAccessorial(isTopTenAccessorial);
         String[] paramNames = {DashboardSroredProcParam.RecoveryServiceParams.DATE_TYPE_PARAM, DashboardSroredProcParam.RecoveryServiceParams.CONVERTED_CURRENCY_ID_PARAM,
@@ -617,9 +623,15 @@ public class DashboardsDao {
                 DashboardSroredProcParam.RecoveryServiceParams.TOP_TEN_ACCESSORIAL_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
-        return persistentContext.findEntities("RecoveryServiceDto.getRecoveryService", queryParameter);
+        return persistentContext.findEntities(RecoveryServiceDto.Config.StoredProcedureQueryName.RECOVERY_SERVICE, queryParameter);
     }
 
+    /**
+     * Method to get recovery service details by month.
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
     public List<RecoveryServiceDto> getRecoveryServicesByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
         filter.setTopTenAccessorial(isTopTenAccessorial);
         String[] paramNames = {DashboardSroredProcParam.RecoveryServiceParams.DATE_TYPE_PARAM, DashboardSroredProcParam.RecoveryServiceParams.CONVERTED_CURRENCY_ID_PARAM,
@@ -631,7 +643,7 @@ public class DashboardsDao {
                 DashboardSroredProcParam.RecoveryServiceParams.TOP_TEN_ACCESSORIAL_PARAM, DashboardSroredProcParam.RecoveryServiceParams.SERVICE_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
-        return persistentContext.findEntities("RecoveryServiceDto.getRecoveryServiceByMonth", queryParameter);
+        return persistentContext.findEntities(RecoveryServiceDto.Config.StoredProcedureQueryName.RECOVERY_SERVICE_BY_MONTH, queryParameter);
     }
 
     public List<PackageExceptionDto> getPackageExceptions(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
@@ -643,7 +655,7 @@ public class DashboardsDao {
                 DashboardSroredProcParam.PackageExceptionParams.ACCESSORIAL_NAME_PARAM, DashboardSroredProcParam.PackageExceptionParams.TOP_TEN_ACCESSORIAL_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
-        return persistentContext.findEntities("PackageExceptionDto.getPackageException", queryParameter);
+        return persistentContext.findEntities(PackageExceptionDto.Config.StoredProcedureQueryName.PACKAGE_EXCEPTION, queryParameter);
     }
 
     @Transactional(readOnly = true)
@@ -828,7 +840,7 @@ public class DashboardsDao {
                 DashboardSroredProcParam.PackageExceptionParams.DELIVERY_FLAG_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
-        return persistentContext.findEntities("PackageExceptionDto.getPackageExceptionByCarrier", queryParameter);
+        return persistentContext.findEntities(PackageExceptionDto.Config.StoredProcedureQueryName.PACKAGE_EXCEPTION_BY_CARRIER, queryParameter);
     }
 
     public List<PackageExceptionDto> getPackageExceptionsByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
@@ -841,7 +853,7 @@ public class DashboardsDao {
                 DashboardSroredProcParam.PackageExceptionParams.DELIVERY_FLAG_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
-        return persistentContext.findEntities("PackageExceptionDto.getPackageExceptionByMonth", queryParameter);
+        return persistentContext.findEntities(PackageExceptionDto.Config.StoredProcedureQueryName.PACKAGE_EXCEPTION_BY_MONTH, queryParameter);
     }
 
     /**

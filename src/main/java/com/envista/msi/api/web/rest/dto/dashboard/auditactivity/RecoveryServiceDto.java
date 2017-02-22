@@ -11,8 +11,9 @@ import java.util.Date;
  */
 
 @NamedStoredProcedureQueries({
-        @NamedStoredProcedureQuery(name = "RecoveryServiceDto.getRecoveryService", procedureName = "SHP_DB_RECVRY_SERVC_PROC",
-                resultSetMappings = "RecoveryServiceDto.RecoveryServiceMapping",
+        @NamedStoredProcedureQuery(name = RecoveryServiceDto.Config.StoredProcedureQueryName.RECOVERY_SERVICE,
+                procedureName = RecoveryServiceDto.Config.StoredProcedureName.RECOVERY_SERVICE,
+                resultSetMappings = RecoveryServiceDto.Config.ResultMappings.RECOVERY_SERVICE_MAPPING,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryServiceParams.DATE_TYPE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryServiceParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
@@ -29,8 +30,9 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryServiceParams.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.RecoveryServiceParams.RECOVERY_SERVICE_DATA_PARAM, type = Void.class)
                 }),
-        @NamedStoredProcedureQuery(name = "RecoveryServiceDto.getRecoveryServiceByMonth", procedureName = "SHP_DB_RECVRY_SERVC_MNTH_PROC",
-                resultSetMappings = "RecoveryServiceDto.RecoveryServiceByMonthMapping",
+        @NamedStoredProcedureQuery(name = RecoveryServiceDto.Config.StoredProcedureQueryName.RECOVERY_SERVICE_BY_MONTH,
+                procedureName = RecoveryServiceDto.Config.StoredProcedureName.RECOVERY_SERVICE_BY_MONTH,
+                resultSetMappings = RecoveryServiceDto.Config.ResultMappings.RECOVERY_SERVICE_BY_MONTH_MAPPING,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryServiceParams.DATE_TYPE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryServiceParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
@@ -51,7 +53,7 @@ import java.util.Date;
 })
 
 @SqlResultSetMappings({
-        @SqlResultSetMapping(name = "RecoveryServiceDto.RecoveryServiceMapping", classes = {
+        @SqlResultSetMapping(name = RecoveryServiceDto.Config.ResultMappings.RECOVERY_SERVICE_MAPPING, classes = {
                 @ConstructorResult(
                         targetClass = RecoveryServiceDto.class,
                         columns = {
@@ -62,17 +64,7 @@ import java.util.Date;
                         }
                 )
         }),
-        @SqlResultSetMapping(name = "RecoveryServiceDto.RecoveryServiceByCarrierMapping", classes = {
-                @ConstructorResult(
-                        targetClass = RecoveryServiceDto.class,
-                        columns = {
-                                @ColumnResult(name = "ID", type = Long.class),
-                                @ColumnResult(name = "NAME", type = String.class),
-                                @ColumnResult(name = "VALUE", type = Double.class)
-                        }
-                )
-        }),
-        @SqlResultSetMapping(name = "RecoveryServiceDto.RecoveryServiceByMonthMapping", classes = {
+        @SqlResultSetMapping(name = RecoveryServiceDto.Config.ResultMappings.RECOVERY_SERVICE_BY_MONTH_MAPPING, classes = {
                 @ConstructorResult(
                         targetClass = RecoveryServiceDto.class,
                         columns = {
@@ -203,5 +195,22 @@ public class RecoveryServiceDto implements Serializable {
 
     public void setCarrierId(Long carrierId) {
         this.carrierId = carrierId;
+    }
+
+    public static class Config{
+        static class ResultMappings{
+            static final String RECOVERY_SERVICE_MAPPING = "RecoveryServiceDto.RecoveryServiceMapping";
+            static final String RECOVERY_SERVICE_BY_MONTH_MAPPING = "RecoveryServiceDto.RecoveryServiceByMonthMapping";
+        }
+
+        static class StoredProcedureName{
+            static final String RECOVERY_SERVICE = "SHP_DB_RECVRY_SERVC_PROC";
+            static final String RECOVERY_SERVICE_BY_MONTH = "SHP_DB_RECVRY_SERVC_MNTH_PROC";
+        }
+
+        public static class StoredProcedureQueryName{
+            public static final String RECOVERY_SERVICE = "RecoveryServiceDto.getRecoveryService";
+            public static final String RECOVERY_SERVICE_BY_MONTH = "RecoveryServiceDto.getRecoveryServiceByMonth";
+        }
     }
 }
