@@ -46,6 +46,7 @@ import java.util.Date;
                                 @ColumnResult(name = "run_date", type = String.class),
                                 @ColumnResult(name = "expire_date", type = String.class),
                                 @ColumnResult(name = "running_status", type = String.class),
+                                @ColumnResult(name = "type", type = Integer.class),
                                 @ColumnResult(name = "completion_date", type = Date.class),
                                 @ColumnResult(name = "expires_date", type = Date.class)
                         }
@@ -77,6 +78,9 @@ public class ReportResultsDto implements Serializable {
 
     @Column(name = "running_status")
     private String status;
+
+    @Column(name = "type")
+    private int type;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "completion_date")
@@ -153,6 +157,10 @@ public class ReportResultsDto implements Serializable {
 
     public void setUpdateCount(Long updateCount) { this.updateCount = updateCount; }
 
+    public int getType() {   return type;   }
+
+    public void setType(int type) { this.type = type;   }
+
     public ReportResultsDto(){}
 
     public ReportResultsDto(Long updateCount) {
@@ -160,7 +168,7 @@ public class ReportResultsDto implements Serializable {
         this.updateCount = updateCount;
     }
     public ReportResultsDto(Long generatedRptId, Long savedRptId, String fileName, String fileType,String runDate,
-                            String expireDate,String status,Date completedDate,Date expiryDate) {
+                            String expireDate,String status,int type,Date completedDate,Date expiryDate) {
         this.generatedRptId = generatedRptId;
         this.savedRptId = savedRptId;
         this.fileName = fileName;
@@ -168,6 +176,7 @@ public class ReportResultsDto implements Serializable {
         this.runDate = runDate;
         this.expireDate = expireDate;
         this.status = status;
+        this.type = type;
         this.completedDate = completedDate;
         this.expiryDate = expiryDate;
     }
