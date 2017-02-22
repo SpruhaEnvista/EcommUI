@@ -60,4 +60,19 @@ public class ReportsDao {
         }
         return sdate;
     }
+
+    /**
+     * Update Expiry Date.
+     * @param generatedRptId
+     * @param userId
+     *  @param userName
+     * @return
+     */
+    @Transactional
+    public ReportResultsDto deleteReportInResults(Long generatedRptId, Long userId, String userName){
+        QueryParameter queryParameter = StoredProcedureParameter.with("generatedRptId", generatedRptId)
+                                        .and("userId", userId)
+                                        .and("userName", userName);
+        return persistentContext.findEntityAndMapFields("ReportResults.deleteResultReport",queryParameter);
+    }
 }

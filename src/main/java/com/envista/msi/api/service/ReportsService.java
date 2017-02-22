@@ -27,4 +27,8 @@ public class ReportsService {
     public ReportResultsDto updateExpiryDate(Long generatedRptId,String expiryDate) {
         return  reportsDao.updateExpiryDate(generatedRptId,expiryDate);
     }
+
+    public ReportResultsDto deleteReportInResults(Long generatedRptId, Long userId, String userName) {
+        return  reportsDao.deleteReportInResults(generatedRptId, userId, userName);
+    }
 }

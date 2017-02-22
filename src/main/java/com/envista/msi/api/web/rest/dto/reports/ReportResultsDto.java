@@ -1,8 +1,5 @@
 package com.envista.msi.api.web.rest.dto.reports;
 
-import com.envista.msi.api.domain.util.DashboardSroredProcParam;
-import com.envista.msi.api.web.rest.dto.dashboard.accessorialspend.AccessorialSpendDto;
-
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
@@ -24,6 +21,14 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.OUT, name = "updateCount", type = Integer.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "expiryDate", type = Date.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "generatedRptId", type = Long.class)
+                }),
+        @NamedStoredProcedureQuery(name = "ReportResults.deleteResultReport", procedureName = "SHP_RPT_RESULT_DELETE_PROC",
+                resultSetMappings = "DeleteCount",
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "generatedRptId", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "userId", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "userName", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "deleteReturn", type = Void.class)
                 })
 })
 @SqlResultSetMappings({
@@ -48,6 +53,14 @@ import java.util.Date;
                                 @ColumnResult(name = "running_status", type = String.class),
                                 @ColumnResult(name = "completion_date", type = Date.class),
                                 @ColumnResult(name = "expires_date", type = Date.class)
+                        }
+                )
+        }),
+        @SqlResultSetMapping(name = "DeleteCount", classes = {
+                @ConstructorResult(
+                        targetClass = ReportResultsDto.class,
+                        columns = {
+                                @ColumnResult(name = "updateCount", type = Integer.class)
                         }
                 )
         })
