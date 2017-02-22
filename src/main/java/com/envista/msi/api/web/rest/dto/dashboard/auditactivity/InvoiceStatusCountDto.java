@@ -11,22 +11,24 @@ import java.util.Date;
  */
 
 @NamedStoredProcedureQueries({
-        @NamedStoredProcedureQuery(name = "InvoiceStatusCountDto.getInvoiceStatusCount", procedureName = "SHP_DB_INV_STS_CNT_PROC",
-        resultSetMappings = "InvoiceStatusCountMapping",
-        parameters = {
-                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceStatusCountParams.DATE_TYPE_PARAM, type = String.class),
-                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceStatusCountParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
-                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceStatusCountParams.CARRIER_IDS_PARAM, type = String.class),
-                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceStatusCountParams.MODES_PARAM, type = String.class),
-                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceStatusCountParams.SERVICES_PARAM, type = String.class),
-                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceStatusCountParams.LANES_PARAM, type = String.class),
-                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceStatusCountParams.FROM_DATE_PARAM, type = String.class),
-                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceStatusCountParams.TO_DATE_PARAM, type = String.class),
-                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceStatusCountParams.MODE_NAMES_PARAM, type = String.class),
-                @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.InvoiceStatusCountParams.INVOICE_COUNT_DATA_PARAM, type = Void.class)
-        }),
-        @NamedStoredProcedureQuery(name = "InvoiceStatusCountDto.getInvoiceStatusCountByCarrier", procedureName = "SHP_DB_INV_STS_CNT_CARR_PROC",
-                resultSetMappings = "InvoiceStatusCountMapping",
+        @NamedStoredProcedureQuery(name = InvoiceStatusCountDto.Config.StoredProcedureQueryName.INVOICE_STATUS_COUNT,
+                procedureName = InvoiceStatusCountDto.Config.StoredProcedureName.INVOICE_STATUS_COUNT,
+                resultSetMappings = {InvoiceStatusCountDto.Config.ResultMappings.INVOICE_STATUS_COUNT_MAPPING},
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceStatusCountParams.DATE_TYPE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceStatusCountParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceStatusCountParams.CARRIER_IDS_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceStatusCountParams.MODES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceStatusCountParams.SERVICES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceStatusCountParams.LANES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceStatusCountParams.FROM_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceStatusCountParams.TO_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceStatusCountParams.MODE_NAMES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.InvoiceStatusCountParams.INVOICE_COUNT_DATA_PARAM, type = Void.class)
+                }),
+        @NamedStoredProcedureQuery(name = InvoiceStatusCountDto.Config.StoredProcedureQueryName.INVOICE_STATUS_COUNT_BY_CARRIER,
+                procedureName = InvoiceStatusCountDto.Config.StoredProcedureName.INVOICE_STATUS_COUNT_BY_CARRIER,
+                resultSetMappings = InvoiceStatusCountDto.Config.ResultMappings.INVOICE_STATUS_COUNT_BY_CARRIER_MAPPING,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceStatusCountParams.DATE_TYPE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceStatusCountParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
@@ -40,8 +42,9 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceStatusCountParams.INVOICE_STATUS_ID_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.InvoiceStatusCountParams.INVOICE_COUNT_DATA_PARAM, type = Void.class)
                 }),
-        @NamedStoredProcedureQuery(name = "InvoiceStatusCountDto.getInvoiceStatusCountByMonth", procedureName = "SHP_DB_INV_STS_CNT_MNTH_PROC",
-                resultSetMappings = "InvoiceStatusCountByMonthMapping",
+        @NamedStoredProcedureQuery(name = InvoiceStatusCountDto.Config.StoredProcedureQueryName.INVOICE_STATUS_COUNT_BY_MONTH,
+                procedureName = InvoiceStatusCountDto.Config.StoredProcedureName.INVOICE_STATUS_COUNT_BY_MONTH,
+                resultSetMappings = InvoiceStatusCountDto.Config.ResultMappings.INVOICE_STATUS_COUNT_BY_MONTH_MAPPING,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceStatusCountParams.DATE_TYPE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceStatusCountParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
@@ -58,7 +61,7 @@ import java.util.Date;
 })
 
 @SqlResultSetMappings({
-        @SqlResultSetMapping(name = "InvoiceStatusCountMapping", classes = {
+        @SqlResultSetMapping(name = InvoiceStatusCountDto.Config.ResultMappings.INVOICE_STATUS_COUNT_MAPPING, classes = {
                 @ConstructorResult(
                         targetClass = InvoiceStatusCountDto.class,
                         columns = {
@@ -67,7 +70,7 @@ import java.util.Date;
                                 @ColumnResult(name = "VALUE", type = Double.class)
                         })
         }),
-        @SqlResultSetMapping(name = "InvoiceStatusCountByMonthMapping", classes = {
+        @SqlResultSetMapping(name = InvoiceStatusCountDto.Config.ResultMappings.INVOICE_STATUS_COUNT_BY_MONTH_MAPPING, classes = {
                 @ConstructorResult(
                         targetClass = InvoiceStatusCountDto.class,
                         columns = {
@@ -147,5 +150,25 @@ public class InvoiceStatusCountDto implements Serializable {
 
     public void setAmount(Double amount) {
         this.amount = amount;
+    }
+
+    public static class Config{
+        static class ResultMappings{
+            static final String INVOICE_STATUS_COUNT_MAPPING = "InvoiceStatusCountDto.InvoiceStatusCountMapping";
+            static final String INVOICE_STATUS_COUNT_BY_CARRIER_MAPPING = INVOICE_STATUS_COUNT_MAPPING;
+            static final String INVOICE_STATUS_COUNT_BY_MONTH_MAPPING = "InvoiceStatusCountDto.InvoiceStatusCountByMonthMapping";
+        }
+
+        static class StoredProcedureName{
+            static final String INVOICE_STATUS_COUNT = "SHP_DB_INV_STS_CNT_PROC";
+            static final String INVOICE_STATUS_COUNT_BY_CARRIER = "SHP_DB_INV_STS_CNT_CARR_PROC";
+            static final String INVOICE_STATUS_COUNT_BY_MONTH = "SHP_DB_INV_STS_CNT_MNTH_PROC";
+        }
+
+        public static class StoredProcedureQueryName{
+            public static final String INVOICE_STATUS_COUNT = "InvoiceStatusCountDto.getInvoiceStatusCount";
+            public static final String INVOICE_STATUS_COUNT_BY_CARRIER = "InvoiceStatusCountDto.getInvoiceStatusCountByCarrier";
+            public static final String INVOICE_STATUS_COUNT_BY_MONTH = "InvoiceStatusCountDto.getInvoiceStatusCountByMonth";
+        }
     }
 }

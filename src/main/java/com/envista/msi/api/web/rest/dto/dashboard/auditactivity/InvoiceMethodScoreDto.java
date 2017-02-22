@@ -10,8 +10,9 @@ import java.util.Date;
  * Created by Sujit kumar on 09/02/2017.
  */
 @NamedStoredProcedureQueries({
-        @NamedStoredProcedureQuery(name = "InvoiceMethodScoreDto.getInvoiceMethodScore", procedureName = "SHP_DB_INV_MTD_SCORE_PROC",
-                resultSetMappings = "InvoiceMethodScoreMapping",
+        @NamedStoredProcedureQuery(name = InvoiceMethodScoreDto.Config.StoredProcedureQueryName.INVOICE_METHOD_SCORE,
+                procedureName = InvoiceMethodScoreDto.Config.StoredProcedureName.INVOICE_METHOD_SCORE,
+                resultSetMappings = {InvoiceMethodScoreDto.Config.ResultMappings.INVOICE_METHOD_SCORE_MAPPING},
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceMethodScoreParams.DATE_TYPE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceMethodScoreParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
@@ -24,8 +25,9 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceMethodScoreParams.MODE_NAMES_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.InvoiceMethodScoreParams.INVOICE_METHOD_SCORE_DATA_PARAM, type = Void.class)
                 }),
-        @NamedStoredProcedureQuery(name = "InvoiceMethodScoreDto.getInvoiceMethodScoreByCarrier", procedureName = "SHP_DB_INV_MTD_SCORE_CARR_PROC",
-                resultSetMappings = "InvoiceMethodScoreByCarrierMapping",
+        @NamedStoredProcedureQuery(name = InvoiceMethodScoreDto.Config.StoredProcedureQueryName.INVOICE_METHOD_SCORE_BY_CARRIER,
+                procedureName = InvoiceMethodScoreDto.Config.StoredProcedureName.INVOICE_METHOD_SCORE_BY_CARRIER,
+                resultSetMappings = {InvoiceMethodScoreDto.Config.ResultMappings.INVOICE_METHOD_SCORE_BY_CARRIER_MAPPING},
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceMethodScoreParams.DATE_TYPE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceMethodScoreParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
@@ -39,8 +41,9 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceMethodScoreParams.INVOICE_METHOD_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.InvoiceMethodScoreParams.INVOICE_METHOD_SCORE_DATA_PARAM, type = Void.class)
                 }),
-        @NamedStoredProcedureQuery(name = "InvoiceMethodScoreDto.getInvoiceMethodScoreByMonth", procedureName = "SHP_DB_INV_MTD_SCORE_MNTH_PROC",
-                resultSetMappings = "InvoiceMethodScoreByMonthMapping",
+        @NamedStoredProcedureQuery(name = InvoiceMethodScoreDto.Config.StoredProcedureQueryName.INVOICE_METHOD_SCORE_BY_MONTH,
+                procedureName = InvoiceMethodScoreDto.Config.StoredProcedureName.INVOICE_METHOD_SCORE_BY_MONTH,
+                resultSetMappings = {InvoiceMethodScoreDto.Config.ResultMappings.INVOICE_METHOD_SCORE_BY_MONTH_MAPPING},
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceMethodScoreParams.DATE_TYPE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceMethodScoreParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
@@ -57,7 +60,7 @@ import java.util.Date;
 })
 
 @SqlResultSetMappings({
-        @SqlResultSetMapping(name = "InvoiceMethodScoreMapping", classes = {
+        @SqlResultSetMapping(name = InvoiceMethodScoreDto.Config.ResultMappings.INVOICE_METHOD_SCORE_MAPPING, classes = {
                 @ConstructorResult(
                         targetClass = InvoiceMethodScoreDto.class,
                         columns = {
@@ -66,7 +69,7 @@ import java.util.Date;
                                 @ColumnResult(name = "VALUE", type = Double.class)
                         })
         }),
-        @SqlResultSetMapping(name = "InvoiceMethodScoreByCarrierMapping", classes = {
+        @SqlResultSetMapping(name = InvoiceMethodScoreDto.Config.ResultMappings.INVOICE_METHOD_SCORE_BY_CARRIER_MAPPING, classes = {
                 @ConstructorResult(
                         targetClass = InvoiceMethodScoreDto.class,
                         columns = {
@@ -75,7 +78,7 @@ import java.util.Date;
                                 @ColumnResult(name = "VALUE", type = Double.class)
                         })
         }),
-        @SqlResultSetMapping(name = "InvoiceMethodScoreByMonthMapping", classes = {
+        @SqlResultSetMapping(name = InvoiceMethodScoreDto.Config.ResultMappings.INVOICE_METHOD_SCORE_BY_MONTH_MAPPING, classes = {
                 @ConstructorResult(
                         targetClass = InvoiceMethodScoreDto.class,
                         columns = {
@@ -170,5 +173,25 @@ public class InvoiceMethodScoreDto implements Serializable {
 
     public void setInvoiceMethodId(String invoiceMethodId) {
         this.invoiceMethodId = invoiceMethodId;
+    }
+
+    public static class Config{
+        static class ResultMappings{
+            static final String INVOICE_METHOD_SCORE_MAPPING = "InvoiceMethodScoreDto.InvoiceMethodScoreMapping";
+            static final String INVOICE_METHOD_SCORE_BY_CARRIER_MAPPING = "InvoiceMethodScoreDto.InvoiceMethodScoreByCarrierMapping";
+            static final String INVOICE_METHOD_SCORE_BY_MONTH_MAPPING = "InvoiceMethodScoreDto.InvoiceMethodScoreByMonthMapping";
+        }
+
+        static class StoredProcedureName{
+            static final String INVOICE_METHOD_SCORE = "SHP_DB_INV_MTD_SCORE_PROC";
+            static final String INVOICE_METHOD_SCORE_BY_CARRIER = "SHP_DB_INV_MTD_SCORE_CARR_PROC";
+            static final String INVOICE_METHOD_SCORE_BY_MONTH = "SHP_DB_INV_MTD_SCORE_MNTH_PROC";
+        }
+
+        public static class StoredProcedureQueryName{
+            public static final String INVOICE_METHOD_SCORE = "InvoiceMethodScoreDto.getInvoiceMethodScore";
+            public static final String INVOICE_METHOD_SCORE_BY_CARRIER = "InvoiceMethodScoreDto.getInvoiceMethodScoreByCarrier";
+            public static final String INVOICE_METHOD_SCORE_BY_MONTH = "InvoiceMethodScoreDto.getInvoiceMethodScoreByMonth";
+        }
     }
 }

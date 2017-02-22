@@ -5,19 +5,18 @@ import com.envista.msi.api.web.rest.dto.MapCoordinatesDto;
 import com.envista.msi.api.web.rest.dto.ZipCodesTimeZonesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardAppliedFilterDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
-import com.envista.msi.api.web.rest.dto.dashboard.accessorialspend.AccessorialSpendDto;
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AccountSummaryDto;
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AnnualSummaryDto;
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.MonthlySpendByModeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
-import com.envista.msi.api.web.rest.dto.dashboard.netspend.*;
+import com.envista.msi.api.web.rest.dto.dashboard.netspend.AccessorialSpendDto;
+import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendByModeDto;
+import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendOverTimeDto;
+import com.envista.msi.api.web.rest.dto.dashboard.netspend.TaxSpendDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.PortLanesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentRegionDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShippingLanesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.*;
-import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendByCarrierDto;
-import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendByMonthDto;
-import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,7 +63,7 @@ public class DashboardsService {
      * @return
      */
     @Transactional(readOnly = true)
-    public List<NetSpendOverTimeByMonthDto> getNetSpendOverTimeByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+    public List<NetSpendOverTimeDto> getNetSpendOverTimeByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
         return  dashboardsDao.getNetSpendOverTimeByMonth(filter, isTopTenAccessorial);
     }
 
@@ -85,7 +84,7 @@ public class DashboardsService {
      * @param isTopTenAccessorial
      * @return
      */
-    public List<NetSpendByCarrierDto> getNetSpendByCarrier(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+    public List<NetSpendByModeDto> getNetSpendByCarrier(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
         return dashboardsDao.getNetSpendByCarrier(filter, isTopTenAccessorial);
     }
 
@@ -95,7 +94,7 @@ public class DashboardsService {
      * @param isTopTenAccessorial
      * @return
      */
-    public List<NetSpendByMonthDto> getNetSpendByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+    public List<NetSpendByModeDto> getNetSpendByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
         return dashboardsDao.getNetSpendByMonth(filter, isTopTenAccessorial);
     }
 
@@ -113,7 +112,7 @@ public class DashboardsService {
      * @param filter
      * @return
      */
-    public List<TaxSpendByCarrierDto> getTaxSpendByCarrier(DashboardsFilterCriteria filter){
+    public List<TaxSpendDto> getTaxSpendByCarrier(DashboardsFilterCriteria filter){
         return dashboardsDao.getTaxSpendByCarrier(filter);
     }
 
@@ -122,7 +121,7 @@ public class DashboardsService {
      * @param filter
      * @return
      */
-    public List<TaxSpendByMonthDto> getTaxSpendByMonth(DashboardsFilterCriteria filter){
+    public List<TaxSpendDto> getTaxSpendByMonth(DashboardsFilterCriteria filter){
         return dashboardsDao.getTaxSpendByMonth(filter);
     }
 

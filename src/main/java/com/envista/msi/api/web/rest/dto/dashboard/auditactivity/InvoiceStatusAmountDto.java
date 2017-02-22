@@ -10,8 +10,9 @@ import java.util.Date;
  * Created by Sujit kumar on 09/02/2017.
  */
 @NamedStoredProcedureQueries({
-        @NamedStoredProcedureQuery(name = "InvoiceStatusAmountDto.getInvoiceStatusAmount", procedureName = "SHP_DB_INV_STS_AMT_PROC",
-                resultSetMappings = "InvoiceStatusAmountMapping",
+        @NamedStoredProcedureQuery(name = InvoiceStatusAmountDto.Config.StoredProcedureQueryName.INVOICE_STATUS_AMOUNT,
+                procedureName = InvoiceStatusAmountDto.Config.StoredProcedureName.INVOICE_STATUS_AMOUNT,
+                resultSetMappings = InvoiceStatusAmountDto.Config.ResultMappings.INVOICE_STATUS_AMOUNT_MAPPING,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceStatusAmountParams.DATE_TYPE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceStatusAmountParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
@@ -25,8 +26,9 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceStatusAmountParams.MODE_NAMES_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.InvoiceStatusAmountParams.INVOICE_AMOUNT_DATA_PARAM, type = Void.class)
                 }),
-        @NamedStoredProcedureQuery(name = "InvoiceStatusAmountDto.getInvoiceStatusAmountByCarrier", procedureName = "SHP_DB_INV_STS_AMT_CARR_PROC",
-                resultSetMappings = "InvoiceStatusAmountMapping",
+        @NamedStoredProcedureQuery(name = InvoiceStatusAmountDto.Config.StoredProcedureQueryName.INVOICE_STATUS_AMOUNT_BY_CARRIER,
+                procedureName = InvoiceStatusAmountDto.Config.StoredProcedureName.INVOICE_STATUS_AMOUNT_BY_CARRIER,
+                resultSetMappings = InvoiceStatusAmountDto.Config.ResultMappings.INVOICE_STATUS_AMOUNT_BY_CARRIER_MAPPING,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceStatusAmountParams.DATE_TYPE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceStatusAmountParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
@@ -41,8 +43,9 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceStatusAmountParams.INVOICE_STATUS_ID_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.InvoiceStatusAmountParams.INVOICE_AMOUNT_DATA_PARAM, type = Void.class)
                 }),
-        @NamedStoredProcedureQuery(name = "InvoiceStatusAmountDto.getInvoiceStatusAmountByMonth", procedureName = "SHP_DB_INV_STS_AMT_MNTH_PROC",
-                resultSetMappings = "InvoiceStatusAmountByMonthMapping",
+        @NamedStoredProcedureQuery(name = InvoiceStatusAmountDto.Config.StoredProcedureQueryName.INVOICE_STATUS_AMOUNT_BY_MONTH,
+                procedureName = InvoiceStatusAmountDto.Config.StoredProcedureName.INVOICE_STATUS_AMOUNT_BY_MONTH,
+                resultSetMappings = InvoiceStatusAmountDto.Config.ResultMappings.INVOICE_STATUS_AMOUNT_BY_MONTH_MAPPING,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceStatusAmountParams.DATE_TYPE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.InvoiceStatusAmountParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
@@ -60,7 +63,7 @@ import java.util.Date;
 })
 
 @SqlResultSetMappings({
-        @SqlResultSetMapping(name = "InvoiceStatusAmountMapping", classes = {
+        @SqlResultSetMapping(name = InvoiceStatusAmountDto.Config.ResultMappings.INVOICE_STATUS_AMOUNT_MAPPING, classes = {
                 @ConstructorResult(
                         targetClass = InvoiceStatusAmountDto.class,
                         columns = {
@@ -69,7 +72,7 @@ import java.util.Date;
                                 @ColumnResult(name = "VALUE", type = Double.class)
                         })
         }),
-        @SqlResultSetMapping(name = "InvoiceStatusAmountByMonthMapping", classes = {
+        @SqlResultSetMapping(name = InvoiceStatusAmountDto.Config.ResultMappings.INVOICE_STATUS_AMOUNT_BY_MONTH_MAPPING, classes = {
                 @ConstructorResult(
                         targetClass = InvoiceStatusAmountDto.class,
                         columns = {
@@ -148,5 +151,25 @@ public class InvoiceStatusAmountDto implements Serializable {
 
     public void setAmount(Double amount) {
         this.amount = amount;
+    }
+
+    public static class Config{
+        static class ResultMappings{
+            static final String INVOICE_STATUS_AMOUNT_MAPPING = "InvoiceStatusAmountDto.InvoiceStatusAmountMapping";
+            static final String INVOICE_STATUS_AMOUNT_BY_CARRIER_MAPPING = INVOICE_STATUS_AMOUNT_MAPPING;
+            static final String INVOICE_STATUS_AMOUNT_BY_MONTH_MAPPING = "InvoiceStatusAmountDto.InvoiceStatusAmountByMonthMapping";
+        }
+
+        static class StoredProcedureName{
+            static final String INVOICE_STATUS_AMOUNT = "SHP_DB_INV_STS_AMT_PROC";
+            static final String INVOICE_STATUS_AMOUNT_BY_CARRIER = "SHP_DB_INV_STS_AMT_CARR_PROC";
+            static final String INVOICE_STATUS_AMOUNT_BY_MONTH = "SHP_DB_INV_STS_AMT_MNTH_PROC";
+        }
+
+        public static class StoredProcedureQueryName{
+            public static final String INVOICE_STATUS_AMOUNT = "InvoiceStatusAmountDto.getInvoiceStatusAmount";
+            public static final String INVOICE_STATUS_AMOUNT_BY_CARRIER = "InvoiceStatusAmountDto.getInvoiceStatusAmountByCarrier";
+            public static final String INVOICE_STATUS_AMOUNT_BY_MONTH = "InvoiceStatusAmountDto.getInvoiceStatusAmountByMonth";
+        }
     }
 }

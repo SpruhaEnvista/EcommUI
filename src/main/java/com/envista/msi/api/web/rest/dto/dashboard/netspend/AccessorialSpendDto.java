@@ -1,4 +1,4 @@
-package com.envista.msi.api.web.rest.dto.dashboard.accessorialspend;
+package com.envista.msi.api.web.rest.dto.dashboard.netspend;
 
 import com.envista.msi.api.domain.util.DashboardSroredProcParam;
 

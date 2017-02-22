@@ -103,7 +103,7 @@ import java.util.Date;
                 classes = {
                         @ConstructorResult(targetClass = AnnualSummaryDto.class,
                                 columns = {
-                                        @ColumnResult(name = "ID", type = String.class),
+                                        @ColumnResult(name = "ID", type = Long.class),
                                         @ColumnResult(name = "NAME", type = String.class),
                                         @ColumnResult(name = "VALUE", type = Double.class)
                                 })
