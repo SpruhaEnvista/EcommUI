@@ -452,6 +452,14 @@ public class DashboardsService {
         return dashboardsDao.getAverageSpendPerShipmentByMonth(filter,  isTopTenAccessorial);
     }
 
+    public List<AverageWeightModeByCarrierDto> getAverageWeightModeByCarrier(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
+        return dashboardsDao.getAverageWeightModeByCarrier(filter,  isTopTenAccessorial);
+    }
+
+    public List<AverageWeightModeByMonthDto> getAverageWeightModeByMonth(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
+        return dashboardsDao.getAverageWeightModeByMonth(filter,  isTopTenAccessorial);
+    }
+
     /**
      * Method to get Annual summary.
      * @param filter

@@ -82,7 +82,9 @@ public class DashboardsController extends DashboardBaseController {
         AVG_SPEND_PER_SHIPMT,
         AVG_WEIGHT_BY_MODE_SHIPMT,
         AVG_SPEND_PER_SHIPMT_BY_CARRIER,
-        AVG_SPEND_PER_SHIPMT_BY_MONTH;
+        AVG_SPEND_PER_SHIPMT_BY_MONTH,
+        AVG_WEIGHT_SHIPMT_BY_CARRIER,
+        AVG_WEIGHT_SHIPMT_BY_MONTH;
     }
 
     enum InboundSpendConstant{
@@ -1414,6 +1416,64 @@ public class DashboardsController extends DashboardBaseController {
         return new ResponseEntity<String>(avgSpendPerShipmtByCarrierJsonData.toString(), HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/avgWeightModeByCarrier", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getAverageWeightModeByCarrier(@RequestParam String service, @RequestParam String invoiceDate){
+        JSONObject avgWeightModeByCarrierJsonData = null;
+        try{
+            UserProfileDto user = getUserProfile();
+            if(null == user){
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+
+            if(filter !=  null){
+                if(service != null && !service.isEmpty()){
+                    filter.setService(service);
+                }
+                if(invoiceDate != null && !invoiceDate.isEmpty()){
+                    DashboardUtil.setDatesFromMonth(filter, invoiceDate);
+                }
+            }
+
+            JSONObject avgWeightModeData = loadShipmentOverviewJsonData(ShipmentOverviewConstant.AVG_WEIGHT_SHIPMT_BY_CARRIER, filter);
+            avgWeightModeByCarrierJsonData = (avgWeightModeData != null ? avgWeightModeData : new JSONObject());
+        }catch(Exception e){
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>(avgWeightModeByCarrierJsonData.toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/avgWeightModeByMonth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getAverageWeightModeByMonth(@RequestParam String service,@RequestParam String invoiceDate,@RequestParam String carrierId){
+        JSONObject avgWeightModeByCarrierJsonData = null;
+        try{
+            UserProfileDto user = getUserProfile();
+            if(null == user){
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+
+            if(filter !=  null){
+                if(service != null && !service.isEmpty()){
+                    filter.setService(service);
+                }
+                if(invoiceDate != null && !invoiceDate.isEmpty()){
+                    DashboardUtil.setDatesFromMonth(filter, invoiceDate);
+                }
+                if(carrierId != null && !carrierId.isEmpty()){
+                    filter.setCarriers(carrierId);
+                }
+            }
+
+            JSONObject avgWeightModeData = loadShipmentOverviewJsonData(ShipmentOverviewConstant.AVG_WEIGHT_SHIPMT_BY_MONTH, filter);
+            avgWeightModeByCarrierJsonData = (avgWeightModeData != null ? avgWeightModeData : new JSONObject());
+        }catch(Exception e){
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>(avgWeightModeByCarrierJsonData.toString(), HttpStatus.OK);
+    }
+
+
     @RequestMapping(value = "/annualSumm", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<String> getAnnualSummary(){
         JSONObject annualSummaryJson = null;
@@ -2575,6 +2635,12 @@ public class DashboardsController extends DashboardBaseController {
             case AVG_SPEND_PER_SHIPMT_BY_MONTH:
                 avgShipmentJson = loadAvgSpendPerShipmtByMonthJson(filter);
                 break;
+            case AVG_WEIGHT_SHIPMT_BY_CARRIER:
+                avgShipmentJson = loadAvgWeightModeByCarrierJson(filter);
+                break;
+            case AVG_WEIGHT_SHIPMT_BY_MONTH:
+                avgShipmentJson = loadAvgWeightModeByMonthJson(filter);
+                break;
             default:
                 throw new MethodNotFoundException("Method param value not matched");
         }
@@ -2640,6 +2706,42 @@ public class DashboardsController extends DashboardBaseController {
             avgShipmentJson = JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList);
         }
         return avgShipmentJson;
+    }
+
+    private JSONObject loadAvgWeightModeByCarrierJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject avgWeightJson = null;
+
+        List<AverageWeightModeByCarrierDto> avgWeightList = dashboardsService.getAverageWeightModeByCarrier(filter,false);
+        if(avgWeightList != null && avgWeightList.size() > 0){
+            List<CommonValuesForChartDto> commonValueList = new ArrayList<CommonValuesForChartDto>();
+            for(AverageWeightModeByCarrierDto avgWeightByCarrier : avgWeightList){
+                if(avgWeightByCarrier != null){
+                    CommonValuesForChartDto commonValueChartDto=new CommonValuesForChartDto();
+                    BeanUtils.copyProperties(avgWeightByCarrier , commonValueChartDto);
+                    commonValueList.add(commonValueChartDto);
+                }
+            }
+            avgWeightJson = JSONUtil.prepareCommonJsonForChart(commonValueList);
+        }
+        return avgWeightJson;
+    }
+
+    private JSONObject loadAvgWeightModeByMonthJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject avgWeightJson = null;
+
+        List<AverageWeightModeByMonthDto> avgWeightList = dashboardsService.getAverageWeightModeByMonth(filter,false);
+        if(avgWeightList != null && avgWeightList.size() > 0){
+            List<CommonMonthlyChartDto> commonMonthlyChartDtoList = new ArrayList<CommonMonthlyChartDto>();
+            for (AverageWeightModeByMonthDto avgWeightByMonthDto : avgWeightList) {
+                if (avgWeightByMonthDto != null) {
+                    CommonMonthlyChartDto commonMonthlyChartDto = new CommonMonthlyChartDto();
+                    BeanUtils.copyProperties(avgWeightByMonthDto, commonMonthlyChartDto);
+                    commonMonthlyChartDtoList.add(commonMonthlyChartDto);
+                }
+            }
+            avgWeightJson = JSONUtil.prepareMonthlyChartJson1(commonMonthlyChartDtoList);
+        }
+        return avgWeightJson;
     }
 
 }
