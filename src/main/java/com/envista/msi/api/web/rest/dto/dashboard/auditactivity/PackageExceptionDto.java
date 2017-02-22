@@ -11,8 +11,9 @@ import java.util.Date;
  */
 
 @NamedStoredProcedureQueries({
-        @NamedStoredProcedureQuery(name = "PackageExceptionDto.getPackageException", procedureName = "SHP_DB_PKG_EXCP_RPOC",
-                resultSetMappings = "PackageExceptionDto.PackageExceptionMapping",
+        @NamedStoredProcedureQuery(name = PackageExceptionDto.Config.StoredProcedureQueryName.PACKAGE_EXCEPTION,
+                procedureName = PackageExceptionDto.Config.StoredProcedureName.PACKAGE_EXCEPTION,
+                resultSetMappings = {PackageExceptionDto.Config.ResultMappings.PACKAGE_EXCEPTION_MAPPING},
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PackageExceptionParams.DATE_TYPE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PackageExceptionParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
@@ -27,8 +28,9 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.PackageExceptionParams.PACKAGE_EXCEPTION_DATA_PARAM, type = Void.class)
                 }
         ),
-        @NamedStoredProcedureQuery(name = "PackageExceptionDto.getPackageExceptionByCarrier", procedureName = "SHP_DB_PKG_EXCP_CARR_RPOC",
-                resultSetMappings = "PackageExceptionDto.PackageExceptionByCarrierMapping",
+        @NamedStoredProcedureQuery(name = PackageExceptionDto.Config.StoredProcedureQueryName.PACKAGE_EXCEPTION_BY_CARRIER,
+                procedureName = PackageExceptionDto.Config.StoredProcedureName.PACKAGE_EXCEPTION_BY_CARRIER,
+                resultSetMappings = PackageExceptionDto.Config.ResultMappings.PACKAGE_EXCEPTION_BY_CARRIER_MAPPING,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PackageExceptionParams.DATE_TYPE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PackageExceptionParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
@@ -44,8 +46,9 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.PackageExceptionParams.PACKAGE_EXCEPTION_DATA_PARAM, type = Void.class)
                 }
         ),
-        @NamedStoredProcedureQuery(name = "PackageExceptionDto.getPackageExceptionByMonth", procedureName = "SHP_DB_PKG_EXCP_MNTH_RPOC",
-                resultSetMappings = "PackageExceptionDto.PackageExceptionByMonthMapping",
+        @NamedStoredProcedureQuery(name = PackageExceptionDto.Config.StoredProcedureQueryName.PACKAGE_EXCEPTION_BY_MONTH,
+                procedureName = PackageExceptionDto.Config.StoredProcedureName.PACKAGE_EXCEPTION_BY_MONTH,
+                resultSetMappings = PackageExceptionDto.Config.ResultMappings.PACKAGE_EXCEPTION_BY_MONTH_MAPPING,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PackageExceptionParams.DATE_TYPE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PackageExceptionParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
@@ -64,7 +67,7 @@ import java.util.Date;
 })
 
 @SqlResultSetMappings({
-        @SqlResultSetMapping(name = "PackageExceptionDto.PackageExceptionMapping",
+        @SqlResultSetMapping(name = PackageExceptionDto.Config.ResultMappings.PACKAGE_EXCEPTION_MAPPING,
             classes = {
                     @ConstructorResult(targetClass = PackageExceptionDto.class,
                     columns = {
@@ -73,7 +76,7 @@ import java.util.Date;
                             @ColumnResult(name = "COUNT_DEL_FLAG", type = Integer.class)
                     })
             }),
-        @SqlResultSetMapping(name = "PackageExceptionDto.PackageExceptionByCarrierMapping",
+        @SqlResultSetMapping(name = PackageExceptionDto.Config.ResultMappings.PACKAGE_EXCEPTION_BY_CARRIER_MAPPING,
                 classes = {
                         @ConstructorResult(targetClass = PackageExceptionDto.class,
                                 columns = {
@@ -82,7 +85,7 @@ import java.util.Date;
                                         @ColumnResult(name = "VALUE", type = Double.class)
                                 })
                 }),
-        @SqlResultSetMapping(name = "PackageExceptionDto.PackageExceptionByMonthMapping",
+        @SqlResultSetMapping(name = PackageExceptionDto.Config.ResultMappings.PACKAGE_EXCEPTION_BY_MONTH_MAPPING,
                 classes = {
                         @ConstructorResult(targetClass = PackageExceptionDto.class,
                                 columns = {
@@ -200,5 +203,25 @@ public class PackageExceptionDto implements Serializable{
 
     public void setDeliveryFlag(String deliveryFlag) {
         this.deliveryFlag = deliveryFlag;
+    }
+
+    public static class Config{
+        static class ResultMappings{
+            static final String PACKAGE_EXCEPTION_MAPPING = "PackageExceptionDto.PackageExceptionMapping";
+            static final String PACKAGE_EXCEPTION_BY_CARRIER_MAPPING = "PackageExceptionDto.PackageExceptionByCarrierMapping";
+            static final String PACKAGE_EXCEPTION_BY_MONTH_MAPPING = "PackageExceptionDto.PackageExceptionByMonthMapping";
+        }
+
+        static class StoredProcedureName{
+            static final String PACKAGE_EXCEPTION = "SHP_DB_PKG_EXCP_RPOC";
+            static final String PACKAGE_EXCEPTION_BY_CARRIER = "SHP_DB_PKG_EXCP_CARR_RPOC";
+            static final String PACKAGE_EXCEPTION_BY_MONTH = "SHP_DB_PKG_EXCP_MNTH_RPOC";
+        }
+
+        public static class StoredProcedureQueryName{
+            public static final String PACKAGE_EXCEPTION = "PackageExceptionDto.getPackageException";
+            public static final String PACKAGE_EXCEPTION_BY_CARRIER = "PackageExceptionDto.getPackageExceptionByCarrier";
+            public static final String PACKAGE_EXCEPTION_BY_MONTH = "PackageExceptionDto.getPackageExceptionByMonth";
+        }
     }
 }

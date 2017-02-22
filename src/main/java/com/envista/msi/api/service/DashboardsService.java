@@ -1,15 +1,22 @@
 package com.envista.msi.api.service;
 
 import com.envista.msi.api.dao.DashboardsDao;
+import com.envista.msi.api.web.rest.dto.MapCoordinatesDto;
+import com.envista.msi.api.web.rest.dto.ZipCodesTimeZonesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardAppliedFilterDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
-import com.envista.msi.api.web.rest.dto.dashboard.accessorialspend.AccessorialSpendDto;
+import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AccountSummaryDto;
+import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AnnualSummaryDto;
+import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.MonthlySpendByModeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
-import com.envista.msi.api.web.rest.dto.dashboard.netspend.*;
+import com.envista.msi.api.web.rest.dto.dashboard.netspend.AccessorialSpendDto;
+import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendByModeDto;
+import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendOverTimeDto;
+import com.envista.msi.api.web.rest.dto.dashboard.netspend.TaxSpendDto;
+import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.PortLanesDto;
+import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentRegionDto;
+import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShippingLanesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.*;
-import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendByCarrierDto;
-import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendByMonthDto;
-import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,7 +63,7 @@ public class DashboardsService {
      * @return
      */
     @Transactional(readOnly = true)
-    public List<NetSpendOverTimeByMonthDto> getNetSpendOverTimeByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+    public List<NetSpendOverTimeDto> getNetSpendOverTimeByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
         return  dashboardsDao.getNetSpendOverTimeByMonth(filter, isTopTenAccessorial);
     }
 
@@ -77,7 +84,7 @@ public class DashboardsService {
      * @param isTopTenAccessorial
      * @return
      */
-    public List<NetSpendByCarrierDto> getNetSpendByCarrier(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+    public List<NetSpendByModeDto> getNetSpendByCarrier(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
         return dashboardsDao.getNetSpendByCarrier(filter, isTopTenAccessorial);
     }
 
@@ -87,7 +94,7 @@ public class DashboardsService {
      * @param isTopTenAccessorial
      * @return
      */
-    public List<NetSpendByMonthDto> getNetSpendByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+    public List<NetSpendByModeDto> getNetSpendByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
         return dashboardsDao.getNetSpendByMonth(filter, isTopTenAccessorial);
     }
 
@@ -105,7 +112,7 @@ public class DashboardsService {
      * @param filter
      * @return
      */
-    public List<TaxSpendByCarrierDto> getTaxSpendByCarrier(DashboardsFilterCriteria filter){
+    public List<TaxSpendDto> getTaxSpendByCarrier(DashboardsFilterCriteria filter){
         return dashboardsDao.getTaxSpendByCarrier(filter);
     }
 
@@ -114,7 +121,7 @@ public class DashboardsService {
      * @param filter
      * @return
      */
-    public List<TaxSpendByMonthDto> getTaxSpendByMonth(DashboardsFilterCriteria filter){
+    public List<TaxSpendDto> getTaxSpendByMonth(DashboardsFilterCriteria filter){
         return dashboardsDao.getTaxSpendByMonth(filter);
     }
 
@@ -377,6 +384,54 @@ public class DashboardsService {
         return dashboardsDao.getRecoveryServicesByMonth(filter, isTopTenAccessorial);
     }
 
+    public List<ShipmentRegionDto> getShipmentByRegion(DashboardsFilterCriteria dashboardsFilterCriteria ) {
+        return dashboardsDao.getShipmentByRegion(dashboardsFilterCriteria);
+    }
+
+    public List<MapCoordinatesDto> getMapCooridantes(String address) {
+        return dashboardsDao.getMapCoordinates(address);
+    }
+
+    public List<ZipCodesTimeZonesDto> getMapCooridantes(String city, String state) {
+        return dashboardsDao.getMapCoordinates(city,state);
+    }
+
+    public void insertMapCoordinates(MapCoordinatesDto mapCoordinatesDto) {
+        dashboardsDao.insertMapCoordinates(mapCoordinatesDto);
+    }
+
+    public List<ShipmentRegionDto> getShipmentRegionByCarrierJson (DashboardsFilterCriteria filterCriteria) {
+        return dashboardsDao.getShipmentRegionByCarrierJson(filterCriteria);
+    }
+
+    public List<ShipmentRegionDto> getShipmentRegionByMonthJson (DashboardsFilterCriteria filterCriteria) {
+        return dashboardsDao.getShipmentRegionByMonthJson(filterCriteria);
+    }
+
+    public List<ShippingLanesDto> loadTopShippingLanesJsonData (DashboardsFilterCriteria filterCriteria) {
+        return dashboardsDao.getTopShippingLanesJsonData(filterCriteria);
+    }
+
+    public List<ShippingLanesDto> getShippingLanesByCarrierJson (DashboardsFilterCriteria filterCriteria) {
+        return dashboardsDao.getShippingLanesByCarrierJson(filterCriteria);
+    }
+
+    public List<ShippingLanesDto> getShippingLanesByMonthJson (DashboardsFilterCriteria filterCriteria) {
+        return dashboardsDao.getShippingLanesByMonthJson(filterCriteria);
+    }
+
+    public List<PortLanesDto> loadTopPortLanesJsonData (DashboardsFilterCriteria filterCriteria) {
+        return dashboardsDao.getTopPortLanesJsonData(filterCriteria);
+    }
+
+    public List<PortLanesDto> getPortLanesByCarrierJson (DashboardsFilterCriteria filterCriteria) {
+        return dashboardsDao.getPortLanesByCarrierJson(filterCriteria);
+    }
+
+    public List<PortLanesDto> getPortLanesByMonthJson (DashboardsFilterCriteria filterCriteria) {
+        return dashboardsDao.getPortLanesByMonthJson(filterCriteria);
+    }
+
     public List<PackageExceptionDto> getPackageExceptions(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
         return dashboardsDao.getPackageExceptions(filter, isTopTenAccessorial);
     }
@@ -403,5 +458,85 @@ public class DashboardsService {
 
     public List<AverageWeightModeByMonthDto> getAverageWeightModeByMonth(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
         return dashboardsDao.getAverageWeightModeByMonth(filter,  isTopTenAccessorial);
+    }
+
+    /**
+     * Method to get Annual summary.
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<AnnualSummaryDto> getAnnualSummary(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
+        return dashboardsDao.getAnnualSummary(filter, isTopTenAccessorial);
+    }
+
+    /**
+     * Method to get Annual summary by service.
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<AnnualSummaryDto> getAnnualSummaryByService(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
+        return dashboardsDao.getAnnualSummaryByService(filter, isTopTenAccessorial);
+    }
+
+    /**
+     * Method to get Annual summary by carrier.
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<AnnualSummaryDto> getAnnualSummaryByCarrier(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
+        return dashboardsDao.getAnnualSummaryByCarrier(filter, isTopTenAccessorial);
+    }
+
+    /**
+     * Method to get Annual summary by month.
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<AnnualSummaryDto> getAnnualSummaryByMonth(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
+        return dashboardsDao.getAnnualSummaryByMonth(filter, isTopTenAccessorial);
+    }
+
+    /**
+     * Method to get monthly spend by mode.
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<MonthlySpendByModeDto> getMonthlySpendByMode(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
+        return dashboardsDao.getMonthlySpendByMode(filter, isTopTenAccessorial);
+    }
+
+    /**
+     * Method to get monthly spend by mode by service.
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<MonthlySpendByModeDto> getMonthlySpendByModeByService(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
+        return dashboardsDao.getMonthlySpendByModeByService(filter, isTopTenAccessorial);
+    }
+
+    /**
+     * Method to get account summary details.
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<AccountSummaryDto> getAccountSummary(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
+        return dashboardsDao.getAccountSummary(filter, isTopTenAccessorial);
+    }
+
+    /**
+     * Method to get parcel account summary details.
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<AccountSummaryDto> getParcelAccountSummary(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
+        return dashboardsDao.getParcelAccountSummary(filter, isTopTenAccessorial);
     }
 }
