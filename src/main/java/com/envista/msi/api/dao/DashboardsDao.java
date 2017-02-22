@@ -2,22 +2,25 @@ package com.envista.msi.api.dao;
 
 import com.envista.msi.api.domain.PersistentContext;
 import com.envista.msi.api.domain.util.DashboardSroredProcParam;
+import com.envista.msi.api.domain.util.DashboardUtil;
 import com.envista.msi.api.domain.util.QueryParameter;
 import com.envista.msi.api.domain.util.StoredProcedureParameter;
 import com.envista.msi.api.web.rest.dto.MapCoordinatesDto;
 import com.envista.msi.api.web.rest.dto.ZipCodesTimeZonesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardAppliedFilterDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
-import com.envista.msi.api.web.rest.dto.dashboard.accessorialspend.AccessorialSpendDto;
+import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AccountSummaryDto;
+import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AnnualSummaryDto;
+import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.MonthlySpendByModeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
-import com.envista.msi.api.web.rest.dto.dashboard.netspend.*;
+import com.envista.msi.api.web.rest.dto.dashboard.netspend.AccessorialSpendDto;
+import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendByModeDto;
+import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendOverTimeDto;
+import com.envista.msi.api.web.rest.dto.dashboard.netspend.TaxSpendDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.PortLanesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentRegionDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShippingLanesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.*;
-import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendByCarrierDto;
-import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendByMonthDto;
-import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendDto;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,319 +44,266 @@ public class DashboardsDao {
 
     /**
      * Get bet spend based on the applied filter.
-     * @param filter
-     * @param isTopTenAccessorial
-     * @return
-     */
-    @Transactional( readOnly = true )
-    public List<NetSpendByModeDto> getNetSpendByModes(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.NetSpendParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.NetSpendParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
-                .and(DashboardSroredProcParam.NetSpendParams.CONVERTED_CURRENCY_CODE_PARAM, filter.getConvertCurrencyCode())
-                .and(DashboardSroredProcParam.NetSpendParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.NetSpendParams.CARRIER_ID_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.NetSpendParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.NetSpendParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.NetSpendParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.NetSpendParams.ACCESSORIAL_NAME_PARAM, filter.getAccessorialName())
-                .and(DashboardSroredProcParam.NetSpendParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.NetSpendParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.NetSpendParams.TOP_TEN_ACCESSORIAL_PARAM, isTopTenAccessorial ? 1L : 0L);
-
-        return persistentContext.findEntities("NetSpendByModeDto.getNetSpendByMode", queryParameter);
-    }
-
-    /**
      *
      * @param filter
      * @param isTopTenAccessorial
      * @return
      */
-    public List<NetSpendOverTimeByMonthDto> getNetSpendOverTimeByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.NetSpendParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.NetSpendParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
-                .and(DashboardSroredProcParam.NetSpendParams.CONVERTED_CURRENCY_CODE_PARAM, filter.getConvertCurrencyCode())
-                .and(DashboardSroredProcParam.NetSpendParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.NetSpendParams.CARRIER_ID_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.NetSpendParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.NetSpendParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.NetSpendParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.NetSpendParams.ACCESSORIAL_NAME_PARAM, filter.getAccessorialName())
-                .and(DashboardSroredProcParam.NetSpendParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.NetSpendParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.NetSpendParams.TOP_TEN_ACCESSORIAL_PARAM, isTopTenAccessorial ? 1L : 0L);
-
-        return persistentContext.findEntities("NetSpendOverTimeByMonthDto.getNetSpendOverTimeByMonth", queryParameter);
+    @Transactional(readOnly = true)
+    public List<NetSpendByModeDto> getNetSpendByModes(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {DashboardSroredProcParam.NetSpendParams.DATE_TYPE_PARAM, DashboardSroredProcParam.NetSpendParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardSroredProcParam.NetSpendParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardSroredProcParam.NetSpendParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.NetSpendParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.NetSpendParams.MODES_PARAM,
+                DashboardSroredProcParam.NetSpendParams.SERVICES_PARAM, DashboardSroredProcParam.NetSpendParams.LANES_PARAM,
+                DashboardSroredProcParam.NetSpendParams.ACCESSORIAL_NAME_PARAM,
+                DashboardSroredProcParam.NetSpendParams.FROM_DATE_PARAM, DashboardSroredProcParam.NetSpendParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.NetSpendParams.TOP_TEN_ACCESSORIAL_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(NetSpendByModeDto.Config.StoredProcedureQueryName.NET_SPEND_BY_MODE, queryParameter);
     }
 
     /**
-     *
      * @param filter
      * @param isTopTenAccessorial
      * @return
      */
-    public List<NetSpendOverTimeDto> getNetSpendByOverTime(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.NetSpendParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.NetSpendParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
-                .and(DashboardSroredProcParam.NetSpendParams.CONVERTED_CURRENCY_CODE_PARAM, filter.getConvertCurrencyCode())
-                .and(DashboardSroredProcParam.NetSpendParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.NetSpendParams.CARRIER_ID_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.NetSpendParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.NetSpendParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.NetSpendParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.NetSpendParams.ACCESSORIAL_NAME_PARAM, filter.getAccessorialName())
-                .and(DashboardSroredProcParam.NetSpendParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.NetSpendParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.NetSpendParams.TOP_TEN_ACCESSORIAL_PARAM, isTopTenAccessorial ? 1L : 0L);
-
-        return persistentContext.findEntities("NetSpendOverTimeDto.getNetSpendByOverTime", queryParameter);
+    public List<NetSpendOverTimeDto> getNetSpendOverTimeByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {DashboardSroredProcParam.NetSpendParams.DATE_TYPE_PARAM, DashboardSroredProcParam.NetSpendParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardSroredProcParam.NetSpendParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardSroredProcParam.NetSpendParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.NetSpendParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.NetSpendParams.MODES_PARAM,
+                DashboardSroredProcParam.NetSpendParams.SERVICES_PARAM, DashboardSroredProcParam.NetSpendParams.LANES_PARAM,
+                DashboardSroredProcParam.NetSpendParams.ACCESSORIAL_NAME_PARAM,
+                DashboardSroredProcParam.NetSpendParams.FROM_DATE_PARAM, DashboardSroredProcParam.NetSpendParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.NetSpendParams.TOP_TEN_ACCESSORIAL_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(NetSpendOverTimeDto.Config.StoredProcedureQueryName.NET_SPEND_OVER_TIME_BY_MONTH, queryParameter);
     }
 
     /**
-     *
      * @param filter
      * @param isTopTenAccessorial
      * @return
      */
-    @Transactional( readOnly = true )
-    public List<NetSpendByCarrierDto> getNetSpendByCarrier(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.NetSpendParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.NetSpendParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
-                .and(DashboardSroredProcParam.NetSpendParams.CONVERTED_CURRENCY_CODE_PARAM, filter.getConvertCurrencyCode())
-                .and(DashboardSroredProcParam.NetSpendParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.NetSpendParams.CARRIER_ID_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.NetSpendParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.NetSpendParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.NetSpendParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.NetSpendParams.ACCESSORIAL_NAME_PARAM, filter.getAccessorialName())
-                .and(DashboardSroredProcParam.NetSpendParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.NetSpendParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.NetSpendParams.TOP_TEN_ACCESSORIAL_PARAM, isTopTenAccessorial ? 1L : 0L)
-                .and(DashboardSroredProcParam.NetSpendParams.MODE_NAMES_PARAM, filter.getModeNames());
-
-        return persistentContext.findEntities("NetSpendByCarrierDto.getNetSpendByCarrier", queryParameter);
+    public List<NetSpendOverTimeDto> getNetSpendByOverTime(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {DashboardSroredProcParam.NetSpendParams.DATE_TYPE_PARAM, DashboardSroredProcParam.NetSpendParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardSroredProcParam.NetSpendParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardSroredProcParam.NetSpendParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.NetSpendParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.NetSpendParams.MODES_PARAM,
+                DashboardSroredProcParam.NetSpendParams.SERVICES_PARAM, DashboardSroredProcParam.NetSpendParams.LANES_PARAM,
+                DashboardSroredProcParam.NetSpendParams.ACCESSORIAL_NAME_PARAM,
+                DashboardSroredProcParam.NetSpendParams.FROM_DATE_PARAM, DashboardSroredProcParam.NetSpendParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.NetSpendParams.TOP_TEN_ACCESSORIAL_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(NetSpendOverTimeDto.Config.StoredProcedureQueryName.NET_SPEND_OVER_TIME, queryParameter);
     }
 
     /**
-     *
      * @param filter
      * @param isTopTenAccessorial
      * @return
      */
-    public List<NetSpendByMonthDto> getNetSpendByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.NetSpendParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.NetSpendParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
-                .and(DashboardSroredProcParam.NetSpendParams.CONVERTED_CURRENCY_CODE_PARAM, filter.getConvertCurrencyCode())
-                .and(DashboardSroredProcParam.NetSpendParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.NetSpendParams.CARRIER_ID_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.NetSpendParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.NetSpendParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.NetSpendParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.NetSpendParams.ACCESSORIAL_NAME_PARAM, filter.getAccessorialName())
-                .and(DashboardSroredProcParam.NetSpendParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.NetSpendParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.NetSpendParams.TOP_TEN_ACCESSORIAL_PARAM, isTopTenAccessorial ? 1L : 0L)
-                .and(DashboardSroredProcParam.NetSpendParams.MODE_NAMES_PARAM, filter.getModeNames())
-                .and(DashboardSroredProcParam.NetSpendParams.SCORE_TYPE_PARAM, filter.getScoreType());
-
-        return persistentContext.findEntities("NetSpendByMonthDto.getNetSpendByMonth", queryParameter);
+    @Transactional(readOnly = true)
+    public List<NetSpendByModeDto> getNetSpendByCarrier(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {DashboardSroredProcParam.NetSpendParams.DATE_TYPE_PARAM, DashboardSroredProcParam.NetSpendParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardSroredProcParam.NetSpendParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardSroredProcParam.NetSpendParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.NetSpendParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.NetSpendParams.MODES_PARAM,
+                DashboardSroredProcParam.NetSpendParams.SERVICES_PARAM, DashboardSroredProcParam.NetSpendParams.LANES_PARAM,
+                DashboardSroredProcParam.NetSpendParams.ACCESSORIAL_NAME_PARAM,
+                DashboardSroredProcParam.NetSpendParams.FROM_DATE_PARAM, DashboardSroredProcParam.NetSpendParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.NetSpendParams.TOP_TEN_ACCESSORIAL_PARAM,
+                DashboardSroredProcParam.NetSpendParams.MODE_NAMES_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(NetSpendByModeDto.Config.StoredProcedureQueryName.NET_SPEND_BY_CARRIER, queryParameter);
     }
 
     /**
-     *
-     * @param filter
-     * @return
-     */
-    public List<TaxSpendDto> getTaxSpend(DashboardsFilterCriteria filter){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.NetSpendParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.TaxSpendParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
-                .and(DashboardSroredProcParam.TaxSpendParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.TaxSpendParams.CARRIER_ID_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.TaxSpendParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.TaxSpendParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.TaxSpendParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.TaxSpendParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.TaxSpendParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.TaxSpendParams.MODE_NAMES_PARAM, filter.getModeNames());
-
-        return persistentContext.findEntities("TaxSpendDto.getTaxSpend", queryParameter);
-    }
-
-    /**
-     *
-     * @param filter
-     * @return
-     */
-    public List<TaxSpendByCarrierDto> getTaxSpendByCarrier(DashboardsFilterCriteria filter){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.NetSpendParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.TaxSpendParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
-                .and(DashboardSroredProcParam.TaxSpendParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.TaxSpendParams.CARRIER_ID_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.TaxSpendParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.TaxSpendParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.TaxSpendParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.TaxSpendParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.TaxSpendParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.TaxSpendParams.MODE_NAMES_PARAM, filter.getModeNames())
-                .and(DashboardSroredProcParam.TaxSpendParams.TAX_PARAM, filter.getTax());
-
-        return persistentContext.findEntities("TaxSpendByCarrierDto.getTaxSpendByCarrier", queryParameter);
-    }
-
-    /**
-     *
-     * @param filter
-     * @return
-     */
-    public List<TaxSpendByMonthDto> getTaxSpendByMonth(DashboardsFilterCriteria filter){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.NetSpendParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.TaxSpendParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
-                .and(DashboardSroredProcParam.TaxSpendParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.TaxSpendParams.CARRIER_ID_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.TaxSpendParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.TaxSpendParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.TaxSpendParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.TaxSpendParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.TaxSpendParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.TaxSpendParams.MODE_NAMES_PARAM, filter.getModeNames())
-                .and(DashboardSroredProcParam.TaxSpendParams.TAX_PARAM, filter.getTax());;
-
-        return persistentContext.findEntities("TaxSpendByMonthDto.getTaxSpendByMonth", queryParameter);
-    }
-
-    /**
-     *
      * @param filter
      * @param isTopTenAccessorial
      * @return
      */
-    public List<AccessorialSpendDto> getTopAccessorialSpend(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.AccessorialSpendParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.CONVERTED_CURRENCY_CODE_PARAM, filter.getConvertCurrencyCode())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.CARRIER_ID_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.ACCESSORIAL_NAME_PARAM, filter.getAccessorialName())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.TOP_TEN_ACCESSORIAL_PARAM, isTopTenAccessorial ? 1L : 0L);
+    public List<NetSpendByModeDto> getNetSpendByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {DashboardSroredProcParam.NetSpendParams.DATE_TYPE_PARAM, DashboardSroredProcParam.NetSpendParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardSroredProcParam.NetSpendParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardSroredProcParam.NetSpendParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.NetSpendParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.NetSpendParams.MODES_PARAM,
+                DashboardSroredProcParam.NetSpendParams.SERVICES_PARAM, DashboardSroredProcParam.NetSpendParams.LANES_PARAM,
+                DashboardSroredProcParam.NetSpendParams.ACCESSORIAL_NAME_PARAM,
+                DashboardSroredProcParam.NetSpendParams.FROM_DATE_PARAM, DashboardSroredProcParam.NetSpendParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.NetSpendParams.TOP_TEN_ACCESSORIAL_PARAM,
+                DashboardSroredProcParam.NetSpendParams.MODE_NAMES_PARAM, DashboardSroredProcParam.NetSpendParams.SCORE_TYPE_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(NetSpendByModeDto.Config.StoredProcedureQueryName.NET_SPEND_BY_MONTH, queryParameter);
+    }
+
+    /**
+     * @param filter
+     * @return
+     */
+    public List<TaxSpendDto> getTaxSpend(DashboardsFilterCriteria filter) {
+        String[] paramNames = {DashboardSroredProcParam.TaxSpendParams.DATE_TYPE_PARAM, DashboardSroredProcParam.TaxSpendParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardSroredProcParam.TaxSpendParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.TaxSpendParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.TaxSpendParams.MODES_PARAM,
+                DashboardSroredProcParam.TaxSpendParams.SERVICES_PARAM, DashboardSroredProcParam.TaxSpendParams.LANES_PARAM,
+                DashboardSroredProcParam.TaxSpendParams.FROM_DATE_PARAM, DashboardSroredProcParam.TaxSpendParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.TaxSpendParams.MODE_NAMES_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(TaxSpendDto.Config.StoredProcedureQueryName.TAX_SPEND, queryParameter);
+    }
+
+    /**
+     * @param filter
+     * @return
+     */
+    public List<TaxSpendDto> getTaxSpendByCarrier(DashboardsFilterCriteria filter) {
+        String[] paramNames = {DashboardSroredProcParam.TaxSpendParams.DATE_TYPE_PARAM, DashboardSroredProcParam.TaxSpendParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardSroredProcParam.TaxSpendParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.TaxSpendParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.TaxSpendParams.MODES_PARAM,
+                DashboardSroredProcParam.TaxSpendParams.SERVICES_PARAM, DashboardSroredProcParam.TaxSpendParams.LANES_PARAM,
+                DashboardSroredProcParam.TaxSpendParams.FROM_DATE_PARAM, DashboardSroredProcParam.TaxSpendParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.TaxSpendParams.MODE_NAMES_PARAM, DashboardSroredProcParam.TaxSpendParams.TAX_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(TaxSpendDto.Config.StoredProcedureQueryName.TAX_SPEND_BY_CARRIER, queryParameter);
+    }
+
+    /**
+     * @param filter
+     * @return
+     */
+    public List<TaxSpendDto> getTaxSpendByMonth(DashboardsFilterCriteria filter) {
+        String[] paramNames = {DashboardSroredProcParam.TaxSpendParams.DATE_TYPE_PARAM, DashboardSroredProcParam.TaxSpendParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardSroredProcParam.TaxSpendParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.TaxSpendParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.TaxSpendParams.MODES_PARAM,
+                DashboardSroredProcParam.TaxSpendParams.SERVICES_PARAM, DashboardSroredProcParam.TaxSpendParams.LANES_PARAM,
+                DashboardSroredProcParam.TaxSpendParams.FROM_DATE_PARAM, DashboardSroredProcParam.TaxSpendParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.TaxSpendParams.MODE_NAMES_PARAM, DashboardSroredProcParam.TaxSpendParams.TAX_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(TaxSpendDto.Config.StoredProcedureQueryName.TAX_SPEND_BY_MONTH, queryParameter);
+    }
+
+    /**
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<AccessorialSpendDto> getTopAccessorialSpend(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {DashboardSroredProcParam.AccessorialSpendParams.DATE_TYPE_PARAM, DashboardSroredProcParam.AccessorialSpendParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardSroredProcParam.AccessorialSpendParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardSroredProcParam.AccessorialSpendParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.AccessorialSpendParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.AccessorialSpendParams.MODES_PARAM,
+                DashboardSroredProcParam.AccessorialSpendParams.SERVICES_PARAM, DashboardSroredProcParam.AccessorialSpendParams.LANES_PARAM,
+                DashboardSroredProcParam.AccessorialSpendParams.ACCESSORIAL_NAME_PARAM, DashboardSroredProcParam.AccessorialSpendParams.FROM_DATE_PARAM,
+                DashboardSroredProcParam.AccessorialSpendParams.TO_DATE_PARAM, DashboardSroredProcParam.AccessorialSpendParams.TOP_TEN_ACCESSORIAL_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
         return persistentContext.findEntities("AccessorialSpendDto.getTopAccessorialSpend", queryParameter);
     }
 
     /**
-     *
      * @param filter
      * @param isTopTenAccessorial
      * @return
      */
-    public List<AccessorialSpendDto> getTopAccessorialSpendByCarrier(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.AccessorialSpendParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.CONVERTED_CURRENCY_CODE_PARAM, filter.getConvertCurrencyCode())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.CARRIER_ID_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.ACCESSORIAL_NAME_PARAM, filter.getAccessorialName())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.TOP_TEN_ACCESSORIAL_PARAM, isTopTenAccessorial ? 1L : 0L);
+    public List<AccessorialSpendDto> getTopAccessorialSpendByCarrier(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {DashboardSroredProcParam.AccessorialSpendParams.DATE_TYPE_PARAM, DashboardSroredProcParam.AccessorialSpendParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardSroredProcParam.AccessorialSpendParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardSroredProcParam.AccessorialSpendParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.AccessorialSpendParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.AccessorialSpendParams.MODES_PARAM,
+                DashboardSroredProcParam.AccessorialSpendParams.SERVICES_PARAM, DashboardSroredProcParam.AccessorialSpendParams.LANES_PARAM,
+                DashboardSroredProcParam.AccessorialSpendParams.ACCESSORIAL_NAME_PARAM, DashboardSroredProcParam.AccessorialSpendParams.FROM_DATE_PARAM,
+                DashboardSroredProcParam.AccessorialSpendParams.TO_DATE_PARAM, DashboardSroredProcParam.AccessorialSpendParams.TOP_TEN_ACCESSORIAL_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
         return persistentContext.findEntities("AccessorialSpendDto.getTopAccessorialSpendByCarrier", queryParameter);
     }
 
     /**
-     *
      * @param filter
      * @param isTopTenAccessorial
      * @return
      */
-    public List<AccessorialSpendDto> getTopAccessorialSpendByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.AccessorialSpendParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.CONVERTED_CURRENCY_CODE_PARAM, filter.getConvertCurrencyCode())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.CARRIER_ID_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.ACCESSORIAL_NAME_PARAM, filter.getAccessorialName())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.TOP_TEN_ACCESSORIAL_PARAM, isTopTenAccessorial ? 1L : 0L);
+    public List<AccessorialSpendDto> getTopAccessorialSpendByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {DashboardSroredProcParam.AccessorialSpendParams.DATE_TYPE_PARAM, DashboardSroredProcParam.AccessorialSpendParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardSroredProcParam.AccessorialSpendParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardSroredProcParam.AccessorialSpendParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.AccessorialSpendParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.AccessorialSpendParams.MODES_PARAM,
+                DashboardSroredProcParam.AccessorialSpendParams.SERVICES_PARAM, DashboardSroredProcParam.AccessorialSpendParams.LANES_PARAM,
+                DashboardSroredProcParam.AccessorialSpendParams.ACCESSORIAL_NAME_PARAM, DashboardSroredProcParam.AccessorialSpendParams.FROM_DATE_PARAM,
+                DashboardSroredProcParam.AccessorialSpendParams.TO_DATE_PARAM, DashboardSroredProcParam.AccessorialSpendParams.TOP_TEN_ACCESSORIAL_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
         return persistentContext.findEntities("AccessorialSpendDto.getTopAccessorialSpendByMonth", queryParameter);
     }
 
     /**
-     *
      * @param filter
      * @param isTopTenAccessorial
      * @return
      */
-    public List<AccessorialSpendDto> getAccessorialSpend(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.AccessorialSpendParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.CARRIER_ID_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.MODE_NAMES_PARAM, filter.getModeNames());
+    public List<AccessorialSpendDto> getAccessorialSpend(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {DashboardSroredProcParam.AccessorialSpendParams.DATE_TYPE_PARAM, DashboardSroredProcParam.AccessorialSpendParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardSroredProcParam.AccessorialSpendParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.AccessorialSpendParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.AccessorialSpendParams.MODES_PARAM,
+                DashboardSroredProcParam.AccessorialSpendParams.SERVICES_PARAM, DashboardSroredProcParam.AccessorialSpendParams.LANES_PARAM,
+                DashboardSroredProcParam.AccessorialSpendParams.FROM_DATE_PARAM, DashboardSroredProcParam.AccessorialSpendParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.AccessorialSpendParams.MODE_NAMES_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
         return persistentContext.findEntities("AccessorialSpendDto.getAccessorialSpend", queryParameter);
     }
 
     /**
-     *
      * @param filter
      * @param isTopTenAccessorial
      * @return
      */
-    public List<AccessorialSpendDto> getAccessorialSpendByCarrier(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.AccessorialSpendParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.CARRIER_ID_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.MODE_NAMES_PARAM, filter.getModeNames())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.ACCESSORIAL_DESC_PARAM, filter.getAccDesc());
+    public List<AccessorialSpendDto> getAccessorialSpendByCarrier(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {DashboardSroredProcParam.AccessorialSpendParams.DATE_TYPE_PARAM, DashboardSroredProcParam.AccessorialSpendParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardSroredProcParam.AccessorialSpendParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.AccessorialSpendParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.AccessorialSpendParams.MODES_PARAM,
+                DashboardSroredProcParam.AccessorialSpendParams.SERVICES_PARAM, DashboardSroredProcParam.AccessorialSpendParams.LANES_PARAM,
+                DashboardSroredProcParam.AccessorialSpendParams.FROM_DATE_PARAM, DashboardSroredProcParam.AccessorialSpendParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.AccessorialSpendParams.MODE_NAMES_PARAM, DashboardSroredProcParam.AccessorialSpendParams.ACCESSORIAL_DESC_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
         return persistentContext.findEntities("AccessorialSpendDto.getAccessorialSpendByCarrier", queryParameter);
     }
 
     /**
-     *
      * @param filter
      * @param isTopTenAccessorial
      * @return
      */
-    public List<AccessorialSpendDto> getAccessorialSpendByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.AccessorialSpendParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.CARRIER_ID_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.MODE_NAMES_PARAM, filter.getModeNames())
-                .and(DashboardSroredProcParam.AccessorialSpendParams.ACCESSORIAL_DESC_PARAM, filter.getAccDesc());
+    public List<AccessorialSpendDto> getAccessorialSpendByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {DashboardSroredProcParam.AccessorialSpendParams.DATE_TYPE_PARAM, DashboardSroredProcParam.AccessorialSpendParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardSroredProcParam.AccessorialSpendParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.AccessorialSpendParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.AccessorialSpendParams.MODES_PARAM,
+                DashboardSroredProcParam.AccessorialSpendParams.SERVICES_PARAM, DashboardSroredProcParam.AccessorialSpendParams.LANES_PARAM,
+                DashboardSroredProcParam.AccessorialSpendParams.FROM_DATE_PARAM, DashboardSroredProcParam.AccessorialSpendParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.AccessorialSpendParams.MODE_NAMES_PARAM, DashboardSroredProcParam.AccessorialSpendParams.ACCESSORIAL_DESC_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
         return persistentContext.findEntities("AccessorialSpendDto.getAccessorialSpendByMonth", queryParameter);
     }
+
     /**
-     *
      * @param filter
      * @return
      */
-    public List<AverageSpendPerShipmentDto>   getAvgSpendPerShipmt(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+    public List<AverageSpendPerShipmentDto> getAvgSpendPerShipmt(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
         QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.AverageSpendShipmentParam.DATE_TYPE_PARAM, filter.getDateType())
                 .and(DashboardSroredProcParam.AverageSpendShipmentParam.CONVERTED_CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
                 .and(DashboardSroredProcParam.AverageSpendShipmentParam.CONVERTED_CURRENCY_CODE_PARAM, filter.getConvertCurrencyCode())
@@ -371,11 +321,10 @@ public class DashboardsDao {
     }
 
     /**
-     *
      * @param filter
      * @return
      */
-    public List<AverageWeightModeShipmtDto>   getAverageWeightByModeShipmt(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+    public List<AverageWeightModeShipmtDto> getAverageWeightByModeShipmt(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
         QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.AverageWeightByModeShipmtParam.DATE_TYPE_PARAM, filter.getDateType())
                 .and(DashboardSroredProcParam.AverageWeightByModeShipmtParam.CONVERTED_WEIGHT_UNIT_PARAM, filter.getConvertWeightUnit())
                 .and(DashboardSroredProcParam.AverageWeightByModeShipmtParam.MODES_PARAM, filter.getModes())
@@ -391,378 +340,326 @@ public class DashboardsDao {
         return persistentContext.findEntities("AverageWeightModeShipmtDto.AvgWeightByModeShipmentMapping", queryParameter);
     }
 
-    public List<ServiceLevelUsageAndPerformanceDto> getServiceLevelUsageAndPerformance(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.ServiceLevelUsageAndPerformanceParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.ServiceLevelUsageAndPerformanceParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.ServiceLevelUsageAndPerformanceParams.CARRIER_IDS_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.ServiceLevelUsageAndPerformanceParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.ServiceLevelUsageAndPerformanceParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.ServiceLevelUsageAndPerformanceParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.ServiceLevelUsageAndPerformanceParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.ServiceLevelUsageAndPerformanceParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.ServiceLevelUsageAndPerformanceParams.ACCESSORIAL_NAME_PARAM, filter.getAccessorialName())
-                .and(DashboardSroredProcParam.ServiceLevelUsageAndPerformanceParams.TOP_TEN_ACCESSORIAL_PARAM, isTopTenAccessorial ? 1L : 0L);
-        return persistentContext.findEntities("ServiceLevelUsageAndPerformanceDto.getServiceLevelUsageAndPerformance", queryParameter);
+    public List<ServiceLevelUsageAndPerformanceDto> getServiceLevelUsageAndPerformance(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {DashboardSroredProcParam.ServiceLevelUsageAndPerformanceParams.DATE_TYPE_PARAM, DashboardSroredProcParam.ServiceLevelUsageAndPerformanceParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.ServiceLevelUsageAndPerformanceParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.ServiceLevelUsageAndPerformanceParams.MODES_PARAM,
+                DashboardSroredProcParam.ServiceLevelUsageAndPerformanceParams.SERVICES_PARAM, DashboardSroredProcParam.ServiceLevelUsageAndPerformanceParams.LANES_PARAM,
+                DashboardSroredProcParam.ServiceLevelUsageAndPerformanceParams.FROM_DATE_PARAM, DashboardSroredProcParam.ServiceLevelUsageAndPerformanceParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.ServiceLevelUsageAndPerformanceParams.ACCESSORIAL_NAME_PARAM, DashboardSroredProcParam.ServiceLevelUsageAndPerformanceParams.TOP_TEN_ACCESSORIAL_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(ServiceLevelUsageAndPerformanceDto.Config.StoredProcedureQueryName.SERVICE_LEVEL_USAGE_AND_PERFORMANCE, queryParameter);
     }
 
-    public List<InboundSpendDto> getInboundSpend(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.InboundSpendParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.InboundSpendParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
-                .and(DashboardSroredProcParam.InboundSpendParams.CONVERTED_CURRENCY_CODE_PARAM, filter.getConvertCurrencyCode())
-                .and(DashboardSroredProcParam.InboundSpendParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.InboundSpendParams.CARRIER_IDS_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.InboundSpendParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.InboundSpendParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.InboundSpendParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.InboundSpendParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.InboundSpendParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.InboundSpendParams.ACCESSORIAL_NAME_PARAM, filter.getAccessorialName())
-                .and(DashboardSroredProcParam.InboundSpendParams.TOP_TEN_ACCESSORIAL_PARAM, isTopTenAccessorial ? 1L : 0L);
-        return persistentContext.findEntities("InboundSpendDto.getInboundSpend", queryParameter);
+    public List<InboundSpendDto> getInboundSpend(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {DashboardSroredProcParam.InboundSpendParams.DATE_TYPE_PARAM, DashboardSroredProcParam.InboundSpendParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardSroredProcParam.InboundSpendParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardSroredProcParam.InboundSpendParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.InboundSpendParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.InboundSpendParams.MODES_PARAM,
+                DashboardSroredProcParam.InboundSpendParams.SERVICES_PARAM, DashboardSroredProcParam.InboundSpendParams.LANES_PARAM,
+                DashboardSroredProcParam.InboundSpendParams.FROM_DATE_PARAM, DashboardSroredProcParam.InboundSpendParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.InboundSpendParams.ACCESSORIAL_NAME_PARAM, DashboardSroredProcParam.InboundSpendParams.TOP_TEN_ACCESSORIAL_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(InboundSpendDto.Config.StoredProcedureQueryName.INBOUND_SPEND, queryParameter);
     }
 
-    public List<InboundSpendDto> getInboundSpendByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.InboundSpendParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.InboundSpendParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
-                .and(DashboardSroredProcParam.InboundSpendParams.CONVERTED_CURRENCY_CODE_PARAM, filter.getConvertCurrencyCode())
-                .and(DashboardSroredProcParam.InboundSpendParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.InboundSpendParams.CARRIER_IDS_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.InboundSpendParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.InboundSpendParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.InboundSpendParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.InboundSpendParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.InboundSpendParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.InboundSpendParams.ACCESSORIAL_NAME_PARAM, filter.getAccessorialName())
-                .and(DashboardSroredProcParam.InboundSpendParams.TOP_TEN_ACCESSORIAL_PARAM, isTopTenAccessorial ? 1L : 0L);
-        return persistentContext.findEntities("InboundSpendDto.getInboundSpendByMonth", queryParameter);
+    public List<InboundSpendDto> getInboundSpendByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {DashboardSroredProcParam.InboundSpendParams.DATE_TYPE_PARAM, DashboardSroredProcParam.InboundSpendParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardSroredProcParam.InboundSpendParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardSroredProcParam.InboundSpendParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.InboundSpendParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.InboundSpendParams.MODES_PARAM,
+                DashboardSroredProcParam.InboundSpendParams.SERVICES_PARAM, DashboardSroredProcParam.InboundSpendParams.LANES_PARAM,
+                DashboardSroredProcParam.InboundSpendParams.FROM_DATE_PARAM, DashboardSroredProcParam.InboundSpendParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.InboundSpendParams.ACCESSORIAL_NAME_PARAM, DashboardSroredProcParam.InboundSpendParams.TOP_TEN_ACCESSORIAL_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(InboundSpendDto.Config.StoredProcedureQueryName.INBOUND_SPEND_BY_MONTH, queryParameter);
     }
 
-    public List<OutboundSpendDto> getOutboundSpend(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.InboundSpendParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.InboundSpendParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
-                .and(DashboardSroredProcParam.InboundSpendParams.CONVERTED_CURRENCY_CODE_PARAM, filter.getConvertCurrencyCode())
-                .and(DashboardSroredProcParam.InboundSpendParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.InboundSpendParams.CARRIER_IDS_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.InboundSpendParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.InboundSpendParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.InboundSpendParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.InboundSpendParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.InboundSpendParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.InboundSpendParams.ACCESSORIAL_NAME_PARAM, filter.getAccessorialName())
-                .and(DashboardSroredProcParam.InboundSpendParams.TOP_TEN_ACCESSORIAL_PARAM, isTopTenAccessorial ? 1L : 0L);
-        return persistentContext.findEntities("OutboundSpendDto.getOutboundSpend", queryParameter);
+    public List<OutboundSpendDto> getOutboundSpend(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {DashboardSroredProcParam.OutboundSpendParams.DATE_TYPE_PARAM, DashboardSroredProcParam.OutboundSpendParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardSroredProcParam.OutboundSpendParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardSroredProcParam.OutboundSpendParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.OutboundSpendParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.OutboundSpendParams.MODES_PARAM,
+                DashboardSroredProcParam.OutboundSpendParams.SERVICES_PARAM, DashboardSroredProcParam.OutboundSpendParams.LANES_PARAM,
+                DashboardSroredProcParam.OutboundSpendParams.FROM_DATE_PARAM, DashboardSroredProcParam.OutboundSpendParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.OutboundSpendParams.ACCESSORIAL_NAME_PARAM, DashboardSroredProcParam.OutboundSpendParams.TOP_TEN_ACCESSORIAL_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(OutboundSpendDto.Config.StoredProcedureQueryName.OUTBOUND_SPEND, queryParameter);
     }
 
     public List<OutboundSpendDto> getOutboundSpendByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.InboundSpendParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.InboundSpendParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
-                .and(DashboardSroredProcParam.InboundSpendParams.CONVERTED_CURRENCY_CODE_PARAM, filter.getConvertCurrencyCode())
-                .and(DashboardSroredProcParam.InboundSpendParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.InboundSpendParams.CARRIER_IDS_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.InboundSpendParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.InboundSpendParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.InboundSpendParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.InboundSpendParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.InboundSpendParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.InboundSpendParams.ACCESSORIAL_NAME_PARAM, filter.getAccessorialName())
-                .and(DashboardSroredProcParam.InboundSpendParams.TOP_TEN_ACCESSORIAL_PARAM, isTopTenAccessorial ? 1L : 0L);
-        return persistentContext.findEntities("OutboundSpendDto.getOutboundSpendByMonth", queryParameter);
-    }
-    public List<InvoiceStatusCountDto> getInvoiceStatusCount(DashboardsFilterCriteria filter){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.InvoiceStatusCountParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.InvoiceStatusCountParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.InvoiceStatusCountParams.CARRIER_ID_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.InvoiceStatusCountParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.InvoiceStatusCountParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.InvoiceStatusCountParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.InvoiceStatusCountParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.InvoiceStatusCountParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.InvoiceStatusCountParams.MODE_NAMES_PARAM, filter.getModeNames());
-        return persistentContext.findEntities("InvoiceStatusCountDto.getInvoiceStatusCount", queryParameter);
+        filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {DashboardSroredProcParam.OutboundSpendParams.DATE_TYPE_PARAM, DashboardSroredProcParam.OutboundSpendParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardSroredProcParam.OutboundSpendParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardSroredProcParam.OutboundSpendParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.OutboundSpendParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.OutboundSpendParams.MODES_PARAM,
+                DashboardSroredProcParam.OutboundSpendParams.SERVICES_PARAM, DashboardSroredProcParam.OutboundSpendParams.LANES_PARAM,
+                DashboardSroredProcParam.OutboundSpendParams.FROM_DATE_PARAM, DashboardSroredProcParam.OutboundSpendParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.OutboundSpendParams.ACCESSORIAL_NAME_PARAM, DashboardSroredProcParam.OutboundSpendParams.TOP_TEN_ACCESSORIAL_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(OutboundSpendDto.Config.StoredProcedureQueryName.OUTBOUND_SPEND_BY_MONTH, queryParameter);
     }
 
-    public List<InvoiceStatusCountDto> getInvoiceStatusCountByCarrier(DashboardsFilterCriteria filter){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.InvoiceStatusCountParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.InvoiceStatusCountParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.InvoiceStatusCountParams.CARRIER_ID_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.InvoiceStatusCountParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.InvoiceStatusCountParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.InvoiceStatusCountParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.InvoiceStatusCountParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.InvoiceStatusCountParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.InvoiceStatusCountParams.MODE_NAMES_PARAM, filter.getModeNames())
-                .and(DashboardSroredProcParam.InvoiceStatusCountParams.INVOICE_STATUS_ID_PARAM, filter.getInvoiceStatusId());
-        return persistentContext.findEntities("InvoiceStatusCountDto.getInvoiceStatusCountByCarrier", queryParameter);
+    public List<InvoiceStatusCountDto> getInvoiceStatusCount(DashboardsFilterCriteria filter) {
+        String[] paramNames = {DashboardSroredProcParam.InvoiceStatusCountParams.DATE_TYPE_PARAM,
+                DashboardSroredProcParam.InvoiceStatusCountParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.InvoiceStatusCountParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.InvoiceStatusCountParams.MODES_PARAM,
+                DashboardSroredProcParam.InvoiceStatusCountParams.SERVICES_PARAM, DashboardSroredProcParam.InvoiceStatusCountParams.LANES_PARAM,
+                DashboardSroredProcParam.InvoiceStatusCountParams.FROM_DATE_PARAM, DashboardSroredProcParam.InvoiceStatusCountParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.InvoiceStatusCountParams.MODE_NAMES_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(InvoiceStatusCountDto.Config.StoredProcedureQueryName.INVOICE_STATUS_COUNT, queryParameter);
     }
 
-    public List<InvoiceStatusCountDto> getInvoiceStatusCountByMonth(DashboardsFilterCriteria filter){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.InvoiceStatusCountParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.InvoiceStatusCountParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.InvoiceStatusCountParams.CARRIER_ID_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.InvoiceStatusCountParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.InvoiceStatusCountParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.InvoiceStatusCountParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.InvoiceStatusCountParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.InvoiceStatusCountParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.InvoiceStatusCountParams.MODE_NAMES_PARAM, filter.getModeNames())
-                .and(DashboardSroredProcParam.InvoiceStatusCountParams.INVOICE_STATUS_ID_PARAM, filter.getInvoiceStatusId());
-        return persistentContext.findEntities("InvoiceStatusCountDto.getInvoiceStatusCountByMonth", queryParameter);
+    public List<InvoiceStatusCountDto> getInvoiceStatusCountByCarrier(DashboardsFilterCriteria filter) {
+        String[] paramNames = {DashboardSroredProcParam.InvoiceStatusCountParams.DATE_TYPE_PARAM,
+                DashboardSroredProcParam.InvoiceStatusCountParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.InvoiceStatusCountParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.InvoiceStatusCountParams.MODES_PARAM,
+                DashboardSroredProcParam.InvoiceStatusCountParams.SERVICES_PARAM, DashboardSroredProcParam.InvoiceStatusCountParams.LANES_PARAM,
+                DashboardSroredProcParam.InvoiceStatusCountParams.FROM_DATE_PARAM, DashboardSroredProcParam.InvoiceStatusCountParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.InvoiceStatusCountParams.MODE_NAMES_PARAM, DashboardSroredProcParam.InvoiceStatusCountParams.INVOICE_STATUS_ID_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(InvoiceStatusCountDto.Config.StoredProcedureQueryName.INVOICE_STATUS_COUNT_BY_CARRIER, queryParameter);
     }
 
-    public List<InvoiceStatusAmountDto> getInvoiceStatusAmount(DashboardsFilterCriteria filter){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.InvoiceStatusAmountParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.InvoiceStatusAmountParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
-                .and(DashboardSroredProcParam.InvoiceStatusAmountParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.InvoiceStatusAmountParams.CARRIER_ID_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.InvoiceStatusAmountParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.InvoiceStatusAmountParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.InvoiceStatusAmountParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.InvoiceStatusAmountParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.InvoiceStatusAmountParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.InvoiceStatusAmountParams.MODE_NAMES_PARAM, filter.getModeNames());
-        return persistentContext.findEntities("InvoiceStatusAmountDto.getInvoiceStatusAmount", queryParameter);
+    public List<InvoiceStatusCountDto> getInvoiceStatusCountByMonth(DashboardsFilterCriteria filter) {
+        String[] paramNames = {DashboardSroredProcParam.InvoiceStatusCountParams.DATE_TYPE_PARAM,
+                DashboardSroredProcParam.InvoiceStatusCountParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.InvoiceStatusCountParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.InvoiceStatusCountParams.MODES_PARAM,
+                DashboardSroredProcParam.InvoiceStatusCountParams.SERVICES_PARAM, DashboardSroredProcParam.InvoiceStatusCountParams.LANES_PARAM,
+                DashboardSroredProcParam.InvoiceStatusCountParams.FROM_DATE_PARAM, DashboardSroredProcParam.InvoiceStatusCountParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.InvoiceStatusCountParams.MODE_NAMES_PARAM, DashboardSroredProcParam.InvoiceStatusCountParams.INVOICE_STATUS_ID_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(InvoiceStatusCountDto.Config.StoredProcedureQueryName.INVOICE_STATUS_COUNT_BY_MONTH, queryParameter);
     }
 
-    public List<InvoiceStatusAmountDto> getInvoiceStatusAmountByCarrier(DashboardsFilterCriteria filter){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.InvoiceStatusAmountParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.InvoiceStatusAmountParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
-                .and(DashboardSroredProcParam.InvoiceStatusAmountParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.InvoiceStatusAmountParams.CARRIER_ID_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.InvoiceStatusAmountParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.InvoiceStatusAmountParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.InvoiceStatusAmountParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.InvoiceStatusAmountParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.InvoiceStatusAmountParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.InvoiceStatusAmountParams.MODE_NAMES_PARAM, filter.getModeNames())
-                .and(DashboardSroredProcParam.InvoiceStatusAmountParams.INVOICE_STATUS_ID_PARAM, filter.getInvoiceStatusId());
-        return persistentContext.findEntities("InvoiceStatusAmountDto.getInvoiceStatusAmountByCarrier", queryParameter);
+    public List<InvoiceStatusAmountDto> getInvoiceStatusAmount(DashboardsFilterCriteria filter) {
+        String[] paramNames = {DashboardSroredProcParam.InvoiceStatusAmountParams.DATE_TYPE_PARAM, DashboardSroredProcParam.InvoiceStatusAmountParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardSroredProcParam.InvoiceStatusAmountParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.InvoiceStatusAmountParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.InvoiceStatusAmountParams.MODES_PARAM,
+                DashboardSroredProcParam.InvoiceStatusAmountParams.SERVICES_PARAM, DashboardSroredProcParam.InvoiceStatusAmountParams.LANES_PARAM,
+                DashboardSroredProcParam.InvoiceStatusAmountParams.FROM_DATE_PARAM, DashboardSroredProcParam.InvoiceStatusAmountParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.InvoiceStatusAmountParams.MODE_NAMES_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(InvoiceStatusAmountDto.Config.StoredProcedureQueryName.INVOICE_STATUS_AMOUNT, queryParameter);
     }
 
-    public List<InvoiceStatusAmountDto> getInvoiceStatusAmountByMonth(DashboardsFilterCriteria filter){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.InvoiceStatusAmountParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.InvoiceStatusAmountParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
-                .and(DashboardSroredProcParam.InvoiceStatusAmountParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.InvoiceStatusAmountParams.CARRIER_ID_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.InvoiceStatusAmountParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.InvoiceStatusAmountParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.InvoiceStatusAmountParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.InvoiceStatusAmountParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.InvoiceStatusAmountParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.InvoiceStatusAmountParams.MODE_NAMES_PARAM, filter.getModeNames())
-                .and(DashboardSroredProcParam.InvoiceStatusAmountParams.INVOICE_STATUS_ID_PARAM, filter.getInvoiceStatusId());
-        return persistentContext.findEntities("InvoiceStatusAmountDto.getInvoiceStatusAmountByMonth", queryParameter);
+    public List<InvoiceStatusAmountDto> getInvoiceStatusAmountByCarrier(DashboardsFilterCriteria filter) {
+        String[] paramNames = {DashboardSroredProcParam.InvoiceStatusAmountParams.DATE_TYPE_PARAM, DashboardSroredProcParam.InvoiceStatusAmountParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardSroredProcParam.InvoiceStatusAmountParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.InvoiceStatusAmountParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.InvoiceStatusAmountParams.MODES_PARAM,
+                DashboardSroredProcParam.InvoiceStatusAmountParams.SERVICES_PARAM, DashboardSroredProcParam.InvoiceStatusAmountParams.LANES_PARAM,
+                DashboardSroredProcParam.InvoiceStatusAmountParams.FROM_DATE_PARAM, DashboardSroredProcParam.InvoiceStatusAmountParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.InvoiceStatusAmountParams.MODE_NAMES_PARAM, DashboardSroredProcParam.InvoiceStatusAmountParams.INVOICE_STATUS_ID_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(InvoiceStatusAmountDto.Config.StoredProcedureQueryName.INVOICE_STATUS_AMOUNT_BY_CARRIER, queryParameter);
     }
 
-    public List<InvoiceMethodScoreDto> getInvoiceMethodScore(DashboardsFilterCriteria filter){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.InvoiceMethodScoreParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.InvoiceMethodScoreParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.InvoiceMethodScoreParams.CARRIER_ID_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.InvoiceMethodScoreParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.InvoiceMethodScoreParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.InvoiceMethodScoreParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.InvoiceMethodScoreParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.InvoiceMethodScoreParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.InvoiceMethodScoreParams.MODE_NAMES_PARAM, filter.getModeNames());
-        return persistentContext.findEntities("InvoiceMethodScoreDto.getInvoiceMethodScore", queryParameter);
+    public List<InvoiceStatusAmountDto> getInvoiceStatusAmountByMonth(DashboardsFilterCriteria filter) {
+        String[] paramNames = {DashboardSroredProcParam.InvoiceStatusAmountParams.DATE_TYPE_PARAM, DashboardSroredProcParam.InvoiceStatusAmountParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardSroredProcParam.InvoiceStatusAmountParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.InvoiceStatusAmountParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.InvoiceStatusAmountParams.MODES_PARAM,
+                DashboardSroredProcParam.InvoiceStatusAmountParams.SERVICES_PARAM, DashboardSroredProcParam.InvoiceStatusAmountParams.LANES_PARAM,
+                DashboardSroredProcParam.InvoiceStatusAmountParams.FROM_DATE_PARAM, DashboardSroredProcParam.InvoiceStatusAmountParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.InvoiceStatusAmountParams.MODE_NAMES_PARAM, DashboardSroredProcParam.InvoiceStatusAmountParams.INVOICE_STATUS_ID_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(InvoiceStatusAmountDto.Config.StoredProcedureQueryName.INVOICE_STATUS_AMOUNT_BY_MONTH, queryParameter);
     }
 
-    public List<InvoiceMethodScoreDto> getInvoiceMethodScoreByCarrier(DashboardsFilterCriteria filter){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.InvoiceMethodScoreParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.InvoiceMethodScoreParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.InvoiceMethodScoreParams.CARRIER_ID_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.InvoiceMethodScoreParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.InvoiceMethodScoreParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.InvoiceMethodScoreParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.InvoiceMethodScoreParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.InvoiceMethodScoreParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.InvoiceMethodScoreParams.MODE_NAMES_PARAM, filter.getModeNames())
-                .and(DashboardSroredProcParam.InvoiceMethodScoreParams.INVOICE_METHOD_PARAM, filter.getInvoiceMethod());
-        return persistentContext.findEntities("InvoiceMethodScoreDto.getInvoiceMethodScoreByCarrier", queryParameter);
+    public List<InvoiceMethodScoreDto> getInvoiceMethodScore(DashboardsFilterCriteria filter) {
+        String[] paramNames = {DashboardSroredProcParam.InvoiceMethodScoreParams.DATE_TYPE_PARAM, DashboardSroredProcParam.InvoiceMethodScoreParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.InvoiceMethodScoreParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.InvoiceMethodScoreParams.MODES_PARAM,
+                DashboardSroredProcParam.InvoiceMethodScoreParams.SERVICES_PARAM, DashboardSroredProcParam.InvoiceMethodScoreParams.LANES_PARAM,
+                DashboardSroredProcParam.InvoiceMethodScoreParams.FROM_DATE_PARAM, DashboardSroredProcParam.InvoiceMethodScoreParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.InvoiceMethodScoreParams.MODE_NAMES_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(InvoiceMethodScoreDto.Config.StoredProcedureQueryName.INVOICE_METHOD_SCORE, queryParameter);
     }
 
-    public List<InvoiceMethodScoreDto> getInvoiceMethodScoreByMonth(DashboardsFilterCriteria filter){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.InvoiceMethodScoreParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.InvoiceMethodScoreParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.InvoiceMethodScoreParams.CARRIER_ID_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.InvoiceMethodScoreParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.InvoiceMethodScoreParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.InvoiceMethodScoreParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.InvoiceMethodScoreParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.InvoiceMethodScoreParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.InvoiceMethodScoreParams.MODE_NAMES_PARAM, filter.getModeNames())
-                .and(DashboardSroredProcParam.InvoiceMethodScoreParams.INVOICE_METHOD_PARAM, filter.getInvoiceMethod());
-        return persistentContext.findEntities("InvoiceMethodScoreDto.getInvoiceMethodScoreByMonth", queryParameter);
+    public List<InvoiceMethodScoreDto> getInvoiceMethodScoreByCarrier(DashboardsFilterCriteria filter) {
+        String[] paramNames = {DashboardSroredProcParam.InvoiceMethodScoreParams.DATE_TYPE_PARAM, DashboardSroredProcParam.InvoiceMethodScoreParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.InvoiceMethodScoreParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.InvoiceMethodScoreParams.MODES_PARAM,
+                DashboardSroredProcParam.InvoiceMethodScoreParams.SERVICES_PARAM, DashboardSroredProcParam.InvoiceMethodScoreParams.LANES_PARAM,
+                DashboardSroredProcParam.InvoiceMethodScoreParams.FROM_DATE_PARAM, DashboardSroredProcParam.InvoiceMethodScoreParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.InvoiceMethodScoreParams.MODE_NAMES_PARAM, DashboardSroredProcParam.InvoiceMethodScoreParams.INVOICE_METHOD_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(InvoiceMethodScoreDto.Config.StoredProcedureQueryName.INVOICE_METHOD_SCORE_BY_CARRIER, queryParameter);
     }
 
-    public List<OrderMatchDto> getOrderMatchStatus(DashboardsFilterCriteria filter){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.OrderMatchParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.OrderMatchParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.OrderMatchParams.CARRIER_ID_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.OrderMatchParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.OrderMatchParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.OrderMatchParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.OrderMatchParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.OrderMatchParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.OrderMatchParams.MODE_NAMES_PARAM, filter.getModeNames());
-        return persistentContext.findEntities("OrderMatchDto.getOrderMatch", queryParameter);
+    public List<InvoiceMethodScoreDto> getInvoiceMethodScoreByMonth(DashboardsFilterCriteria filter) {
+        String[] paramNames = {DashboardSroredProcParam.InvoiceMethodScoreParams.DATE_TYPE_PARAM, DashboardSroredProcParam.InvoiceMethodScoreParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.InvoiceMethodScoreParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.InvoiceMethodScoreParams.MODES_PARAM,
+                DashboardSroredProcParam.InvoiceMethodScoreParams.SERVICES_PARAM, DashboardSroredProcParam.InvoiceMethodScoreParams.LANES_PARAM,
+                DashboardSroredProcParam.InvoiceMethodScoreParams.FROM_DATE_PARAM, DashboardSroredProcParam.InvoiceMethodScoreParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.InvoiceMethodScoreParams.MODE_NAMES_PARAM, DashboardSroredProcParam.InvoiceMethodScoreParams.INVOICE_METHOD_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(InvoiceMethodScoreDto.Config.StoredProcedureQueryName.INVOICE_METHOD_SCORE_BY_MONTH, queryParameter);
     }
 
-    public List<OrderMatchDto> getOrderMatchByCarrier(DashboardsFilterCriteria filter){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.OrderMatchParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.OrderMatchParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.OrderMatchParams.CARRIER_ID_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.OrderMatchParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.OrderMatchParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.OrderMatchParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.OrderMatchParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.OrderMatchParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.OrderMatchParams.MODE_NAMES_PARAM, filter.getModeNames())
-                .and(DashboardSroredProcParam.OrderMatchParams.ORDER_MATCH_PARAM, filter.getOrderMatch());
-        return persistentContext.findEntities("OrderMatchDto.getOrderMatchByCarrier", queryParameter);
+    public List<OrderMatchDto> getOrderMatchStatus(DashboardsFilterCriteria filter) {
+        String[] paramNames = {DashboardSroredProcParam.OrderMatchParams.DATE_TYPE_PARAM, DashboardSroredProcParam.OrderMatchParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.OrderMatchParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.OrderMatchParams.MODES_PARAM,
+                DashboardSroredProcParam.OrderMatchParams.SERVICES_PARAM, DashboardSroredProcParam.OrderMatchParams.LANES_PARAM,
+                DashboardSroredProcParam.OrderMatchParams.FROM_DATE_PARAM, DashboardSroredProcParam.OrderMatchParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.OrderMatchParams.MODE_NAMES_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(OrderMatchDto.Config.StoredProcedureQueryName.ORDER_MATCH, queryParameter);
     }
 
-    public List<OrderMatchDto> getOrderMatchByMonth(DashboardsFilterCriteria filter){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.OrderMatchParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.OrderMatchParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.OrderMatchParams.CARRIER_ID_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.OrderMatchParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.OrderMatchParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.OrderMatchParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.OrderMatchParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.OrderMatchParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.OrderMatchParams.MODE_NAMES_PARAM, filter.getModeNames())
-                .and(DashboardSroredProcParam.OrderMatchParams.ORDER_MATCH_PARAM, filter.getOrderMatch());
-        return persistentContext.findEntities("OrderMatchDto.getOrderMatchByMonth", queryParameter);
+    public List<OrderMatchDto> getOrderMatchByCarrier(DashboardsFilterCriteria filter) {
+        String[] paramNames = {DashboardSroredProcParam.OrderMatchParams.DATE_TYPE_PARAM, DashboardSroredProcParam.OrderMatchParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.OrderMatchParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.OrderMatchParams.MODES_PARAM,
+                DashboardSroredProcParam.OrderMatchParams.SERVICES_PARAM, DashboardSroredProcParam.OrderMatchParams.LANES_PARAM,
+                DashboardSroredProcParam.OrderMatchParams.FROM_DATE_PARAM, DashboardSroredProcParam.OrderMatchParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.OrderMatchParams.MODE_NAMES_PARAM, DashboardSroredProcParam.OrderMatchParams.ORDER_MATCH_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(OrderMatchDto.Config.StoredProcedureQueryName.ORDER_MATCH_BY_CARRIER, queryParameter);
     }
 
-    public List<BilledVsApprovedDto> getBilledVsApprovedData(DashboardsFilterCriteria filter){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.BilledVsApprovedParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.BilledVsApprovedParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
-                .and(DashboardSroredProcParam.BilledVsApprovedParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.BilledVsApprovedParams.CARRIER_IDS_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.BilledVsApprovedParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.BilledVsApprovedParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.BilledVsApprovedParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.BilledVsApprovedParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.BilledVsApprovedParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.BilledVsApprovedParams.MODE_NAMES_PARAM, filter.getModeNames());
-        return persistentContext.findEntities("BilledVsApprovedDto.getBilledVsApproved", queryParameter);
+    public List<OrderMatchDto> getOrderMatchByMonth(DashboardsFilterCriteria filter) {
+        String[] paramNames = {DashboardSroredProcParam.OrderMatchParams.DATE_TYPE_PARAM, DashboardSroredProcParam.OrderMatchParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.OrderMatchParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.OrderMatchParams.MODES_PARAM,
+                DashboardSroredProcParam.OrderMatchParams.SERVICES_PARAM, DashboardSroredProcParam.OrderMatchParams.LANES_PARAM,
+                DashboardSroredProcParam.OrderMatchParams.FROM_DATE_PARAM, DashboardSroredProcParam.OrderMatchParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.OrderMatchParams.MODE_NAMES_PARAM, DashboardSroredProcParam.OrderMatchParams.ORDER_MATCH_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(OrderMatchDto.Config.StoredProcedureQueryName.ORDER_MATCH_BY_MONTH, queryParameter);
     }
 
-    public List<BilledVsApprovedDto> getBilledVsApprovedByMonth(DashboardsFilterCriteria filter){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.BilledVsApprovedParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.BilledVsApprovedParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
-                .and(DashboardSroredProcParam.BilledVsApprovedParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.BilledVsApprovedParams.CARRIER_IDS_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.BilledVsApprovedParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.BilledVsApprovedParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.BilledVsApprovedParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.BilledVsApprovedParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.BilledVsApprovedParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.BilledVsApprovedParams.MODE_NAMES_PARAM, filter.getModeNames())
-                .and(DashboardSroredProcParam.BilledVsApprovedParams.BILLED_APPROVED_PARAM, filter.getBilledVsApproved());
-        return persistentContext.findEntities("BilledVsApprovedDto.getBilledVsApprovedByMonth", queryParameter);
+    public List<BilledVsApprovedDto> getBilledVsApprovedData(DashboardsFilterCriteria filter) {
+        String[] paramNames = {DashboardSroredProcParam.BilledVsApprovedParams.DATE_TYPE_PARAM, DashboardSroredProcParam.BilledVsApprovedParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardSroredProcParam.BilledVsApprovedParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.BilledVsApprovedParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.BilledVsApprovedParams.MODES_PARAM,
+                DashboardSroredProcParam.BilledVsApprovedParams.SERVICES_PARAM, DashboardSroredProcParam.BilledVsApprovedParams.LANES_PARAM,
+                DashboardSroredProcParam.BilledVsApprovedParams.FROM_DATE_PARAM, DashboardSroredProcParam.BilledVsApprovedParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.BilledVsApprovedParams.MODE_NAMES_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(BilledVsApprovedDto.Config.StoredProcedureQueryName.BILLED_VS_APPROVED, queryParameter);
     }
 
-    public List<RecoveryAdjustmentDto> getRecoveryAdjustment(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.RecoveryAdjustmentParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.RecoveryAdjustmentParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
-                .and(DashboardSroredProcParam.RecoveryAdjustmentParams.CONVERTED_CURRENCY_CODE_PARAM, filter.getConvertCurrencyCode())
-                .and(DashboardSroredProcParam.RecoveryAdjustmentParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.RecoveryAdjustmentParams.CARRIER_IDS_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.RecoveryAdjustmentParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.RecoveryAdjustmentParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.RecoveryAdjustmentParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.RecoveryAdjustmentParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.RecoveryAdjustmentParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.RecoveryAdjustmentParams.ACCESSORIAL_NAME_PARAM, filter.getAccessorialName())
-                .and(DashboardSroredProcParam.RecoveryAdjustmentParams.TOP_TEN_ACCESSORIAL_PARAM, isTopTenAccessorial ? 1L : 0L);
-        return persistentContext.findEntities("RecoveryAdjustmentDto.getRecoveryAdjustment", queryParameter);
+    public List<BilledVsApprovedDto> getBilledVsApprovedByMonth(DashboardsFilterCriteria filter) {
+        String[] paramNames = {DashboardSroredProcParam.BilledVsApprovedParams.DATE_TYPE_PARAM, DashboardSroredProcParam.BilledVsApprovedParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardSroredProcParam.BilledVsApprovedParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.BilledVsApprovedParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.BilledVsApprovedParams.MODES_PARAM,
+                DashboardSroredProcParam.BilledVsApprovedParams.SERVICES_PARAM, DashboardSroredProcParam.BilledVsApprovedParams.LANES_PARAM,
+                DashboardSroredProcParam.BilledVsApprovedParams.FROM_DATE_PARAM, DashboardSroredProcParam.BilledVsApprovedParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.BilledVsApprovedParams.MODE_NAMES_PARAM, DashboardSroredProcParam.BilledVsApprovedParams.BILLED_APPROVED_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(BilledVsApprovedDto.Config.StoredProcedureQueryName.BILLED_VS_APPROVED_BY_MONTH, queryParameter);
     }
 
-    public List<RecoveryAdjustmentDto> getRecoveryAdjustmentByCarrier(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.RecoveryAdjustmentParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.RecoveryAdjustmentParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
-                .and(DashboardSroredProcParam.RecoveryAdjustmentParams.CONVERTED_CURRENCY_CODE_PARAM, filter.getConvertCurrencyCode())
-                .and(DashboardSroredProcParam.RecoveryAdjustmentParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.RecoveryAdjustmentParams.CARRIER_IDS_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.RecoveryAdjustmentParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.RecoveryAdjustmentParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.RecoveryAdjustmentParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.RecoveryAdjustmentParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.RecoveryAdjustmentParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.RecoveryAdjustmentParams.ACCESSORIAL_NAME_PARAM, filter.getAccessorialName())
-                .and(DashboardSroredProcParam.RecoveryAdjustmentParams.TOP_TEN_ACCESSORIAL_PARAM, isTopTenAccessorial ? 1L : 0L);
-        return persistentContext.findEntities("RecoveryAdjustmentDto.getRecoveryAdjustmentByCarrier", queryParameter);
+    public List<RecoveryAdjustmentDto> getRecoveryAdjustment(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {DashboardSroredProcParam.RecoveryAdjustmentParams.DATE_TYPE_PARAM, DashboardSroredProcParam.RecoveryAdjustmentParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardSroredProcParam.RecoveryAdjustmentParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardSroredProcParam.RecoveryAdjustmentParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.RecoveryAdjustmentParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.RecoveryAdjustmentParams.MODES_PARAM,
+                DashboardSroredProcParam.RecoveryAdjustmentParams.SERVICES_PARAM, DashboardSroredProcParam.RecoveryAdjustmentParams.LANES_PARAM,
+                DashboardSroredProcParam.RecoveryAdjustmentParams.FROM_DATE_PARAM, DashboardSroredProcParam.RecoveryAdjustmentParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.RecoveryAdjustmentParams.ACCESSORIAL_NAME_PARAM, DashboardSroredProcParam.RecoveryAdjustmentParams.TOP_TEN_ACCESSORIAL_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(RecoveryAdjustmentDto.Config.StoredProcedureQueryName.RECOVERY_ADJUSTMENT, queryParameter);
     }
 
-    public List<RecoveryAdjustmentDto> getRecoveryAdjustmentByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.RecoveryAdjustmentParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.RecoveryAdjustmentParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
-                .and(DashboardSroredProcParam.RecoveryAdjustmentParams.CONVERTED_CURRENCY_CODE_PARAM, filter.getConvertCurrencyCode())
-                .and(DashboardSroredProcParam.RecoveryAdjustmentParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.RecoveryAdjustmentParams.CARRIER_IDS_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.RecoveryAdjustmentParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.RecoveryAdjustmentParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.RecoveryAdjustmentParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.RecoveryAdjustmentParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.RecoveryAdjustmentParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.RecoveryAdjustmentParams.ACCESSORIAL_NAME_PARAM, filter.getAccessorialName())
-                .and(DashboardSroredProcParam.RecoveryAdjustmentParams.TOP_TEN_ACCESSORIAL_PARAM, isTopTenAccessorial ? 1L : 0L);
-        return persistentContext.findEntities("RecoveryAdjustmentDto.getRecoveryAdjustmentByMonth", queryParameter);
+    public List<RecoveryAdjustmentDto> getRecoveryAdjustmentByCarrier(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {DashboardSroredProcParam.RecoveryAdjustmentParams.DATE_TYPE_PARAM, DashboardSroredProcParam.RecoveryAdjustmentParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardSroredProcParam.RecoveryAdjustmentParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardSroredProcParam.RecoveryAdjustmentParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.RecoveryAdjustmentParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.RecoveryAdjustmentParams.MODES_PARAM,
+                DashboardSroredProcParam.RecoveryAdjustmentParams.SERVICES_PARAM, DashboardSroredProcParam.RecoveryAdjustmentParams.LANES_PARAM,
+                DashboardSroredProcParam.RecoveryAdjustmentParams.FROM_DATE_PARAM, DashboardSroredProcParam.RecoveryAdjustmentParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.RecoveryAdjustmentParams.ACCESSORIAL_NAME_PARAM, DashboardSroredProcParam.RecoveryAdjustmentParams.TOP_TEN_ACCESSORIAL_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(RecoveryAdjustmentDto.Config.StoredProcedureQueryName.RECOVERY_ADJUSTMENT_BY_CARRIER, queryParameter);
     }
 
-    public List<RecoveryServiceDto> getRecoveryServices(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.RecoveryServiceParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.RecoveryServiceParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
-                .and(DashboardSroredProcParam.RecoveryServiceParams.CONVERTED_CURRENCY_CODE_PARAM, filter.getConvertCurrencyCode())
-                .and(DashboardSroredProcParam.RecoveryServiceParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.RecoveryServiceParams.CARRIER_IDS_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.RecoveryServiceParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.RecoveryServiceParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.RecoveryServiceParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.RecoveryServiceParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.RecoveryServiceParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.RecoveryServiceParams.ACCESSORIAL_NAME_PARAM, filter.getAccessorialName())
-                .and(DashboardSroredProcParam.RecoveryServiceParams.MODE_NAMES_PARAM, filter.getModeNames())
-                .and(DashboardSroredProcParam.RecoveryServiceParams.TOP_TEN_ACCESSORIAL_PARAM, isTopTenAccessorial ? 1L : 0L);
-        return persistentContext.findEntities("RecoveryServiceDto.getRecoveryService", queryParameter);
+    public List<RecoveryAdjustmentDto> getRecoveryAdjustmentByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {DashboardSroredProcParam.RecoveryAdjustmentParams.DATE_TYPE_PARAM, DashboardSroredProcParam.RecoveryAdjustmentParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardSroredProcParam.RecoveryAdjustmentParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardSroredProcParam.RecoveryAdjustmentParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.RecoveryAdjustmentParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.RecoveryAdjustmentParams.MODES_PARAM,
+                DashboardSroredProcParam.RecoveryAdjustmentParams.SERVICES_PARAM, DashboardSroredProcParam.RecoveryAdjustmentParams.LANES_PARAM,
+                DashboardSroredProcParam.RecoveryAdjustmentParams.FROM_DATE_PARAM, DashboardSroredProcParam.RecoveryAdjustmentParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.RecoveryAdjustmentParams.ACCESSORIAL_NAME_PARAM, DashboardSroredProcParam.RecoveryAdjustmentParams.TOP_TEN_ACCESSORIAL_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(RecoveryAdjustmentDto.Config.StoredProcedureQueryName.RECOVERY_ADJUSTMENT_BY_MONTH, queryParameter);
     }
 
-    public List<RecoveryServiceDto> getRecoveryServicesByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.RecoveryServiceParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.RecoveryServiceParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
-                .and(DashboardSroredProcParam.RecoveryServiceParams.CONVERTED_CURRENCY_CODE_PARAM, filter.getConvertCurrencyCode())
-                .and(DashboardSroredProcParam.RecoveryServiceParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.RecoveryServiceParams.CARRIER_IDS_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.RecoveryServiceParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.RecoveryServiceParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.RecoveryServiceParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.RecoveryServiceParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.RecoveryServiceParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.RecoveryServiceParams.ACCESSORIAL_NAME_PARAM, filter.getAccessorialName())
-                .and(DashboardSroredProcParam.RecoveryServiceParams.MODE_NAMES_PARAM, filter.getModeNames())
-                .and(DashboardSroredProcParam.RecoveryServiceParams.TOP_TEN_ACCESSORIAL_PARAM, isTopTenAccessorial ? 1L : 0L)
-                .and(DashboardSroredProcParam.RecoveryServiceParams.SERVICE_PARAM, filter.getService());
-        return persistentContext.findEntities("RecoveryServiceDto.getRecoveryServiceByMonth", queryParameter);
+    /**
+     * Method to get Recovery service details.
+     *
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<RecoveryServiceDto> getRecoveryServices(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {DashboardSroredProcParam.RecoveryServiceParams.DATE_TYPE_PARAM, DashboardSroredProcParam.RecoveryServiceParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardSroredProcParam.RecoveryServiceParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardSroredProcParam.RecoveryServiceParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.RecoveryServiceParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.RecoveryServiceParams.MODES_PARAM,
+                DashboardSroredProcParam.RecoveryServiceParams.SERVICES_PARAM, DashboardSroredProcParam.RecoveryServiceParams.LANES_PARAM,
+                DashboardSroredProcParam.RecoveryServiceParams.FROM_DATE_PARAM, DashboardSroredProcParam.RecoveryServiceParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.RecoveryServiceParams.ACCESSORIAL_NAME_PARAM, DashboardSroredProcParam.RecoveryServiceParams.MODE_NAMES_PARAM,
+                DashboardSroredProcParam.RecoveryServiceParams.TOP_TEN_ACCESSORIAL_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(RecoveryServiceDto.Config.StoredProcedureQueryName.RECOVERY_SERVICE, queryParameter);
     }
 
-    public List<PackageExceptionDto> getPackageExceptions(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.PackageExceptionParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.PackageExceptionParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.PackageExceptionParams.CARRIER_IDS_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.PackageExceptionParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.PackageExceptionParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.PackageExceptionParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.PackageExceptionParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.PackageExceptionParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.PackageExceptionParams.ACCESSORIAL_NAME_PARAM, filter.getAccessorialName())
-                .and(DashboardSroredProcParam.PackageExceptionParams.TOP_TEN_ACCESSORIAL_PARAM, isTopTenAccessorial ? 1L : 0L);
-        return persistentContext.findEntities("PackageExceptionDto.getPackageException", queryParameter);
+    /**
+     * Method to get recovery service details by month.
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<RecoveryServiceDto> getRecoveryServicesByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {DashboardSroredProcParam.RecoveryServiceParams.DATE_TYPE_PARAM, DashboardSroredProcParam.RecoveryServiceParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardSroredProcParam.RecoveryServiceParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardSroredProcParam.RecoveryServiceParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.RecoveryServiceParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.RecoveryServiceParams.MODES_PARAM,
+                DashboardSroredProcParam.RecoveryServiceParams.SERVICES_PARAM, DashboardSroredProcParam.RecoveryServiceParams.LANES_PARAM,
+                DashboardSroredProcParam.RecoveryServiceParams.FROM_DATE_PARAM, DashboardSroredProcParam.RecoveryServiceParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.RecoveryServiceParams.ACCESSORIAL_NAME_PARAM, DashboardSroredProcParam.RecoveryServiceParams.MODE_NAMES_PARAM,
+                DashboardSroredProcParam.RecoveryServiceParams.TOP_TEN_ACCESSORIAL_PARAM, DashboardSroredProcParam.RecoveryServiceParams.SERVICE_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(RecoveryServiceDto.Config.StoredProcedureQueryName.RECOVERY_SERVICE_BY_MONTH, queryParameter);
     }
 
-    @Transactional( readOnly = true )
-    public List<ShipmentRegionDto> getShipmentByRegion(DashboardsFilterCriteria filter){
+    public List<PackageExceptionDto> getPackageExceptions(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {DashboardSroredProcParam.PackageExceptionParams.DATE_TYPE_PARAM, DashboardSroredProcParam.PackageExceptionParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.PackageExceptionParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.PackageExceptionParams.MODES_PARAM,
+                DashboardSroredProcParam.PackageExceptionParams.SERVICES_PARAM, DashboardSroredProcParam.PackageExceptionParams.LANES_PARAM,
+                DashboardSroredProcParam.PackageExceptionParams.FROM_DATE_PARAM, DashboardSroredProcParam.PackageExceptionParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.PackageExceptionParams.ACCESSORIAL_NAME_PARAM, DashboardSroredProcParam.PackageExceptionParams.TOP_TEN_ACCESSORIAL_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(PackageExceptionDto.Config.StoredProcedureQueryName.PACKAGE_EXCEPTION, queryParameter);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ShipmentRegionDto> getShipmentByRegion(DashboardsFilterCriteria filter) {
         QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.ShipmentRegionParams.DATE_TYPE_PARAM, filter.getDateType())
                 .and(DashboardSroredProcParam.ShipmentRegionParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
                 .and(DashboardSroredProcParam.ShipmentRegionParams.CARRIER_ID_PARAM, filter.getCarriers())
@@ -777,13 +674,13 @@ public class DashboardsDao {
         return persistentContext.findEntities("ShipmentRegionDto.getShipmentByRegion", queryParameter);
     }
 
-    public List<MapCoordinatesDto> getMapCoordinates(String address)  {
+    public List<MapCoordinatesDto> getMapCoordinates(String address) {
         return persistentContext.findEntities("MapCoordinatesDto.getMapCooridantes",
                 StoredProcedureParameter.with("p_address", address));
     }
 
     public List<ZipCodesTimeZonesDto> getMapCoordinates(String city, String state) {
-        return  persistentContext.findEntities("ZipCodesTimeZonesDto.getMapCooridantes",
+        return persistentContext.findEntities("ZipCodesTimeZonesDto.getMapCooridantes",
                 StoredProcedureParameter.with("p_city", city)
                         .and("p_state", state));
     }
@@ -833,7 +730,7 @@ public class DashboardsDao {
 
     }
 
-    public List<ShippingLanesDto> getTopShippingLanesJsonData(DashboardsFilterCriteria filter){
+    public List<ShippingLanesDto> getTopShippingLanesJsonData(DashboardsFilterCriteria filter) {
         QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.ShippingLanesParams.DATE_TYPE_PARAM, filter.getDateType())
                 .and(DashboardSroredProcParam.ShippingLanesParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
                 .and(DashboardSroredProcParam.ShippingLanesParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
@@ -847,7 +744,7 @@ public class DashboardsDao {
         return persistentContext.findEntities("ShippingLanesDto.getTopShippingLanes", queryParameter);
     }
 
-    public List<ShippingLanesDto> getShippingLanesByCarrierJson(DashboardsFilterCriteria filter){
+    public List<ShippingLanesDto> getShippingLanesByCarrierJson(DashboardsFilterCriteria filter) {
         QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.ShippingLanesParams.DATE_TYPE_PARAM, filter.getDateType())
                 .and(DashboardSroredProcParam.ShippingLanesParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
                 .and(DashboardSroredProcParam.ShippingLanesParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
@@ -857,17 +754,17 @@ public class DashboardsDao {
                 .and(DashboardSroredProcParam.ShippingLanesParams.LANES_PARAM, filter.getLanes())
                 .and(DashboardSroredProcParam.ShippingLanesParams.FROM_DATE_PARAM, filter.getFromDate())
                 .and(DashboardSroredProcParam.ShippingLanesParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.ShippingLanesParams.SHIPPER_CITY, filter.getShipperAddress().split(",")[0].replace("'","''"))
-                .and(DashboardSroredProcParam.ShippingLanesParams.SHIPPER_STATE, filter.getShipperAddress().split(",")[1].replace("'","''"))
-                .and(DashboardSroredProcParam.ShippingLanesParams.SHIPPER_COUNTRY, filter.getShipperAddress().split(",")[2].replace("'","''"))
-                .and(DashboardSroredProcParam.ShippingLanesParams.RECEIVER_CITY, filter.getReceiverAddress().split(",")[0].replace("'","''"))
-                .and(DashboardSroredProcParam.ShippingLanesParams.RECEIVER_STATE, filter.getReceiverAddress().split(",")[1].replace("'","''"))
-                .and(DashboardSroredProcParam.ShippingLanesParams.RECEIVER_COUNTRY, filter.getReceiverAddress().split(",")[2].replace("'","''"));
+                .and(DashboardSroredProcParam.ShippingLanesParams.SHIPPER_CITY, filter.getShipperAddress().split(",")[0].replace("'", "''"))
+                .and(DashboardSroredProcParam.ShippingLanesParams.SHIPPER_STATE, filter.getShipperAddress().split(",")[1].replace("'", "''"))
+                .and(DashboardSroredProcParam.ShippingLanesParams.SHIPPER_COUNTRY, filter.getShipperAddress().split(",")[2].replace("'", "''"))
+                .and(DashboardSroredProcParam.ShippingLanesParams.RECEIVER_CITY, filter.getReceiverAddress().split(",")[0].replace("'", "''"))
+                .and(DashboardSroredProcParam.ShippingLanesParams.RECEIVER_STATE, filter.getReceiverAddress().split(",")[1].replace("'", "''"))
+                .and(DashboardSroredProcParam.ShippingLanesParams.RECEIVER_COUNTRY, filter.getReceiverAddress().split(",")[2].replace("'", "''"));
 
         return persistentContext.findEntities("ShippingLanesDto.getShippingLanesByCarrier", queryParameter);
     }
 
-    public List<ShippingLanesDto> getShippingLanesByMonthJson(DashboardsFilterCriteria filter){
+    public List<ShippingLanesDto> getShippingLanesByMonthJson(DashboardsFilterCriteria filter) {
         QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.ShippingLanesParams.DATE_TYPE_PARAM, filter.getDateType())
                 .and(DashboardSroredProcParam.ShippingLanesParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
                 .and(DashboardSroredProcParam.ShippingLanesParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
@@ -877,17 +774,17 @@ public class DashboardsDao {
                 .and(DashboardSroredProcParam.ShippingLanesParams.LANES_PARAM, filter.getLanes())
                 .and(DashboardSroredProcParam.ShippingLanesParams.FROM_DATE_PARAM, filter.getFromDate())
                 .and(DashboardSroredProcParam.ShippingLanesParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.ShippingLanesParams.SHIPPER_CITY, filter.getShipperAddress().split(",")[0].replace("'","''"))
-                .and(DashboardSroredProcParam.ShippingLanesParams.SHIPPER_STATE, filter.getShipperAddress().split(",")[1].replace("'","''"))
-                .and(DashboardSroredProcParam.ShippingLanesParams.SHIPPER_COUNTRY, filter.getShipperAddress().split(",")[2].replace("'","''"))
-                .and(DashboardSroredProcParam.ShippingLanesParams.RECEIVER_CITY, filter.getReceiverAddress().split(",")[0].replace("'","''"))
-                .and(DashboardSroredProcParam.ShippingLanesParams.RECEIVER_STATE, filter.getReceiverAddress().split(",")[1].replace("'","''"))
-                .and(DashboardSroredProcParam.ShippingLanesParams.RECEIVER_COUNTRY, filter.getReceiverAddress().split(",")[2].replace("'","''"));
+                .and(DashboardSroredProcParam.ShippingLanesParams.SHIPPER_CITY, filter.getShipperAddress().split(",")[0].replace("'", "''"))
+                .and(DashboardSroredProcParam.ShippingLanesParams.SHIPPER_STATE, filter.getShipperAddress().split(",")[1].replace("'", "''"))
+                .and(DashboardSroredProcParam.ShippingLanesParams.SHIPPER_COUNTRY, filter.getShipperAddress().split(",")[2].replace("'", "''"))
+                .and(DashboardSroredProcParam.ShippingLanesParams.RECEIVER_CITY, filter.getReceiverAddress().split(",")[0].replace("'", "''"))
+                .and(DashboardSroredProcParam.ShippingLanesParams.RECEIVER_STATE, filter.getReceiverAddress().split(",")[1].replace("'", "''"))
+                .and(DashboardSroredProcParam.ShippingLanesParams.RECEIVER_COUNTRY, filter.getReceiverAddress().split(",")[2].replace("'", "''"));
 
         return persistentContext.findEntities("ShippingLanesDto.getShippingLanesByMonth", queryParameter);
     }
 
-    public List<PortLanesDto> getTopPortLanesJsonData(DashboardsFilterCriteria filter){
+    public List<PortLanesDto> getTopPortLanesJsonData(DashboardsFilterCriteria filter) {
         QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.PortLanesParams.DATE_TYPE_PARAM, filter.getDateType())
                 .and(DashboardSroredProcParam.PortLanesParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
                 .and(DashboardSroredProcParam.PortLanesParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
@@ -901,7 +798,7 @@ public class DashboardsDao {
         return persistentContext.findEntities("PortLanesDto.getTopPortLanes", queryParameter);
     }
 
-    public List<PortLanesDto> getPortLanesByCarrierJson(DashboardsFilterCriteria filter){
+    public List<PortLanesDto> getPortLanesByCarrierJson(DashboardsFilterCriteria filter) {
         QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.PortLanesParams.DATE_TYPE_PARAM, filter.getDateType())
                 .and(DashboardSroredProcParam.PortLanesParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
                 .and(DashboardSroredProcParam.PortLanesParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
@@ -917,7 +814,7 @@ public class DashboardsDao {
         return persistentContext.findEntities("PortLanesDto.getPortLanesByCarrier", queryParameter);
     }
 
-    public List<PortLanesDto> getPortLanesByMonthJson(DashboardsFilterCriteria filter){
+    public List<PortLanesDto> getPortLanesByMonthJson(DashboardsFilterCriteria filter) {
         QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.PortLanesParams.DATE_TYPE_PARAM, filter.getDateType())
                 .and(DashboardSroredProcParam.PortLanesParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
                 .and(DashboardSroredProcParam.PortLanesParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
@@ -933,43 +830,38 @@ public class DashboardsDao {
         return persistentContext.findEntities("PortLanesDto.getPortLanesByMonth", queryParameter);
     }
 
-    public List<PackageExceptionDto> getPackageExceptionsByCarrier(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.PackageExceptionParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.PackageExceptionParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.PackageExceptionParams.CARRIER_IDS_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.PackageExceptionParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.PackageExceptionParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.PackageExceptionParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.PackageExceptionParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.PackageExceptionParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.PackageExceptionParams.ACCESSORIAL_NAME_PARAM, filter.getAccessorialName())
-                .and(DashboardSroredProcParam.PackageExceptionParams.TOP_TEN_ACCESSORIAL_PARAM, isTopTenAccessorial ? 1L : 0L)
-                .and(DashboardSroredProcParam.PackageExceptionParams.DELIVERY_FLAG_PARAM, filter.getDeliveryFlag());
-        return persistentContext.findEntities("PackageExceptionDto.getPackageExceptionByCarrier", queryParameter);
+    public List<PackageExceptionDto> getPackageExceptionsByCarrier(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {DashboardSroredProcParam.PackageExceptionParams.DATE_TYPE_PARAM, DashboardSroredProcParam.PackageExceptionParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.PackageExceptionParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.PackageExceptionParams.MODES_PARAM,
+                DashboardSroredProcParam.PackageExceptionParams.SERVICES_PARAM, DashboardSroredProcParam.PackageExceptionParams.LANES_PARAM,
+                DashboardSroredProcParam.PackageExceptionParams.FROM_DATE_PARAM, DashboardSroredProcParam.PackageExceptionParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.PackageExceptionParams.ACCESSORIAL_NAME_PARAM, DashboardSroredProcParam.PackageExceptionParams.TOP_TEN_ACCESSORIAL_PARAM,
+                DashboardSroredProcParam.PackageExceptionParams.DELIVERY_FLAG_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(PackageExceptionDto.Config.StoredProcedureQueryName.PACKAGE_EXCEPTION_BY_CARRIER, queryParameter);
     }
 
-    public List<PackageExceptionDto> getPackageExceptionsByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.PackageExceptionParams.DATE_TYPE_PARAM, filter.getDateType())
-                .and(DashboardSroredProcParam.PackageExceptionParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
-                .and(DashboardSroredProcParam.PackageExceptionParams.CARRIER_IDS_PARAM, filter.getCarriers())
-                .and(DashboardSroredProcParam.PackageExceptionParams.MODES_PARAM, filter.getModes())
-                .and(DashboardSroredProcParam.PackageExceptionParams.SERVICES_PARAM, filter.getServices())
-                .and(DashboardSroredProcParam.PackageExceptionParams.LANES_PARAM, filter.getLanes())
-                .and(DashboardSroredProcParam.PackageExceptionParams.FROM_DATE_PARAM, filter.getFromDate())
-                .and(DashboardSroredProcParam.PackageExceptionParams.TO_DATE_PARAM, filter.getToDate())
-                .and(DashboardSroredProcParam.PackageExceptionParams.ACCESSORIAL_NAME_PARAM, filter.getAccessorialName())
-                .and(DashboardSroredProcParam.PackageExceptionParams.TOP_TEN_ACCESSORIAL_PARAM, isTopTenAccessorial ? 1L : 0L)
-                .and(DashboardSroredProcParam.PackageExceptionParams.DELIVERY_FLAG_PARAM, filter.getDeliveryFlag());
-        return persistentContext.findEntities("PackageExceptionDto.getPackageExceptionByMonth", queryParameter);
+    public List<PackageExceptionDto> getPackageExceptionsByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {DashboardSroredProcParam.PackageExceptionParams.DATE_TYPE_PARAM, DashboardSroredProcParam.PackageExceptionParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.PackageExceptionParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.PackageExceptionParams.MODES_PARAM,
+                DashboardSroredProcParam.PackageExceptionParams.SERVICES_PARAM, DashboardSroredProcParam.PackageExceptionParams.LANES_PARAM,
+                DashboardSroredProcParam.PackageExceptionParams.FROM_DATE_PARAM, DashboardSroredProcParam.PackageExceptionParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.PackageExceptionParams.ACCESSORIAL_NAME_PARAM, DashboardSroredProcParam.PackageExceptionParams.TOP_TEN_ACCESSORIAL_PARAM,
+                DashboardSroredProcParam.PackageExceptionParams.DELIVERY_FLAG_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(PackageExceptionDto.Config.StoredProcedureQueryName.PACKAGE_EXCEPTION_BY_MONTH, queryParameter);
     }
 
     /**
-     *
      * @param filter
      * @param isTopTenAccessorial
      * @return
      */
-    public List<AverageSpendPerShipmentByCarrierDto>   getAverageSpendPerShipmentByCarrier(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+    public List<AverageSpendPerShipmentByCarrierDto> getAverageSpendPerShipmentByCarrier(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
         QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.AverageSpendShipmentByCarrierParam.DATE_TYPE_PARAM, filter.getDateType())
                 .and(DashboardSroredProcParam.AverageSpendShipmentByCarrierParam.CONVERTED_CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
                 .and(DashboardSroredProcParam.AverageSpendShipmentByCarrierParam.CONVERTED_CURRENCY_CODE_PARAM, filter.getConvertCurrencyCode())
@@ -989,12 +881,11 @@ public class DashboardsDao {
     }
 
     /**
-     *
      * @param filter
      * @param isTopTenAccessorial
      * @return
      */
-    public List<AverageSpendPerShipmentByMonthDto>   getAverageSpendPerShipmentByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+    public List<AverageSpendPerShipmentByMonthDto> getAverageSpendPerShipmentByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
         QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.AverageSpendShipmentByMonthParam.DATE_TYPE_PARAM, filter.getDateType())
                 .and(DashboardSroredProcParam.AverageSpendShipmentByMonthParam.CONVERTED_CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
                 .and(DashboardSroredProcParam.AverageSpendShipmentByMonthParam.CONVERTED_CURRENCY_CODE_PARAM, filter.getConvertCurrencyCode())
@@ -1009,5 +900,161 @@ public class DashboardsDao {
                 .and(DashboardSroredProcParam.AverageSpendShipmentByMonthParam.TOP_ACCESSORIAL_SPEND_PARAM, isTopTenAccessorial ? 1L : 0L);
 
         return persistentContext.findEntities("AverageSpendPerShipmentByMonthDto.getAverageSpendPerShipmentByMonth", queryParameter);
+    }
+
+    /**
+     * Method to get Annual summary.
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<AnnualSummaryDto> getAnnualSummary(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {DashboardSroredProcParam.AnnualSummaryParams.DATE_TYPE_PARAM, DashboardSroredProcParam.AnnualSummaryParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardSroredProcParam.AnnualSummaryParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardSroredProcParam.AnnualSummaryParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.AnnualSummaryParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.AnnualSummaryParams.MODES_PARAM,
+                DashboardSroredProcParam.AnnualSummaryParams.SERVICES_PARAM, DashboardSroredProcParam.AnnualSummaryParams.LANES_PARAM,
+                DashboardSroredProcParam.AnnualSummaryParams.FROM_DATE_PARAM, DashboardSroredProcParam.AnnualSummaryParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.AnnualSummaryParams.ACCESSORIAL_NAME_PARAM, DashboardSroredProcParam.AnnualSummaryParams.TOP_TEN_ACCESSORIAL_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(AnnualSummaryDto.Config.StoredProcedureQueryName.ANNUAL_SUMMARY, queryParameter);
+    }
+
+    /**
+     * Method to get Annual sumary by service.
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<AnnualSummaryDto> getAnnualSummaryByService(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {DashboardSroredProcParam.AnnualSummaryParams.DATE_TYPE_PARAM, DashboardSroredProcParam.AnnualSummaryParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardSroredProcParam.AnnualSummaryParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardSroredProcParam.AnnualSummaryParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.AnnualSummaryParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.AnnualSummaryParams.MODES_PARAM,
+                DashboardSroredProcParam.AnnualSummaryParams.SERVICES_PARAM, DashboardSroredProcParam.AnnualSummaryParams.LANES_PARAM,
+                DashboardSroredProcParam.AnnualSummaryParams.FROM_DATE_PARAM, DashboardSroredProcParam.AnnualSummaryParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.AnnualSummaryParams.ACCESSORIAL_NAME_PARAM, DashboardSroredProcParam.AnnualSummaryParams.TOP_TEN_ACCESSORIAL_PARAM,
+                DashboardSroredProcParam.AnnualSummaryParams.SERVICE_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(AnnualSummaryDto.Config.StoredProcedureQueryName.ANNUAL_SUMMARY_BY_SERVICE, queryParameter);
+    }
+
+    /**
+     * Method to get Annual summary by carrier.
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<AnnualSummaryDto> getAnnualSummaryByCarrier(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {DashboardSroredProcParam.AnnualSummaryParams.DATE_TYPE_PARAM, DashboardSroredProcParam.AnnualSummaryParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardSroredProcParam.AnnualSummaryParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardSroredProcParam.AnnualSummaryParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.AnnualSummaryParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.AnnualSummaryParams.MODES_PARAM,
+                DashboardSroredProcParam.AnnualSummaryParams.SERVICES_PARAM, DashboardSroredProcParam.AnnualSummaryParams.LANES_PARAM,
+                DashboardSroredProcParam.AnnualSummaryParams.FROM_DATE_PARAM, DashboardSroredProcParam.AnnualSummaryParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.AnnualSummaryParams.ACCESSORIAL_NAME_PARAM, DashboardSroredProcParam.AnnualSummaryParams.TOP_TEN_ACCESSORIAL_PARAM,
+                DashboardSroredProcParam.AnnualSummaryParams.SERVICE_PARAM, DashboardSroredProcParam.AnnualSummaryParams.MODE_NAMES_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(AnnualSummaryDto.Config.StoredProcedureQueryName.ANNUAL_SUMMARY_BY_CARRIER, queryParameter);
+    }
+
+    /**
+     * Method to get Annual summary by month.
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<AnnualSummaryDto> getAnnualSummaryByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {DashboardSroredProcParam.AnnualSummaryParams.DATE_TYPE_PARAM, DashboardSroredProcParam.AnnualSummaryParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardSroredProcParam.AnnualSummaryParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardSroredProcParam.AnnualSummaryParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.AnnualSummaryParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.AnnualSummaryParams.MODES_PARAM,
+                DashboardSroredProcParam.AnnualSummaryParams.SERVICES_PARAM, DashboardSroredProcParam.AnnualSummaryParams.LANES_PARAM,
+                DashboardSroredProcParam.AnnualSummaryParams.FROM_DATE_PARAM, DashboardSroredProcParam.AnnualSummaryParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.AnnualSummaryParams.ACCESSORIAL_NAME_PARAM, DashboardSroredProcParam.AnnualSummaryParams.TOP_TEN_ACCESSORIAL_PARAM,
+                DashboardSroredProcParam.AnnualSummaryParams.SERVICE_PARAM, DashboardSroredProcParam.AnnualSummaryParams.MODE_NAMES_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(AnnualSummaryDto.Config.StoredProcedureQueryName.ANNUAL_SUMMARY_BY_MONTH, queryParameter);
+    }
+
+    /**
+     * Method to get monthly spend by mode.
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<MonthlySpendByModeDto> getMonthlySpendByMode(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {DashboardSroredProcParam.MonthlySpendByModeParams.DATE_TYPE_PARAM, DashboardSroredProcParam.MonthlySpendByModeParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardSroredProcParam.MonthlySpendByModeParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardSroredProcParam.MonthlySpendByModeParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.MonthlySpendByModeParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.MonthlySpendByModeParams.MODES_PARAM,
+                DashboardSroredProcParam.MonthlySpendByModeParams.SERVICES_PARAM, DashboardSroredProcParam.MonthlySpendByModeParams.LANES_PARAM,
+                DashboardSroredProcParam.MonthlySpendByModeParams.FROM_DATE_PARAM, DashboardSroredProcParam.MonthlySpendByModeParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.MonthlySpendByModeParams.ACCESSORIAL_NAME_PARAM, DashboardSroredProcParam.MonthlySpendByModeParams.TOP_TEN_ACCESSORIAL_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(MonthlySpendByModeDto.Config.StoredProcedureQueryName.MONTHLY_SPEND_BY_MODE, queryParameter);
+    }
+
+    /**
+     * Method to get monthly spend by mode by service.
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<MonthlySpendByModeDto> getMonthlySpendByModeByService(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {DashboardSroredProcParam.MonthlySpendByModeParams.DATE_TYPE_PARAM, DashboardSroredProcParam.MonthlySpendByModeParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardSroredProcParam.MonthlySpendByModeParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardSroredProcParam.MonthlySpendByModeParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.MonthlySpendByModeParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.MonthlySpendByModeParams.MODES_PARAM,
+                DashboardSroredProcParam.MonthlySpendByModeParams.SERVICES_PARAM, DashboardSroredProcParam.MonthlySpendByModeParams.LANES_PARAM,
+                DashboardSroredProcParam.MonthlySpendByModeParams.FROM_DATE_PARAM, DashboardSroredProcParam.MonthlySpendByModeParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.MonthlySpendByModeParams.ACCESSORIAL_NAME_PARAM, DashboardSroredProcParam.MonthlySpendByModeParams.TOP_TEN_ACCESSORIAL_PARAM,
+                DashboardSroredProcParam.MonthlySpendByModeParams.SERVICE_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(MonthlySpendByModeDto.Config.StoredProcedureQueryName.MONTHLY_SPEND_BY_MODE_BY_SERVICE, queryParameter);
+    }
+
+    /**
+     * Method to get Account summary.
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<AccountSummaryDto> getAccountSummary(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {DashboardSroredProcParam.AccountSummaryParams.DATE_TYPE_PARAM, DashboardSroredProcParam.AccountSummaryParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardSroredProcParam.AccountSummaryParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardSroredProcParam.AccountSummaryParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.AccountSummaryParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.AccountSummaryParams.MODES_PARAM,
+                DashboardSroredProcParam.AccountSummaryParams.SERVICES_PARAM, DashboardSroredProcParam.AccountSummaryParams.LANES_PARAM,
+                DashboardSroredProcParam.AccountSummaryParams.FROM_DATE_PARAM, DashboardSroredProcParam.AccountSummaryParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.AccountSummaryParams.ACCESSORIAL_NAME_PARAM, DashboardSroredProcParam.AccountSummaryParams.TOP_TEN_ACCESSORIAL_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(AccountSummaryDto.Config.StoredProcedureQueryName.ACCOUNT_SUMMARY, queryParameter);
+    }
+
+    /**
+     * Method to get parcel Account summary.
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<AccountSummaryDto> getParcelAccountSummary(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {DashboardSroredProcParam.AccountSummaryParams.DATE_TYPE_PARAM, DashboardSroredProcParam.AccountSummaryParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardSroredProcParam.AccountSummaryParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardSroredProcParam.AccountSummaryParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardSroredProcParam.AccountSummaryParams.CARRIER_IDS_PARAM, DashboardSroredProcParam.AccountSummaryParams.MODES_PARAM,
+                DashboardSroredProcParam.AccountSummaryParams.SERVICES_PARAM, DashboardSroredProcParam.AccountSummaryParams.LANES_PARAM,
+                DashboardSroredProcParam.AccountSummaryParams.FROM_DATE_PARAM, DashboardSroredProcParam.AccountSummaryParams.TO_DATE_PARAM,
+                DashboardSroredProcParam.AccountSummaryParams.ACCESSORIAL_NAME_PARAM, DashboardSroredProcParam.AccountSummaryParams.TOP_TEN_ACCESSORIAL_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(AccountSummaryDto.Config.StoredProcedureQueryName.PARCEL_ACCOUNT_SUMMARY, queryParameter);
     }
 }

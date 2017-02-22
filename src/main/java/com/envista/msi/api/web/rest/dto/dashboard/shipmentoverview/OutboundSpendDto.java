@@ -10,11 +10,11 @@ import java.util.Date;
  * Created by Sujit kumar on 15/02/2017.
  */
 @NamedStoredProcedureQueries({
-        @NamedStoredProcedureQuery(name = "OutboundSpendDto.getOutboundSpend", procedureName = "SHP_DB_OUTBND_SPEND_PROC",
-                resultSetMappings = "OutboundSpendDto.OutboundSpendMapping",
+        @NamedStoredProcedureQuery(name = OutboundSpendDto.Config.StoredProcedureQueryName.OUTBOUND_SPEND, procedureName = OutboundSpendDto.Config.StoredProcedureName.OUTBOUND_SPEND,
+                resultSetMappings = OutboundSpendDto.Config.ResultMappings.OUTBOUND_SPEND_MAPPING,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.OutboundSpendParams.DATE_TYPE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.OutboundSpendParams.CURRENCY_ID_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.OutboundSpendParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.OutboundSpendParams.CONVERTED_CURRENCY_CODE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.OutboundSpendParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.OutboundSpendParams.CARRIER_IDS_PARAM, type = String.class),
@@ -27,11 +27,11 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.OutboundSpendParams.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.OutboundSpendParams.OUTBOUND_SPEND_DATA, type = Void.class)
                 }),
-        @NamedStoredProcedureQuery(name = "OutboundSpendDto.getOutboundSpendByMonth", procedureName = "SHP_DB_OUTBND_SPEND_MNTH_PROC",
-                resultSetMappings = "OutboundSpendDto.OutboundSpendByMonthMapping",
+        @NamedStoredProcedureQuery(name = OutboundSpendDto.Config.StoredProcedureQueryName.OUTBOUND_SPEND_BY_MONTH, procedureName = OutboundSpendDto.Config.StoredProcedureName.OUTBOUND_SPEND_BY_MONTH,
+                resultSetMappings = OutboundSpendDto.Config.ResultMappings.OUTBOUND_SPEND_BY_MONTH_MAPPING,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.OutboundSpendParams.DATE_TYPE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.OutboundSpendParams.CURRENCY_ID_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.OutboundSpendParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.OutboundSpendParams.CONVERTED_CURRENCY_CODE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.OutboundSpendParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.OutboundSpendParams.CARRIER_IDS_PARAM, type = String.class),
@@ -47,7 +47,7 @@ import java.util.Date;
 })
 
 @SqlResultSetMappings({
-        @SqlResultSetMapping(name = "OutboundSpendDto.OutboundSpendMapping",
+        @SqlResultSetMapping(name = OutboundSpendDto.Config.ResultMappings.OUTBOUND_SPEND_MAPPING,
                 classes = {
                         @ConstructorResult(targetClass = OutboundSpendDto.class,
                                 columns = {
@@ -57,7 +57,7 @@ import java.util.Date;
                                         @ColumnResult(name = "NET_DUE_AMOUNT", type = Double.class)
                                 })
                 }),
-        @SqlResultSetMapping(name = "OutboundSpendDto.OutboundSpendByMonthMapping",
+        @SqlResultSetMapping(name = OutboundSpendDto.Config.ResultMappings.OUTBOUND_SPEND_BY_MONTH_MAPPING,
                 classes = {
                         @ConstructorResult(targetClass = OutboundSpendDto.class,
                                 columns = {
@@ -158,5 +158,22 @@ public class OutboundSpendDto implements Serializable {
 
     public void setCarrierId(Long carrierId) {
         this.carrierId = carrierId;
+    }
+
+    public static class Config{
+        static class ResultMappings{
+            static final String OUTBOUND_SPEND_MAPPING = "OutboundSpendDto.OutboundSpendMapping";
+            static final String OUTBOUND_SPEND_BY_MONTH_MAPPING = "OutboundSpendDto.OutboundSpendByMonthMapping";
+        }
+
+        static class StoredProcedureName{
+            static final String OUTBOUND_SPEND = "SHP_DB_OUTBND_SPEND_PROC";
+            static final String OUTBOUND_SPEND_BY_MONTH = "SHP_DB_OUTBND_SPEND_MNTH_PROC";
+        }
+
+        public static class StoredProcedureQueryName{
+            public static final String OUTBOUND_SPEND = "OutboundSpendDto.getOutboundSpend";
+            public static final String OUTBOUND_SPEND_BY_MONTH = "OutboundSpendDto.getOutboundSpendByMonth";
+        }
     }
 }

@@ -1,9 +1,9 @@
 package com.envista.msi.api.web.rest.dto.dashboard.common;
 
-import com.envista.msi.api.web.rest.dto.dashboard.accessorialspend.AccessorialSpendDto;
+import com.envista.msi.api.web.rest.dto.dashboard.netspend.AccessorialSpendDto;
+import com.envista.msi.api.web.rest.dto.dashboard.netspend.TaxSpendDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.InboundSpendDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.OutboundSpendDto;
-import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendDto;
 
 import java.io.Serializable;
 import java.util.ArrayList;

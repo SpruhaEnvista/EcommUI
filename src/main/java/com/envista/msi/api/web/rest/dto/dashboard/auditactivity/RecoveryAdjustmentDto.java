@@ -11,11 +11,12 @@ import java.util.Date;
  */
 
 @NamedStoredProcedureQueries({
-        @NamedStoredProcedureQuery(name = "RecoveryAdjustmentDto.getRecoveryAdjustment", procedureName = "SHP_DB_RECVRY_ADJ_PROC",
-                resultSetMappings = "RecoveryAdjustmentDto.RecoveryAdjustmentMapping",
+        @NamedStoredProcedureQuery(name = RecoveryAdjustmentDto.Config.StoredProcedureQueryName.RECOVERY_ADJUSTMENT,
+                procedureName = RecoveryAdjustmentDto.Config.StoredProcedureName.RECOVERY_ADJUSTMENT,
+                resultSetMappings = RecoveryAdjustmentDto.Config.ResultMappings.RECOVERY_ADJUSTMENT_MAPPING,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryAdjustmentParams.DATE_TYPE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryAdjustmentParams.CURRENCY_ID_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryAdjustmentParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryAdjustmentParams.CONVERTED_CURRENCY_CODE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryAdjustmentParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryAdjustmentParams.CARRIER_IDS_PARAM, type = String.class),
@@ -28,11 +29,12 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryAdjustmentParams.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.RecoveryAdjustmentParams.RECOVERY_ADJUSTMENT_DATA_PARAM, type = Void.class)
                 }),
-        @NamedStoredProcedureQuery(name = "RecoveryAdjustmentDto.getRecoveryAdjustmentByCarrier", procedureName = "SHP_DB_RECVRY_ADJ_CARR_PROC",
-                resultSetMappings = "RecoveryAdjustmentDto.RecoveryAdjustmentByCarrierMapping",
+        @NamedStoredProcedureQuery(name = RecoveryAdjustmentDto.Config.StoredProcedureQueryName.RECOVERY_ADJUSTMENT_BY_CARRIER,
+                procedureName = RecoveryAdjustmentDto.Config.StoredProcedureName.RECOVERY_ADJUSTMENT_BY_CARRIER,
+                resultSetMappings = RecoveryAdjustmentDto.Config.ResultMappings.RECOVERY_ADJUSTMENT_BY_CARRIER_MAPPING,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryAdjustmentParams.DATE_TYPE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryAdjustmentParams.CURRENCY_ID_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryAdjustmentParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryAdjustmentParams.CONVERTED_CURRENCY_CODE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryAdjustmentParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryAdjustmentParams.CARRIER_IDS_PARAM, type = String.class),
@@ -45,11 +47,12 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryAdjustmentParams.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.RecoveryAdjustmentParams.RECOVERY_ADJUSTMENT_DATA_PARAM, type = Void.class)
                 }),
-        @NamedStoredProcedureQuery(name = "RecoveryAdjustmentDto.getRecoveryAdjustmentByMonth", procedureName = "SHP_DB_RECVRY_ADJ_MNTH_PROC",
-                resultSetMappings = "RecoveryAdjustmentDto.RecoveryAdjustmentByMonthMapping",
+        @NamedStoredProcedureQuery(name = RecoveryAdjustmentDto.Config.StoredProcedureQueryName.RECOVERY_ADJUSTMENT_BY_MONTH,
+                procedureName = RecoveryAdjustmentDto.Config.StoredProcedureName.RECOVERY_ADJUSTMENT_BY_MONTH,
+                resultSetMappings = RecoveryAdjustmentDto.Config.ResultMappings.RECOVERY_ADJUSTMENT_BY_MONTH_MAPPING,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryAdjustmentParams.DATE_TYPE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryAdjustmentParams.CURRENCY_ID_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryAdjustmentParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryAdjustmentParams.CONVERTED_CURRENCY_CODE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryAdjustmentParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.RecoveryAdjustmentParams.CARRIER_IDS_PARAM, type = String.class),
@@ -65,7 +68,7 @@ import java.util.Date;
 })
 
 @SqlResultSetMappings({
-        @SqlResultSetMapping(name = "RecoveryAdjustmentDto.RecoveryAdjustmentMapping", classes = {
+        @SqlResultSetMapping(name = RecoveryAdjustmentDto.Config.ResultMappings.RECOVERY_ADJUSTMENT_MAPPING, classes = {
                 @ConstructorResult(targetClass = RecoveryAdjustmentDto.class,
                     columns = {
                             @ColumnResult(name = "MONTH", type = String.class),
@@ -74,7 +77,7 @@ import java.util.Date;
                     }
                 )
         }),
-        @SqlResultSetMapping(name = "RecoveryAdjustmentDto.RecoveryAdjustmentByCarrierMapping", classes = {
+        @SqlResultSetMapping(name = RecoveryAdjustmentDto.Config.ResultMappings.RECOVERY_ADJUSTMENT_BY_CARRIER_MAPPING, classes = {
                 @ConstructorResult(targetClass = RecoveryAdjustmentDto.class,
                         columns = {
                                 @ColumnResult(name = "ID", type = Long.class),
@@ -83,7 +86,7 @@ import java.util.Date;
                         }
                 )
         }),
-        @SqlResultSetMapping(name = "RecoveryAdjustmentDto.RecoveryAdjustmentByMonthMapping", classes = {
+        @SqlResultSetMapping(name = RecoveryAdjustmentDto.Config.ResultMappings.RECOVERY_ADJUSTMENT_BY_MONTH_MAPPING, classes = {
                 @ConstructorResult(targetClass = RecoveryAdjustmentDto.class,
                         columns = {
                                 @ColumnResult(name = "BILL_DATE", type = Date.class),
@@ -201,5 +204,25 @@ public class RecoveryAdjustmentDto implements Serializable {
 
     public void setAmount(Double amount) {
         this.amount = amount;
+    }
+
+    public static class Config{
+        static class ResultMappings{
+            static final String RECOVERY_ADJUSTMENT_MAPPING = "RecoveryAdjustmentDto.RecoveryAdjustmentMapping";
+            static final String RECOVERY_ADJUSTMENT_BY_CARRIER_MAPPING = "RecoveryAdjustmentDto.RecoveryAdjustmentByCarrierMapping";
+            static final String RECOVERY_ADJUSTMENT_BY_MONTH_MAPPING = "RecoveryAdjustmentDto.RecoveryAdjustmentByMonthMapping";
+        }
+
+        static class StoredProcedureName{
+            static final String RECOVERY_ADJUSTMENT = "SHP_DB_RECVRY_ADJ_PROC";
+            static final String RECOVERY_ADJUSTMENT_BY_CARRIER = "SHP_DB_RECVRY_ADJ_CARR_PROC";
+            static final String RECOVERY_ADJUSTMENT_BY_MONTH = "SHP_DB_RECVRY_ADJ_MNTH_PROC";
+        }
+
+        public static class StoredProcedureQueryName{
+            public static final String RECOVERY_ADJUSTMENT = "RecoveryAdjustmentDto.getRecoveryAdjustment";
+            public static final String RECOVERY_ADJUSTMENT_BY_CARRIER = "RecoveryAdjustmentDto.getRecoveryAdjustmentByCarrier";
+            public static final String RECOVERY_ADJUSTMENT_BY_MONTH = "RecoveryAdjustmentDto.getRecoveryAdjustmentByMonth";
+        }
     }
 }

@@ -1,9 +1,10 @@
 package com.envista.msi.api.web.rest.dto.dashboard.common;
 
-import com.envista.msi.api.web.rest.dto.dashboard.accessorialspend.AccessorialSpendDto;
+import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AnnualSummaryDto;
 import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
-import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendByCarrierDto;
-import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendByCarrierDto;
+import com.envista.msi.api.web.rest.dto.dashboard.netspend.AccessorialSpendDto;
+import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendByModeDto;
+import com.envista.msi.api.web.rest.dto.dashboard.netspend.TaxSpendDto;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -19,13 +20,13 @@ public class CommonValuesForChartDto implements Serializable{
 
     public CommonValuesForChartDto(){}
 
-    public CommonValuesForChartDto(NetSpendByCarrierDto netSpend){
+    public CommonValuesForChartDto(NetSpendByModeDto netSpend){
         this.id = netSpend.getCarrierId();
         this.name = netSpend.getCarrierName();
         this.value = netSpend.getSpend();
     }
 
-    public CommonValuesForChartDto(TaxSpendByCarrierDto taxSpend){
+    public CommonValuesForChartDto(TaxSpendDto taxSpend){
         this.id = taxSpend.getCarrierId();
         this.name = taxSpend.getName();
         this.value = taxSpend.getValue();
@@ -79,6 +80,12 @@ public class CommonValuesForChartDto implements Serializable{
         this.value = packageException.getValue();
     }
 
+    public CommonValuesForChartDto(AnnualSummaryDto annualSummary){
+        this.id = annualSummary.getId();
+        this.name = annualSummary.getName();
+        this.value = annualSummary.getValue();
+    }
+
     public static List<CommonValuesForChartDto> buildRecoveryAdjustmentListToCommonValueForChartList(List<RecoveryAdjustmentDto> recoveryAdjustmentList){
         if(recoveryAdjustmentList == null || recoveryAdjustmentList.isEmpty()) return null;
 
@@ -110,6 +117,18 @@ public class CommonValuesForChartDto implements Serializable{
         for(PackageExceptionDto packageException : packageExceptionList){
             if(packageException != null){
                 commonValuesForChartList.add(new CommonValuesForChartDto(packageException));
+            }
+        }
+        return commonValuesForChartList;
+    }
+
+    public static List<CommonValuesForChartDto> buildAnnualSummaryListToCommonValueForChartList(List<AnnualSummaryDto> annualSummaryList){
+        if(annualSummaryList == null || annualSummaryList.isEmpty()) return null;
+
+        List<CommonValuesForChartDto> commonValuesForChartList = new ArrayList<>();
+        for(AnnualSummaryDto annualSummary : annualSummaryList){
+            if(annualSummary != null){
+                commonValuesForChartList.add(new CommonValuesForChartDto(annualSummary));
             }
         }
         return commonValuesForChartList;
