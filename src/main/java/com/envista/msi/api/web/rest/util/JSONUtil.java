@@ -1413,26 +1413,27 @@ public class JSONUtil {
 			JSONArray finalValuesArray = new JSONArray();
 
 			for (String category : categoriesList) {
-				JSONArray eachCategoryArray = new JSONArray();
+				JSONObject eachCategoryObj = new JSONObject();
+				String key1 = "spend" + yearsList.get(0);
+				String key2 = "spend" + yearsList.get(1);
+				eachCategoryObj.put("name", category);
 				if (categoriesBasedMap.containsKey(category)) {
-					eachCategoryArray.put(category);
 					if (categoriesBasedMap.get(category).containsKey(yearsList.get(0))) {
-						eachCategoryArray.put(commaSeperatedDecimalFormat.format(categoriesBasedMap.get(category).get(yearsList.get(0))));
+						eachCategoryObj.put(key1, commaSeperatedDecimalFormat.format(categoriesBasedMap.get(category).get(yearsList.get(0))));
 					} else {
-						eachCategoryArray.put("0");
+						eachCategoryObj.put(key1, "0");
 					}
 
 					if (categoriesBasedMap.get(category).containsKey(yearsList.get(1))) {
-						eachCategoryArray.put(commaSeperatedDecimalFormat.format(categoriesBasedMap.get(category).get(yearsList.get(1))));
+						eachCategoryObj.put(key2, commaSeperatedDecimalFormat.format(categoriesBasedMap.get(category).get(yearsList.get(1))));
 					} else {
-						eachCategoryArray.put("0");
+						eachCategoryObj.put(key2, "0");
 					}
 				} else {
-					eachCategoryArray.put(category);
-					eachCategoryArray.put("0");
-					eachCategoryArray.put("0");
+					eachCategoryObj.put(key1, "0");
+					eachCategoryObj.put(key2, "0");
 				}
-				finalValuesArray.put(eachCategoryArray);
+				finalValuesArray.put(eachCategoryObj);
 			}
 
 			JSONArray yearsJsonArray = new JSONArray();
@@ -1709,18 +1710,14 @@ public class JSONUtil {
 			for (String mode : modesList) {
 				JSONObject modeWiseDataObj = new JSONObject();
 				HashMap<String, HashMap<String, Double>> monthsWiseMap = modesMap.get(mode);
-				JSONObject allMonthsDataObj = new JSONObject();
+				modeWiseDataObj.put("name", mode);
 				for (String month : monthsList) {
-					JSONObject monthInnerDataObj = new JSONObject();
-					if (monthsWiseMap.containsKey(month)) {
-						HashMap<String, Double> eachQuaterData = monthsWiseMap.get(month);
-						monthInnerDataObj.put("spend", commaSeperatedDecimalFormat.format(eachQuaterData.get("spend")));
-					} else {
-						monthInnerDataObj.put("spend", "0");
+					String spend = "0";
+					if (monthsWiseMap != null && monthsWiseMap.containsKey(month)) {
+						spend = commaSeperatedDecimalFormat.format(monthsWiseMap.get(month).get("spend"));
 					}
-					allMonthsDataObj.put(month, monthInnerDataObj);
+					modeWiseDataObj.put(month, spend);
 				}
-				modeWiseDataObj.put(mode, new JSONObject().put("quaters", allMonthsDataObj));
 				modesArray.put(modeWiseDataObj);
 			}
 
@@ -1779,18 +1776,14 @@ public class JSONUtil {
 			for (String service : servicesList) {
 				JSONObject serviceWiseDataObj = new JSONObject();
 				HashMap<String, HashMap<String, Double>> quatersWiseMap = servicesMap.get(service);
-				JSONObject allQuatersDataObj = new JSONObject();
+				serviceWiseDataObj.put("name", service);
 				for (String quater : quatersList) {
-					JSONObject quaterInnerDataObj = new JSONObject();
-					if (quatersWiseMap.containsKey(quater)) {
-						HashMap<String, Double> eachQuaterData = quatersWiseMap.get(quater);
-						quaterInnerDataObj.put("spend", commaSeperatedDecimalFormat.format(eachQuaterData.get("spend")));
-					} else {
-						quaterInnerDataObj.put("spend", "0");
+					String spend = "0";
+					if (quatersWiseMap != null && quatersWiseMap.containsKey(quater)) {
+						spend = commaSeperatedDecimalFormat.format(quatersWiseMap.get(quater).get("spend"));
 					}
-					allQuatersDataObj.put(quater, quaterInnerDataObj);
+					serviceWiseDataObj.put(quater, spend);
 				}
-				serviceWiseDataObj.put(service, new JSONObject().put("quaters", allQuatersDataObj));
 				servicesArray.put(serviceWiseDataObj);
 			}
 

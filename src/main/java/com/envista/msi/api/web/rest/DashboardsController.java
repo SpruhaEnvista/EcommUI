@@ -11,20 +11,18 @@ import com.envista.msi.api.web.rest.dto.UserProfileDto;
 import com.envista.msi.api.web.rest.dto.ZipCodesTimeZonesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardAppliedFilterDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
-import com.envista.msi.api.web.rest.dto.dashboard.accessorialspend.AccessorialSpendDto;
+import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AccountSummaryDto;
+import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AnnualSummaryDto;
+import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.MonthlySpendByModeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
 import com.envista.msi.api.web.rest.dto.dashboard.common.CommonMonthlyChartDto;
 import com.envista.msi.api.web.rest.dto.dashboard.common.CommonValuesForChartDto;
 import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendCommonDto;
-import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendMonthlyChartDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.*;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.PortLanesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentRegionDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShippingLanesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.*;
-import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendByCarrierDto;
-import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendByMonthDto;
-import com.envista.msi.api.web.rest.dto.dashboard.taxspend.TaxSpendDto;
 import com.envista.msi.api.web.rest.util.JSONUtil;
 import org.apache.commons.beanutils.BeanUtils;
 import org.json.JSONArray;
@@ -2708,7 +2706,7 @@ public class DashboardsController extends DashboardBaseController {
         return avgShipmentJson;
     }
 
-    private JSONObject loadAvgWeightModeByCarrierJson(DashboardsFilterCriteria filter) throws JSONException {
+    private JSONObject loadAvgWeightModeByCarrierJson(DashboardsFilterCriteria filter) throws Exception {
         JSONObject avgWeightJson = null;
 
         List<AverageWeightModeByCarrierDto> avgWeightList = dashboardsService.getAverageWeightModeByCarrier(filter,false);
@@ -2726,7 +2724,7 @@ public class DashboardsController extends DashboardBaseController {
         return avgWeightJson;
     }
 
-    private JSONObject loadAvgWeightModeByMonthJson(DashboardsFilterCriteria filter) throws JSONException {
+    private JSONObject loadAvgWeightModeByMonthJson(DashboardsFilterCriteria filter) throws Exception {
         JSONObject avgWeightJson = null;
 
         List<AverageWeightModeByMonthDto> avgWeightList = dashboardsService.getAverageWeightModeByMonth(filter,false);
@@ -2739,7 +2737,7 @@ public class DashboardsController extends DashboardBaseController {
                     commonMonthlyChartDtoList.add(commonMonthlyChartDto);
                 }
             }
-            avgWeightJson = JSONUtil.prepareMonthlyChartJson1(commonMonthlyChartDtoList);
+            avgWeightJson = JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList);
         }
         return avgWeightJson;
     }
