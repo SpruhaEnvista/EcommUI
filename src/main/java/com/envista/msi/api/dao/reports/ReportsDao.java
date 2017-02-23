@@ -8,6 +8,7 @@ import com.envista.msi.api.web.rest.dto.UserProfileDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendByModeDto;
 import com.envista.msi.api.web.rest.dto.reports.ReportResultsDto;
+import com.envista.msi.api.web.rest.dto.reports.ReportResultsUsersListDto;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,12 +50,15 @@ public class ReportsDao {
                 .and("generatedRptId", generatedRptId);
         return persistentContext.findEntityAndMapFields("ReportResults.updateExpiryDate",queryParameter);
     }
+    @Transactional
+    public List<ReportResultsUsersListDto> getUsersList() {
+        return persistentContext.findEntitiesAndMapFields("ReportResultsUsersList.getUsersList",null);
+    }
+
     public static Date convertDateFullYear(String date)  {
-        Date sdate = new java.sql.Date(System.currentTimeMillis());
+        Date sdate = new Date(System.currentTimeMillis());
         try {
-            SimpleDateFormat sdfInput = new SimpleDateFormat("MM/dd/yyyy");
-            Date udate = sdfInput.parse(date);
-            sdate = new Date(udate.getTime());
+            sdate = new Date(Long.parseLong(date));
         }catch(Exception e){
             e.printStackTrace();
         }

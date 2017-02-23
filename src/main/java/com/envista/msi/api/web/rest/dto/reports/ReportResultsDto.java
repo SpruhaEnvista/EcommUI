@@ -18,7 +18,7 @@ import java.util.Date;
         @NamedStoredProcedureQuery(name = "ReportResults.updateExpiryDate", procedureName = "shp_rpt_update_expirydate_proc",
                 resultSetMappings = "UpdateCount",
                 parameters = {
-                        @StoredProcedureParameter(mode = ParameterMode.OUT, name = "updateCount", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "updateReturn", type = Void.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "expiryDate", type = Date.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "generatedRptId", type = Long.class)
                 }),
@@ -36,7 +36,7 @@ import java.util.Date;
                 @ConstructorResult(
                         targetClass = ReportResultsDto.class,
                         columns = {
-                                @ColumnResult(name = "updateCount", type = Integer.class)
+                                @ColumnResult(name = "updateCount", type = Long.class)
                         }
                 )
         }),
@@ -51,6 +51,7 @@ import java.util.Date;
                                 @ColumnResult(name = "run_date", type = String.class),
                                 @ColumnResult(name = "expire_date", type = String.class),
                                 @ColumnResult(name = "running_status", type = String.class),
+                                @ColumnResult(name = "type", type = Integer.class),
                                 @ColumnResult(name = "completion_date", type = Date.class),
                                 @ColumnResult(name = "expires_date", type = Date.class)
                         }
@@ -91,6 +92,9 @@ public class ReportResultsDto implements Serializable {
     @Column(name = "running_status")
     private String status;
 
+    @Column(name = "type")
+    private int type;
+
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "completion_date")
     private Date completedDate;
@@ -100,7 +104,7 @@ public class ReportResultsDto implements Serializable {
     private Date expiryDate;
 
     @Column(name="updateCount")
-    private int updateCount;
+    private Long updateCount;
 
     public Long getGeneratedRptId() {
         return generatedRptId;
@@ -162,17 +166,22 @@ public class ReportResultsDto implements Serializable {
 
     public void setExpiryDate(Date expiryDate) { this.expiryDate = expiryDate;   }
 
-    public int getUpdateCount() {  return updateCount; }
+    public Long getUpdateCount() {  return updateCount; }
 
-    public void setUpdateCount(int updateCount) { this.updateCount = updateCount; }
+    public void setUpdateCount(Long updateCount) { this.updateCount = updateCount; }
+
+    public int getType() {   return type;   }
+
+    public void setType(int type) { this.type = type;   }
 
     public ReportResultsDto(){}
 
-    public ReportResultsDto(int updateCount) {
+    public ReportResultsDto(Long updateCount) {
+
         this.updateCount = updateCount;
     }
     public ReportResultsDto(Long generatedRptId, Long savedRptId, String fileName, String fileType,String runDate,
-                            String expireDate,String status,Date completedDate,Date expiryDate) {
+                            String expireDate,String status,int type,Date completedDate,Date expiryDate) {
         this.generatedRptId = generatedRptId;
         this.savedRptId = savedRptId;
         this.fileName = fileName;
@@ -180,6 +189,7 @@ public class ReportResultsDto implements Serializable {
         this.runDate = runDate;
         this.expireDate = expireDate;
         this.status = status;
+        this.type = type;
         this.completedDate = completedDate;
         this.expiryDate = expiryDate;
     }

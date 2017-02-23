@@ -3,6 +3,7 @@ package com.envista.msi.api.service;
 import com.envista.msi.api.dao.reports.ReportsDao;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardAppliedFilterDto;
 import com.envista.msi.api.web.rest.dto.reports.ReportResultsDto;
+import com.envista.msi.api.web.rest.dto.reports.ReportResultsUsersListDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,5 +31,8 @@ public class ReportsService {
 
     public ReportResultsDto deleteReportInResults(Long generatedRptId, Long userId, String userName) {
         return  reportsDao.deleteReportInResults(generatedRptId, userId, userName);
+    }
+    public List<ReportResultsUsersListDto> getUsersList() {
+        return  reportsDao.getUsersList();
     }
 }
