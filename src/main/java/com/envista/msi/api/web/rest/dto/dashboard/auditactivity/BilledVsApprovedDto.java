@@ -11,11 +11,12 @@ import java.util.Date;
  */
 
 @NamedStoredProcedureQueries({
-        @NamedStoredProcedureQuery(name = "BilledVsApprovedDto.getBilledVsApproved", procedureName = "SHP_DB_BILL_APPRVD_PROC",
-                resultSetMappings = "BilledVsApprovedMapping",
+        @NamedStoredProcedureQuery(name = BilledVsApprovedDto.Config.StoredProcedureQueryName.BILLED_VS_APPROVED,
+                procedureName = BilledVsApprovedDto.Config.StoredProcedureName.BILLED_VS_APPROVED,
+                resultSetMappings = {BilledVsApprovedDto.Config.ResultMappings.BILLED_VS_APPROVED_MAPPING},
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.BilledVsApprovedParams.DATE_TYPE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.BilledVsApprovedParams.CURRENCY_ID_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.BilledVsApprovedParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.BilledVsApprovedParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.BilledVsApprovedParams.CARRIER_IDS_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.BilledVsApprovedParams.MODES_PARAM, type = String.class),
@@ -26,11 +27,12 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.BilledVsApprovedParams.MODE_NAMES_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.BilledVsApprovedParams.BILLED_VS_APPROVED_DATA_PARAM, type = Void.class)
                 }),
-        @NamedStoredProcedureQuery(name = "BilledVsApprovedDto.getBilledVsApprovedByMonth", procedureName = "SHP_DB_BILL_APPRVD_MNTH_PROC",
-                resultSetMappings = "BilledVsApprovedByMonthMapping",
+        @NamedStoredProcedureQuery(name = BilledVsApprovedDto.Config.StoredProcedureQueryName.BILLED_VS_APPROVED_BY_MONTH,
+                procedureName = BilledVsApprovedDto.Config.StoredProcedureName.BILLED_VS_APPROVED_BY_MONTH,
+                resultSetMappings = {BilledVsApprovedDto.Config.ResultMappings.BILLED_VS_APPROVED_BY_MONTH_MAPPING},
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.BilledVsApprovedParams.DATE_TYPE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.BilledVsApprovedParams.CURRENCY_ID_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.BilledVsApprovedParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.BilledVsApprovedParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.BilledVsApprovedParams.CARRIER_IDS_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.BilledVsApprovedParams.MODES_PARAM, type = String.class),
@@ -45,7 +47,7 @@ import java.util.Date;
 })
 
 @SqlResultSetMappings({
-        @SqlResultSetMapping(name = "BilledVsApprovedMapping", classes = {
+        @SqlResultSetMapping(name = BilledVsApprovedDto.Config.ResultMappings.BILLED_VS_APPROVED_MAPPING, classes = {
                 @ConstructorResult(targetClass = BilledVsApprovedDto.class,
                 columns = {
                         @ColumnResult(name = "CARRIER_ID", type = Long.class),
@@ -55,7 +57,7 @@ import java.util.Date;
                         @ColumnResult(name = "RECOVERED", type = Double.class)
                 })
         }),
-        @SqlResultSetMapping(name = "BilledVsApprovedByMonthMapping", classes = {
+        @SqlResultSetMapping(name = BilledVsApprovedDto.Config.ResultMappings.BILLED_VS_APPROVED_BY_MONTH_MAPPING, classes = {
                 @ConstructorResult(targetClass = BilledVsApprovedDto.class,
                         columns = {
                                 @ColumnResult(name = "BILL_DATE", type = Date.class),
@@ -176,5 +178,22 @@ public class BilledVsApprovedDto implements Serializable {
 
     public void setAmount(Double amount) {
         this.amount = amount;
+    }
+
+    public static class Config{
+        static class ResultMappings{
+            static final String BILLED_VS_APPROVED_MAPPING = "BilledVsApprovedDto.BilledVsApprovedMapping";
+            static final String BILLED_VS_APPROVED_BY_MONTH_MAPPING = "BilledVsApprovedDto.BilledVsApprovedByMonthMapping";
+        }
+
+        static class StoredProcedureName{
+            static final String BILLED_VS_APPROVED = "SHP_DB_BILL_APPRVD_PROC";
+            static final String BILLED_VS_APPROVED_BY_MONTH = "SHP_DB_BILL_APPRVD_MNTH_PROC";
+        }
+
+        public static class StoredProcedureQueryName{
+            public static final String BILLED_VS_APPROVED = "BilledVsApprovedDto.getBilledVsApproved";
+            public static final String BILLED_VS_APPROVED_BY_MONTH = "BilledVsApprovedDto.getBilledVsApprovedByMonth";
+        }
     }
 }

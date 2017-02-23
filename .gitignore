@@ -39,3 +39,4 @@ _$*
 .tern-project
 /target/
 /.apt_generated/
+/build/
