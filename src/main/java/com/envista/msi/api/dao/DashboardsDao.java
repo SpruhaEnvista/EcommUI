@@ -11,6 +11,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
 import com.envista.msi.api.web.rest.dto.dashboard.accessorialspend.AccessorialSpendDto;
 import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.*;
+import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.PortLanesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentRegionDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShippingLanesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.*;
@@ -884,6 +885,52 @@ public class DashboardsDao {
                 .and(DashboardSroredProcParam.ShippingLanesParams.RECEIVER_COUNTRY, filter.getReceiverAddress().split(",")[2].replace("'","''"));
 
         return persistentContext.findEntities("ShippingLanesDto.getShippingLanesByMonth", queryParameter);
+    }
+
+    public List<PortLanesDto> getTopPortLanesJsonData(DashboardsFilterCriteria filter){
+        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.PortLanesParams.DATE_TYPE_PARAM, filter.getDateType())
+                .and(DashboardSroredProcParam.PortLanesParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
+                .and(DashboardSroredProcParam.PortLanesParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
+                .and(DashboardSroredProcParam.PortLanesParams.CARRIER_ID_PARAM, filter.getCarriers())
+                .and(DashboardSroredProcParam.PortLanesParams.MODES_PARAM, filter.getModes())
+                .and(DashboardSroredProcParam.PortLanesParams.SERVICES_PARAM, filter.getServices())
+                .and(DashboardSroredProcParam.PortLanesParams.LANES_PARAM, filter.getLanes())
+                .and(DashboardSroredProcParam.PortLanesParams.FROM_DATE_PARAM, filter.getFromDate())
+                .and(DashboardSroredProcParam.PortLanesParams.TO_DATE_PARAM, filter.getToDate());
+
+        return persistentContext.findEntities("PortLanesDto.getTopPortLanes", queryParameter);
+    }
+
+    public List<PortLanesDto> getPortLanesByCarrierJson(DashboardsFilterCriteria filter){
+        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.PortLanesParams.DATE_TYPE_PARAM, filter.getDateType())
+                .and(DashboardSroredProcParam.PortLanesParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
+                .and(DashboardSroredProcParam.PortLanesParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
+                .and(DashboardSroredProcParam.PortLanesParams.CARRIER_ID_PARAM, filter.getCarriers())
+                .and(DashboardSroredProcParam.PortLanesParams.MODES_PARAM, filter.getModes())
+                .and(DashboardSroredProcParam.PortLanesParams.SERVICES_PARAM, filter.getServices())
+                .and(DashboardSroredProcParam.PortLanesParams.LANES_PARAM, filter.getLanes())
+                .and(DashboardSroredProcParam.PortLanesParams.FROM_DATE_PARAM, filter.getFromDate())
+                .and(DashboardSroredProcParam.PortLanesParams.TO_DATE_PARAM, filter.getToDate())
+                .and(DashboardSroredProcParam.PortLanesParams.POL, filter.getPol())
+                .and(DashboardSroredProcParam.PortLanesParams.POD, filter.getPod());
+
+        return persistentContext.findEntities("PortLanesDto.getPortLanesByCarrier", queryParameter);
+    }
+
+    public List<PortLanesDto> getPortLanesByMonthJson(DashboardsFilterCriteria filter){
+        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardSroredProcParam.PortLanesParams.DATE_TYPE_PARAM, filter.getDateType())
+                .and(DashboardSroredProcParam.PortLanesParams.CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
+                .and(DashboardSroredProcParam.PortLanesParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
+                .and(DashboardSroredProcParam.PortLanesParams.CARRIER_ID_PARAM, filter.getCarriers())
+                .and(DashboardSroredProcParam.PortLanesParams.MODES_PARAM, filter.getModes())
+                .and(DashboardSroredProcParam.PortLanesParams.SERVICES_PARAM, filter.getServices())
+                .and(DashboardSroredProcParam.PortLanesParams.LANES_PARAM, filter.getLanes())
+                .and(DashboardSroredProcParam.PortLanesParams.FROM_DATE_PARAM, filter.getFromDate())
+                .and(DashboardSroredProcParam.PortLanesParams.TO_DATE_PARAM, filter.getToDate())
+                .and(DashboardSroredProcParam.PortLanesParams.POL, filter.getPol())
+                .and(DashboardSroredProcParam.PortLanesParams.POD, filter.getPod());
+
+        return persistentContext.findEntities("PortLanesDto.getPortLanesByMonth", queryParameter);
     }
 
     public List<PackageExceptionDto> getPackageExceptionsByCarrier(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
