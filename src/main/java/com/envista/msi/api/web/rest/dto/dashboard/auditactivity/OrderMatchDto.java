@@ -11,12 +11,13 @@ import java.util.Date;
  */
 
 @NamedStoredProcedureQueries({
-        @NamedStoredProcedureQuery(name = "OrderMatchDto.getOrderMatch", procedureName = "SHP_DB_ORDER_MATCH_PROC",
-                resultSetMappings = "OrderMatchMapping",
+        @NamedStoredProcedureQuery(name = OrderMatchDto.Config.StoredProcedureQueryName.ORDER_MATCH,
+                procedureName = OrderMatchDto.Config.StoredProcedureName.ORDER_MATCH,
+                resultSetMappings = OrderMatchDto.Config.ResultMappings.ORDER_MATCH_MAPPING,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.OrderMatchParams.DATE_TYPE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.OrderMatchParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.OrderMatchParams.CARRIER_ID_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.OrderMatchParams.CARRIER_IDS_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.OrderMatchParams.MODES_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.OrderMatchParams.SERVICES_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.OrderMatchParams.LANES_PARAM, type = String.class),
@@ -25,12 +26,13 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.OrderMatchParams.MODE_NAMES_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.OrderMatchParams.ORDER_MATCH_DATA_PARAM, type = Void.class)
                 }),
-        @NamedStoredProcedureQuery(name = "OrderMatchDto.getOrderMatchByCarrier", procedureName = "SHP_DB_ORDER_MATCH_CARR_PROC",
-                resultSetMappings = "OrderMatchByCarrierMapping",
+        @NamedStoredProcedureQuery(name = OrderMatchDto.Config.StoredProcedureQueryName.ORDER_MATCH_BY_CARRIER,
+                procedureName = OrderMatchDto.Config.StoredProcedureName.ORDER_MATCH_BY_CARRIER,
+                resultSetMappings = OrderMatchDto.Config.ResultMappings.ORDER_MATCH_BY_CARRIER_MAPPING,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.OrderMatchParams.DATE_TYPE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.OrderMatchParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.OrderMatchParams.CARRIER_ID_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.OrderMatchParams.CARRIER_IDS_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.OrderMatchParams.MODES_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.OrderMatchParams.SERVICES_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.OrderMatchParams.LANES_PARAM, type = String.class),
@@ -40,12 +42,13 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.OrderMatchParams.ORDER_MATCH_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.OrderMatchParams.ORDER_MATCH_DATA_PARAM, type = Void.class)
                 }),
-        @NamedStoredProcedureQuery(name = "OrderMatchDto.getOrderMatchByMonth", procedureName = "SHP_DB_ORDER_MATCH_MNTH_PROC",
-                resultSetMappings = "OrderMatchByMonthMapping",
+        @NamedStoredProcedureQuery(name = OrderMatchDto.Config.StoredProcedureQueryName.ORDER_MATCH_BY_MONTH,
+                procedureName = OrderMatchDto.Config.StoredProcedureName.ORDER_MATCH_BY_MONTH,
+                resultSetMappings = OrderMatchDto.Config.ResultMappings.ORDER_MATCH_BY_MONTH_MAPPING,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.OrderMatchParams.DATE_TYPE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.OrderMatchParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.OrderMatchParams.CARRIER_ID_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.OrderMatchParams.CARRIER_IDS_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.OrderMatchParams.MODES_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.OrderMatchParams.SERVICES_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.OrderMatchParams.LANES_PARAM, type = String.class),
@@ -58,7 +61,7 @@ import java.util.Date;
 })
 
 @SqlResultSetMappings({
-        @SqlResultSetMapping(name = "OrderMatchMapping", classes = {
+        @SqlResultSetMapping(name = OrderMatchDto.Config.ResultMappings.ORDER_MATCH_MAPPING, classes = {
                 @ConstructorResult(
                         targetClass = OrderMatchDto.class,
                         columns = {
@@ -66,7 +69,7 @@ import java.util.Date;
                                 @ColumnResult(name = "STATUS", type = String.class)
                         })
         }),
-        @SqlResultSetMapping(name = "OrderMatchByCarrierMapping", classes = {
+        @SqlResultSetMapping(name = OrderMatchDto.Config.ResultMappings.ORDER_MATCH_BY_CARRIER_MAPPING, classes = {
                 @ConstructorResult(
                         targetClass = OrderMatchDto.class,
                         columns = {
@@ -75,7 +78,7 @@ import java.util.Date;
                                 @ColumnResult(name = "VALUE", type = Double.class)
                         })
         }),
-        @SqlResultSetMapping(name = "OrderMatchByMonthMapping", classes = {
+        @SqlResultSetMapping(name = OrderMatchDto.Config.ResultMappings.ORDER_MATCH_BY_MONTH_MAPPING, classes = {
                 @ConstructorResult(
                         targetClass = OrderMatchDto.class,
                         columns = {
@@ -169,5 +172,25 @@ public class OrderMatchDto implements Serializable {
 
     public void setAmount(Double amount) {
         this.amount = amount;
+    }
+
+    public static class Config{
+        static class ResultMappings{
+            static final String ORDER_MATCH_MAPPING = "OrderMatchDto.OrderMatchMapping";
+            static final String ORDER_MATCH_BY_CARRIER_MAPPING = "OrderMatchDto.OrderMatchByCarrierMapping";
+            static final String ORDER_MATCH_BY_MONTH_MAPPING = "OrderMatchDto.OrderMatchByMonthMapping";
+        }
+
+        static class StoredProcedureName{
+            static final String ORDER_MATCH = "SHP_DB_ORDER_MATCH_PROC";
+            static final String ORDER_MATCH_BY_CARRIER = "SHP_DB_ORDER_MATCH_CARR_PROC";
+            static final String ORDER_MATCH_BY_MONTH = "SHP_DB_ORDER_MATCH_MNTH_PROC";
+        }
+
+        public static class StoredProcedureQueryName{
+            public static final String ORDER_MATCH = "OrderMatchDto.getOrderMatch";
+            public static final String ORDER_MATCH_BY_CARRIER = "OrderMatchDto.getOrderMatchByCarrier";
+            public static final String ORDER_MATCH_BY_MONTH = "OrderMatchDto.getOrderMatchByMonth";
+        }
     }
 }

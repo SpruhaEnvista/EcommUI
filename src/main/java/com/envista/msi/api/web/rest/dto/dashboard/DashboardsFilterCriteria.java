@@ -57,6 +57,7 @@ public class DashboardsFilterCriteria implements Serializable {
     private String receiverAddress;
     private String pol;
     private String pod;
+    private boolean isTopTenAccessorial;
 
 
     public String getCustomerIdsCSV() {
@@ -457,6 +458,14 @@ public class DashboardsFilterCriteria implements Serializable {
 
     public void setPod(String pod) {
         this.pod = pod;
+    }
+
+    public boolean isTopTenAccessorial() {
+        return isTopTenAccessorial;
+    }
+
+    public void setTopTenAccessorial(boolean topTenAccessorial) {
+        isTopTenAccessorial = topTenAccessorial;
     }
 
     public class FreightDashboardsDataBean {
