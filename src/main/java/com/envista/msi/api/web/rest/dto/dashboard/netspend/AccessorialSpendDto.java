@@ -1,6 +1,6 @@
 package com.envista.msi.api.web.rest.dto.dashboard.netspend;
 
-import com.envista.msi.api.domain.util.DashboardSroredProcParam;
+import com.envista.msi.api.domain.util.DashboardStoredProcParam;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -10,108 +10,114 @@ import java.util.Date;
  * Created by Sujit kumar on 06/02/2017.
  */
 @NamedStoredProcedureQueries({
-        @NamedStoredProcedureQuery(name = "AccessorialSpendDto.getTopAccessorialSpend", procedureName = "SHP_DB_TOP_ACC_SPEND_PROC",
-                resultSetMappings = "TopAccessorialSpendMapping",
+        @NamedStoredProcedureQuery(name = AccessorialSpendDto.Config.StoredProcedureQueryName.TOP_ACCESSORIAL_SPEND,
+                procedureName = AccessorialSpendDto.Config.StoredProcedureName.TOP_ACCESSORIAL_SPEND,
+                resultSetMappings = AccessorialSpendDto.Config.ResultMappings.TOP_ACCESSORIAL_SPEND_MAPPING,
                 parameters = {
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.DATE_TYPE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.CONVERTED_CURRENCY_CODE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.CARRIER_IDS_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.MODES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.SERVICES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.LANES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.ACCESSORIAL_NAME_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.FROM_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.TO_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.AccessorialSpendParams.TOP_ACCESSORIAL_SPEND_PARAM, type = Void.class)
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.DATE_TYPE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.CONVERTED_CURRENCY_CODE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.CARRIER_IDS_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.MODES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.SERVICES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.LANES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.ACCESSORIAL_NAME_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.FROM_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.TO_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.AccessorialSpendParams.TOP_ACCESSORIAL_SPEND_PARAM, type = Void.class)
                 }),
-        @NamedStoredProcedureQuery(name = "AccessorialSpendDto.getTopAccessorialSpendByCarrier", procedureName = "SHP_DB_TOP_ACC_SPEND_CARR_PROC",
-                resultSetMappings = "TopAccessorialSpendByCarrierMapping",
+        @NamedStoredProcedureQuery(name = AccessorialSpendDto.Config.StoredProcedureQueryName.TOP_ACCESSORIAL_SPEND_BY_CARRIER,
+                procedureName = AccessorialSpendDto.Config.StoredProcedureName.TOP_ACCESSORIAL_SPEND_BY_CARRIER,
+                resultSetMappings = AccessorialSpendDto.Config.ResultMappings.TOP_ACCESSORIAL_SPEND_BY_CARRIER_MAPPING,
                 parameters = {
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.DATE_TYPE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.CONVERTED_CURRENCY_CODE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.CONVERTED_CURRENCY_ID_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.MODES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.SERVICES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.LANES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.ACCESSORIAL_NAME_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.FROM_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.TO_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.AccessorialSpendParams.TOP_ACCESSORIAL_SPEND_PARAM, type = Void.class)
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.DATE_TYPE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.CONVERTED_CURRENCY_CODE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.CONVERTED_CURRENCY_ID_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.MODES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.SERVICES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.LANES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.ACCESSORIAL_NAME_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.FROM_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.TO_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.AccessorialSpendParams.TOP_ACCESSORIAL_SPEND_PARAM, type = Void.class)
                 }),
-        @NamedStoredProcedureQuery(name = "AccessorialSpendDto.getTopAccessorialSpendByMonth", procedureName = "SHP_DB_TOP_ACC_SPEND_MNTH_PROC",
-                resultSetMappings = "TopAccessorialSpendByMonthMapping",
+        @NamedStoredProcedureQuery(name = AccessorialSpendDto.Config.StoredProcedureQueryName.TOP_ACCESSORIAL_SPEND_BY_MONTH,
+                procedureName = AccessorialSpendDto.Config.StoredProcedureName.TOP_ACCESSORIAL_SPEND_BY_MONTH,
+                resultSetMappings = AccessorialSpendDto.Config.ResultMappings.TOP_ACCESSORIAL_SPEND_BY_MONTH_MAPPING,
                 parameters = {
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.DATE_TYPE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.CONVERTED_CURRENCY_CODE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.CARRIER_IDS_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.MODES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.SERVICES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.LANES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.ACCESSORIAL_NAME_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.FROM_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.TO_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.AccessorialSpendParams.TOP_ACCESSORIAL_SPEND_PARAM, type = Void.class)
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.DATE_TYPE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.CONVERTED_CURRENCY_CODE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.CARRIER_IDS_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.MODES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.SERVICES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.LANES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.ACCESSORIAL_NAME_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.FROM_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.TO_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.AccessorialSpendParams.TOP_ACCESSORIAL_SPEND_PARAM, type = Void.class)
                 }),
-        @NamedStoredProcedureQuery(name = "AccessorialSpendDto.getAccessorialSpend", procedureName = "SHP_DB_ACC_SPEND_PROC",
-                resultSetMappings = "AccessorialSpendMapping",
+        @NamedStoredProcedureQuery(name = AccessorialSpendDto.Config.StoredProcedureQueryName.ACCESSORIAL_SPEND,
+                procedureName = AccessorialSpendDto.Config.StoredProcedureName.ACCESSORIAL_SPEND,
+                resultSetMappings = AccessorialSpendDto.Config.ResultMappings.ACCESSORIAL_SPEND_MAPPING,
                 parameters = {
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.DATE_TYPE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.CARRIER_IDS_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.MODES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.SERVICES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.LANES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.FROM_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.TO_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.MODE_NAMES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.AccessorialSpendParams.ACCESSORIAL_SPEND_PARAM, type = Void.class)
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.DATE_TYPE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.CARRIER_IDS_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.MODES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.SERVICES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.LANES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.FROM_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.TO_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.MODE_NAMES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.AccessorialSpendParams.ACCESSORIAL_SPEND_PARAM, type = Void.class)
                 }),
-        @NamedStoredProcedureQuery(name = "AccessorialSpendDto.getAccessorialSpendByCarrier", procedureName = "SHP_DB_ACC_SPEND_CARR_PROC",
-                resultSetMappings = "AccessorialSpendByCarrierMapping",
+        @NamedStoredProcedureQuery(name = AccessorialSpendDto.Config.StoredProcedureQueryName.ACCESSORIAL_SPEND_BY_CARRIER,
+                procedureName = AccessorialSpendDto.Config.StoredProcedureName.ACCESSORIAL_SPEND_BY_CARRIER,
+                resultSetMappings = AccessorialSpendDto.Config.ResultMappings.ACCESSORIAL_SPEND_BY_CARRIER_MAPPING,
                 parameters = {
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.DATE_TYPE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.CARRIER_IDS_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.MODES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.SERVICES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.LANES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.FROM_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.TO_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.MODE_NAMES_PARAM, type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.ACCESSORIAL_DESC_PARAM, type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.AccessorialSpendParams.ACCESSORIAL_SPEND_PARAM, type = Void.class)
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.DATE_TYPE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.CARRIER_IDS_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.MODES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.SERVICES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.LANES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.FROM_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.TO_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.MODE_NAMES_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.ACCESSORIAL_DESC_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.AccessorialSpendParams.ACCESSORIAL_SPEND_PARAM, type = Void.class)
                 }),
-        @NamedStoredProcedureQuery(name = "AccessorialSpendDto.getAccessorialSpendByMonth", procedureName = "SHP_DB_ACC_SPEND_MNTH_PROC",
-                resultSetMappings = "AccessorialSpendByMonthMapping",
+        @NamedStoredProcedureQuery(name = AccessorialSpendDto.Config.StoredProcedureQueryName.ACCESSORIAL_SPEND_BY_MONTH,
+                procedureName = AccessorialSpendDto.Config.StoredProcedureName.ACCESSORIAL_SPEND_BY_MONTH,
+                resultSetMappings = AccessorialSpendDto.Config.ResultMappings.ACCESSORIAL_SPEND_BY_MONTH_MAPPING,
                 parameters = {
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.DATE_TYPE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.CARRIER_IDS_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.MODES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.SERVICES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.LANES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.FROM_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.TO_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.MODE_NAMES_PARAM, type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccessorialSpendParams.ACCESSORIAL_DESC_PARAM, type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.AccessorialSpendParams.ACCESSORIAL_SPEND_PARAM, type = Void.class)
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.DATE_TYPE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.CARRIER_IDS_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.MODES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.SERVICES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.LANES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.FROM_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.TO_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.MODE_NAMES_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.ACCESSORIAL_DESC_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.AccessorialSpendParams.ACCESSORIAL_SPEND_PARAM, type = Void.class)
                 })
 })
 
 @SqlResultSetMappings({
-        @SqlResultSetMapping(name = "TopAccessorialSpendMapping", classes = {
+        @SqlResultSetMapping(name = AccessorialSpendDto.Config.ResultMappings.TOP_ACCESSORIAL_SPEND_MAPPING, classes = {
                 @ConstructorResult(
                         targetClass = AccessorialSpendDto.class,
                         columns = {
@@ -121,7 +127,7 @@ import java.util.Date;
                         }
                 )
         }),
-        @SqlResultSetMapping(name = "TopAccessorialSpendByCarrierMapping", classes = {
+        @SqlResultSetMapping(name = AccessorialSpendDto.Config.ResultMappings.TOP_ACCESSORIAL_SPEND_BY_CARRIER_MAPPING, classes = {
                 @ConstructorResult(
                         targetClass = AccessorialSpendDto.class,
                         columns = {
@@ -131,7 +137,7 @@ import java.util.Date;
                         }
                 )
         }),
-        @SqlResultSetMapping(name = "TopAccessorialSpendByMonthMapping", classes = {
+        @SqlResultSetMapping(name = AccessorialSpendDto.Config.ResultMappings.TOP_ACCESSORIAL_SPEND_BY_MONTH_MAPPING, classes = {
                 @ConstructorResult(
                         targetClass = AccessorialSpendDto.class,
                         columns = {
@@ -140,7 +146,7 @@ import java.util.Date;
                         }
                 )
         }),
-        @SqlResultSetMapping(name = "AccessorialSpendMapping", classes = {
+        @SqlResultSetMapping(name = AccessorialSpendDto.Config.ResultMappings.ACCESSORIAL_SPEND_MAPPING, classes = {
                 @ConstructorResult(
                         targetClass = AccessorialSpendDto.class,
                         columns = {
@@ -150,7 +156,7 @@ import java.util.Date;
                         }
                 )
         }),
-        @SqlResultSetMapping(name = "AccessorialSpendByCarrierMapping", classes = {
+        @SqlResultSetMapping(name = AccessorialSpendDto.Config.ResultMappings.ACCESSORIAL_SPEND_BY_CARRIER_MAPPING, classes = {
                 @ConstructorResult(
                         targetClass = AccessorialSpendDto.class,
                         columns = {
@@ -160,7 +166,7 @@ import java.util.Date;
                         }
                 )
         }),
-        @SqlResultSetMapping(name = "AccessorialSpendByMonthMapping", classes = {
+        @SqlResultSetMapping(name = AccessorialSpendDto.Config.ResultMappings.ACCESSORIAL_SPEND_BY_MONTH_MAPPING, classes = {
                 @ConstructorResult(
                         targetClass = AccessorialSpendDto.class,
                         columns = {
@@ -313,5 +319,34 @@ public class AccessorialSpendDto implements Serializable{
 
     public void setAccessorialDescription(String accessorialDescription) {
         this.accessorialDescription = accessorialDescription;
+    }
+
+    public static class Config{
+        static class ResultMappings{
+            static final String ACCESSORIAL_SPEND_MAPPING = "AccessorialSpendDto.AccessorialSpendMapping";
+            static final String ACCESSORIAL_SPEND_BY_CARRIER_MAPPING = "AccessorialSpendDto.AccessorialSpendByCarrierMapping";
+            static final String ACCESSORIAL_SPEND_BY_MONTH_MAPPING = "AccessorialSpendDto.AccessorialSpendByMonthMapping";
+            static final String TOP_ACCESSORIAL_SPEND_MAPPING = "AccessorialSpendDto.TopAccessorialSpendMapping";
+            static final String TOP_ACCESSORIAL_SPEND_BY_CARRIER_MAPPING = "AccessorialSpendDto.TopAccessorialSpendByCarrierMapping";
+            static final String TOP_ACCESSORIAL_SPEND_BY_MONTH_MAPPING = "AccessorialSpendDto.TopAccessorialSpendByMonthMapping";
+        }
+
+        static class StoredProcedureName{
+            static final String ACCESSORIAL_SPEND = "SHP_DB_ACC_SPEND_PROC";
+            static final String ACCESSORIAL_SPEND_BY_CARRIER = "SHP_DB_ACC_SPEND_CARR_PROC";
+            static final String ACCESSORIAL_SPEND_BY_MONTH = "SHP_DB_ACC_SPEND_MNTH_PROC";
+            static final String TOP_ACCESSORIAL_SPEND = "SHP_DB_TOP_ACC_SPEND_PROC";
+            static final String TOP_ACCESSORIAL_SPEND_BY_CARRIER = "SHP_DB_TOP_ACC_SPEND_CARR_PROC";
+            static final String TOP_ACCESSORIAL_SPEND_BY_MONTH = "SHP_DB_TOP_ACC_SPEND_MNTH_PROC";
+        }
+
+        public static class StoredProcedureQueryName{
+            public static final String ACCESSORIAL_SPEND = "AccessorialSpendDto.getAccessorialSpend";
+            public static final String ACCESSORIAL_SPEND_BY_CARRIER = "AccessorialSpendDto.getAccessorialSpendByCarrier";
+            public static final String ACCESSORIAL_SPEND_BY_MONTH = "AccessorialSpendDto.getAccessorialSpendByMonth";
+            public static final String TOP_ACCESSORIAL_SPEND = "AccessorialSpendDto.getTopAccessorialSpend";
+            public static final String TOP_ACCESSORIAL_SPEND_BY_CARRIER = "AccessorialSpendDto.getTopAccessorialSpendByCarrier";
+            public static final String TOP_ACCESSORIAL_SPEND_BY_MONTH = "AccessorialSpendDto.getTopAccessorialSpendByMonth";
+        }
     }
 }

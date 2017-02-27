@@ -2494,7 +2494,7 @@ public class DashboardsController extends DashboardBaseController {
     }
 
     public JSONObject loadShipmentRegionByCarrierJson(DashboardsFilterCriteria filterCriteria) throws Exception {
-        List<ShipmentRegionDto> shipmentRegionDtoList = dashboardsService.getShipmentRegionByCarrierJson(filterCriteria);
+        List<ShipmentRegionDto> shipmentRegionDtoList = dashboardsService.getShipmentRegionByCarrier(filterCriteria);
         List<CommonValuesForChartDto> commonValuesForChartDtoList = new ArrayList<CommonValuesForChartDto>();
         for(ShipmentRegionDto shipmentRegionDto : shipmentRegionDtoList ) {
             CommonValuesForChartDto commonValuesForChartDto = new CommonValuesForChartDto();
@@ -2507,7 +2507,7 @@ public class DashboardsController extends DashboardBaseController {
     }
 
     public JSONObject loadShipmentRegionByMonthJson(DashboardsFilterCriteria filterCriteria) throws Exception {
-        List<ShipmentRegionDto> shipmentRegionDtoList = dashboardsService.getShipmentRegionByMonthJson(filterCriteria);
+        List<ShipmentRegionDto> shipmentRegionDtoList = dashboardsService.getShipmentRegionByMonth(filterCriteria);
         List<CommonMonthlyChartDto> commonMonthlyChartDtoList= new ArrayList<CommonMonthlyChartDto>();
         for (ShipmentRegionDto shipmentRegionDto: shipmentRegionDtoList ) {
             CommonMonthlyChartDto commonMonthlyChartDto= new CommonMonthlyChartDto();
@@ -2537,12 +2537,12 @@ public class DashboardsController extends DashboardBaseController {
     }
 
     public JSONObject loadTopShippingLanesJsonData(DashboardsFilterCriteria filterCriteria) throws Exception {
-        List<ShippingLanesDto> shippingLanesDtoList = dashboardsService.loadTopShippingLanesJsonData(filterCriteria);
+        List<ShippingLanesDto> shippingLanesDtoList = dashboardsService.loadTopShippingLanes(filterCriteria);
         return JSONUtil.prepareTopShippingLanesJson(shippingLanesDtoList);
     }
 
     public JSONObject loadShippingLanesByCarrierJson(DashboardsFilterCriteria filterCriteria) throws Exception {
-        List<ShippingLanesDto> shippingLanesDtoList = dashboardsService.getShippingLanesByCarrierJson(filterCriteria);
+        List<ShippingLanesDto> shippingLanesDtoList = dashboardsService.getShippingLanesByCarrier(filterCriteria);
         List<CommonValuesForChartDto> commonValuesForChartDtoList = new ArrayList<CommonValuesForChartDto>();
         for(ShippingLanesDto shippingLanesDto : shippingLanesDtoList ) {
             CommonValuesForChartDto commonValuesForChartDto = new CommonValuesForChartDto();
@@ -2555,7 +2555,7 @@ public class DashboardsController extends DashboardBaseController {
     }
 
     public JSONObject loadShippingLanesByMonthJson(DashboardsFilterCriteria filterCriteria) throws Exception {
-        List<ShippingLanesDto> shippingLanesDtoList = dashboardsService.getShippingLanesByMonthJson(filterCriteria);
+        List<ShippingLanesDto> shippingLanesDtoList = dashboardsService.getShippingLanesByMonth(filterCriteria);
         List<CommonMonthlyChartDto> commonMonthlyChartDtoList= new ArrayList<CommonMonthlyChartDto>();
         for (ShippingLanesDto shippingLanesDto: shippingLanesDtoList ) {
             CommonMonthlyChartDto commonMonthlyChartDto= new CommonMonthlyChartDto();
@@ -2586,12 +2586,12 @@ public class DashboardsController extends DashboardBaseController {
     }
 
     public JSONObject loadTopPortLanesJsonData(DashboardsFilterCriteria filterCriteria) throws Exception {
-        List<PortLanesDto> portLanesDtoList = dashboardsService.loadTopPortLanesJsonData(filterCriteria);
+        List<PortLanesDto> portLanesDtoList = dashboardsService.loadTopPortLanes(filterCriteria);
         return JSONUtil.prepareTopPortLanesJson(portLanesDtoList);
     }
 
     public JSONObject loadPortLanesByCarrierJson(DashboardsFilterCriteria filterCriteria) throws Exception {
-        List<PortLanesDto> portLanesDtoList = dashboardsService.getPortLanesByCarrierJson(filterCriteria);
+        List<PortLanesDto> portLanesDtoList = dashboardsService.getPortLanesByCarrier(filterCriteria);
         List<CommonValuesForChartDto> commonValuesForChartDtoList = new ArrayList<CommonValuesForChartDto>();
         for(PortLanesDto portLanesDto : portLanesDtoList ) {
             CommonValuesForChartDto commonValuesForChartDto = new CommonValuesForChartDto();
@@ -2604,7 +2604,7 @@ public class DashboardsController extends DashboardBaseController {
     }
 
     public JSONObject loadPortLanesByMonthJson(DashboardsFilterCriteria filterCriteria) throws Exception {
-        List<PortLanesDto> portLanesDtoList = dashboardsService.getPortLanesByMonthJson(filterCriteria);
+        List<PortLanesDto> portLanesDtoList = dashboardsService.getPortLanesByMonth(filterCriteria);
         List<CommonMonthlyChartDto> commonMonthlyChartDtoList= new ArrayList<CommonMonthlyChartDto>();
         for (PortLanesDto portLanesDto: portLanesDtoList ) {
             CommonMonthlyChartDto commonMonthlyChartDto= new CommonMonthlyChartDto();
@@ -2670,10 +2670,10 @@ public class DashboardsController extends DashboardBaseController {
     private JSONObject loadAvgSpendPerShipmtByCarrierJson(DashboardsFilterCriteria filter) throws Exception {
         JSONObject avgShipmentJson = null;
 
-        List<AverageSpendPerShipmentByCarrierDto> avgShipmentList = dashboardsService.getAvgSpendPerShipmtByCarrier(filter,false);
+        List<AverageSpendPerShipmentDto> avgShipmentList = dashboardsService.getAvgSpendPerShipmtByCarrier(filter,false);
         if(avgShipmentList != null && avgShipmentList.size() > 0){
             List<CommonValuesForChartDto> commonValueList = new ArrayList<CommonValuesForChartDto>();
-            for(AverageSpendPerShipmentByCarrierDto avgShipmtByCarrier : avgShipmentList){
+            for(AverageSpendPerShipmentDto avgShipmtByCarrier : avgShipmentList){
                 if(avgShipmtByCarrier != null){
                     CommonValuesForChartDto commonValueChartDto=new CommonValuesForChartDto();
                     BeanUtils.copyProperties(avgShipmtByCarrier , commonValueChartDto);
@@ -2688,15 +2688,15 @@ public class DashboardsController extends DashboardBaseController {
     private JSONObject loadAvgSpendPerShipmtByMonthJson(DashboardsFilterCriteria filter) throws JSONException {
         JSONObject avgShipmentJson = null;
 
-        List<AverageSpendPerShipmentByMonthDto> avgShipmentList = dashboardsService.getAvgSpendPerShipmtByMonth(filter,false);
+        List<AverageSpendPerShipmentDto> avgShipmentList = dashboardsService.getAvgSpendPerShipmtByMonth(filter,false);
         if(avgShipmentList!=null) {
             List<CommonMonthlyChartDto> commonMonthlyChartDtoList = new ArrayList<CommonMonthlyChartDto>();
-            for (AverageSpendPerShipmentByMonthDto avgShipmtByMonthDto : avgShipmentList) {
+            for (AverageSpendPerShipmentDto avgShipmtByMonthDto : avgShipmentList) {
                 if (avgShipmtByMonthDto != null) {
-                    for (AverageSpendPerShipmentByMonthDto averageSpendPerShipmentByMonthDto: avgShipmentList ) {
+                    for (AverageSpendPerShipmentDto averageSpendPerShipment: avgShipmentList ) {
                         CommonMonthlyChartDto commonMonthlyChartDto= new CommonMonthlyChartDto();
-                        commonMonthlyChartDto.setBillDate(averageSpendPerShipmentByMonthDto.getBillDate());
-                        commonMonthlyChartDto.setAmount(averageSpendPerShipmentByMonthDto.getAmount());
+                        commonMonthlyChartDto.setBillDate(averageSpendPerShipment.getBillDate());
+                        commonMonthlyChartDto.setAmount(averageSpendPerShipment.getAmount());
                         commonMonthlyChartDtoList.add(commonMonthlyChartDto);
                     }
                 }
@@ -2709,13 +2709,13 @@ public class DashboardsController extends DashboardBaseController {
     private JSONObject loadAvgWeightModeByCarrierJson(DashboardsFilterCriteria filter) throws Exception {
         JSONObject avgWeightJson = null;
 
-        List<AverageWeightModeByCarrierDto> avgWeightList = dashboardsService.getAverageWeightModeByCarrier(filter,false);
+        List<AverageWeightModeShipmtDto> avgWeightList = dashboardsService.getAverageWeightModeByCarrier(filter,false);
         if(avgWeightList != null && avgWeightList.size() > 0){
             List<CommonValuesForChartDto> commonValueList = new ArrayList<CommonValuesForChartDto>();
-            for(AverageWeightModeByCarrierDto avgWeightByCarrier : avgWeightList){
-                if(avgWeightByCarrier != null){
+            for(AverageWeightModeShipmtDto avgWeight : avgWeightList){
+                if(avgWeight != null){
                     CommonValuesForChartDto commonValueChartDto=new CommonValuesForChartDto();
-                    BeanUtils.copyProperties(avgWeightByCarrier , commonValueChartDto);
+                    BeanUtils.copyProperties(avgWeight , commonValueChartDto);
                     commonValueList.add(commonValueChartDto);
                 }
             }
@@ -2727,13 +2727,13 @@ public class DashboardsController extends DashboardBaseController {
     private JSONObject loadAvgWeightModeByMonthJson(DashboardsFilterCriteria filter) throws Exception {
         JSONObject avgWeightJson = null;
 
-        List<AverageWeightModeByMonthDto> avgWeightList = dashboardsService.getAverageWeightModeByMonth(filter,false);
+        List<AverageWeightModeShipmtDto> avgWeightList = dashboardsService.getAverageWeightModeByMonth(filter,false);
         if(avgWeightList != null && avgWeightList.size() > 0){
             List<CommonMonthlyChartDto> commonMonthlyChartDtoList = new ArrayList<CommonMonthlyChartDto>();
-            for (AverageWeightModeByMonthDto avgWeightByMonthDto : avgWeightList) {
-                if (avgWeightByMonthDto != null) {
+            for (AverageWeightModeShipmtDto avgWeight : avgWeightList) {
+                if (avgWeight != null) {
                     CommonMonthlyChartDto commonMonthlyChartDto = new CommonMonthlyChartDto();
-                    BeanUtils.copyProperties(avgWeightByMonthDto, commonMonthlyChartDto);
+                    BeanUtils.copyProperties(avgWeight, commonMonthlyChartDto);
                     commonMonthlyChartDtoList.add(commonMonthlyChartDto);
                 }
             }

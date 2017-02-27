@@ -400,36 +400,36 @@ public class DashboardsService {
         dashboardsDao.insertMapCoordinates(mapCoordinatesDto);
     }
 
-    public List<ShipmentRegionDto> getShipmentRegionByCarrierJson (DashboardsFilterCriteria filterCriteria) {
-        return dashboardsDao.getShipmentRegionByCarrierJson(filterCriteria);
+    public List<ShipmentRegionDto> getShipmentRegionByCarrier (DashboardsFilterCriteria filterCriteria) {
+        return dashboardsDao.getShipmentRegionByCarrier(filterCriteria);
     }
 
-    public List<ShipmentRegionDto> getShipmentRegionByMonthJson (DashboardsFilterCriteria filterCriteria) {
-        return dashboardsDao.getShipmentRegionByMonthJson(filterCriteria);
+    public List<ShipmentRegionDto> getShipmentRegionByMonth(DashboardsFilterCriteria filterCriteria) {
+        return dashboardsDao.getShipmentRegionByMonth(filterCriteria);
     }
 
-    public List<ShippingLanesDto> loadTopShippingLanesJsonData (DashboardsFilterCriteria filterCriteria) {
-        return dashboardsDao.getTopShippingLanesJsonData(filterCriteria);
+    public List<ShippingLanesDto> loadTopShippingLanes (DashboardsFilterCriteria filterCriteria) {
+        return dashboardsDao.getTopShippingLanes(filterCriteria);
     }
 
-    public List<ShippingLanesDto> getShippingLanesByCarrierJson (DashboardsFilterCriteria filterCriteria) {
-        return dashboardsDao.getShippingLanesByCarrierJson(filterCriteria);
+    public List<ShippingLanesDto> getShippingLanesByCarrier (DashboardsFilterCriteria filterCriteria) {
+        return dashboardsDao.getShippingLanesByCarrier(filterCriteria);
     }
 
-    public List<ShippingLanesDto> getShippingLanesByMonthJson (DashboardsFilterCriteria filterCriteria) {
-        return dashboardsDao.getShippingLanesByMonthJson(filterCriteria);
+    public List<ShippingLanesDto> getShippingLanesByMonth (DashboardsFilterCriteria filterCriteria) {
+        return dashboardsDao.getShippingLanesByMonth(filterCriteria);
     }
 
-    public List<PortLanesDto> loadTopPortLanesJsonData (DashboardsFilterCriteria filterCriteria) {
-        return dashboardsDao.getTopPortLanesJsonData(filterCriteria);
+    public List<PortLanesDto> loadTopPortLanes (DashboardsFilterCriteria filterCriteria) {
+        return dashboardsDao.getTopPortLanes(filterCriteria);
     }
 
-    public List<PortLanesDto> getPortLanesByCarrierJson (DashboardsFilterCriteria filterCriteria) {
-        return dashboardsDao.getPortLanesByCarrierJson(filterCriteria);
+    public List<PortLanesDto> getPortLanesByCarrier (DashboardsFilterCriteria filterCriteria) {
+        return dashboardsDao.getPortLanesByCarrier(filterCriteria);
     }
 
-    public List<PortLanesDto> getPortLanesByMonthJson (DashboardsFilterCriteria filterCriteria) {
-        return dashboardsDao.getPortLanesByMonthJson(filterCriteria);
+    public List<PortLanesDto> getPortLanesByMonth (DashboardsFilterCriteria filterCriteria) {
+        return dashboardsDao.getPortLanesByMonth(filterCriteria);
     }
 
     public List<PackageExceptionDto> getPackageExceptions(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
@@ -444,19 +444,19 @@ public class DashboardsService {
         return dashboardsDao.getPackageExceptionsByMonth(filter, isTopTenAccessorial);
     }
 
-    public List<AverageSpendPerShipmentByCarrierDto> getAvgSpendPerShipmtByCarrier(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
+    public List<AverageSpendPerShipmentDto> getAvgSpendPerShipmtByCarrier(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
         return dashboardsDao.getAverageSpendPerShipmentByCarrier(filter,  isTopTenAccessorial);
     }
 
-    public List<AverageSpendPerShipmentByMonthDto> getAvgSpendPerShipmtByMonth(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
+    public List<AverageSpendPerShipmentDto> getAvgSpendPerShipmtByMonth(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
         return dashboardsDao.getAverageSpendPerShipmentByMonth(filter,  isTopTenAccessorial);
     }
 
-    public List<AverageWeightModeByCarrierDto> getAverageWeightModeByCarrier(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
+    public List<AverageWeightModeShipmtDto> getAverageWeightModeByCarrier(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
         return dashboardsDao.getAverageWeightModeByCarrier(filter,  isTopTenAccessorial);
     }
 
-    public List<AverageWeightModeByMonthDto> getAverageWeightModeByMonth(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
+    public List<AverageWeightModeShipmtDto> getAverageWeightModeByMonth(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
         return dashboardsDao.getAverageWeightModeByMonth(filter,  isTopTenAccessorial);
     }
 

@@ -1,7 +1,5 @@
 package com.envista.msi.api.web.rest.dto.dashboard.common;
 
-import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.AverageSpendPerShipmentByMonthDto;
-
 import javax.persistence.Column;
 import java.util.Date;
 

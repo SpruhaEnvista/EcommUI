@@ -445,7 +445,7 @@ public class JSONUtil {
 		ArrayList<String> modeFlagList = new ArrayList<String>();
 
 		for (AverageSpendPerShipmentDto perShipmentDto:avgPerShipmentList){
-			String billDate = perShipmentDto.getBillDate();
+			String billDate = perShipmentDto.getBillingDate();
 			String mode = perShipmentDto.getModes();
 			Double spend = perShipmentDto.getNetWeight();
 
@@ -516,7 +516,7 @@ public class JSONUtil {
 		ArrayList<String> modeFlagList = new ArrayList<String>();
 
 		for (AverageWeightModeShipmtDto perWeightShipmentDto:avgWeigthModeShpmtList){
-			String billDate = perWeightShipmentDto.getBillDate();
+			String billDate = perWeightShipmentDto.getBillingDate();
 			String mode = perWeightShipmentDto.getModes();
 			Double spend = perWeightShipmentDto.getNetWeight();
 

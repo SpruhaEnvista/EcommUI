@@ -1,6 +1,6 @@
 package com.envista.msi.api.web.rest.dto.dashboard.networkanalysis;
 
-import com.envista.msi.api.domain.util.DashboardSroredProcParam;
+import com.envista.msi.api.domain.util.DashboardStoredProcParam;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -11,57 +11,60 @@ import java.util.Date;
 
 
 @NamedStoredProcedureQueries({
-        @NamedStoredProcedureQuery(name = "PortLanesDto.getTopPortLanes", procedureName = "SHP_DB_PORT_LANES_PROC",
-                resultSetMappings = "PortLanesMapping",
+        @NamedStoredProcedureQuery(name = PortLanesDto.Config.StoredProcedureQueryName.TOP_PORT_LANES,
+                procedureName = PortLanesDto.Config.StoredProcedureName.TOP_PORT_LANES,
+                resultSetMappings = PortLanesDto.Config.ResultMappings.TOP_PORT_LANES_MAPPING,
                 parameters = {
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PortLanesParams.DATE_TYPE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PortLanesParams.CURRENCY_ID_PARAM, type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PortLanesParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PortLanesParams.CARRIER_ID_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PortLanesParams.MODES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PortLanesParams.SERVICES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PortLanesParams.LANES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PortLanesParams.FROM_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PortLanesParams.TO_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.PortLanesParams.RESULTS_DATA_PARAM, type = Void.class)
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PortLanesParams.DATE_TYPE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PortLanesParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PortLanesParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PortLanesParams.CARRIER_ID_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PortLanesParams.MODES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PortLanesParams.SERVICES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PortLanesParams.LANES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PortLanesParams.FROM_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PortLanesParams.TO_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.PortLanesParams.RESULTS_DATA_PARAM, type = Void.class)
                 }),
-        @NamedStoredProcedureQuery(name = "PortLanesDto.getPortLanesByCarrier", procedureName = "SHP_DB_PORT_LANES_CARR_PROC",
-                resultSetMappings = "PortLanesCarrierMapping",
+        @NamedStoredProcedureQuery(name = PortLanesDto.Config.StoredProcedureQueryName.TOP_PORT_LANES_BY_CARRIER,
+                procedureName = PortLanesDto.Config.StoredProcedureName.TOP_PORT_LANES_BY_CARRIER,
+                resultSetMappings = PortLanesDto.Config.ResultMappings.TOP_PORT_LANES_BY_CARRIER_MAPPING,
                 parameters = {
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PortLanesParams.DATE_TYPE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PortLanesParams.CURRENCY_ID_PARAM, type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PortLanesParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PortLanesParams.CARRIER_ID_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PortLanesParams.MODES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PortLanesParams.SERVICES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PortLanesParams.LANES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PortLanesParams.FROM_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PortLanesParams.TO_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PortLanesParams.POL, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PortLanesParams.POD, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.PortLanesParams.RESULTS_DATA_PARAM, type = Void.class)
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PortLanesParams.DATE_TYPE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PortLanesParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PortLanesParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PortLanesParams.CARRIER_ID_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PortLanesParams.MODES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PortLanesParams.SERVICES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PortLanesParams.LANES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PortLanesParams.FROM_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PortLanesParams.TO_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PortLanesParams.POL, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PortLanesParams.POD, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.PortLanesParams.RESULTS_DATA_PARAM, type = Void.class)
                 }),
-        @NamedStoredProcedureQuery(name = "PortLanesDto.getPortLanesByMonth", procedureName = "SHP_DB_PORT_LANES_MNTH_PROC",
-                resultSetMappings = "PortLanesMonthMapping",
+        @NamedStoredProcedureQuery(name = PortLanesDto.Config.StoredProcedureQueryName.TOP_PORT_LANES_BY_MONTH,
+                procedureName = PortLanesDto.Config.StoredProcedureName.TOP_PORT_LANES_BY_MONTH,
+                resultSetMappings = PortLanesDto.Config.ResultMappings.TOP_PORT_LANES_BY_MONTH_MAPPING,
                 parameters = {
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PortLanesParams.DATE_TYPE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PortLanesParams.CURRENCY_ID_PARAM, type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PortLanesParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PortLanesParams.CARRIER_ID_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PortLanesParams.MODES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PortLanesParams.SERVICES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PortLanesParams.LANES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PortLanesParams.FROM_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PortLanesParams.TO_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PortLanesParams.POL, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PortLanesParams.POD, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.PortLanesParams.RESULTS_DATA_PARAM, type = Void.class)
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PortLanesParams.DATE_TYPE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PortLanesParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PortLanesParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PortLanesParams.CARRIER_ID_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PortLanesParams.MODES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PortLanesParams.SERVICES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PortLanesParams.LANES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PortLanesParams.FROM_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PortLanesParams.TO_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PortLanesParams.POL, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PortLanesParams.POD, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.PortLanesParams.RESULTS_DATA_PARAM, type = Void.class)
                 })
 })
 
 
 @SqlResultSetMappings({
-        @SqlResultSetMapping(name = "PortLanesMapping", classes = {
+        @SqlResultSetMapping(name = PortLanesDto.Config.ResultMappings.TOP_PORT_LANES_MAPPING, classes = {
                 @ConstructorResult(
                         targetClass = PortLanesDto.class,
                         columns = {
@@ -71,7 +74,7 @@ import java.util.Date;
                                 @ColumnResult(name = "LANETOTAL", type = Double.class),
                         })
         }),
-        @SqlResultSetMapping(name = "PortLanesCarrierMapping", classes = {
+        @SqlResultSetMapping(name = PortLanesDto.Config.ResultMappings.TOP_PORT_LANES_BY_CARRIER_MAPPING, classes = {
                 @ConstructorResult(
                         targetClass = PortLanesDto.class,
                         columns = {
@@ -80,7 +83,7 @@ import java.util.Date;
                                 @ColumnResult(name = "SPEND", type = Double.class),
                         })
         }),
-        @SqlResultSetMapping(name = "PortLanesMonthMapping", classes = {
+        @SqlResultSetMapping(name = PortLanesDto.Config.ResultMappings.TOP_PORT_LANES_BY_MONTH_MAPPING, classes = {
                 @ConstructorResult(
                         targetClass = PortLanesDto.class,
                         columns = {
@@ -220,5 +223,25 @@ public class PortLanesDto {
 
     public void setBillDate(Date billDate) {
         this.billDate = billDate;
+    }
+
+    public static class Config{
+        static class ResultMappings{
+            static final String TOP_PORT_LANES_MAPPING = "PortLanesDto.PortLanesMapping";
+            static final String TOP_PORT_LANES_BY_CARRIER_MAPPING = "PortLanesDto.PortLanesCarrierMapping";
+            static final String TOP_PORT_LANES_BY_MONTH_MAPPING = "PortLanesDto.PortLanesMonthMapping";
+        }
+
+        static class StoredProcedureName{
+            static final String TOP_PORT_LANES = "SHP_DB_PORT_LANES_PROC";
+            static final String TOP_PORT_LANES_BY_CARRIER = "SHP_DB_PORT_LANES_CARR_PROC";
+            static final String TOP_PORT_LANES_BY_MONTH = "SHP_DB_PORT_LANES_MNTH_PROC";
+        }
+
+        public static class StoredProcedureQueryName{
+            public static final String TOP_PORT_LANES = "PortLanesDto.getTopPortLanes";
+            public static final String TOP_PORT_LANES_BY_CARRIER = "PortLanesDto.getPortLanesByCarrier";
+            public static final String TOP_PORT_LANES_BY_MONTH = "PortLanesDto.getPortLanesByMonth";
+        }
     }
 }
