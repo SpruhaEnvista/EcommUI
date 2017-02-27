@@ -9,6 +9,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendByModeDto;
 import com.envista.msi.api.web.rest.dto.reports.ReportResultsDto;
 import com.envista.msi.api.web.rest.dto.reports.ReportResultsUsersListDto;
+import com.envista.msi.api.web.rest.dto.reports.SavedSchedReportsDto;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -73,10 +74,21 @@ public class ReportsDao {
      * @return
      */
     @Transactional
-    public ReportResultsDto deleteReportInResults(Long generatedRptId, Long userId, String userName){
+    public ReportResultsDto deleteReportInResults(long generatedRptId, long userId, String userName){
         QueryParameter queryParameter = StoredProcedureParameter.with("generatedRptId", generatedRptId)
                                         .and("userId", userId)
                                         .and("userName", userName);
         return persistentContext.findEntityAndMapFields("ReportResults.deleteResultReport",queryParameter);
+    }
+    /**
+     * Get Saved Sched Reports.
+     * @param userId
+     * @return
+     */
+
+    @Transactional( readOnly = true )
+    public List<SavedSchedReportsDto> getSavedSchedReports(long userId) {
+        return persistentContext.findEntitiesAndMapFields("SavedSchedReports.gerSavedSchedReports",
+                StoredProcedureParameter.with("userId", userId));
     }
 }
