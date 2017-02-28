@@ -28,28 +28,28 @@ public class SavedSchedReportsDto implements Serializable{
     @Column(name = "rpt_id")
     private long rptId;
 
-    @Column(name = "IS_SCHEDULED")
+    @Column(name = "is_scheduled")
     private boolean scheduled;
 
-    @Column(name = "REPORT_FILE_NAME")
+    @Column(name = "report_file_name")
     private String reportFileName;
 
     @Column(name = "sv_report_status")
     private String reportStatus;
 
-    @Column(name = "CREATE_USER")
+    @Column(name = "create_user")
     private String createUser;
 
-    @Column(name = "create_Date")
+    @Column(name = "create_date")
     private Date createDate;
 
     @Column(name = "last_update_user")
     private String lastUpdateUser;
 
-    @Column(name = "last_update_Date")
+    @Column(name = "last_update_date")
     private Date lastUpdateDate;
 
-    @Column(name = "usersCount")
+    @Column(name = "userscount")
     private int usersCount;
 
     public long getSavedSchedRptId() {

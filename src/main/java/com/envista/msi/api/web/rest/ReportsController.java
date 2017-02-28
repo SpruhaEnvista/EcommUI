@@ -3,9 +3,11 @@ package com.envista.msi.api.web.rest;
 import com.envista.msi.api.service.ReportsService;
 import com.envista.msi.api.web.rest.dto.UserProfileDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
+import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendRequestDto;
 import com.envista.msi.api.web.rest.dto.reports.ReportResultsDto;
 import com.envista.msi.api.web.rest.dto.reports.ReportResultsUsersListDto;
 import com.envista.msi.api.web.rest.dto.reports.SavedSchedReportsDto;
+import com.envista.msi.api.web.rest.dto.reports.UpdateSavedSchedReportDto;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -57,4 +59,10 @@ public class ReportsController {
         List<SavedSchedReportsDto> resultsList = reportsService.getSavedSchedReports(Long.parseLong(userId));
         return new ResponseEntity<List<SavedSchedReportsDto>>(resultsList, HttpStatus.OK);
     }
+    @RequestMapping(value = "/savedschedreports", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<UpdateSavedSchedReportDto> updateSavedSchedReport(@RequestParam UpdateSavedSchedReportDto updateSavedSchedReportDto){
+        UpdateSavedSchedReportDto resultsList = reportsService.updateSavedSchedReport(updateSavedSchedReportDto);
+        return new ResponseEntity<UpdateSavedSchedReportDto>(resultsList, HttpStatus.OK);
+    }
+
 }

@@ -10,6 +10,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendByModeDto;
 import com.envista.msi.api.web.rest.dto.reports.ReportResultsDto;
 import com.envista.msi.api.web.rest.dto.reports.ReportResultsUsersListDto;
 import com.envista.msi.api.web.rest.dto.reports.SavedSchedReportsDto;
+import com.envista.msi.api.web.rest.dto.reports.UpdateSavedSchedReportDto;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -91,4 +92,26 @@ public class ReportsDao {
         return persistentContext.findEntitiesAndMapFields("SavedSchedReports.gerSavedSchedReports",
                 StoredProcedureParameter.with("userId", userId));
     }
+
+    @Transactional
+    public UpdateSavedSchedReportDto updateSavedSchedReport(UpdateSavedSchedReportDto updateSavedSchedReportDto) {
+        if(updateSavedSchedReportDto.getSharetoUserId()>0) {
+            QueryParameter queryParameter = StoredProcedureParameter.with("userId", updateSavedSchedReportDto.getLoggedinuserId())
+                    .and("savedSchedId", updateSavedSchedReportDto.getSavedSchedRptId());
+            return persistentContext.findEntityAndMapFields("SavedReports.deleteUserSavedSchedReport", queryParameter);
+        }
+        else if(updateSavedSchedReportDto.getSharetoUserId()==0 && updateSavedSchedReportDto.isDeleteAll()){
+            QueryParameter queryParameter = StoredProcedureParameter.with("userId", updateSavedSchedReportDto.getLoggedinuserId())
+                    .and("savedSchedId", updateSavedSchedReportDto.getSavedSchedRptId());
+            return persistentContext.findEntityAndMapFields("SavedReports.deleteAllSavedSchedReport", queryParameter);
+        }else if(updateSavedSchedReportDto.getSharetoUserId()==0 && !updateSavedSchedReportDto.isDeleteAll()){
+            QueryParameter queryParameter = StoredProcedureParameter.with("userId", updateSavedSchedReportDto.getLoggedinuserId())
+                    .and("savedSchedId", updateSavedSchedReportDto.getSavedSchedRptId());
+            return persistentContext.findEntityAndMapFields("SavedReports.deleteUserSavedSchedReport", queryParameter);
+        }
+        return new UpdateSavedSchedReportDto(0l);
+    }
+
+
+
 }

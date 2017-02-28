@@ -5,6 +5,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.DashboardAppliedFilterDto;
 import com.envista.msi.api.web.rest.dto.reports.ReportResultsDto;
 import com.envista.msi.api.web.rest.dto.reports.ReportResultsUsersListDto;
 import com.envista.msi.api.web.rest.dto.reports.SavedSchedReportsDto;
+import com.envista.msi.api.web.rest.dto.reports.UpdateSavedSchedReportDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,5 +40,9 @@ public class ReportsService {
 
     public List<SavedSchedReportsDto> getSavedSchedReports(long userId){
         return reportsDao.getSavedSchedReports(userId);
+    }
+
+    public UpdateSavedSchedReportDto updateSavedSchedReport(UpdateSavedSchedReportDto updateSavedSchedReportDto){
+        return reportsDao.updateSavedSchedReport(updateSavedSchedReportDto);
     }
 }
