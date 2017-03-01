@@ -567,43 +567,6 @@
 				<finalName>msiapi</finalName>
 				<plugins>
 					<plugin>
-						<artifactId>maven-clean-plugin</artifactId>
-						<version>2.5</version>
-						<configuration>
-							<filesets>
-								<fileset>
-									<directory>target/www/</directory>
-								</fileset>
-							</filesets>
-						</configuration>
-					</plugin>
-					<plugin>
-						<groupId>org.bsc.maven</groupId>
-						<artifactId>maven-processor-plugin</artifactId>
-						<version>2.2.4</version>
-						<executions>
-							<execution>
-								<id>process</id>
-								<goals>
-									<goal>process</goal>
-								</goals>
-								<phase>generate-sources</phase>
-								<configuration>
-									<processors>
-										<processor>org.hibernate.jpamodelgen.JPAMetaModelEntityProcessor</processor>
-									</processors>
-								</configuration>
-							</execution>
-						</executions>
-						<dependencies>
-							<dependency>
-								<groupId>org.hibernate</groupId>
-								<artifactId>hibernate-jpamodelgen</artifactId>
-								<!-- <version>${hibernate.version}</version> -->
-							</dependency>
-						</dependencies>
-					</plugin>
-					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-war-plugin</artifactId>
 						<configuration>
