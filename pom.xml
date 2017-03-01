@@ -564,7 +564,7 @@
 		<profile>
 			<id>prod</id>
 			<build>
-				<finalName>myShipINFO_Reskin</finalName>
+				<finalName>msiapi</finalName>
 				<plugins>
 					<plugin>
 						<artifactId>maven-clean-plugin</artifactId>
@@ -633,6 +633,18 @@
 								</configuration>
 							</execution>
 						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.tomcat.maven</groupId>
+						<artifactId>tomcat7-maven-plugin</artifactId>
+						<version>2.1</version>
+						<configuration>
+							<url>http://172.16.6.38:90/manager/text</url>
+							<server>TomcatServer</server>
+							<path>${finalName}</path>
+							<username>admin</username>
+							<password>admin</password>
+						</configuration>
 					</plugin>
 					<plugin>
 						<groupId>org.wildfly.plugins</groupId>
