@@ -59,8 +59,8 @@ public class ReportsController {
         List<SavedSchedReportsDto> resultsList = reportsService.getSavedSchedReports(Long.parseLong(userId));
         return new ResponseEntity<List<SavedSchedReportsDto>>(resultsList, HttpStatus.OK);
     }
-    @RequestMapping(value = "/savedschedreports", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<UpdateSavedSchedReportDto> updateSavedSchedReport(@RequestParam UpdateSavedSchedReportDto updateSavedSchedReportDto){
+    @RequestMapping(value = "/updatesavedschedreport", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<UpdateSavedSchedReportDto> updateSavedSchedReport(@RequestBody UpdateSavedSchedReportDto updateSavedSchedReportDto){
         UpdateSavedSchedReportDto resultsList = reportsService.updateSavedSchedReport(updateSavedSchedReportDto);
         return new ResponseEntity<UpdateSavedSchedReportDto>(resultsList, HttpStatus.OK);
     }

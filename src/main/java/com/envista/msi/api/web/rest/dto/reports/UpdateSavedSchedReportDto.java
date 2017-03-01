@@ -9,21 +9,21 @@ import java.util.Date;
  */
 @NamedStoredProcedureQueries({
         @NamedStoredProcedureQuery(name = "SavedReports.deleteUserSavedSchedReport", procedureName = "shp_rpt_deleteuser_saved_proc",
-                resultSetMappings = "UpdateCount",
+                resultSetMappings = "UpdateSavedReports",
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "updateReturn", type = Void.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "userId", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "savedSchedId", type = Long.class)
                 }),
         @NamedStoredProcedureQuery(name = "SavedReports.deleteAllSavedSchedReport", procedureName = "shp_rpt_deleteall_saved_proc",
-                resultSetMappings = "UpdateCount",
+                resultSetMappings = "UpdateSavedReports",
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "updateReturn", type = Void.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "userId", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "savedSchedId", type = Long.class)
                 }),
         @NamedStoredProcedureQuery(name = "SavedReports.addUserToSavedReport", procedureName = "shp_rpt_adduser_saved_proc",
-                resultSetMappings = "UpdateCount",
+                resultSetMappings = "UpdateSavedReports",
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "updateReturn", type = Void.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "userId", type = Long.class),
@@ -32,9 +32,9 @@ import java.util.Date;
                 })
 })
 @SqlResultSetMappings({
-        @SqlResultSetMapping(name = "UpdateCount", classes = {
+        @SqlResultSetMapping(name = "UpdateSavedReports", classes = {
                 @ConstructorResult(
-                        targetClass = ReportResultsDto.class,
+                        targetClass = UpdateSavedSchedReportDto.class,
                         columns = {
                                 @ColumnResult(name = "updateCount", type = Long.class)
                         }
@@ -43,7 +43,7 @@ import java.util.Date;
 })
 
 @Entity
-public class UpdateSavedSchedReportDto implements Serializable{
+public class UpdateSavedSchedReportDto implements Serializable {
 
     private long loggedinuserId;
 
@@ -57,7 +57,8 @@ public class UpdateSavedSchedReportDto implements Serializable{
 
     private String createUser;
 
-    @Column(name="updateCount")
+    @Id
+  //  @Column(name="updateCount")
     private Long updateCount;
 
     public Long getUpdateCount() {
