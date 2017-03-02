@@ -609,17 +609,6 @@
 							<password>admin</password>
 						</configuration>
 					</plugin>
-					<plugin>
-						<groupId>org.wildfly.plugins</groupId>
-						<artifactId>wildfly-maven-plugin</artifactId>
-						<version>1.0.1.Final</version>
-						<configuration>							   
-							<hostname>172.16.6.39</hostname>							   
-							<port>9909</port>							   
-							<username>admin</username>							   
-							<password>admin@123</password>
-						</configuration>
-					</plugin>
 				</plugins>
 			</build>
 			<properties>
