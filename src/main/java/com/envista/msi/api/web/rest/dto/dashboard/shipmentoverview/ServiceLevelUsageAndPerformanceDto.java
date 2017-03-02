@@ -1,6 +1,6 @@
 package com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview;
 
-import com.envista.msi.api.domain.util.DashboardSroredProcParam;
+import com.envista.msi.api.domain.util.DashboardStoredProcParam;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -13,17 +13,17 @@ import java.io.Serializable;
                 procedureName = ServiceLevelUsageAndPerformanceDto.Config.StoredProcedureName.SERVICE_LEVEL_USAGE_AND_PERFORMANCE,
             resultClasses = ServiceLevelUsageAndPerformanceDto.class,
             parameters = {
-                    @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ServiceLevelUsageAndPerformanceParams.DATE_TYPE_PARAM, type = String.class),
-                    @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ServiceLevelUsageAndPerformanceParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
-                    @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ServiceLevelUsageAndPerformanceParams.CARRIER_IDS_PARAM, type = String.class),
-                    @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ServiceLevelUsageAndPerformanceParams.MODES_PARAM, type = String.class),
-                    @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ServiceLevelUsageAndPerformanceParams.SERVICES_PARAM, type = String.class),
-                    @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ServiceLevelUsageAndPerformanceParams.LANES_PARAM, type = String.class),
-                    @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ServiceLevelUsageAndPerformanceParams.FROM_DATE_PARAM, type = String.class),
-                    @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ServiceLevelUsageAndPerformanceParams.TO_DATE_PARAM, type = String.class),
-                    @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ServiceLevelUsageAndPerformanceParams.ACCESSORIAL_NAME_PARAM, type = String.class),
-                    @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ServiceLevelUsageAndPerformanceParams.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
-                    @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.ServiceLevelUsageAndPerformanceParams.SERVICE_LEVEL_USAGE_PERFORMANCE_DATA, type = Void.class)
+                    @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ServiceLevelUsageAndPerformanceParams.DATE_TYPE_PARAM, type = String.class),
+                    @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ServiceLevelUsageAndPerformanceParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
+                    @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ServiceLevelUsageAndPerformanceParams.CARRIER_IDS_PARAM, type = String.class),
+                    @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ServiceLevelUsageAndPerformanceParams.MODES_PARAM, type = String.class),
+                    @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ServiceLevelUsageAndPerformanceParams.SERVICES_PARAM, type = String.class),
+                    @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ServiceLevelUsageAndPerformanceParams.LANES_PARAM, type = String.class),
+                    @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ServiceLevelUsageAndPerformanceParams.FROM_DATE_PARAM, type = String.class),
+                    @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ServiceLevelUsageAndPerformanceParams.TO_DATE_PARAM, type = String.class),
+                    @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ServiceLevelUsageAndPerformanceParams.ACCESSORIAL_NAME_PARAM, type = String.class),
+                    @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ServiceLevelUsageAndPerformanceParams.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
+                    @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.ServiceLevelUsageAndPerformanceParams.SERVICE_LEVEL_USAGE_PERFORMANCE_DATA, type = Void.class)
         })
 })
 

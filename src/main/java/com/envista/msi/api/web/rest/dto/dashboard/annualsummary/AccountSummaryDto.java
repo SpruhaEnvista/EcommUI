@@ -1,6 +1,6 @@
 package com.envista.msi.api.web.rest.dto.dashboard.annualsummary;
 
-import com.envista.msi.api.domain.util.DashboardSroredProcParam;
+import com.envista.msi.api.domain.util.DashboardStoredProcParam;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -13,36 +13,36 @@ import java.math.BigDecimal;
         @NamedStoredProcedureQuery(name = AccountSummaryDto.Config.StoredProcedureQueryName.ACCOUNT_SUMMARY, procedureName = AccountSummaryDto.Config.StoredProcedureName.ACCOUNT_SUMMARY,
         resultSetMappings = AccountSummaryDto.Config.ResultMappings.ACCOUNT_SUMMARY_MAPPING,
         parameters = {
-                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccountSummaryParams.DATE_TYPE_PARAM, type = String.class),
-                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccountSummaryParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
-                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccountSummaryParams.CONVERTED_CURRENCY_CODE_PARAM, type = String.class),
-                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccountSummaryParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
-                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccountSummaryParams.CARRIER_IDS_PARAM, type = String.class),
-                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccountSummaryParams.MODES_PARAM, type = String.class),
-                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccountSummaryParams.SERVICES_PARAM, type = String.class),
-                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccountSummaryParams.LANES_PARAM, type = String.class),
-                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccountSummaryParams.FROM_DATE_PARAM, type = String.class),
-                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccountSummaryParams.TO_DATE_PARAM, type = String.class),
-                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccountSummaryParams.ACCESSORIAL_NAME_PARAM, type = String.class),
-                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccountSummaryParams.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
-                @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.AccountSummaryParams.ACCOUNT_SUMMARY_DATA_PARAM, type = Void.class)
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccountSummaryParams.DATE_TYPE_PARAM, type = String.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccountSummaryParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccountSummaryParams.CONVERTED_CURRENCY_CODE_PARAM, type = String.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccountSummaryParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccountSummaryParams.CARRIER_IDS_PARAM, type = String.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccountSummaryParams.MODES_PARAM, type = String.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccountSummaryParams.SERVICES_PARAM, type = String.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccountSummaryParams.LANES_PARAM, type = String.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccountSummaryParams.FROM_DATE_PARAM, type = String.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccountSummaryParams.TO_DATE_PARAM, type = String.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccountSummaryParams.ACCESSORIAL_NAME_PARAM, type = String.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccountSummaryParams.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
+                @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.AccountSummaryParams.ACCOUNT_SUMMARY_DATA_PARAM, type = Void.class)
         }),
         @NamedStoredProcedureQuery(name = AccountSummaryDto.Config.StoredProcedureQueryName.PARCEL_ACCOUNT_SUMMARY, procedureName = AccountSummaryDto.Config.StoredProcedureName.PARCEL_ACCOUNT_SUMMARY,
                 resultSetMappings = AccountSummaryDto.Config.ResultMappings.PARCEL_ACCOUNT_SUMMARY_MAPPING,
                 parameters = {
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccountSummaryParams.DATE_TYPE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccountSummaryParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccountSummaryParams.CONVERTED_CURRENCY_CODE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccountSummaryParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccountSummaryParams.CARRIER_IDS_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccountSummaryParams.MODES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccountSummaryParams.SERVICES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccountSummaryParams.LANES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccountSummaryParams.FROM_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccountSummaryParams.TO_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccountSummaryParams.ACCESSORIAL_NAME_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.AccountSummaryParams.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.AccountSummaryParams.ACCOUNT_SUMMARY_DATA_PARAM, type = Void.class)
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccountSummaryParams.DATE_TYPE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccountSummaryParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccountSummaryParams.CONVERTED_CURRENCY_CODE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccountSummaryParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccountSummaryParams.CARRIER_IDS_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccountSummaryParams.MODES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccountSummaryParams.SERVICES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccountSummaryParams.LANES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccountSummaryParams.FROM_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccountSummaryParams.TO_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccountSummaryParams.ACCESSORIAL_NAME_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccountSummaryParams.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.AccountSummaryParams.ACCOUNT_SUMMARY_DATA_PARAM, type = Void.class)
                 })
 })
 

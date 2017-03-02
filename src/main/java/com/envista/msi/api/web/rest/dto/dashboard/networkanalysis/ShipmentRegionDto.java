@@ -1,6 +1,6 @@
 package com.envista.msi.api.web.rest.dto.dashboard.networkanalysis;
 
-import com.envista.msi.api.domain.util.DashboardSroredProcParam;
+import com.envista.msi.api.domain.util.DashboardStoredProcParam;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -11,62 +11,65 @@ import java.util.Date;
  */
 
 @NamedStoredProcedureQueries({
-        @NamedStoredProcedureQuery(name = "ShipmentRegionDto.getShipmentByRegion", procedureName = "SHP_DB_SHMNT_MAP_PROC",
-                resultSetMappings =  "ShipmentRegionMapping",
+        @NamedStoredProcedureQuery(name = ShipmentRegionDto.Config.StoredProcedureQueryName.SHIPMENT_BY_REGION,
+                procedureName = ShipmentRegionDto.Config.StoredProcedureName.SHIPMENT_BY_REGION,
+                resultSetMappings =  ShipmentRegionDto.Config.ResultMappings.SHIPMENT_BY_REGION_MAPPING,
                 parameters = {
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.DATE_TYPE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.CARRIER_ID_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.MODES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.SERVICES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.LANES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.ACCESSORIAL_NAME_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.FROM_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.TO_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.NO_OF_LANES_PARAM, type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.ShipmentRegionParams.RESULTS_DATA_PARAM, type = Void.class)
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ShipmentRegionParams.DATE_TYPE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ShipmentRegionParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ShipmentRegionParams.CARRIER_ID_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ShipmentRegionParams.MODES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ShipmentRegionParams.SERVICES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ShipmentRegionParams.LANES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ShipmentRegionParams.ACCESSORIAL_NAME_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ShipmentRegionParams.FROM_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ShipmentRegionParams.TO_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ShipmentRegionParams.NO_OF_LANES_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.ShipmentRegionParams.RESULTS_DATA_PARAM, type = Void.class)
                 }),
-        @NamedStoredProcedureQuery(name = "ShipmentRegionDto.getShipmentRegionByCarrier", procedureName = "SHP_DB_SHMNT_MAP_CARR_PROC",
-                resultSetMappings =  "ShipmentRegionCarrierMapping",
+        @NamedStoredProcedureQuery(name = ShipmentRegionDto.Config.StoredProcedureQueryName.SHIPMENT_BY_REGION_BY_CARRIER,
+                procedureName = ShipmentRegionDto.Config.StoredProcedureName.SHIPMENT_BY_REGION_BY_CARRIER,
+                resultSetMappings =  ShipmentRegionDto.Config.ResultMappings.SHIPMENT_BY_REGION_BY_CARRIER_MAPPING,
                 parameters = {
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.DATE_TYPE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.CURRENCY_ID_PARAM, type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.CURRENCY_CODE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.CARRIER_ID_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.MODES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.SERVICES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.LANES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.ACCESSORIAL_NAME_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.FROM_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.TO_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.SHIPPER_CITY, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.RECEIVER_CITY, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.ShipmentRegionParams.RESULTS_DATA_PARAM, type = Void.class)
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ShipmentRegionParams.DATE_TYPE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ShipmentRegionParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ShipmentRegionParams.CONVERTED_CURRENCY_CODE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ShipmentRegionParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ShipmentRegionParams.CARRIER_ID_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ShipmentRegionParams.MODES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ShipmentRegionParams.SERVICES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ShipmentRegionParams.LANES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ShipmentRegionParams.ACCESSORIAL_NAME_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ShipmentRegionParams.FROM_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ShipmentRegionParams.TO_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ShipmentRegionParams.SHIPPER_CITY, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ShipmentRegionParams.RECEIVER_CITY, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.ShipmentRegionParams.RESULTS_DATA_PARAM, type = Void.class)
                 }),
-        @NamedStoredProcedureQuery(name = "ShipmentRegionDto.getShipmentRegionByMonth", procedureName = "SHP_DB_SHMNT_MAP_MNTH_PROC",
-                resultSetMappings =  "ShipmentRegionMonthMapping",
+        @NamedStoredProcedureQuery(name = ShipmentRegionDto.Config.StoredProcedureQueryName.SHIPMENT_BY_REGION_BY_MONTH,
+                procedureName = ShipmentRegionDto.Config.StoredProcedureName.SHIPMENT_BY_REGION_BY_MONTH,
+                resultSetMappings =  ShipmentRegionDto.Config.ResultMappings.SHIPMENT_BY_REGION_BY_MONTH_MAPPING,
                 parameters = {
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.DATE_TYPE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.CURRENCY_ID_PARAM, type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.CURRENCY_CODE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.CARRIER_ID_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.MODES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.SERVICES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.LANES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.ACCESSORIAL_NAME_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.FROM_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.TO_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.SHIPPER_CITY, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.ShipmentRegionParams.RECEIVER_CITY, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.ShipmentRegionParams.RESULTS_DATA_PARAM, type = Void.class)
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ShipmentRegionParams.DATE_TYPE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ShipmentRegionParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ShipmentRegionParams.CONVERTED_CURRENCY_CODE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ShipmentRegionParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ShipmentRegionParams.CARRIER_ID_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ShipmentRegionParams.MODES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ShipmentRegionParams.SERVICES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ShipmentRegionParams.LANES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ShipmentRegionParams.ACCESSORIAL_NAME_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ShipmentRegionParams.FROM_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ShipmentRegionParams.TO_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ShipmentRegionParams.SHIPPER_CITY, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.ShipmentRegionParams.RECEIVER_CITY, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.ShipmentRegionParams.RESULTS_DATA_PARAM, type = Void.class)
                 })
 })
 
 
 @SqlResultSetMappings({
-        @SqlResultSetMapping(name = "ShipmentRegionMapping", classes = {
+        @SqlResultSetMapping(name = ShipmentRegionDto.Config.ResultMappings.SHIPMENT_BY_REGION_MAPPING, classes = {
                 @ConstructorResult(
                         targetClass = ShipmentRegionDto.class,
                         columns = {
@@ -78,7 +81,7 @@ import java.util.Date;
                                 @ColumnResult(name = "LANE_COUNT", type = Integer.class),
                         })
         }),
-        @SqlResultSetMapping(name = "ShipmentRegionCarrierMapping", classes = {
+        @SqlResultSetMapping(name = ShipmentRegionDto.Config.ResultMappings.SHIPMENT_BY_REGION_BY_CARRIER_MAPPING, classes = {
                 @ConstructorResult(
                         targetClass = ShipmentRegionDto.class,
                         columns = {
@@ -87,7 +90,7 @@ import java.util.Date;
                                 @ColumnResult(name = "SPEND", type = Double.class),
                         })
         }),
-        @SqlResultSetMapping(name = "ShipmentRegionMonthMapping", classes = {
+        @SqlResultSetMapping(name = ShipmentRegionDto.Config.ResultMappings.SHIPMENT_BY_REGION_BY_MONTH_MAPPING, classes = {
                 @ConstructorResult(
                         targetClass = ShipmentRegionDto.class,
                         columns = {
@@ -256,5 +259,25 @@ public class ShipmentRegionDto implements Serializable {
 
     public void setRank(Long rank) {
         this.rank = rank;
+    }
+
+    public static class Config{
+        static class ResultMappings{
+            static final String SHIPMENT_BY_REGION_MAPPING = "ShipmentRegionDto.ShipmentRegionMapping";
+            static final String SHIPMENT_BY_REGION_BY_CARRIER_MAPPING = "ShipmentRegionDto.ShipmentRegionCarrierMapping";
+            static final String SHIPMENT_BY_REGION_BY_MONTH_MAPPING = "ShipmentRegionDto.ShipmentRegionMonthMapping";
+        }
+
+        static class StoredProcedureName{
+            static final String SHIPMENT_BY_REGION = "SHP_DB_SHMNT_MAP_PROC";
+            static final String SHIPMENT_BY_REGION_BY_CARRIER = "SHP_DB_SHMNT_MAP_CARR_PROC";
+            static final String SHIPMENT_BY_REGION_BY_MONTH = "SHP_DB_SHMNT_MAP_MNTH_PROC";
+        }
+
+        public static class StoredProcedureQueryName{
+            public static final String SHIPMENT_BY_REGION = "ShipmentRegionDto.getShipmentByRegion";
+            public static final String SHIPMENT_BY_REGION_BY_CARRIER = "ShipmentRegionDto.getShipmentRegionByCarrier";
+            public static final String SHIPMENT_BY_REGION_BY_MONTH = "ShipmentRegionDto.getShipmentRegionByMonth";
+        }
     }
 }

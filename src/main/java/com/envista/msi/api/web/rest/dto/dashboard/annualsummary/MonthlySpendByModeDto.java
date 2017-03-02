@@ -1,6 +1,6 @@
 package com.envista.msi.api.web.rest.dto.dashboard.annualsummary;
 
-import com.envista.msi.api.domain.util.DashboardSroredProcParam;
+import com.envista.msi.api.domain.util.DashboardStoredProcParam;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -14,38 +14,38 @@ import java.io.Serializable;
                 procedureName = MonthlySpendByModeDto.Config.StoredProcedureName.MONTHLY_SPEND_BY_MODE,
         resultSetMappings = MonthlySpendByModeDto.Config.ResultMappings.MONTHLY_SPEND_BY_MODE_MAPPING,
         parameters = {
-                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.MonthlySpendByModeParams.DATE_TYPE_PARAM, type = String.class),
-                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.MonthlySpendByModeParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
-                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.MonthlySpendByModeParams.CONVERTED_CURRENCY_CODE_PARAM, type = String.class),
-                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.MonthlySpendByModeParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
-                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.MonthlySpendByModeParams.CARRIER_IDS_PARAM, type = String.class),
-                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.MonthlySpendByModeParams.MODES_PARAM, type = String.class),
-                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.MonthlySpendByModeParams.SERVICES_PARAM, type = String.class),
-                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.MonthlySpendByModeParams.LANES_PARAM, type = String.class),
-                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.MonthlySpendByModeParams.FROM_DATE_PARAM, type = String.class),
-                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.MonthlySpendByModeParams.TO_DATE_PARAM, type = String.class),
-                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.MonthlySpendByModeParams.ACCESSORIAL_NAME_PARAM, type = String.class),
-                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.MonthlySpendByModeParams.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
-                @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.MonthlySpendByModeParams.MONTHLY_SPEND_DATA, type = Void.class)
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.MonthlySpendByModeParams.DATE_TYPE_PARAM, type = String.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.MonthlySpendByModeParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.MonthlySpendByModeParams.CONVERTED_CURRENCY_CODE_PARAM, type = String.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.MonthlySpendByModeParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.MonthlySpendByModeParams.CARRIER_IDS_PARAM, type = String.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.MonthlySpendByModeParams.MODES_PARAM, type = String.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.MonthlySpendByModeParams.SERVICES_PARAM, type = String.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.MonthlySpendByModeParams.LANES_PARAM, type = String.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.MonthlySpendByModeParams.FROM_DATE_PARAM, type = String.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.MonthlySpendByModeParams.TO_DATE_PARAM, type = String.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.MonthlySpendByModeParams.ACCESSORIAL_NAME_PARAM, type = String.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.MonthlySpendByModeParams.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
+                @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.MonthlySpendByModeParams.MONTHLY_SPEND_DATA, type = Void.class)
         }),
         @NamedStoredProcedureQuery(name = MonthlySpendByModeDto.Config.StoredProcedureQueryName.MONTHLY_SPEND_BY_MODE_BY_SERVICE,
                 procedureName = MonthlySpendByModeDto.Config.StoredProcedureName.MONTHLY_SPEND_BY_MODE_BY_SERVICE,
                 resultSetMappings = MonthlySpendByModeDto.Config.ResultMappings.MONTHLY_SPEND_BY_MODE_MAPPING_BY_SERVICE,
                 parameters = {
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.MonthlySpendByModeParams.DATE_TYPE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.MonthlySpendByModeParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.MonthlySpendByModeParams.CONVERTED_CURRENCY_CODE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.MonthlySpendByModeParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.MonthlySpendByModeParams.CARRIER_IDS_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.MonthlySpendByModeParams.MODES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.MonthlySpendByModeParams.SERVICES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.MonthlySpendByModeParams.LANES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.MonthlySpendByModeParams.FROM_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.MonthlySpendByModeParams.TO_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.MonthlySpendByModeParams.ACCESSORIAL_NAME_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.MonthlySpendByModeParams.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.MonthlySpendByModeParams.SERVICE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.MonthlySpendByModeParams.MONTHLY_SPEND_DATA, type = Void.class)
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.MonthlySpendByModeParams.DATE_TYPE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.MonthlySpendByModeParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.MonthlySpendByModeParams.CONVERTED_CURRENCY_CODE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.MonthlySpendByModeParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.MonthlySpendByModeParams.CARRIER_IDS_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.MonthlySpendByModeParams.MODES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.MonthlySpendByModeParams.SERVICES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.MonthlySpendByModeParams.LANES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.MonthlySpendByModeParams.FROM_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.MonthlySpendByModeParams.TO_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.MonthlySpendByModeParams.ACCESSORIAL_NAME_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.MonthlySpendByModeParams.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.MonthlySpendByModeParams.SERVICE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.MonthlySpendByModeParams.MONTHLY_SPEND_DATA, type = Void.class)
                 })
 })
 
