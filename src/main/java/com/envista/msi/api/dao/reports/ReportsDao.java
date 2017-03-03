@@ -1,12 +1,8 @@
 package com.envista.msi.api.dao.reports;
 
 import com.envista.msi.api.domain.PersistentContext;
-import com.envista.msi.api.domain.util.DashboardSroredProcParam;
 import com.envista.msi.api.domain.util.QueryParameter;
 import com.envista.msi.api.domain.util.StoredProcedureParameter;
-import com.envista.msi.api.web.rest.dto.UserProfileDto;
-import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
-import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendByModeDto;
 import com.envista.msi.api.web.rest.dto.reports.ReportResultsDto;
 import com.envista.msi.api.web.rest.dto.reports.ReportResultsUsersListDto;
 import com.envista.msi.api.web.rest.dto.reports.SavedSchedReportsDto;
@@ -15,8 +11,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -96,9 +90,10 @@ public class ReportsDao {
     @Transactional
     public UpdateSavedSchedReportDto updateSavedSchedReport(UpdateSavedSchedReportDto updateSavedSchedReportDto) {
         if(updateSavedSchedReportDto.getSharetoUserId()>0) {
-            QueryParameter queryParameter = StoredProcedureParameter.with("userId", updateSavedSchedReportDto.getLoggedinuserId())
-                    .and("savedSchedId", updateSavedSchedReportDto.getSavedSchedRptId());
-            return persistentContext.findEntityAndMapFields("SavedReports.deleteUserSavedSchedReport", queryParameter);
+            QueryParameter queryParameter = StoredProcedureParameter.with("userId", updateSavedSchedReportDto.getSharetoUserId())
+                    .and("savedSchedId", updateSavedSchedReportDto.getSavedSchedRptId())
+                    .and("createUser",updateSavedSchedReportDto.getCreateUser());
+            return persistentContext.findEntityAndMapFields("SavedReports.addUserToSavedReport", queryParameter);
         }
         else if(updateSavedSchedReportDto.getSharetoUserId()==0 && updateSavedSchedReportDto.isDeleteAll()){
             QueryParameter queryParameter = StoredProcedureParameter.with("userId", updateSavedSchedReportDto.getLoggedinuserId())
