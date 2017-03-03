@@ -90,9 +90,10 @@ public class ReportsDao {
     @Transactional
     public UpdateSavedSchedReportDto updateSavedSchedReport(UpdateSavedSchedReportDto updateSavedSchedReportDto) {
         if(updateSavedSchedReportDto.getSharetoUserId()>0) {
-            QueryParameter queryParameter = StoredProcedureParameter.with("userId", updateSavedSchedReportDto.getLoggedinuserId())
-                    .and("savedSchedId", updateSavedSchedReportDto.getSavedSchedRptId());
-            return persistentContext.findEntityAndMapFields("SavedReports.deleteUserSavedSchedReport", queryParameter);
+            QueryParameter queryParameter = StoredProcedureParameter.with("userId", updateSavedSchedReportDto.getSharetoUserId())
+                    .and("savedSchedId", updateSavedSchedReportDto.getSavedSchedRptId())
+                    .and("createUser",updateSavedSchedReportDto.getCreateUser());
+            return persistentContext.findEntityAndMapFields("SavedReports.addUserToSavedReport", queryParameter);
         }
         else if(updateSavedSchedReportDto.getSharetoUserId()==0 && updateSavedSchedReportDto.isDeleteAll()){
             QueryParameter queryParameter = StoredProcedureParameter.with("userId", updateSavedSchedReportDto.getLoggedinuserId())
