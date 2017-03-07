@@ -1,6 +1,6 @@
 package com.envista.msi.api.web.rest.dto.dashboard.auditactivity;
 
-import com.envista.msi.api.domain.util.DashboardSroredProcParam;
+import com.envista.msi.api.domain.util.DashboardStoredProcParam;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -15,53 +15,53 @@ import java.util.Date;
                 procedureName = PackageExceptionDto.Config.StoredProcedureName.PACKAGE_EXCEPTION,
                 resultSetMappings = {PackageExceptionDto.Config.ResultMappings.PACKAGE_EXCEPTION_MAPPING},
                 parameters = {
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PackageExceptionParams.DATE_TYPE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PackageExceptionParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PackageExceptionParams.CARRIER_IDS_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PackageExceptionParams.MODES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PackageExceptionParams.SERVICES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PackageExceptionParams.LANES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PackageExceptionParams.FROM_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PackageExceptionParams.TO_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PackageExceptionParams.ACCESSORIAL_NAME_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PackageExceptionParams.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.PackageExceptionParams.PACKAGE_EXCEPTION_DATA_PARAM, type = Void.class)
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PackageExceptionParams.DATE_TYPE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PackageExceptionParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PackageExceptionParams.CARRIER_IDS_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PackageExceptionParams.MODES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PackageExceptionParams.SERVICES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PackageExceptionParams.LANES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PackageExceptionParams.FROM_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PackageExceptionParams.TO_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PackageExceptionParams.ACCESSORIAL_NAME_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PackageExceptionParams.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.PackageExceptionParams.PACKAGE_EXCEPTION_DATA_PARAM, type = Void.class)
                 }
         ),
         @NamedStoredProcedureQuery(name = PackageExceptionDto.Config.StoredProcedureQueryName.PACKAGE_EXCEPTION_BY_CARRIER,
                 procedureName = PackageExceptionDto.Config.StoredProcedureName.PACKAGE_EXCEPTION_BY_CARRIER,
                 resultSetMappings = PackageExceptionDto.Config.ResultMappings.PACKAGE_EXCEPTION_BY_CARRIER_MAPPING,
                 parameters = {
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PackageExceptionParams.DATE_TYPE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PackageExceptionParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PackageExceptionParams.CARRIER_IDS_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PackageExceptionParams.MODES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PackageExceptionParams.SERVICES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PackageExceptionParams.LANES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PackageExceptionParams.FROM_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PackageExceptionParams.TO_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PackageExceptionParams.ACCESSORIAL_NAME_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PackageExceptionParams.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PackageExceptionParams.DELIVERY_FLAG_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.PackageExceptionParams.PACKAGE_EXCEPTION_DATA_PARAM, type = Void.class)
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PackageExceptionParams.DATE_TYPE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PackageExceptionParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PackageExceptionParams.CARRIER_IDS_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PackageExceptionParams.MODES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PackageExceptionParams.SERVICES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PackageExceptionParams.LANES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PackageExceptionParams.FROM_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PackageExceptionParams.TO_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PackageExceptionParams.ACCESSORIAL_NAME_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PackageExceptionParams.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PackageExceptionParams.DELIVERY_FLAG_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.PackageExceptionParams.PACKAGE_EXCEPTION_DATA_PARAM, type = Void.class)
                 }
         ),
         @NamedStoredProcedureQuery(name = PackageExceptionDto.Config.StoredProcedureQueryName.PACKAGE_EXCEPTION_BY_MONTH,
                 procedureName = PackageExceptionDto.Config.StoredProcedureName.PACKAGE_EXCEPTION_BY_MONTH,
                 resultSetMappings = PackageExceptionDto.Config.ResultMappings.PACKAGE_EXCEPTION_BY_MONTH_MAPPING,
                 parameters = {
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PackageExceptionParams.DATE_TYPE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PackageExceptionParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PackageExceptionParams.CARRIER_IDS_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PackageExceptionParams.MODES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PackageExceptionParams.SERVICES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PackageExceptionParams.LANES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PackageExceptionParams.FROM_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PackageExceptionParams.TO_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PackageExceptionParams.ACCESSORIAL_NAME_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PackageExceptionParams.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.PackageExceptionParams.DELIVERY_FLAG_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.PackageExceptionParams.PACKAGE_EXCEPTION_DATA_PARAM, type = Void.class)
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PackageExceptionParams.DATE_TYPE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PackageExceptionParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PackageExceptionParams.CARRIER_IDS_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PackageExceptionParams.MODES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PackageExceptionParams.SERVICES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PackageExceptionParams.LANES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PackageExceptionParams.FROM_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PackageExceptionParams.TO_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PackageExceptionParams.ACCESSORIAL_NAME_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PackageExceptionParams.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.PackageExceptionParams.DELIVERY_FLAG_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.PackageExceptionParams.PACKAGE_EXCEPTION_DATA_PARAM, type = Void.class)
                 }
         )
 })

@@ -3,8 +3,11 @@ package com.envista.msi.api.web.rest;
 import com.envista.msi.api.service.ReportsService;
 import com.envista.msi.api.web.rest.dto.UserProfileDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
+import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendRequestDto;
 import com.envista.msi.api.web.rest.dto.reports.ReportResultsDto;
 import com.envista.msi.api.web.rest.dto.reports.ReportResultsUsersListDto;
+import com.envista.msi.api.web.rest.dto.reports.SavedSchedReportsDto;
+import com.envista.msi.api.web.rest.dto.reports.UpdateSavedSchedReportDto;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -33,8 +36,8 @@ public class ReportsController {
         return new ResponseEntity<List<ReportResultsDto>>(resultsList, HttpStatus.OK);
     }
     @RequestMapping(value = "/results/updateexpirydate", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<ReportResultsDto> updateExpiryDate(@RequestParam String generatedRptId, @RequestParam String expiryDate){
-        ReportResultsDto reportResultsDto = reportsService.updateExpiryDate(Long.parseLong(generatedRptId), expiryDate );
+    public ResponseEntity<ReportResultsDto> updateExpiryDate(@RequestParam Long generatedRptId, @RequestParam String expiryDate){
+        ReportResultsDto reportResultsDto = reportsService.updateExpiryDate(generatedRptId, expiryDate );
         return new ResponseEntity<ReportResultsDto>(reportResultsDto, HttpStatus.OK);
     }
     @RequestMapping(value = "/results/userslist", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
@@ -50,5 +53,25 @@ public class ReportsController {
         } catch (Exception e) {
             return new ResponseEntity<ReportResultsDto>(new ReportResultsDto(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+    @RequestMapping(value = "/savedschedreports", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<List<SavedSchedReportsDto>> getSavedSchedReports(@RequestParam String userId){
+        List<SavedSchedReportsDto> resultsList = reportsService.getSavedSchedReports(Long.parseLong(userId));
+        return new ResponseEntity<List<SavedSchedReportsDto>>(resultsList, HttpStatus.OK);
+    }
+    @RequestMapping(value = "/updatesavedschedreport", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<UpdateSavedSchedReportDto> updateSavedSchedReport(@RequestBody UpdateSavedSchedReportDto updateSavedSchedReportDto){
+        UpdateSavedSchedReportDto updateDto = reportsService.runSavedSchedReport(updateSavedSchedReportDto);
+        return new ResponseEntity<UpdateSavedSchedReportDto>(updateDto, HttpStatus.OK);
+    }
+    @RequestMapping(value = "/runsavedschedreport", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<UpdateSavedSchedReportDto> runSavedSchedReport(@RequestBody UpdateSavedSchedReportDto updateSavedSchedReportDto){
+        UpdateSavedSchedReportDto updateDto = reportsService.runSavedSchedReport(updateSavedSchedReportDto);
+        return new ResponseEntity<UpdateSavedSchedReportDto>(updateDto, HttpStatus.OK);
+    }
+    @RequestMapping(value = "/saveFromReportResults", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<UpdateSavedSchedReportDto> saveFromReportResults(@RequestBody UpdateSavedSchedReportDto updateSavedSchedReportDto){
+        UpdateSavedSchedReportDto updateDto = reportsService.saveFromReportResults(updateSavedSchedReportDto);
+        return new ResponseEntity<UpdateSavedSchedReportDto>(updateDto, HttpStatus.OK);
     }
 }

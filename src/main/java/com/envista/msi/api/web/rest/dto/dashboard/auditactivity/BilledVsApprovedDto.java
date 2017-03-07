@@ -1,6 +1,6 @@
 package com.envista.msi.api.web.rest.dto.dashboard.auditactivity;
 
-import com.envista.msi.api.domain.util.DashboardSroredProcParam;
+import com.envista.msi.api.domain.util.DashboardStoredProcParam;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -15,34 +15,34 @@ import java.util.Date;
                 procedureName = BilledVsApprovedDto.Config.StoredProcedureName.BILLED_VS_APPROVED,
                 resultSetMappings = {BilledVsApprovedDto.Config.ResultMappings.BILLED_VS_APPROVED_MAPPING},
                 parameters = {
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.BilledVsApprovedParams.DATE_TYPE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.BilledVsApprovedParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.BilledVsApprovedParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.BilledVsApprovedParams.CARRIER_IDS_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.BilledVsApprovedParams.MODES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.BilledVsApprovedParams.SERVICES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.BilledVsApprovedParams.LANES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.BilledVsApprovedParams.FROM_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.BilledVsApprovedParams.TO_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.BilledVsApprovedParams.MODE_NAMES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.BilledVsApprovedParams.BILLED_VS_APPROVED_DATA_PARAM, type = Void.class)
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.BilledVsApprovedParams.DATE_TYPE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.BilledVsApprovedParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.BilledVsApprovedParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.BilledVsApprovedParams.CARRIER_IDS_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.BilledVsApprovedParams.MODES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.BilledVsApprovedParams.SERVICES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.BilledVsApprovedParams.LANES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.BilledVsApprovedParams.FROM_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.BilledVsApprovedParams.TO_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.BilledVsApprovedParams.MODE_NAMES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.BilledVsApprovedParams.BILLED_VS_APPROVED_DATA_PARAM, type = Void.class)
                 }),
         @NamedStoredProcedureQuery(name = BilledVsApprovedDto.Config.StoredProcedureQueryName.BILLED_VS_APPROVED_BY_MONTH,
                 procedureName = BilledVsApprovedDto.Config.StoredProcedureName.BILLED_VS_APPROVED_BY_MONTH,
                 resultSetMappings = {BilledVsApprovedDto.Config.ResultMappings.BILLED_VS_APPROVED_BY_MONTH_MAPPING},
                 parameters = {
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.BilledVsApprovedParams.DATE_TYPE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.BilledVsApprovedParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.BilledVsApprovedParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.BilledVsApprovedParams.CARRIER_IDS_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.BilledVsApprovedParams.MODES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.BilledVsApprovedParams.SERVICES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.BilledVsApprovedParams.LANES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.BilledVsApprovedParams.FROM_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.BilledVsApprovedParams.TO_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.BilledVsApprovedParams.MODE_NAMES_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardSroredProcParam.BilledVsApprovedParams.BILLED_APPROVED_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardSroredProcParam.BilledVsApprovedParams.BILLED_VS_APPROVED_DATA_PARAM, type = Void.class)
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.BilledVsApprovedParams.DATE_TYPE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.BilledVsApprovedParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.BilledVsApprovedParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.BilledVsApprovedParams.CARRIER_IDS_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.BilledVsApprovedParams.MODES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.BilledVsApprovedParams.SERVICES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.BilledVsApprovedParams.LANES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.BilledVsApprovedParams.FROM_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.BilledVsApprovedParams.TO_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.BilledVsApprovedParams.MODE_NAMES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.BilledVsApprovedParams.BILLED_APPROVED_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.BilledVsApprovedParams.BILLED_VS_APPROVED_DATA_PARAM, type = Void.class)
                 })
 })
 

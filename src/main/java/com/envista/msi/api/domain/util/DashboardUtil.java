@@ -66,71 +66,89 @@ public class DashboardUtil {
         QueryParameter queryParameter = null;
         for(String param : paramNames){
             switch(param){
-                case DashboardSroredProcParam.DashboardFilterParams.ACCESSORIAL_NAME_PARAM:
-                    queryParameter = prepareQueryParam(DashboardSroredProcParam.DashboardFilterParams.ACCESSORIAL_NAME_PARAM, filter.getAccessorialName(), queryParameter);
+                case DashboardStoredProcParam.DashboardFilterParams.ACCESSORIAL_NAME_PARAM:
+                    queryParameter = prepareQueryParam(DashboardStoredProcParam.DashboardFilterParams.ACCESSORIAL_NAME_PARAM, filter.getAccessorialName(), queryParameter);
                     break;
-                case DashboardSroredProcParam.DashboardFilterParams.CARRIER_IDS_PARAM:
-                    queryParameter = prepareQueryParam(DashboardSroredProcParam.DashboardFilterParams.CARRIER_IDS_PARAM, filter.getCarriers(), queryParameter);
+                case DashboardStoredProcParam.DashboardFilterParams.CARRIER_IDS_PARAM:
+                    queryParameter = prepareQueryParam(DashboardStoredProcParam.DashboardFilterParams.CARRIER_IDS_PARAM, filter.getCarriers(), queryParameter);
                     break;
-                case DashboardSroredProcParam.DashboardFilterParams.CONVERTED_CURRENCY_CODE_PARAM:
-                    queryParameter = prepareQueryParam(DashboardSroredProcParam.DashboardFilterParams.CONVERTED_CURRENCY_CODE_PARAM, filter.getConvertCurrencyCode(), queryParameter);
+                case DashboardStoredProcParam.DashboardFilterParams.CARRIER_ID_PARAM:
+                    queryParameter = prepareQueryParam(DashboardStoredProcParam.DashboardFilterParams.CARRIER_ID_PARAM, filter.getCarriers(), queryParameter);
                     break;
-                case DashboardSroredProcParam.DashboardFilterParams.CONVERTED_CURRENCY_ID_PARAM:
-                    queryParameter = prepareQueryParam(DashboardSroredProcParam.DashboardFilterParams.CONVERTED_CURRENCY_ID_PARAM, filter.getConvertCurrencyId(), queryParameter);
+                case DashboardStoredProcParam.DashboardFilterParams.CONVERTED_CURRENCY_CODE_PARAM:
+                    queryParameter = prepareQueryParam(DashboardStoredProcParam.DashboardFilterParams.CONVERTED_CURRENCY_CODE_PARAM, filter.getConvertCurrencyCode(), queryParameter);
                     break;
-                case DashboardSroredProcParam.DashboardFilterParams.CUSTOMER_IDS_CSV_PARAM:
-                    queryParameter = prepareQueryParam(DashboardSroredProcParam.DashboardFilterParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV(), queryParameter);
+                case DashboardStoredProcParam.DashboardFilterParams.CONVERTED_CURRENCY_ID_PARAM:
+                    queryParameter = prepareQueryParam(DashboardStoredProcParam.DashboardFilterParams.CONVERTED_CURRENCY_ID_PARAM, filter.getConvertCurrencyId(), queryParameter);
                     break;
-                case DashboardSroredProcParam.DashboardFilterParams.DATE_TYPE_PARAM:
-                    queryParameter = prepareQueryParam(DashboardSroredProcParam.DashboardFilterParams.DATE_TYPE_PARAM, filter.getDateType(), queryParameter);
+                case DashboardStoredProcParam.DashboardFilterParams.CUSTOMER_IDS_CSV_PARAM:
+                    queryParameter = prepareQueryParam(DashboardStoredProcParam.DashboardFilterParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV(), queryParameter);
                     break;
-                case DashboardSroredProcParam.DashboardFilterParams.FROM_DATE_PARAM:
-                    queryParameter = prepareQueryParam(DashboardSroredProcParam.DashboardFilterParams.FROM_DATE_PARAM, filter.getFromDate(), queryParameter);
+                case DashboardStoredProcParam.DashboardFilterParams.DATE_TYPE_PARAM:
+                    queryParameter = prepareQueryParam(DashboardStoredProcParam.DashboardFilterParams.DATE_TYPE_PARAM, filter.getDateType(), queryParameter);
                     break;
-                case DashboardSroredProcParam.DashboardFilterParams.LANES_PARAM:
-                    queryParameter = prepareQueryParam(DashboardSroredProcParam.DashboardFilterParams.LANES_PARAM, filter.getLanes(), queryParameter);
+                case DashboardStoredProcParam.DashboardFilterParams.FROM_DATE_PARAM:
+                    queryParameter = prepareQueryParam(DashboardStoredProcParam.DashboardFilterParams.FROM_DATE_PARAM, filter.getFromDate(), queryParameter);
                     break;
-                case DashboardSroredProcParam.DashboardFilterParams.MODE_NAMES_PARAM:
-                    queryParameter = prepareQueryParam(DashboardSroredProcParam.DashboardFilterParams.MODE_NAMES_PARAM, filter.getModeNames(), queryParameter);
+                case DashboardStoredProcParam.DashboardFilterParams.LANES_PARAM:
+                    queryParameter = prepareQueryParam(DashboardStoredProcParam.DashboardFilterParams.LANES_PARAM, filter.getLanes(), queryParameter);
                     break;
-                case DashboardSroredProcParam.DashboardFilterParams.MODES_PARAM:
-                    queryParameter = prepareQueryParam(DashboardSroredProcParam.DashboardFilterParams.MODES_PARAM, filter.getModes(), queryParameter);
+                case DashboardStoredProcParam.DashboardFilterParams.MODE_NAMES_PARAM:
+                    queryParameter = prepareQueryParam(DashboardStoredProcParam.DashboardFilterParams.MODE_NAMES_PARAM, filter.getModeNames(), queryParameter);
                     break;
-                case DashboardSroredProcParam.DashboardFilterParams.SERVICE_PARAM:
-                    queryParameter = prepareQueryParam(DashboardSroredProcParam.DashboardFilterParams.SERVICE_PARAM, filter.getService(), queryParameter);
+                case DashboardStoredProcParam.DashboardFilterParams.MODES_PARAM:
+                    queryParameter = prepareQueryParam(DashboardStoredProcParam.DashboardFilterParams.MODES_PARAM, filter.getModes(), queryParameter);
                     break;
-                case DashboardSroredProcParam.DashboardFilterParams.SERVICES_PARAM:
-                    queryParameter = prepareQueryParam(DashboardSroredProcParam.DashboardFilterParams.SERVICES_PARAM, filter.getServices(), queryParameter);
+                case DashboardStoredProcParam.DashboardFilterParams.SERVICE_PARAM:
+                    queryParameter = prepareQueryParam(DashboardStoredProcParam.DashboardFilterParams.SERVICE_PARAM, filter.getService(), queryParameter);
                     break;
-                case DashboardSroredProcParam.DashboardFilterParams.TO_DATE_PARAM:
-                    queryParameter = prepareQueryParam(DashboardSroredProcParam.DashboardFilterParams.TO_DATE_PARAM, filter.getToDate(), queryParameter);
+                case DashboardStoredProcParam.DashboardFilterParams.SERVICES_PARAM:
+                    queryParameter = prepareQueryParam(DashboardStoredProcParam.DashboardFilterParams.SERVICES_PARAM, filter.getServices(), queryParameter);
                     break;
-                case DashboardSroredProcParam.DashboardFilterParams.TOP_TEN_ACCESSORIAL_PARAM:
-                    queryParameter = prepareQueryParam(DashboardSroredProcParam.DashboardFilterParams.TOP_TEN_ACCESSORIAL_PARAM, (filter.isTopTenAccessorial() ? 1L : 0L), queryParameter);
+                case DashboardStoredProcParam.DashboardFilterParams.TO_DATE_PARAM:
+                    queryParameter = prepareQueryParam(DashboardStoredProcParam.DashboardFilterParams.TO_DATE_PARAM, filter.getToDate(), queryParameter);
                     break;
-                case DashboardSroredProcParam.DashboardFilterParams.DELIVERY_FLAG_PARAM:
-                    queryParameter = prepareQueryParam(DashboardSroredProcParam.DashboardFilterParams.DELIVERY_FLAG_PARAM, filter.getDeliveryFlag(), queryParameter);
+                case DashboardStoredProcParam.DashboardFilterParams.TOP_TEN_ACCESSORIAL_PARAM:
+                    queryParameter = prepareQueryParam(DashboardStoredProcParam.DashboardFilterParams.TOP_TEN_ACCESSORIAL_PARAM, (filter.isTopTenAccessorial() ? 1L : 0L), queryParameter);
                     break;
-                case DashboardSroredProcParam.DashboardFilterParams.BILLED_APPROVED_PARAM:
-                    queryParameter = prepareQueryParam(DashboardSroredProcParam.DashboardFilterParams.BILLED_APPROVED_PARAM, filter.getBilledVsApproved(), queryParameter);
+                case DashboardStoredProcParam.DashboardFilterParams.DELIVERY_FLAG_PARAM:
+                    queryParameter = prepareQueryParam(DashboardStoredProcParam.DashboardFilterParams.DELIVERY_FLAG_PARAM, filter.getDeliveryFlag(), queryParameter);
                     break;
-                case DashboardSroredProcParam.DashboardFilterParams.INVOICE_METHOD_PARAM:
-                    queryParameter = prepareQueryParam(DashboardSroredProcParam.DashboardFilterParams.INVOICE_METHOD_PARAM, filter.getInvoiceMethod(), queryParameter);
+                case DashboardStoredProcParam.DashboardFilterParams.BILLED_APPROVED_PARAM:
+                    queryParameter = prepareQueryParam(DashboardStoredProcParam.DashboardFilterParams.BILLED_APPROVED_PARAM, filter.getBilledVsApproved(), queryParameter);
                     break;
-                case DashboardSroredProcParam.DashboardFilterParams.ORDER_MATCH_PARAM:
-                    queryParameter = prepareQueryParam(DashboardSroredProcParam.DashboardFilterParams.ORDER_MATCH_PARAM, filter.getOrderMatch(), queryParameter);
+                case DashboardStoredProcParam.DashboardFilterParams.INVOICE_METHOD_PARAM:
+                    queryParameter = prepareQueryParam(DashboardStoredProcParam.DashboardFilterParams.INVOICE_METHOD_PARAM, filter.getInvoiceMethod(), queryParameter);
                     break;
-                case DashboardSroredProcParam.DashboardFilterParams.INVOICE_STATUS_ID_PARAM:
-                    queryParameter = prepareQueryParam(DashboardSroredProcParam.DashboardFilterParams.INVOICE_STATUS_ID_PARAM, filter.getInvoiceStatusId(), queryParameter);
+                case DashboardStoredProcParam.DashboardFilterParams.ORDER_MATCH_PARAM:
+                    queryParameter = prepareQueryParam(DashboardStoredProcParam.DashboardFilterParams.ORDER_MATCH_PARAM, filter.getOrderMatch(), queryParameter);
                     break;
-                case DashboardSroredProcParam.DashboardFilterParams.ACCESSORIAL_DESC_PARAM:
-                    queryParameter = prepareQueryParam(DashboardSroredProcParam.DashboardFilterParams.ACCESSORIAL_DESC_PARAM, filter.getAccDesc(), queryParameter);
+                case DashboardStoredProcParam.DashboardFilterParams.INVOICE_STATUS_ID_PARAM:
+                    queryParameter = prepareQueryParam(DashboardStoredProcParam.DashboardFilterParams.INVOICE_STATUS_ID_PARAM, filter.getInvoiceStatusId(), queryParameter);
                     break;
-                case DashboardSroredProcParam.DashboardFilterParams.TAX_PARAM:
-                    queryParameter = prepareQueryParam(DashboardSroredProcParam.DashboardFilterParams.TAX_PARAM, filter.getTax(), queryParameter);
+                case DashboardStoredProcParam.DashboardFilterParams.ACCESSORIAL_DESC_PARAM:
+                    queryParameter = prepareQueryParam(DashboardStoredProcParam.DashboardFilterParams.ACCESSORIAL_DESC_PARAM, filter.getAccDesc(), queryParameter);
                     break;
-                case DashboardSroredProcParam.DashboardFilterParams.SCORE_TYPE_PARAM:
-                    queryParameter = prepareQueryParam(DashboardSroredProcParam.DashboardFilterParams.SCORE_TYPE_PARAM, filter.getScoreType(), queryParameter);
+                case DashboardStoredProcParam.DashboardFilterParams.TAX_PARAM:
+                    queryParameter = prepareQueryParam(DashboardStoredProcParam.DashboardFilterParams.TAX_PARAM, filter.getTax(), queryParameter);
+                    break;
+                case DashboardStoredProcParam.DashboardFilterParams.SCORE_TYPE_PARAM:
+                    queryParameter = prepareQueryParam(DashboardStoredProcParam.DashboardFilterParams.SCORE_TYPE_PARAM, filter.getScoreType(), queryParameter);
+                    break;
+                case DashboardStoredProcParam.DashboardFilterParams.CONVERTED_WEIGHT_UNIT_PARAM:
+                    queryParameter = prepareQueryParam(DashboardStoredProcParam.DashboardFilterParams.CONVERTED_WEIGHT_UNIT_PARAM, filter.getConvertWeightUnit(), queryParameter);
+                    break;
+                case DashboardStoredProcParam.DashboardFilterParams.ORIGINAL_FROM_DATE_PARAM:
+                    queryParameter = prepareQueryParam(DashboardStoredProcParam.DashboardFilterParams.ORIGINAL_FROM_DATE_PARAM, filter.getOriginalFromDate(), queryParameter);
+                    break;
+                case DashboardStoredProcParam.DashboardFilterParams.ORIGINAL_TO_DATE_PARAM:
+                    queryParameter = prepareQueryParam(DashboardStoredProcParam.DashboardFilterParams.ORIGINAL_TO_DATE_PARAM, filter.getOriginalToDate(), queryParameter);
+                    break;
+                case DashboardStoredProcParam.DashboardFilterParams.POL:
+                    queryParameter = prepareQueryParam(DashboardStoredProcParam.DashboardFilterParams.POL, filter.getPol(), queryParameter);
+                    break;
+                case DashboardStoredProcParam.DashboardFilterParams.POD:
+                    queryParameter = prepareQueryParam(DashboardStoredProcParam.DashboardFilterParams.POL, filter.getPod(), queryParameter);
                     break;
                 default:
                     throw new RuntimeException("Invalid stored procedure param name.");

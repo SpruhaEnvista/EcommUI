@@ -1,20 +1,16 @@
 package com.envista.msi.api.dao.reports;
 
 import com.envista.msi.api.domain.PersistentContext;
-import com.envista.msi.api.domain.util.DashboardSroredProcParam;
 import com.envista.msi.api.domain.util.QueryParameter;
 import com.envista.msi.api.domain.util.StoredProcedureParameter;
-import com.envista.msi.api.web.rest.dto.UserProfileDto;
-import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
-import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendByModeDto;
 import com.envista.msi.api.web.rest.dto.reports.ReportResultsDto;
 import com.envista.msi.api.web.rest.dto.reports.ReportResultsUsersListDto;
+import com.envista.msi.api.web.rest.dto.reports.SavedSchedReportsDto;
+import com.envista.msi.api.web.rest.dto.reports.UpdateSavedSchedReportDto;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -73,10 +69,55 @@ public class ReportsDao {
      * @return
      */
     @Transactional
-    public ReportResultsDto deleteReportInResults(Long generatedRptId, Long userId, String userName){
+    public ReportResultsDto deleteReportInResults(long generatedRptId, long userId, String userName){
         QueryParameter queryParameter = StoredProcedureParameter.with("generatedRptId", generatedRptId)
                                         .and("userId", userId)
                                         .and("userName", userName);
         return persistentContext.findEntityAndMapFields("ReportResults.deleteResultReport",queryParameter);
+    }
+    /**
+     * Get Saved Sched Reports.
+     * @param userId
+     * @return
+     */
+
+    @Transactional( readOnly = true )
+    public List<SavedSchedReportsDto> getSavedSchedReports(long userId) {
+        return persistentContext.findEntitiesAndMapFields("SavedSchedReports.gerSavedSchedReports",
+                StoredProcedureParameter.with("userId", userId));
+    }
+
+    @Transactional
+    public UpdateSavedSchedReportDto updateSavedSchedReport(UpdateSavedSchedReportDto updateSavedSchedReportDto) {
+        if(updateSavedSchedReportDto.getSharetoUserId()>0) {
+            QueryParameter queryParameter = StoredProcedureParameter.with("userId", updateSavedSchedReportDto.getSharetoUserId())
+                    .and("savedSchedId", updateSavedSchedReportDto.getSavedSchedRptId())
+                    .and("createUser",updateSavedSchedReportDto.getCreateUser());
+            return persistentContext.findEntityAndMapFields("SavedReports.addUserToSavedReport", queryParameter);
+        }
+        else if(updateSavedSchedReportDto.getSharetoUserId()==0 && updateSavedSchedReportDto.isDeleteAll()){
+            QueryParameter queryParameter = StoredProcedureParameter.with("userId", updateSavedSchedReportDto.getLoggedinuserId())
+                    .and("savedSchedId", updateSavedSchedReportDto.getSavedSchedRptId());
+            return persistentContext.findEntityAndMapFields("SavedReports.deleteAllSavedSchedReport", queryParameter);
+        }else if(updateSavedSchedReportDto.getSharetoUserId()==0 && !updateSavedSchedReportDto.isDeleteAll()){
+            QueryParameter queryParameter = StoredProcedureParameter.with("userId", updateSavedSchedReportDto.getLoggedinuserId())
+                    .and("savedSchedId", updateSavedSchedReportDto.getSavedSchedRptId());
+            return persistentContext.findEntityAndMapFields("SavedReports.deleteUserSavedSchedReport", queryParameter);
+        }
+        return new UpdateSavedSchedReportDto(0l);
+    }
+    @Transactional
+    public UpdateSavedSchedReportDto runSavedSchedReport(UpdateSavedSchedReportDto updateSavedSchedReportDto) {
+            QueryParameter queryParameter = StoredProcedureParameter.with("userId", updateSavedSchedReportDto.getLoggedinuserId())
+                    .and("savedSchedId", updateSavedSchedReportDto.getSavedSchedRptId())
+                    .and("createUser",updateSavedSchedReportDto.getCreateUser());
+            return persistentContext.findEntityAndMapFields("SavedReports.runSavedSchedReport", queryParameter);
+    }
+    @Transactional
+    public UpdateSavedSchedReportDto saveFromReportResults(UpdateSavedSchedReportDto updateSavedSchedReportDto) {
+        QueryParameter queryParameter = StoredProcedureParameter.with("userId", updateSavedSchedReportDto.getLoggedinuserId())
+                .and("savedSchedId", updateSavedSchedReportDto.getSavedSchedRptId())
+                .and("createUser",updateSavedSchedReportDto.getCreateUser());
+        return persistentContext.findEntityAndMapFields("SavedReports.saveFromReportResults", queryParameter);
     }
 }

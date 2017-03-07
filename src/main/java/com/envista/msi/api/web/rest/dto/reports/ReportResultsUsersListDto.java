@@ -30,6 +30,12 @@ public class ReportResultsUsersListDto implements Serializable {
     @Column(name = "attach_report")
     private boolean attachReport;
 
+    @Column(name = "saved_sched_rpt_id")
+    private long savedSavedRptId;
+
+    @Column(name = "generated_rpt_id")
+    private long generatedRptId;
+
     public Long getUserId() {
         return userId;
     }
@@ -60,5 +66,21 @@ public class ReportResultsUsersListDto implements Serializable {
 
     public void setAttachReport(boolean attachReport) {
         this.attachReport = attachReport;
+    }
+
+    public long getSavedSavedRptId() {
+        return savedSavedRptId;
+    }
+
+    public void setSavedSavedRptId(long savedSavedRptId) {
+        this.savedSavedRptId = savedSavedRptId;
+    }
+
+    public long getGeneratedRptId() {
+        return generatedRptId;
+    }
+
+    public void setGeneratedRptId(long generatedRptId) {
+        this.generatedRptId = generatedRptId;
     }
 }
