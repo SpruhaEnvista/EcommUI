@@ -106,4 +106,18 @@ public class ReportsDao {
         }
         return new UpdateSavedSchedReportDto(0l);
     }
+    @Transactional
+    public UpdateSavedSchedReportDto runSavedSchedReport(UpdateSavedSchedReportDto updateSavedSchedReportDto) {
+            QueryParameter queryParameter = StoredProcedureParameter.with("userId", updateSavedSchedReportDto.getLoggedinuserId())
+                    .and("savedSchedId", updateSavedSchedReportDto.getSavedSchedRptId())
+                    .and("createUser",updateSavedSchedReportDto.getCreateUser());
+            return persistentContext.findEntityAndMapFields("SavedReports.runSavedSchedReport", queryParameter);
+    }
+    @Transactional
+    public UpdateSavedSchedReportDto saveFromReportResults(UpdateSavedSchedReportDto updateSavedSchedReportDto) {
+        QueryParameter queryParameter = StoredProcedureParameter.with("userId", updateSavedSchedReportDto.getLoggedinuserId())
+                .and("savedSchedId", updateSavedSchedReportDto.getSavedSchedRptId())
+                .and("createUser",updateSavedSchedReportDto.getCreateUser());
+        return persistentContext.findEntityAndMapFields("SavedReports.saveFromReportResults", queryParameter);
+    }
 }

@@ -45,4 +45,10 @@ public class ReportsService {
     public UpdateSavedSchedReportDto updateSavedSchedReport(UpdateSavedSchedReportDto updateSavedSchedReportDto){
         return reportsDao.updateSavedSchedReport(updateSavedSchedReportDto);
     }
+    public UpdateSavedSchedReportDto runSavedSchedReport(UpdateSavedSchedReportDto updateSavedSchedReportDto){
+        return reportsDao.runSavedSchedReport(updateSavedSchedReportDto);
+    }
+    public UpdateSavedSchedReportDto saveFromReportResults(UpdateSavedSchedReportDto updateSavedSchedReportDto){
+        return reportsDao.saveFromReportResults(updateSavedSchedReportDto);
+    }
 }
