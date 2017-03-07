@@ -117,7 +117,21 @@ public class ReportsDao {
     public UpdateSavedSchedReportDto saveFromReportResults(UpdateSavedSchedReportDto updateSavedSchedReportDto) {
         QueryParameter queryParameter = StoredProcedureParameter.with("userId", updateSavedSchedReportDto.getLoggedinuserId())
                 .and("savedSchedId", updateSavedSchedReportDto.getSavedSchedRptId())
-                .and("createUser",updateSavedSchedReportDto.getCreateUser());
+                .and("createUser",updateSavedSchedReportDto.getCreateUser())
+                .and("reportName",updateSavedSchedReportDto.getReportName());;
         return persistentContext.findEntityAndMapFields("SavedReports.saveFromReportResults", queryParameter);
     }
+    @Transactional
+    public ReportResultsUsersListDto pushToUser(List<ReportResultsUsersListDto> reportResultsUsersListDto) {
+
+        for(ReportResultsUsersListDto userDto : reportResultsUsersListDto) {
+            QueryParameter queryParameter = StoredProcedureParameter.with("userId", userDto.getUserId())
+                    .and("savedSchedId", userDto.getSavedSavedRptId())
+                    .and("generatedRptId",userDto.getGeneratedRptId())
+                    .and("createUser", userDto.getCreateUser());
+            return persistentContext.findEntityAndMapFields("ReportResultsUsersList.pushToUser", queryParameter);
+        }
+        return new ReportResultsUsersListDto(0l);
+    }
+
 }

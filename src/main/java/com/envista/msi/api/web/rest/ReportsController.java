@@ -69,9 +69,14 @@ public class ReportsController {
         UpdateSavedSchedReportDto updateDto = reportsService.runSavedSchedReport(updateSavedSchedReportDto);
         return new ResponseEntity<UpdateSavedSchedReportDto>(updateDto, HttpStatus.OK);
     }
-    @RequestMapping(value = "/saveFromReportResults", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/copyfromreportresults", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<UpdateSavedSchedReportDto> saveFromReportResults(@RequestBody UpdateSavedSchedReportDto updateSavedSchedReportDto){
         UpdateSavedSchedReportDto updateDto = reportsService.saveFromReportResults(updateSavedSchedReportDto);
         return new ResponseEntity<UpdateSavedSchedReportDto>(updateDto, HttpStatus.OK);
+    }
+    @RequestMapping(value = "/results/pushtouser", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<ReportResultsUsersListDto> pushToUser(@RequestBody List<ReportResultsUsersListDto> reportResultsUsersListDto){
+        ReportResultsUsersListDto updateDto = reportsService.pushToUser(reportResultsUsersListDto);
+        return new ResponseEntity<ReportResultsUsersListDto>(updateDto, HttpStatus.OK);
     }
 }

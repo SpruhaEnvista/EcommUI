@@ -44,7 +44,8 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "updateReturn", type = Void.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "userId", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "savedSchedId", type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "createUser", type = String.class)
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "createUser", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "reportName", type = String.class)
                 })
 })
 @SqlResultSetMappings({
@@ -73,8 +74,9 @@ public class UpdateSavedSchedReportDto implements Serializable {
 
     private String createUser;
 
+    private String reportName;
+
     @Id
-  //  @Column(name="updateCount")
     private Long updateCount;
 
     public Long getUpdateCount() {
@@ -131,6 +133,14 @@ public class UpdateSavedSchedReportDto implements Serializable {
 
     public void setDeleteAll(boolean deleteAll) {
         this.deleteAll = deleteAll;
+    }
+
+    public String getReportName() {
+        return reportName;
+    }
+
+    public void setReportName(String reportName) {
+        this.reportName = reportName;
     }
 
     public UpdateSavedSchedReportDto(Long updateCount) {

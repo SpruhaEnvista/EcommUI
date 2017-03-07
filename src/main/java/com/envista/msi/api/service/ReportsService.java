@@ -51,4 +51,7 @@ public class ReportsService {
     public UpdateSavedSchedReportDto saveFromReportResults(UpdateSavedSchedReportDto updateSavedSchedReportDto){
         return reportsDao.saveFromReportResults(updateSavedSchedReportDto);
     }
+    public ReportResultsUsersListDto pushToUser(List<ReportResultsUsersListDto> reportResultsUsersListDto){
+        return reportsDao.pushToUser(reportResultsUsersListDto);
+    }
 }
