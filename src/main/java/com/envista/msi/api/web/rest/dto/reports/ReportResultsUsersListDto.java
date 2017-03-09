@@ -1,7 +1,5 @@
 package com.envista.msi.api.web.rest.dto.reports;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
-
 import javax.persistence.*;
 import java.io.Serializable;
 
@@ -66,7 +64,7 @@ public class ReportResultsUsersListDto implements Serializable {
     private boolean attachReport;
 
     @Column(name = "saved_sched_rpt_id")
-    private long savedSavedRptId;
+    private long savedSchedRptId;
 
     @Column(name = "generated_rpt_id")
     private long generatedRptId;
@@ -109,12 +107,12 @@ public class ReportResultsUsersListDto implements Serializable {
         this.attachReport = attachReport;
     }
 
-    public long getSavedSavedRptId() {
-        return savedSavedRptId;
+    public long getSavedSchedRptId() {
+        return savedSchedRptId;
     }
 
-    public void setSavedSavedRptId(long savedSavedRptId) {
-        this.savedSavedRptId = savedSavedRptId;
+    public void setSavedSchedRptId(long savedSchedRptId) {
+        this.savedSchedRptId = savedSchedRptId;
     }
 
     public long getGeneratedRptId() {
@@ -148,7 +146,7 @@ public class ReportResultsUsersListDto implements Serializable {
         this.userName = userName;
         this.emailAlert = emailAlert;
         this.attachReport = attachReport;
-        this.savedSavedRptId = savedSavedRptId;
+        this.savedSchedRptId = savedSavedRptId;
         this.generatedRptId = generatedRptId;
         this.createUser = createUser;
     }

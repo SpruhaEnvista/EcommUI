@@ -126,7 +126,7 @@ public class ReportsDao {
 
         for(ReportResultsUsersListDto userDto : reportResultsUsersListDto) {
             QueryParameter queryParameter = StoredProcedureParameter.with("userId", userDto.getUserId())
-                    .and("savedSchedId", userDto.getSavedSavedRptId())
+                    .and("savedSchedId", userDto.getSavedSchedRptId())
                     .and("generatedRptId",userDto.getGeneratedRptId())
                     .and("createUser", userDto.getCreateUser());
             return persistentContext.findEntityAndMapFields("ReportResultsUsersList.pushToUser", queryParameter);
