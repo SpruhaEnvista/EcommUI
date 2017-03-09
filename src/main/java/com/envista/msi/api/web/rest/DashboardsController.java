@@ -22,8 +22,12 @@ import com.envista.msi.api.web.rest.dto.dashboard.netspend.*;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.PortLanesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentRegionDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShippingLanesDto;
+import com.envista.msi.api.web.rest.dto.dashboard.report.DashboardReportDto;
+import com.envista.msi.api.web.rest.dto.dashboard.report.DashboardReportRequestDto;
+import com.envista.msi.api.web.rest.dto.dashboard.report.DashboardReportUtilityDataDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.*;
 import com.envista.msi.api.web.rest.util.JSONUtil;
+import com.envista.msi.api.web.rest.util.WebConstants;
 import org.apache.commons.beanutils.BeanUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,6 +41,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.el.MethodNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Sarvesh on 1/18/2017.
@@ -186,7 +191,6 @@ public class DashboardsController extends DashboardBaseController {
         } catch (Exception e) {
             return new ResponseEntity<DashboardAppliedFilterDto>(new DashboardAppliedFilterDto(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
 
     private DashboardsFilterCriteria loadAppliedFilters(Long userId){
@@ -2761,7 +2765,6 @@ public class DashboardsController extends DashboardBaseController {
 
     private JSONObject loadAvgWeightModeByMonthJson(DashboardsFilterCriteria filter) throws Exception {
         JSONObject avgWeightJson = null;
-
         List<AverageWeightModeShipmtDto> avgWeightList = dashboardsService.getAverageWeightModeByMonth(filter,false);
         if(avgWeightList != null && avgWeightList.size() > 0){
             List<CommonMonthlyChartDto> commonMonthlyChartDtoList = new ArrayList<CommonMonthlyChartDto>();
@@ -2777,4 +2780,95 @@ public class DashboardsController extends DashboardBaseController {
         return avgWeightJson;
     }
 
+    @RequestMapping(value = "/dashboardReport", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE}, consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getDashboardReport(@RequestBody DashboardReportRequestDto reportRequestData){
+        JSONObject dashboardReportJson = null;
+        try{
+            UserProfileDto user = getUserProfile();
+            if(null == user){
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(WebConstants.ResponseMessage.INVALID_USER);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            if(filter != null){
+                applyRequestDataToFilter(reportRequestData, filter);
+            }
+            JSONObject reportData = loadDashboardReportJson(filter);
+            dashboardReportJson = (reportData != null ? reportData : new JSONObject());
+        }catch(Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(dashboardReportJson.toString());
+    }
+
+    private void applyRequestDataToFilter(DashboardReportRequestDto reportRequestData, DashboardsFilterCriteria filter) throws Exception {
+        if(reportRequestData.getLineItemReport() != null){
+            filter.setLineItemReport(reportRequestData.getLineItemReport());
+        }
+        filter.setCarriers(String.valueOf(reportRequestData.getCarrierId()));
+        if(reportRequestData.getService() != null && !reportRequestData.getService().isEmpty()){
+            filter.setService(reportRequestData.getService());
+        }
+        if(reportRequestData.getInvoiceDate() != null && !reportRequestData.getInvoiceDate().isEmpty()){
+            DashboardUtil.setDatesFromMonth(filter, reportRequestData.getInvoiceDate());
+        }
+        if(reportRequestData.getCarrier() != null && !reportRequestData.getCarrier().isEmpty()){
+            filter.setCarriers(reportRequestData.getCarrier());
+        }
+        if(reportRequestData.getCarrScoretype() != null && !reportRequestData.getCarrScoretype().isEmpty()){
+            filter.setScoreType(reportRequestData.getCarrScoretype());
+        }
+        if(reportRequestData.getDeliveryFlagDecs() != null && !reportRequestData.getDeliveryFlagDecs().isEmpty()){
+            filter.setDeliveryFlagDesc(reportRequestData.getDeliveryFlagDecs());
+        }
+        if(reportRequestData.getAccessorialName() != null && !reportRequestData.getAccessorialName().isEmpty()){
+            filter.setAccessorialName(reportRequestData.getAccessorialName());
+        }
+        if(reportRequestData.getMode() != null && !reportRequestData.getMode().isEmpty()){
+            filter.setModeNames(reportRequestData.getMode());
+        }
+        if(reportRequestData.getReportForDashlette() != null && !reportRequestData.getReportForDashlette().isEmpty()){
+            filter.setReportForDashlette(reportRequestData.getReportForDashlette());
+        }
+        if(reportRequestData.getBoundType() != null && !reportRequestData.getBoundType().isEmpty()){
+            filter.setBoundType(reportRequestData.getBoundType());
+        }
+        filter.setDashletteName(reportRequestData.getDashletteName());
+        filter.setShipperCity(reportRequestData.getShipperCity());
+        filter.setReceiverCity(reportRequestData.getReceiverCity());
+        filter.setOffset(reportRequestData.getOffset() != null ? reportRequestData.getOffset() : 1);
+        filter.setPageSize(reportRequestData.getPageSize() != null ? reportRequestData.getPageSize() : 20);
+    }
+
+    private JSONObject loadDashboardReportJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject dashboardReportJson = null;
+        List<DashboardReportDto> reportDataList = null;
+        if(filter.isLineItemReport()){
+            reportDataList = dashboardsService.getLineItemReportDetails(filter);
+        }else{
+            reportDataList = dashboardsService.getDashboardReport(filter);
+        }
+        if(reportDataList != null && !reportDataList.isEmpty()){
+            Map<String, String> resultColumnsMap = dashboardsService.getReportColumnNames(filter);
+            dashboardReportJson = JSONUtil.prepareDashboardReportJson(reportDataList, resultColumnsMap);
+        }
+        return dashboardReportJson;
+    }
+
+    /**
+     * Development under progress, we need to check this while developing filter screen.
+     *
+     * @return
+     */
+    @RequestMapping(value = "/colConfigByUser", method = {RequestMethod.GET, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getColumnConfigByUser(){
+        UserProfileDto user = getUserProfile();
+        if(null == user){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(WebConstants.ResponseMessage.INVALID_USER);
+        }
+        List<DashboardReportUtilityDataDto> colConfigList = dashboardsService.getColumnConfigByUser(user.getUserId(), 100L);
+        if(colConfigList != null && !colConfigList.isEmpty()){
+
+        }
+        return null;
+    }
 }

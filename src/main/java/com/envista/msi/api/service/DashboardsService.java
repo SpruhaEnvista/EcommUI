@@ -16,12 +16,14 @@ import com.envista.msi.api.web.rest.dto.dashboard.netspend.TaxSpendDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.PortLanesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentRegionDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShippingLanesDto;
+import com.envista.msi.api.web.rest.dto.dashboard.report.DashboardReportUtilityDataDto;
+import com.envista.msi.api.web.rest.dto.dashboard.report.DashboardReportDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by Sarvesh on 1/19/2017.
@@ -536,7 +538,85 @@ public class DashboardsService {
      * @param isTopTenAccessorial
      * @return
      */
-    public List<AccountSummaryDto> getParcelAccountSummary(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
+    public List<AccountSummaryDto> getParcelAccountSummary(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
         return dashboardsDao.getParcelAccountSummary(filter, isTopTenAccessorial);
+    }
+
+    /**
+     * Get custom defined field names by customer.
+     * @param filter
+     * @param reportId
+     * @return
+     */
+    public Map<String, String> getCustomDefinedLabelsByCustomer(DashboardsFilterCriteria filter, Long reportId){
+        Map<String, String> customFieldsMap = null;
+        List<DashboardReportUtilityDataDto> custDefLblList = dashboardsDao.getCustomDefinedLabelsByCustomer(filter, reportId);
+        if(custDefLblList != null && !custDefLblList.isEmpty()){
+            customFieldsMap = new HashMap<String, String>();
+            for(DashboardReportUtilityDataDto custDefLbl : custDefLblList){
+                if(custDefLbl != null && custDefLbl.getReportFieldName() != null){
+                    customFieldsMap.put(custDefLbl.getReportFieldName().toUpperCase(), custDefLbl.getCustomFieldName());
+                }
+            }
+        }
+        return customFieldsMap;
+     }
+
+    /**
+     * Get Dashboard report column names.
+     * @param filter
+     * @return
+     */
+    public Map<String, String> getReportColumnNames(DashboardsFilterCriteria filter){
+        List<DashboardReportUtilityDataDto> reportColumnNames = dashboardsDao.getReportColumnNames(filter.isLineItemReport());
+        Map<String, String> columnMap = null;
+        if(reportColumnNames != null && !reportColumnNames.isEmpty()){
+            columnMap = new LinkedHashMap<String, String>();
+            for(DashboardReportUtilityDataDto columnName : reportColumnNames){
+                if(columnName != null){
+                    columnMap.put(columnName.getSelectClause(), columnName.getColumnName());
+                }
+            }
+            columnMap.put("SERVICE_LEVEL", "Service Level");
+            Set<String> selectColumns = columnMap.keySet();
+
+            Map<String, String> customFieldsMap = getCustomDefinedLabelsByCustomer(filter, 100L);
+            if(customFieldsMap != null){
+                for(String selectCol : selectColumns){
+                    if(customFieldsMap.containsKey(selectCol)){
+                        columnMap.put(selectCol, customFieldsMap.get(selectCol));
+                    }
+                }
+            }
+        }
+        return columnMap;
+    }
+
+    /**
+     * Get Dashboard report for Parcel and Freight.
+     * @param filter
+     * @return
+     */
+    public List<DashboardReportDto> getDashboardReport(DashboardsFilterCriteria filter){
+        return dashboardsDao.getDashboardReport(filter);
+    }
+
+    /**
+     * Get dashboard line item report details.
+     * @param filter
+     * @return
+     */
+    public List<DashboardReportDto> getLineItemReportDetails(DashboardsFilterCriteria filter){
+        return dashboardsDao.getLineItemReportDetails(filter);
+    }
+
+    /**
+     * Get custom columns mapped against the user.
+     * @param userId
+     * @param reportId
+     * @return
+     */
+    public List<DashboardReportUtilityDataDto> getColumnConfigByUser(Long userId, Long reportId){
+        return dashboardsDao.getColumnConfigByUser(userId, reportId);
     }
 }
