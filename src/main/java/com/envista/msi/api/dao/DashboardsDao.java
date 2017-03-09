@@ -20,12 +20,17 @@ import com.envista.msi.api.web.rest.dto.dashboard.netspend.TaxSpendDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.PortLanesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentRegionDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShippingLanesDto;
+import com.envista.msi.api.web.rest.dto.dashboard.report.DashboardReportUtilityDataDto;
+import com.envista.msi.api.web.rest.dto.dashboard.report.DashboardReportDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.*;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import javax.inject.Inject;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by Sarvesh on 1/19/2017.
@@ -1073,5 +1078,103 @@ public class DashboardsDao {
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
         return persistentContext.findEntities(AccountSummaryDto.Config.StoredProcedureQueryName.PARCEL_ACCOUNT_SUMMARY, queryParameter);
+    }
+
+    public List<DashboardReportUtilityDataDto> getReportColumnNames(boolean isLineItemReport){
+        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardStoredProcParam.DashboardReportUtilityDataParams.IS_LINE_ITEM_REPORT_PARAM, isLineItemReport ? 1L : 0L);
+        return persistentContext.findEntities(DashboardReportUtilityDataDto.Config.StoredProcedureQueryName.DASHBOARD_REPORT_COLUMNS, queryParameter);
+    }
+
+    /**
+     * Get custom defined fields mapped with customer.
+     * @param filter
+     * @param reportId
+     * @return
+     */
+    public List<DashboardReportUtilityDataDto> getCustomDefinedLabelsByCustomer(DashboardsFilterCriteria filter, Long reportId){
+        String uniqueCustomerIds = "";
+        Set<String> customersSet = new HashSet<String>();
+        for(String customerId : filter.getCustomerIdsCSV().split(",")){
+            customersSet.add(customerId);
+        }
+        uniqueCustomerIds = StringUtils.collectionToCommaDelimitedString(customersSet);
+        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardStoredProcParam.DashboardReportUtilityDataParams.CUSTOMER_IDS_CSV_PARAM, uniqueCustomerIds)
+                .and(DashboardStoredProcParam.DashboardReportUtilityDataParams.REPORT_ID_PARAM, reportId);
+        return persistentContext.findEntities(DashboardReportUtilityDataDto.Config.StoredProcedureQueryName.DASHBOARD_REPORT_CUST_DEF_LBL, queryParameter);
+    }
+
+    public List<DashboardReportDto> getDashboardReport(DashboardsFilterCriteria filter){
+        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardStoredProcParam.DashboardReportParams.DATE_TYPE_PARAM, filter.getDateType())
+                .and(DashboardStoredProcParam.DashboardReportParams.CARRIER_IDS_PARAM, filter.getCarriers())
+                .and(DashboardStoredProcParam.DashboardReportParams.DASHLETTE_NAME_PARAM, filter.getDashletteName())
+                .and(DashboardStoredProcParam.DashboardReportParams.CONVERTED_CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
+                .and(DashboardStoredProcParam.DashboardReportParams.CONVERTED_CURRENCY_CODE_PARAM, filter.getConvertCurrencyCode())
+                .and(DashboardStoredProcParam.DashboardReportParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
+                .and(DashboardStoredProcParam.DashboardReportParams.FROM_DATE_PARAM, filter.getFromDate())
+                .and(DashboardStoredProcParam.DashboardReportParams.TO_DATE_PARAM, filter.getToDate())
+                .and(DashboardStoredProcParam.DashboardReportParams.CONVERTED_WEIGHT_UNIT_PARAM, filter.getConvertWeightUnit())
+                .and(DashboardStoredProcParam.DashboardReportParams.DELIVERY_FLAG_DESC_PARAM, filter.getDeliveryFlagDesc())
+                .and(DashboardStoredProcParam.DashboardReportParams.BOUND_TYPE_PARAM, filter.getBoundType())
+                .and(DashboardStoredProcParam.DashboardReportParams.POD, filter.getPod())
+                .and(DashboardStoredProcParam.DashboardReportParams.POL, filter.getPol())
+                .and(DashboardStoredProcParam.DashboardReportParams.MODES_PARAM, filter.getModes())
+                .and(DashboardStoredProcParam.DashboardReportParams.MODE_NAMES_PARAM, filter.getModeNames())
+                .and(DashboardStoredProcParam.DashboardReportParams.SERVICES_PARAM, filter.getServices())
+                .and(DashboardStoredProcParam.DashboardReportParams.LANES_PARAM, filter.getLanes())
+                .and(DashboardStoredProcParam.DashboardReportParams.TAX_PARAM, filter.getTax())
+                .and(DashboardStoredProcParam.DashboardReportParams.ACC_DESC_PARAM, filter.getAccDesc())
+                .and(DashboardStoredProcParam.DashboardReportParams.SERVICE_PARAM, filter.getService())
+                .and(DashboardStoredProcParam.DashboardReportParams.INVOICE_STATUS_ID_PARAM, filter.getInvoiceStatusId())
+                .and(DashboardStoredProcParam.DashboardReportParams.INVOICE_METHOD_PARAM, filter.getInvoiceMethod())
+                .and(DashboardStoredProcParam.DashboardReportParams.ORDER_MATCH_PARAM, filter.getOrderMatch());
+
+        if(filter.getShipperAddress() != null && !filter.getShipperAddress().isEmpty()){
+            queryParameter.and(DashboardStoredProcParam.DashboardReportParams.SHIPPER_CITY_PARAM, filter.getShipperAddress().split(",")[0].replace("'", "''"))
+                    .and(DashboardStoredProcParam.DashboardReportParams.SHIPPER_STATE_PARAM, filter.getShipperAddress().split(",")[1].replace("'", "''"))
+                    .and(DashboardStoredProcParam.DashboardReportParams.SHIPPER_COUNTRY_PARAM, filter.getShipperAddress().split(",")[2].replace("'", "''"));
+        }else{
+            queryParameter.and(DashboardStoredProcParam.DashboardReportParams.SHIPPER_CITY_PARAM, "")
+                    .and(DashboardStoredProcParam.DashboardReportParams.SHIPPER_STATE_PARAM, "")
+                    .and(DashboardStoredProcParam.DashboardReportParams.SHIPPER_COUNTRY_PARAM, "");
+        }
+        if(filter.getReceiverAddress() != null && !filter.getReceiverAddress().isEmpty()){
+            queryParameter.and(DashboardStoredProcParam.DashboardReportParams.RECEIVER_CITY_PARAM, filter.getReceiverAddress().split(",")[0].replace("'", "''"))
+                    .and(DashboardStoredProcParam.DashboardReportParams.RECEIVER_STATE_PARAM, filter.getReceiverAddress().split(",")[1].replace("'", "''"))
+                    .and(DashboardStoredProcParam.DashboardReportParams.RECEIVER_COUNTRY_PARAM, filter.getReceiverAddress().split(",")[2].replace("'", "''"));
+        }else{
+            queryParameter.and(DashboardStoredProcParam.DashboardReportParams.RECEIVER_CITY_PARAM, "")
+                    .and(DashboardStoredProcParam.DashboardReportParams.RECEIVER_STATE_PARAM, "")
+                    .and(DashboardStoredProcParam.DashboardReportParams.RECEIVER_COUNTRY_PARAM, "");
+        }
+        queryParameter.and(DashboardStoredProcParam.DashboardReportParams.REPORT_FOR_DASHLETTE_PARAM, filter.getReportForDashlette())
+        .and(DashboardStoredProcParam.DashboardReportParams.PAGE_OFFSET_PARAM, filter.getOffset())
+        .and(DashboardStoredProcParam.DashboardReportParams.PAGE_SIZE_PARAM, filter.getPageSize());
+
+        return persistentContext.findEntities(DashboardReportDto.Config.StoredProcedureQueryName.PARCEL_AND_FREIGHT_REPORT, queryParameter);
+    }
+
+    public List<DashboardReportDto> getLineItemReportDetails(DashboardsFilterCriteria filter){
+        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardStoredProcParam.DashboardReportParams.DATE_TYPE_PARAM, filter.getDateType())
+                .and(DashboardStoredProcParam.DashboardReportParams.CARRIER_IDS_PARAM, filter.getCarriers())
+                .and(DashboardStoredProcParam.DashboardReportParams.CONVERTED_CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
+                .and(DashboardStoredProcParam.DashboardReportParams.CONVERTED_CURRENCY_CODE_PARAM, filter.getConvertCurrencyCode())
+                .and(DashboardStoredProcParam.DashboardReportParams.CUSTOMER_IDS_CSV_PARAM, filter.getCustomerIdsCSV())
+                .and(DashboardStoredProcParam.DashboardReportParams.FROM_DATE_PARAM, filter.getFromDate())
+                .and(DashboardStoredProcParam.DashboardReportParams.TO_DATE_PARAM, filter.getToDate())
+                .and(DashboardStoredProcParam.DashboardReportParams.CONVERTED_WEIGHT_UNIT_PARAM, filter.getConvertWeightUnit())
+                .and(DashboardStoredProcParam.DashboardReportParams.MODES_PARAM, filter.getModes())
+                .and(DashboardStoredProcParam.DashboardReportParams.SERVICES_PARAM, filter.getServices())
+                .and(DashboardStoredProcParam.DashboardReportParams.TAX_PARAM, filter.getTax())
+                .and(DashboardStoredProcParam.DashboardReportParams.ACC_DESC_PARAM, filter.getAccDesc())
+                .and(DashboardStoredProcParam.DashboardReportParams.PAGE_OFFSET_PARAM, filter.getOffset())
+                .and(DashboardStoredProcParam.DashboardReportParams.PAGE_SIZE_PARAM, filter.getPageSize());
+
+        return persistentContext.findEntities(DashboardReportDto.Config.StoredProcedureQueryName.LINE_ITEM_REPORT, queryParameter);
+    }
+
+    public List<DashboardReportUtilityDataDto> getColumnConfigByUser(Long userId, Long reportId){
+        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardStoredProcParam.DashboardReportUtilityDataParams.USER_ID_PARAM, userId)
+                .and(DashboardStoredProcParam.DashboardReportUtilityDataParams.REPORT_ID_PARAM, reportId);
+        return persistentContext.findEntities(DashboardReportUtilityDataDto.Config.StoredProcedureQueryName.DASHBOARD_REPORT_COL_CONFIG_BY_USER, queryParameter);
     }
 }

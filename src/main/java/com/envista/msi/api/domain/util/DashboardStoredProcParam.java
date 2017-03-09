@@ -33,6 +33,10 @@ public class DashboardStoredProcParam {
         public static final String ORIGINAL_TO_DATE_PARAM = "p_original_to_date";
         public static final String POL = "p_pol";
         public static final String POD = "p_pod";
+        public static final String DASHLETTE_NAME_PARAM = "p_dashlette_name";
+        public static final String ACC_DESC_PARAM = "p_acc_desc";
+        public static final String DELIVERY_FLAG_DESC_PARAM = "p_delivery_flag_desc";
+        public static final String BOUND_TYPE_PARAM = "p_bound_type";
     }
 
     public static class NetSpendParams extends DashboardFilterParams {
@@ -145,5 +149,31 @@ public class DashboardStoredProcParam {
 
     public static class AccountSummaryParams extends DashboardFilterParams{
         public static final String ACCOUNT_SUMMARY_DATA_PARAM = "p_acc_summ_data";
+    }
+
+    public static class DashboardReportParams extends DashboardFilterParams {
+        public static final String REPORT_DATA_PARAM = "p_rpt_data";
+        public static final String PARCEL_CARRIER_IDS_PARAM = "p_parcel_carrier_ids";
+        public static final String SHIPPER_CITY_PARAM = "p_shipper_city";
+        public static final String SHIPPER_STATE_PARAM = "p_shipper_state";
+        public static final String SHIPPER_COUNTRY_PARAM = "p_shipper_country";
+        public static final String RECEIVER_CITY_PARAM = "p_receiver_city";
+        public static final String RECEIVER_STATE_PARAM = "p_receiver_state";
+        public static final String RECEIVER_COUNTRY_PARAM = "p_receiver_country";
+        public static final String REPORT_FOR_DASHLETTE_PARAM = "p_rpt_for_dashlette";
+        public static final String PAGE_OFFSET_PARAM = "p_offset";
+        public static final String PAGE_SIZE_PARAM = "p_page_size";
+    }
+
+    public static class DashboardReportUtilityDataParams {
+        public static final String IS_LINE_ITEM_REPORT_PARAM = "p_is_line_item_report";
+        public static final String REPORT_COLUMN_NAME_DATA_PARAM = "rpt_column_data";
+
+        public static final String CUSTOMER_IDS_CSV_PARAM = "p_customer_ids";
+        public static final String REPORT_ID_PARAM = "p_report_id";
+        public static final String CUST_DEF_LBL_DATA_PARAM = "p_custom_def_label_data";
+
+        public static final String USER_ID_PARAM = "p_user_id";
+        public static final String USER_COL_CONFIG_DATA = "p_col_config_data";
     }
 }
