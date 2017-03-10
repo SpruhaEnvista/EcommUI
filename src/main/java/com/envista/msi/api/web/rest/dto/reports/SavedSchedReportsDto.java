@@ -32,7 +32,7 @@ public class SavedSchedReportsDto implements Serializable{
     private boolean scheduled;
 
     @Column(name = "report_file_name")
-    private String reportFileName;
+    private String reportName;
 
     @Column(name = "sv_report_status")
     private String reportStatus;
@@ -76,12 +76,12 @@ public class SavedSchedReportsDto implements Serializable{
         this.scheduled = scheduled;
     }
 
-    public String getReportFileName() {
-        return reportFileName;
+    public String getReportName() {
+        return reportName;
     }
 
-    public void setReportFileName(String reportFileName) {
-        this.reportFileName = reportFileName;
+    public void setReportName(String reportName) {
+        this.reportName = reportName;
     }
 
     public String getReportStatus() {

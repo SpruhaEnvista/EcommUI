@@ -40,3 +40,12 @@ _$*
 /target/
 /.apt_generated/
 /build/
+.idea
+.idea/.name
+.idea/artifacts/msiapi_war.xml
+.idea/artifacts/msiapi_war_exploded.xml
+.idea/inspectionProfiles/
+.idea/workspace.xml
+msiapi.iml
+.idea/*
+*.iml
