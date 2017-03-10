@@ -50,7 +50,6 @@ public class DashboardBaseController {
         dashboardsFilterCriteria.setConvertWeightUnit(dashboardAppliedFilterDto.getWeightUnit());
         dashboardsFilterCriteria.setUserId(dashboardAppliedFilterDto.getLoginUserId());
         dashboardsFilterCriteria.setCustomerIdsCSV(dashboardAppliedFilterDto.getCustomerIds());
-        dashboardsFilterCriteria.setTax("");
         return dashboardsFilterCriteria;
     }
 }

@@ -15,6 +15,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendOverTimeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.PortLanesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentRegionDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShippingLanesDto;
+import com.envista.msi.api.web.rest.dto.dashboard.report.DashboardReportDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.AverageSpendPerShipmentDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.AverageWeightModeShipmtDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.ServiceLevelUsageAndPerformanceDto;
@@ -35,6 +36,10 @@ import java.util.*;
 public class JSONUtil {
 	static ArrayList<String> colorsList = new ArrayList<String>();
 	static final DecimalFormat commaSeperatedDecimalFormat = new DecimalFormat("#,##0.00");
+	static String[] commaSeperatedFieldsArr = {
+			"Total Weight", "Total Charges", "Line Haul", "Fuel Surcharge", "Discount", "Accessorials",
+			"Adjustments", "Total Due Amount", "Invoice Amount", "Approved Line Charges", "Line Charges", "Adjustment"
+	};
 	static{
 		if (colorsList.isEmpty()) {
 
@@ -1798,5 +1803,213 @@ public class JSONUtil {
 			returnJson.put("values", finalObject);
 		}
 		return returnJson;
+	}
+
+	public static JSONObject prepareDashboardReportJson(List<DashboardReportDto> reportDataList, Map<String, String> resultColumn) throws JSONException {
+		JSONObject returnJson = new JSONObject();
+		JSONArray returnArray = new JSONArray();
+
+		if(reportDataList != null && !reportDataList.isEmpty()){
+			for(DashboardReportDto reportData : reportDataList){
+				if(reportData != null){
+					JSONObject reportJsonObj = new JSONObject();
+					for(Map.Entry<String, String> columnEntry : resultColumn.entrySet()){
+						if(columnEntry != null){
+							String key = columnEntry.getKey();
+							String value = columnEntry.getValue();
+							switch (key){
+								case "CARRIER_NAME":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getCarrierName()));
+									break;
+								case "INVOICE_NUMBER":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getInvoiceNumber()));
+									break;
+								case "PRO_NUMBER":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getProNumber()));
+									break;
+								case "BOL_NUMBER":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getBolNumber()));
+									break;
+								case "BILL_OPTION":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getBillOption()));
+									break;
+								case "BILL_DATE":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getBillDate()));
+									break;
+								case "SHIP_DATE":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getShipDate()));
+									break;
+								case "DELIVERY_DATE":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getDeliveryDate()));
+									break;
+								case "INVOICE_MODE":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getInvoiceNumber()));
+									break;
+								case "INVOICE_METHOD":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getInvoiceMethod()));
+									break;
+								case "GL_ACCOUNTS_CODE":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getGlAccountCode()));
+									break;
+								case "PO_NUMBER":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getPoNumber()));
+									break;
+								case "REFERENCE1":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getReference1()));
+									break;
+								case "REFERENCE2":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getReference2()));
+									break;
+								case "SCAC_CODE":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getScacCode()));
+									break;
+								case "SHIPPER_NAME":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getShipperName()));
+									break;
+								case "SHIPPER_ADDRESS_1":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getShipperAddress1()));
+									break;
+								case "SHIPPER_CITY":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getShipperCity()));
+									break;
+								case "SHIPPER_STATE":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getShipperState()));
+									break;
+								case "SHIPPER_ZIPCODE":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getShipperZipCode()));
+									break;
+								case "SHIPPER_COUNTRY":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getShipperCountry()));
+									break;
+								case "RECEIVER_NAME":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getReceiverName()));
+									break;
+								case "RECEIVER_ADDRESS_1":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getReceiverAddress1()));
+									break;
+								case "RECEIVER_CITY":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getReceiverCity()));
+									break;
+								case "RECEIVER_STATE":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getReceiverState()));
+									break;
+								case "RECEIVER_ZIPCODE":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getReceiverZipCode()));
+									break;
+								case "RECEIVER_COUNTRY":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getReceiverCountry()));
+									break;
+								case "TOTAL_WEIGHT":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getTotalWeight()));
+									break;
+								case "TOTAL_CHARGES":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getTotalCharges()));
+									break;
+								case "LINE_HAUL":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getLineHaul()));
+									break;
+								case "FUEL_SURCHARGE":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getFuelCharges()));
+									break;
+								case "DISCOUNT":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getDiscount()));
+									break;
+								case "ACCESSORIALS":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getAccessorial()));
+									break;
+								case "ADJUSTMENTS":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getAdjustments()));
+									break;
+								case "TOTAL_DUE_AMOUNT":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getTotalDueAmount()));
+									break;
+								case "INVOICE_STATUS":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getInvoiceStatus()));
+									break;
+								case "CHECK_NO":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getCheckNumber()));
+									break;
+								case "CHECK_DATE":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getCheckDate()));
+									break;
+								case "CHECK_AMOUNT":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getCheckAmount()));
+									break;
+								case "ADJUSTMENT_REASON":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getAdjustmentReason()));
+									break;
+								case "SHIPPER_REGION":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getShipperRegion()));
+									break;
+								case "RECEIVER_REGION":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getReceiverRegion()));
+									break;
+								case "MULTI_WT":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getMultiWeight()));
+									break;
+								case "SERVICE_LEVEL":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getServiceLevel()));
+									break;
+								case "DELIVERY_FLAG":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getDeliveryFlag()));
+									break;
+								case "CUSTOM_DEFINED_1":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getCustomDefined1()));
+									break;
+								case "CUSTOM_DEFINED_2":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getCustomDefined2()));
+									break;
+								case "CUSTOM_DEFINED_3":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getCustomDefined3()));
+									break;
+								case "CUSTOM_DEFINED_4":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getCustomDefined4()));
+									break;
+								case "CUSTOM_DEFINED_5":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getCustomDefined5()));
+									break;
+								case "CUSTOM_DEFINED_6":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getCustomDefined6()));
+									break;
+								case "CUSTOM_DEFINED_7":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getCustomDefined7()));
+									break;
+								case "CUSTOM_DEFINED_8":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getCustomDefined8()));
+									break;
+								case "CUSTOM_DEFINED_9":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getCustomDefined9()));
+									break;
+								case "CUSTOM_DEFINED_10":
+									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getCustomDefined10()));
+									break;
+							}
+						}
+					}
+					returnArray.put(reportJsonObj);
+				}
+			}
+			returnJson.put("values", returnArray);
+			return returnJson;
+		}
+
+		return null;
+	}
+
+	private static String checkCommaSeparaedDecimalFormat(String columnName, Object val){
+		List<String> commaSeperatedFields = Arrays.asList(commaSeperatedFieldsArr);
+		String value = "";
+		if(commaSeperatedFields.contains(columnName)){
+			try{
+				if(val != null) {
+					value = commaSeperatedDecimalFormat.format(Double.parseDouble(val.toString()));
+				}
+			}catch (Exception e){
+				value = val != null ? val.toString() : "" ;
+			}
+		}else{
+			value = String.valueOf(val);
+		}
+		return value;
 	}
 }

@@ -58,6 +58,8 @@ public class DashboardsFilterCriteria implements Serializable {
     private String pol;
     private String pod;
     private boolean isTopTenAccessorial;
+    private Integer offset;
+    private Integer pageSize;
 
 
     public String getCustomerIdsCSV() {
@@ -466,6 +468,22 @@ public class DashboardsFilterCriteria implements Serializable {
 
     public void setTopTenAccessorial(boolean topTenAccessorial) {
         isTopTenAccessorial = topTenAccessorial;
+    }
+
+    public Integer getOffset() {
+        return offset;
+    }
+
+    public void setOffset(Integer offset) {
+        this.offset = offset;
+    }
+
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
     }
 
     public class FreightDashboardsDataBean {
