@@ -4,10 +4,7 @@ import com.envista.msi.api.service.ReportsService;
 import com.envista.msi.api.web.rest.dto.UserProfileDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendRequestDto;
-import com.envista.msi.api.web.rest.dto.reports.ReportResultsDto;
-import com.envista.msi.api.web.rest.dto.reports.ReportResultsUsersListDto;
-import com.envista.msi.api.web.rest.dto.reports.SavedSchedReportsDto;
-import com.envista.msi.api.web.rest.dto.reports.UpdateSavedSchedReportDto;
+import com.envista.msi.api.web.rest.dto.reports.*;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -78,5 +75,14 @@ public class ReportsController {
     public ResponseEntity<ReportResultsUsersListDto> pushToUser(@RequestBody List<ReportResultsUsersListDto> reportResultsUsersListDto){
         ReportResultsUsersListDto updateDto = reportsService.pushToUser(reportResultsUsersListDto);
         return new ResponseEntity<ReportResultsUsersListDto>(updateDto, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/folder/create", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<ReportFolderDto> createReportFolder(@RequestBody ReportFolderDto reportFolderDto){
+        ReportFolderDto reportFolder = null;
+        if(reportFolderDto != null){
+            reportFolder = reportsService.createReportFolder(reportFolderDto);
+        }
+        return new ResponseEntity<ReportFolderDto>(reportFolder,HttpStatus.OK);
     }
 }
