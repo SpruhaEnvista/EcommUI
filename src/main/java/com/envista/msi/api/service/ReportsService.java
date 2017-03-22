@@ -54,5 +54,7 @@ public class ReportsService {
     public ReportFolderDto createReportFolder(ReportFolderDto reportFolderDto){
         return reportsDao.createReportFolder(reportFolderDto);
     }
-
+    public ReportFolderDetailsDto moveRptsToFolder( ReportFolderDetailsDto rptFolderDetailsDto ){
+        return reportsDao.moveReportToFolder(rptFolderDetailsDto);
+    }
 }

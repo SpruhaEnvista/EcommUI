@@ -85,4 +85,13 @@ public class ReportsController {
         }
         return new ResponseEntity<ReportFolderDto>(reportFolder,HttpStatus.OK);
     }
+
+    @RequestMapping(value="/move/report", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE}, consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<ReportFolderDetailsDto> moveReportsToFolder(@RequestBody ReportFolderDetailsDto reportFolderDtlsDto) {
+        ReportFolderDetailsDto rptFolderDetailsDto = null;
+        if(reportFolderDtlsDto != null){
+            rptFolderDetailsDto = reportsService.moveRptsToFolder(reportFolderDtlsDto);
+        }
+        return new ResponseEntity<ReportFolderDetailsDto>(rptFolderDetailsDto,HttpStatus.OK);
+    }
 }

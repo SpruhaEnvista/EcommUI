@@ -132,6 +132,7 @@ public class ReportsDao {
         return new ReportResultsUsersListDto(0l);
     }
 
+    @Transactional
     public ReportFolderDto createReportFolder(ReportFolderDto reportFolderDto){
         QueryParameter queryParameter = StoredProcedureParameter.with("folderName",reportFolderDto.getReportFolderName())
                                         .and("user1", (SecurityUtils.getCurrentUserLogin() == null ? "" : SecurityUtils.getCurrentUserLogin()))//reportFolderDto.getCreateUser()
@@ -139,4 +140,21 @@ public class ReportsDao {
         return persistentContext.findEntityAndMapFields("ReportFolder.createFolder", queryParameter);
     }
 
+    @Transactional
+    public ReportFolderDetailsDto moveReportToFolder(ReportFolderDetailsDto rptFolderDtlsDto){
+        QueryParameter queryParameter = StoredProcedureParameter.with("rptFolderId",(rptFolderDtlsDto.getReportFolderId() == null ? 0 : rptFolderDtlsDto.getReportFolderId()))
+                                            .and("savedSchRptId", (rptFolderDtlsDto.getSavedSchdReportId() == null ? 0 : rptFolderDtlsDto.getSavedSchdReportId()) )
+                                            .and("crud",1l);
+        return persistentContext.findEntityAndMapFields("ReportFolderDtls.createRow",queryParameter);
+    }
+
+    public  boolean isNumber(String strNumber) {
+        try {
+
+            Float.parseFloat(strNumber);
+        } catch (Exception nfe) {
+            return false;
+        }
+        return true;
+    }
 }
