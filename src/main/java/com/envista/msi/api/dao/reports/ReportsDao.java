@@ -136,6 +136,7 @@ public class ReportsDao {
     public ReportFolderDto createReportFolder(ReportFolderDto reportFolderDto){
         QueryParameter queryParameter = StoredProcedureParameter.with("folderName",reportFolderDto.getReportFolderName())
                                         .and("user1", (SecurityUtils.getCurrentUserLogin() == null ? "" : SecurityUtils.getCurrentUserLogin()))//reportFolderDto.getCreateUser()
+                                        .and("parentId", (reportFolderDto.getParentId() != null ? reportFolderDto.getParentId() : 0l ))
                                         .and("crud",1l);
         return persistentContext.findEntityAndMapFields("ReportFolder.createFolder", queryParameter);
     }

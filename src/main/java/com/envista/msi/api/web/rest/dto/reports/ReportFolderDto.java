@@ -14,6 +14,7 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "refCur", type = Void.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "folderName", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name="user1", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name="parentId", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name="crud", type = Long.class)
                 })
 })
