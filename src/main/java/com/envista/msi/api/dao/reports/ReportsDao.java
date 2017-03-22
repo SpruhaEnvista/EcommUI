@@ -3,10 +3,7 @@ package com.envista.msi.api.dao.reports;
 import com.envista.msi.api.domain.PersistentContext;
 import com.envista.msi.api.domain.util.QueryParameter;
 import com.envista.msi.api.domain.util.StoredProcedureParameter;
-import com.envista.msi.api.web.rest.dto.reports.ReportResultsDto;
-import com.envista.msi.api.web.rest.dto.reports.ReportResultsUsersListDto;
-import com.envista.msi.api.web.rest.dto.reports.SavedSchedReportsDto;
-import com.envista.msi.api.web.rest.dto.reports.UpdateSavedSchedReportDto;
+import com.envista.msi.api.web.rest.dto.reports.*;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -132,6 +129,15 @@ public class ReportsDao {
             return persistentContext.findEntityAndMapFields("ReportResultsUsersList.pushToUser", queryParameter);
         }
         return new ReportResultsUsersListDto(0l);
+    }
+    /**
+     * @param userId
+     * @return List<ReportModesDto>
+     */
+    @Transactional
+    public List<ReportModesDto> getReportForModes(Long userId) {
+        return persistentContext.findEntitiesAndMapFields("ReportModes.getReportModeList",
+                StoredProcedureParameter.with("p_user_id", userId));
     }
 
 }
