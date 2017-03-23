@@ -1,6 +1,7 @@
 package com.envista.msi.api.service;
 
 import com.envista.msi.api.dao.reports.ReportsDao;
+import com.envista.msi.api.web.rest.dto.UserProfileDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardAppliedFilterDto;
 import com.envista.msi.api.web.rest.dto.reports.*;
 import org.springframework.stereotype.Service;
@@ -51,8 +52,8 @@ public class ReportsService {
     public ReportResultsUsersListDto pushToUser(List<ReportResultsUsersListDto> reportResultsUsersListDto){
         return reportsDao.pushToUser(reportResultsUsersListDto);
     }
-    public ReportFolderDto createReportFolder(ReportFolderDto reportFolderDto){
-        return reportsDao.createReportFolder(reportFolderDto);
+    public ReportFolderDto createReportFolder(ReportFolderDto reportFolderDto, UserProfileDto userProfileDto){
+        return reportsDao.createReportFolder(reportFolderDto,userProfileDto);
     }
     public ReportFolderDetailsDto moveRptsToFolder( ReportFolderDetailsDto rptFolderDetailsDto ){
         return reportsDao.moveReportToFolder(rptFolderDetailsDto);

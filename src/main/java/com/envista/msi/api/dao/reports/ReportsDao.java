@@ -4,6 +4,7 @@ import com.envista.msi.api.domain.PersistentContext;
 import com.envista.msi.api.domain.util.QueryParameter;
 import com.envista.msi.api.domain.util.StoredProcedureParameter;
 import com.envista.msi.api.security.SecurityUtils;
+import com.envista.msi.api.web.rest.dto.UserProfileDto;
 import com.envista.msi.api.web.rest.dto.reports.*;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -133,9 +134,10 @@ public class ReportsDao {
     }
 
     @Transactional
-    public ReportFolderDto createReportFolder(ReportFolderDto reportFolderDto){
+    public ReportFolderDto createReportFolder(ReportFolderDto reportFolderDto, UserProfileDto userProfileDto){
         QueryParameter queryParameter = StoredProcedureParameter.with("folderName",reportFolderDto.getReportFolderName())
-                                        .and("user1", (SecurityUtils.getCurrentUserLogin() == null ? "" : SecurityUtils.getCurrentUserLogin()))//reportFolderDto.getCreateUser()
+                                        .and("createUser", (userProfileDto != null && userProfileDto.getUserName() != null ?  userProfileDto.getUserName() : "invalid" ))
+                                        .and("userId", (userProfileDto != null && userProfileDto.getUserId() != null ? userProfileDto.getUserId() : 0l ) )
                                         .and("parentId", (reportFolderDto.getParentId() != null ? reportFolderDto.getParentId() : 0l ))
                                         .and("crud",1l);
         return persistentContext.findEntityAndMapFields("ReportFolder.createFolder", queryParameter);
@@ -158,4 +160,5 @@ public class ReportsDao {
         }
         return true;
     }
+
 }

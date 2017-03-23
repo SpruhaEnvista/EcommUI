@@ -13,7 +13,8 @@ import java.util.Date;
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "refCur", type = Void.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "folderName", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name="user1", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name="createUser", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name="userId", type= Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name="parentId", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name="crud", type = Long.class)
                 })
@@ -40,18 +41,6 @@ public class ReportFolderDto implements Serializable{
 
     @Column(name="PARENT_ID")
     private Long parentId;
-
-    @Column(name="CREATE_USER")
-    private String createUser;
-
-    @Column(name="CREATE_DATE")
-    private Date createDate;
-
-    @Column(name="LAST_UPDATE_USER")
-    private String lastUpdateUser;
-
-    @Column(name="LAST_UPDATE_DATE")
-    private Date lastUpdateDate;
 
     @Column(name="counts")
     private Long count;
@@ -94,35 +83,4 @@ public class ReportFolderDto implements Serializable{
         this.parentId = parentId;
     }
 
-    public String getCreateUser() {
-        return createUser;
-    }
-
-    public void setCreateUser(String createUser) {
-        this.createUser = createUser;
-    }
-
-    public Date getCreateDate() {
-        return createDate;
-    }
-
-    public void setCreateDate(Date createDate) {
-        this.createDate = createDate;
-    }
-
-    public String getLastUpdateUser() {
-        return lastUpdateUser;
-    }
-
-    public void setLastUpdateUser(String lastUpdateUser) {
-        this.lastUpdateUser = lastUpdateUser;
-    }
-
-    public Date getLastUpdateDate() {
-        return lastUpdateDate;
-    }
-
-    public void setLastUpdateDate(Date lastUpdateDate) {
-        this.lastUpdateDate = lastUpdateDate;
-    }
 }

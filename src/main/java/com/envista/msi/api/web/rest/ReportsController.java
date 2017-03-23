@@ -1,6 +1,8 @@
 package com.envista.msi.api.web.rest;
 
+import com.envista.msi.api.security.SecurityUtils;
 import com.envista.msi.api.service.ReportsService;
+import com.envista.msi.api.service.UserService;
 import com.envista.msi.api.web.rest.dto.UserProfileDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendRequestDto;
@@ -26,6 +28,19 @@ public class ReportsController {
 
     @Inject
     private ReportsService reportsService;
+
+    @Inject
+    private UserService userService;
+
+    protected UserProfileDto getUserProfile(){
+        UserProfileDto user = null;
+        try {
+            user = userService.getUserProfileByUserName(SecurityUtils.getCurrentUserLogin());
+        } catch (Exception e) {
+            //nothing
+        }
+        return user;
+    }
 
     @RequestMapping(value = "/results/reportslist/{userId}", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<List<ReportResultsDto>> getReportResults(@PathVariable String userId){
@@ -81,7 +96,7 @@ public class ReportsController {
     public ResponseEntity<ReportFolderDto> createReportFolder(@RequestBody ReportFolderDto reportFolderDto){
         ReportFolderDto reportFolder = null;
         if(reportFolderDto != null){
-            reportFolder = reportsService.createReportFolder(reportFolderDto);
+            reportFolder = reportsService.createReportFolder(reportFolderDto,getUserProfile());
         }
         return new ResponseEntity<ReportFolderDto>(reportFolder,HttpStatus.OK);
     }
