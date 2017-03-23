@@ -43,20 +43,20 @@ public class ReportFolderDto implements Serializable{
     private Long parentId;
 
     @Column(name="counts")
-    private Long count;
+    private Long updateCount;
 
     public ReportFolderDto(){}
 
-    public ReportFolderDto(Long count){
-        this.count = count;
+    public ReportFolderDto(Long updateCount){
+        this.updateCount = updateCount;
     }
 
-    public Long getCount() {
-        return count;
+    public Long getUpdateCount() {
+        return updateCount;
     }
 
-    public void setCount(Long count) {
-        this.count = count;
+    public void setUpdateCount(Long updateCount) {
+        this.updateCount = updateCount;
     }
 
     public Long getReportFolderId() {

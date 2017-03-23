@@ -40,11 +40,11 @@ public class ReportFolderDetailsDto implements Serializable {
     private Long savedSchdReportId;
 
     @Column(name="counts")
-    private Long count;
+    private Long updateCount;
 
     public ReportFolderDetailsDto(){}
 
-    public ReportFolderDetailsDto(Long count){this.count = count;}
+    public ReportFolderDetailsDto(Long updateCount){this.updateCount = updateCount;}
 
     public Long getFolderDetailsId() {
         return folderDetailsId;
@@ -70,11 +70,11 @@ public class ReportFolderDetailsDto implements Serializable {
         this.savedSchdReportId = savedSchdReportId;
     }
 
-    public Long getCount() {
-        return count;
+    public Long getUpdateCount() {
+        return updateCount;
     }
 
-    public void setCount(Long count) {
-        this.count = count;
+    public void setUpdateCount(Long updateCount) {
+        this.updateCount = updateCount;
     }
 }

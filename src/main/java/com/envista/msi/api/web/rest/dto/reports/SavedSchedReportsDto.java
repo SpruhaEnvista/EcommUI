@@ -52,6 +52,9 @@ public class SavedSchedReportsDto implements Serializable{
     @Column(name = "userscount")
     private int usersCount;
 
+    @Column(name="is_folder")
+    private Long isFolder;
+
     public long getSavedSchedRptId() {
         return savedSchedRptId;
     }
@@ -132,7 +135,13 @@ public class SavedSchedReportsDto implements Serializable{
         this.usersCount = usersCount;
     }
 
+    public Long getIsFolder() {
+        return isFolder;
+    }
 
+    public void setIsFolder(Long isFolder) {
+        this.isFolder = isFolder;
+    }
 }
 
 
