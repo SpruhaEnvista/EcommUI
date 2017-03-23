@@ -4,6 +4,7 @@
 package com.envista.msi.api.domain;
 
 import java.io.Serializable;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -75,6 +76,9 @@ public interface PersistentContext extends EntityManager {
 	 * @return
 	 */
 	public <T> List<T> findEntitiesAndMapFields(String StoredProcedureQueryName, QueryParameter parameters, int maxCount);
+
+	public <T> List<T> executeStoredProcedure(String storedProcedureName, QueryParameter parameters)
+			throws SQLException;
 
 	/**
 	 * @return hibernate session

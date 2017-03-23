@@ -153,6 +153,7 @@ public class DashboardStoredProcParam {
 
     public static class DashboardReportParams extends DashboardFilterParams {
         public static final String REPORT_DATA_PARAM = "p_rpt_data";
+        public static final String REPORT_TOTAL_ROW_COUNT_PARAM = "p_is_count";
         public static final String PARCEL_CARRIER_IDS_PARAM = "p_parcel_carrier_ids";
         public static final String SHIPPER_CITY_PARAM = "p_shipper_city";
         public static final String SHIPPER_STATE_PARAM = "p_shipper_state";
@@ -175,5 +176,32 @@ public class DashboardStoredProcParam {
 
         public static final String USER_ID_PARAM = "p_user_id";
         public static final String USER_COL_CONFIG_DATA = "p_col_config_data";
+    }
+
+    public static class ActualVsBilledWeightParam extends DashboardFilterParams {
+        public static final String ACTUAL_VS_BILLED_WEIGHT_DATA_PARAM = "p_weight_data";
+    }
+
+    public static class UserFilterParam {
+        public static final String FILTER_ID_PARAM = "p_filter_id";
+        public static final String USER_ID_PARAM = "p_user_id";
+        public static final String FILTER_DATA_PARAM = "p_filter_info";
+    }
+
+    public static class UserFilterUtilityDataParam extends DashboardFilterParams{
+        public static final String IS_PARCEL_DASHLETTES_PARAM = "p_is_parcel_dashlettes";
+        public static final String CARRIER_DATA_PARAM = "p_carr_data";
+        public static final String MODES_DATA_PARAM = "p_modes_data";
+        public static final String GROUP_ID_PARAM = "p_group_code";
+        public static final String SERVICE_DATA_PARAM = "p_service_data";
+    }
+
+    public static class CodeValueParam {
+        public static final String CODE_GROUP_ID_PARAM = "p_code_group_id";
+        public static final String FCODE_VALUE_DATA_PARAM = "p_code_val_data";
+    }
+
+    public static class ShipmentParam extends DashboardFilterParams{
+        public static final String SHIPMENT_DATA_PARAM = "p_shipment_data";
     }
 }
