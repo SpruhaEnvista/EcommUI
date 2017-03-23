@@ -8,6 +8,7 @@ import com.envista.msi.api.web.rest.dto.reports.ReportResultsDto;
 import com.envista.msi.api.web.rest.dto.reports.ReportResultsUsersListDto;
 import com.envista.msi.api.web.rest.dto.reports.SavedSchedReportsDto;
 import com.envista.msi.api.web.rest.dto.reports.UpdateSavedSchedReportDto;
+import com.envista.msi.api.web.rest.dto.reports.ReportModesDto;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
 import javax.websocket.server.PathParam;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -78,5 +80,14 @@ public class ReportsController {
     public ResponseEntity<ReportResultsUsersListDto> pushToUser(@RequestBody List<ReportResultsUsersListDto> reportResultsUsersListDto){
         ReportResultsUsersListDto updateDto = reportsService.pushToUser(reportResultsUsersListDto);
         return new ResponseEntity<ReportResultsUsersListDto>(updateDto, HttpStatus.OK);
+    }
+    @RequestMapping(value = "/getModesReport", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<List<ReportModesDto>> getReportForModes(@RequestParam String userId){
+        try {
+            List<ReportModesDto> reportModeDto = reportsService.getReportForModes(Long.parseLong(userId));
+            return new ResponseEntity<List<ReportModesDto>>(reportModeDto, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<List<ReportModesDto>>(new ArrayList<ReportModesDto>(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
