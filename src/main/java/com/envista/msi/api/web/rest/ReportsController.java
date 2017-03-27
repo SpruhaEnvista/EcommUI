@@ -53,8 +53,15 @@ public class ReportsController {
         return new ResponseEntity<ReportResultsDto>(reportResultsDto, HttpStatus.OK);
     }
     @RequestMapping(value = "/results/userslist", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<List<ReportResultsUsersListDto>> getUsersList(){
-        List<ReportResultsUsersListDto> usersList = reportsService.getUsersList();
+    public ResponseEntity<List<ReportResultsUsersListDto>> getUsersList(@RequestParam(required = false) String filter){
+        String userName = "";
+        if(filter != null){
+            filter = filter.trim();
+            String filters[] = filter.split(":");
+            if( filters[1] != null)
+                userName = filters[1].trim().toLowerCase();
+        }
+        List<ReportResultsUsersListDto> usersList = reportsService.getUsersList(userName);
         return new ResponseEntity<List<ReportResultsUsersListDto>>(usersList, HttpStatus.OK);
     }
     @RequestMapping(value = "/results/delete", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})

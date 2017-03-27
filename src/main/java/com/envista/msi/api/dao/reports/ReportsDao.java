@@ -46,8 +46,9 @@ public class ReportsDao {
         return persistentContext.findEntityAndMapFields("ReportResults.updateExpiryDate",queryParameter);
     }
     @Transactional
-    public List<ReportResultsUsersListDto> getUsersList() {
-        return persistentContext.findEntitiesAndMapFields("ReportResultsUsersList.getUsersList",null);
+    public List<ReportResultsUsersListDto> getUsersList(String userName) {
+        QueryParameter queryParameter = StoredProcedureParameter.with("userName",userName);
+        return persistentContext.findEntitiesAndMapFields("ReportResultsUsersList.getUsersList",queryParameter);
     }
 
     public static Date convertDateFullYear(String date)  {

@@ -32,8 +32,8 @@ public class ReportsService {
     public ReportResultsDto deleteReportInResults(long generatedRptId, long userId, String userName) {
         return  reportsDao.deleteReportInResults(generatedRptId, userId, userName);
     }
-    public List<ReportResultsUsersListDto> getUsersList() {
-        return  reportsDao.getUsersList();
+    public List<ReportResultsUsersListDto> getUsersList(String userName) {
+        return  reportsDao.getUsersList(userName);
     }
 
     public List<SavedSchedReportsDto> getSavedSchedReports(long userId){
