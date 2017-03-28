@@ -602,7 +602,7 @@
 						<artifactId>tomcat7-maven-plugin</artifactId>
 						<version>2.1</version>
 						<configuration>
-							<url>http://172.16.6.38:90/manager/text</url>
+							<url>http://172.16.6.38/manager/text</url>
 							<server>TomcatServer</server>
 							<path>${finalName}</path>
 							<username>admin</username>
