@@ -52,6 +52,9 @@ public class SavedSchedReportsDto implements Serializable{
     @Column(name = "userscount")
     private int usersCount;
 
+    @Column(name = "rpt_descr")
+    private String reportDescr;
+
     public long getSavedSchedRptId() {
         return savedSchedRptId;
     }
@@ -132,7 +135,9 @@ public class SavedSchedReportsDto implements Serializable{
         this.usersCount = usersCount;
     }
 
+    public String getReportDescr() { return reportDescr;  }
 
+    public void setReportDescr(String reportDescr) { this.reportDescr = reportDescr;  }
 }
 
 

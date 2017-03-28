@@ -12,6 +12,12 @@ import java.io.Serializable;
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_rpt_id", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "get_report_format", type = Void.class)
+        }),
+        @NamedStoredProcedureQuery(name = "ReportFormat.getReportDateOptions", procedureName = "shp_rpt_date_criteria_proc",
+                resultSetMappings = "ReportDateOptions",
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_rpt_id", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_refcur_date_criteria_info", type = Void.class)
                 })
 })
 @SqlResultSetMappings({
@@ -21,6 +27,14 @@ import java.io.Serializable;
                         columns = {
                                 @ColumnResult(name ="type_id", type = Long.class),
                                 @ColumnResult(name ="report_format", type = String.class),
+                        })
+        }),
+        @SqlResultSetMapping(name = "ReportDateOptions", classes = {
+                @ConstructorResult(
+                        targetClass = ReportFormatDto.class,
+                        columns = {
+                                @ColumnResult(name ="date_criteria", type = String.class),
+                                @ColumnResult(name ="rpt_date_options_id", type = Long.class)
                         })
         })
 })
@@ -35,11 +49,22 @@ public class ReportFormatDto implements Serializable {
     @Column(name="report_format")
     private String reportFormat;
 
+    @Column(name="rpt_date_options_id")
+    private Long rptDateOptionId;
+
+    @Column(name="date_criteria")
+    private String dateCriteriaName;
+
     public ReportFormatDto() { }
 
     public ReportFormatDto(Long typeId, String reportFormat) {
         this.typeId = typeId;
         this.reportFormat = reportFormat;
+    }
+
+    public ReportFormatDto(String dateCriteriaName ,Long rptDateOptionId) {
+        this.rptDateOptionId = rptDateOptionId;
+        this.dateCriteriaName = dateCriteriaName;
     }
 
     public Long getId() {
@@ -65,4 +90,12 @@ public class ReportFormatDto implements Serializable {
     public void setReportFormat(String reportFormat) {
         this.reportFormat = reportFormat;
     }
+
+    public Long getRptDateOptionId() { return rptDateOptionId;  }
+
+    public void setRptDateOptionId(Long rptDateOptionId) {  this.rptDateOptionId = rptDateOptionId; }
+
+    public String getDateCriteriaName() { return dateCriteriaName;  }
+
+    public void setDateCriteriaName(String dateCriteriaName) { this.dateCriteriaName = dateCriteriaName; }
 }

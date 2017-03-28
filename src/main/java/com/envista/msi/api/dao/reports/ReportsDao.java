@@ -173,4 +173,11 @@ public class ReportsDao {
     public List<ReportFormatDto> getReportFormat(Long rptId){
         return persistentContext.findEntities("ReportFormat.getReportFormat",StoredProcedureParameter.with("p_rpt_id", rptId));
     }
+    /**
+     * @param rptId
+     * @return List<ReportFormatDto>
+     */
+    public List<ReportFormatDto> getReportDateOptions(Long rptId){
+        return persistentContext.findEntities("ReportFormat.getReportDateOptions",StoredProcedureParameter.with("p_rpt_id", rptId));
+    }
 }

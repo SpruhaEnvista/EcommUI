@@ -197,4 +197,8 @@ public class ReportsService {
     public List<ReportFormatDto> getReportFormat(Long rptId) {
         return reportsDao.getReportFormat(rptId);
     }
+
+    public List<ReportFormatDto> getReportDateOptions(Long rptId) {
+        return reportsDao.getReportDateOptions(rptId);
+    }
 }

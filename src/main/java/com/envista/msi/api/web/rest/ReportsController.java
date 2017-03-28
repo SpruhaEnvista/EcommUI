@@ -6,6 +6,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendRequestDto;
 import com.envista.msi.api.web.rest.dto.reports.*;
 import com.envista.msi.api.web.rest.util.JSONUtil;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
@@ -120,5 +121,26 @@ public class ReportsController {
             return new ResponseEntity<List<ReportFormatDto>>(new ArrayList<ReportFormatDto>(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    @RequestMapping(value = "/dateoptions", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<JSONObject> getReportDateOptions(@RequestParam String rptId){
+        try {
+            JSONObject dateOptionJson=new JSONObject();
+            List<ReportFormatDto> dateOptions =reportsService.getReportDateOptions(Long.parseLong(rptId));
+            if(dateOptions!=null && dateOptions.size()>0){
+                JSONArray dateOptionsJsonArr= new JSONArray();
+                for (ReportFormatDto dateOption : dateOptions) {
+                    JSONObject jsonObject=new JSONObject();
+                    jsonObject.put("dateOptionId",dateOption.getRptDateOptionId());
+                    jsonObject.put("dateCriteriaName",dateOption.getDateCriteriaName());
+                    dateOptionsJsonArr.put(jsonObject);
+                }
+                dateOptionJson.put("dateOptions",dateOptionsJsonArr);
+            }
+            return new ResponseEntity<JSONObject>(dateOptionJson, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<JSONObject>(new JSONObject(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
 }

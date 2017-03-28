@@ -28,6 +28,7 @@ import java.util.Date;
                                 @ColumnResult(name = "group_name", type = String.class),
                                 @ColumnResult(name = "group_under", type = Integer.class),
                                 @ColumnResult(name = "group_under_name", type = String.class),
+                                @ColumnResult(name = "rpt_descr", type = String.class)
                         }
                 )
         })
@@ -60,9 +61,12 @@ public class ReportModesDto implements Serializable {
     @Column(name = "group_under_name")
     private String groupUnderName;
 
+    @Column(name = "rpt_descr")
+    private String reportDescr;
+
     public ReportModesDto() {  }
 
-    public ReportModesDto(Long reportId, String reportName, Integer category, Integer isConsolidated, Integer reportGroupId, String groupName, Integer groupUnder, String groupUnderName) {
+    public ReportModesDto(Long reportId, String reportName, Integer category, Integer isConsolidated, Integer reportGroupId, String groupName, Integer groupUnder, String groupUnderName,String reportDescr) {
         this.reportId = reportId;
         this.reportName = reportName;
         this.category = category;
@@ -71,6 +75,7 @@ public class ReportModesDto implements Serializable {
         this.groupName = groupName;
         this.groupUnder = groupUnder;
         this.groupUnderName = groupUnderName;
+        this.reportDescr= reportDescr;
     }
 
     public Long getReportId() {
@@ -136,4 +141,8 @@ public class ReportModesDto implements Serializable {
     public void setGroupUnderName(String groupUnderName) {
         this.groupUnderName = groupUnderName;
     }
+
+    public String getReportDescr() { return reportDescr; }
+
+    public void setReportDescr(String reportDescr) { this.reportDescr = reportDescr; }
 }
