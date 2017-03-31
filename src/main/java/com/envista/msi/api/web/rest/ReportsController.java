@@ -113,12 +113,24 @@ public class ReportsController {
         return customerCarrierJson;
     }
     @RequestMapping(value = "/format", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<List<ReportFormatDto>> getReportFormat(@RequestParam String rptId){
+    public ResponseEntity<JSONObject> getReportFormat(@RequestParam String rptId){
         try {
+            JSONObject reprotFormatJson=new JSONObject();
             List<ReportFormatDto> reportFormats =reportsService.getReportFormat(Long.parseLong(rptId));
-            return new ResponseEntity<List<ReportFormatDto>>(reportFormats, HttpStatus.OK);
+            if(reportFormats!=null && reportFormats.size()>0){
+                JSONArray reportFormatJsonArr= new JSONArray();
+                for (ReportFormatDto reportFormat : reportFormats) {
+                    JSONObject jsonObject=new JSONObject();
+                    jsonObject.put("typeId",reportFormat.getTypeId());
+                    jsonObject.put("reportFormat",reportFormat.getReportFormat());
+                    jsonObject.put("selected",reportFormat.getSelected());
+                    reportFormatJsonArr.put(jsonObject);
+                }
+                reprotFormatJson.put("reportFormat",reportFormatJsonArr);
+            }
+            return new ResponseEntity<JSONObject>(reprotFormatJson, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<List<ReportFormatDto>>(new ArrayList<ReportFormatDto>(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<JSONObject>(new JSONObject(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     @RequestMapping(value = "/dateoptions", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
@@ -132,6 +144,7 @@ public class ReportsController {
                     JSONObject jsonObject=new JSONObject();
                     jsonObject.put("dateOptionId",dateOption.getRptDateOptionId());
                     jsonObject.put("dateCriteriaName",dateOption.getDateCriteriaName());
+                    jsonObject.put("selected",dateOption.getSelected());
                     dateOptionsJsonArr.put(jsonObject);
                 }
                 dateOptionJson.put("dateOptions",dateOptionsJsonArr);

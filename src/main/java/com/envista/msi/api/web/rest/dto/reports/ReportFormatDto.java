@@ -27,6 +27,7 @@ import java.io.Serializable;
                         columns = {
                                 @ColumnResult(name ="type_id", type = Long.class),
                                 @ColumnResult(name ="report_format", type = String.class),
+                                @ColumnResult(name ="selected", type = Boolean.class)
                         })
         }),
         @SqlResultSetMapping(name = "ReportDateOptions", classes = {
@@ -34,7 +35,8 @@ import java.io.Serializable;
                         targetClass = ReportFormatDto.class,
                         columns = {
                                 @ColumnResult(name ="date_criteria", type = String.class),
-                                @ColumnResult(name ="rpt_date_options_id", type = Long.class)
+                                @ColumnResult(name ="rpt_date_options_id", type = Long.class),
+                                @ColumnResult(name ="selected", type = Boolean.class)
                         })
         })
 })
@@ -49,6 +51,9 @@ public class ReportFormatDto implements Serializable {
     @Column(name="report_format")
     private String reportFormat;
 
+    @Column(name="selected")
+    private Boolean selected;
+
     @Column(name="rpt_date_options_id")
     private Long rptDateOptionId;
 
@@ -57,14 +62,16 @@ public class ReportFormatDto implements Serializable {
 
     public ReportFormatDto() { }
 
-    public ReportFormatDto(Long typeId, String reportFormat) {
+    public ReportFormatDto(Long typeId, String reportFormat,Boolean selected) {
         this.typeId = typeId;
         this.reportFormat = reportFormat;
+        this.selected=selected;
     }
 
-    public ReportFormatDto(String dateCriteriaName ,Long rptDateOptionId) {
+    public ReportFormatDto(String dateCriteriaName ,Long rptDateOptionId,Boolean selected) {
         this.rptDateOptionId = rptDateOptionId;
         this.dateCriteriaName = dateCriteriaName;
+        this.selected=selected;
     }
 
     public Long getId() {
@@ -98,4 +105,8 @@ public class ReportFormatDto implements Serializable {
     public String getDateCriteriaName() { return dateCriteriaName;  }
 
     public void setDateCriteriaName(String dateCriteriaName) { this.dateCriteriaName = dateCriteriaName; }
+
+    public Boolean getSelected() { return selected; }
+
+    public void setSelected(Boolean selected) { this.selected = selected;  }
 }
