@@ -91,6 +91,9 @@ public class UserProfileDto implements Serializable {
 	@JsonIgnore
 	private String passwd;
 
+	@Column ( name = "ISPARCELDASHLETTES")
+	private Boolean parcelDashlettes ;
+
 	public UserProfileDto() {
 	}
 
@@ -148,6 +151,14 @@ public class UserProfileDto implements Serializable {
 
 	public void setPasswd(String passwd) {
 		this.passwd = passwd;
+	}
+
+	public Boolean isParcelDashlettes() {
+		return parcelDashlettes;
+	}
+
+	public void setParcelDashlettes(Boolean parcelDashlettes) {
+		this.parcelDashlettes = parcelDashlettes;
 	}
 
 	@Override

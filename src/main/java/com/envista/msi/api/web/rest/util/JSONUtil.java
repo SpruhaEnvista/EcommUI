@@ -1,6 +1,7 @@
 package com.envista.msi.api.web.rest.util;
 
 import com.envista.msi.api.web.rest.dto.MapCoordinatesDto;
+import com.envista.msi.api.web.rest.dto.dashboard.CodeValueDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AccountSummaryDto;
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AnnualSummaryDto;
@@ -2339,6 +2340,26 @@ public class JSONUtil {
 			carrierJsonArr.put(jsonObject);
 		}
 		return  carrierJsonArr;
+	}
+
+	public static JSONArray prepareCurrenciesJson( List<CodeValueDto> codeValueDtoList) throws JSONException{
+		JSONArray currenciesJsonArray= new JSONArray();
+
+
+		JSONObject jsonObject=new JSONObject();
+		jsonObject.put("id",0);
+		jsonObject.put("code","Select Currency");
+		jsonObject.put("name","");
+		currenciesJsonArray.put(jsonObject);
+
+		for (CodeValueDto codeValueDto : codeValueDtoList) {
+			jsonObject=new JSONObject();
+			jsonObject.put("id",codeValueDto.getId());
+			jsonObject.put("code",codeValueDto.getCodeValue());
+			jsonObject.put("name"," ( "+codeValueDto.getPropertyOne()+" ) ");
+			currenciesJsonArray.put(jsonObject);
+		}
+		return  currenciesJsonArray;
 	}
 
 }
