@@ -806,7 +806,6 @@ public class JSONUtil {
 			statusJson = new JSONObject();
 			statusJson.put("name", "Status");
 			statusJson.put("id", "1");
-
 			for (OrderMatchDto orderMatch : orderMatchList) {
 				if (orderMatch != null) {
 					if ("Matched".equals(orderMatch.getStatus())) {
@@ -2101,12 +2100,14 @@ public class JSONUtil {
 		return weightJson;
 	}
 
-	public static JSONArray prepareFilterCarrierJson(List<UserFilterUtilityDataDto> carrierList) throws JSONException {
+	public static JSONObject prepareFilterCarrierJson(List<UserFilterUtilityDataDto> carrierList) throws JSONException {
 		return prepareFilterCarrierJson(carrierList, null);
 	}
 
-	public static JSONArray prepareFilterCarrierJson(List<UserFilterUtilityDataDto> carrierList, List<Long> selectedCarrList) throws JSONException {
-		JSONArray carrJsonArr = new JSONArray();
+	public static JSONObject prepareFilterCarrierJson(List<UserFilterUtilityDataDto> carrierList, List<Long> selectedCarrList) throws JSONException {
+		JSONObject carrJson = new JSONObject();
+		JSONArray parcelCarJsonArr = new JSONArray();
+		JSONArray freightCarrJsonArr = new JSONArray();
 		if (carrierList != null && !carrierList.isEmpty()) {
 			for (UserFilterUtilityDataDto userFilterCarr : carrierList) {
 				if (userFilterCarr != null) {
@@ -2114,13 +2115,18 @@ public class JSONUtil {
 					carrObj.put("id", userFilterCarr.getCarrierId());
 					carrObj.put("name", userFilterCarr.getCarrierName());
 					carrObj.put("checked", selectedCarrList != null && selectedCarrList.contains(userFilterCarr.getCarrierId()));
-					carrObj.put("catgdist", userFilterCarr.getCarrierType());
 
-					carrJsonArr.put(carrObj);
+					if("parcel".equalsIgnoreCase(userFilterCarr.getCarrierType())){
+						parcelCarJsonArr.put(carrObj);
+					}else if("freight".equalsIgnoreCase(userFilterCarr.getCarrierType())){
+						freightCarrJsonArr.put(carrObj);
+					}
 				}
 			}
 		}
-		return carrJsonArr;
+		carrJson.put("parcelCarriers", parcelCarJsonArr);
+		carrJson.put("freightCarriers", freightCarrJsonArr);
+		return carrJson;
 	}
 
 	public static JSONArray prepareFilterModesJson(List<UserFilterUtilityDataDto> carrierList, Map<String, String> modeWiseCarriers, boolean isParcelDashlettes) throws JSONException {
@@ -2167,7 +2173,7 @@ public class JSONUtil {
 					jsonObject.put("name", serviceData.getName());
 					jsonObject.put("mode", serviceData.getType());
 					jsonObject.put("type", "category");
-					jsonObject.put("checked", selectedServices != null && selectedServices.contains(serviceData.getId()));
+					jsonObject.put("checked", null == selectedServices ? true : selectedServices.contains(serviceData.getId()));
 					jsonObject.put("uniqueType", "services");
 					jsonObject.put("isActive", serviceData.getActive());
 					jsonObject.put("isFreight", !"Small Package".equalsIgnoreCase(serviceData.getType()));

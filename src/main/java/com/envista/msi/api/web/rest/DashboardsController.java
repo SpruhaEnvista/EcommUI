@@ -25,7 +25,6 @@ import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.*;
 import com.envista.msi.api.web.rest.util.JSONUtil;
 import com.envista.msi.api.web.rest.util.WebConstants;
 import com.envista.msi.api.web.rest.util.pagination.PaginationBean;
-import org.apache.commons.beanutils.BeanUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -2690,8 +2689,10 @@ public class DashboardsController extends DashboardBaseController {
             List<CommonValuesForChartDto> commonValueList = new ArrayList<CommonValuesForChartDto>();
             for(AverageSpendPerShipmentDto avgShipmtByCarrier : avgShipmentList){
                 if(avgShipmtByCarrier != null){
-                    CommonValuesForChartDto commonValueChartDto=new CommonValuesForChartDto();
-                    BeanUtils.copyProperties(avgShipmtByCarrier , commonValueChartDto);
+                    CommonValuesForChartDto commonValueChartDto = new CommonValuesForChartDto();
+                    commonValueChartDto.setId(avgShipmtByCarrier.getId());
+                    commonValueChartDto.setName(avgShipmtByCarrier.getName());
+                    commonValueChartDto.setValue(avgShipmtByCarrier.getValue());
                     commonValueList.add(commonValueChartDto);
                 }
             }
@@ -2729,8 +2730,10 @@ public class DashboardsController extends DashboardBaseController {
             List<CommonValuesForChartDto> commonValueList = new ArrayList<CommonValuesForChartDto>();
             for(AverageWeightModeShipmtDto avgWeight : avgWeightList){
                 if(avgWeight != null){
-                    CommonValuesForChartDto commonValueChartDto=new CommonValuesForChartDto();
-                    BeanUtils.copyProperties(avgWeight , commonValueChartDto);
+                    CommonValuesForChartDto commonValueChartDto = new CommonValuesForChartDto();
+                    commonValueChartDto.setId(avgWeight.getId());
+                    commonValueChartDto.setName(avgWeight.getName());
+                    commonValueChartDto.setValue(avgWeight.getValue());
                     commonValueList.add(commonValueChartDto);
                 }
             }
@@ -2747,7 +2750,8 @@ public class DashboardsController extends DashboardBaseController {
             for (AverageWeightModeShipmtDto avgWeight : avgWeightList) {
                 if (avgWeight != null) {
                     CommonMonthlyChartDto commonMonthlyChartDto = new CommonMonthlyChartDto();
-                    BeanUtils.copyProperties(avgWeight, commonMonthlyChartDto);
+                    commonMonthlyChartDto.setAmount(avgWeight.getAmount());
+                    commonMonthlyChartDto.setBillDate(avgWeight.getBillDate());
                     commonMonthlyChartDtoList.add(commonMonthlyChartDto);
                 }
             }
@@ -2945,7 +2949,7 @@ public class DashboardsController extends DashboardBaseController {
         try{
             List<UserFilterUtilityDataDto> carrList = dashboardsService.getCarrierByCustomer(customerIds, isParcelDashlettes);
             if(carrList != null && !carrList.isEmpty()){
-                userFilterData.put("CarrierGroupsData", JSONUtil.prepareFilterCarrierJson(carrList));
+                userFilterData.put("carriers", JSONUtil.prepareFilterCarrierJson(carrList));
             }
         }catch (Exception e){
             return new ResponseEntity<Map<String, Object>>(HttpStatus.INTERNAL_SERVER_ERROR);
