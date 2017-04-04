@@ -2922,7 +2922,7 @@ public class DashboardsController extends DashboardBaseController {
         return ResponseEntity.status(HttpStatus.OK).body(userFilterData);
     }
 
-    @RequestMapping(value = "/filterServices", method = {RequestMethod.GET, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/servicesByModes", method = {RequestMethod.GET, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<Map<String, Object>>  getServicesByGroupCode(@RequestParam String customerId, @RequestParam String carrierIds, @RequestParam String modes, @RequestParam String dateType, @RequestParam String fromDate, @RequestParam String toDate){
         Map<String, Object> userFilterData = new HashMap();
         try{
@@ -2986,7 +2986,7 @@ public class DashboardsController extends DashboardBaseController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(userFilterData);
             }
             userFilterData.put("savedFilterNames", dashboardsService.getUserFilterByUser(user.getUserId()));
-            userFilterData.put("currenciesObject", dashboardsService.getCodeValuesByCodeGroup(468L));
+            userFilterData.put("currenciesList", JSONUtil.prepareCurrenciesJson(dashboardsService.getCodeValuesByCodeGroup(468L)));
         }catch (Exception e){
             return new ResponseEntity<Map<String, Object>>(HttpStatus.INTERNAL_SERVER_ERROR);
         }

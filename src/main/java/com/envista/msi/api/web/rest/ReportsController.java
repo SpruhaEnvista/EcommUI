@@ -4,10 +4,9 @@ import com.envista.msi.api.service.ReportsService;
 import com.envista.msi.api.web.rest.dto.UserProfileDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendRequestDto;
-import com.envista.msi.api.web.rest.dto.reports.ReportResultsDto;
-import com.envista.msi.api.web.rest.dto.reports.ReportResultsUsersListDto;
-import com.envista.msi.api.web.rest.dto.reports.SavedSchedReportsDto;
-import com.envista.msi.api.web.rest.dto.reports.UpdateSavedSchedReportDto;
+import com.envista.msi.api.web.rest.dto.reports.*;
+import com.envista.msi.api.web.rest.util.JSONUtil;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
 import javax.websocket.server.PathParam;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -79,4 +79,46 @@ public class ReportsController {
         ReportResultsUsersListDto updateDto = reportsService.pushToUser(reportResultsUsersListDto);
         return new ResponseEntity<ReportResultsUsersListDto>(updateDto, HttpStatus.OK);
     }
+    @RequestMapping(value = "/getModesReport", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<List<ReportModesDto>> getReportForModes(@RequestParam String userId){
+        try {
+            List<ReportModesDto> reportModeDto = reportsService.getReportForModes(Long.parseLong(userId));
+            return new ResponseEntity<List<ReportModesDto>>(reportModeDto, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<List<ReportModesDto>>(new ArrayList<ReportModesDto>(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @RequestMapping(value = "/customercarrierlist", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<JSONObject> getReportCustomers(@RequestParam String rptId,@RequestParam String userId){
+        JSONObject customCarrierJson=null;
+        try {
+            JSONObject asJson =loadCustomerCarrierJson(Long.parseLong(userId),Long.parseLong(rptId));
+            customCarrierJson = asJson != null ? asJson : new JSONObject();
+        } catch (Exception e) {
+            return new ResponseEntity<JSONObject>(new JSONObject(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<JSONObject>(customCarrierJson, HttpStatus.OK);
+    }
+    public JSONObject loadCustomerCarrierJson(Long userId,Long rptId) throws JSONException{
+        List<ReportCustomerCarrierDto> customerList=reportsService.getReportCustomers(rptId,userId);
+        List<ReportCustomerCarrierDto> carrierList=reportsService.getReportCarrier(rptId,userId);
+        JSONObject customerCarrierJson=new JSONObject();
+        if(customerList!=null && customerList.size()>0) {
+            customerCarrierJson.put("customerList", JSONUtil.customerHierarchyJson(reportsService.getCustomerHierarchyObject(customerList)));
+        }
+        if(carrierList!=null && carrierList.size()>0) {
+            customerCarrierJson.put("carrierList",JSONUtil.carriersJson(carrierList));
+        }
+        return customerCarrierJson;
+    }
+    @RequestMapping(value = "/format", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<List<ReportFormatDto>> getReportFormat(@RequestParam String rptId){
+        try {
+            List<ReportFormatDto> reportFormats =reportsService.getReportFormat(Long.parseLong(rptId));
+            return new ResponseEntity<List<ReportFormatDto>>(reportFormats, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<List<ReportFormatDto>>(new ArrayList<ReportFormatDto>(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

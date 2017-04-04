@@ -1,6 +1,7 @@
 package com.envista.msi.api.web.rest.util;
 
 import com.envista.msi.api.web.rest.dto.MapCoordinatesDto;
+import com.envista.msi.api.web.rest.dto.dashboard.CodeValueDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AccountSummaryDto;
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AnnualSummaryDto;
@@ -22,6 +23,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.report.DashboardReportDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.AverageSpendPerShipmentDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.AverageWeightModeShipmtDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.ServiceLevelUsageAndPerformanceDto;
+import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
@@ -2280,6 +2282,92 @@ public class JSONUtil {
 		}
 		return null;
 	}
+
+	public static JSONArray customerHierarchyJson( ReportCustomerCarrierDto  customerDto) throws  JSONException{
+		setValuesForDropDownForCustomer(customerDto);
+		JSONArray jsonArray = new JSONArray();
+		for (ReportCustomerCarrierDto customerCarrierDto : customerDto.getCollection()) {
+			JSONObject custoemrJsonObject = new JSONObject();
+			custoemrJsonObject.put("customerName", customerCarrierDto.getCustomerName());
+			custoemrJsonObject.put("customerId", customerCarrierDto.getCustomerId());
+			custoemrJsonObject.put("selected", customerCarrierDto.getSelected());
+			custoemrJsonObject.put("carrierIds", customerCarrierDto.getCustomerCarrierId());
+			custoemrJsonObject.put("type", customerCarrierDto.getType());
+			custoemrJsonObject.put("paidCust", customerCarrierDto.getPaidCust());
+			custoemrJsonObject.put("value", customerCarrierDto.getValue());
+			if (!"SHP".equalsIgnoreCase(customerCarrierDto.getType())) {
+				custoemrJsonObject.put("children", customerHierarchyJson(customerCarrierDto));
+			}
+			if ("SHGRP".equalsIgnoreCase(customerCarrierDto.getType())) {
+				custoemrJsonObject.put("parentCustomerId", customerCarrierDto.getParentCustomerId());
+			}
+			jsonArray.put(custoemrJsonObject);
+		}
+		return jsonArray;
+	}
+
+	public static void setValuesForDropDownForCustomer(ReportCustomerCarrierDto customerDto) {
+		for (ReportCustomerCarrierDto customer : customerDto.getCollection()) {
+			if ("CUGRP".equalsIgnoreCase(customer.getType())) {
+				customer.setValue("CU" + getValueForCustGroup(customer));
+			} else if ("CUST".equalsIgnoreCase(customer.getType())) {
+				customer.setValue("CU" + customer.getCustomerId());
+			} else if ("SHGRP".equalsIgnoreCase(customer.getType())) {
+				customer.setValue("SG" + customer.getCustomerId());
+			} else if ("SHP".equalsIgnoreCase(customer.getType())) {
+				customer.setValue("SH" + customer.getCustomerId());
+			}
+		}
+	}
+	public static String getValueForCustGroup(ReportCustomerCarrierDto customerDto) {
+		StringBuffer value = new StringBuffer();
+		for (ReportCustomerCarrierDto customer : customerDto.getCollection()) {
+			if ("CUST".equalsIgnoreCase(customer.getType())) {
+				value.append(customer.getCustomerId() + ",");
+			}
+			if ("CUGRP".equalsIgnoreCase(customer.getType())) {
+				value.append(getValueForCustGroup(customer) + ",");
+			}
+		}
+		// Trim off last ,
+		String returnValue = value.toString();
+		returnValue = returnValue.substring(0, returnValue.length() - 1);
+		return returnValue;
+	}
+
+	public static JSONArray carriersJson( List<ReportCustomerCarrierDto> carrierList) throws JSONException{
+		JSONArray carrierJsonArr= new JSONArray();
+		for (ReportCustomerCarrierDto carrierDto : carrierList) {
+			JSONObject jsonObject=new JSONObject();
+			jsonObject.put("carrierId",carrierDto.getCarrierId());
+			jsonObject.put("carrierName",carrierDto.getCarrierName());
+			jsonObject.put("isLtl",carrierDto.getIsLtl());
+			jsonObject.put("selected",carrierDto.getSelected());
+			carrierJsonArr.put(jsonObject);
+		}
+		return  carrierJsonArr;
+	}
+
+	public static JSONArray prepareCurrenciesJson( List<CodeValueDto> codeValueDtoList) throws JSONException{
+		JSONArray currenciesJsonArray= new JSONArray();
+
+
+		JSONObject jsonObject=new JSONObject();
+		jsonObject.put("id",0);
+		jsonObject.put("code","Select Currency");
+		jsonObject.put("name","");
+		currenciesJsonArray.put(jsonObject);
+
+		for (CodeValueDto codeValueDto : codeValueDtoList) {
+			jsonObject=new JSONObject();
+			jsonObject.put("id",codeValueDto.getId());
+			jsonObject.put("code",codeValueDto.getCodeValue());
+			jsonObject.put("name"," ( "+codeValueDto.getPropertyOne()+" ) ");
+			currenciesJsonArray.put(jsonObject);
+		}
+		return  currenciesJsonArray;
+	}
+
 }
 
 
