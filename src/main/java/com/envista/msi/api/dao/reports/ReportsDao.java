@@ -134,6 +134,49 @@ public class ReportsDao {
         }
         return new ReportResultsUsersListDto(0l);
     }
+    /**
+     * @param userId
+     * @return List<ReportModesDto>
+     */
+    @Transactional
+    public List<ReportModesDto> getReportForModes(Long userId) {
+        return persistentContext.findEntitiesAndMapFields("ReportModes.getReportModeList",
+                StoredProcedureParameter.with("p_user_id", userId));
+    }
+    /**
+     * @param rptId
+     * @param userId
+     * @return List<ReportCustomerCarrierDto>
+     */
+    public List<ReportCustomerCarrierDto> getReportCustomers(Long rptId, Long userId){
+        QueryParameter queryParameter = StoredProcedureParameter.with("p_user_id", userId)
+                .and("p_rpt_id", rptId);
+        return persistentContext.findEntities("ReportCustomerCarrier.getReportCustomer",queryParameter);
+    }
+    /**
+     * @param rptId
+     * @param userId
+     * @return List<ReportCustomerCarrierDto>
+     */
+    public List<ReportCustomerCarrierDto> getReportCarrier(Long rptId, Long userId){
+        QueryParameter queryParameter = StoredProcedureParameter.with("p_user_id", userId)
+                .and("p_rpt_id", rptId);
+        return persistentContext.findEntities("ReportCustomerCarrier.getReportCarrier",queryParameter);
+    }
+    /**
+     * @param customerIdsCSV
+     * @return List<ReportCustomerCarrierDto>
+     */
+    public List<ReportCustomerCarrierDto> getCustomerLevels(String customerIdsCSV){
+        return persistentContext.findEntities("ReportCustomerCarrier.getCustomerLevels",StoredProcedureParameter.with("p_cusatomer_ids", customerIdsCSV));
+    }
+    /**
+     * @param rptId
+     * @return List<ReportFormatDto>
+     */
+    public List<ReportFormatDto> getReportFormat(Long rptId){
+        return persistentContext.findEntities("ReportFormat.getReportFormat",StoredProcedureParameter.with("p_rpt_id", rptId));
+    }
 
     @Transactional
     public ReportFolderDto createReportFolder(ReportFolderDto reportFolderDto, UserProfileDto userProfileDto){

@@ -1,14 +1,10 @@
 package com.envista.msi.api.web.rest;
 
 import com.envista.msi.api.domain.util.DashboardUtil;
-import com.envista.msi.api.geocode.AddressConverter;
-import com.envista.msi.api.geocode.GoogleResponse;
-import com.envista.msi.api.geocode.Result;
 import com.envista.msi.api.service.DashboardsService;
 import com.envista.msi.api.service.UserService;
 import com.envista.msi.api.web.rest.dto.MapCoordinatesDto;
 import com.envista.msi.api.web.rest.dto.UserProfileDto;
-import com.envista.msi.api.web.rest.dto.ZipCodesTimeZonesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardAppliedFilterDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AccountSummaryDto;
@@ -18,16 +14,17 @@ import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
 import com.envista.msi.api.web.rest.dto.dashboard.common.CommonMonthlyChartDto;
 import com.envista.msi.api.web.rest.dto.dashboard.common.CommonValuesForChartDto;
 import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendCommonDto;
+import com.envista.msi.api.web.rest.dto.dashboard.filter.UserFilterUtilityDataDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.*;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.PortLanesDto;
+import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentRegionDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShippingLanesDto;
-import com.envista.msi.api.web.rest.dto.dashboard.report.DashboardReportDto;
-import com.envista.msi.api.web.rest.dto.dashboard.report.DashboardReportRequestDto;
 import com.envista.msi.api.web.rest.dto.dashboard.report.DashboardReportUtilityDataDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.*;
 import com.envista.msi.api.web.rest.util.JSONUtil;
 import com.envista.msi.api.web.rest.util.WebConstants;
+import com.envista.msi.api.web.rest.util.pagination.PaginationBean;
 import org.apache.commons.beanutils.BeanUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -39,9 +36,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.el.MethodNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Sarvesh on 1/18/2017.
@@ -179,6 +174,12 @@ public class DashboardsController extends DashboardBaseController {
     enum AccountSummaryConstants{
         ACCOUNT_SUMMARY,
         PARCEL_ACCOUNT_SUMMARY;
+    }
+
+    enum ActualVsBilledWeightConstants{
+        ACTUAL_VS_BILLED_WEIGHT,
+        ACTUAL_VS_BILLED_WEIGHT_BY_CARRIER,
+        ACTUAL_VS_BILLED_WEIGHT_BY_MONTH;
     }
 
     @RequestMapping(value = "/appliedFilter", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -2483,52 +2484,27 @@ public class DashboardsController extends DashboardBaseController {
         JSONObject resultJsonData = null;
         dashboardsFilterCriteria.setNoOfLanes(100);
         List<ShipmentRegionDto> shipmentRegionDtoList = dashboardsService.getShipmentByRegion(dashboardsFilterCriteria);
-        resultJsonData = JSONUtil.prepareShipmentByRegionLanesJson(shipmentRegionDtoList);
-        JSONArray addressArray = resultJsonData.getJSONArray("addressList");
-        int addressLen = addressArray.length();
-        ArrayList<MapCoordinatesDto>  mapCoordinatesDtoList = new ArrayList<MapCoordinatesDto>();
-        MapCoordinatesDto mapCoordinatesDto = null;
-        for ( int i=0 ; i< addressLen ; i++ ) {
-            String address = addressArray.getString(i);
-            if (address != null && address.trim().length() > 0) {
-                String city = address.split(",")[0];
-                String state = address.split(",")[1];
-                String country = address.split(",")[2];
-                List<MapCoordinatesDto> coordinatesDtoList = dashboardsService.getMapCooridantes(address);
-                if ( coordinatesDtoList.size() == 0) {
-                    System.out.println("City:"+city+" :State:"+state);
-                    List<ZipCodesTimeZonesDto> zipCodesTimeZonesDtoList = dashboardsService.getMapCooridantes(city,state);
-                    if ( zipCodesTimeZonesDtoList.size() > 0) {
-                        ZipCodesTimeZonesDto zipCodesTimeZonesDto = zipCodesTimeZonesDtoList.get(0);
-                        mapCoordinatesDto = new MapCoordinatesDto(address,zipCodesTimeZonesDto.getLatitude(),zipCodesTimeZonesDto.getLongitude());
-                        dashboardsService.insertMapCoordinates(mapCoordinatesDto);
-                    } else {
-                        System.out.println("Got Response from Google");
-                        GoogleResponse res = new AddressConverter().convertToLatLong(address, country);
-                        if (res.getStatus().equals("OK")) {
-                            System.out.println("Got Response from Google");
-                            for (Result result : res.getResults()) {
-                                mapCoordinatesDto = new MapCoordinatesDto();
-                                mapCoordinatesDto.setAddress(address);
-                                mapCoordinatesDto.setLatitude( Double.parseDouble(result.getGeometry().getLocation().getLat()) );
-                                mapCoordinatesDto.setLongitude( Double.parseDouble(result.getGeometry().getLocation().getLng()) );
-                                dashboardsService.insertMapCoordinates(mapCoordinatesDto);
-                                break; // we will consider only first result from google
-                            }
-                        } else {
-                            // throw only when over limit or google server error else returns 0
-                            if (res.getStatus().equalsIgnoreCase("OVER_QUERY_LIMIT") || res.getStatus().equalsIgnoreCase("UNKNOWN_ERROR"))
-                                throw new Exception(res.getStatus());
-                        }
+
+        if(shipmentRegionDtoList != null && !shipmentRegionDtoList.isEmpty()){
+            Set<String> addressList = new HashSet<String>();
+            int i = 0;
+            for(ShipmentRegionDto shipmentRegion : shipmentRegionDtoList){
+                if(shipmentRegion != null){
+                    if(shipmentRegion.getShipperAddress() != null){
+                        addressList.add(shipmentRegion.getShipperAddress().toUpperCase());
                     }
-                } else {
-                    mapCoordinatesDto = coordinatesDtoList.get(0);
+                    if(shipmentRegion.getReceiverAddress() != null){
+                        addressList.add(shipmentRegion.getReceiverAddress().toUpperCase());
+                    }
                 }
             }
-            mapCoordinatesDtoList.add(mapCoordinatesDto);
+            Set<MapCoordinatesDto>  mapCoordinatesDtoList = dashboardsService.getMapCoordinates(addressList);
+            resultJsonData = JSONUtil.prepareShipmentByRegionLanesJson(shipmentRegionDtoList);
+            resultJsonData = JSONUtil.prepareShipmentByRegionNodesJson(mapCoordinatesDtoList , resultJsonData);
         }
-        resultJsonData = JSONUtil.prepareShipmentByRegionNodesJson(mapCoordinatesDtoList , resultJsonData);
-        resultJsonData.remove("addressList");
+        if(resultJsonData != null){
+            resultJsonData.remove("addressList");
+        }
         return resultJsonData;
     }
 
@@ -2780,79 +2756,36 @@ public class DashboardsController extends DashboardBaseController {
         return avgWeightJson;
     }
 
-    @RequestMapping(value = "/dashboardReport", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE}, consumes = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getDashboardReport(@RequestBody DashboardReportRequestDto reportRequestData){
-        JSONObject dashboardReportJson = null;
+    @RequestMapping(value = "/dashboardReport", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<PaginationBean> getDashboardReport(@RequestParam(required = false) String invoiceDate, @RequestParam(required = false) String dashletteName, @RequestParam(required = false) String carrierId,
+                                                             @RequestParam(required = false) String mode, @RequestParam(required = false) String carscoretype, @RequestParam(required = false) String service,
+                                                             @RequestParam(required = false, defaultValue = "0") Integer offset, @RequestParam(required = false, defaultValue = "0") Integer limit){
+        PaginationBean reportPaginationData = new PaginationBean();
         try{
             UserProfileDto user = getUserProfile();
             if(null == user){
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(WebConstants.ResponseMessage.INVALID_USER);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(reportPaginationData);
             }
             DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
             if(filter != null){
-                applyRequestDataToFilter(reportRequestData, filter);
+                if(invoiceDate != null && !invoiceDate.isEmpty()){
+                    DashboardUtil.setDatesFromMonth(filter, invoiceDate);
+                }
+                filter.setDashletteName(dashletteName);
+                filter.setCarriers(carrierId);
+                filter.setModeNames(mode);
+                filter.setScoreType(carscoretype);
+                filter.setService(service);
             }
-            JSONObject reportData = loadDashboardReportJson(filter);
-            dashboardReportJson = (reportData != null ? reportData : new JSONObject());
+            reportPaginationData = dashboardsService.getDashboardReportPaginationData(filter, offset, limit);
         }catch(Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(reportPaginationData);
         }
-        return ResponseEntity.status(HttpStatus.OK).body(dashboardReportJson.toString());
+        return ResponseEntity.status(HttpStatus.OK).body(reportPaginationData);
     }
 
-    private void applyRequestDataToFilter(DashboardReportRequestDto reportRequestData, DashboardsFilterCriteria filter) throws Exception {
-        if(reportRequestData.getLineItemReport() != null){
-            filter.setLineItemReport(reportRequestData.getLineItemReport());
-        }
-        filter.setCarriers(String.valueOf(reportRequestData.getCarrierId()));
-        if(reportRequestData.getService() != null && !reportRequestData.getService().isEmpty()){
-            filter.setService(reportRequestData.getService());
-        }
-        if(reportRequestData.getInvoiceDate() != null && !reportRequestData.getInvoiceDate().isEmpty()){
-            DashboardUtil.setDatesFromMonth(filter, reportRequestData.getInvoiceDate());
-        }
-        if(reportRequestData.getCarrier() != null && !reportRequestData.getCarrier().isEmpty()){
-            filter.setCarriers(reportRequestData.getCarrier());
-        }
-        if(reportRequestData.getCarrScoretype() != null && !reportRequestData.getCarrScoretype().isEmpty()){
-            filter.setScoreType(reportRequestData.getCarrScoretype());
-        }
-        if(reportRequestData.getDeliveryFlagDecs() != null && !reportRequestData.getDeliveryFlagDecs().isEmpty()){
-            filter.setDeliveryFlagDesc(reportRequestData.getDeliveryFlagDecs());
-        }
-        if(reportRequestData.getAccessorialName() != null && !reportRequestData.getAccessorialName().isEmpty()){
-            filter.setAccessorialName(reportRequestData.getAccessorialName());
-        }
-        if(reportRequestData.getMode() != null && !reportRequestData.getMode().isEmpty()){
-            filter.setModeNames(reportRequestData.getMode());
-        }
-        if(reportRequestData.getReportForDashlette() != null && !reportRequestData.getReportForDashlette().isEmpty()){
-            filter.setReportForDashlette(reportRequestData.getReportForDashlette());
-        }
-        if(reportRequestData.getBoundType() != null && !reportRequestData.getBoundType().isEmpty()){
-            filter.setBoundType(reportRequestData.getBoundType());
-        }
-        filter.setDashletteName(reportRequestData.getDashletteName());
-        filter.setShipperCity(reportRequestData.getShipperCity());
-        filter.setReceiverCity(reportRequestData.getReceiverCity());
-        filter.setOffset(reportRequestData.getOffset() != null ? reportRequestData.getOffset() : 1);
-        filter.setPageSize(reportRequestData.getPageSize() != null ? reportRequestData.getPageSize() : 20);
-    }
 
-    private JSONObject loadDashboardReportJson(DashboardsFilterCriteria filter) throws JSONException {
-        JSONObject dashboardReportJson = null;
-        List<DashboardReportDto> reportDataList = null;
-        if(filter.isLineItemReport()){
-            reportDataList = dashboardsService.getLineItemReportDetails(filter);
-        }else{
-            reportDataList = dashboardsService.getDashboardReport(filter);
-        }
-        if(reportDataList != null && !reportDataList.isEmpty()){
-            Map<String, String> resultColumnsMap = dashboardsService.getReportColumnNames(filter);
-            dashboardReportJson = JSONUtil.prepareDashboardReportJson(reportDataList, resultColumnsMap);
-        }
-        return dashboardReportJson;
-    }
 
     /**
      * Development under progress, we need to check this while developing filter screen.
@@ -2870,5 +2803,219 @@ public class DashboardsController extends DashboardBaseController {
 
         }
         return null;
+    }
+
+    @RequestMapping(value = "/actualVsBillWeight", method = {RequestMethod.GET, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getActualVsBilledWeight(){
+        JSONObject weightJson = null;
+        try{
+            UserProfileDto user = getUserProfile();
+            if(null == user){
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(WebConstants.ResponseMessage.INVALID_USER);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            JSONObject whtJson = loadActualVsBilledWeightJsonData(ActualVsBilledWeightConstants.ACTUAL_VS_BILLED_WEIGHT, filter);
+            weightJson = (whtJson != null ? whtJson : new JSONObject());
+        }catch(Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(weightJson.toString());
+    }
+
+    @RequestMapping(value = "/actualVsBillWeightByCarr", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getActualVsBilledWeightByCarrier(@RequestParam String invoiceDate){
+        JSONObject weightJson = null;
+        try{
+            UserProfileDto user = getUserProfile();
+            if(null == user){
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(WebConstants.ResponseMessage.INVALID_USER);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            if(filter != null){
+                if(invoiceDate != null && !invoiceDate.isEmpty()){
+                    DashboardUtil.setDatesFromMonth(filter, invoiceDate);
+                }
+            }
+            JSONObject whtJson = loadActualVsBilledWeightJsonData(ActualVsBilledWeightConstants.ACTUAL_VS_BILLED_WEIGHT_BY_CARRIER, filter);
+            weightJson = (whtJson != null ? whtJson : new JSONObject());
+        }catch(Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(weightJson.toString());
+    }
+
+    @RequestMapping(value = "/actualVsBillWeightByMnth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getActualVsBilledWeightByMonth(@RequestParam String carrierIds, @RequestParam String invoiceDate){
+        JSONObject weightJson = null;
+        try{
+            UserProfileDto user = getUserProfile();
+            if(null == user){
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(WebConstants.ResponseMessage.INVALID_USER);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            if(filter != null){
+                if(carrierIds != null && !carrierIds.isEmpty()){
+                    filter.setCarriers(carrierIds);
+                }
+                if(invoiceDate != null && !invoiceDate.isEmpty()){
+                    DashboardUtil.setDatesFromMonth(filter, invoiceDate);
+                }
+            }
+            JSONObject whtJson = loadActualVsBilledWeightJsonData(ActualVsBilledWeightConstants.ACTUAL_VS_BILLED_WEIGHT_BY_MONTH, filter);
+            weightJson = (whtJson != null ? whtJson : new JSONObject());
+        }catch(Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(weightJson.toString());
+    }
+
+    private JSONObject loadActualVsBilledWeightJsonData(ActualVsBilledWeightConstants weightType, DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject weightJson = null;
+        switch (weightType){
+            case ACTUAL_VS_BILLED_WEIGHT:
+                weightJson = loadActualVsBilledWeightJson(filter);
+                break;
+            case ACTUAL_VS_BILLED_WEIGHT_BY_CARRIER:
+                weightJson = loadActualVsBilledWeightByCarrierJson(filter);
+                break;
+            case ACTUAL_VS_BILLED_WEIGHT_BY_MONTH:
+                weightJson = loadActualVsBilledWeightByMonthJson(filter);
+                break;
+            default:
+                throw new MethodNotFoundException("Method param value not matched");
+        }
+        return weightJson;
+    }
+
+    private JSONObject loadActualVsBilledWeightByMonthJson(DashboardsFilterCriteria filter) throws JSONException {
+        List<ActualVsBilledWeightDto> weightList = dashboardsService.getActualVsBilledWeightByMonth(filter, false);
+        return JSONUtil.prepareActualVsBillWeightMonthlyChartJson(weightList);
+    }
+
+    private JSONObject loadActualVsBilledWeightByCarrierJson(DashboardsFilterCriteria filter) throws JSONException {
+        List<ActualVsBilledWeightDto> weightList = dashboardsService.getActualVsBilledWeightByCarrier(filter, false);
+        return JSONUtil.prepareActualVsBillWeightByCarrierJson(weightList);
+    }
+
+    private JSONObject loadActualVsBilledWeightJson(DashboardsFilterCriteria filter) throws JSONException {
+        List<ActualVsBilledWeightDto> weightList = dashboardsService.getActualVsBilledWeight(filter, false);
+        return JSONUtil.prepareActualVsBilledWeightJson(weightList);
+    }
+
+    @RequestMapping(value = "/filterDetailsById", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<Map<String, Object>> getUserFilterDetails(Long filterId, boolean isParcelDashlettes){
+        Map<String, Object> userFilterData = new HashMap();
+        try {
+            UserProfileDto user = getUserProfile();
+            if(null == user){
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(userFilterData);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            userFilterData = dashboardsService.getUserFilterDetails(filterId, isParcelDashlettes, filter);
+        }catch (Exception e){
+            return new ResponseEntity<Map<String, Object>>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(userFilterData);
+    }
+
+    @RequestMapping(value = "/servicesByModes", method = {RequestMethod.GET, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<Map<String, Object>>  getServicesByGroupCode(@RequestParam String customerId, @RequestParam String carrierIds, @RequestParam String modes, @RequestParam String dateType, @RequestParam String fromDate, @RequestParam String toDate){
+        Map<String, Object> userFilterData = new HashMap();
+        try{
+            DashboardsFilterCriteria filter = new DashboardsFilterCriteria();
+            filter.setCustomerIdsCSV(customerId);
+            filter.setCarriers(carrierIds);
+            filter.setDateType(dateType);
+            filter.setFromDate(fromDate);
+            filter.setToDate(toDate);
+            filter.setModes(modes);
+            List<UserFilterUtilityDataDto> serviceList = dashboardsService.getFilterServices(filter);
+            if(serviceList != null && !serviceList.isEmpty()){
+                userFilterData.put("serviceLevelsListData", JSONUtil.prepareFilterServiceJson(serviceList));
+            }
+        }catch (Exception e){
+            return new ResponseEntity<Map<String, Object>>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(userFilterData);
+    }
+
+    @RequestMapping(value = "/carrsByCustomer", method = {RequestMethod.GET, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<Map<String, Object>>  getCarriersByCustomer(@RequestParam String customerIds, @RequestParam boolean isParcelDashlettes){
+        Map<String, Object> userFilterData = new HashMap();
+        try{
+            List<UserFilterUtilityDataDto> carrList = dashboardsService.getCarrierByCustomer(customerIds, isParcelDashlettes);
+            if(carrList != null && !carrList.isEmpty()){
+                userFilterData.put("CarrierGroupsData", JSONUtil.prepareFilterCarrierJson(carrList));
+            }
+        }catch (Exception e){
+            return new ResponseEntity<Map<String, Object>>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(userFilterData);
+    }
+
+    @RequestMapping(value = "/modesByCarr", method = {RequestMethod.GET, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<Map<String, Object>>  getCarriersByCustomer(@RequestParam String customerId, @RequestParam String carrierIds, @RequestParam String dateType, @RequestParam String fromDate, @RequestParam String toDate){
+        Map<String, Object> userFilterData = new HashMap();
+        try{
+            DashboardsFilterCriteria filter = new DashboardsFilterCriteria();
+            filter.setCustomerIdsCSV(customerId);
+            filter.setCarriers(carrierIds);
+            filter.setDateType(dateType);
+            filter.setFromDate(fromDate);
+            filter.setToDate(toDate);
+            List<UserFilterUtilityDataDto> modesList = dashboardsService.getFilterModes(filter);
+            if(modesList != null && !modesList.isEmpty()){
+                userFilterData.put("modesListData", JSONUtil.prepareFilterModesJson(modesList, dashboardsService.getModeWiseCarrier(carrierIds), false));
+            }
+        }catch (Exception e){
+            return new ResponseEntity<Map<String, Object>>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(userFilterData);
+    }
+
+    @RequestMapping(value = "/requiredFilter", method = {RequestMethod.GET, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<Map<String, Object>>  getCarriersByCustomer(){
+        Map<String, Object> userFilterData = new HashMap();
+        try{
+            UserProfileDto user = getUserProfile();
+            if(null == user){
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(userFilterData);
+            }
+            userFilterData.put("savedFilterNames", dashboardsService.getUserFilterByUser(user.getUserId()));
+            userFilterData.put("currenciesList", JSONUtil.prepareCurrenciesJson(dashboardsService.getCodeValuesByCodeGroup(468L)));
+        }catch (Exception e){
+            return new ResponseEntity<Map<String, Object>>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(userFilterData);
+    }
+
+    @RequestMapping(value = "/shipmentCountByZone", method = {RequestMethod.GET, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getShipmentCountByZone(){
+        JSONObject shipmentCountJson = null;
+        try{
+            UserProfileDto user = getUserProfile();
+            if(null == user){
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(WebConstants.ResponseMessage.INVALID_USER);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            List<ShipmentDto> shipmentData = dashboardsService.getShipmentCountByZone(filter);
+            if(shipmentData != null && !shipmentData.isEmpty()){
+                Set<String> addresses = new HashSet<String>();
+                for(ShipmentDto shipmentDto : shipmentData){
+                    if(shipmentDto != null){
+                        String shipperCity = shipmentDto.getShipperCity() != null ? shipmentDto.getShipperCity() : "";
+                        String shipperState = shipmentDto.getShipperState() != null ? shipmentDto.getShipperState() : "";
+                        String shipperCountry = shipmentDto.getShipperCountry() != null ? shipmentDto.getShipperCountry() : "";
+                        addresses.add(shipperCity + "," + shipperState + "," + shipperCountry);
+                    }
+                }
+                Set<MapCoordinatesDto> mapCoordinates = dashboardsService.getMapCoordinates(addresses);
+                shipmentCountJson = JSONUtil.prepareShipmentCountByZoneJson(shipmentData, mapCoordinates);
+            }
+            shipmentCountJson = shipmentCountJson != null ? shipmentCountJson : new JSONObject();
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(shipmentCountJson.toString());
     }
 }

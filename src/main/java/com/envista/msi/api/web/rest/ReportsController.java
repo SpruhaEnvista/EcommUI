@@ -1,11 +1,12 @@
 package com.envista.msi.api.web.rest;
 
-import com.envista.msi.api.security.SecurityUtils;
 import com.envista.msi.api.service.ReportsService;
-import com.envista.msi.api.service.UserService;
 import com.envista.msi.api.web.rest.dto.UserProfileDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendRequestDto;
+import com.envista.msi.api.web.rest.dto.reports.*;
+import com.envista.msi.api.web.rest.util.JSONUtil;
+import org.json.JSONException;
 import com.envista.msi.api.web.rest.dto.reports.*;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
@@ -29,19 +30,6 @@ public class ReportsController {
     @Inject
     private ReportsService reportsService;
 
-    @Inject
-    private UserService userService;
-
-    protected UserProfileDto getUserProfile(){
-        UserProfileDto user = null;
-        try {
-            user = userService.getUserProfileByUserName(SecurityUtils.getCurrentUserLogin());
-        } catch (Exception e) {
-            //nothing
-        }
-        return user;
-    }
-
     @RequestMapping(value = "/results/reportslist/{userId}", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<List<ReportResultsDto>> getReportResults(@PathVariable String userId){
         List<ReportResultsDto> resultsList = reportsService.getReportResults(Long.parseLong(userId));
@@ -53,15 +41,8 @@ public class ReportsController {
         return new ResponseEntity<ReportResultsDto>(reportResultsDto, HttpStatus.OK);
     }
     @RequestMapping(value = "/results/userslist", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<List<ReportResultsUsersListDto>> getUsersList(@RequestParam(required = false) String filter){
-        String userName = "";
-        if(filter != null){
-            filter = filter.trim();
-            String filters[] = filter.split(":");
-            if( filters[1] != null)
-                userName = filters[1].trim().toLowerCase();
-        }
-        List<ReportResultsUsersListDto> usersList = reportsService.getUsersList(userName);
+    public ResponseEntity<List<ReportResultsUsersListDto>> getUsersList(){
+        List<ReportResultsUsersListDto> usersList = reportsService.getUsersList();
         return new ResponseEntity<List<ReportResultsUsersListDto>>(usersList, HttpStatus.OK);
     }
     @RequestMapping(value = "/results/delete", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
@@ -74,8 +55,8 @@ public class ReportsController {
         }
     }
     @RequestMapping(value = "/savedschedreports", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<List<SavedSchedReportsDto>> getSavedSchedReports(@RequestParam String userId,@RequestParam(required = false) String folderId){
-        List<SavedSchedReportsDto> resultsList = reportsService.getSavedSchedReports(Long.parseLong(userId), (folderId == null ? 0 : Long.parseLong(folderId)));
+    public ResponseEntity<List<SavedSchedReportsDto>> getSavedSchedReports(@RequestParam String userId){
+        List<SavedSchedReportsDto> resultsList = reportsService.getSavedSchedReports(Long.parseLong(userId));
         return new ResponseEntity<List<SavedSchedReportsDto>>(resultsList, HttpStatus.OK);
     }
     @RequestMapping(value = "/updatesavedschedreport", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
@@ -98,6 +79,48 @@ public class ReportsController {
         ReportResultsUsersListDto updateDto = reportsService.pushToUser(reportResultsUsersListDto);
         return new ResponseEntity<ReportResultsUsersListDto>(updateDto, HttpStatus.OK);
     }
+    @RequestMapping(value = "/getModesReport", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<List<ReportModesDto>> getReportForModes(@RequestParam String userId){
+        try {
+            List<ReportModesDto> reportModeDto = reportsService.getReportForModes(Long.parseLong(userId));
+            return new ResponseEntity<List<ReportModesDto>>(reportModeDto, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<List<ReportModesDto>>(new ArrayList<ReportModesDto>(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @RequestMapping(value = "/customercarrierlist", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<JSONObject> getReportCustomers(@RequestParam String rptId,@RequestParam String userId){
+        JSONObject customCarrierJson=null;
+        try {
+            JSONObject asJson =loadCustomerCarrierJson(Long.parseLong(userId),Long.parseLong(rptId));
+            customCarrierJson = asJson != null ? asJson : new JSONObject();
+        } catch (Exception e) {
+            return new ResponseEntity<JSONObject>(new JSONObject(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<JSONObject>(customCarrierJson, HttpStatus.OK);
+    }
+    public JSONObject loadCustomerCarrierJson(Long userId,Long rptId) throws JSONException{
+        List<ReportCustomerCarrierDto> customerList=reportsService.getReportCustomers(rptId,userId);
+        List<ReportCustomerCarrierDto> carrierList=reportsService.getReportCarrier(rptId,userId);
+        JSONObject customerCarrierJson=new JSONObject();
+        if(customerList!=null && customerList.size()>0) {
+            customerCarrierJson.put("customerList", JSONUtil.customerHierarchyJson(reportsService.getCustomerHierarchyObject(customerList)));
+        }
+        if(carrierList!=null && carrierList.size()>0) {
+            customerCarrierJson.put("carrierList",JSONUtil.carriersJson(carrierList));
+        }
+        return customerCarrierJson;
+    }
+    @RequestMapping(value = "/format", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<List<ReportFormatDto>> getReportFormat(@RequestParam String rptId){
+        try {
+            List<ReportFormatDto> reportFormats =reportsService.getReportFormat(Long.parseLong(rptId));
+            return new ResponseEntity<List<ReportFormatDto>>(reportFormats, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<List<ReportFormatDto>>(new ArrayList<ReportFormatDto>(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
     @RequestMapping(value = "/folder/create", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<ReportFolderDto> createReportFolder(@RequestBody ReportFolderDto reportFolderDto){

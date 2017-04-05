@@ -20,8 +20,8 @@ public class DashboardUtil {
      */
     public static void setDatesFromMonth(DashboardsFilterCriteria filter, String monthAndYear) throws Exception {
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yyyy");
-        String selectedMonth = monthAndYear.split(" ")[0];
-        String lastTwoDigitsOfYear = monthAndYear.split(" ")[1].replace("-", "");
+        String selectedMonth = monthAndYear.split("-")[0].trim();
+        String lastTwoDigitsOfYear = monthAndYear.split(" ")[1].replace("-", "").trim();
 
         String yearOfFromDate = filter.getFromDate().split("-")[2];
         String monthOfFromDate = filter.getFromDate().split("-")[1];
