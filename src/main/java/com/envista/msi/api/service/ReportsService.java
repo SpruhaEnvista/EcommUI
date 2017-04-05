@@ -36,8 +36,8 @@ public class ReportsService {
         return  reportsDao.getUsersList(userName);
     }
 
-    public List<SavedSchedReportsDto> getSavedSchedReports(long userId){
-        return reportsDao.getSavedSchedReports(userId);
+    public List<SavedSchedReportsDto> getSavedSchedReports(long userId,long filterId){
+        return reportsDao.getSavedSchedReports(userId,filterId);
     }
 
     public UpdateSavedSchedReportDto updateSavedSchedReport(UpdateSavedSchedReportDto updateSavedSchedReportDto){

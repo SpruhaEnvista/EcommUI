@@ -1,5 +1,7 @@
 package com.envista.msi.api.web.rest.dto.reports;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.hibernate.annotations.JoinColumnOrFormula;
 
 import javax.persistence.*;
@@ -14,11 +16,13 @@ import java.util.Date;
                 resultClasses = SavedSchedReportsDto.class,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "reportsList", type = Void.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "userId", type = Long.class)
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "userId", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "folderId", type = Long.class)
                 })
 })
 
 @Entity
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class SavedSchedReportsDto implements Serializable{
 
     @Id
@@ -41,12 +45,14 @@ public class SavedSchedReportsDto implements Serializable{
     private String createUser;
 
     @Column(name = "create_date")
+    @JsonFormat(pattern="MM/dd/yyyy")
     private Date createDate;
 
     @Column(name = "last_update_user")
     private String lastUpdateUser;
 
     @Column(name = "last_update_date")
+    @JsonFormat(pattern="MM/dd/yyyy")
     private Date lastUpdateDate;
 
     @Column(name = "userscount")

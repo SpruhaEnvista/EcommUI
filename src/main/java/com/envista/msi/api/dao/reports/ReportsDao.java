@@ -82,9 +82,10 @@ public class ReportsDao {
      */
 
     @Transactional( readOnly = true )
-    public List<SavedSchedReportsDto> getSavedSchedReports(long userId) {
+    public List<SavedSchedReportsDto> getSavedSchedReports(long userId,long folderId) {
         return persistentContext.findEntitiesAndMapFields("SavedSchedReports.gerSavedSchedReports",
-                StoredProcedureParameter.with("userId", userId));
+                StoredProcedureParameter.with("userId", userId)
+                                        .and("folderId",folderId));
     }
 
     @Transactional

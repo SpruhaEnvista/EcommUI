@@ -1,5 +1,7 @@
 package com.envista.msi.api.web.rest.dto.reports;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
@@ -97,10 +99,12 @@ public class ReportResultsDto implements Serializable {
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "completion_date")
+    @JsonFormat(pattern="MM/dd/yyyy")
     private Date completedDate;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "expires_date")
+    @JsonFormat(pattern="MM/dd/yyyy")
     private Date expiryDate;
 
     @Column(name="updateCount")
