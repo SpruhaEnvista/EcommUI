@@ -1,24 +1,34 @@
 package com.envista.msi.api.service;
 
 import com.envista.msi.api.dao.DashboardsDao;
+import com.envista.msi.api.geocode.AddressConverter;
+import com.envista.msi.api.geocode.GoogleResponse;
+import com.envista.msi.api.geocode.Result;
 import com.envista.msi.api.web.rest.dto.MapCoordinatesDto;
 import com.envista.msi.api.web.rest.dto.ZipCodesTimeZonesDto;
+import com.envista.msi.api.web.rest.dto.dashboard.CodeValueDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardAppliedFilterDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AccountSummaryDto;
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AnnualSummaryDto;
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.MonthlySpendByModeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
-import com.envista.msi.api.web.rest.dto.dashboard.netspend.AccessorialSpendDto;
-import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendByModeDto;
-import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendOverTimeDto;
-import com.envista.msi.api.web.rest.dto.dashboard.netspend.TaxSpendDto;
+import com.envista.msi.api.web.rest.dto.dashboard.filter.UserFilterDto;
+import com.envista.msi.api.web.rest.dto.dashboard.filter.UserFilterUtilityDataDto;
+import com.envista.msi.api.web.rest.dto.dashboard.netspend.*;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.PortLanesDto;
+import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentRegionDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShippingLanesDto;
-import com.envista.msi.api.web.rest.dto.dashboard.report.DashboardReportUtilityDataDto;
 import com.envista.msi.api.web.rest.dto.dashboard.report.DashboardReportDto;
+import com.envista.msi.api.web.rest.dto.dashboard.report.DashboardReportUtilityDataDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.*;
+import com.envista.msi.api.web.rest.util.JSONUtil;
+import com.envista.msi.api.web.rest.util.pagination.EnspirePagination;
+import com.envista.msi.api.web.rest.util.pagination.PaginationBean;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -592,6 +602,39 @@ public class DashboardsService {
         return columnMap;
     }
 
+    public PaginationBean getDashboardReportPaginationData(DashboardsFilterCriteria filter, int offset, int limit) throws Exception {
+        Map<String, Object> paginationFilterMap = new HashMap<String, Object>();
+        filter.setOffset(offset);
+        filter.setPageSize(limit);
+        paginationFilterMap.put("filter", filter);
+        return new EnspirePagination() {
+            @Override
+            protected int getTotalRowCount(Map<String, Object> paginationFilterMap) {
+                return dashboardsDao.getDashboardReportTotalRecordCount(filter);
+            }
+
+            @Override
+            protected Object loadPaginationData(Map<String, Object> paginationFilterMap, int offset, int limit, String sortOrder) throws Exception {
+                return loadDashboardReportJson(filter);
+            }
+        }.preparePaginationData(paginationFilterMap, offset, limit);
+    }
+
+    private JSONArray loadDashboardReportJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONArray dashboardReportJson = null;
+        List<DashboardReportDto> reportDataList = null;
+        if(filter.isLineItemReport()){
+            reportDataList = getLineItemReportDetails(filter);
+        }else{
+            reportDataList = getDashboardReport(filter);
+        }
+        if(reportDataList != null && !reportDataList.isEmpty()){
+            Map<String, String> resultColumnsMap = getReportColumnNames(filter);
+            dashboardReportJson = JSONUtil.prepareDashboardReportJson(reportDataList, resultColumnsMap);
+        }
+        return dashboardReportJson;
+    }
+
     /**
      * Get Dashboard report for Parcel and Freight.
      * @param filter
@@ -618,5 +661,214 @@ public class DashboardsService {
      */
     public List<DashboardReportUtilityDataDto> getColumnConfigByUser(Long userId, Long reportId){
         return dashboardsDao.getColumnConfigByUser(userId, reportId);
+    }
+
+    /**
+     * Get Actual Vs Billed weight data.
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<ActualVsBilledWeightDto> getActualVsBilledWeight(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        return dashboardsDao.getActualVsBilledWeight(filter, isTopTenAccessorial);
+    }
+
+    /**
+     * Get Actual Vs Billed weight data by carrier.
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<ActualVsBilledWeightDto> getActualVsBilledWeightByCarrier(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        return dashboardsDao.getActualVsBilledWeightByCarrier(filter, isTopTenAccessorial);
+    }
+
+    /**
+     * Get Actual Vs Billed weight data by month.
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<ActualVsBilledWeightDto> getActualVsBilledWeightByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        return dashboardsDao.getActualVsBilledWeightByMonth(filter, isTopTenAccessorial);
+    }
+
+    public Map<String, Object> getUserFilterDetails(Long filterId, boolean isParcelDashlettes, DashboardsFilterCriteria filter) throws JSONException {
+        Map<String, Object> userFilterDetailsMap = null;
+        UserFilterDto userFilter = getUserFilterById(filterId);
+        if(userFilter != null){
+            userFilterDetailsMap = new HashMap<String, Object>();
+            List<Long> carrList = new ArrayList<Long>();
+            List<String> servicesList = new ArrayList<String>();
+
+            JSONObject userFilterJson = new JSONObject(userFilter.getFilterDetails());
+            String customerIds = userFilterJson.getJSONObject("customerId").getString("value");
+            JSONArray carrArr = userFilterJson.getJSONArray("carrierId");
+            JSONArray servicesArr = userFilterJson.getJSONArray("services");
+
+            int carrArrLength = 0;
+            if(carrArr != null){
+                carrArrLength = carrArr.length();
+                for (int i = 0; i < carrArrLength; i++) {
+                    carrList.add(carrArr.getLong(i));
+                }
+            }
+
+            if(servicesArr != null){
+                int servicesArrLength = servicesArr.length();
+                for (int i = 0; i < servicesArrLength; i++) {
+                    servicesList.add(servicesArr.getString(i));
+                }
+            }
+
+            JSONArray modesArray = new JSONArray();
+            if (carrArr != null && carrArrLength > 0) {
+                String carrierString = carrArr.toString().replaceAll("[\\[\\]]", "");
+                Map<String, String> modeWiseCarriers = getModeWiseCarrier(carrierString);
+                modesArray = JSONUtil.prepareFilterModesJson(getFilterModes(filter), modeWiseCarriers, isParcelDashlettes);
+            }
+            userFilterDetailsMap.put("filterDetails", userFilter);
+            userFilterDetailsMap.put("carrDetails", JSONUtil.prepareFilterCarrierJson(getCarrierByCustomer(customerIds, isParcelDashlettes), carrList));
+            userFilterDetailsMap.put("modesDetails", modesArray);
+            userFilterDetailsMap.put("servicesDetails", JSONUtil.prepareFilterServiceJson(getFilterServices(filter), servicesList));
+        }
+        return userFilterDetailsMap;
+    }
+
+    /**
+     * Get user filter by filter id.
+     * @param userFilterId
+     * @return
+     */
+    public UserFilterDto getUserFilterById(Long userFilterId){
+        return dashboardsDao.getUserFilterById(userFilterId);
+    }
+
+    /**
+     * Get filter details by user id.
+     * @param userId
+     * @return
+     */
+    public List<UserFilterDto> getUserFilterByUser(Long userId){
+        return dashboardsDao.getUserFilterByUser(userId);
+    }
+
+    /**
+     * Get carrier by customer.
+     * @param customerIds
+     * @param isParcelDashlettes
+     * @return
+     */
+    public List<UserFilterUtilityDataDto> getCarrierByCustomer(String customerIds, boolean isParcelDashlettes){
+        return dashboardsDao.getCarrierByCustomer(customerIds, isParcelDashlettes);
+    }
+
+    /**
+     * Get filter modes.
+     * @param filter
+     * @return
+     */
+    public List<UserFilterUtilityDataDto> getFilterModes(DashboardsFilterCriteria filter){
+        return dashboardsDao.getFilterModes(filter);
+    }
+
+    /**
+     * Get filter service details.
+     * @param filter
+     * @return
+     */
+    public List<UserFilterUtilityDataDto> getFilterServices(DashboardsFilterCriteria filter){
+        return dashboardsDao.getFilterServices(filter);
+    }
+
+    public Map<String, String> getModeWiseCarrier(String carrierIds){
+        Map<String, String> modeWiseCarrMap = null;
+        List<UserFilterUtilityDataDto> carrierDataList = dashboardsDao.getCarrierDetailsByIds(carrierIds);
+        if(carrierDataList != null && !carrierDataList.isEmpty()){
+            modeWiseCarrMap = new HashMap<String, String>();
+            StringJoiner carrierCsv = new StringJoiner(",");
+            for(UserFilterUtilityDataDto carrierData : carrierDataList){
+                if(carrierData != null){
+                    if(Boolean.valueOf(carrierData.getLtl().toString())){
+                        carrierCsv.add(carrierData.getId().toString());
+                    }else{
+                        modeWiseCarrMap.put("freightCarrier", "freightCarrier");
+                    }
+                }
+            }
+            if (carrierCsv.length() > 0) {
+                modeWiseCarrMap.put("parcelCarrier", carrierIds.toString());
+            }
+        }
+        return modeWiseCarrMap;
+    }
+
+    /**
+     * Get code values by code group.
+     * @param codeGroupId
+     * @return
+     */
+    public List<CodeValueDto> getCodeValuesByCodeGroup(Long codeGroupId){
+        return dashboardsDao.getCodeValuesByCodeGroup(codeGroupId);
+    }
+
+    /**
+     * Get Map co-ordinates based on the list of address.
+     * Each address is combination of city, state and country comma separated.
+     * @param addresses
+     * @return
+     */
+    public List<MapCoordinatesDto> getLocationGeoCoordinates(String[] addresses){
+        return dashboardsDao.getLocationGeoCoordinates(addresses);
+    }
+
+    public Set<MapCoordinatesDto> getMapCoordinates(Set<String> addresses){
+        Set<MapCoordinatesDto>  mapCoordinates = new HashSet<MapCoordinatesDto>(getLocationGeoCoordinates(addresses.toArray(new String[addresses.size()])));
+        Set<String> tempAddresses = new HashSet<String>();
+        if(mapCoordinates != null && !mapCoordinates.isEmpty()){
+            for(MapCoordinatesDto mapCoordinate : mapCoordinates) {
+                if (mapCoordinate != null) {
+                    tempAddresses.add(mapCoordinate.getAddress());
+                }
+            }
+        }
+
+        Set<String> addressesToGetFromGoogle = new HashSet<String>(addresses);
+        addressesToGetFromGoogle.removeAll(tempAddresses);
+
+        for(String addr : addressesToGetFromGoogle){
+            try{
+                if(addr != null){
+                    GoogleResponse res = new AddressConverter().convertToLatLong(addr, addr.split(",")[2]);
+                    if (res.getStatus().equals("OK")) {
+                        for (Result result : res.getResults()) {
+                            MapCoordinatesDto mapCoordinatesDto = new MapCoordinatesDto();
+                            mapCoordinatesDto.setAddress(addr);
+                            mapCoordinatesDto.setLatitude( Double.parseDouble(result.getGeometry().getLocation().getLat()) );
+                            mapCoordinatesDto.setLongitude( Double.parseDouble(result.getGeometry().getLocation().getLng()) );
+                            insertMapCoordinates(mapCoordinatesDto);
+                            mapCoordinates.add(mapCoordinatesDto);
+                            break; // we will consider only first result from google
+                        }
+                    } else {
+                        // throw only when over limit or google server error else returns 0
+                        if (res.getStatus().equalsIgnoreCase("OVER_QUERY_LIMIT") || res.getStatus().equalsIgnoreCase("UNKNOWN_ERROR"))
+                            throw new Exception(res.getStatus());
+                    }
+                }
+            }catch (Exception e){
+                //Nothing. Continue to get geo co-ordinates from Google.
+            }
+        }
+        return mapCoordinates;
+    }
+
+    /**
+     * Get zone wise shipment count.
+     * @param filter
+     * @return
+     */
+    public List<ShipmentDto> getShipmentCountByZone(DashboardsFilterCriteria filter){
+        return dashboardsDao.getShipmentCountByZone(filter);
     }
 }

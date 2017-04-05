@@ -53,14 +53,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 	        )}
 		)
 @NamedStoredProcedureQueries({
-	@NamedStoredProcedureQuery(name = "UserProfileTb.getUserByProcUserEntity", procedureName = "getUserByUserName", 
+	@NamedStoredProcedureQuery(name = "UserProfileTb.getUserByProcUserEntity", procedureName = "shp_avtr_user_by_name_proc",
 	resultClasses = UserProfileDto.class,
 	parameters = {
 			@StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "RetUser", type = void.class),
 			@StoredProcedureParameter(mode = ParameterMode.IN, name = "userNameInParam", type = String.class)
 			 })
 	,
-	@NamedStoredProcedureQuery(name = "UserProfileTb.getUserByProcUserEntityMapping", procedureName = "getUserByUserName", resultSetMappings = "UserProfileTbMapper",
+	@NamedStoredProcedureQuery(name = "UserProfileTb.getUserByProcUserEntityMapping", procedureName = "shp_avtr_user_by_name_proc", resultSetMappings = "UserProfileTbMapper",
 	parameters = {
 			@StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "RetUser", type = void.class),
 			@StoredProcedureParameter(mode = ParameterMode.IN, name = "userNameInParam", type = String.class)
@@ -90,6 +90,9 @@ public class UserProfileDto implements Serializable {
 
 	@JsonIgnore
 	private String passwd;
+
+	@Column ( name = "ISPARCELDASHLETTES")
+	private Boolean parcelDashlettes ;
 
 	public UserProfileDto() {
 	}
@@ -148,6 +151,14 @@ public class UserProfileDto implements Serializable {
 
 	public void setPasswd(String passwd) {
 		this.passwd = passwd;
+	}
+
+	public Boolean isParcelDashlettes() {
+		return parcelDashlettes;
+	}
+
+	public void setParcelDashlettes(Boolean parcelDashlettes) {
+		this.parcelDashlettes = parcelDashlettes;
 	}
 
 	@Override

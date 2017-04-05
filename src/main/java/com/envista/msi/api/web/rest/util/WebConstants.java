@@ -14,6 +14,9 @@ public final class WebConstants {
 	 */
 	public static final String USER_IN_SESSION = "USER_IN_SESSION";
 	public static final String USER_IN_SESSION_OTHERWISE = "USER_IN_SESSION_OTHERWISE";
+
+	public static final String SMALL_PACKAGE_CODE_VALUE_ID  ="322906";
+	public static final String SMALL_PACKAGE_CARRIER_MODES = "Small Package";
 		
 	/**
 	 * Prevents instantiation

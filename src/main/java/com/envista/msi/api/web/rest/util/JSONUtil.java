@@ -1,6 +1,7 @@
 package com.envista.msi.api.web.rest.util;
 
 import com.envista.msi.api.web.rest.dto.MapCoordinatesDto;
+import com.envista.msi.api.web.rest.dto.dashboard.CodeValueDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AccountSummaryDto;
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AnnualSummaryDto;
@@ -9,16 +10,20 @@ import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
 import com.envista.msi.api.web.rest.dto.dashboard.common.CommonMonthlyChartDto;
 import com.envista.msi.api.web.rest.dto.dashboard.common.CommonValuesForChartDto;
 import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendCommonDto;
+import com.envista.msi.api.web.rest.dto.dashboard.filter.UserFilterUtilityDataDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.AccessorialSpendDto;
+import com.envista.msi.api.web.rest.dto.dashboard.netspend.ActualVsBilledWeightDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendByModeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendOverTimeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.PortLanesDto;
+import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentRegionDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShippingLanesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.report.DashboardReportDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.AverageSpendPerShipmentDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.AverageWeightModeShipmtDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.ServiceLevelUsageAndPerformanceDto;
+import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
@@ -40,7 +45,8 @@ public class JSONUtil {
 			"Total Weight", "Total Charges", "Line Haul", "Fuel Surcharge", "Discount", "Accessorials",
 			"Adjustments", "Total Due Amount", "Invoice Amount", "Approved Line Charges", "Line Charges", "Adjustment"
 	};
-	static{
+
+	static {
 		if (colorsList.isEmpty()) {
 
 			colorsList.add("#673FB4");
@@ -71,7 +77,7 @@ public class JSONUtil {
 	 * @param obj
 	 * @return JSONString
 	 */
-	final public static String ConvertObject2JSON(Object obj){
+	final public static String ConvertObject2JSON(Object obj) {
 		String jsonInString = "{}";
 		ObjectMapper mapper = new ObjectMapper();
 		//Object to JSON in String
@@ -89,7 +95,7 @@ public class JSONUtil {
 	 * @param jsonInString
 	 * @return Object
 	 */
-	final public static <T> T ConvertJSON2Object(String jsonInString, Class<T> type){
+	final public static <T> T ConvertJSON2Object(String jsonInString, Class<T> type) {
 		ObjectMapper mapper = new ObjectMapper();
 		T ret = null;
 		try {
@@ -102,7 +108,6 @@ public class JSONUtil {
 	}
 
 	/**
-	 *
 	 * @param netSpendDtoList
 	 * @return
 	 * @throws JSONException
@@ -112,15 +117,15 @@ public class JSONUtil {
 		JSONArray valuesArray = null;
 		JSONArray seriesArray = null;
 
-		if(netSpendDtoList != null && netSpendDtoList.size() > 0){
+		if (netSpendDtoList != null && netSpendDtoList.size() > 0) {
 			valuesArray = new JSONArray();
 			seriesArray = new JSONArray();
 
 			Map<String, HashMap<String, Double>> modesValuesMap = new LinkedHashMap<String, HashMap<String, Double>>();
 			List<String> scortypeList = new ArrayList<String>();
 
-			for(NetSpendByModeDto netSpendDto: netSpendDtoList){
-				if(netSpendDto != null && netSpendDto.getSpend() != 0){
+			for (NetSpendByModeDto netSpendDto : netSpendDtoList) {
+				if (netSpendDto != null && netSpendDto.getSpend() != 0) {
 					String mode = netSpendDto.getModes();
 					String scoreType = netSpendDto.getScoreType();
 					Double spend = netSpendDto.getSpend();
@@ -186,21 +191,21 @@ public class JSONUtil {
 		LinkedHashMap<String, HashMap<String, Double>> datesValuesMap = null;
 		ArrayList<String> carriersList = null;
 
-		if(netSpendOverTimeDtos != null && netSpendOverTimeDtos.size() > 0){
+		if (netSpendOverTimeDtos != null && netSpendOverTimeDtos.size() > 0) {
 			valuesArray = new JSONArray();
 			seriesArray = new JSONArray();
 			datesValuesMap = new LinkedHashMap<String, HashMap<String, Double>>();
 			carriersList = new ArrayList<String>();
 
-			for(NetSpendOverTimeDto overTimeDto : netSpendOverTimeDtos){
-				if(overTimeDto != null){
+			for (NetSpendOverTimeDto overTimeDto : netSpendOverTimeDtos) {
+				if (overTimeDto != null) {
 					String billDate = overTimeDto.getBillingDate();
 					String carrierName = overTimeDto.getCarrierName();
 					long carrierId = overTimeDto.getCarrierId();
 					Double spend = overTimeDto.getNetCharges();
 
 					if (spend != 0) {
-						String concatCarrier = carrierId+"#@#"+carrierName;
+						String concatCarrier = carrierId + "#@#" + carrierName;
 						if (!carriersList.contains(concatCarrier)) {
 							carriersList.add(concatCarrier);
 						}
@@ -259,7 +264,7 @@ public class JSONUtil {
 
 				seriesArray.put(new JSONObject(object));
 				counter++;
-				if(counter == colorsList.size()){
+				if (counter == colorsList.size()) {
 					counter = 1;
 				}
 			}
@@ -276,12 +281,12 @@ public class JSONUtil {
 		JSONArray spendArray = null;
 		HashMap<String, Double> spendMap = null;
 
-		if(spendList != null && spendList.size() > 0){
+		if (spendList != null && spendList.size() > 0) {
 			spendArray = new JSONArray();
 			spendMap = new HashMap<>();
 
-			for(NetSpendCommonDto taxSpend : spendList){
-				if(taxSpend != null){
+			for (NetSpendCommonDto taxSpend : spendList) {
+				if (taxSpend != null) {
 					String spendTypeName = taxSpend.getSpendTypeName();
 					Double spend = taxSpend.getSpend();
 					if (spend > 0) {
@@ -319,10 +324,10 @@ public class JSONUtil {
 		JSONArray returnArray = null;
 		JSONObject statusJson = null;
 
-		if(dataList != null && dataList.size() > 0){
+		if (dataList != null && dataList.size() > 0) {
 			returnArray = new JSONArray();
-			for(CommonValuesForChartDto chartData : dataList){
-				if(chartData != null){
+			for (CommonValuesForChartDto chartData : dataList) {
+				if (chartData != null) {
 					statusJson = new JSONObject();
 					statusJson.put("name", chartData.getName());
 					statusJson.put("value", chartData.getValue());
@@ -342,10 +347,10 @@ public class JSONUtil {
 		JSONArray returnArray = null;
 		JSONObject statusJson = null;
 
-		if(dataList != null && dataList.size() > 0){
+		if (dataList != null && dataList.size() > 0) {
 			returnArray = new JSONArray();
-			for(InvoiceMethodScoreDto chartData : dataList){
-				if(chartData != null){
+			for (InvoiceMethodScoreDto chartData : dataList) {
+				if (chartData != null) {
 					statusJson = new JSONObject();
 					statusJson.put("name", chartData.getName());
 					statusJson.put("value", chartData.getValue());
@@ -367,14 +372,14 @@ public class JSONUtil {
 		LinkedHashMap<String, HashMap<String, Double>> datesValuesMap = null;
 		ArrayList<String> serviceFlagList = null;
 
-		if(accessorialSpendList != null){
+		if (accessorialSpendList != null) {
 			valuesArray = new JSONArray();
 			seriesArray = new JSONArray();
 			datesValuesMap = new LinkedHashMap<String, HashMap<String, Double>>();
 			serviceFlagList = new ArrayList<String>();
 
-			for(AccessorialSpendDto accSpend : accessorialSpendList){
-				if(accSpend != null){
+			for (AccessorialSpendDto accSpend : accessorialSpendList) {
+				if (accSpend != null) {
 					String billDate = accSpend.getBillDate();
 					String service = accSpend.getAccessorialName();
 					Double spend = accSpend.getSpend();
@@ -449,7 +454,7 @@ public class JSONUtil {
 		LinkedHashMap<String, HashMap<String, Double>> datesValuesMap = new LinkedHashMap<String, HashMap<String, Double>>();
 		ArrayList<String> modeFlagList = new ArrayList<String>();
 
-		for (AverageSpendPerShipmentDto perShipmentDto:avgPerShipmentList){
+		for (AverageSpendPerShipmentDto perShipmentDto : avgPerShipmentList) {
 			String billDate = perShipmentDto.getBillingDate();
 			String mode = perShipmentDto.getModes();
 			Double spend = perShipmentDto.getNetWeight();
@@ -513,14 +518,14 @@ public class JSONUtil {
 	}
 
 
-	public static JSONObject prepareAverageWeightJson(   List<AverageWeightModeShipmtDto> avgWeigthModeShpmtList) throws JSONException {
+	public static JSONObject prepareAverageWeightJson(List<AverageWeightModeShipmtDto> avgWeigthModeShpmtList) throws JSONException {
 		JSONObject returnObject = new JSONObject();
 		JSONArray valuesArray = new JSONArray();
 		JSONArray seriesArray = new JSONArray();
 		LinkedHashMap<String, HashMap<String, Double>> datesValuesMap = new LinkedHashMap<String, HashMap<String, Double>>();
 		ArrayList<String> modeFlagList = new ArrayList<String>();
 
-		for (AverageWeightModeShipmtDto perWeightShipmentDto:avgWeigthModeShpmtList){
+		for (AverageWeightModeShipmtDto perWeightShipmentDto : avgWeigthModeShpmtList) {
 			String billDate = perWeightShipmentDto.getBillingDate();
 			String mode = perWeightShipmentDto.getModes();
 			Double spend = perWeightShipmentDto.getNetWeight();
@@ -588,26 +593,26 @@ public class JSONUtil {
 		JSONArray valuesArray = null;
 		JSONArray seriesArray = null;
 
-		if(performanceList != null && !performanceList.isEmpty()){
+		if (performanceList != null && !performanceList.isEmpty()) {
 			valuesArray = new JSONArray();
 			seriesArray = new JSONArray();
 			HashMap<String, Double> carriersValuesMap = new LinkedHashMap<String, Double>();
 			Set<String> categories = new TreeSet<String>(Arrays.asList("DAY2", "DAY3", "GROUND", "INTL", "NDA", "POSTALINTG"));
 			Set<String> attributes = new TreeSet<String>();
 
-			for(ServiceLevelUsageAndPerformanceDto serviceLevelUsage : performanceList){
-				if(serviceLevelUsage != null){
+			for (ServiceLevelUsageAndPerformanceDto serviceLevelUsage : performanceList) {
+				if (serviceLevelUsage != null) {
 					int c = 0;
-					for(String category : categories){
+					for (String category : categories) {
 						String carrierName = serviceLevelUsage.getCarrierName();
-						if(c == 0){
+						if (c == 0) {
 							attributes.add(carrierName + "COUNT");
 							attributes.add(carrierName + "PERC");
 							attributes.add(carrierName + "LATEPERC");
 							c++;
 						}
 						String key = carrierName + "#@#" + category;
-						switch (category){
+						switch (category) {
 							case "DAY2":
 								carriersValuesMap.put(key + "#@#COUNT", serviceLevelUsage.getDay2Count());
 								carriersValuesMap.put(key + "#@#PERC", serviceLevelUsage.getDay2Percentage());
@@ -675,7 +680,7 @@ public class JSONUtil {
 					seriesObject.append(",\"type\":\"line\",\"style\":{\"lineWidth\": 2,depth: 4, gradient: 0.9 ,smoothing: true, marker: {shape: \"circle\", width: 5}, ");
 					seriesObject.append("lineColor: \"" + colorsList.get(counter - 1) + "\"");
 					seriesObject.append("}");
-				}else {
+				} else {
 					seriesObject.append(",style: { depth: 4, gradient: 0.9 }");
 				}
 
@@ -697,20 +702,20 @@ public class JSONUtil {
 		JSONArray valuesArray = null;
 		JSONArray seriesArray = null;
 
-		if(spendList != null && !spendList.isEmpty()){
+		if (spendList != null && !spendList.isEmpty()) {
 			valuesArray = new JSONArray();
 			seriesArray = new JSONArray();
 			LinkedHashMap<String, HashMap<String, Double>> datesValuesMap = new LinkedHashMap<String, HashMap<String, Double>>();
 			ArrayList<String> modeFlagList = new ArrayList<String>();
 			ArrayList<String> carriersList = new ArrayList<String>();
-			for(NetSpendCommonDto spendDto : spendList){
-				if(spendDto != null){
+			for (NetSpendCommonDto spendDto : spendList) {
+				if (spendDto != null) {
 					String billDate = spendDto.getBillingDate();
 					String carrierScacCode = spendDto.getCarrierName();
 					Double spend = spendDto.getNetDueAmount();
 					Long carrierId = spendDto.getCarrierId();
 					String carrierIaAndName = carrierId + "#@#" + carrierScacCode;
-					if(!carriersList.contains(carrierIaAndName)){
+					if (!carriersList.contains(carrierIaAndName)) {
 						carriersList.add(carrierIaAndName);
 					}
 
@@ -798,14 +803,14 @@ public class JSONUtil {
 		JSONObject returnJson = new JSONObject();
 		JSONArray returnArray = null;
 		JSONObject statusJson = null;
-		if(orderMatchList != null && orderMatchList.size() > 0){
+		if (orderMatchList != null && orderMatchList.size() > 0) {
 			returnArray = new JSONArray();
 			statusJson = new JSONObject();
 			statusJson.put("name", "Status");
 			statusJson.put("id", "1");
 
-			for(OrderMatchDto orderMatch : orderMatchList){
-				if(orderMatch != null){
+			for (OrderMatchDto orderMatch : orderMatchList) {
+				if (orderMatch != null) {
 					if ("Matched".equals(orderMatch.getStatus())) {
 						statusJson.put("Matched", orderMatch.getValue());
 					} else {
@@ -822,11 +827,12 @@ public class JSONUtil {
 
 	public static JSONObject prepareBilledVsApprovedJson(List<BilledVsApprovedDto> billedVsApprovedList) throws JSONException {
 		JSONObject returnJson = new JSONObject();
-		JSONArray returnArray = new JSONArray();;
+		JSONArray returnArray = new JSONArray();
+		;
 		JSONObject statusJson = null;
-		if(billedVsApprovedList != null && billedVsApprovedList.size() > 0){
-			for(BilledVsApprovedDto billedVsApproved : billedVsApprovedList){
-				if(billedVsApproved != null){
+		if (billedVsApprovedList != null && billedVsApprovedList.size() > 0) {
+			for (BilledVsApprovedDto billedVsApproved : billedVsApprovedList) {
+				if (billedVsApproved != null) {
 					statusJson = new JSONObject();
 					statusJson.put("id", billedVsApproved.getCarrierId());
 					statusJson.put("name", billedVsApproved.getCarrierName());
@@ -848,13 +854,13 @@ public class JSONUtil {
 		JSONArray valuesArray = null;
 		JSONArray seriesArray = null;
 
-		if(recoveryAdjustmentList != null && !recoveryAdjustmentList.isEmpty()){
+		if (recoveryAdjustmentList != null && !recoveryAdjustmentList.isEmpty()) {
 			valuesArray = new JSONArray();
 			seriesArray = new JSONArray();
 			LinkedHashMap<String, HashMap<String, Double>> monthsMap = new LinkedHashMap<String, HashMap<String, Double>>();
 			ArrayList<String> servicesList = new ArrayList<String>();
-			for(RecoveryAdjustmentDto recoveryAdjustment : recoveryAdjustmentList){
-				if(recoveryAdjustment != null){
+			for (RecoveryAdjustmentDto recoveryAdjustment : recoveryAdjustmentList) {
+				if (recoveryAdjustment != null) {
 					String month = recoveryAdjustment.getMonth();
 					String service = recoveryAdjustment.getService();
 					Double spend = recoveryAdjustment.getSpend();
@@ -917,7 +923,7 @@ public class JSONUtil {
 
 			returnObject.put("values", valuesArray);
 			returnObject.put("series", seriesArray);
-		}else{
+		} else {
 			returnObject.put("values", new JSONArray());
 			returnObject.put("series", new JSONArray());
 		}
@@ -929,7 +935,7 @@ public class JSONUtil {
 		JSONArray valuesArray = null;
 		JSONArray seriesArray = null;
 
-		if(recoveryServiceList != null && !recoveryServiceList.isEmpty()){
+		if (recoveryServiceList != null && !recoveryServiceList.isEmpty()) {
 			valuesArray = new JSONArray();
 			seriesArray = new JSONArray();
 			Map<String, HashMap<String, Double>> servicesMap = new LinkedHashMap<String, HashMap<String, Double>>();
@@ -937,8 +943,8 @@ public class JSONUtil {
 			ArrayList<String> carriersList = new ArrayList<String>();
 			ArrayList<String> concatCarriersList = new ArrayList<String>();
 
-			for(RecoveryServiceDto recoveryService : recoveryServiceList){
-				if(recoveryService != null){
+			for (RecoveryServiceDto recoveryService : recoveryServiceList) {
+				if (recoveryService != null) {
 					String service = recoveryService.getBucketType();
 					String carrierName = recoveryService.getCarrierName();
 					Long carrierId = recoveryService.getCarrierId();
@@ -999,7 +1005,7 @@ public class JSONUtil {
 				carrier = append + carrier + append;
 				String seriesId = append + "S" + counter + append;
 
-				String object = "{\"id\":" + seriesId + ",\"name\":" + carrier + ", \"data\": {\"field\":" + carrier + ",\"carrierId\" : "+ carrierMap.get(carrierName) +"},style: { depth: 4, gradient: 0.9 }}";
+				String object = "{\"id\":" + seriesId + ",\"name\":" + carrier + ", \"data\": {\"field\":" + carrier + ",\"carrierId\" : " + carrierMap.get(carrierName) + "},style: { depth: 4, gradient: 0.9 }}";
 				seriesArray.put(new JSONObject(object));
 				counter++;
 			}
@@ -1007,7 +1013,7 @@ public class JSONUtil {
 			returnObject.put("values", valuesArray);
 			returnObject.put("series", seriesArray);
 			returnObject.put("carrierDetails", new JSONArray().put(concatCarriersList));
-		} else{
+		} else {
 			returnObject.put("values", new JSONArray());
 			returnObject.put("series", new JSONArray());
 			returnObject.put("carrierDetails", new JSONArray());
@@ -1018,14 +1024,14 @@ public class JSONUtil {
 	public static JSONObject preparePackageExceptionJson(List<PackageExceptionDto> packageExceptionList) throws JSONException {
 		JSONObject returnObject = new JSONObject();
 
-		if(packageExceptionList != null && !packageExceptionList.isEmpty()){
+		if (packageExceptionList != null && !packageExceptionList.isEmpty()) {
 			JSONArray valuesArray = new JSONArray();
 			JSONArray seriesArray = new JSONArray();
 			LinkedHashMap<String, HashMap<String, Integer>> datesValuesMap = new LinkedHashMap<String, HashMap<String, Integer>>();
 			ArrayList<String> deliveryFlagList = new ArrayList<String>();
 
-			for(PackageExceptionDto packageException : packageExceptionList){
-				if(packageException != null){
+			for (PackageExceptionDto packageException : packageExceptionList) {
+				if (packageException != null) {
 					String billDate = packageException.getBillingDate();
 					String deliveryFlag = packageException.getDeliveryFlag();
 					Integer spend = packageException.getDeliveryFlagCount();
@@ -1099,22 +1105,22 @@ public class JSONUtil {
 
 			returnObject.put("values", valuesArray);
 			returnObject.put("series", seriesArray);
-		}else{
+		} else {
 			returnObject.put("values", new JSONArray());
 			returnObject.put("series", new JSONArray());
 		}
 		return returnObject;
 	}
 
-	public static JSONObject prepareShipmentByRegionLanesJson (List<ShipmentRegionDto> shipmentRegionDtoList) throws Exception {
+	public static JSONObject prepareShipmentByRegionLanesJson(List<ShipmentRegionDto> shipmentRegionDtoList) throws Exception {
 
 		JSONObject resultData = new JSONObject();
 		JSONArray linksArray = new JSONArray();
-		JSONObject linksObject = null ;
+		JSONObject linksObject = null;
 		JSONArray addressArray = new JSONArray();
 
 
-		for ( ShipmentRegionDto shipmentRegionDto : shipmentRegionDtoList) {
+		for (ShipmentRegionDto shipmentRegionDto : shipmentRegionDtoList) {
 			String shipperCity = shipmentRegionDto.getShipperCity().replaceAll("\\s+", " ");
 			String receiverCity = shipmentRegionDto.getReceiverCity().replaceAll("\\s+", " ");
 			String shipperAddress = shipmentRegionDto.getShipperAddress().toUpperCase();
@@ -1146,22 +1152,22 @@ public class JSONUtil {
 			linksArray.put(linksObject);
 		}
 
-		resultData.put("links",linksArray);
-		resultData.put("addressList",addressArray);
+		resultData.put("links", linksArray);
+		resultData.put("addressList", addressArray);
 
 		return resultData;
 	}
 
-	public static JSONObject prepareShipmentByRegionNodesJson(List<MapCoordinatesDto> mapCoordinatesDtoList, JSONObject resultJsonData) throws Exception{
-		int counter = 0 ;
+	public static JSONObject prepareShipmentByRegionNodesJson(Set<MapCoordinatesDto> mapCoordinatesDtoList, JSONObject resultJsonData) throws Exception {
+		int counter = 0;
 		JSONArray nodesArray = new JSONArray();
 
-		for ( MapCoordinatesDto mapCoordinatesDto : mapCoordinatesDtoList ) {
+		for (MapCoordinatesDto mapCoordinatesDto : mapCoordinatesDtoList) {
 
 			JSONArray longLatJsonArray = new JSONArray();
 			JSONObject nodeObj = new JSONObject();
 
-			if( counter == 0) {
+			if (counter == 0) {
 				resultJsonData.put("longitude", mapCoordinatesDto.getLatitude());
 				resultJsonData.put("latitude", mapCoordinatesDto.getLongitude());
 			}
@@ -1188,13 +1194,13 @@ public class JSONUtil {
 		long fromDate = 0;
 		long toDate = 0;
 
-		if(monthlyChartDtoList != null && monthlyChartDtoList.size() > 0){
+		if (monthlyChartDtoList != null && monthlyChartDtoList.size() > 0) {
 			returnArray = new JSONArray();
-			for(CommonMonthlyChartDto monthlyChartDto : monthlyChartDtoList){
-				if(monthlyChartDto != null){
+			for (CommonMonthlyChartDto monthlyChartDto : monthlyChartDtoList) {
+				if (monthlyChartDto != null) {
 					JSONArray dataArray = new JSONArray();
 					long dateInMilliSecs = 0L;
-					if(monthlyChartDto.getBillDate() != null){
+					if (monthlyChartDto.getBillDate() != null) {
 						dateInMilliSecs = monthlyChartDto.getBillDate().getTime();
 					}
 
@@ -1223,10 +1229,10 @@ public class JSONUtil {
 
 	public static JSONObject prepareTopShippingLanesJson(List<ShippingLanesDto> shippingLanesDtoList) throws JSONException {
 		JSONObject returnJson = new JSONObject();
-		JSONArray  lanesArray = new JSONArray();
-		for( ShippingLanesDto shippingLanesDto : shippingLanesDtoList) {
+		JSONArray lanesArray = new JSONArray();
+		for (ShippingLanesDto shippingLanesDto : shippingLanesDtoList) {
 			JSONObject laneInfoJson = new JSONObject();
-			laneInfoJson.put("rank",shippingLanesDto.getRank());
+			laneInfoJson.put("rank", shippingLanesDto.getRank());
 			laneInfoJson.put("shipperAddress", shippingLanesDto.getShipperAddress());
 			laneInfoJson.put("receiverAddress", shippingLanesDto.getReceiverAddress());
 			laneInfoJson.put("laneTotal", shippingLanesDto.getLaneTotal());
@@ -1234,17 +1240,17 @@ public class JSONUtil {
 			lanesArray.put(laneInfoJson);
 		}
 
-		returnJson.put("data",lanesArray);
+		returnJson.put("data", lanesArray);
 
 		return returnJson;
 	}
 
 	public static JSONObject prepareTopPortLanesJson(List<PortLanesDto> shippingLanesDtoList) throws JSONException {
 		JSONObject returnJson = new JSONObject();
-		JSONArray  lanesArray = new JSONArray();
-		for( PortLanesDto portLanesDto : shippingLanesDtoList) {
+		JSONArray lanesArray = new JSONArray();
+		for (PortLanesDto portLanesDto : shippingLanesDtoList) {
 			JSONObject laneInfoJson = new JSONObject();
-			laneInfoJson.put("rank",portLanesDto.getRank());
+			laneInfoJson.put("rank", portLanesDto.getRank());
 			laneInfoJson.put("pol", portLanesDto.getPol());
 			laneInfoJson.put("pod", portLanesDto.getPod());
 			laneInfoJson.put("laneTotal", portLanesDto.getLaneTotal());
@@ -1252,14 +1258,14 @@ public class JSONUtil {
 			lanesArray.put(laneInfoJson);
 		}
 
-		returnJson.put("data",lanesArray);
+		returnJson.put("data", lanesArray);
 
 		return returnJson;
 	}
 
 	public static JSONObject prepareParcelAccountSummaryJson(List<AccountSummaryDto> accountSummaryList, DashboardsFilterCriteria filter) throws JSONException {
 		JSONObject resultJsonObj = new JSONObject();
-		if(accountSummaryList != null && !accountSummaryList.isEmpty()){
+		if (accountSummaryList != null && !accountSummaryList.isEmpty()) {
 			int counter = 1;
 			Map<String, HashMap<String, BigDecimal>> yearsBasedMap = new LinkedHashMap<String, HashMap<String, BigDecimal>>();
 			ArrayList<String> yearsList = new ArrayList<String>();
@@ -1279,8 +1285,8 @@ public class JSONUtil {
 			categoriesList.add("Small Package Spend");
 			categoriesList.add("Recovery");
 
-			for(AccountSummaryDto accountSummary : accountSummaryList){
-				if(accountSummary != null){
+			for (AccountSummaryDto accountSummary : accountSummaryList) {
+				if (accountSummary != null) {
 					String year = accountSummary.getBillYear();
 					int isLtl = accountSummary.getLtl();
 					BigDecimal amount = accountSummary.getAmount();
@@ -1363,7 +1369,7 @@ public class JSONUtil {
 	public static JSONObject prepareAccountSummaryJson(List<AccountSummaryDto> accountSummaryList, DashboardsFilterCriteria filter) throws JSONException {
 		JSONObject resultJsonObj = new JSONObject();
 
-		if(accountSummaryList != null && !accountSummaryList.isEmpty()){
+		if (accountSummaryList != null && !accountSummaryList.isEmpty()) {
 			Map<String, LinkedHashMap<String, BigDecimal>> categoriesBasedMap = new LinkedHashMap<String, LinkedHashMap<String, BigDecimal>>();
 			ArrayList<String> yearsList = new ArrayList<String>();
 			ArrayList<String> categoriesList = new ArrayList<String>();
@@ -1385,7 +1391,7 @@ public class JSONUtil {
 			categoriesList.add("Total Spend");
 			categoriesList.add("Recovery");
 
-			for(AccountSummaryDto accountSummary : accountSummaryList) {
+			for (AccountSummaryDto accountSummary : accountSummaryList) {
 				if (accountSummary != null) {
 					String year = accountSummary.getBillYear();
 					int isLtl = accountSummary.getLtl();
@@ -1454,14 +1460,14 @@ public class JSONUtil {
 
 	public static JSONObject prepareAnnualSummaryJson(List<AnnualSummaryDto> annualSummaryList) throws JSONException {
 		JSONObject returnJson = new JSONObject();
-		if(annualSummaryList != null && !annualSummaryList.isEmpty()){
+		if (annualSummaryList != null && !annualSummaryList.isEmpty()) {
 			Map<String, HashMap<String, HashMap<String, Double>>> modesMap = new LinkedHashMap<>();
 			ArrayList<String> modesList = new ArrayList<>();
 			ArrayList<String> quatersList = new ArrayList<>();
 			Map<String, Double> quaterlyWiseSpend = new HashMap<String, Double>();
 
-			for(AnnualSummaryDto annualSummary : annualSummaryList){
-				if(annualSummary != null){
+			for (AnnualSummaryDto annualSummary : annualSummaryList) {
+				if (annualSummary != null) {
 					String quater = annualSummary.getQuarter();
 					String mode = annualSummary.getModes();
 					double spend = annualSummary.getSpend();
@@ -1565,14 +1571,14 @@ public class JSONUtil {
 
 	public static JSONObject prepareAnnualSummaryByServiceJson(List<AnnualSummaryDto> annualSummaryList) throws JSONException {
 		JSONObject returnJson = new JSONObject();
-		if(annualSummaryList != null && !annualSummaryList.isEmpty()){
+		if (annualSummaryList != null && !annualSummaryList.isEmpty()) {
 			Map<String, HashMap<String, HashMap<String, Double>>> servicesMap = new LinkedHashMap<>();
 			ArrayList<String> servicesList = new ArrayList<>();
 			ArrayList<String> quatersList = new ArrayList<>();
 			Map<String, Double> quaterlyWiseSpend = new HashMap<String, Double>();
 
-			for(AnnualSummaryDto annualSummary : annualSummaryList){
-				if(annualSummary != null){
+			for (AnnualSummaryDto annualSummary : annualSummaryList) {
+				if (annualSummary != null) {
 					String quater = annualSummary.getQuarter();
 					String service = annualSummary.getService();
 					double spend = annualSummary.getSpend();
@@ -1671,13 +1677,13 @@ public class JSONUtil {
 	public static JSONObject prepareMonthlySpendByModeJson(List<MonthlySpendByModeDto> monthlySpendList) throws JSONException {
 		JSONObject returnJson = new JSONObject();
 
-		if(monthlySpendList != null && !monthlySpendList.isEmpty()){
+		if (monthlySpendList != null && !monthlySpendList.isEmpty()) {
 			Map<String, HashMap<String, HashMap<String, Double>>> modesMap = new LinkedHashMap<>();
 			List<String> modesList = new ArrayList<String>();
 			List<String> monthsList = new ArrayList<String>();
 
-			for(MonthlySpendByModeDto monthlySpend : monthlySpendList){
-				if(monthlySpend != null){
+			for (MonthlySpendByModeDto monthlySpend : monthlySpendList) {
+				if (monthlySpend != null) {
 					String month = monthlySpend.getMonth();
 					String mode = monthlySpend.getModes();
 					Double spend = monthlySpend.getSpend();
@@ -1741,13 +1747,13 @@ public class JSONUtil {
 	public static JSONObject prepareMonthlySpendByModeByServiceJson(List<MonthlySpendByModeDto> monthlySpendList) throws JSONException {
 		JSONObject returnJson = new JSONObject();
 
-		if(monthlySpendList != null && !monthlySpendList.isEmpty()){
+		if (monthlySpendList != null && !monthlySpendList.isEmpty()) {
 			Map<String, HashMap<String, HashMap<String, Double>>> servicesMap = new LinkedHashMap<>();
 			List<String> servicesList = new ArrayList<>();
 			List<String> quatersList = new ArrayList<>();
 
-			for(MonthlySpendByModeDto monthlySpend : monthlySpendList){
-				if(monthlySpend != null){
+			for (MonthlySpendByModeDto monthlySpend : monthlySpendList) {
+				if (monthlySpend != null) {
 					String quater = monthlySpend.getMonth();
 					String service = monthlySpend.getService();
 					double spend = monthlySpend.getSpend();
@@ -1805,19 +1811,18 @@ public class JSONUtil {
 		return returnJson;
 	}
 
-	public static JSONObject prepareDashboardReportJson(List<DashboardReportDto> reportDataList, Map<String, String> resultColumn) throws JSONException {
-		JSONObject returnJson = new JSONObject();
+	public static JSONArray prepareDashboardReportJson(List<DashboardReportDto> reportDataList, Map<String, String> resultColumn) throws JSONException {
 		JSONArray returnArray = new JSONArray();
 
-		if(reportDataList != null && !reportDataList.isEmpty()){
-			for(DashboardReportDto reportData : reportDataList){
-				if(reportData != null){
+		if (reportDataList != null && !reportDataList.isEmpty()) {
+			for (DashboardReportDto reportData : reportDataList) {
+				if (reportData != null) {
 					JSONObject reportJsonObj = new JSONObject();
-					for(Map.Entry<String, String> columnEntry : resultColumn.entrySet()){
-						if(columnEntry != null){
+					for (Map.Entry<String, String> columnEntry : resultColumn.entrySet()) {
+						if (columnEntry != null) {
 							String key = columnEntry.getKey();
 							String value = columnEntry.getValue();
-							switch (key){
+							switch (key) {
 								case "CARRIER_NAME":
 									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getCarrierName()));
 									break;
@@ -1989,27 +1994,376 @@ public class JSONUtil {
 					returnArray.put(reportJsonObj);
 				}
 			}
-			returnJson.put("values", returnArray);
-			return returnJson;
+			return returnArray;
 		}
 
 		return null;
 	}
 
-	private static String checkCommaSeparaedDecimalFormat(String columnName, Object val){
+	private static String checkCommaSeparaedDecimalFormat(String columnName, Object val) {
 		List<String> commaSeperatedFields = Arrays.asList(commaSeperatedFieldsArr);
 		String value = "";
-		if(commaSeperatedFields.contains(columnName)){
-			try{
-				if(val != null) {
+		if (commaSeperatedFields.contains(columnName)) {
+			try {
+				if (val != null) {
 					value = commaSeperatedDecimalFormat.format(Double.parseDouble(val.toString()));
 				}
-			}catch (Exception e){
-				value = val != null ? val.toString() : "" ;
+			} catch (Exception e) {
+				value = val != null ? val.toString() : "";
 			}
-		}else{
+		} else {
 			value = String.valueOf(val);
 		}
 		return value;
 	}
+
+	public static JSONObject prepareActualVsBilledWeightJson(List<ActualVsBilledWeightDto> weightList) throws JSONException {
+		JSONObject weightJson = new JSONObject();
+		JSONArray valuesArray = null;
+		JSONArray seriesArray = null;
+		if (weightList != null && !weightList.isEmpty()) {
+			valuesArray = new JSONArray();
+			seriesArray = new JSONArray();
+			for (ActualVsBilledWeightDto weightDto : weightList) {
+				if (weightDto != null) {
+					JSONObject monthWiseObj = new JSONObject();
+					monthWiseObj.put("name", weightDto.getBillingDate());
+					monthWiseObj.put("Actual Weight", weightDto.getActualWeight());
+					monthWiseObj.put("Bill Weight", weightDto.getBilledWeight());
+					valuesArray.put(monthWiseObj);
+				}
+			}
+
+			String object = "{\"id\":S1,\"name\":\"Actual Weight\",\"data\": {\"field\":\"Actual Weight\"},\"type\":\"line\",\"stack\":\"s1\",\"style\":{\"lineWidth\": 2,smoothing: true, marker: {shape: \"circle\", width: 5},";
+			object = object + "lineColor: \"red\"";
+			object = object + "}}";
+			seriesArray.put(new JSONObject(object));
+
+			object = "{\"id\":S2,\"name\":\"Bill Weight\",\"data\": {\"field\":\"Bill Weight\"},\"type\":\"line\",\"stack\":\"s1\",\"style\":{\"lineWidth\": 2,smoothing: true,fillColor:\"lightBlue\", marker: {shape: \"circle\", width: 5},";
+			object = object + "lineColor: \"blue\"";
+			object = object + "}}";
+			seriesArray.put(new JSONObject(object));
+		}
+		weightJson.put("values", valuesArray != null ? valuesArray : new JSONArray());
+		weightJson.put("series", seriesArray != null ? seriesArray : new JSONArray());
+		return weightJson;
+	}
+
+	public static JSONObject prepareActualVsBillWeightByCarrierJson(List<ActualVsBilledWeightDto> weightList) throws JSONException {
+		JSONObject weightJson = new JSONObject();
+		JSONArray weightJsonArr = null;
+		if (weightList != null && !weightList.isEmpty()) {
+			weightJsonArr = new JSONArray();
+			for (ActualVsBilledWeightDto weightDto : weightList) {
+				if (weightDto != null) {
+					JSONObject wtJson = new JSONObject();
+					wtJson.put("id", weightDto.getCarrierId());
+					wtJson.put("name", weightDto.getCarrierName());
+					wtJson.put("Actual", weightDto.getActualWeight());
+					wtJson.put("Billed", weightDto.getBilledWeight());
+					weightJsonArr.put(wtJson);
+				}
+			}
+		}
+		weightJson.put("values", weightJsonArr != null ? weightJsonArr : new JSONArray());
+		return weightJson;
+	}
+
+	public static JSONObject prepareActualVsBillWeightMonthlyChartJson(List<ActualVsBilledWeightDto> weightList) throws JSONException {
+		JSONObject weightJson = new JSONObject();
+		JSONArray returnArray = null;
+		long fromDate = 0;
+		long toDate = 0;
+		if (weightList != null && !weightList.isEmpty()) {
+			returnArray = new JSONArray();
+			int count = 0;
+			for (ActualVsBilledWeightDto weightDto : weightList) {
+				if (weightDto != null) {
+					JSONArray dataArray = new JSONArray();
+					long dateInMilliSecs = weightDto.getBillDate() != null ? weightDto.getBillDate().getTime() : 0L;
+					dataArray.put(dateInMilliSecs);
+					dataArray.put(weightDto.getActualWeight());
+					dataArray.put(weightDto.getBilledWeight());
+
+					returnArray.put(dataArray);
+					if (count == 0) {
+						fromDate = dateInMilliSecs;
+					}
+					toDate = dateInMilliSecs;
+					count++;
+				}
+			}
+			if (fromDate == toDate) {
+				toDate = toDate + 1;
+			}
+		}
+		weightJson.put("values", returnArray != null ? returnArray : new JSONArray());
+		weightJson.put("fromDate", fromDate);
+		weightJson.put("toDate", toDate);
+		return weightJson;
+	}
+
+	public static JSONArray prepareFilterCarrierJson(List<UserFilterUtilityDataDto> carrierList) throws JSONException {
+		return prepareFilterCarrierJson(carrierList, null);
+	}
+
+	public static JSONArray prepareFilterCarrierJson(List<UserFilterUtilityDataDto> carrierList, List<Long> selectedCarrList) throws JSONException {
+		JSONArray carrJsonArr = new JSONArray();
+		if (carrierList != null && !carrierList.isEmpty()) {
+			for (UserFilterUtilityDataDto userFilterCarr : carrierList) {
+				if (userFilterCarr != null) {
+					JSONObject carrObj = new JSONObject();
+					carrObj.put("id", userFilterCarr.getCarrierId());
+					carrObj.put("name", userFilterCarr.getCarrierName());
+					carrObj.put("checked", selectedCarrList != null && selectedCarrList.contains(userFilterCarr.getCarrierId()));
+					carrObj.put("catgdist", userFilterCarr.getCarrierType());
+
+					carrJsonArr.put(carrObj);
+				}
+			}
+		}
+		return carrJsonArr;
+	}
+
+	public static JSONArray prepareFilterModesJson(List<UserFilterUtilityDataDto> carrierList, Map<String, String> modeWiseCarriers, boolean isParcelDashlettes) throws JSONException {
+		JSONArray modesDetailsArray = new JSONArray();
+		if (carrierList != null && !carrierList.isEmpty()) {
+			List<String> modesList = new ArrayList<String>();
+			for (UserFilterUtilityDataDto userFilterMode : carrierList) {
+				if (userFilterMode != null) {
+					if (!isParcelDashlettes && modeWiseCarriers.containsKey("freightCarrier")) {
+						if (!modesList.contains(userFilterMode.getId())) {
+							modesList.add(String.valueOf(userFilterMode.getId()));
+							JSONObject jsonObject = new JSONObject();
+							jsonObject.put("id", userFilterMode.getId());
+							jsonObject.put("name", userFilterMode.getName());
+							jsonObject.put("checked", true);
+							modesDetailsArray.put(jsonObject);
+						}
+					}
+				}
+			}
+			if (modeWiseCarriers.containsKey("parcelCarrier")) {
+				JSONObject jsonObject = new JSONObject();
+				jsonObject.put("id", WebConstants.SMALL_PACKAGE_CODE_VALUE_ID);
+				jsonObject.put("name", WebConstants.SMALL_PACKAGE_CARRIER_MODES);
+				jsonObject.put("checked", true);
+				modesDetailsArray.put(jsonObject);
+			}
+		}
+		return modesDetailsArray;
+	}
+
+	public static JSONArray prepareFilterServiceJson(List<UserFilterUtilityDataDto> serviceDataList) throws JSONException {
+		return prepareFilterServiceJson(serviceDataList, null);
+	}
+
+	public static JSONArray prepareFilterServiceJson(List<UserFilterUtilityDataDto> serviceDataList, List<String> selectedServices) throws JSONException {
+		JSONArray serviceDetailsArray = new JSONArray();
+		if (serviceDataList != null && !serviceDataList.isEmpty()) {
+			ArrayList<Long> serviceList = new ArrayList<Long>();
+			for (UserFilterUtilityDataDto serviceData : serviceDataList) {
+				if (serviceData != null && !serviceList.contains(serviceData.getId())) {
+					JSONObject jsonObject = new JSONObject();
+					jsonObject.put("id", serviceData.getId());
+					jsonObject.put("name", serviceData.getName());
+					jsonObject.put("mode", serviceData.getType());
+					jsonObject.put("type", "category");
+					jsonObject.put("checked", selectedServices != null && selectedServices.contains(serviceData.getId()));
+					jsonObject.put("uniqueType", "services");
+					jsonObject.put("isActive", serviceData.getActive());
+					jsonObject.put("isFreight", !"Small Package".equalsIgnoreCase(serviceData.getType()));
+
+					serviceDetailsArray.put(jsonObject);
+					serviceList.add(serviceData.getId());
+				}
+			}
+		}
+		return serviceDetailsArray;
+	}
+
+
+	public static JSONObject prepareShipmentCountByZoneJson(List<ShipmentDto> shipmentList, Set<MapCoordinatesDto> mapCoordinates) throws JSONException {
+		JSONObject finalJson = new JSONObject();
+		if (shipmentList != null && !shipmentList.isEmpty()) {
+			Map<String, Map<Long, Integer>> nodeValuesMap = new HashMap<String, Map<Long, Integer>>();
+			for (ShipmentDto shipment : shipmentList) {
+				if (shipment != null) {
+					String shipperState = shipment.getShipperState() != null ? shipment.getShipperState() : "";
+					String shipperCountry = shipment.getShipperCountry() != null ? shipment.getShipperCountry() : "";
+					Long zone = Long.parseLong(shipment.getZone().toString());
+					Integer shipmentCount = shipment.getShipmentCount();
+
+					String mapKey = shipperState + "#@#" + shipperCountry;
+					if (!nodeValuesMap.containsKey(mapKey)) {
+						HashMap<Long, Integer> tempMap = new HashMap<>();
+						tempMap.put(zone, shipmentCount);
+
+						nodeValuesMap.put(mapKey, tempMap);
+					} else {
+						nodeValuesMap.get(mapKey).put(zone, shipmentCount);
+					}
+				}
+			}
+
+			JSONArray nodesArray = new JSONArray();
+			Iterator<String> nodeValuesIterator = nodeValuesMap.keySet().iterator();
+			while (nodeValuesIterator.hasNext()) {
+				JSONObject nodeInfoObj = new JSONObject();
+				String stateAndCountry = nodeValuesIterator.next();
+				String state = stateAndCountry.split("#@#")[0];
+				String country = stateAndCountry.split("#@#")[1];
+				String addressKey = "," + state + "," + country;
+				nodeInfoObj.put("id", state);
+				nodeInfoObj.put("name", state);
+
+				Iterator<Long> zonesIterator = nodeValuesMap.get(stateAndCountry).keySet().iterator();
+				JSONArray zonesArray = new JSONArray();
+				int i = 0;
+				while (zonesIterator.hasNext()) {
+					JSONObject zoneInfo = new JSONObject();
+
+					Long zone = zonesIterator.next();
+					Integer shipmentCount = nodeValuesMap.get(stateAndCountry).get(zone);
+
+					zoneInfo.put("id", zone);
+					zoneInfo.put("name", "Zone " + zone);
+					zoneInfo.put("value", shipmentCount);
+					zoneInfo.put("selected", false);
+					String colorName = null;
+					if (zoneInfo.getString("name").equals("Zone 2")) {
+						colorName = colorsList.get(i++);
+					} else if (zoneInfo.getString("name").equals("Zone 3")) {
+						colorName = colorsList.get(i++);
+					} else if (zoneInfo.getString("name").equals("Zone 4")) {
+						colorName = colorsList.get(i++);
+					} else if (zoneInfo.getString("name").equals("Zone 5")) {
+						colorName = colorsList.get(i++);
+					} else if (zoneInfo.getString("name").equals("Zone 6")) {
+						colorName = colorsList.get(i++);
+					} else if (zoneInfo.getString("name").equals("Zone 7")) {
+						colorName = colorsList.get(i++);
+					} else if (zoneInfo.getString("name").equals("Zone 8")) {
+						colorName = colorsList.get(i++);
+					}
+					zoneInfo.put("color", colorName);
+					String style = "{ fillColor: \"" + colorName + "\" } }";
+					zoneInfo.put("style", new JSONObject(style));
+					zonesArray.put(zoneInfo);
+				}
+				MapCoordinatesDto mapCoordinate = findMapCoordinate(mapCoordinates, addressKey);
+				JSONArray longLatJsonArray = new JSONArray();
+				longLatJsonArray.put(mapCoordinate != null ? mapCoordinate.getLongitude() : 0);
+				longLatJsonArray.put(mapCoordinate != null ? mapCoordinate.getLatitude() : 0);
+
+				nodeInfoObj.put("coordinates", longLatJsonArray);
+				nodeInfoObj.put("pieChartValues", zonesArray);
+
+				nodesArray.put(nodeInfoObj);
+			}
+		}
+		return finalJson;
+	}
+
+	private static MapCoordinatesDto findMapCoordinate(Set<MapCoordinatesDto> mapCoordinates, String addressKey) {
+		for(MapCoordinatesDto mapCoordinate : mapCoordinates){
+			if(mapCoordinate != null){
+				String key = mapCoordinate.getAddress().substring(mapCoordinate.getAddress().indexOf(",") + 1);
+				if(key.equalsIgnoreCase(addressKey)){
+					return mapCoordinate;
+				}
+			}
+		}
+		return null;
+	}
+
+	public static JSONArray customerHierarchyJson( ReportCustomerCarrierDto  customerDto) throws  JSONException{
+		setValuesForDropDownForCustomer(customerDto);
+		JSONArray jsonArray = new JSONArray();
+		for (ReportCustomerCarrierDto customerCarrierDto : customerDto.getCollection()) {
+			JSONObject custoemrJsonObject = new JSONObject();
+			custoemrJsonObject.put("customerName", customerCarrierDto.getCustomerName());
+			custoemrJsonObject.put("customerId", customerCarrierDto.getCustomerId());
+			custoemrJsonObject.put("selected", customerCarrierDto.getSelected());
+			custoemrJsonObject.put("carrierIds", customerCarrierDto.getCustomerCarrierId());
+			custoemrJsonObject.put("type", customerCarrierDto.getType());
+			custoemrJsonObject.put("paidCust", customerCarrierDto.getPaidCust());
+			custoemrJsonObject.put("value", customerCarrierDto.getValue());
+			if (!"SHP".equalsIgnoreCase(customerCarrierDto.getType())) {
+				custoemrJsonObject.put("children", customerHierarchyJson(customerCarrierDto));
+			}
+			if ("SHGRP".equalsIgnoreCase(customerCarrierDto.getType())) {
+				custoemrJsonObject.put("parentCustomerId", customerCarrierDto.getParentCustomerId());
+			}
+			jsonArray.put(custoemrJsonObject);
+		}
+		return jsonArray;
+	}
+
+	public static void setValuesForDropDownForCustomer(ReportCustomerCarrierDto customerDto) {
+		for (ReportCustomerCarrierDto customer : customerDto.getCollection()) {
+			if ("CUGRP".equalsIgnoreCase(customer.getType())) {
+				customer.setValue("CU" + getValueForCustGroup(customer));
+			} else if ("CUST".equalsIgnoreCase(customer.getType())) {
+				customer.setValue("CU" + customer.getCustomerId());
+			} else if ("SHGRP".equalsIgnoreCase(customer.getType())) {
+				customer.setValue("SG" + customer.getCustomerId());
+			} else if ("SHP".equalsIgnoreCase(customer.getType())) {
+				customer.setValue("SH" + customer.getCustomerId());
+			}
+		}
+	}
+	public static String getValueForCustGroup(ReportCustomerCarrierDto customerDto) {
+		StringBuffer value = new StringBuffer();
+		for (ReportCustomerCarrierDto customer : customerDto.getCollection()) {
+			if ("CUST".equalsIgnoreCase(customer.getType())) {
+				value.append(customer.getCustomerId() + ",");
+			}
+			if ("CUGRP".equalsIgnoreCase(customer.getType())) {
+				value.append(getValueForCustGroup(customer) + ",");
+			}
+		}
+		// Trim off last ,
+		String returnValue = value.toString();
+		returnValue = returnValue.substring(0, returnValue.length() - 1);
+		return returnValue;
+	}
+
+	public static JSONArray carriersJson( List<ReportCustomerCarrierDto> carrierList) throws JSONException{
+		JSONArray carrierJsonArr= new JSONArray();
+		for (ReportCustomerCarrierDto carrierDto : carrierList) {
+			JSONObject jsonObject=new JSONObject();
+			jsonObject.put("carrierId",carrierDto.getCarrierId());
+			jsonObject.put("carrierName",carrierDto.getCarrierName());
+			jsonObject.put("isLtl",carrierDto.getIsLtl());
+			jsonObject.put("selected",carrierDto.getSelected());
+			carrierJsonArr.put(jsonObject);
+		}
+		return  carrierJsonArr;
+	}
+
+	public static JSONArray prepareCurrenciesJson( List<CodeValueDto> codeValueDtoList) throws JSONException{
+		JSONArray currenciesJsonArray= new JSONArray();
+
+
+		JSONObject jsonObject=new JSONObject();
+		jsonObject.put("id",0);
+		jsonObject.put("code","Select Currency");
+		jsonObject.put("name","");
+		currenciesJsonArray.put(jsonObject);
+
+		for (CodeValueDto codeValueDto : codeValueDtoList) {
+			jsonObject=new JSONObject();
+			jsonObject.put("id",codeValueDto.getId());
+			jsonObject.put("code",codeValueDto.getCodeValue());
+			jsonObject.put("name"," ( "+codeValueDto.getPropertyOne()+" ) ");
+			currenciesJsonArray.put(jsonObject);
+		}
+		return  currenciesJsonArray;
+	}
+
 }
+
+
+
+
