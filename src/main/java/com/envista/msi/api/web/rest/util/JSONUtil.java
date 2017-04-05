@@ -202,7 +202,7 @@ public class JSONUtil {
 					String billDate = overTimeDto.getBillingDate();
 					String carrierName = overTimeDto.getCarrierName();
 					long carrierId = overTimeDto.getCarrierId();
-					Double spend = overTimeDto.getNetCharges();
+					Double spend = Math.ceil(overTimeDto.getNetCharges());
 
 					if (spend != 0) {
 						String concatCarrier = carrierId + "#@#" + carrierName;
@@ -305,7 +305,7 @@ public class JSONUtil {
 			Iterator<String> taxIterator = spendMap.keySet().iterator();
 			while (taxIterator.hasNext()) {
 				String tax = taxIterator.next();
-				double spend = spendMap.get(tax);
+				double spend = Math.ceil(spendMap.get(tax));
 
 				JSONObject taxesJson = new JSONObject();
 				taxesJson.put("name", tax);
@@ -330,7 +330,7 @@ public class JSONUtil {
 				if (chartData != null) {
 					statusJson = new JSONObject();
 					statusJson.put("name", chartData.getName());
-					statusJson.put("value", chartData.getValue());
+					statusJson.put("value", Math.ceil(chartData.getValue()));
 					statusJson.put("id", chartData.getId());
 
 					returnArray.put(statusJson);
@@ -353,7 +353,7 @@ public class JSONUtil {
 				if (chartData != null) {
 					statusJson = new JSONObject();
 					statusJson.put("name", chartData.getName());
-					statusJson.put("value", chartData.getValue());
+					statusJson.put("value", Math.ceil(chartData.getValue()));
 					statusJson.put("id", chartData.getInvoiceMethodId());
 
 					returnArray.put(statusJson);
@@ -382,7 +382,7 @@ public class JSONUtil {
 				if (accSpend != null) {
 					String billDate = accSpend.getBillDate();
 					String service = accSpend.getAccessorialName();
-					Double spend = accSpend.getSpend();
+					Double spend = Math.ceil(accSpend.getSpend());
 
 					if (spend != 0) {
 
@@ -457,7 +457,7 @@ public class JSONUtil {
 		for (AverageSpendPerShipmentDto perShipmentDto : avgPerShipmentList) {
 			String billDate = perShipmentDto.getBillingDate();
 			String mode = perShipmentDto.getModes();
-			Double spend = perShipmentDto.getNetWeight();
+			Double spend = Math.ceil(perShipmentDto.getNetWeight());
 
 			if (spend != 0) {
 
@@ -528,10 +528,9 @@ public class JSONUtil {
 		for (AverageWeightModeShipmtDto perWeightShipmentDto : avgWeigthModeShpmtList) {
 			String billDate = perWeightShipmentDto.getBillingDate();
 			String mode = perWeightShipmentDto.getModes();
-			Double spend = perWeightShipmentDto.getNetWeight();
+			Double spend = Math.ceil(perWeightShipmentDto.getNetWeight());
 
 			if (spend != 0) {
-
 				if (!modeFlagList.contains(mode)) {
 					modeFlagList.add(mode);
 				}
@@ -712,7 +711,7 @@ public class JSONUtil {
 				if (spendDto != null) {
 					String billDate = spendDto.getBillingDate();
 					String carrierScacCode = spendDto.getCarrierName();
-					Double spend = spendDto.getNetDueAmount();
+					Double spend = Math.ceil(spendDto.getNetDueAmount());
 					Long carrierId = spendDto.getCarrierId();
 					String carrierIaAndName = carrierId + "#@#" + carrierScacCode;
 					if (!carriersList.contains(carrierIaAndName)) {
@@ -835,9 +834,9 @@ public class JSONUtil {
 					statusJson = new JSONObject();
 					statusJson.put("id", billedVsApproved.getCarrierId());
 					statusJson.put("name", billedVsApproved.getCarrierName());
-					statusJson.put("Billed", billedVsApproved.getBilledAmount());
-					statusJson.put("Approved", billedVsApproved.getApprovedAmount());
-					statusJson.put("Recovered", billedVsApproved.getRecoveredAmount());
+					statusJson.put("Billed", Math.ceil(billedVsApproved.getBilledAmount()));
+					statusJson.put("Approved", Math.ceil(billedVsApproved.getApprovedAmount()));
+					statusJson.put("Recovered", Math.ceil(billedVsApproved.getRecoveredAmount()));
 
 					returnArray.put(statusJson);
 					statusJson = null;
@@ -862,7 +861,7 @@ public class JSONUtil {
 				if (recoveryAdjustment != null) {
 					String month = recoveryAdjustment.getMonth();
 					String service = recoveryAdjustment.getService();
-					Double spend = recoveryAdjustment.getSpend();
+					Double spend = Math.ceil(recoveryAdjustment.getSpend());
 
 					if (spend != 0) {
 						if (!servicesList.contains(service)) {
@@ -2116,7 +2115,7 @@ public class JSONUtil {
 					JSONObject carrObj = new JSONObject();
 					carrObj.put("id", userFilterCarr.getCarrierId());
 					carrObj.put("name", userFilterCarr.getCarrierName());
-					carrObj.put("checked", selectedCarrList != null && selectedCarrList.contains(userFilterCarr.getCarrierId()));
+					carrObj.put("checked", null == selectedCarrList ? true : selectedCarrList != null && selectedCarrList.contains(userFilterCarr.getCarrierId()));
 
 					if("parcel".equalsIgnoreCase(userFilterCarr.getCarrierType())){
 						parcelCarJsonArr.put(carrObj);
@@ -2294,7 +2293,15 @@ public class JSONUtil {
 			custoemrJsonObject.put("carrierIds", customerCarrierDto.getCustomerCarrierId());
 			custoemrJsonObject.put("type", customerCarrierDto.getType());
 			custoemrJsonObject.put("paidCust", customerCarrierDto.getPaidCust());
-			custoemrJsonObject.put("value", customerCarrierDto.getValue());
+			custoemrJsonObject.put("value", null == customerCarrierDto.getValue() ? "" : customerCarrierDto.getValue());
+
+			if (customerCarrierDto.getRegion() == null || customerCarrierDto.getRegion().isEmpty() || "North America".equalsIgnoreCase(customerCarrierDto.getRegion()) ) {
+				custoemrJsonObject.put("weigtUnit", "LBS");
+			} else {
+				custoemrJsonObject.put("weigtUnit","KGS");
+			}
+			custoemrJsonObject.put("currencyId", customerCarrierDto.getCurrencyId());
+
 			if (!"SHP".equalsIgnoreCase(customerCarrierDto.getType())) {
 				custoemrJsonObject.put("children", customerHierarchyJson(customerCarrierDto));
 			}
