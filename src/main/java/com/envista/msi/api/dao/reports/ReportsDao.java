@@ -196,6 +196,16 @@ public class ReportsDao {
         return persistentContext.findEntityAndMapFields("ReportFolderDtls.createRow",queryParameter);
     }
 
+    @Transactional
+    public SavedSchedReportsDto changeOwnerBasedonSSRptId(String currentUserName,Long currentUserId,String newUserName,Long newUserId,Long ssRptId){
+        QueryParameter queryParameter = StoredProcedureParameter.with("currentUserName",currentUserName)
+                                                        .and("currentUserId",currentUserId)
+                                                        .and("newUserName",newUserName)
+                                                        .and("newUserId",newUserId)
+                                                        .and("ssRptId",ssRptId);
+        return persistentContext.findEntityAndMapFields("SavedSchedReports.changeOwnerBasedOnSSRptId",queryParameter);
+    }
+
     public  boolean isNumber(String strNumber) {
         try {
 

@@ -204,4 +204,7 @@ public class ReportsService {
     public ReportFolderDetailsDto moveRptsToFolder( ReportFolderDetailsDto rptFolderDetailsDto ){
         return reportsDao.moveReportToFolder(rptFolderDetailsDto);
     }
+    public SavedSchedReportsDto changeOwnerBasedonSSRptId(String currentUserName,Long currentUserId,String newUserName,Long newUserId,Long ssRptId ){
+        return reportsDao.changeOwnerBasedonSSRptId(currentUserName,currentUserId,newUserName,newUserId,ssRptId);
+    }
 }
