@@ -119,7 +119,8 @@ public class ReportsDao {
         QueryParameter queryParameter = StoredProcedureParameter.with("userId", updateSavedSchedReportDto.getLoggedinuserId())
                 .and("savedSchedId", updateSavedSchedReportDto.getSavedSchedRptId())
                 .and("createUser",updateSavedSchedReportDto.getCreateUser())
-                .and("reportName",updateSavedSchedReportDto.getReportName());;
+                .and("reportName",updateSavedSchedReportDto.getReportName())
+                .and("rptFolderId",updateSavedSchedReportDto.getRptFolderId());;
         return persistentContext.findEntityAndMapFields("SavedReports.saveFromReportResults", queryParameter);
     }
     @Transactional
