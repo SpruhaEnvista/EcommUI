@@ -4,10 +4,13 @@ import com.envista.msi.api.dao.reports.ReportsDao;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardAppliedFilterDto;
 import com.envista.msi.api.web.rest.dto.reports.*;
 import org.json.JSONException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -24,6 +27,9 @@ public class ReportsService {
     @Inject
     private ReportsDao reportsDao;
 
+    @Value("${EXPORTDIR}")
+    private String exportDir;
+
     public List<ReportResultsDto> getReportResults(long userId) {
         return  reportsDao.getReportResults(userId);
     }
@@ -34,8 +40,8 @@ public class ReportsService {
     public ReportResultsDto deleteReportInResults(long generatedRptId, long userId, String userName) {
         return  reportsDao.deleteReportInResults(generatedRptId, userId, userName);
     }
-    public List<ReportResultsUsersListDto> getUsersList() {
-        return  reportsDao.getUsersList();
+    public List<ReportResultsUsersListDto> getUsersList(String userName) {
+        return  reportsDao.getUsersList(userName);
     }
 
     public List<SavedSchedReportsDto> getSavedSchedReports(long userId){
@@ -196,5 +202,67 @@ public class ReportsService {
 
     public List<ReportFormatDto> getReportFormat(Long rptId) {
         return reportsDao.getReportFormat(rptId);
+    }
+
+    public File getReportFileDetails(Long generatedRptId) throws FileNotFoundException{
+
+        List<ReportsFilesDto> reportsFilesDtoList = reportsDao.getReportFileDetails(generatedRptId);
+        if(reportsFilesDtoList!=null && reportsFilesDtoList.size()>0){
+            ReportsFilesDto reportsFilesDto = reportsFilesDtoList.get(0);
+
+            String filePath = reportsFilesDto.getFilePath();
+
+              if(exportDir!=null && !exportDir.isEmpty()){
+                  filePath = filePath.replaceAll("E:",exportDir);
+             }
+
+                File file = new File(filePath);
+              if(!file.exists()){
+                  throw new FileNotFoundException(file.getName()+"File not exist ");
+              }
+
+            return file;
+        }
+
+        return null;
+    }
+
+    public SavedSchedReportDto saveSchedReport(SavedSchedReportDto savedSchedReportDto){
+
+        SavedSchedReportDto savedSchedReport = reportsDao.saveSchedReport(savedSchedReportDto);
+
+        if(savedSchedReport.getSavedSchedRptId()>0){
+
+
+
+
+        }
+
+        return new SavedSchedReportDto();
+    }
+    public SavedSchedReportDto saveSchedPacketReport(SavedSchedReportDto savedSchedReportDto){
+
+        SavedSchedReportDto savedSchedReport = new SavedSchedReportDto();
+        if(savedSchedReportDto.getReportPacketsDetList() !=null && savedSchedReportDto.getReportPacketsDetList().size()>0){
+
+            savedSchedReport = reportsDao.saveSchedReport(savedSchedReportDto);
+
+            if(savedSchedReport.getSavedSchedRptId()>0){
+
+                for(ReportPacketsDetDto packetsDto : savedSchedReportDto.getReportPacketsDetList()){
+                    reportsDao.saveSchedPacketReport(packetsDto);
+                }
+
+                if(savedSchedReport.getSavedSchedUsersDtoList()!=null && savedSchedReport.getSavedSchedUsersDtoList().size()>0){
+
+                    for(ReportSavedSchdUsersDto saveSchedUser : savedSchedReportDto.getSavedSchedUsersDtoList()){
+                        reportsDao.saveSchedUser(saveSchedUser);
+                    }
+
+                }
+
+            }
+        }
+        return savedSchedReport;
     }
 }

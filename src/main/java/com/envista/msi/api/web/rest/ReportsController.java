@@ -1,9 +1,6 @@
 package com.envista.msi.api.web.rest;
 
 import com.envista.msi.api.service.ReportsService;
-import com.envista.msi.api.web.rest.dto.UserProfileDto;
-import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
-import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendRequestDto;
 import com.envista.msi.api.web.rest.dto.reports.*;
 import com.envista.msi.api.web.rest.util.JSONUtil;
 import org.json.JSONException;
@@ -14,11 +11,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
-import javax.websocket.server.PathParam;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import org.springframework.util.FileCopyUtils;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 /**
  * Created by Sreenivas on 2/17/2017.
  */
@@ -29,6 +33,8 @@ public class ReportsController {
 
     @Inject
     private ReportsService reportsService;
+
+    private static final String APPLICATION_PDF = "application/text";
 
     @RequestMapping(value = "/results/reportslist/{userId}", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<List<ReportResultsDto>> getReportResults(@PathVariable String userId){
@@ -41,8 +47,15 @@ public class ReportsController {
         return new ResponseEntity<ReportResultsDto>(reportResultsDto, HttpStatus.OK);
     }
     @RequestMapping(value = "/results/userslist", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<List<ReportResultsUsersListDto>> getUsersList(){
-        List<ReportResultsUsersListDto> usersList = reportsService.getUsersList();
+    public ResponseEntity<List<ReportResultsUsersListDto>> getUsersList(@RequestParam(required = false) String filter){
+        String userName = "";
+        if(filter != null){
+            filter = filter.trim();
+            String filters[] = filter.split(":");
+            if( filters[1] != null)
+                userName = filters[1].trim().toLowerCase();
+        }
+        List<ReportResultsUsersListDto> usersList = reportsService.getUsersList(userName);
         return new ResponseEntity<List<ReportResultsUsersListDto>>(usersList, HttpStatus.OK);
     }
     @RequestMapping(value = "/results/delete", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
@@ -121,4 +134,26 @@ public class ReportsController {
         }
     }
 
+    @RequestMapping(value = "/filedownload", method = RequestMethod.GET, produces = APPLICATION_PDF)
+    public @ResponseBody void downloadFile(HttpServletResponse response,@RequestParam String crGeneratedRptId) throws IOException {
+
+        File file = reportsService.getReportFileDetails (Long.parseLong(crGeneratedRptId));
+        InputStream in = new FileInputStream(file);
+
+        response.setContentType(APPLICATION_PDF);
+        response.setHeader("Content-Disposition", "attachment; filename=" + file.getName());
+        response.setHeader("Content-Length", String.valueOf(file.length()));
+        FileCopyUtils.copy(in, response.getOutputStream());
+    }
+
+    @RequestMapping(value = "/saveSchedReport", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<SavedSchedReportDto> saveSchedReport(@RequestBody SavedSchedReportDto savedSchedReportDto){
+        SavedSchedReportDto savedDto = reportsService.saveSchedReport(savedSchedReportDto);
+        return new ResponseEntity<SavedSchedReportDto>(savedDto, HttpStatus.OK);
+    }
+    @RequestMapping(value = "/saveSchedPacketReport", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<SavedSchedReportDto> saveSchedPacketReport(@RequestBody SavedSchedReportDto savedSchedReportDto){
+        SavedSchedReportDto savedDto = reportsService.saveSchedPacketReport(savedSchedReportDto);
+        return new ResponseEntity<SavedSchedReportDto>(savedDto, HttpStatus.OK);
+    }
 }
