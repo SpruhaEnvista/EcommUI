@@ -182,7 +182,7 @@ public class DashboardStoredProcParam {
         public static final String ACTUAL_VS_BILLED_WEIGHT_DATA_PARAM = "p_weight_data";
     }
 
-    public static class UserFilterParam {
+    public static class UserFilterParam extends DashboardFilterParams{
         public static final String FILTER_ID_PARAM = "p_filter_id";
         public static final String USER_ID_PARAM = "p_user_id";
         public static final String FILTER_DATA_PARAM = "p_filter_info";
@@ -212,5 +212,28 @@ public class DashboardStoredProcParam {
         public static final String LANES_PARAM = "p_lanes";
         public static final String WEIGHT_UNIT_PARAM = "p_weight_unit";
         public static final String CURRENCY_CODE_PARAM = "p_currency_code";
+    }
+
+    public static class DashCustomColumnParam{
+        public static final String USER_ID_PARAM = "p_user_id";
+        public static final String REPORT_ID_PARAM = "p_report_id";
+        public static final String CUSTOM_DEF_1_PARAM = "p_cust_def_1";
+        public static final String CUSTOM_DEF_2_PARAM = "p_cust_def_2";
+        public static final String CUSTOM_DEF_3_PARAM = "p_cust_def_3";
+        public static final String CUSTOM_DEF_4_PARAM = "p_cust_def_4";
+    }
+
+    public static class DashSavedFilterParam extends DashboardFilterParams {
+        public static final String FILTER_ID_PARAM = "p_filter_id";
+        public static final String USER_ID_PARAM = "p_user_id";
+        public static final String WEIGHT_UNIT_PARAM = "p_weight_unit";
+        public static final String SHIPPER_CITIES_PARAM = "p_shipper_cities";
+        public static final String SHIPPER_STATES_PARAM = "p_shipper_states";
+        public static final String SHIPPER_COUNTRIES_PARAM = "p_shipper_countries";
+        public static final String RECEIVER_CITIES_PARAM = "p_receiver_cities";
+        public static final String RECEIVER_STATES_PARAM = "p_receiver_states";
+        public static final String RECEIVER_COUNTRIES_PARAM = "p_receiver_countries";
+        public static final String DEFAULT_FILTER_PARAM = "p_default_filter";
+        public static final String CREATE_DATE_PARAM = "p_create_date";
     }
 }

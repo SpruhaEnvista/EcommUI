@@ -13,6 +13,8 @@ import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AccountSummaryDt
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AnnualSummaryDto;
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.MonthlySpendByModeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
+import com.envista.msi.api.web.rest.dto.dashboard.common.DashCustomColumnConfigDto;
+import com.envista.msi.api.web.rest.dto.dashboard.filter.DashSavedFilterDto;
 import com.envista.msi.api.web.rest.dto.dashboard.filter.UserFilterDto;
 import com.envista.msi.api.web.rest.dto.dashboard.filter.UserFilterUtilityDataDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.*;
@@ -720,8 +722,13 @@ public class DashboardsService {
     }
 
     public Map<String, Object> getUserFilterDetails(Long filterId, boolean isParcelDashlettes, DashboardsFilterCriteria filter) throws JSONException {
-        Map<String, Object> userFilterDetailsMap = null;
         UserFilterDto userFilter = getUserFilterById(filterId);
+        return getUserFilterDetails(userFilter, isParcelDashlettes, filter);
+    }
+
+    public Map<String, Object> getUserFilterDetails(UserFilterDto userFilter, boolean isParcelDashlettes, DashboardsFilterCriteria filter) throws JSONException {
+        Map<String, Object> userFilterDetailsMap = null;
+
         if(userFilter != null){
             userFilterDetailsMap = new HashMap<String, Object>();
             List<Long> carrList = new ArrayList<Long>();
@@ -757,6 +764,21 @@ public class DashboardsService {
             userFilterDetailsMap.put("carrDetails", JSONUtil.prepareFilterCarrierJson(getCarrierByCustomer(customerIds, isParcelDashlettes), carrList));
             userFilterDetailsMap.put("modesDetails", modesArray);
             userFilterDetailsMap.put("servicesDetails", JSONUtil.prepareFilterServiceJson(getFilterServices(filter), servicesList));
+            if(userFilterJson.has("date")){
+                JSONObject dateJson = userFilterJson.getJSONObject("date");
+                if(dateJson.has("dateType")){
+                    userFilterDetailsMap.put("dateType", dateJson.getJSONObject("dateType").getString("name"));
+                }
+                if(dateJson.has("fromdate")){
+                    userFilterDetailsMap.put("fromDate", dateJson.getString("fromdate"));
+                }
+                if(dateJson.has("todate")){
+                    userFilterDetailsMap.put("todate", dateJson.getString("todate"));
+                }
+            }
+            if(userFilterJson.has("weightUnit")){
+                userFilterDetailsMap.put("weightUnit", userFilterJson.getString("weightUnit"));
+            }
         }
         return userFilterDetailsMap;
     }
@@ -775,8 +797,8 @@ public class DashboardsService {
      * @param userId
      * @return
      */
-    public List<UserFilterDto> getUserFilterByUser(Long userId){
-        return dashboardsDao.getUserFilterByUser(userId);
+    public List<UserFilterDto> getSavedFiltersByUser(Long userId){
+        return dashboardsDao.getSavedFiltersByUser(userId);
     }
 
     /**
@@ -915,6 +937,12 @@ public class DashboardsService {
         dashboardsDao.saveAppliedFilterDetails(appliedFilter);
     }
 
+    /**
+     * Get custom column details.
+     * @param filter
+     * @return
+     * @throws JSONException
+     */
     public JSONObject getDashboardReportCustomColumnNames(DashboardsFilterCriteria filter) throws JSONException {
         JSONObject colJson = new JSONObject();
         colJson.put("shipmentColumns", getCustomColumnDetails(filter, GlobalConstants.DASHBOARDS_SHIPMENT_DETAIL_INCLUDED_COLS, 100L));
@@ -922,6 +950,14 @@ public class DashboardsService {
         return colJson;
     }
 
+    /**
+     * Get custom column details.
+     * @param filter
+     * @param originalColumnNames
+     * @param reportId
+     * @return
+     * @throws JSONException
+     */
     public JSONArray getCustomColumnDetails(DashboardsFilterCriteria filter, String originalColumnNames, long reportId) throws JSONException {
         Map<String, String> customDefinedColsByCustomer = null;
         if (filter != null) {
@@ -963,5 +999,58 @@ public class DashboardsService {
         return columnsDetailsJson;
     }
 
+    /**
+     * Save user column config.
+     * @param userId
+     * @param columnNames
+     * @param isLineItemReport
+     */
+    public void saveUserDefinedColumnConfig(long userId, String columnNames, boolean isLineItemReport){
+        DashCustomColumnConfigDto columnConfig = new DashCustomColumnConfigDto();
+        columnConfig.setReportId(isLineItemReport ? 197l : 100l);
+        columnConfig.setUserId(userId);
 
+        int columnsLen = columnNames.length();
+        if (columnsLen <= 4000) {
+            columnConfig.setColumnDefined1(columnNames);
+        } else if (columnsLen <= 8000) {
+            columnConfig.setColumnDefined1(columnNames.substring(0, 3999));
+            columnConfig.setColumnDefined2(columnNames.substring(4000, columnsLen));
+        } else if (columnsLen <= 12000) {
+            columnConfig.setColumnDefined1(columnNames.substring(0, 3999));
+            columnConfig.setColumnDefined2(columnNames.substring(4000, 7999));
+            columnConfig.setColumnDefined3(columnNames.substring(8000, columnsLen));
+        } else if (columnsLen <= 16000) {
+            columnConfig.setColumnDefined1(columnNames.substring(0, 3999));
+            columnConfig.setColumnDefined2(columnNames.substring(4000, 7999));
+            columnConfig.setColumnDefined3(columnNames.substring(8000, 11999));
+            columnConfig.setColumnDefined4(columnNames.substring(12000, columnsLen));
+        }
+        dashboardsDao.saveUserDefinedColumnConfig(columnConfig);
+    }
+
+    /**
+     * Delete saved filter by id.
+     * @param filterId
+     */
+    public void deleteSavedFilter(long filterId){
+        dashboardsDao.deleteSavedFilter(filterId);
+    }
+
+    /**
+     * save/update savedfilter details.
+     * @param savedFilter
+     */
+    public void updateSavedFilter(DashSavedFilterDto savedFilter){
+        dashboardsDao.updateSavedFilter(savedFilter);
+    }
+
+    /**
+     * To set default filter.
+     * @param filterId
+     * @param userId
+     */
+    public void makeDefaultSavedFilter(long filterId, long userId){
+        dashboardsDao.makeDefaultSavedFilter(filterId, userId);
+    }
 }

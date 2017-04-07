@@ -1,10 +1,12 @@
 package com.envista.msi.api.domain.util;
 
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
+import com.envista.msi.api.web.rest.dto.dashboard.filter.UserFilterDto;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -171,5 +173,14 @@ public class DashboardUtil {
             queryParam = queryParam.and(paramName, value);
         }
         return queryParam;
+    }
+
+    public static UserFilterDto findDefaultUserFilter(List<UserFilterDto> userFilterList){
+        for(UserFilterDto userFilter : userFilterList){
+            if(userFilter != null && userFilter.getDefaultFilter() == 1){
+                return userFilter;
+            }
+        }
+        return null;
     }
 }

@@ -15,6 +15,8 @@ import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
 import com.envista.msi.api.web.rest.dto.dashboard.common.CommonMonthlyChartDto;
 import com.envista.msi.api.web.rest.dto.dashboard.common.CommonValuesForChartDto;
 import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendCommonDto;
+import com.envista.msi.api.web.rest.dto.dashboard.filter.DashSavedFilterDto;
+import com.envista.msi.api.web.rest.dto.dashboard.filter.UserFilterDto;
 import com.envista.msi.api.web.rest.dto.dashboard.filter.UserFilterUtilityDataDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.*;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.PortLanesDto;
@@ -22,9 +24,12 @@ import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentRegionDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShippingLanesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.*;
+import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
+import com.envista.msi.api.web.rest.util.DateUtil;
 import com.envista.msi.api.web.rest.util.JSONUtil;
 import com.envista.msi.api.web.rest.util.WebConstants;
 import com.envista.msi.api.web.rest.util.pagination.PaginationBean;
+import org.apache.commons.collections.map.HashedMap;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -2796,7 +2801,6 @@ public class DashboardsController extends DashboardBaseController {
 
 
     /**
-     * Development under progress, we need to check this while developing filter screen.
      *
      * @return
      */
@@ -2992,9 +2996,62 @@ public class DashboardsController extends DashboardBaseController {
             if(null == user){
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(userFilterData);
             }
-            userFilterData.put("savedFilterNames", dashboardsService.getUserFilterByUser(user.getUserId()));
+            List<UserFilterDto> userSavedFilters = dashboardsService.getSavedFiltersByUser(user.getUserId());
+            List<ReportCustomerCarrierDto> customers = dashboardsService.getDashboardCustomers(user.getUserId());
+            Long customerId = 0L;
+            userFilterData.put("savedFilterNames", userSavedFilters);
             userFilterData.put("currenciesList", JSONUtil.prepareCurrenciesJson(dashboardsService.getCodeValuesByCodeGroup(468L)));
-            userFilterData.put("customers", JSONUtil.customerHierarchyJson(reportsService.getCustomerHierarchyObject(dashboardsService.getDashboardCustomers(user.getUserId()), false)));
+            userFilterData.put("customers", JSONUtil.customerHierarchyJson(reportsService.getCustomerHierarchyObject(customers, false)));
+            if(userSavedFilters != null && !userSavedFilters.isEmpty()){
+                UserFilterDto defaultFilter = DashboardUtil.findDefaultUserFilter(userSavedFilters);
+                if(null == defaultFilter){
+                    defaultFilter = userSavedFilters.get(0);
+                }
+                if(defaultFilter != null){
+                    DashboardsFilterCriteria filter = new DashboardsFilterCriteria();
+                    JSONObject userFilterJson = new JSONObject(defaultFilter.getFilterDetails());
+                    if(userFilterJson.has("date")){
+                        JSONObject dateJson = userFilterJson.getJSONObject("date");
+                        if(dateJson.has("dateType")){
+                            filter.setDateType(dateJson.getJSONObject("dateType").getString("name"));
+                        }
+                        if(dateJson.has("fromdate")){
+                            filter.setFromDate(DateUtil.format(dateJson.getString("fromdate"), "yyyy/MM/dd","dd-MMM-yyyy"));
+                        }
+                        if(dateJson.has("todate")){
+                            filter.setToDate(DateUtil.format(dateJson.getString("todate"), "yyyy/MM/dd","dd-MMM-yyyy"));
+                        }
+                    }
+                    if(userFilterJson.has("carrierId")){
+                        filter.setCarriers(userFilterJson.getJSONArray("carrierId").toString().replaceAll("[\\[\\]]", ""));
+                    }
+                    userFilterData.put("defaultFilterDetails", dashboardsService.getUserFilterDetails(defaultFilter, user.isParcelDashlettes(), filter));
+                }
+            }else{
+                if(customers != null && !customers.isEmpty()){
+                    customerId = customers.get(0).getCustomerId();
+                    Map<String, Object> filterDataMap = new HashedMap();
+                    List<UserFilterUtilityDataDto> carriers = dashboardsService.getCarrierByCustomer(String.valueOf(customerId), user.isParcelDashlettes());
+                    StringJoiner carrierCSV = new StringJoiner(",");
+                    for(UserFilterUtilityDataDto car : carriers){
+                        if(car != null){
+                            carrierCSV.add(car.getCarrierId().toString());
+                        }
+                    }
+
+                    Map<String, String> modeWiseCarriers = dashboardsService.getModeWiseCarrier(carrierCSV.toString());
+                    DashboardsFilterCriteria filter = new DashboardsFilterCriteria();
+                    filter.setCarriers(carrierCSV.toString());
+                    filter.setDateType("INVOICE_DATE");
+                    filter.setFromDate(DateUtil.format(DateUtil.subtractDays(new Date(), 90), "dd-MMM-yyyy"));
+                    filter.setToDate(DateUtil.format(new Date(), "dd-MMM-yyyy"));
+
+                    filterDataMap.put("carrDetails", JSONUtil.prepareFilterCarrierJson(carriers));
+                    filterDataMap.put("modesDetails", JSONUtil.prepareFilterModesJson(dashboardsService.getFilterModes(filter), modeWiseCarriers, user.isParcelDashlettes()));
+                    filterDataMap.put("servicesDetails", JSONUtil.prepareFilterServiceJson(dashboardsService.getFilterServices(filter)));
+                    userFilterData.put("defaultFilterDetails", filterDataMap);
+                }
+            }
         }catch (Exception e){
             return new ResponseEntity<Map<String, Object>>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -3067,6 +3124,106 @@ public class DashboardsController extends DashboardBaseController {
             filter.setLoginUserId(user.getUserId());
             filter.setUserName(user.getUserName());
             dashboardsService.saveAppliedFilterDetails(filter);
+        }catch (Exception e){
+            try {
+                respJson.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+                respJson.put("message", WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
+            } catch (JSONException e1) {
+                e1.printStackTrace();
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respJson.toString());
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(respJson.toString());
+    }
+
+    @RequestMapping(value = "/saveDashColumnsConfig", method = {RequestMethod.GET, RequestMethod.POST}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> saveUserDefinedColumnConfig(@RequestBody String columnNames, @RequestParam boolean isLineItemReport){
+        JSONObject respJson = new JSONObject();
+        try {
+            respJson.put("status", HttpStatus.OK.value());
+            respJson.put("message", "Saved Successfully");
+            UserProfileDto user = getUserProfile();
+            if(null == user){
+                respJson.put("status", HttpStatus.UNAUTHORIZED.value());
+                respJson.put("message", WebConstants.ResponseMessage.INVALID_USER);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(respJson.toString());
+            }
+
+            dashboardsService.saveUserDefinedColumnConfig(user.getUserId(), columnNames, isLineItemReport);
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            respJson.put("data", dashboardsService.getDashboardReportCustomColumnNames(filter));
+        }catch (Exception e){
+            try {
+                respJson.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+                respJson.put("message", WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
+            } catch (JSONException e1) {
+                e1.printStackTrace();
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respJson.toString());
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(respJson.toString());
+    }
+
+    @RequestMapping(value = "/deleteFilter", method = {RequestMethod.GET, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> deleteSavedFilter(@RequestParam long filterId){
+        JSONObject respJson = new JSONObject();
+        try{
+            dashboardsService.deleteSavedFilter(filterId);
+            respJson.put("status", HttpStatus.OK.value());
+            respJson.put("message", "Deleted Successfully");
+        }catch (Exception e){
+            try {
+                respJson.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+                respJson.put("message", WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
+            } catch (JSONException e1) {
+                e1.printStackTrace();
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respJson.toString());
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(respJson.toString());
+    }
+
+    @RequestMapping(value = "/SaveFilter", method = {RequestMethod.POST}, produces = {MediaType.APPLICATION_JSON_VALUE}, consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> updateSavedFilterDetails(@RequestBody DashSavedFilterDto savedFilter){
+        JSONObject respJson = new JSONObject();
+        try{
+            UserProfileDto user = getUserProfile();
+            if(null == user){
+                respJson.put("status", HttpStatus.UNAUTHORIZED.value());
+                respJson.put("message", WebConstants.ResponseMessage.INVALID_USER);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(respJson.toString());
+            }
+
+            savedFilter.setUserId(user.getUserId());
+            savedFilter.setCreateDate(new Date());
+            dashboardsService.updateSavedFilter(savedFilter);
+            respJson.put("status", HttpStatus.OK.value());
+            respJson.put("message", "Updated Successfully");
+        }catch (Exception e){
+            try {
+                respJson.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+                respJson.put("message", WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
+            } catch (JSONException e1) {
+                e1.printStackTrace();
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respJson.toString());
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(respJson.toString());
+    }
+
+    @RequestMapping(value = "/setDefaultFilter", method = {RequestMethod.GET}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> makeDefaultFilter(@RequestParam long filterId){
+        JSONObject respJson = new JSONObject();
+        try {
+            UserProfileDto user = getUserProfile();
+            if (null == user) {
+                respJson.put("status", HttpStatus.UNAUTHORIZED.value());
+                respJson.put("message", WebConstants.ResponseMessage.INVALID_USER);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(respJson.toString());
+            }
+            dashboardsService.makeDefaultSavedFilter(filterId, user.getUserId());
+            respJson.put("status", HttpStatus.OK.value());
+            respJson.put("message", "Updated Successfully");
         }catch (Exception e){
             try {
                 respJson.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());

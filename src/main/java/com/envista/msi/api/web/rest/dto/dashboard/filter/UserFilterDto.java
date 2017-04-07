@@ -52,7 +52,8 @@ import java.io.Serializable;
                                 columns = {
                                         @ColumnResult(name = "FILTER_ID", type = Long.class),
                                         @ColumnResult(name = "FILTER_NAME", type = String.class),
-                                        @ColumnResult(name = "DEFAULT_FILTER", type = Integer.class)
+                                        @ColumnResult(name = "DEFAULT_FILTER", type = Integer.class),
+                                        @ColumnResult(name = "FILTER_DETAILS", type = String.class)
                                 }
                         )
                 }
@@ -80,10 +81,11 @@ public class UserFilterDto implements Serializable {
         this.filterDetails = filterDetails;
     }
 
-    public UserFilterDto(Long id, String name, Integer defaultFilter) {
+    public UserFilterDto(Long id, String name, Integer defaultFilter, String filterDetails) {
         this.id = id;
         this.name = name;
         this.defaultFilter = defaultFilter;
+        this.filterDetails = filterDetails;
     }
 
     public Long getId() {
