@@ -1,13 +1,36 @@
 package com.envista.msi.api.web.rest.dto.reports;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Date;
 
 /**
  * Created by user1 on 4/6/2017.
  */
+@NamedStoredProcedureQueries({
+            @NamedStoredProcedureQuery(name="ReportSavedSchdCrit.insertRecord" , procedureName = "shp_rpt_savesched_crit_proc",
+                    resultSetMappings = "updated",
+                    parameters = {
+                            @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR , name="p_savedSchedCritCur", type= Void.class),
+                            @StoredProcedureParameter(mode = ParameterMode.IN, name="savedSchedRptId", type= Long.class),
+                            @StoredProcedureParameter(mode = ParameterMode.IN, name="rptDetailsId", type = Long.class),
+                            @StoredProcedureParameter(mode = ParameterMode.IN, name="assignOperator", type = String.class),
+                            @StoredProcedureParameter(mode = ParameterMode.IN, name="value", type=String.class),
+                            @StoredProcedureParameter(mode = ParameterMode.IN, name="isMatchCase", type = Long.class),
+                            @StoredProcedureParameter(mode = ParameterMode.IN, name="createUser", type=String.class),
+                            @StoredProcedureParameter(mode = ParameterMode.IN, name="andOrOperator", type=String.class)
+                    })
+})
+
+@SqlResultSetMappings({
+        @SqlResultSetMapping(name = "updated", classes = {
+                @ConstructorResult(
+                        targetClass = ReportSavedSchdCriteriaDto.class,
+                        columns = {
+                                @ColumnResult(name = "savedSchedCritId", type = Long.class)
+                        }
+                )
+        })
+})
 @Entity
 public class ReportSavedSchdCriteriaDto {
 
@@ -44,6 +67,15 @@ public class ReportSavedSchdCriteriaDto {
 
     @Column(name="and_or_operator")
     private String andOrOperator;
+
+    @Column(name="savedSchedCritId")
+    private Long savedSchedCritId;
+
+    public ReportSavedSchdCriteriaDto(){}
+
+    public ReportSavedSchdCriteriaDto(Long savedSchedCritId){
+        this.savedSchedCritId = savedSchedCritId;
+    }
 
     public Long getSavedSchdCriteriaId() {
         return savedSchdCriteriaId;
