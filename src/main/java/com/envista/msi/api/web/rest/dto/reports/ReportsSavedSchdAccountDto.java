@@ -6,6 +6,30 @@ import java.util.Date;
 /**
  * Created by user1 on 4/6/2017.
  */
+@NamedStoredProcedureQueries({
+        @NamedStoredProcedureQuery(name="ReportSavedSchdAcc.insertRecord" , procedureName = "shp_rpt_savesched_accts_proc",
+                resultSetMappings = "updated",
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR , name="p_savedSchedAcctsCur", type= Void.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name="savedSchedRptId", type= Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name="customerId", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name="shipperGroupId", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "shipperId", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "createUser", type = String.class)
+
+                })
+})
+
+@SqlResultSetMappings({
+        @SqlResultSetMapping(name = "updated", classes = {
+                @ConstructorResult(
+                        targetClass = ReportsSavedSchdAccountDto.class,
+                        columns = {
+                                @ColumnResult(name = "savedSchedAcctsId", type = Long.class)
+                        }
+                )
+        })
+})
 @Entity
 public class ReportsSavedSchdAccountDto {
 
@@ -38,6 +62,23 @@ public class ReportsSavedSchdAccountDto {
     @Temporal(TemporalType.DATE)
     @Column(name="last_update_date")
     private Date lastUpdateDate;
+
+    @Column(name="savedSchedAcctsId")
+    private Long savedSchedAcctsId;
+
+    public ReportsSavedSchdAccountDto(){}
+
+    public ReportsSavedSchdAccountDto(Long savedSchedAcctsId){
+        this.savedSchedAcctsId = savedSchedAcctsId;
+    }
+
+    public Long getSavedSchedAcctsId() {
+        return savedSchedAcctsId;
+    }
+
+    public void setSavedSchedAcctsId(Long savedSchedAcctsId) {
+        this.savedSchedAcctsId = savedSchedAcctsId;
+    }
 
     public Long getSavedSchdAccountId() {
         return savedSchdAccountId;

@@ -229,6 +229,17 @@ public class ReportsDao {
         return persistentContext.findEntityAndMapFields("ReportInclCol.insertRecord",queryParameter);
     }
 
+    @Transactional
+    public ReportsSavedSchdAccountDto updateSavedSchdAccs(Long ssRptId,Long custId,Long shipperGroupId,Long shipperId,String createUser ){
+        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId",ssRptId)
+                .and("customerId",custId)
+                .and("shipperGroupId",shipperGroupId)
+                .and("shipperId",shipperId)
+                .and("createUser",createUser);
+
+        return persistentContext.findEntityAndMapFields("ReportSavedSchdAcc.insertRecord",queryParameter);
+    }
+
     public  boolean isNumber(String strNumber) {
         try {
 
