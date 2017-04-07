@@ -204,4 +204,13 @@ public class DashboardStoredProcParam {
     public static class ShipmentParam extends DashboardFilterParams{
         public static final String SHIPMENT_DATA_PARAM = "p_shipment_data";
     }
+
+    public static class AppliedFilterParam extends DashboardFilterParams {
+        public static final String TOKEN_PARAM = "p_token";
+        public static final String USER_ID_PARAM = "p_user_id";
+        public static final String USER_NAME_PARAM = "p_user_name";
+        public static final String LANES_PARAM = "p_lanes";
+        public static final String WEIGHT_UNIT_PARAM = "p_weight_unit";
+        public static final String CURRENCY_CODE_PARAM = "p_currency_code";
+    }
 }

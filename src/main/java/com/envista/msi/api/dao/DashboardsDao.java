@@ -24,6 +24,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShippingLanesD
 import com.envista.msi.api.web.rest.dto.dashboard.report.DashboardReportDto;
 import com.envista.msi.api.web.rest.dto.dashboard.report.DashboardReportUtilityDataDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.*;
+import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -1316,5 +1317,33 @@ public class DashboardsDao {
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
         return persistentContext.findEntities(ShipmentDto.Config.StoredProcedureQueryName.SHIPMENT_BY_ZONE, queryParameter);
+    }
+
+    public List<ReportCustomerCarrierDto> getDashboardCustomers(long userId){
+        return persistentContext.findEntities("ReportCustomerCarrierDto.getDashboardCustomers", QueryParameter.with("p_user_id", userId));
+    }
+
+    @javax.transaction.Transactional
+    public void saveAppliedFilterDetails(DashboardAppliedFilterDto appliedFilter) {
+        try{
+            QueryParameter queryParameter = QueryParameter.with(DashboardStoredProcParam.AppliedFilterParam.TOKEN_PARAM, appliedFilter.getjSessionId())
+                    .and(DashboardStoredProcParam.AppliedFilterParam.CUSTOMER_IDS_CSV_PARAM, appliedFilter.getCustomerIds())
+                    .and(DashboardStoredProcParam.AppliedFilterParam.CARRIER_IDS_PARAM, appliedFilter.getCarrierIds())
+                    .and(DashboardStoredProcParam.AppliedFilterParam.FROM_DATE_PARAM, appliedFilter.getFromDate())
+                    .and(DashboardStoredProcParam.AppliedFilterParam.TO_DATE_PARAM, appliedFilter.getToDate())
+                    .and(DashboardStoredProcParam.AppliedFilterParam.MODES_PARAM, appliedFilter.getModes())
+                    .and(DashboardStoredProcParam.AppliedFilterParam.SERVICES_PARAM, appliedFilter.getServices())
+                    .and(DashboardStoredProcParam.AppliedFilterParam.DATE_TYPE_PARAM, appliedFilter.getDateType())
+                    .and(DashboardStoredProcParam.AppliedFilterParam.LANES_PARAM, appliedFilter.getLanes())
+                    .and(DashboardStoredProcParam.AppliedFilterParam.USER_ID_PARAM, appliedFilter.getLoginUserId())
+                    .and(DashboardStoredProcParam.AppliedFilterParam.USER_NAME_PARAM, appliedFilter.getUserName())
+                    .and(DashboardStoredProcParam.AppliedFilterParam.CONVERTED_CURRENCY_ID_PARAM, appliedFilter.getCurrencyId() == null || appliedFilter.getCurrencyId().isEmpty() ? 0L : Long.parseLong(appliedFilter.getCurrencyId()))
+                    .and(DashboardStoredProcParam.AppliedFilterParam.WEIGHT_UNIT_PARAM, appliedFilter.getWeightUnit())
+                    .and(DashboardStoredProcParam.AppliedFilterParam.CURRENCY_CODE_PARAM, appliedFilter.getCurrencyCode());
+
+            persistentContext.findEntities("DashboardAppliedFilterDto.saveAppliedFilter", queryParameter);
+        }catch (Exception e){
+            throw new DaoException("Failed to Save Applied Filter Details", e);
+        }
     }
 }
