@@ -10,7 +10,8 @@ import java.io.Serializable;
         @NamedStoredProcedureQuery(name = "ReportResultsUsersList.getUsersList", procedureName = "shp_rpt_userslist_proc",
                 resultSetMappings = "UsersList",
                 parameters = {
-                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_usersList", type = Void.class)
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_usersList", type = Void.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "userName", type = String.class)
                 }),
         @NamedStoredProcedureQuery(name = "ReportResultsUsersList.pushToUser", procedureName = "shp_rpt_pushto_user_proc",
                 resultSetMappings = "PushToUser",

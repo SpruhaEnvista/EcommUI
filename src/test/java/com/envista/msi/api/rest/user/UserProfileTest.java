@@ -16,9 +16,9 @@ import com.envista.msi.api.rest.WebappTestEnvironment;
 
 public class UserProfileTest extends WebappTestEnvironment {
 
-	@Test
-	public void testUserProfile() throws Exception {
-		mockRestMvc().perform(get("/api/user/profile").param("id", "admin")).andExpect(status().isOk())
-				.andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE));
-	}
+    @Test
+    public void testUserProfile() throws Exception {
+        mockRestMvc().perform(get("/api/user/profile").param("id", "admin")).andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE));
+    }
 }

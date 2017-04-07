@@ -23,7 +23,7 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "generatedRptId", type = Long.class)
                 }),
         @NamedStoredProcedureQuery(name = "ReportResults.deleteResultReport", procedureName = "SHP_RPT_RESULT_DELETE_PROC",
-                resultSetMappings = "DeleteCount",
+                resultSetMappings = "UpdateCount",
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "generatedRptId", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "userId", type = Long.class),
@@ -54,14 +54,6 @@ import java.util.Date;
                                 @ColumnResult(name = "type", type = Integer.class),
                                 @ColumnResult(name = "completion_date", type = Date.class),
                                 @ColumnResult(name = "expires_date", type = Date.class)
-                        }
-                )
-        }),
-        @SqlResultSetMapping(name = "DeleteCount", classes = {
-                @ConstructorResult(
-                        targetClass = ReportResultsDto.class,
-                        columns = {
-                                @ColumnResult(name = "updateCount", type = Integer.class)
                         }
                 )
         })
