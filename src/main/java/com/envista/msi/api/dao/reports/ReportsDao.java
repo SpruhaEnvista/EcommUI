@@ -207,6 +207,19 @@ public class ReportsDao {
         return persistentContext.findEntityAndMapFields("SavedSchedReports.changeOwnerBasedOnSSRptId",queryParameter);
     }
 
+    @Transactional
+    public ReportSavedSchdCriteriaDto updateSavedSchdCriteria(){
+        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId","")
+                                                            .and("rptDetailsId","")
+                                                            .and("assignOperator","")
+                                                            .and("value","")
+                                                            .and("isMatchCase","")
+                                                            .and("createUser","")
+                                                            .and("andOrOperator","");
+
+        return persistentContext.findEntityAndMapFields("ReportSavedSchdCrit.insertRecord",queryParameter);
+    }
+
     public  boolean isNumber(String strNumber) {
         try {
 
