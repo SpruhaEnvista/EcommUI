@@ -1,12 +1,34 @@
 package com.envista.msi.api.web.rest.dto.reports;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.Date;
 
 /**
- * Created by user1 on 4/6/2017.
+ * Created by SreedharT on 4/6/2017.
  */
+
+@NamedStoredProcedureQueries({
+        @NamedStoredProcedureQuery(name = "SavedSchedPackets.saveSchedPakcet", procedureName = "shp_save_rpt_pkt_details_pro",
+                resultSetMappings = "SavedSchedPacketReport",
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "pktDetIdCursor", type = Void.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "savedSchedRptId", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "tabName", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "sequenceNum", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "templateId", type = Long.class)
+                })
+})
+
+@SqlResultSetMappings({
+        @SqlResultSetMapping(name = "SavedSchedPacketReport", classes = {
+                @ConstructorResult(
+                        targetClass = ReportPacketsDetDto.class,
+                        columns = {
+                                @ColumnResult(name = "packets_det_id", type = Long.class)
+                        }
+                )
+        })
+})
 @Entity
 public class ReportPacketsDetDto {
 

@@ -16,11 +16,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
-import javax.websocket.server.PathParam;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import org.springframework.util.FileCopyUtils;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 /**
  * Created by Sreenivas on 2/17/2017.
  */
@@ -31,6 +38,8 @@ public class ReportsController {
 
     @Inject
     private ReportsService reportsService;
+
+    private static final String APPLICATION_PDF = "application/text";
 
     @Inject
     private UserService userService;
@@ -77,8 +86,8 @@ public class ReportsController {
         }
     }
     @RequestMapping(value = "/savedschedreports", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<List<SavedSchedReportsDto>> getSavedSchedReports(@RequestParam String userId,@RequestParam(required = false) String folderId){
-        List<SavedSchedReportsDto> resultsList = reportsService.getSavedSchedReports(Long.parseLong(userId), (folderId == null ? 0 : Long.parseLong(folderId)));
+    public ResponseEntity<List<SavedSchedReportsDto>> getSavedSchedReports(@RequestParam String userId){
+        List<SavedSchedReportsDto> resultsList = reportsService.getSavedSchedReports(Long.parseLong(userId));
         return new ResponseEntity<List<SavedSchedReportsDto>>(resultsList, HttpStatus.OK);
     }
     @RequestMapping(value = "/updatesavedschedreport", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
@@ -143,6 +152,28 @@ public class ReportsController {
         }
     }
 
+    @RequestMapping(value = "/filedownload", method = RequestMethod.GET, produces = APPLICATION_PDF)
+    public @ResponseBody void downloadFile(HttpServletResponse response,@RequestParam String crGeneratedRptId) throws IOException {
+
+        File file = reportsService.getReportFileDetails (Long.parseLong(crGeneratedRptId));
+        InputStream in = new FileInputStream(file);
+
+        response.setContentType(APPLICATION_PDF);
+        response.setHeader("Content-Disposition", "attachment; filename=" + file.getName());
+        response.setHeader("Content-Length", String.valueOf(file.length()));
+        FileCopyUtils.copy(in, response.getOutputStream());
+    }
+
+    @RequestMapping(value = "/saveSchedReport", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<SavedSchedReportDto> saveSchedReport(@RequestBody SavedSchedReportDto savedSchedReportDto){
+        SavedSchedReportDto savedDto = reportsService.saveSchedReport(savedSchedReportDto);
+        return new ResponseEntity<SavedSchedReportDto>(savedDto, HttpStatus.OK);
+    }
+    @RequestMapping(value = "/saveSchedPacketReport", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<SavedSchedReportDto> saveSchedPacketReport(@RequestBody SavedSchedReportDto savedSchedReportDto){
+        SavedSchedReportDto savedDto = reportsService.saveSchedPacketReport(savedSchedReportDto);
+        return new ResponseEntity<SavedSchedReportDto>(savedDto, HttpStatus.OK);
+    }
 
     @RequestMapping(value = "/folder/create", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<ReportFolderDto> createReportFolder(@RequestBody ReportFolderDto reportFolderDto){

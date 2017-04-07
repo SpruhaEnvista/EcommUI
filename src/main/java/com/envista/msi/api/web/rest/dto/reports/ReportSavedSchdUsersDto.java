@@ -1,13 +1,37 @@
 package com.envista.msi.api.web.rest.dto.reports;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Date;
 
 /**
- * Created by user1 on 4/6/2017.
+ * Created by SreedharT on 4/6/2017.
  */
+@NamedStoredProcedureQueries({
+        @NamedStoredProcedureQuery(name = "SavedSchedReports.saveUsers", procedureName = "shp_rpt_savesched_users_proc",
+                resultSetMappings = "SavedSchedUsers",
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_savedSchedUserCur", type = Void.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "savedSchedRptId", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "userId", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "isEmailTempTobeSent", type = Boolean.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "isReportAttachEmail", type = Boolean.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "isReportSubscribed", type = Boolean.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "createUser", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "isShared", type = Boolean.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "canEdit", type = Boolean.class)
+                })
+})
+
+@SqlResultSetMappings({
+        @SqlResultSetMapping(name = "SavedSchedUsers", classes = {
+                @ConstructorResult(
+                        targetClass = ReportSavedSchdUsersDto.class,
+                        columns = {
+                                @ColumnResult(name = "savedSchedUsersId", type = Long.class)
+                        }
+                )
+        })
+})
 @Entity
 public class ReportSavedSchdUsersDto {
 
@@ -22,13 +46,13 @@ public class ReportSavedSchdUsersDto {
     private Long userId;
 
     @Column(name="is_email_template_to_be_sent")
-    private Long isEmailTemplateToBeSent;
+    private boolean isEmailTemplateToBeSent;
 
     @Column(name="is_report_attach_email")
-    private Long isReportAttachedMail;
+    private boolean isReportAttachedMail;
 
     @Column(name="is_report_subscribed")
-    private Long isReportSubscribed;
+    private boolean isReportSubscribed;
 
     @Column(name="create_user")
     private String createUser;
@@ -43,10 +67,10 @@ public class ReportSavedSchdUsersDto {
     private Date lastUpdateDate;
 
     @Column(name="is_shared")
-    private Boolean isShared;
+    private boolean shared;
 
     @Column(name="can_edit")
-    private Boolean canEdit;
+    private boolean canEdit;
 
     public Long getSavedSchdUsersId() {
         return savedSchdUsersId;
@@ -72,28 +96,28 @@ public class ReportSavedSchdUsersDto {
         this.userId = userId;
     }
 
-    public Long getIsEmailTemplateToBeSent() {
+    public boolean isEmailTemplateToBeSent() {
         return isEmailTemplateToBeSent;
     }
 
-    public void setIsEmailTemplateToBeSent(Long isEmailTemplateToBeSent) {
-        this.isEmailTemplateToBeSent = isEmailTemplateToBeSent;
+    public void setEmailTemplateToBeSent(boolean emailTemplateToBeSent) {
+        isEmailTemplateToBeSent = emailTemplateToBeSent;
     }
 
-    public Long getIsReportAttachedMail() {
+    public boolean isReportAttachedMail() {
         return isReportAttachedMail;
     }
 
-    public void setIsReportAttachedMail(Long isReportAttachedMail) {
-        this.isReportAttachedMail = isReportAttachedMail;
+    public void setReportAttachedMail(boolean reportAttachedMail) {
+        isReportAttachedMail = reportAttachedMail;
     }
 
-    public Long getIsReportSubscribed() {
+    public boolean isReportSubscribed() {
         return isReportSubscribed;
     }
 
-    public void setIsReportSubscribed(Long isReportSubscribed) {
-        this.isReportSubscribed = isReportSubscribed;
+    public void setReportSubscribed(boolean reportSubscribed) {
+        isReportSubscribed = reportSubscribed;
     }
 
     public String getCreateUser() {
@@ -128,19 +152,20 @@ public class ReportSavedSchdUsersDto {
         this.lastUpdateDate = lastUpdateDate;
     }
 
-    public Boolean getShared() {
-        return isShared;
+    public boolean isShared() {
+        return shared;
     }
 
-    public void setShared(Boolean shared) {
-        isShared = shared;
+    public void setShared(boolean shared) {
+        shared = shared;
     }
 
-    public Boolean getCanEdit() {
+    public boolean isCanEdit() {
         return canEdit;
     }
 
-    public void setCanEdit(Boolean canEdit) {
+    public void setCanEdit(boolean canEdit) {
         this.canEdit = canEdit;
     }
+
 }
