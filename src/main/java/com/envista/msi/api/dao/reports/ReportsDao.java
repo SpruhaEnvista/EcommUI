@@ -208,16 +208,25 @@ public class ReportsDao {
     }
 
     @Transactional
-    public ReportSavedSchdCriteriaDto updateSavedSchdCriteria(){
-        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId","")
-                                                            .and("rptDetailsId","")
-                                                            .and("assignOperator","")
-                                                            .and("value","")
-                                                            .and("isMatchCase","")
-                                                            .and("createUser","")
-                                                            .and("andOrOperator","");
+    public ReportSavedSchdCriteriaDto updateSavedSchdCriteria(Long ssRptId,Long rptDtlsId,String assignOperator,String value,Long isMatchCase,String createUser,String andOrOperator ){
+        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId",ssRptId)
+                                                            .and("rptDetailsId",rptDtlsId)
+                                                            .and("assignOperator",assignOperator)
+                                                            .and("value",value)
+                                                            .and("isMatchCase",isMatchCase)
+                                                            .and("createUser",createUser)
+                                                            .and("andOrOperator",andOrOperator);
 
         return persistentContext.findEntityAndMapFields("ReportSavedSchdCrit.insertRecord",queryParameter);
+    }
+
+    @Transactional
+    public ReportsInclColDto updateInclCol(Long ssRptId,Long rptDtlsId,String createUser ){
+        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId",ssRptId)
+                .and("rptDetailsId",rptDtlsId)
+                .and("createUser",createUser);
+
+        return persistentContext.findEntityAndMapFields("ReportInclCol.insertRecord",queryParameter);
     }
 
     public  boolean isNumber(String strNumber) {

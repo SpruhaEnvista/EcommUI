@@ -71,6 +71,14 @@ public class ReportSavedSchdCriteriaDto {
     @Column(name="savedSchedCritId")
     private Long savedSchedCritId;
 
+    public Long getSavedSchedCritId() {
+        return savedSchedCritId;
+    }
+
+    public void setSavedSchedCritId(Long savedSchedCritId) {
+        this.savedSchedCritId = savedSchedCritId;
+    }
+
     public ReportSavedSchdCriteriaDto(){}
 
     public ReportSavedSchdCriteriaDto(Long savedSchedCritId){
