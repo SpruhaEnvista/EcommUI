@@ -8,7 +8,7 @@ import java.util.Date;
  */
 @NamedStoredProcedureQueries({
         @NamedStoredProcedureQuery(name="ReportSavedSchdAcc.insertRecord" , procedureName = "shp_rpt_savesched_accts_proc",
-                resultSetMappings = "updated",
+                resultSetMappings = "updatedSSA",
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR , name="p_savedSchedAcctsCur", type= Void.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name="savedSchedRptId", type= Long.class),
@@ -21,7 +21,7 @@ import java.util.Date;
 })
 
 @SqlResultSetMappings({
-        @SqlResultSetMapping(name = "updated", classes = {
+        @SqlResultSetMapping(name = "updatedSSA", classes = {
                 @ConstructorResult(
                         targetClass = ReportsSavedSchdAccountDto.class,
                         columns = {
@@ -63,7 +63,6 @@ public class ReportsSavedSchdAccountDto {
     @Column(name="last_update_date")
     private Date lastUpdateDate;
 
-    @Column(name="savedSchedAcctsId")
     private Long savedSchedAcctsId;
 
     public ReportsSavedSchdAccountDto(){}

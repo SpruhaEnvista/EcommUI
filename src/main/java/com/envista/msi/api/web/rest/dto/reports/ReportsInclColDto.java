@@ -8,7 +8,7 @@ import java.util.Date;
  */
 @NamedStoredProcedureQueries({
         @NamedStoredProcedureQuery(name="ReportInclCol.insertRecord" , procedureName = "shp_rpt_savesched_colincl_proc",
-                resultSetMappings = "updated",
+                resultSetMappings = "updatedInclCol",
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR , name="p_savedSchedColInclCur", type= Void.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name="savedSchedRptId", type= Long.class),
@@ -19,11 +19,11 @@ import java.util.Date;
 })
 
 @SqlResultSetMappings({
-        @SqlResultSetMapping(name = "updated", classes = {
+        @SqlResultSetMapping(name = "updatedInclCol", classes = {
                 @ConstructorResult(
                         targetClass = ReportsInclColDto.class,
                         columns = {
-                                @ColumnResult(name = "savedSchedColInclId", type = Long.class)
+                                @ColumnResult(name = "savedSchedColInclIdU", type = Long.class)
                         }
                 )
         })
@@ -53,21 +53,21 @@ public class ReportsInclColDto {
     @Column(name = "last_update_date")
     private Date lastUpdateDate;
 
-    @Column(name="savedSchedColInclId")
-    private Long savedSchedColInclId;
+    @Column(name="savedSchedColInclIdU")
+    private Long savedSchedColInclIdU;
 
     public ReportsInclColDto(){}
 
-    public ReportsInclColDto(Long savedSchedColInclId){
-        this.savedSchedColInclId = savedSchedColInclId;
+    public ReportsInclColDto(Long savedSchedColInclIdU){
+        this.savedSchedColInclIdU = savedSchedColInclIdU;
     }
 
-    public Long getSavedSchedColInclId() {
-        return savedSchedColInclId;
+    public Long getSavedSchedColInclIdU() {
+        return savedSchedColInclIdU;
     }
 
-    public void setSavedSchedColInclId(Long savedSchedColInclId) {
-        this.savedSchedColInclId = savedSchedColInclId;
+    public void setSavedSchedColInclIdU(Long savedSchedColInclIdU) {
+        this.savedSchedColInclIdU = savedSchedColInclIdU;
     }
 
     public long getSavedSchedSortId() {

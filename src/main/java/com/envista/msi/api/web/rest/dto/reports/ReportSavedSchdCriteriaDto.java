@@ -8,7 +8,7 @@ import java.util.Date;
  */
 @NamedStoredProcedureQueries({
             @NamedStoredProcedureQuery(name="ReportSavedSchdCrit.insertRecord" , procedureName = "shp_rpt_savesched_crit_proc",
-                    resultSetMappings = "updated",
+                    resultSetMappings = "updatedRssc",
                     parameters = {
                             @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR , name="p_savedSchedCritCur", type= Void.class),
                             @StoredProcedureParameter(mode = ParameterMode.IN, name="savedSchedRptId", type= Long.class),
@@ -22,7 +22,7 @@ import java.util.Date;
 })
 
 @SqlResultSetMappings({
-        @SqlResultSetMapping(name = "updated", classes = {
+        @SqlResultSetMapping(name = "updatedRssc", classes = {
                 @ConstructorResult(
                         targetClass = ReportSavedSchdCriteriaDto.class,
                         columns = {
@@ -68,7 +68,6 @@ public class ReportSavedSchdCriteriaDto {
     @Column(name="and_or_operator")
     private String andOrOperator;
 
-    @Column(name="savedSchedCritId")
     private Long savedSchedCritId;
 
     public Long getSavedSchedCritId() {
