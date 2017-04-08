@@ -367,4 +367,8 @@ public class ReportsService {
     }
 
 
+
+    public List<ReportUserListByRptIdDto> getUserListByRptId(Long rptId){
+        return reportsDao.getUsersListByRptId(rptId);
+    }
 }

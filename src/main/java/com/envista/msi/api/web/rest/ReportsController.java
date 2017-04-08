@@ -405,6 +405,13 @@ public class ReportsController {
 
     }
 
+
+
+
+    @RequestMapping(value="/userListByRptId", method = {RequestMethod.GET,RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<List<ReportUserListByRptIdDto>> getUsersListByRptId(@RequestParam Long rptId){
+        List<ReportUserListByRptIdDto> rptUsersList = reportsService.getUserListByRptId(rptId);
+        return new ResponseEntity<List<ReportUserListByRptIdDto>>(rptUsersList,HttpStatus.OK);
+    }
+
 }
-
-
