@@ -213,7 +213,7 @@ public class ReportsController {
     @RequestMapping(value = "/folder/create", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<ReportFolderDto> createReportFolder(@RequestBody ReportFolderDto reportFolderDto){
         ReportFolderDto reportFolder = null;
-        if(reportFolderDto != null && reportFolderDto.getReportFolderName() != null){
+        if(reportFolderDto != null && reportFolderDto.getRptFolderName() != null){
             reportFolder = reportsService.createReportFolder(reportFolderDto,getUserProfile());
         }
         return new ResponseEntity<ReportFolderDto>(reportFolder,HttpStatus.OK);
