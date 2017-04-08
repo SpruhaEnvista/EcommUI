@@ -1,5 +1,6 @@
 package com.envista.msi.api.web.rest.dto.reports;
 
+import javax.persistence.*;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -8,7 +9,28 @@ import java.util.Date;
 /**
  * Created by Sreenivas on 4/6/2017.
  */
+@NamedStoredProcedureQueries({
+        @NamedStoredProcedureQuery(name="ReportInclCol.insertRecord" , procedureName = "shp_rpt_savesched_colincl_proc",
+                resultSetMappings = "updatedInclCol",
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR , name="p_savedSchedColInclCur", type= Void.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name="savedSchedRptId", type= Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name="rptDetailsId", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name="createUser", type = String.class)
 
+                })
+})
+
+@SqlResultSetMappings({
+        @SqlResultSetMapping(name = "updatedInclCol", classes = {
+                @ConstructorResult(
+                        targetClass = ReportsInclColDto.class,
+                        columns = {
+                                @ColumnResult(name = "savedSchedColInclIdU", type = Long.class)
+                        }
+                )
+        })
+})
 @Entity
 public class ReportsInclColDto {
 
@@ -33,6 +55,23 @@ public class ReportsInclColDto {
 
     @Column(name = "last_update_date")
     private Date lastUpdateDate;
+
+    @Column(name="savedSchedColInclIdU")
+    private Long savedSchedColInclIdU;
+
+    public ReportsInclColDto(){}
+
+    public ReportsInclColDto(Long savedSchedColInclIdU){
+        this.savedSchedColInclIdU = savedSchedColInclIdU;
+    }
+
+    public Long getSavedSchedColInclIdU() {
+        return savedSchedColInclIdU;
+    }
+
+    public void setSavedSchedColInclIdU(Long savedSchedColInclIdU) {
+        this.savedSchedColInclIdU = savedSchedColInclIdU;
+    }
 
     public long getSavedSchedSortId() {
         return savedSchedSortId;

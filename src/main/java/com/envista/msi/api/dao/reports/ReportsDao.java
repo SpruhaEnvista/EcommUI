@@ -3,6 +3,8 @@ package com.envista.msi.api.dao.reports;
 import com.envista.msi.api.domain.PersistentContext;
 import com.envista.msi.api.domain.util.QueryParameter;
 import com.envista.msi.api.domain.util.StoredProcedureParameter;
+import com.envista.msi.api.security.SecurityUtils;
+import com.envista.msi.api.web.rest.dto.UserProfileDto;
 import com.envista.msi.api.web.rest.dto.UserProfileDto;
 import com.envista.msi.api.web.rest.dto.reports.*;
 import org.springframework.stereotype.Repository;
@@ -82,9 +84,10 @@ public class ReportsDao {
      */
 
     @Transactional( readOnly = true )
-    public List<SavedSchedReportsDto> getSavedSchedReports(long userId) {
+    public List<SavedSchedReportsDto> getSavedSchedReports(long userId,long folderId) {
         return persistentContext.findEntitiesAndMapFields("SavedSchedReports.gerSavedSchedReports",
-                StoredProcedureParameter.with("userId", userId));
+                StoredProcedureParameter.with("userId", userId)
+                                        .and("folderId",folderId));
     }
 
     @Transactional
@@ -118,7 +121,8 @@ public class ReportsDao {
         QueryParameter queryParameter = StoredProcedureParameter.with("userId", updateSavedSchedReportDto.getLoggedinuserId())
                 .and("savedSchedId", updateSavedSchedReportDto.getSavedSchedRptId())
                 .and("createUser",updateSavedSchedReportDto.getCreateUser())
-                .and("reportName",updateSavedSchedReportDto.getReportName());
+                .and("reportName",updateSavedSchedReportDto.getReportName())
+                .and("rptFolderId",updateSavedSchedReportDto.getRptFolderId());;
         return persistentContext.findEntityAndMapFields("SavedReports.saveFromReportResults", queryParameter);
     }
     @Transactional
@@ -176,6 +180,78 @@ public class ReportsDao {
     public List<ReportFormatDto> getReportFormat(Long rptId){
         return persistentContext.findEntities("ReportFormat.getReportFormat",StoredProcedureParameter.with("p_rpt_id", rptId));
     }
+
+    @Transactional
+    public ReportFolderDto createReportFolder(ReportFolderDto reportFolderDto, UserProfileDto userProfileDto){
+        QueryParameter queryParameter = StoredProcedureParameter.with("folderName",reportFolderDto.getReportFolderName())
+                                        .and("createUser", (userProfileDto != null && userProfileDto.getUserName() != null ?  userProfileDto.getUserName() : "invalid" ))
+                                        .and("userId", (userProfileDto != null && userProfileDto.getUserId() != null ? userProfileDto.getUserId() : 0l ) )
+                                        .and("parentId", (reportFolderDto.getParentId() != null ? reportFolderDto.getParentId() : 0l ))
+                                        .and("crud",1l);
+        return persistentContext.findEntityAndMapFields("ReportFolder.createFolder", queryParameter);
+    }
+
+    @Transactional
+    public ReportFolderDetailsDto moveReportToFolder(ReportFolderDetailsDto rptFolderDtlsDto){
+        QueryParameter queryParameter = StoredProcedureParameter.with("rptFolderId",(rptFolderDtlsDto.getReportFolderId() == null ? 0 : rptFolderDtlsDto.getReportFolderId()))
+                                            .and("savedSchRptId", (rptFolderDtlsDto.getSavedSchdReportId() == null ? 0 : rptFolderDtlsDto.getSavedSchdReportId()) )
+                                            .and("crud",1l);
+        return persistentContext.findEntityAndMapFields("ReportFolderDtls.createRow",queryParameter);
+    }
+
+    @Transactional
+    public SavedSchedReportsDto changeOwnerBasedonSSRptId(String currentUserName,Long currentUserId,String newUserName,Long newUserId,Long ssRptId){
+        QueryParameter queryParameter = StoredProcedureParameter.with("currentUserName",currentUserName)
+                                                        .and("currentUserId",currentUserId)
+                                                        .and("newUserName",newUserName)
+                                                        .and("newUserId",newUserId)
+                                                        .and("ssRptId",ssRptId);
+        return persistentContext.findEntityAndMapFields("SavedSchedReports.changeOwnerBasedOnSSRptId",queryParameter);
+    }
+
+    @Transactional
+    public ReportSavedSchdCriteriaDto updateSavedSchdCriteria(Long ssRptId,Long rptDtlsId,String assignOperator,String value,Long isMatchCase,String createUser,String andOrOperator ){
+        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId",ssRptId)
+                                                            .and("rptDetailsId",rptDtlsId)
+                                                            .and("assignOperator",assignOperator)
+                                                            .and("value",value)
+                                                            .and("isMatchCase",isMatchCase)
+                                                            .and("createUser",createUser)
+                                                            .and("andOrOperator",andOrOperator);
+
+        return persistentContext.findEntityAndMapFields("ReportSavedSchdCrit.insertRecord",queryParameter);
+    }
+
+    @Transactional
+    public ReportsInclColDto updateInclCol(Long ssRptId,Long rptDtlsId,String createUser ){
+        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId",ssRptId)
+                .and("rptDetailsId",rptDtlsId)
+                .and("createUser",createUser);
+
+        return persistentContext.findEntityAndMapFields("ReportInclCol.insertRecord",queryParameter);
+    }
+
+    @Transactional
+    public ReportsSavedSchdAccountDto updateSavedSchdAccs(Long ssRptId,Long custId,Long shipperGroupId,Long shipperId,String createUser ){
+        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId",ssRptId)
+                .and("customerId",custId)
+                .and("shipperGroupId",shipperGroupId)
+                .and("shipperId",shipperId)
+                .and("createUser",createUser);
+
+        return persistentContext.findEntityAndMapFields("ReportSavedSchdAcc.insertRecord",queryParameter);
+    }
+
+    public  boolean isNumber(String strNumber) {
+        try {
+
+            Float.parseFloat(strNumber);
+        } catch (Exception nfe) {
+            return false;
+        }
+        return true;
+    }
+
 
     /**
      * @param generatedRptId
