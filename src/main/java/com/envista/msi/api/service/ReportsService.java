@@ -285,4 +285,8 @@ public class ReportsService {
         }
         return savedSchedReport;
     }
+
+    public List<ReportUserListByRptIdDto> getUserListByRptId(Long rptId){
+        return reportsDao.getUsersListByRptId(rptId);
+    }
 }

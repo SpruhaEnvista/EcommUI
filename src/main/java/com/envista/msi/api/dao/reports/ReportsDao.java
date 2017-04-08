@@ -358,4 +358,10 @@ public class ReportsDao {
 
     }
 
+    @Transactional
+    public List<ReportUserListByRptIdDto> getUsersListByRptId(Long rptId){
+        QueryParameter queryParameter = StoredProcedureParameter.with("rptId", rptId == null ? 0 : rptId );
+        return persistentContext.findEntities("UserListByRptId.getUsers",queryParameter);
+    }
+
 }

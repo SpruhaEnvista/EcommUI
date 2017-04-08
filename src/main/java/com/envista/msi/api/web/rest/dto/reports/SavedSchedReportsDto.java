@@ -87,14 +87,14 @@ public class SavedSchedReportsDto implements Serializable{
     private String createUser;
 
     @Column(name = "create_date")
-    @JsonFormat(pattern="MM/dd/yyyy hh:mm:ss a ")
+    @JsonFormat(pattern="MM/dd/yyyy hh:mm a ")
     private Date createDate;
 
     @Column(name = "last_update_user")
     private String lastUpdateUser;
 
     @Column(name = "last_update_date")
-    @JsonFormat(pattern="MM/dd/yyyy hh:mm:ss a ")
+    @JsonFormat(pattern="MM/dd/yyyy hh:mm a ")
     private Date lastUpdateDate;
 
     @Column(name = "userscount")

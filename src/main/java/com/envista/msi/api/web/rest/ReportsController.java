@@ -205,4 +205,10 @@ public class ReportsController {
         return new ResponseEntity<SavedSchedReportsDto>(savedSchedReportsDto,HttpStatus.OK);
     }
 
+    @RequestMapping(value="/userListByRptId", method = {RequestMethod.GET,RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<List<ReportUserListByRptIdDto>> getUsersListByRptId(@RequestParam Long rptId){
+        List<ReportUserListByRptIdDto> rptUsersList = reportsService.getUserListByRptId(rptId);
+        return new ResponseEntity<List<ReportUserListByRptIdDto>>(rptUsersList,HttpStatus.OK);
+    }
+
 }
