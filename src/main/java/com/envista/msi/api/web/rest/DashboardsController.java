@@ -2,6 +2,7 @@ package com.envista.msi.api.web.rest;
 
 import com.envista.msi.api.domain.util.DashboardUtil;
 import com.envista.msi.api.service.DashboardsService;
+import com.envista.msi.api.service.ReportsService;
 import com.envista.msi.api.service.UserService;
 import com.envista.msi.api.web.rest.dto.MapCoordinatesDto;
 import com.envista.msi.api.web.rest.dto.UserProfileDto;
@@ -20,12 +21,10 @@ import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.PortLanesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentRegionDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShippingLanesDto;
-import com.envista.msi.api.web.rest.dto.dashboard.report.DashboardReportUtilityDataDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.*;
 import com.envista.msi.api.web.rest.util.JSONUtil;
 import com.envista.msi.api.web.rest.util.WebConstants;
 import com.envista.msi.api.web.rest.util.pagination.PaginationBean;
-import org.apache.commons.beanutils.BeanUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,6 +35,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.el.MethodNotFoundException;
+import javax.servlet.http.HttpSession;
 import java.util.*;
 
 /**
@@ -49,6 +49,9 @@ public class DashboardsController extends DashboardBaseController {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    ReportsService reportsService;
 
     @Autowired
     private DashboardsService dashboardsService;
@@ -2690,8 +2693,10 @@ public class DashboardsController extends DashboardBaseController {
             List<CommonValuesForChartDto> commonValueList = new ArrayList<CommonValuesForChartDto>();
             for(AverageSpendPerShipmentDto avgShipmtByCarrier : avgShipmentList){
                 if(avgShipmtByCarrier != null){
-                    CommonValuesForChartDto commonValueChartDto=new CommonValuesForChartDto();
-                    BeanUtils.copyProperties(avgShipmtByCarrier , commonValueChartDto);
+                    CommonValuesForChartDto commonValueChartDto = new CommonValuesForChartDto();
+                    commonValueChartDto.setId(avgShipmtByCarrier.getId());
+                    commonValueChartDto.setName(avgShipmtByCarrier.getName());
+                    commonValueChartDto.setValue(avgShipmtByCarrier.getValue());
                     commonValueList.add(commonValueChartDto);
                 }
             }
@@ -2729,8 +2734,10 @@ public class DashboardsController extends DashboardBaseController {
             List<CommonValuesForChartDto> commonValueList = new ArrayList<CommonValuesForChartDto>();
             for(AverageWeightModeShipmtDto avgWeight : avgWeightList){
                 if(avgWeight != null){
-                    CommonValuesForChartDto commonValueChartDto=new CommonValuesForChartDto();
-                    BeanUtils.copyProperties(avgWeight , commonValueChartDto);
+                    CommonValuesForChartDto commonValueChartDto = new CommonValuesForChartDto();
+                    commonValueChartDto.setId(avgWeight.getId());
+                    commonValueChartDto.setName(avgWeight.getName());
+                    commonValueChartDto.setValue(avgWeight.getValue());
                     commonValueList.add(commonValueChartDto);
                 }
             }
@@ -2747,7 +2754,8 @@ public class DashboardsController extends DashboardBaseController {
             for (AverageWeightModeShipmtDto avgWeight : avgWeightList) {
                 if (avgWeight != null) {
                     CommonMonthlyChartDto commonMonthlyChartDto = new CommonMonthlyChartDto();
-                    BeanUtils.copyProperties(avgWeight, commonMonthlyChartDto);
+                    commonMonthlyChartDto.setAmount(avgWeight.getAmount());
+                    commonMonthlyChartDto.setBillDate(avgWeight.getBillDate());
                     commonMonthlyChartDtoList.add(commonMonthlyChartDto);
                 }
             }
@@ -2794,15 +2802,18 @@ public class DashboardsController extends DashboardBaseController {
      */
     @RequestMapping(value = "/colConfigByUser", method = {RequestMethod.GET, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<String> getColumnConfigByUser(){
-        UserProfileDto user = getUserProfile();
-        if(null == user){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(WebConstants.ResponseMessage.INVALID_USER);
+        JSONObject reportColumnNames = new JSONObject();
+        try{
+            UserProfileDto user = getUserProfile();
+            if(null == user){
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(WebConstants.ResponseMessage.INVALID_USER);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            reportColumnNames = dashboardsService.getDashboardReportCustomColumnNames(filter);
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
         }
-        List<DashboardReportUtilityDataDto> colConfigList = dashboardsService.getColumnConfigByUser(user.getUserId(), 100L);
-        if(colConfigList != null && !colConfigList.isEmpty()){
-
-        }
-        return null;
+        return ResponseEntity.status(HttpStatus.OK).body(reportColumnNames.toString());
     }
 
     @RequestMapping(value = "/actualVsBillWeight", method = {RequestMethod.GET, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
@@ -2918,7 +2929,7 @@ public class DashboardsController extends DashboardBaseController {
         return ResponseEntity.status(HttpStatus.OK).body(userFilterData);
     }
 
-    @RequestMapping(value = "/filterServices", method = {RequestMethod.GET, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/servicesByModes", method = {RequestMethod.GET, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<Map<String, Object>>  getServicesByGroupCode(@RequestParam String customerId, @RequestParam String carrierIds, @RequestParam String modes, @RequestParam String dateType, @RequestParam String fromDate, @RequestParam String toDate){
         Map<String, Object> userFilterData = new HashMap();
         try{
@@ -2945,7 +2956,7 @@ public class DashboardsController extends DashboardBaseController {
         try{
             List<UserFilterUtilityDataDto> carrList = dashboardsService.getCarrierByCustomer(customerIds, isParcelDashlettes);
             if(carrList != null && !carrList.isEmpty()){
-                userFilterData.put("CarrierGroupsData", JSONUtil.prepareFilterCarrierJson(carrList));
+                userFilterData.put("carriers", JSONUtil.prepareFilterCarrierJson(carrList));
             }
         }catch (Exception e){
             return new ResponseEntity<Map<String, Object>>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -2982,7 +2993,8 @@ public class DashboardsController extends DashboardBaseController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(userFilterData);
             }
             userFilterData.put("savedFilterNames", dashboardsService.getUserFilterByUser(user.getUserId()));
-            userFilterData.put("currenciesObject", dashboardsService.getCodeValuesByCodeGroup(468L));
+            userFilterData.put("currenciesList", JSONUtil.prepareCurrenciesJson(dashboardsService.getCodeValuesByCodeGroup(468L)));
+            userFilterData.put("customers", JSONUtil.customerHierarchyJson(reportsService.getCustomerHierarchyObject(dashboardsService.getDashboardCustomers(user.getUserId()), false)));
         }catch (Exception e){
             return new ResponseEntity<Map<String, Object>>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -3017,5 +3029,53 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
         }
         return ResponseEntity.status(HttpStatus.OK).body(shipmentCountJson.toString());
+    }
+
+    @RequestMapping(value = "/dashboardCustomers", method = {RequestMethod.GET, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getDashboardCustomers() {
+        JSONObject customerJson = new JSONObject();
+        try{
+            UserProfileDto user = getUserProfile();
+            if(null == user){
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(WebConstants.ResponseMessage.INVALID_USER);
+            }
+            reportsService.getCustomerHierarchyObject(dashboardsService.getDashboardCustomers(user.getUserId()), false);
+            customerJson.put("customers", JSONUtil.customerHierarchyJson(reportsService.getCustomerHierarchyObject(dashboardsService.getDashboardCustomers(user.getUserId()), false)));
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(customerJson.toString());
+    }
+
+    @RequestMapping(value = "/applyFilter", method = {RequestMethod.POST}, produces = {MediaType.APPLICATION_JSON_VALUE}, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> saveFilterData(@RequestBody DashboardAppliedFilterDto filter, HttpSession session) {
+        JSONObject respJson = new JSONObject();
+        try{
+            respJson.put("status", HttpStatus.OK.value());
+            respJson.put("message", "Saved Successfully");
+            UserProfileDto user = getUserProfile();
+            if(null == user){
+                respJson.put("status", HttpStatus.UNAUTHORIZED.value());
+                respJson.put("message", WebConstants.ResponseMessage.INVALID_USER);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(respJson.toString());
+            }
+            String customerId = filter.getCustomerIds();
+            if(customerId.startsWith("CU")){
+                filter.setCustomerIds(customerId.substring(2));
+            }
+            filter.setjSessionId(session.getId());
+            filter.setLoginUserId(user.getUserId());
+            filter.setUserName(user.getUserName());
+            dashboardsService.saveAppliedFilterDetails(filter);
+        }catch (Exception e){
+            try {
+                respJson.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+                respJson.put("message", WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
+            } catch (JSONException e1) {
+                e1.printStackTrace();
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respJson.toString());
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(respJson.toString());
     }
 }

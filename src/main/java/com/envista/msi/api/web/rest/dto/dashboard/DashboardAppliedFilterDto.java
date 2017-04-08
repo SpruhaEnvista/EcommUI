@@ -1,5 +1,7 @@
 package com.envista.msi.api.web.rest.dto.dashboard;
 
+import com.envista.msi.api.domain.util.DashboardStoredProcParam;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
@@ -13,6 +15,24 @@ import java.io.Serializable;
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_user_id", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "applied_filter_data", type = void.class)
+                }),
+        @NamedStoredProcedureQuery(name = "DashboardAppliedFilterDto.saveAppliedFilter", procedureName = "shp_db_ins_applied_filter_proc",
+                resultClasses = DashboardAppliedFilterDto.class,
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AppliedFilterParam.TOKEN_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AppliedFilterParam.CUSTOMER_IDS_CSV_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AppliedFilterParam.CARRIER_IDS_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AppliedFilterParam.FROM_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AppliedFilterParam.TO_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AppliedFilterParam.MODES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AppliedFilterParam.SERVICES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AppliedFilterParam.DATE_TYPE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AppliedFilterParam.LANES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AppliedFilterParam.USER_ID_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AppliedFilterParam.USER_NAME_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AppliedFilterParam.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AppliedFilterParam.WEIGHT_UNIT_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AppliedFilterParam.CURRENCY_CODE_PARAM, type = String.class),
                 })
 })
 
@@ -210,7 +230,7 @@ public class DashboardAppliedFilterDto implements Serializable {
         this.currencyCode = currencyCode;
     }
 
-   /* private String shipperGroupIdsCSV;
+    /* private String shipperGroupIdsCSV;
     private String modeNames;
     private String serviceNames;
     private String shipperIdsCSV;

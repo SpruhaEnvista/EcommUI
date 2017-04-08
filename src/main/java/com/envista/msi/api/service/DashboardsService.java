@@ -23,7 +23,9 @@ import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShippingLanesD
 import com.envista.msi.api.web.rest.dto.dashboard.report.DashboardReportDto;
 import com.envista.msi.api.web.rest.dto.dashboard.report.DashboardReportUtilityDataDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.*;
+import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
 import com.envista.msi.api.web.rest.util.JSONUtil;
+import com.envista.msi.api.web.rest.util.pac.GlobalConstants;
 import com.envista.msi.api.web.rest.util.pagination.EnspirePagination;
 import com.envista.msi.api.web.rest.util.pagination.PaginationBean;
 import org.json.JSONArray;
@@ -659,8 +661,32 @@ public class DashboardsService {
      * @param reportId
      * @return
      */
-    public List<DashboardReportUtilityDataDto> getColumnConfigByUser(Long userId, Long reportId){
-        return dashboardsDao.getColumnConfigByUser(userId, reportId);
+    public List<String> getColumnConfigByUser(Long userId, Long reportId){
+        List<String> columnNames = new ArrayList<String>();
+        List<DashboardReportUtilityDataDto> custColumnList = dashboardsDao.getColumnConfigByUser(userId, reportId);
+        if(custColumnList != null){
+            StringBuffer finalColumns = new StringBuffer();
+            for(DashboardReportUtilityDataDto custCol : custColumnList){
+                if(custCol != null){
+                    if(custCol.getColumnsDefined1() != null){
+                        finalColumns.append(custCol.getColumnsDefined1());
+                    }
+                    if(custCol.getColumnsDefined2() != null){
+                        finalColumns.append(custCol.getColumnsDefined2());
+                    }
+                    if(custCol.getColumnsDefined3() != null){
+                        finalColumns.append(custCol.getColumnsDefined3());
+                    }
+                    if(custCol.getColumnsDefined4() != null){
+                        finalColumns.append(custCol.getColumnsDefined4());
+                    }
+                    for (String columnName : finalColumns.toString().split(",")) {
+                        columnNames.add(columnName);
+                    }
+                }
+            }
+        }
+        return columnNames;
     }
 
     /**
@@ -871,4 +897,71 @@ public class DashboardsService {
     public List<ShipmentDto> getShipmentCountByZone(DashboardsFilterCriteria filter){
         return dashboardsDao.getShipmentCountByZone(filter);
     }
+
+    /**
+     * Get Dashboard customer details.
+     * @param userId
+     * @return
+     */
+    public List<ReportCustomerCarrierDto> getDashboardCustomers(long userId){
+        return dashboardsDao.getDashboardCustomers(userId);
+    }
+
+    /**
+     * Save applied filter details.
+     * @param appliedFilter
+     */
+    public void saveAppliedFilterDetails(DashboardAppliedFilterDto appliedFilter){
+        dashboardsDao.saveAppliedFilterDetails(appliedFilter);
+    }
+
+    public JSONObject getDashboardReportCustomColumnNames(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject colJson = new JSONObject();
+        colJson.put("shipmentColumns", getCustomColumnDetails(filter, GlobalConstants.DASHBOARDS_SHIPMENT_DETAIL_INCLUDED_COLS, 100L));
+        colJson.put("lineItemColumns", getCustomColumnDetails(filter, GlobalConstants.DASHBOARDS_LINE_ITEM_INCLUDED_COLS, 197L));
+        return colJson;
+    }
+
+    public JSONArray getCustomColumnDetails(DashboardsFilterCriteria filter, String originalColumnNames, long reportId) throws JSONException {
+        Map<String, String> customDefinedColsByCustomer = null;
+        if (filter != null) {
+            customDefinedColsByCustomer = getCustomDefinedLabelsByCustomer(filter, reportId);
+        }
+
+        Map<String, String> customFieldsMap = new HashMap<String, String>();
+        customFieldsMap.put("CUSTOM_DEFINED_1", "Custom Defined 1");
+        customFieldsMap.put("CUSTOM_DEFINED_2", "Custom Defined 2");
+        customFieldsMap.put("CUSTOM_DEFINED_3", "Custom Defined 3");
+        customFieldsMap.put("CUSTOM_DEFINED_4", "Custom Defined 4");
+        customFieldsMap.put("CUSTOM_DEFINED_5", "Custom Defined 5");
+        customFieldsMap.put("CUSTOM_DEFINED_6", "Custom Defined 6");
+        customFieldsMap.put("CUSTOM_DEFINED_7", "Custom Defined 7");
+        customFieldsMap.put("CUSTOM_DEFINED_8", "Custom Defined 8");
+        customFieldsMap.put("CUSTOM_DEFINED_9", "Custom Defined 9");
+        customFieldsMap.put("CUSTOM_DEFINED_10", "Custom Defined 10");
+        List<String> avedColumns = getColumnConfigByUser(filter.getUserId(), reportId);
+
+        JSONArray columnsDetailsJson = new JSONArray();
+        for (Map.Entry<String, String> entry : customFieldsMap.entrySet()) {
+            if (customDefinedColsByCustomer != null && customDefinedColsByCustomer.size() > 0 && customDefinedColsByCustomer.containsKey(entry.getKey())) {
+                originalColumnNames = originalColumnNames + "," + customDefinedColsByCustomer.get(entry.getKey());
+            } else {
+                originalColumnNames = originalColumnNames + "," + entry.getValue();
+            }
+        }
+        if (avedColumns == null || avedColumns.size() == 0) {
+            for (String columnName : originalColumnNames.split(",")) {
+                avedColumns.add(columnName);
+            }
+        }
+        for (String columnName : originalColumnNames.split(",")) {
+            JSONObject columnData = new JSONObject();
+            columnData.put("data", columnName);
+            columnData.put("checked", avedColumns.contains(columnName));
+            columnsDetailsJson.put(columnData);
+        }
+        return columnsDetailsJson;
+    }
+
+
 }

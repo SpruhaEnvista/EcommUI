@@ -1,5 +1,7 @@
 package com.envista.msi.api.web.rest.dto.reports;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
@@ -23,7 +25,7 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "generatedRptId", type = Long.class)
                 }),
         @NamedStoredProcedureQuery(name = "ReportResults.deleteResultReport", procedureName = "SHP_RPT_RESULT_DELETE_PROC",
-                resultSetMappings = "DeleteCount",
+                resultSetMappings = "UpdateCount",
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "generatedRptId", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "userId", type = Long.class),
@@ -54,14 +56,6 @@ import java.util.Date;
                                 @ColumnResult(name = "type", type = Integer.class),
                                 @ColumnResult(name = "completion_date", type = Date.class),
                                 @ColumnResult(name = "expires_date", type = Date.class)
-                        }
-                )
-        }),
-        @SqlResultSetMapping(name = "DeleteCount", classes = {
-                @ConstructorResult(
-                        targetClass = ReportResultsDto.class,
-                        columns = {
-                                @ColumnResult(name = "updateCount", type = Integer.class)
                         }
                 )
         })
@@ -97,10 +91,12 @@ public class ReportResultsDto implements Serializable {
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "completion_date")
+    @JsonFormat(pattern="MM/dd/yyyy hh:mm:ss a")
     private Date completedDate;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "expires_date")
+    @JsonFormat(pattern="MM/dd/yyyy hh:mm:ss a")
     private Date expiryDate;
 
     @Column(name="updateCount")

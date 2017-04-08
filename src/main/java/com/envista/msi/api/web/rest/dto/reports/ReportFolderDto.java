@@ -2,6 +2,7 @@ package com.envista.msi.api.web.rest.dto.reports;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.TreeSet;
 
 /**
@@ -13,9 +14,24 @@ import java.util.TreeSet;
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_user_id", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_refcur_folder_level_info", type = Void.class)
+                }),
+        @NamedStoredProcedureQuery(name = "ReportFolder.getReportFolder", procedureName = "shp_rpt_folder_proc",
+                resultSetMappings = "ReportFolder",
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_user_id", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_refcur_folder_level_info", type = Void.class)
                 })
 })
 @SqlResultSetMappings({
+        @SqlResultSetMapping(name = "ReportFolder", classes = {
+                @ConstructorResult(
+                        targetClass = ReportFolderDto.class,
+                        columns = {
+                                @ColumnResult(name = "RPT_FOLDER_ID", type = Long.class),
+                                @ColumnResult(name = "FOLDER_NAME", type = String.class),
+                                @ColumnResult(name = "PARENT_ID", type = Long.class)
+                        })
+        }),
         @SqlResultSetMapping(name = "ReportFolder", classes = {
                 @ConstructorResult(
                         targetClass = ReportFolderDto.class,
@@ -40,6 +56,9 @@ public class ReportFolderDto implements Serializable,Comparable<ReportFolderDto>
 
     @Column(name="value")
     private String folderIdNameValue;
+
+    @Column(name="counts")
+    private Long updateCount;
 
     private TreeSet<ReportFolderDto> collection = new TreeSet<ReportFolderDto>();
 
@@ -78,5 +97,43 @@ public class ReportFolderDto implements Serializable,Comparable<ReportFolderDto>
     @Override
     public int compareTo(ReportFolderDto dto) {
         return this.getRptFolderId().compareTo(dto.getRptFolderId());
+    }
+
+    public ReportFolderDto(){}
+
+    public ReportFolderDto(Long updateCount){
+        this.updateCount = updateCount;
+    }
+
+    public Long getUpdateCount() {
+        return updateCount;
+    }
+
+    public void setUpdateCount(Long updateCount) {
+        this.updateCount = updateCount;
+    }
+
+    public Long getReportFolderId() {
+        return reportFolderId;
+    }
+
+    public void setReportFolderId(Long reportFolderId) {
+        this.reportFolderId = reportFolderId;
+    }
+
+    public String getReportFolderName() {
+        return reportFolderName;
+    }
+
+    public void setReportFolderName(String reportFolderName) {
+        this.reportFolderName = reportFolderName;
+    }
+
+    public Long getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Long parentId) {
+        this.parentId = parentId;
     }
 }

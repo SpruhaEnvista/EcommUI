@@ -29,7 +29,8 @@ import java.io.Serializable;
                                 targetClass = CodeValueDto.class,
                                 columns = {
                                         @ColumnResult(name = "NSP_CODE_VALUE_ID", type = Long.class),
-                                        @ColumnResult(name = "CODE_VALUE", type = String.class)
+                                        @ColumnResult(name = "CODE_VALUE", type = String.class),
+                                        @ColumnResult(name ="PROPERTY_1", type = String.class)
                                 }
                         )
                 }
@@ -46,9 +47,13 @@ public class CodeValueDto implements Serializable {
     @Column(name = "CODE_VALUE")
     private String codeValue;
 
-    public CodeValueDto(Long id, String codeValue) {
+    @Column( name = "PROPERTY_1")
+    private String propertyOne;
+
+    public CodeValueDto(Long id, String codeValue , String propertyOne) {
         this.id = id;
         this.codeValue = codeValue;
+        this.propertyOne = propertyOne;
     }
 
     public Long getId() {
@@ -65,6 +70,14 @@ public class CodeValueDto implements Serializable {
 
     public void setCodeValue(String codeValue) {
         this.codeValue = codeValue;
+    }
+
+    public String getPropertyOne() {
+        return propertyOne;
+    }
+
+    public void setPropertyOne(String propertyOne) {
+        this.propertyOne = propertyOne;
     }
 
     public static class Config{

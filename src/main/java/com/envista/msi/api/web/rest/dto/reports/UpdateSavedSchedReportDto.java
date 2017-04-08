@@ -45,7 +45,8 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "userId", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "savedSchedId", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "createUser", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "reportName", type = String.class)
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "reportName", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "rptFolderId", type = Long.class)
                 })
 })
 @SqlResultSetMappings({
@@ -76,8 +77,18 @@ public class UpdateSavedSchedReportDto implements Serializable {
 
     private String reportName;
 
+    private Long rptFolderId;
+
     @Id
     private Long updateCount;
+
+    public Long getRptFolderId() {
+        return rptFolderId;
+    }
+
+    public void setRptFolderId(Long rptFolderId) {
+        this.rptFolderId = rptFolderId;
+    }
 
     public Long getUpdateCount() {
         return updateCount;

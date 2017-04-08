@@ -27,7 +27,16 @@ import java.util.TreeSet;
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_cusatomer_ids", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_refcur_customer_level_info", type = Void.class)
-                })
+                }),
+        @NamedStoredProcedureQuery(
+                name = "ReportCustomerCarrierDto.getDashboardCustomers",
+                procedureName = "SHP_DB_GET_CUSTOMERS_PROC",
+                resultSetMappings = "ReportCustomerCarrierDto.DashboardCustomerMapping",
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_user_id", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_customer_data", type = Void.class)
+                }
+        )
 })
 @SqlResultSetMappings({
         @SqlResultSetMapping(name = "ReportCustomer", classes = {
@@ -64,7 +73,30 @@ import java.util.TreeSet;
                         columns = {
                                 @ColumnResult(name = "value", type = String.class),
                         })
-        })
+        }),
+        @SqlResultSetMapping(
+                name = "ReportCustomerCarrierDto.DashboardCustomerMapping",
+                classes = {
+                        @ConstructorResult(
+                                targetClass = ReportCustomerCarrierDto.class,
+                                columns = {
+                                        @ColumnResult(name = "parent_customer_name", type = String.class),
+                                        @ColumnResult(name = "parent_customer_id", type = Long.class),
+                                        @ColumnResult(name = "customer_id", type = Long.class),
+                                        @ColumnResult(name = "customer_name", type = String.class),
+                                        @ColumnResult(name = "shipper_id", type = Long.class),
+                                        @ColumnResult(name = "shipper_name", type = String.class),
+                                        @ColumnResult(name = "carrier_id", type = Long.class),
+                                        @ColumnResult(name = "shipper_group_id", type = Long.class),
+                                        @ColumnResult(name = "paid_cust", type = Boolean.class),
+                                        @ColumnResult(name = "shipper_group_name", type = String.class),
+                                        @ColumnResult(name = "region", type = String.class),
+                                        @ColumnResult(name = "currency_id", type = String.class),
+                                }
+                        )
+                }
+
+        )
 })
 @Entity
 public class ReportCustomerCarrierDto implements Serializable,Comparable<ReportCustomerCarrierDto> {
@@ -91,6 +123,9 @@ public class ReportCustomerCarrierDto implements Serializable,Comparable<ReportC
 
     @Column(name="shipper_id")
     private Long shipperId;
+
+    @Column(name = "shipper_name")
+    private String shipperName;
 
     @Column(name="ship_code_name")
     private String shipCodeName;
@@ -121,7 +156,11 @@ public class ReportCustomerCarrierDto implements Serializable,Comparable<ReportC
 
     private String type;
 
+    @Column(name = "region")
+    private String region;
 
+    @Column(name = "currency_id")
+    private String currencyId;
 
     private TreeSet<ReportCustomerCarrierDto> collection = new TreeSet<ReportCustomerCarrierDto>();
 
@@ -151,7 +190,7 @@ public class ReportCustomerCarrierDto implements Serializable,Comparable<ReportC
         this.selected=selected;
     }
 
-    public ReportCustomerCarrierDto(String name, long id, boolean selected, String customerCarrierId, String type, Long parentId, String parentName, boolean paidCust) {
+    public ReportCustomerCarrierDto(String name, long id, boolean selected, String customerCarrierId, String type, Long parentId, String parentName, boolean paidCust, String region, String currencyId) {
         this.customerName = name;
         this.customerId = id;
         this.selected = selected;
@@ -162,7 +201,25 @@ public class ReportCustomerCarrierDto implements Serializable,Comparable<ReportC
         }
         this.parentCustomerName = parentName;
         this.paidCust = paidCust;
+        this.region = region;
+        this.currencyId = currencyId;
     }
+
+    public ReportCustomerCarrierDto(String parentCustomerName, Long parentCustomerId, Long customerId, String customerName, Long shipperId, String shipperName, Long carrierId, Long shipperGroupId, Boolean paidCust, String shipperGroupName, String region, String currencyId) {
+        this.parentCustomerName = parentCustomerName;
+        this.parentCustomerId = parentCustomerId;
+        this.customerId = customerId;
+        this.customerName = customerName;
+        this.shipperId = shipperId;
+        this.shipperName = shipperName;
+        this.carrierId = carrierId;
+        this.shipperGroupId = shipperGroupId;
+        this.paidCust = paidCust;
+        this.shipperGroupName = shipperGroupName;
+        this.region = region;
+        this.currencyId = currencyId;
+    }
+
 
     public Long getId() {
         return id;
@@ -228,6 +285,14 @@ public class ReportCustomerCarrierDto implements Serializable,Comparable<ReportC
 
     public void setShipperId(Long shipperId) { this.shipperId = shipperId;  }
 
+    public String getShipperName() {
+        return shipperName;
+    }
+
+    public void setShipperName(String shipperName) {
+        this.shipperName = shipperName;
+    }
+
     public String getShipCodeName() {  return shipCodeName;  }
 
     public void setShipCodeName(String shipCodeName) { this.shipCodeName = shipCodeName;  }
@@ -250,7 +315,7 @@ public class ReportCustomerCarrierDto implements Serializable,Comparable<ReportC
 
     public String getValue() {  return value; }
 
-    public void setValue(String customerHeirarchy) { this.value = value; }
+    public void setValue(String value) { this.value = value; }
 
     public Boolean getSelected() { return selected; }
 
@@ -263,6 +328,22 @@ public class ReportCustomerCarrierDto implements Serializable,Comparable<ReportC
     public String getType() {    return type;   }
 
     public void setType(String type) {  this.type = type;  }
+
+    public String getRegion() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
+    public String getCurrencyId() {
+        return currencyId;
+    }
+
+    public void setCurrencyId(String currencyId) {
+        this.currencyId = currencyId;
+    }
 
     @Override
     public int compareTo(ReportCustomerCarrierDto dto) {
