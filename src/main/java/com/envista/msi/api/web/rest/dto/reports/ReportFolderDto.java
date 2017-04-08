@@ -6,14 +6,19 @@ import java.util.Date;
 import java.util.TreeSet;
 
 /**
- * Created by Siddhant on 05/04/2017.
+ * Created by Sreedhar.T on 3/21/2017.
  */
 @NamedStoredProcedureQueries({
-        @NamedStoredProcedureQuery(name = "ReportFolder.getReportFolder", procedureName = "shp_rpt_folder_proc",
-                resultSetMappings = "ReportFolder",
+        @NamedStoredProcedureQuery(name = "ReportFolder.createFolder", procedureName = "shp_rpt_report_folder_proc",
+                resultSetMappings = "insertCount",
                 parameters = {
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_user_id", type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_refcur_folder_level_info", type = Void.class)
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "refCur", type = Void.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "folderName", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name="createUser", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name="userId", type= Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name="parentId", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name="crud", type = Long.class)
+
                 }),
         @NamedStoredProcedureQuery(name = "ReportFolder.getReportFolder", procedureName = "shp_rpt_folder_proc",
                 resultSetMappings = "ReportFolder",
@@ -23,13 +28,11 @@ import java.util.TreeSet;
                 })
 })
 @SqlResultSetMappings({
-        @SqlResultSetMapping(name = "ReportFolder", classes = {
+        @SqlResultSetMapping(name = "insertCount", classes = {
                 @ConstructorResult(
                         targetClass = ReportFolderDto.class,
                         columns = {
-                                @ColumnResult(name = "RPT_FOLDER_ID", type = Long.class),
-                                @ColumnResult(name = "FOLDER_NAME", type = String.class),
-                                @ColumnResult(name = "PARENT_ID", type = Long.class)
+                                @ColumnResult(name = "counts", type = Long.class)
                         })
         }),
         @SqlResultSetMapping(name = "ReportFolder", classes = {
@@ -43,9 +46,9 @@ import java.util.TreeSet;
         })
 })
 @Entity
-public class ReportFolderDto implements Serializable,Comparable<ReportFolderDto> {
+public class ReportFolderDto implements Serializable {
     @Id
-    @Column(name="RPT_FOLDER_ID")
+    @Column(name = "RPT_FOLDER_ID")
     private Long rptFolderId;
 
     @Column(name="FOLDER_NAME")
@@ -54,18 +57,13 @@ public class ReportFolderDto implements Serializable,Comparable<ReportFolderDto>
     @Column(name="PARENT_ID")
     private Long parentId;
 
-    @Column(name="value")
-    private String folderIdNameValue;
-
     @Column(name="counts")
     private Long updateCount;
 
-    private TreeSet<ReportFolderDto> collection = new TreeSet<ReportFolderDto>();
-
     public ReportFolderDto() { }
 
-    public ReportFolderDto(String folderIdNameValue) {
-        this.folderIdNameValue = folderIdNameValue;
+    public ReportFolderDto(Long count) {
+        this.updateCount = count;
     }
 
     public ReportFolderDto(Long rptFolderId, String rptFolderName,Long parentId) {
@@ -74,33 +72,28 @@ public class ReportFolderDto implements Serializable,Comparable<ReportFolderDto>
         this.parentId=parentId;
     }
 
-    public Long getRptFolderId() { return rptFolderId; }
-
-    public void setRptFolderId(Long rptFolderId) { this.rptFolderId = rptFolderId; }
-
-    public String getRptFolderName() { return rptFolderName; }
-
-    public void setRptFolderName(String rptFolderName) { this.rptFolderName = rptFolderName;  }
-
-    public Long getParentId() { return parentId; }
-
-    public void setParentId(Long parentId) { this.parentId = parentId; }
-
-    public String getFolderIdNameValue() { return folderIdNameValue;  }
-
-    public void setFolderIdNameValue(String folderIdNameValue) { this.folderIdNameValue = folderIdNameValue; }
-
-    public TreeSet<ReportFolderDto> getCollection() { return collection;  }
-
-    public void setCollection(TreeSet<ReportFolderDto> collection) { this.collection = collection;  }
-
-    @Override
-    public int compareTo(ReportFolderDto dto) {
-        return this.getRptFolderId().compareTo(dto.getRptFolderId());
+    public Long getRptFolderId() {
+        return rptFolderId;
     }
 
-    public ReportFolderDto(Long updateCount){
-        this.updateCount = updateCount;
+    public void setRptFolderId(Long rptFolderId) {
+        this.rptFolderId = rptFolderId;
+    }
+
+    public String getRptFolderName() {
+        return rptFolderName;
+    }
+
+    public void setRptFolderName(String rptFolderName) {
+        this.rptFolderName = rptFolderName;
+    }
+
+    public Long getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Long parentId) {
+        this.parentId = parentId;
     }
 
     public Long getUpdateCount() {
@@ -111,20 +104,5 @@ public class ReportFolderDto implements Serializable,Comparable<ReportFolderDto>
         this.updateCount = updateCount;
     }
 
-    public Long getReportFolderId() {
-        return rptFolderId;
-    }
-
-    public void setReportFolderId(Long rptFolderId) {
-        this.rptFolderId = rptFolderId;
-    }
-
-    public String getReportFolderName() {
-        return rptFolderName;
-    }
-
-    public void setReportFolderName(String rptFolderName) {
-        this.rptFolderName = rptFolderName;
-    }
 
 }
