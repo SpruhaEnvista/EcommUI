@@ -48,15 +48,135 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "currency", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "weightUom", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "rptDescr", type = String.class)
+                }),
+        @NamedStoredProcedureQuery(name = "SavedSchedReports.updateSchedReport", procedureName = "shp_rpt_update_savshde_proc",
+                resultSetMappings = "UpdateSavedSchedReport",
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_savedSchedUpCusr", type = Void.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "savedSchedRptId", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "rptId", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "isScheduled", type = Boolean.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "rptDateOptionsId", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "reportTypeId", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "reportFileName", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "dateSelectionFrequency", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "date1", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "date2", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "periodOption", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "lastNoOfDays", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "scTriggerBy", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "scScheduleType", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "scWeeklyFrequency", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "scWeeklyMonthlyDayofWeek", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "scMonthlyDayOfMonth", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "scMonthlyNoOfMonths", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "scMonthlyPeriodicFreq", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "svReportStatus", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "scNextSubmitDate", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "carrierIds", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "controlPayrunNumber", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "consolidate", type = Boolean.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "createUser", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "criteria", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "dateRangeTodayMinus1", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "dateRangeTodayMinus2", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "ftpAccountsId", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "isSuppressInvoices", type = Boolean.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "submittedFromSystem", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "isPacket", type = Boolean.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "flagsJson", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "locale", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "currency", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "weightUom", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "rptDescr", type = String.class)
+                }),
+        @NamedStoredProcedureQuery(name = "SavedSchedReports.deleteChildDataSchedReport", procedureName = "shp_rpt_delete_records_mt_proc",
+                resultSetMappings = "UpdateSavedSchedReport",
+                parameters = {
+                    @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "deletedRows", type = Void.class),
+                    @StoredProcedureParameter(mode = ParameterMode.IN, name = "savedSchedRptId", type = Long.class)
+                }),
+        @NamedStoredProcedureQuery(name = "SavedSchedReports.deletePacketDataSchedReport", procedureName = "SHP_DELETE_RPT_PKT_DETAILS_PRO",
+                resultSetMappings = "UpdateSavedSchedReport",
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "deletedRows", type = Void.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "savedSchedRptId", type = Long.class)
+                }),
+        @NamedStoredProcedureQuery(name = "SavedSchedReports.getReportDetails", procedureName = "shp_rpt_report_details",
+                resultSetMappings = "ReportDetails",
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "reportDetails", type = Void.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "savedSchedRptId", type = Long.class)
                 })
 })
 
 @SqlResultSetMappings({
-        @SqlResultSetMapping(name = "SavedSchedReport", classes = {
+        @SqlResultSetMapping(name = "SavedSchedReport",
+                classes = {
                 @ConstructorResult(
                         targetClass = SavedSchedReportDto.class,
                         columns = {
                                 @ColumnResult(name = "saved_sched_rpt_id", type = Long.class)
+                        }
+                )
+        }),
+        @SqlResultSetMapping(name = "UpdateSavedSchedReport",
+                classes = {
+                @ConstructorResult(
+                        targetClass = SavedSchedReportDto.class,
+                        columns = {
+                                @ColumnResult(name = "updateCount", type = Integer.class)
+                        }
+                )
+        }),
+        @SqlResultSetMapping(name = "ReportDetails",
+                classes = {
+                @ConstructorResult(
+                        targetClass = SavedSchedReportDto.class,
+                        columns = {
+                                @ColumnResult(name = "saved_sched_rpt_id", type = Long.class),
+                                @ColumnResult(name = "rpt_id", type = Long.class),
+                                @ColumnResult(name = "is_scheduled", type = Boolean.class),
+                                @ColumnResult(name = "rpt_date_options_id", type = Integer.class),
+                                @ColumnResult(name = "report_type_id", type = Integer.class),
+                                @ColumnResult(name = "report_file_name", type = String.class),
+                                @ColumnResult(name = "date_selection_frequency", type = String.class),
+                                @ColumnResult(name = "date1", type = String.class),
+                                @ColumnResult(name = "date2", type = String.class),
+                                @ColumnResult(name = "period_option", type = String.class),
+                                @ColumnResult(name = "last_no_of_days", type = Integer.class),
+                                @ColumnResult(name = "sc_trigger_by", type = String.class),
+                                @ColumnResult(name = "sc_schedule_type", type = String.class),
+                                @ColumnResult(name = "sc_weekly_frequency", type = Integer.class),
+                                @ColumnResult(name = "sc_weekly_monthly_day_of_week", type = String.class),
+                                @ColumnResult(name = "sc_monthly_day_of_month", type = Integer.class),
+                                @ColumnResult(name = "sc_monthly_no_of_months", type = Integer.class),
+                                @ColumnResult(name = "sc_monthly_periodic_frequency", type = String.class),
+                                @ColumnResult(name = "sv_report_status", type = String.class),
+                                @ColumnResult(name = "submitted_on", type = String.class),
+                                @ColumnResult(name = "sc_next_submit_date", type = String.class),
+                                @ColumnResult(name = "carrier_ids", type = String.class),
+                                @ColumnResult(name = "control_payrun_number", type = String.class),
+                                @ColumnResult(name = "consolidate", type = Boolean.class),
+                                @ColumnResult(name = "failed_attempts", type = Integer.class),
+                                @ColumnResult(name = "create_user", type = String.class),
+                                @ColumnResult(name = "create_date", type = String.class),
+                                @ColumnResult(name = "last_update_user", type = String.class),
+                                @ColumnResult(name = "last_update_date", type = String.class),
+                                @ColumnResult(name = "criteria", type = String.class),
+                                @ColumnResult(name = "date_range_today_minus1", type = Integer.class),
+                                @ColumnResult(name = "date_range_today_minus2", type = Integer.class),
+                                @ColumnResult(name = "ftp_accounts_id", type = String.class),
+                                @ColumnResult(name = "is_suppress_invoices", type = Boolean.class),
+                                @ColumnResult(name = "high_priority", type = Integer.class),
+                                @ColumnResult(name = "submitted_from_system", type = String.class),
+                                @ColumnResult(name = "is_packet", type = Boolean.class),
+                                @ColumnResult(name = "queue_name", type = String.class),
+                                @ColumnResult(name = "flags_json", type = String.class),
+                                @ColumnResult(name = "locale", type = String.class),
+                                @ColumnResult(name = "currency", type = String.class),
+                                @ColumnResult(name = "weight_uom", type = String.class),
+                                @ColumnResult(name = "rptDescr", type = String.class)
                         }
                 )
         })
@@ -194,6 +314,9 @@ public class SavedSchedReportDto {
 
     @Column(name = "rpt_descr")
     private String rptDescr;
+
+    @Column(name = "updateCount")
+    private Integer updateCount;
 
     public Long getSavedSchedRptId() {
         return savedSchedRptId;
@@ -604,5 +727,14 @@ public class SavedSchedReportDto {
     }
     public SavedSchedReportDto(Long savedSchedRptId){
          this.savedSchedRptId = savedSchedRptId;
+    }
+
+
+    public Integer getUpdateCount() {
+        return updateCount;
+    }
+
+    public void setUpdateCount(Integer updateCount) {
+        this.updateCount = updateCount;
     }
 }

@@ -1,35 +1,60 @@
 package com.envista.msi.api.web.rest.dto.reports;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Date;
 
 /**
  * Created by Sreenivas on 4/6/2017.
  */
 
+@NamedStoredProcedureQueries({
+        @NamedStoredProcedureQuery(name="ReportSortCol.insertRecord" , procedureName = "shp_rpt_savesched_sort_proc",
+                resultSetMappings = "updatedSortCol",
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR , name="p_savedSchedSortCur", type= Void.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name="savedSchedRptId", type= Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name="rptDetailsId", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name="isSubTotRequired", type = Boolean.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name="isAscending", type = Boolean.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name="sortOrder", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name="groupByCol", type = Boolean.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name="createUser", type = String.class)
+
+                })
+})
+
+@SqlResultSetMappings({
+        @SqlResultSetMapping(name = "updatedSortCol", classes = {
+                @ConstructorResult(
+                        targetClass = ReportsSortDto.class,
+                        columns = {
+                                @ColumnResult(name = "saved_sched_sort_id", type = Long.class)
+                        }
+                )
+        })
+})
+
 @Entity
 public class ReportsSortDto {
 
     @Id
     @Column(name = "saved_sched_sort_id")
-    private long savedSchedSortId;
+    private Long savedSchedSortId;
 
     @Column(name = "saved_sched_rpt_id")
-    private long savedSchedRptId;
+    private Long savedSchedRptId;
 
     @Column(name = "sort_by_column")
-    private long rptDetailsId;
+    private Long rptDetailsId;
 
     @Column(name = "is_sub_tot_required")
-    private boolean subTotRequired;
+    private Boolean subTotRequired;
 
     @Column(name = "is_Ascending")
-    private boolean ascending;
+    private Boolean ascending;
 
     @Column(name = "sort_order")
-    private int sortOrder;
+    private Integer sortOrder;
 
     @Column(name = "create_user")
     private String createUser;
@@ -44,53 +69,53 @@ public class ReportsSortDto {
     private Date lastUpdateDate;
 
     @Column(name = "group_by_col")
-    private boolean groupByCol;
+    private Boolean groupByCol;
 
-    public long getSavedSchedSortId() {
+    public Long getSavedSchedSortId() {
         return savedSchedSortId;
     }
 
-    public void setSavedSchedSortId(long savedSchedSortId) {
+    public void setSavedSchedSortId(Long savedSchedSortId) {
         this.savedSchedSortId = savedSchedSortId;
     }
 
-    public long getSavedSchedRptId() {
+    public Long getSavedSchedRptId() {
         return savedSchedRptId;
     }
 
-    public void setSavedSchedRptId(long savedSchedRptId) {
+    public void setSavedSchedRptId(Long savedSchedRptId) {
         this.savedSchedRptId = savedSchedRptId;
     }
 
-    public long getRptDetailsId() {
+    public Long getRptDetailsId() {
         return rptDetailsId;
     }
 
-    public void setRptDetailsId(long rptDetailsId) {
+    public void setRptDetailsId(Long rptDetailsId) {
         this.rptDetailsId = rptDetailsId;
     }
 
-    public boolean isSubTotRequired() {
+    public Boolean getSubTotRequired() {
         return subTotRequired;
     }
 
-    public void setSubTotRequired(boolean subTotRequired) {
+    public void setSubTotRequired(Boolean subTotRequired) {
         this.subTotRequired = subTotRequired;
     }
 
-    public boolean isAscending() {
+    public Boolean getAscending() {
         return ascending;
     }
 
-    public void setAscending(boolean ascending) {
+    public void setAscending(Boolean ascending) {
         this.ascending = ascending;
     }
 
-    public int getSortOrder() {
+    public Integer getSortOrder() {
         return sortOrder;
     }
 
-    public void setSortOrder(int sortOrder) {
+    public void setSortOrder(Integer sortOrder) {
         this.sortOrder = sortOrder;
     }
 
@@ -126,11 +151,11 @@ public class ReportsSortDto {
         this.lastUpdateDate = lastUpdateDate;
     }
 
-    public boolean isGroupByCol() {
+    public Boolean getGroupByCol() {
         return groupByCol;
     }
 
-    public void setGroupByCol(boolean groupByCol) {
+    public void setGroupByCol(Boolean groupByCol) {
         this.groupByCol = groupByCol;
     }
 }
