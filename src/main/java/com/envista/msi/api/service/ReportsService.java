@@ -16,6 +16,9 @@ import java.util.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Created by Sreenivas on 2/17/2017.
@@ -250,15 +253,25 @@ public class ReportsService {
 
         SavedSchedReportDto savedSchedReport = reportsDao.saveSchedReport(savedSchedReportDto);
 
-        if(savedSchedReport.getSavedSchedRptId()>0){
+            if(savedSchedReport.getSavedSchedRptId()>0){
+                inserChildTables(savedSchedReportDto,savedSchedReport.getSavedSchedRptId());
+            }
 
+        return savedSchedReport;
+    }
 
+    public SavedSchedReportDto updateSchedReport(SavedSchedReportDto savedSchedReportDto){
 
+        SavedSchedReportDto savedSchedReport = reportsDao.updateSchedReport(savedSchedReportDto);
 
+        if(savedSchedReport.getUpdateCount()!=null && savedSchedReport.getUpdateCount() >0){
+            reportsDao.deleteChildDataSchedReport(savedSchedReportDto);
+            inserChildTables(savedSchedReportDto,savedSchedReport.getSavedSchedRptId());
         }
 
-        return new SavedSchedReportDto();
+        return savedSchedReport;
     }
+
     public SavedSchedReportDto saveSchedPacketReport(SavedSchedReportDto savedSchedReportDto){
 
         SavedSchedReportDto savedSchedReport = new SavedSchedReportDto();
@@ -269,20 +282,76 @@ public class ReportsService {
             if(savedSchedReport.getSavedSchedRptId()>0){
 
                 for(ReportPacketsDetDto packetsDto : savedSchedReportDto.getReportPacketsDetList()){
-                    reportsDao.saveSchedPacketReport(packetsDto);
+                    packetsDto.setSavedSchdRptId(savedSchedReport.getSavedSchedRptId());
+                    ReportPacketsDetDto outPacketDto = reportsDao.saveSchedPacketReport(packetsDto);
                 }
 
-                if(savedSchedReport.getSavedSchedUsersDtoList()!=null && savedSchedReport.getSavedSchedUsersDtoList().size()>0){
-
+                if(savedSchedReportDto.getSavedSchedUsersDtoList()!=null && savedSchedReportDto.getSavedSchedUsersDtoList().size()>0){
                     for(ReportSavedSchdUsersDto saveSchedUser : savedSchedReportDto.getSavedSchedUsersDtoList()){
-                        reportsDao.saveSchedUser(saveSchedUser);
+                        saveSchedUser.setSavedSchdRptId(savedSchedReport.getSavedSchedRptId());
+                        ReportSavedSchdUsersDto outUserDto = reportsDao.saveSchedUser(saveSchedUser);
                     }
-
                 }
 
             }
         }
         return savedSchedReport;
+    }
+    public SavedSchedReportDto updateSchedPacketReport(SavedSchedReportDto savedSchedReportDto){
+
+        SavedSchedReportDto savedSchedReport = reportsDao.updateSchedReport(savedSchedReportDto);
+
+        if(savedSchedReport.getUpdateCount()!=null && savedSchedReport.getUpdateCount() >0){
+            reportsDao.deletePacketsDataSchedReport(savedSchedReportDto);
+            for(ReportPacketsDetDto packetsDto : savedSchedReportDto.getReportPacketsDetList()){
+                packetsDto.setSavedSchdRptId(savedSchedReportDto.getSavedSchedRptId());
+                ReportPacketsDetDto outPacketDto = reportsDao.saveSchedPacketReport(packetsDto);
+            }
+
+            if(savedSchedReportDto.getSavedSchedUsersDtoList()!=null && savedSchedReportDto.getSavedSchedUsersDtoList().size()>0){
+                for(ReportSavedSchdUsersDto saveSchedUser : savedSchedReportDto.getSavedSchedUsersDtoList()){
+                    saveSchedUser.setSavedSchdRptId(savedSchedReportDto.getSavedSchedRptId());
+                    ReportSavedSchdUsersDto outUserDto = reportsDao.saveSchedUser(saveSchedUser);
+                }
+            }
+        }
+        return savedSchedReport;
+    }
+    public void inserChildTables(SavedSchedReportDto savedSchedReportDto,Long savedSchedRrtId){
+
+        if(savedSchedReportDto.getSavedSchedUsersDtoList()!=null && savedSchedReportDto.getSavedSchedUsersDtoList().size()>0){
+            for(ReportSavedSchdUsersDto saveSchedUser : savedSchedReportDto.getSavedSchedUsersDtoList()){
+                saveSchedUser.setSavedSchdRptId(savedSchedRrtId);
+                ReportSavedSchdUsersDto outUserDto = reportsDao.saveSchedUser(saveSchedUser);
+            }
+        }
+        if(savedSchedReportDto.getSavedSchedAccountsDtoList()!=null && savedSchedReportDto.getSavedSchedAccountsDtoList().size()>0){
+            for(ReportsSavedSchdAccountDto accoutsDto : savedSchedReportDto.getSavedSchedAccountsDtoList()){
+                accoutsDto.setSavedSchdRptId(savedSchedRrtId);
+                reportsDao.saveSchedAccountsDetails(accoutsDto);
+            }
+        }
+
+        if(savedSchedReportDto.getReportCriteriaList()!=null && savedSchedReportDto.getReportCriteriaList().size()>0){
+            for(ReportSavedSchdCriteriaDto criteriaDto : savedSchedReportDto.getReportCriteriaList()){
+                criteriaDto.setSavedSchdRptId(savedSchedRrtId);
+                reportsDao.saveSchedCriterisDetails(criteriaDto);
+            }
+        }
+
+        if(savedSchedReportDto.getReportsInclColDtoList()!=null && savedSchedReportDto.getReportsInclColDtoList().size()>0){
+            for(ReportsInclColDto inclColDto : savedSchedReportDto.getReportsInclColDtoList()){
+                inclColDto.setSavedSchedRptId(savedSchedRrtId);
+                reportsDao.saveSchedIncColDetails(inclColDto);
+            }
+        }
+
+        if(savedSchedReportDto.getReportsSortColDtoList()!=null && savedSchedReportDto.getReportsSortColDtoList().size()>0){
+            for(ReportsSortDto sortColDto : savedSchedReportDto.getReportsSortColDtoList()){
+                sortColDto.setSavedSchedRptId(savedSchedRrtId);
+                reportsDao.saveSchedSortColDetails(sortColDto);
+            }
+        }
     }
 
     public List<ReportFormatDto> getReportDateOptions(Long rptId) {
@@ -378,8 +447,17 @@ public class ReportsService {
         }
         return jsonObjectReturn.put("ftpServers", jsonArray);
     }
+
+    public List<ReportUserListByRptIdDto> getUserListByRptId(Long rptId){
+        return reportsDao.getUsersListByRptId(rptId);
+    }
+    public SavedSchedReportDto getReportDetails(Long savedSchedRptId) {
+
+        SavedSchedReportDto savedSchedReportDto = reportsDao.getReportDetails(savedSchedRptId);
+
+        return savedSchedReportDto;
+    }
     public List<ReportColumnDto> getDefaultInclExclCol(Long saveSchedId,Long rptId,String createUser){
         return reportsDao.getDefaultInclExclCol(saveSchedId,rptId,createUser);
     }
-
 }
