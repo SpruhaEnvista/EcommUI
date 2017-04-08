@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import java.util.Date;
+import java.util.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Date;
@@ -367,12 +367,28 @@ public class ReportsService {
                 if(inclExclColDto.getRptDetailsId()!=null)
                     break;
                 else {
-                    inclExclColDtos= reportsDao.getSavedIncludeExcludeSortCol(userId,rptId,carrierIds);
+                    List<ReportColumnDto> inclExclColNameDtos= reportsDao.getSavedIncludeExcludeColNameOrder(userId,rptId,carrierIds);
+                    List<ReportColumnDto> inclExclColSequenceDtos= reportsDao.getSavedIncludeExcludeColSequencOrder(userId,rptId,carrierIds);
+                    inclExclColDtos=new ArrayList<ReportColumnDto>();
+                    for (ReportColumnDto sequenceColDto:inclExclColSequenceDtos){
+                        inclExclColDtos.add(sequenceColDto);
+                    }
+                    for (ReportColumnDto colNameDto:inclExclColNameDtos){
+                        inclExclColDtos.add(colNameDto);
+                    }
                     break;
                 }
             }
         } else {
-            inclExclColDtos= reportsDao.getSavedIncludeExcludeSortCol(userId,rptId,carrierIds);
+            List<ReportColumnDto> inclExclColNameDtos= reportsDao.getSavedIncludeExcludeColNameOrder(userId,rptId,carrierIds);
+            List<ReportColumnDto> inclExclColSequenceDtos= reportsDao.getSavedIncludeExcludeColSequencOrder(userId,rptId,carrierIds);
+            inclExclColDtos=new ArrayList<ReportColumnDto>();
+            for (ReportColumnDto sequenceColDto:inclExclColSequenceDtos){
+                inclExclColDtos.add(sequenceColDto);
+            }
+            for (ReportColumnDto colNameDto:inclExclColNameDtos){
+                inclExclColDtos.add(colNameDto);
+            }
         }
         return inclExclColDtos;
     }
@@ -440,5 +456,8 @@ public class ReportsService {
         SavedSchedReportDto savedSchedReportDto = reportsDao.getReportDetails(savedSchedRptId);
 
         return savedSchedReportDto;
+    }
+    public List<ReportColumnDto> getDefaultInclExclCol(Long saveSchedId,Long rptId,String createUser){
+        return reportsDao.getDefaultInclExclCol(saveSchedId,rptId,createUser);
     }
 }

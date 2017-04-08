@@ -394,11 +394,23 @@ public class ReportsDao {
      * @param rptId
      * @return List<ReportColumnDto>
      */
-    public List<ReportColumnDto> getSavedIncludeExcludeSortCol(Long userId, Long rptId, String carrierIds){
+    public List<ReportColumnDto> getSavedIncludeExcludeColNameOrder(Long userId, Long rptId, String carrierIds){
         QueryParameter queryParameter = StoredProcedureParameter.with("p_user_id",userId)
                 .and("p_rpt_id", rptId)
                 .and("p_carriers",carrierIds);
-        return persistentContext.findEntities("ReportCriteriaDto.getSavedIncludeExcludeSortCol",queryParameter);
+        return persistentContext.findEntities("ReportCriteriaDto.getSavedIncludeExcludeSortColByName",queryParameter);
+    }
+    /**
+     * @param userId
+     * @param carrierIds
+     * @param rptId
+     * @return List<ReportColumnDto>
+     */
+    public List<ReportColumnDto> getSavedIncludeExcludeColSequencOrder(Long userId, Long rptId, String carrierIds){
+        QueryParameter queryParameter = StoredProcedureParameter.with("p_user_id",userId)
+                .and("p_rpt_id", rptId)
+                .and("p_carriers",carrierIds);
+        return persistentContext.findEntities("ReportCriteriaDto.getSavedIncludeExcludeColBySequence",queryParameter);
     }
     /**
      * @param rptId
@@ -457,6 +469,15 @@ public class ReportsDao {
      */
     public List<ReportFTPServerDto> getSaveRptFTPServer(Long rptId){
         return persistentContext.findEntities("ReportFTPServer.getSaveRptFTPServer", StoredProcedureParameter.with("p_rpt_id",rptId));
+    }
+    /**
+     * @param rptId
+     * @return List<ReportFTPServerDto>
+     */
+    public List<ReportColumnDto> getDefaultInclExclCol(Long saveSchedId,Long rptId,String createUser){
+        return persistentContext.findEntities("ReportCriteriaDto.getDefaultInclExclCol",
+               StoredProcedureParameter.with("p_savedSchedRptId",saveSchedId)
+               .and("p_rptid",rptId).and("p_createUser",createUser));
     }
 
     @Transactional
