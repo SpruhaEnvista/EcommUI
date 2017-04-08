@@ -481,7 +481,7 @@ public class ReportsDao {
                 .and("rptDetailsId", criteriaDto.getRptDetailsId())
                 .and("assignOperator",criteriaDto.getAssignOperator()==null?"=":criteriaDto.getAssignOperator())
                 .and("value",criteriaDto.getValue())
-                .and("isMatchCase",criteriaDto.getMatchCase()==null?false:criteriaDto.getMatchCase())
+                .and("matchCase",criteriaDto.getMatchCase()==null?false:criteriaDto.getMatchCase())
                 .and("createUser",criteriaDto.getCreateUser())
                 .and("andOrOperator",criteriaDto.getAndOrOperator()==null?"AND":criteriaDto.getAndOrOperator());
         return persistentContext.findEntity("ReportSavedSchdCrit.insertRecord",queryParameter);
