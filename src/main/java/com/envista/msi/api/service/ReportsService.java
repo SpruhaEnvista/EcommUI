@@ -274,4 +274,7 @@ public class ReportsService {
         }
         return savedSchedReport;
     }
+    public List<ReportsValidationDto> verifyAccounts(long userId,long savedschedrptId) {
+        return  reportsDao.verifyAccounts(userId,savedschedrptId);
+    }
 }

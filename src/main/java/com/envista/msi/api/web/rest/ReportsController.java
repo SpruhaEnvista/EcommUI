@@ -156,4 +156,14 @@ public class ReportsController {
         SavedSchedReportDto savedDto = reportsService.saveSchedPacketReport(savedSchedReportDto);
         return new ResponseEntity<SavedSchedReportDto>(savedDto, HttpStatus.OK);
     }
+
+    @RequestMapping(value = "/verifyaccounts", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<List<ReportsValidationDto>> verifyAccounts(@RequestParam String savedschedrptId, @RequestParam String userId) {
+        try {
+            List<ReportsValidationDto> vadDto = reportsService.verifyAccounts(Long.parseLong(savedschedrptId), Long.parseLong(userId));
+            return new ResponseEntity<List<ReportsValidationDto>>(vadDto, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<List<ReportsValidationDto>>(new ArrayList<ReportsValidationDto>(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
