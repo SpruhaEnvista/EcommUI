@@ -1,5 +1,8 @@
 package com.envista.msi.api.web.rest.dto.reports;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import jdk.nashorn.internal.objects.annotations.Constructor;
 import org.hibernate.annotations.JoinColumnOrFormula;
 
 import javax.persistence.*;
@@ -11,14 +14,57 @@ import java.util.Date;
  */
 @NamedStoredProcedureQueries({
         @NamedStoredProcedureQuery(name = "SavedSchedReports.gerSavedSchedReports", procedureName = "shp_rpt_saved_sched_proc",
-                resultClasses = SavedSchedReportsDto.class,
+                resultSetMappings = "savedSchedReportsList",
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "reportsList", type = Void.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "userId", type = Long.class)
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "userId", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "folderId", type = Long.class)
+                }),
+        @NamedStoredProcedureQuery(name="SavedSchedReports.changeOwnerBasedOnSSRptId", procedureName = "shp_rpt_chng_owner_proc",
+                resultSetMappings = "updateOwnerResults",
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "updateCount", type = Void.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "currentUserName" , type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "currentUserId" ,type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "newUserName", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "newUserId" , type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "ssRptId" , type = Long.class)
                 })
 })
 
+@SqlResultSetMappings({
+        @SqlResultSetMapping(name = "updateOwnerResults", classes = {
+                @ConstructorResult(
+                        targetClass = SavedSchedReportsDto.class,
+                        columns = {
+                                @ColumnResult(name = "ssRptTbCnt", type = Long.class),
+                                @ColumnResult(name = "ssUserRptTbCnt", type = Long.class)
+                        }
+                )
+        }),
+        @SqlResultSetMapping(name = "savedSchedReportsList", classes = {
+                @ConstructorResult(
+                       targetClass = SavedSchedReportsDto.class,
+                        columns = {
+                               @ColumnResult(name = "saved_sched_rpt_id",type = Long.class),
+                                @ColumnResult(name = "rpt_id",type = Long.class),
+                                @ColumnResult(name = "is_scheduled",type = Boolean.class),
+                                @ColumnResult(name = "report_file_name",type = String.class),
+                                @ColumnResult(name = "sv_report_status",type = String.class),
+                                @ColumnResult(name = "create_user",type = String.class),
+                                @ColumnResult(name = "create_date",type = Date.class),
+                                @ColumnResult(name = "last_update_user",type = String.class),
+                                @ColumnResult(name = "last_update_date",type = Date.class),
+                                @ColumnResult(name = "userscount",type = Integer.class),
+                                @ColumnResult(name = "is_folder",type = Long.class),
+                        }
+
+                )
+        })
+})
+
 @Entity
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class SavedSchedReportsDto implements Serializable{
 
     @Id
@@ -41,16 +87,65 @@ public class SavedSchedReportsDto implements Serializable{
     private String createUser;
 
     @Column(name = "create_date")
+    @JsonFormat(pattern="MM/dd/yyyy hh:mm:ss a ")
     private Date createDate;
 
     @Column(name = "last_update_user")
     private String lastUpdateUser;
 
     @Column(name = "last_update_date")
+    @JsonFormat(pattern="MM/dd/yyyy hh:mm:ss a ")
     private Date lastUpdateDate;
 
     @Column(name = "userscount")
     private int usersCount;
+
+    @Column(name="is_folder")
+    private Long isFolder;
+
+    @Column(name="ssRptTbCnt")
+    private Long reportTbUpdatCount;
+
+    @Column(name="ssUserRptTbCnt")
+    private Long reportUsersTbUpdateCount;
+
+    public SavedSchedReportsDto(){}
+
+    public SavedSchedReportsDto(Long reportTbUpdatCount,Long reportUsersTbUpdateCount){
+        this.reportTbUpdatCount = reportTbUpdatCount;
+        this.reportUsersTbUpdateCount = reportUsersTbUpdateCount;
+    }
+
+    public SavedSchedReportsDto(long savedSchedRptId,long rptId,boolean scheduled,String reportName,String reportStatus,
+                                String createUser,Date createDate,String lastUpdateUser,Date lastUpdateDate,int usersCount,Long isFolder){
+        this.savedSchedRptId = savedSchedRptId;
+        this.rptId = rptId;
+        this.scheduled = scheduled;
+        this.reportName = reportName;
+        this.reportStatus = reportStatus;
+        this.createUser = createUser;
+        this.createDate = createDate;
+        this.lastUpdateUser = lastUpdateUser;
+        this.lastUpdateDate = lastUpdateDate;
+        this.usersCount = usersCount;
+        this.isFolder = isFolder;
+    }
+
+    public Long getReportTbUpdatCount() {
+        return reportTbUpdatCount;
+    }
+
+    public void setReportTbUpdatCount(Long reportTbUpdatCount) {
+        this.reportTbUpdatCount = reportTbUpdatCount;
+    }
+
+    public Long getReportUsersTbUpdateCount() {
+        return reportUsersTbUpdateCount;
+    }
+
+    public void setReportUsersTbUpdateCount(Long reportUsersTbUpdateCount) {
+        this.reportUsersTbUpdateCount = reportUsersTbUpdateCount;
+    }
 
     public long getSavedSchedRptId() {
         return savedSchedRptId;
@@ -132,7 +227,13 @@ public class SavedSchedReportsDto implements Serializable{
         this.usersCount = usersCount;
     }
 
+    public Long getIsFolder() {
+        return isFolder;
+    }
 
+    public void setIsFolder(Long isFolder) {
+        this.isFolder = isFolder;
+    }
 }
 
 

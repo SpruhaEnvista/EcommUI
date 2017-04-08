@@ -1,6 +1,11 @@
 package com.envista.msi.api.web.rest;
 
+import com.envista.msi.api.security.SecurityUtils;
 import com.envista.msi.api.service.ReportsService;
+import com.envista.msi.api.service.UserService;
+import com.envista.msi.api.web.rest.dto.UserProfileDto;
+import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
+import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendRequestDto;
 import com.envista.msi.api.web.rest.dto.reports.*;
 import com.envista.msi.api.web.rest.util.JSONUtil;
 import org.json.JSONException;
@@ -36,6 +41,19 @@ public class ReportsController {
 
     private static final String APPLICATION_PDF = "application/text";
 
+    @Inject
+    private UserService userService;
+
+    protected UserProfileDto getUserProfile(){
+        UserProfileDto user = null;
+        try {
+            user = userService.getUserProfileByUserName(SecurityUtils.getCurrentUserLogin());
+        } catch (Exception e) {
+            //nothing
+        }
+        return user;
+    }
+
     @RequestMapping(value = "/results/reportslist/{userId}", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<List<ReportResultsDto>> getReportResults(@PathVariable String userId){
         List<ReportResultsDto> resultsList = reportsService.getReportResults(Long.parseLong(userId));
@@ -68,8 +86,8 @@ public class ReportsController {
         }
     }
     @RequestMapping(value = "/savedschedreports", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<List<SavedSchedReportsDto>> getSavedSchedReports(@RequestParam String userId){
-        List<SavedSchedReportsDto> resultsList = reportsService.getSavedSchedReports(Long.parseLong(userId));
+    public ResponseEntity<List<SavedSchedReportsDto>> getSavedSchedReports(@RequestParam String userId,@RequestParam(required = false) String folderId){
+        List<SavedSchedReportsDto> resultsList = reportsService.getSavedSchedReports(Long.parseLong(userId), (folderId == null ? 0 : Long.parseLong(folderId)));
         return new ResponseEntity<List<SavedSchedReportsDto>>(resultsList, HttpStatus.OK);
     }
     @RequestMapping(value = "/updatesavedschedreport", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
@@ -156,4 +174,35 @@ public class ReportsController {
         SavedSchedReportDto savedDto = reportsService.saveSchedPacketReport(savedSchedReportDto);
         return new ResponseEntity<SavedSchedReportDto>(savedDto, HttpStatus.OK);
     }
+
+    @RequestMapping(value = "/folder/create", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<ReportFolderDto> createReportFolder(@RequestBody ReportFolderDto reportFolderDto){
+        ReportFolderDto reportFolder = null;
+        if(reportFolderDto != null && reportFolderDto.getReportFolderName() != null){
+            reportFolder = reportsService.createReportFolder(reportFolderDto,getUserProfile());
+        }
+        return new ResponseEntity<ReportFolderDto>(reportFolder,HttpStatus.OK);
+    }
+
+    @RequestMapping(value="/move/report", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE}, consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<ReportFolderDetailsDto> moveReportsToFolder(@RequestBody ReportFolderDetailsDto reportFolderDtlsDto) {
+        ReportFolderDetailsDto rptFolderDetailsDto = null;
+        if(reportFolderDtlsDto != null){
+            rptFolderDetailsDto = reportsService.moveRptsToFolder(reportFolderDtlsDto);
+        }
+        return new ResponseEntity<ReportFolderDetailsDto>(rptFolderDetailsDto,HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/chageowner", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<SavedSchedReportsDto> changeOwnerBasedOnSSRptId(@RequestParam String currentUserName,@RequestParam Long currentUserId,
+                                                                         @RequestParam String newUserName,@RequestParam Long newUserId,@RequestParam Long ssRptId){
+        SavedSchedReportsDto savedSchedReportsDto = null;
+        if(ssRptId != null && ssRptId > 0 && currentUserName != null && currentUserName.trim().length() > 0
+                && currentUserId != null && currentUserId >0 && newUserName != null && newUserName.trim().length() > 0
+                    && newUserId != null && newUserId > 0) {
+            savedSchedReportsDto = reportsService.changeOwnerBasedonSSRptId(currentUserName,currentUserId,newUserName,newUserId,ssRptId);
+        }
+        return new ResponseEntity<SavedSchedReportsDto>(savedSchedReportsDto,HttpStatus.OK);
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.envista.msi.api.service;
 
 import com.envista.msi.api.dao.reports.ReportsDao;
+import com.envista.msi.api.web.rest.dto.UserProfileDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardAppliedFilterDto;
 import com.envista.msi.api.web.rest.dto.reports.*;
 import org.json.JSONException;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import java.util.Date;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Date;
@@ -44,8 +46,8 @@ public class ReportsService {
         return  reportsDao.getUsersList(userName);
     }
 
-    public List<SavedSchedReportsDto> getSavedSchedReports(long userId){
-        return reportsDao.getSavedSchedReports(userId);
+    public List<SavedSchedReportsDto> getSavedSchedReports(long userId,long filterId){
+        return reportsDao.getSavedSchedReports(userId,filterId);
     }
 
     public UpdateSavedSchedReportDto updateSavedSchedReport(UpdateSavedSchedReportDto updateSavedSchedReportDto){
@@ -211,6 +213,15 @@ public class ReportsService {
 
     public List<ReportFormatDto> getReportFormat(Long rptId) {
         return reportsDao.getReportFormat(rptId);
+    }
+    public ReportFolderDto createReportFolder(ReportFolderDto reportFolderDto, UserProfileDto userProfileDto){
+        return reportsDao.createReportFolder(reportFolderDto,userProfileDto);
+    }
+    public ReportFolderDetailsDto moveRptsToFolder( ReportFolderDetailsDto rptFolderDetailsDto ){
+        return reportsDao.moveReportToFolder(rptFolderDetailsDto);
+    }
+    public SavedSchedReportsDto changeOwnerBasedonSSRptId(String currentUserName,Long currentUserId,String newUserName,Long newUserId,Long ssRptId ){
+        return reportsDao.changeOwnerBasedonSSRptId(currentUserName,currentUserId,newUserName,newUserId,ssRptId);
     }
 
     public File getReportFileDetails(Long generatedRptId) throws FileNotFoundException{
