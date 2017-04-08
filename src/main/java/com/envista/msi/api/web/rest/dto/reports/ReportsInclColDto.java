@@ -14,7 +14,7 @@ import java.util.Date;
                 resultSetMappings = "updatedInclCol",
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR , name="p_savedSchedColInclCur", type= Void.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name="savedSchedRptId", type= Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name="savedSchdRptId", type= Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name="rptDetailsId", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name="createUser", type = String.class)
 
@@ -26,7 +26,7 @@ import java.util.Date;
                 @ConstructorResult(
                         targetClass = ReportsInclColDto.class,
                         columns = {
-                                @ColumnResult(name = "savedSchedColInclIdU", type = Long.class)
+                                @ColumnResult(name = "saved_sched_col_incl_id", type = Long.class)
                         }
                 )
         })
@@ -36,13 +36,13 @@ public class ReportsInclColDto {
 
     @Id
     @Column(name = "saved_sched_col_incl_id")
-    private long savedSchedSortId;
+    private Long savedSchedColInclId;
 
     @Column(name = "saved_sched_rpt_id")
-    private long savedSchedRptId;
+    private Long savedSchdRptId;
 
     @Column(name = "rpt_details_id")
-    private long rptDetailsId;
+    private Long rptDetailsId;
 
     @Column(name = "create_user")
     private String createUser;
@@ -56,44 +56,33 @@ public class ReportsInclColDto {
     @Column(name = "last_update_date")
     private Date lastUpdateDate;
 
-    @Column(name="savedSchedColInclIdU")
-    private Long savedSchedColInclIdU;
-
     public ReportsInclColDto(){}
 
-    public ReportsInclColDto(Long savedSchedColInclIdU){
-        this.savedSchedColInclIdU = savedSchedColInclIdU;
+    public ReportsInclColDto(Long savedSchedColInclId){
+        this.savedSchedColInclId = savedSchedColInclId;
     }
 
-    public Long getSavedSchedColInclIdU() {
-        return savedSchedColInclIdU;
+    public Long getSavedSchedColInclId() {
+        return savedSchedColInclId;
     }
 
-    public void setSavedSchedColInclIdU(Long savedSchedColInclIdU) {
-        this.savedSchedColInclIdU = savedSchedColInclIdU;
+    public void setSavedSchedColInclId(Long savedSchedColInclId) {
+        this.savedSchedColInclId = savedSchedColInclId;
     }
 
-    public long getSavedSchedSortId() {
-        return savedSchedSortId;
+    public Long getSavedSchdRptId() {
+        return savedSchdRptId;
     }
 
-    public void setSavedSchedSortId(long savedSchedSortId) {
-        this.savedSchedSortId = savedSchedSortId;
+    public void setSavedSchedRptId(Long savedSchdRptId) {
+        this.savedSchdRptId = savedSchdRptId;
     }
 
-    public long getSavedSchedRptId() {
-        return savedSchedRptId;
-    }
-
-    public void setSavedSchedRptId(long savedSchedRptId) {
-        this.savedSchedRptId = savedSchedRptId;
-    }
-
-    public long getRptDetailsId() {
+    public Long getRptDetailsId() {
         return rptDetailsId;
     }
 
-    public void setRptDetailsId(long rptDetailsId) {
+    public void setRptDetailsId(Long rptDetailsId) {
         this.rptDetailsId = rptDetailsId;
     }
 

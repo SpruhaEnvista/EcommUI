@@ -25,7 +25,7 @@ import java.util.Date;
                 @ConstructorResult(
                         targetClass = ReportsSavedSchdAccountDto.class,
                         columns = {
-                                @ColumnResult(name = "savedSchedAcctsId", type = Long.class)
+                                @ColumnResult(name = "saved_sched_account_id", type = Long.class)
                         }
                 )
         })
