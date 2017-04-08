@@ -12,13 +12,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import java.util.Date;
+import java.util.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Date;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * Created by Sreenivas on 2/17/2017.
@@ -272,15 +269,15 @@ public class ReportsService {
             if(savedSchedReport.getSavedSchedRptId()>0){
 
                 for(ReportPacketsDetDto packetsDto : savedSchedReportDto.getReportPacketsDetList()){
-                    packetsDto.setSavedSchdRptId(savedSchedReport.getSavedSchedRptId());
-                    ReportPacketsDetDto outPacketDto = reportsDao.saveSchedPacketReport(packetsDto);
+                    reportsDao.saveSchedPacketReport(packetsDto);
                 }
 
-                if(savedSchedReportDto.getSavedSchedUsersDtoList()!=null && savedSchedReportDto.getSavedSchedUsersDtoList().size()>0){
+                if(savedSchedReport.getSavedSchedUsersDtoList()!=null && savedSchedReport.getSavedSchedUsersDtoList().size()>0){
+
                     for(ReportSavedSchdUsersDto saveSchedUser : savedSchedReportDto.getSavedSchedUsersDtoList()){
-                        saveSchedUser.setSavedSchdRptId(savedSchedReport.getSavedSchedRptId());
-                        ReportSavedSchdUsersDto outUserDto = reportsDao.saveSchedUser(saveSchedUser);
+                        reportsDao.saveSchedUser(saveSchedUser);
                     }
+
                 }
 
             }
@@ -301,12 +298,28 @@ public class ReportsService {
                 if(inclExclColDto.getRptDetailsId()!=null)
                     break;
                 else {
-                    inclExclColDtos= reportsDao.getSavedIncludeExcludeSortCol(userId,rptId,carrierIds);
+                    List<ReportColumnDto> inclExclColNameDtos= reportsDao.getSavedIncludeExcludeColNameOrder(userId,rptId,carrierIds);
+                    List<ReportColumnDto> inclExclColSequenceDtos= reportsDao.getSavedIncludeExcludeColSequencOrder(userId,rptId,carrierIds);
+                    inclExclColDtos=new ArrayList<ReportColumnDto>();
+                    for (ReportColumnDto sequenceColDto:inclExclColSequenceDtos){
+                        inclExclColDtos.add(sequenceColDto);
+                    }
+                    for (ReportColumnDto colNameDto:inclExclColNameDtos){
+                        inclExclColDtos.add(colNameDto);
+                    }
                     break;
                 }
             }
         } else {
-            inclExclColDtos= reportsDao.getSavedIncludeExcludeSortCol(userId,rptId,carrierIds);
+            List<ReportColumnDto> inclExclColNameDtos= reportsDao.getSavedIncludeExcludeColNameOrder(userId,rptId,carrierIds);
+            List<ReportColumnDto> inclExclColSequenceDtos= reportsDao.getSavedIncludeExcludeColSequencOrder(userId,rptId,carrierIds);
+            inclExclColDtos=new ArrayList<ReportColumnDto>();
+            for (ReportColumnDto sequenceColDto:inclExclColSequenceDtos){
+                inclExclColDtos.add(sequenceColDto);
+            }
+            for (ReportColumnDto colNameDto:inclExclColNameDtos){
+                inclExclColDtos.add(colNameDto);
+            }
         }
         return inclExclColDtos;
     }
@@ -365,6 +378,8 @@ public class ReportsService {
         }
         return jsonObjectReturn.put("ftpServers", jsonArray);
     }
-
+    public List<ReportColumnDto> getDefaultInclExclCol(Long saveSchedId,Long rptId,String createUser){
+        return reportsDao.getDefaultInclExclCol(saveSchedId,rptId,createUser);
+    }
 
 }

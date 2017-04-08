@@ -404,7 +404,15 @@ public class ReportsController {
         }
 
     }
-
+    @RequestMapping(value = "/defaultinclexclecol", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<List<ReportColumnDto>> getDefaultInclExclCol(@RequestParam String saveSchedId,@RequestParam String rptId,@RequestParam String createUser){
+        try {
+            List<ReportColumnDto> defaultCol =reportsService.getDefaultInclExclCol(Long.parseLong(saveSchedId),Long.parseLong(rptId),createUser);
+            return new ResponseEntity<List<ReportColumnDto>>(defaultCol, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<List<ReportColumnDto>>(new ArrayList<ReportColumnDto>(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
 
 
