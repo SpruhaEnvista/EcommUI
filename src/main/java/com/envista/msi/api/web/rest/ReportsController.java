@@ -1,8 +1,14 @@
 package com.envista.msi.api.web.rest;
 
+import com.envista.msi.api.security.SecurityUtils;
 import com.envista.msi.api.service.ReportsService;
+import com.envista.msi.api.service.UserService;
+import com.envista.msi.api.web.rest.dto.UserProfileDto;
+import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
+import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendRequestDto;
 import com.envista.msi.api.web.rest.dto.reports.*;
 import com.envista.msi.api.web.rest.util.JSONUtil;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
@@ -36,6 +42,19 @@ public class ReportsController {
 
     private static final String APPLICATION_PDF = "application/text";
 
+    @Inject
+    private UserService userService;
+
+    protected UserProfileDto getUserProfile(){
+        UserProfileDto user = null;
+        try {
+            user = userService.getUserProfileByUserName(SecurityUtils.getCurrentUserLogin());
+        } catch (Exception e) {
+            //nothing
+        }
+        return user;
+    }
+
     @RequestMapping(value = "/results/reportslist/{userId}", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<List<ReportResultsDto>> getReportResults(@PathVariable String userId){
         List<ReportResultsDto> resultsList = reportsService.getReportResults(Long.parseLong(userId));
@@ -68,8 +87,8 @@ public class ReportsController {
         }
     }
     @RequestMapping(value = "/savedschedreports", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<List<SavedSchedReportsDto>> getSavedSchedReports(@RequestParam String userId){
-        List<SavedSchedReportsDto> resultsList = reportsService.getSavedSchedReports(Long.parseLong(userId));
+    public ResponseEntity<List<SavedSchedReportsDto>> getSavedSchedReports(@RequestParam String userId,@RequestParam(required = false) String folderId){
+        List<SavedSchedReportsDto> resultsList = reportsService.getSavedSchedReports(Long.parseLong(userId), (folderId == null ? 0 : Long.parseLong(folderId)));
         return new ResponseEntity<List<SavedSchedReportsDto>>(resultsList, HttpStatus.OK);
     }
     @RequestMapping(value = "/updatesavedschedreport", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
@@ -125,12 +144,46 @@ public class ReportsController {
         return customerCarrierJson;
     }
     @RequestMapping(value = "/format", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<List<ReportFormatDto>> getReportFormat(@RequestParam String rptId){
+    public ResponseEntity<JSONObject> getReportFormat(@RequestParam String rptId){
         try {
+            JSONObject reprotFormatJson=new JSONObject();
             List<ReportFormatDto> reportFormats =reportsService.getReportFormat(Long.parseLong(rptId));
-            return new ResponseEntity<List<ReportFormatDto>>(reportFormats, HttpStatus.OK);
+            if(reportFormats!=null && reportFormats.size()>0){
+                JSONArray reportFormatJsonArr= new JSONArray();
+                for (ReportFormatDto reportFormat : reportFormats) {
+                    JSONObject jsonObject=new JSONObject();
+                    jsonObject.put("typeId",reportFormat.getTypeId());
+                    jsonObject.put("reportFormat",reportFormat.getReportFormat());
+                    jsonObject.put("selected",reportFormat.getSelected());
+                    reportFormatJsonArr.put(jsonObject);
+                }
+                reprotFormatJson.put("reportFormats",reportFormatJsonArr);
+            }
+            return new ResponseEntity<JSONObject>(reprotFormatJson, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<List<ReportFormatDto>>(new ArrayList<ReportFormatDto>(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<JSONObject>(new JSONObject(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @RequestMapping(value = "/dateoptions", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<JSONObject> getReportDateOptions(@RequestParam String rptId){
+        try {
+            JSONObject dateOptionJson=new JSONObject();
+            List<ReportFormatDto> dateOptions =reportsService.getReportDateOptions(Long.parseLong(rptId));
+            if(dateOptions!=null && dateOptions.size()>0){
+                JSONArray dateOptionsJsonArr= new JSONArray();
+                for (ReportFormatDto dateOption : dateOptions) {
+                    JSONObject jsonObject=new JSONObject();
+                    jsonObject.put("dateOptionId",dateOption.getRptDateOptionId());
+                    jsonObject.put("dateCriteriaName",dateOption.getDateCriteriaName());
+                    jsonObject.put("isDefault",dateOption.getIsDefault());
+                    jsonObject.put("selected",dateOption.getSelected());
+                    dateOptionsJsonArr.put(jsonObject);
+                }
+                dateOptionJson.put("dateOptions",dateOptionsJsonArr);
+            }
+            return new ResponseEntity<JSONObject>(dateOptionJson, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<JSONObject>(new JSONObject(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -157,6 +210,210 @@ public class ReportsController {
         return new ResponseEntity<SavedSchedReportDto>(savedDto, HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/folder/create", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<ReportFolderDto> createReportFolder(@RequestBody ReportFolderDto reportFolderDto){
+        ReportFolderDto reportFolder = null;
+        if(reportFolderDto != null && reportFolderDto.getRptFolderName() != null){
+            reportFolder = reportsService.createReportFolder(reportFolderDto,getUserProfile());
+        }
+        return new ResponseEntity<ReportFolderDto>(reportFolder,HttpStatus.OK);
+    }
+
+    @RequestMapping(value="/move/report", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE}, consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<ReportFolderDetailsDto> moveReportsToFolder(@RequestBody ReportFolderDetailsDto reportFolderDtlsDto) {
+        ReportFolderDetailsDto rptFolderDetailsDto = null;
+        if(reportFolderDtlsDto != null){
+            rptFolderDetailsDto = reportsService.moveRptsToFolder(reportFolderDtlsDto);
+        }
+        return new ResponseEntity<ReportFolderDetailsDto>(rptFolderDetailsDto,HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/chageowner", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<SavedSchedReportsDto> changeOwnerBasedOnSSRptId(@RequestParam String currentUserName,@RequestParam Long currentUserId,
+                                                                         @RequestParam String newUserName,@RequestParam Long newUserId,@RequestParam Long ssRptId){
+        SavedSchedReportsDto savedSchedReportsDto = null;
+        if(ssRptId != null && ssRptId > 0 && currentUserName != null && currentUserName.trim().length() > 0
+                && currentUserId != null && currentUserId >0 && newUserName != null && newUserName.trim().length() > 0
+                    && newUserId != null && newUserId > 0) {
+            savedSchedReportsDto = reportsService.changeOwnerBasedonSSRptId(currentUserName,currentUserId,newUserName,newUserId,ssRptId);
+        }
+        return new ResponseEntity<SavedSchedReportsDto>(savedSchedReportsDto,HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/criteriacolumn", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<List<ReportColumnDto>> getReportCriteria(@RequestParam String userId, @RequestParam String rptId, @RequestParam String carrierIds){
+        try {
+            List<ReportColumnDto> reportCriteriaCols = reportsService.getReportCriteria(Long.parseLong(userId),Long.parseLong(rptId),carrierIds);
+            return new ResponseEntity<List<ReportColumnDto>>(reportCriteriaCols, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<List<ReportColumnDto>>(new ArrayList<ReportColumnDto>(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @RequestMapping(value = "/inclexclsortcolumn", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<List<ReportColumnDto>> getIncludeExcludeSortCol(@RequestParam String userId, @RequestParam String rptId, @RequestParam String carrierIds){
+        try {
+            List<ReportColumnDto> reportIncludeExclSortCols = reportsService.getIncludeExcludeSortCol(Long.parseLong(userId),Long.parseLong(rptId),carrierIds);
+            return new ResponseEntity<List<ReportColumnDto>>(reportIncludeExclSortCols, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<List<ReportColumnDto>>(new ArrayList<ReportColumnDto>(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @RequestMapping(value = "/locale", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<List<ReportCodeValueDto>> getReportLocaleLabel(@RequestParam String rptId){
+        try {
+            List<ReportCodeValueDto> reportLocaleLabels = reportsService.getReportLocaleLabel(Long.parseLong(rptId));
+            return new ResponseEntity<List<ReportCodeValueDto>>(reportLocaleLabels, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<List<ReportCodeValueDto>>(new ArrayList<ReportCodeValueDto>(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @RequestMapping(value = "/currency", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<List<ReportCodeValueDto>> getReportCurrencyLabel(@RequestParam String rptId){
+        try {
+            List<ReportCodeValueDto> reportCurrencyLabels = reportsService.getReportCurrencyLabel(Long.parseLong(rptId));
+            return new ResponseEntity<List<ReportCodeValueDto>>(reportCurrencyLabels, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<List<ReportCodeValueDto>>(new ArrayList<ReportCodeValueDto>(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @RequestMapping(value = "/weight", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<JSONObject> getReportWeightLabel(@RequestParam String rptId){
+        try {
+              JSONObject weightJson=new JSONObject();
+              List<ReportCodeValueDto> reportWeightLabels = reportsService.getReportWeightLabel(Long.parseLong(rptId));
+              if (reportWeightLabels != null && reportWeightLabels.size()>0){
+                   JSONArray weightArray= new JSONArray();
+                   for(ReportCodeValueDto dto: reportWeightLabels){
+                       JSONObject dtoJson=new JSONObject();
+                       dtoJson.put("value",dto.getCodeValue());
+                       dtoJson.put("label",dto.getProperty1());
+                       weightArray.put(dtoJson);
+                   }
+                   weightJson.put("reportWeight",weightArray);
+              }
+              return new ResponseEntity<JSONObject>(weightJson, HttpStatus.OK);
+        } catch (Exception e) {
+              return new ResponseEntity<JSONObject>(new JSONObject(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @RequestMapping(value = "/controlnumber", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<JSONObject> getControlNumber(@RequestBody ReportFormatDto lookupBntDto) throws JSONException{
+        try {
+            JSONObject ctrlNoJson=new JSONObject();
+            String customers = "";
+            String customerIds = lookupBntDto.getCustomerIds();
+            JSONArray jsonArray = new JSONArray(customerIds); // json
+            if(jsonArray!=null) {
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        String customerId = String.valueOf(jsonArray.get(i));
+                        if(i>0){
+                            customers = customers +",";
+                        }
+                        customers = customers + customerId;
+                    }
+            }
+            if(customers!=null && customers.trim().length()>0) {
+                List<ReportFormatDto> reportControlNo = reportsService.getControlNumber(customers,lookupBntDto.getPayRunNo(),lookupBntDto.getCheckNo());
+                if (reportControlNo != null && reportControlNo.size() > 0) {
+                    JSONArray ctrlNoArray = new JSONArray();
+                    for (ReportFormatDto dto : reportControlNo) {
+                        JSONObject dtoJson = new JSONObject();
+                        dtoJson.put("payRunNumber", dto.getControlNumber());
+                        ctrlNoArray.put(dtoJson);
+                    }
+                    ctrlNoJson.put("controlNumber", ctrlNoArray);
+                }
+            }
+            return new ResponseEntity<JSONObject>(ctrlNoJson, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<JSONObject>(new JSONObject(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @RequestMapping(value = "/folders", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<JSONArray> getReportFolder(@RequestParam String userId){
+        try {
+            JSONArray folderArray= new JSONArray();
+            List<ReportFolderDto> folderDtos = reportsService.getReportFolder(Long.parseLong(userId));
+            if (folderDtos != null && folderDtos.size()>0){
+                for(ReportFolderDto dto: folderDtos){
+                    JSONObject dtoJson=new JSONObject();
+                    dtoJson.put("folderId",dto.getRptFolderId());
+                    dtoJson.put("folderName",dto.getRptFolderName());
+                    dtoJson.put("parentId",dto.getParentId());
+                    folderArray.put(dtoJson);
+                }
+            }
+            return new ResponseEntity<JSONArray>(folderArray, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<JSONArray>(new JSONArray(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @RequestMapping(value = "/ftpserver", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<JSONObject> getReportFTPServer(@RequestBody ReportFTPServerDto ftpServerDto) throws Exception{
+        try {
+            JSONObject ftpServerJson=null;
+            String customers = "";
+            String shipperGroups="";
+            String shipers="";
+            String customerIds = ftpServerDto.getCustomerIds();
+            if(customerIds!=null) {
+                JSONArray jsonArray = new JSONArray(customerIds); // json
+                if (jsonArray != null) {
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        String customerId = String.valueOf(jsonArray.get(i));
+                        if (i > 0)
+                            customers = customers + ",";
+                        customers = customers + customerId;
+                    }
+                }
+            }
+            String shipperGroupIds = ftpServerDto.getShipperGroupIds();
+            if(shipperGroupIds!=null) {
+                JSONArray jsonArray = new JSONArray(shipperGroupIds); // json
+                if (jsonArray != null) {
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        String shipperGroupId = String.valueOf(jsonArray.get(i));
+                        if (i > 0)
+                            shipperGroups = shipperGroups + ",";
+                        shipperGroups = shipperGroups + shipperGroupId;
+                    }
+                }
+            }
+            String shipperIds = ftpServerDto.getShipersIds();
+            if(shipperIds!=null) {
+                JSONArray jsonArray = new JSONArray(shipperIds); // json
+                if (jsonArray != null) {
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        String shipperId = String.valueOf(jsonArray.get(i));
+                        if (i > 0) {
+                            shipers = shipers + ",";
+                        }
+                        shipers = shipers + shipperId;
+                    }
+                }
+            }
+            JSONObject asJson = reportsService.getReportFTPServer(customers,shipperGroups,shipers,ftpServerDto.getRptId());
+            ftpServerJson = asJson != null ? asJson : new JSONObject();
+            return new ResponseEntity<JSONObject>(ftpServerJson, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<JSONObject>(new JSONObject(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
+
+
+
+    @RequestMapping(value="/userListByRptId", method = {RequestMethod.GET,RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<List<ReportUserListByRptIdDto>> getUsersListByRptId(@RequestParam Long rptId){
+        List<ReportUserListByRptIdDto> rptUsersList = reportsService.getUserListByRptId(rptId);
+        return new ResponseEntity<List<ReportUserListByRptIdDto>>(rptUsersList,HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/verifyaccounts", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<List<ReportsValidationDto>> verifyAccounts(@RequestParam String savedschedrptId, @RequestParam String userId) {
         try {
@@ -166,4 +423,5 @@ public class ReportsController {
             return new ResponseEntity<List<ReportsValidationDto>>(new ArrayList<ReportsValidationDto>(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 }

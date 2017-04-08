@@ -1,14 +1,18 @@
 package com.envista.msi.api.service;
 
 import com.envista.msi.api.dao.reports.ReportsDao;
+import com.envista.msi.api.web.rest.dto.UserProfileDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardAppliedFilterDto;
 import com.envista.msi.api.web.rest.dto.reports.*;
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import java.util.Date;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Date;
@@ -44,8 +48,8 @@ public class ReportsService {
         return  reportsDao.getUsersList(userName);
     }
 
-    public List<SavedSchedReportsDto> getSavedSchedReports(long userId){
-        return reportsDao.getSavedSchedReports(userId);
+    public List<SavedSchedReportsDto> getSavedSchedReports(long userId,long filterId){
+        return reportsDao.getSavedSchedReports(userId,filterId);
     }
 
     public UpdateSavedSchedReportDto updateSavedSchedReport(UpdateSavedSchedReportDto updateSavedSchedReportDto){
@@ -212,6 +216,15 @@ public class ReportsService {
     public List<ReportFormatDto> getReportFormat(Long rptId) {
         return reportsDao.getReportFormat(rptId);
     }
+    public ReportFolderDto createReportFolder(ReportFolderDto reportFolderDto, UserProfileDto userProfileDto){
+        return reportsDao.createReportFolder(reportFolderDto,userProfileDto);
+    }
+    public ReportFolderDetailsDto moveRptsToFolder( ReportFolderDetailsDto rptFolderDetailsDto ){
+        return reportsDao.moveReportToFolder(rptFolderDetailsDto);
+    }
+    public SavedSchedReportsDto changeOwnerBasedonSSRptId(String currentUserName,Long currentUserId,String newUserName,Long newUserId,Long ssRptId ){
+        return reportsDao.changeOwnerBasedonSSRptId(currentUserName,currentUserId,newUserName,newUserId,ssRptId);
+    }
 
     public File getReportFileDetails(Long generatedRptId) throws FileNotFoundException{
 
@@ -259,13 +272,14 @@ public class ReportsService {
             if(savedSchedReport.getSavedSchedRptId()>0){
 
                 for(ReportPacketsDetDto packetsDto : savedSchedReportDto.getReportPacketsDetList()){
-                    reportsDao.saveSchedPacketReport(packetsDto);
+                    packetsDto.setSavedSchdRptId(savedSchedReport.getSavedSchedRptId());
+                    ReportPacketsDetDto outPacketDto = reportsDao.saveSchedPacketReport(packetsDto);
                 }
 
-                if(savedSchedReport.getSavedSchedUsersDtoList()!=null && savedSchedReport.getSavedSchedUsersDtoList().size()>0){
-
+                if(savedSchedReportDto.getSavedSchedUsersDtoList()!=null && savedSchedReportDto.getSavedSchedUsersDtoList().size()>0){
                     for(ReportSavedSchdUsersDto saveSchedUser : savedSchedReportDto.getSavedSchedUsersDtoList()){
-                        reportsDao.saveSchedUser(saveSchedUser);
+                        saveSchedUser.setSavedSchdRptId(savedSchedReport.getSavedSchedRptId());
+                        ReportSavedSchdUsersDto outUserDto = reportsDao.saveSchedUser(saveSchedUser);
                     }
 
                 }
@@ -273,6 +287,90 @@ public class ReportsService {
             }
         }
         return savedSchedReport;
+    }
+
+    public List<ReportFormatDto> getReportDateOptions(Long rptId) {
+        return reportsDao.getReportDateOptions(rptId);
+    }
+
+    public List<ReportColumnDto> getReportCriteria(Long userId, Long rptId, String carrierIds){ return reportsDao.getReportCriteria(userId,rptId,carrierIds); }
+
+    public List<ReportColumnDto> getIncludeExcludeSortCol(Long userId, Long rptId, String carrierIds){
+        List<ReportColumnDto> inclExclColDtos= reportsDao.getIncludeExcludeSortCol(userId,rptId,carrierIds);
+        if(inclExclColDtos!=null && inclExclColDtos.size()>0){
+            for(ReportColumnDto inclExclColDto:inclExclColDtos){
+                if(inclExclColDto.getRptDetailsId()!=null)
+                    break;
+                else {
+                    inclExclColDtos= reportsDao.getSavedIncludeExcludeSortCol(userId,rptId,carrierIds);
+                    break;
+                }
+            }
+        } else {
+            inclExclColDtos= reportsDao.getSavedIncludeExcludeSortCol(userId,rptId,carrierIds);
+        }
+        return inclExclColDtos;
+    }
+
+    public List<ReportCodeValueDto> getReportLocaleLabel(Long rptId){ return reportsDao.getReportLocaleLabel(rptId);  }
+
+    public List<ReportCodeValueDto> getReportCurrencyLabel(Long rptId){ return reportsDao.getReportCurrencyLabel(rptId); }
+
+    public List<ReportCodeValueDto> getReportWeightLabel(Long rptId){ return reportsDao.getReportWeightLabel(rptId); }
+
+    public List<ReportFormatDto> getControlNumber(String customerIds,Integer payRunNo,Integer checkNo){ return  reportsDao.getControlNumber(customerIds,payRunNo,checkNo); }
+
+    public List<ReportFolderDto> getReportFolder(Long userId){ return  reportsDao.getReportFolder(userId); }
+
+    public JSONObject getReportFTPServer(String customerIds,String shipperGroupIds ,String shipperIds,Long rptId) throws  Exception{
+        List<ReportFTPServerDto> ftpServerDtos=reportsDao.getReportFTPServer( customerIds, shipperGroupIds , shipperIds);
+        List<ReportFTPServerDto> ftpAccountDtos=reportsDao.getSaveRptFTPServer(rptId);
+        JSONObject jsonObjectReturn=new JSONObject();
+        JSONArray jsonArray = new JSONArray();
+        boolean isSavedFTPAccountPresent=false;
+        if(ftpServerDtos!=null){
+            for (ReportFTPServerDto ftpServerDto:ftpServerDtos) {
+                if (ftpServerDto != null) {
+                    JSONObject jsonObject = new JSONObject();
+                    if (ftpAccountDtos != null) {
+                        for (ReportFTPServerDto savedServer : ftpAccountDtos) {
+                            if (savedServer != null) {
+                                if (ftpServerDto.getFtpAccountId()!=null && savedServer.getFtpAccountId()!=null && ftpServerDto.getFtpAccountId()==savedServer.getFtpAccountId())
+                                    isSavedFTPAccountPresent = true;
+                            }
+                        }
+                    }
+                    jsonObject.put("FTPSERVERNAME", ftpServerDto.getFtpAccountName());
+                    jsonObject.put("FTPSERVERID", ftpServerDto.getFtpAccountId());
+                    jsonArray.put(jsonObject);
+                }
+
+            }
+        }
+        if (!isSavedFTPAccountPresent ) {
+            if (ftpAccountDtos != null) {
+                for (ReportFTPServerDto savedServer : ftpAccountDtos) {
+                    if (savedServer != null) {
+                        if (savedServer.getFtpAccountId()!=null) {
+                            JSONObject jsonObject = new JSONObject();
+                            if (!savedServer.getIsActive())
+                                jsonObject.put("FTPSERVERNAME", savedServer.getFtpAccountName() + "-Inactive");
+                            else
+                                jsonObject.put("FTPSERVERNAME", savedServer.getFtpAccountName() + "-Invalid");
+                            jsonObject.put("FTPSERVERID", savedServer.getFtpAccountId());
+                            jsonArray.put(jsonObject);
+                        }
+                    }
+                }
+            }
+        }
+        return jsonObjectReturn.put("ftpServers", jsonArray);
+    }
+
+
+
+    public List<ReportUserListByRptIdDto> getUserListByRptId(Long rptId){
+        return reportsDao.getUsersListByRptId(rptId);
     }
     public List<ReportsValidationDto> verifyAccounts(long userId,long savedschedrptId) {
         return  reportsDao.verifyAccounts(userId,savedschedrptId);

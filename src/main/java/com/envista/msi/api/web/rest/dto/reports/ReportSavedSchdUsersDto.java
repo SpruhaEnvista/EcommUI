@@ -27,7 +27,7 @@ import java.util.Date;
                 @ConstructorResult(
                         targetClass = ReportSavedSchdUsersDto.class,
                         columns = {
-                                @ColumnResult(name = "savedSchedUsersId", type = Long.class)
+                                @ColumnResult(name = "saved_sched_users_id", type = Long.class)
                         }
                 )
         })
@@ -46,13 +46,13 @@ public class ReportSavedSchdUsersDto {
     private Long userId;
 
     @Column(name="is_email_template_to_be_sent")
-    private boolean isEmailTemplateToBeSent;
+    private Boolean isEmailTemplateToBeSent;
 
     @Column(name="is_report_attach_email")
-    private boolean isReportAttachedMail;
+    private Boolean isReportAttachedMail;
 
     @Column(name="is_report_subscribed")
-    private boolean isReportSubscribed;
+    private Boolean isReportSubscribed;
 
     @Column(name="create_user")
     private String createUser;
@@ -67,10 +67,10 @@ public class ReportSavedSchdUsersDto {
     private Date lastUpdateDate;
 
     @Column(name="is_shared")
-    private boolean shared;
+    private Boolean shared;
 
     @Column(name="can_edit")
-    private boolean canEdit;
+    private Boolean canEdit;
 
     public Long getSavedSchdUsersId() {
         return savedSchdUsersId;
@@ -96,27 +96,27 @@ public class ReportSavedSchdUsersDto {
         this.userId = userId;
     }
 
-    public boolean isEmailTemplateToBeSent() {
+    public Boolean isEmailTemplateToBeSent() {
         return isEmailTemplateToBeSent;
     }
 
-    public void setEmailTemplateToBeSent(boolean emailTemplateToBeSent) {
+    public void setEmailTemplateToBeSent(Boolean emailTemplateToBeSent) {
         isEmailTemplateToBeSent = emailTemplateToBeSent;
     }
 
-    public boolean isReportAttachedMail() {
+    public Boolean isReportAttachedMail() {
         return isReportAttachedMail;
     }
 
-    public void setReportAttachedMail(boolean reportAttachedMail) {
+    public void setReportAttachedMail(Boolean reportAttachedMail) {
         isReportAttachedMail = reportAttachedMail;
     }
 
-    public boolean isReportSubscribed() {
+    public Boolean isReportSubscribed() {
         return isReportSubscribed;
     }
 
-    public void setReportSubscribed(boolean reportSubscribed) {
+    public void setReportSubscribed(Boolean reportSubscribed) {
         isReportSubscribed = reportSubscribed;
     }
 
@@ -152,20 +152,25 @@ public class ReportSavedSchdUsersDto {
         this.lastUpdateDate = lastUpdateDate;
     }
 
-    public boolean isShared() {
+    public Boolean isShared() {
         return shared;
     }
 
-    public void setShared(boolean shared) {
+    public void setShared(Boolean shared) {
         shared = shared;
     }
 
-    public boolean isCanEdit() {
+    public Boolean isCanEdit() {
         return canEdit;
     }
 
-    public void setCanEdit(boolean canEdit) {
+    public void setCanEdit(Boolean canEdit) {
         this.canEdit = canEdit;
     }
 
+    public ReportSavedSchdUsersDto(){}
+
+    public ReportSavedSchdUsersDto(Long savedSchdUsersId){
+        this.savedSchdUsersId = savedSchdUsersId;
+    }
 }
