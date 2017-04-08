@@ -28,4 +28,35 @@ public class ReportsApiTest extends WebappTestEnvironment {
                 .param("generatedRptId", "1247400").param("expiryDate", String.valueOf(System.currentTimeMillis()))).andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE));
     }
+    @Test
+    public void getReportForModes() throws  Exception {
+        mockRestMvc().perform(get(SEARCH_API_BASE_PATH_VALUE+"/getModesReport")
+                .param("userId", "23910")).andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE));
+    }
+    @Test
+    public void getReportCustomers() throws  Exception {
+        mockRestMvc().perform(get(SEARCH_API_BASE_PATH_VALUE+"/customercarrierlist")
+                .param("rptId","197").param("userId","23910")).andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE));
+    }
+    @Test
+    public void getReportFormat() throws  Exception{
+        mockRestMvc().perform(get(SEARCH_API_BASE_PATH_VALUE+"/format")
+                .param("rptId", "197")).andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE));
+    }
+    @Test
+    public void getReportDateOptions() throws Exception {
+        mockRestMvc().perform(get(SEARCH_API_BASE_PATH_VALUE+"/dateoptions")
+                .param("rptId", "197")).andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE));
+    }
+    @Test
+    public void getReportCriteria() throws Exception {
+        mockRestMvc().perform(get(SEARCH_API_BASE_PATH_VALUE+"/criteriacolumn")
+                .param("userId","23910").param("rptId", "197").param("carrierIds", " ")).andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE));
+    }
+
 }

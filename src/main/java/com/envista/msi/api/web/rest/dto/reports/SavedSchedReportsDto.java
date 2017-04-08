@@ -100,6 +100,9 @@ public class SavedSchedReportsDto implements Serializable{
     @Column(name = "userscount")
     private int usersCount;
 
+    @Column(name = "rpt_descr")
+    private String reportDescr;
+
     @Column(name="is_folder")
     private Long isFolder;
 
@@ -227,10 +230,12 @@ public class SavedSchedReportsDto implements Serializable{
         this.usersCount = usersCount;
     }
 
+    public String getReportDescr() { return reportDescr;  }
     public Long getIsFolder() {
         return isFolder;
     }
 
+    public void setReportDescr(String reportDescr) { this.reportDescr = reportDescr;  }
     public void setIsFolder(Long isFolder) {
         this.isFolder = isFolder;
     }
