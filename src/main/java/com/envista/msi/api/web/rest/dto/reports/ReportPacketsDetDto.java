@@ -43,7 +43,7 @@ public class ReportPacketsDetDto {
     private String tabName;
 
     @Column(name="sequence")
-    private Long sequence;
+    private Integer sequence;
 
     @Column(name="template_id")
     private Long templateId;
@@ -72,11 +72,11 @@ public class ReportPacketsDetDto {
         this.tabName = tabName;
     }
 
-    public Long getSequence() {
+    public Integer getSequence() {
         return sequence;
     }
 
-    public void setSequence(Long sequence) {
+    public void setSequence(Integer sequence) {
         this.sequence = sequence;
     }
 
@@ -86,5 +86,12 @@ public class ReportPacketsDetDto {
 
     public void setTemplateId(Long templateId) {
         this.templateId = templateId;
+    }
+
+    public ReportPacketsDetDto(){
+    }
+
+    public ReportPacketsDetDto(long packetsDetId){
+        this.packetsDetId = packetsDetId;
     }
 }

@@ -259,15 +259,15 @@ public class ReportsService {
             if(savedSchedReport.getSavedSchedRptId()>0){
 
                 for(ReportPacketsDetDto packetsDto : savedSchedReportDto.getReportPacketsDetList()){
-                    reportsDao.saveSchedPacketReport(packetsDto);
+                    packetsDto.setSavedSchdRptId(savedSchedReport.getSavedSchedRptId());
+                    ReportPacketsDetDto outPacketDto = reportsDao.saveSchedPacketReport(packetsDto);
                 }
 
-                if(savedSchedReport.getSavedSchedUsersDtoList()!=null && savedSchedReport.getSavedSchedUsersDtoList().size()>0){
-
+                if(savedSchedReportDto.getSavedSchedUsersDtoList()!=null && savedSchedReportDto.getSavedSchedUsersDtoList().size()>0){
                     for(ReportSavedSchdUsersDto saveSchedUser : savedSchedReportDto.getSavedSchedUsersDtoList()){
-                        reportsDao.saveSchedUser(saveSchedUser);
+                        saveSchedUser.setSavedSchdRptId(savedSchedReport.getSavedSchedRptId());
+                        ReportSavedSchdUsersDto outUserDto = reportsDao.saveSchedUser(saveSchedUser);
                     }
-
                 }
 
             }
