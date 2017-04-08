@@ -99,8 +99,6 @@ public class ReportFolderDto implements Serializable,Comparable<ReportFolderDto>
         return this.getRptFolderId().compareTo(dto.getRptFolderId());
     }
 
-    public ReportFolderDto(){}
-
     public ReportFolderDto(Long updateCount){
         this.updateCount = updateCount;
     }
@@ -114,26 +112,19 @@ public class ReportFolderDto implements Serializable,Comparable<ReportFolderDto>
     }
 
     public Long getReportFolderId() {
-        return reportFolderId;
+        return rptFolderId;
     }
 
-    public void setReportFolderId(Long reportFolderId) {
-        this.reportFolderId = reportFolderId;
+    public void setReportFolderId(Long rptFolderId) {
+        this.rptFolderId = rptFolderId;
     }
 
     public String getReportFolderName() {
-        return reportFolderName;
+        return rptFolderName;
     }
 
-    public void setReportFolderName(String reportFolderName) {
-        this.reportFolderName = reportFolderName;
+    public void setReportFolderName(String rptFolderName) {
+        this.rptFolderName = rptFolderName;
     }
 
-    public Long getParentId() {
-        return parentId;
-    }
-
-    public void setParentId(Long parentId) {
-        this.parentId = parentId;
-    }
 }

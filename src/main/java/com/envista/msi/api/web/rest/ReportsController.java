@@ -1,5 +1,6 @@
 package com.envista.msi.api.web.rest;
 
+import com.envista.msi.api.security.SecurityUtils;
 import com.envista.msi.api.service.ReportsService;
 import com.envista.msi.api.service.UserService;
 import com.envista.msi.api.web.rest.dto.UserProfileDto;
@@ -143,7 +144,7 @@ public class ReportsController {
         return customerCarrierJson;
     }
     @RequestMapping(value = "/format", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<List<ReportFormatDto>> getReportFormat(@RequestParam String rptId){
+    public ResponseEntity<JSONObject> getReportFormat(@RequestParam String rptId){
         try {
             JSONObject reprotFormatJson=new JSONObject();
             List<ReportFormatDto> reportFormats =reportsService.getReportFormat(Long.parseLong(rptId));
@@ -239,7 +240,6 @@ public class ReportsController {
         return new ResponseEntity<SavedSchedReportsDto>(savedSchedReportsDto,HttpStatus.OK);
     }
 
-}
     @RequestMapping(value = "/criteriacolumn", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<List<ReportColumnDto>> getReportCriteria(@RequestParam String userId, @RequestParam String rptId, @RequestParam String carrierIds){
         try {
