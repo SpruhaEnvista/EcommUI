@@ -432,7 +432,9 @@ public class ReportsService {
         return jsonObjectReturn.put("ftpServers", jsonArray);
     }
 
-
+    public List<ReportUserListByRptIdDto> getUserListByRptId(Long rptId){
+        return reportsDao.getUsersListByRptId(rptId);
+    }
     public SavedSchedReportDto getReportDetails(Long savedSchedRptId) {
 
         SavedSchedReportDto savedSchedReportDto = reportsDao.getReportDetails(savedSchedRptId);
