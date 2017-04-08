@@ -465,4 +465,40 @@ public class ReportsDao {
         return persistentContext.findEntities("UserListByRptId.getUsers",queryParameter);
     }
 
+    @Transactional
+    public List<ReportGetPcktDetailsDto> getReportPacketDtlsList(Long ssRptId){
+        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", ssRptId == null ? 0 : ssRptId );
+        return persistentContext.findEntities("ReportGetPcktDetails.getReportPckts",queryParameter);
+    }
+
+    @Transactional
+    public List<ReportGetSSUserDto> getReportSSUsersList(Long ssRptId){
+        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", ssRptId == null ? 0 : ssRptId );
+        return persistentContext.findEntities("ReportGetSSUser.getReportUserList",queryParameter);
+    }
+    @Transactional
+    public List<ReportGetSSSortDto> getReportSortList(Long ssRptId){
+        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", ssRptId == null ? 0 : ssRptId );
+        return persistentContext.findEntities("ReportGetSSSort.getReportSortList",queryParameter);
+    }
+
+    @Transactional
+    public List<ReportGetSSCritDto> getReportSSCritList(Long ssRptId){
+        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", ssRptId == null ? 0 : ssRptId );
+        return persistentContext.findEntities("ReportGetSSCirt.getReportCritList",queryParameter);
+    }
+
+    @Transactional
+    public List<ReportGetSSColInclDto> getReportSSColInclList(Long ssRptId){
+        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", ssRptId == null ? 0 : ssRptId );
+        return persistentContext.findEntities("ReportGetSSColIncl.getReportColInclList",queryParameter);
+    }
+
+    @Transactional
+    public List<ReportGetSSAccDto> getReportSSAccList(Long ssRptId){
+        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", ssRptId == null ? 0 : ssRptId );
+        return persistentContext.findEntities("ReportGetSSAcc.getReportAccList",queryParameter);
+    }
+
+
 }
