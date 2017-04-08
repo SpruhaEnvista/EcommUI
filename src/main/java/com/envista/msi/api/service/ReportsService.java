@@ -372,7 +372,7 @@ public class ReportsService {
     public List<ReportUserListByRptIdDto> getUserListByRptId(Long rptId){
         return reportsDao.getUsersListByRptId(rptId);
     }
-    public List<ReportsValidationDto> verifyAccounts(long userId,long savedschedrptId) {
-        return  reportsDao.verifyAccounts(userId,savedschedrptId);
+    public ReportsValidationDto verifyAccounts(long savedschedrptId,long userId) {
+        return  reportsDao.verifyAccounts(savedschedrptId,userId);
     }
 }

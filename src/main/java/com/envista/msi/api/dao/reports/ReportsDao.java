@@ -357,9 +357,9 @@ public class ReportsDao {
         return persistentContext.findEntity("SavedSchedReports.saveUsers",queryParameter);
 
     }
-    public List<ReportsValidationDto> verifyAccounts(Long savedschedrptid, Long userId){
-        return persistentContext.findEntitiesAndMapFields("ReportsValidation.verifyAccounts",
-                StoredProcedureParameter.with("p_user_id", userId).and("p_saved_sched_rpt_id",savedschedrptid));
+    public ReportsValidationDto verifyAccounts(Long savedschedrptid, Long userId){
+        return persistentContext.findEntity("ReportsValidation.verifyAccounts",
+                StoredProcedureParameter.with("p_saved_sched_rpt_id", savedschedrptid).and("p_user_id",userId));
     }
     /**
      * @param rptId

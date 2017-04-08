@@ -12,7 +12,7 @@ import java.io.Serializable;
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_saved_sched_rpt_id", type = Long.class),
                         @StoredProcedureParameter(mode= ParameterMode.IN, name = "p_user_id",type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.OUT ,name = "p_verificationMsg",type = String.class)
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_verificationMsg",type = Void.class)
                 })
         })
 @SqlResultSetMappings({
@@ -29,11 +29,11 @@ import java.io.Serializable;
 @Entity
 public class ReportsValidationDto implements Serializable {
 
-     @Id
-     private long id;
+    @Id
+    private long id;
 
-     @Column(name ="p_verificationMsg")
-     private String  verificationMsg;
+    @Column(name = "p_verificationMsg")
+    private String verificationMsg;
 
     public ReportsValidationDto() {
     }
@@ -50,12 +50,12 @@ public class ReportsValidationDto implements Serializable {
         this.id = id;
     }
 
-    public String isVerified() {
+    public String getVerificationMsg() {
         return verificationMsg;
     }
 
-    public void setVerified(String verified) {
-        verificationMsg = verificationMsg;
+    public void setVerificationMsg(String verificationMsg) {
+        this.verificationMsg = verificationMsg;
     }
 }
 
