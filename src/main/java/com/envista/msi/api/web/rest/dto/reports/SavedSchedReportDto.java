@@ -15,23 +15,23 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_savedSchedCusr", type = Void.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "rptId", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "isScheduled", type = Boolean.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "rptDateOptionsId", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "rptDateOptionsId", type = Integer.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "reportTypeId", type = Integer.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "reportFileName", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "dateSelectionFrequency", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "date1", type = Date.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "date2", type = Date.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "date1", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "date2", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "periodOption", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "lastNoOfDays", type = Integer.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "scTriggerBy", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "scScheduleType", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "scWeeklyFrequency", type = Integer.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "scWeeklyMonthlyDayofWeek", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "scWeeklyMonthlyDayofWeek", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "scMonthlyDayOfMonth", type = Integer.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "scMonthlyNoOfMonths", type = Integer.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "scMonthlyPeriodicFreq", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "svReportStatus", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "scNextSubmitDate", type = Date.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "scNextSubmitDate", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "carrierIds", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "controlPayrunNumber", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "consolidate", type = Boolean.class),
@@ -39,7 +39,7 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "criteria", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "dateRangeTodayMinus1", type = Integer.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "dateRangeTodayMinus2", type = Integer.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "ftpAccountsId", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "ftpAccountsId", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "isSuppressInvoices", type = Boolean.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "submittedFromSystem", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "isPacket", type = Boolean.class),
@@ -67,19 +67,19 @@ public class SavedSchedReportDto {
 
     @Id
     @Column(name = "saved_sched_rpt_id")
-    private long savedSchedRptId;
+    private Long savedSchedRptId;
 
     @Column(name = "rpt_id")
-    private long rptId;
+    private Long rptId;
 
     @Column(name = "is_scheduled")
-    private boolean isScheduled;
+    private Boolean isScheduled;
 
     @Column(name = "rpt_date_options_id")
-    private int rptDateOptionsId;
+    private Integer rptDateOptionsId;
 
     @Column(name = "report_type_id")
-    private int reportTypeId;
+    private Integer reportTypeId;
 
     @Column(name = "report_file_name")
     private String reportFileName;
@@ -88,16 +88,16 @@ public class SavedSchedReportDto {
     private String dateSelectionFrequency;
 
     @Column(name = "date1")
-    private Date date1;
+    private String date1;
 
     @Column(name = "date2")
-    private Date date2;
+    private String date2;
 
     @Column(name = "period_option")
     private String periodOption;
 
     @Column(name = "last_no_of_days")
-    private int lastNoOfDays;
+    private Integer lastNoOfDays;
 
     @Column(name = "sc_trigger_by")
     private String scTriggerBy;
@@ -106,16 +106,16 @@ public class SavedSchedReportDto {
     private String scScheduleType;
 
     @Column(name = "sc_weekly_frequency")
-    private int scWeeklyFrequency;
+    private Integer scWeeklyFrequency;
 
     @Column(name = "sc_weekly_monthly_day_of_week")
-    private String scWeekMonthlyDayOfWeek;
+    private String scWeeklyMonthlyDayofWeek;
 
     @Column(name = "sc_monthly_day_of_month")
-    private int scMonthlyDayOfMonth;
+    private Integer scMonthlyDayOfMonth;
 
     @Column(name = "sc_monthly_no_of_months")
-    private int scMonthlyNoOfMonths;
+    private Integer scMonthlyNoOfMonths;
 
     @Column(name = "sc_monthly_periodic_frequency")
     private  String scMonthlyPeriodicFrequency;
@@ -124,10 +124,10 @@ public class SavedSchedReportDto {
     private String svReportStatus;
 
     @Column(name = "submitted_on")
-    private Date submittedOn;
+    private String submittedOn;
 
     @Column(name = "sc_next_submit_date")
-    private Date scNextSubmitDate;
+    private String scNextSubmitDate;
 
     @Column(name = "carrier_ids")
     private String carrierIds;
@@ -136,46 +136,46 @@ public class SavedSchedReportDto {
     private String controlPayrunNumber;
 
     @Column(name = "consolidate")
-    private boolean consolidate;
+    private Boolean consolidate;
 
     @Column(name = "failed_attempts")
-    private int failedAttempts;
+    private Integer failedAttempts;
 
     @Column(name = "create_user")
     private String createUser;
 
     @Column(name = "create_date")
-    private Date createDate;
+    private String createDate;
 
     @Column(name = "last_update_user")
-    private  String lastUpdateUser;
+    private String lastUpdateUser;
 
     @Column(name = "last_update_date")
-    private Date lastUpdateDate;
+    private String lastUpdateDate;
 
     @Column(name = "criteria")
     private String criteria;
 
     @Column(name = "date_range_today_minus1")
-    private int dateRangeTodayMinus1;
+    private Integer dateRangeTodayMinus1;
 
     @Column(name = "date_range_today_minus2")
-    private int dateRangeTodayMinus2;
+    private Integer dateRangeTodayMinus2;
 
     @Column(name = "ftp_accounts_id")
-    private long ftpAccountsId;
+    private String ftpAccountsId;
 
     @Column(name = "is_suppress_invoices")
-    private boolean suppressInvoices;
+    private Boolean suppressInvoices;
 
     @Column(name = "high_priority")
-    private int highPriority;
+    private Integer highPriority;
 
     @Column(name = "submitted_from_system")
     private String submittedFromSystem;
 
     @Column(name = "is_packet")
-    private boolean packet;
+    private Boolean packet;
 
     @Column(name = "queue_name")
     private String queueName;
@@ -195,55 +195,43 @@ public class SavedSchedReportDto {
     @Column(name = "rpt_descr")
     private String rptDescr;
 
-    ArrayList<ReportPacketsDetDto> reportPacketsDetList = new ArrayList<ReportPacketsDetDto>();
-
-    ArrayList<ReportSavedSchdCriteriaDto> reportCriteriaList = new ArrayList<ReportSavedSchdCriteriaDto>();
-
-    ArrayList<ReportSavedSchdUsersDto>  savedSchedUsersDtoList = new ArrayList<ReportSavedSchdUsersDto>();
-
-    ArrayList<ReportsSavedSchdAccountDto> savedSchedAccountsDtoList = new ArrayList<ReportsSavedSchdAccountDto>();
-
-    ArrayList<ReportsInclColDto> reportsInclColDtoList = new ArrayList<ReportsInclColDto>();
-
-    ArrayList<ReportsSortDto> reportsSortColDtoList = new ArrayList<ReportsSortDto>();
-
-    public long getSavedSchedRptId() {
+    public Long getSavedSchedRptId() {
         return savedSchedRptId;
     }
 
-    public void setSavedSchedRptId(long savedSchedRptId) {
+    public void setSavedSchedRptId(Long savedSchedRptId) {
         this.savedSchedRptId = savedSchedRptId;
     }
 
-    public long getRptId() {
+    public Long getRptId() {
         return rptId;
     }
 
-    public void setRptId(long rptId) {
+    public void setRptId(Long rptId) {
         this.rptId = rptId;
     }
 
-    public boolean isScheduled() {
+    public Boolean getScheduled() {
         return isScheduled;
     }
 
-    public void setScheduled(boolean scheduled) {
+    public void setScheduled(Boolean scheduled) {
         isScheduled = scheduled;
     }
 
-    public int getRptDateOptionsId() {
+    public Integer getRptDateOptionsId() {
         return rptDateOptionsId;
     }
 
-    public void setRptDateOptionsId(int rptDateOptionsId) {
+    public void setRptDateOptionsId(Integer rptDateOptionsId) {
         this.rptDateOptionsId = rptDateOptionsId;
     }
 
-    public int getReportTypeId() {
+    public Integer getReportTypeId() {
         return reportTypeId;
     }
 
-    public void setReportTypeId(int reportTypeId) {
+    public void setReportTypeId(Integer reportTypeId) {
         this.reportTypeId = reportTypeId;
     }
 
@@ -263,19 +251,19 @@ public class SavedSchedReportDto {
         this.dateSelectionFrequency = dateSelectionFrequency;
     }
 
-    public Date getDate1() {
+    public String getDate1() {
         return date1;
     }
 
-    public void setDate1(Date date1) {
+    public void setDate1(String date1) {
         this.date1 = date1;
     }
 
-    public Date getDate2() {
+    public String getDate2() {
         return date2;
     }
 
-    public void setDate2(Date date2) {
+    public void setDate2(String date2) {
         this.date2 = date2;
     }
 
@@ -287,11 +275,11 @@ public class SavedSchedReportDto {
         this.periodOption = periodOption;
     }
 
-    public int getLastNoOfDays() {
+    public Integer getLastNoOfDays() {
         return lastNoOfDays;
     }
 
-    public void setLastNoOfDays(int lastNoOfDays) {
+    public void setLastNoOfDays(Integer lastNoOfDays) {
         this.lastNoOfDays = lastNoOfDays;
     }
 
@@ -303,6 +291,14 @@ public class SavedSchedReportDto {
         this.scTriggerBy = scTriggerBy;
     }
 
+    public String getScWeeklyMonthlyDayofWeek() {
+        return scWeeklyMonthlyDayofWeek;
+    }
+
+    public void setScWeeklyMonthlyDayofWeek(String scWeeklyMonthlyDayofWeek) {
+        this.scWeeklyMonthlyDayofWeek = scWeeklyMonthlyDayofWeek;
+    }
+
     public String getScScheduleType() {
         return scScheduleType;
     }
@@ -311,35 +307,27 @@ public class SavedSchedReportDto {
         this.scScheduleType = scScheduleType;
     }
 
-    public int getScWeeklyFrequency() {
+    public Integer getScWeeklyFrequency() {
         return scWeeklyFrequency;
     }
 
-    public void setScWeeklyFrequency(int scWeeklyFrequency) {
+    public void setScWeeklyFrequency(Integer scWeeklyFrequency) {
         this.scWeeklyFrequency = scWeeklyFrequency;
     }
 
-    public String getScWeekMonthlyDayOfWeek() {
-        return scWeekMonthlyDayOfWeek;
-    }
-
-    public void setScWeekMonthlyDayOfWeek(String scWeekMonthlyDayOfWeek) {
-        this.scWeekMonthlyDayOfWeek = scWeekMonthlyDayOfWeek;
-    }
-
-    public int getScMonthlyDayOfMonth() {
+    public Integer getScMonthlyDayOfMonth() {
         return scMonthlyDayOfMonth;
     }
 
-    public void setScMonthlyDayOfMonth(int scMonthlyDayOfMonth) {
+    public void setScMonthlyDayOfMonth(Integer scMonthlyDayOfMonth) {
         this.scMonthlyDayOfMonth = scMonthlyDayOfMonth;
     }
 
-    public int getScMonthlyNoOfMonths() {
+    public Integer getScMonthlyNoOfMonths() {
         return scMonthlyNoOfMonths;
     }
 
-    public void setScMonthlyNoOfMonths(int scMonthlyNoOfMonths) {
+    public void setScMonthlyNoOfMonths(Integer scMonthlyNoOfMonths) {
         this.scMonthlyNoOfMonths = scMonthlyNoOfMonths;
     }
 
@@ -359,19 +347,19 @@ public class SavedSchedReportDto {
         this.svReportStatus = svReportStatus;
     }
 
-    public Date getSubmittedOn() {
+    public String getSubmittedOn() {
         return submittedOn;
     }
 
-    public void setSubmittedOn(Date submittedOn) {
+    public void setSubmittedOn(String submittedOn) {
         this.submittedOn = submittedOn;
     }
 
-    public Date getScNextSubmitDate() {
+    public String getScNextSubmitDate() {
         return scNextSubmitDate;
     }
 
-    public void setScNextSubmitDate(Date scNextSubmitDate) {
+    public void setScNextSubmitDate(String scNextSubmitDate) {
         this.scNextSubmitDate = scNextSubmitDate;
     }
 
@@ -391,19 +379,19 @@ public class SavedSchedReportDto {
         this.controlPayrunNumber = controlPayrunNumber;
     }
 
-    public boolean isConsolidate() {
+    public Boolean getConsolidate() {
         return consolidate;
     }
 
-    public void setConsolidate(boolean consolidate) {
+    public void setConsolidate(Boolean consolidate) {
         this.consolidate = consolidate;
     }
 
-    public int getFailedAttempts() {
+    public Integer getFailedAttempts() {
         return failedAttempts;
     }
 
-    public void setFailedAttempts(int failedAttempts) {
+    public void setFailedAttempts(Integer failedAttempts) {
         this.failedAttempts = failedAttempts;
     }
 
@@ -415,11 +403,11 @@ public class SavedSchedReportDto {
         this.createUser = createUser;
     }
 
-    public Date getCreateDate() {
+    public String getCreateDate() {
         return createDate;
     }
 
-    public void setCreateDate(Date createDate) {
+    public void setCreateDate(String createDate) {
         this.createDate = createDate;
     }
 
@@ -431,11 +419,11 @@ public class SavedSchedReportDto {
         this.lastUpdateUser = lastUpdateUser;
     }
 
-    public Date getLastUpdateDate() {
+    public String getLastUpdateDate() {
         return lastUpdateDate;
     }
 
-    public void setLastUpdateDate(Date lastUpdateDate) {
+    public void setLastUpdateDate(String lastUpdateDate) {
         this.lastUpdateDate = lastUpdateDate;
     }
 
@@ -447,43 +435,43 @@ public class SavedSchedReportDto {
         this.criteria = criteria;
     }
 
-    public int getDateRangeTodayMinus1() {
+    public Integer getDateRangeTodayMinus1() {
         return dateRangeTodayMinus1;
     }
 
-    public void setDateRangeTodayMinus1(int dateRangeTodayMinus1) {
+    public void setDateRangeTodayMinus1(Integer dateRangeTodayMinus1) {
         this.dateRangeTodayMinus1 = dateRangeTodayMinus1;
     }
 
-    public int getDateRangeTodayMinus2() {
+    public Integer getDateRangeTodayMinus2() {
         return dateRangeTodayMinus2;
     }
 
-    public void setDateRangeTodayMinus2(int dateRangeTodayMinus2) {
+    public void setDateRangeTodayMinus2(Integer dateRangeTodayMinus2) {
         this.dateRangeTodayMinus2 = dateRangeTodayMinus2;
     }
 
-    public long getFtpAccountsId() {
+    public String getFtpAccountsId() {
         return ftpAccountsId;
     }
 
-    public void setFtpAccountsId(long ftpAccountsId) {
+    public void setFtpAccountsId(String ftpAccountsId) {
         this.ftpAccountsId = ftpAccountsId;
     }
 
-    public boolean isSuppressInvoices() {
+    public Boolean getSuppressInvoices() {
         return suppressInvoices;
     }
 
-    public void setSuppressInvoices(boolean suppressInvoices) {
+    public void setSuppressInvoices(Boolean suppressInvoices) {
         this.suppressInvoices = suppressInvoices;
     }
 
-    public int getHighPriority() {
+    public Integer getHighPriority() {
         return highPriority;
     }
 
-    public void setHighPriority(int highPriority) {
+    public void setHighPriority(Integer highPriority) {
         this.highPriority = highPriority;
     }
 
@@ -495,11 +483,11 @@ public class SavedSchedReportDto {
         this.submittedFromSystem = submittedFromSystem;
     }
 
-    public boolean isPacket() {
+    public Boolean getPacket() {
         return packet;
     }
 
-    public void setPacket(boolean packet) {
+    public void setPacket(Boolean packet) {
         this.packet = packet;
     }
 
@@ -599,4 +587,22 @@ public class SavedSchedReportDto {
         this.reportsSortColDtoList = reportsSortColDtoList;
     }
 
+    ArrayList<ReportPacketsDetDto> reportPacketsDetList = new ArrayList<ReportPacketsDetDto>();
+
+    ArrayList<ReportSavedSchdCriteriaDto> reportCriteriaList = new ArrayList<ReportSavedSchdCriteriaDto>();
+
+    ArrayList<ReportSavedSchdUsersDto>  savedSchedUsersDtoList = new ArrayList<ReportSavedSchdUsersDto>();
+
+    ArrayList<ReportsSavedSchdAccountDto> savedSchedAccountsDtoList = new ArrayList<ReportsSavedSchdAccountDto>();
+
+    ArrayList<ReportsInclColDto> reportsInclColDtoList = new ArrayList<ReportsInclColDto>();
+
+    ArrayList<ReportsSortDto> reportsSortColDtoList = new ArrayList<ReportsSortDto>();
+
+    public SavedSchedReportDto(){
+
+    }
+    public SavedSchedReportDto(Long savedSchedRptId){
+         this.savedSchedRptId = savedSchedRptId;
+    }
 }
