@@ -2,6 +2,7 @@ package com.envista.msi.api.web.rest.dto.reports;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Created by Siddhant on 20/03/2017.
@@ -18,7 +19,15 @@ import java.io.Serializable;
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_rpt_id", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_refcur_date_criteria_info", type = Void.class)
-                })
+        }),
+        @NamedStoredProcedureQuery(name = "ReportFormat.getControlNumber", procedureName = "shp_rpt_lookup_ctrl_no_proc",
+                resultSetMappings = "ReportControlNumber",
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_customer_ids", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_pay_run_no", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_check_no", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "get_lookup_ctrl_no", type = Void.class)
+        })
 })
 @SqlResultSetMappings({
         @SqlResultSetMapping(name = "ReportFormat", classes = {
@@ -36,7 +45,15 @@ import java.io.Serializable;
                         columns = {
                                 @ColumnResult(name ="date_criteria", type = String.class),
                                 @ColumnResult(name ="rpt_date_options_id", type = Long.class),
+                                @ColumnResult(name ="is_default", type = Boolean.class),
                                 @ColumnResult(name ="selected", type = Boolean.class)
+                        })
+        }),
+        @SqlResultSetMapping(name = "ReportControlNumber", classes = {
+                @ConstructorResult(
+                        targetClass = ReportFormatDto.class,
+                        columns = {
+                                @ColumnResult(name ="control_number", type = String.class),
                         })
         })
 })
@@ -60,7 +77,23 @@ public class ReportFormatDto implements Serializable {
     @Column(name="date_criteria")
     private String dateCriteriaName;
 
+    @Column(name="is_default")
+    private Boolean isDefault;
+
+    @Column(name="control_number")
+    private String controlNumber;
+
+    private String customerIds;
+
+    private Integer payRunNo;
+
+    private Integer checkNo;
+
     public ReportFormatDto() { }
+
+    public ReportFormatDto(String controlNumber) {
+        this.controlNumber=controlNumber;
+    }
 
     public ReportFormatDto(Long typeId, String reportFormat,Boolean selected) {
         this.typeId = typeId;
@@ -68,9 +101,10 @@ public class ReportFormatDto implements Serializable {
         this.selected=selected;
     }
 
-    public ReportFormatDto(String dateCriteriaName ,Long rptDateOptionId,Boolean selected) {
+    public ReportFormatDto(String dateCriteriaName ,Long rptDateOptionId,Boolean isDefault,Boolean selected) {
         this.rptDateOptionId = rptDateOptionId;
         this.dateCriteriaName = dateCriteriaName;
+        this.isDefault=isDefault;
         this.selected=selected;
     }
 
@@ -109,4 +143,24 @@ public class ReportFormatDto implements Serializable {
     public Boolean getSelected() { return selected; }
 
     public void setSelected(Boolean selected) { this.selected = selected;  }
+
+    public Boolean getIsDefault() { return isDefault; }
+
+    public void setIsDefault(Boolean isDefault) { this.isDefault = isDefault; }
+
+    public String getControlNumber() { return controlNumber;  }
+
+    public void setControlNumber(String controlNumber) { this.controlNumber = controlNumber; }
+
+    public String getCustomerIds() { return customerIds; }
+
+    public void setCustomerIds(String customerIds) { this.customerIds = customerIds; }
+
+    public Integer getPayRunNo() { return payRunNo; }
+
+    public void setPayRunNo(Integer payRunNo) { this.payRunNo = payRunNo; }
+
+    public Integer getCheckNo() { return checkNo; }
+
+    public void setCheckNo(Integer checkNo) {  this.checkNo = checkNo; }
 }

@@ -180,4 +180,98 @@ public class ReportsDao {
     public List<ReportFormatDto> getReportDateOptions(Long rptId){
         return persistentContext.findEntities("ReportFormat.getReportDateOptions",StoredProcedureParameter.with("p_rpt_id", rptId));
     }
+    /**
+     * @param userId
+     * @param carrierIds
+     * @param rptId
+     * @return List<ReportCriteriaDto>
+     */
+    public List<ReportColumnDto> getReportCriteria(Long userId, Long rptId, String carrierIds){
+        QueryParameter queryParameter = StoredProcedureParameter.with("p_user_id",userId)
+                                        .and("p_rpt_id", rptId)
+                                        .and("p_carrier_ids",carrierIds);
+        return persistentContext.findEntities("ReportCriteriaDto.getReportCriteria",queryParameter);
+    }
+    /**
+     * @param userId
+     * @param carrierIds
+     * @param rptId
+     * @return List<ReportColumnDto>
+     */
+    public List<ReportColumnDto> getIncludeExcludeSortCol(Long userId, Long rptId, String carrierIds){
+        QueryParameter queryParameter = StoredProcedureParameter.with("p_user_id",userId)
+                .and("p_rpt_id", rptId)
+                .and("p_carriers",carrierIds);
+        return persistentContext.findEntities("ReportCriteriaDto.getIncludeExcludeSortCol",queryParameter);
+    }
+    /**
+     * @param userId
+     * @param carrierIds
+     * @param rptId
+     * @return List<ReportColumnDto>
+     */
+    public List<ReportColumnDto> getSavedIncludeExcludeSortCol(Long userId, Long rptId, String carrierIds){
+        QueryParameter queryParameter = StoredProcedureParameter.with("p_user_id",userId)
+                .and("p_rpt_id", rptId)
+                .and("p_carriers",carrierIds);
+        return persistentContext.findEntities("ReportCriteriaDto.getSavedIncludeExcludeSortCol",queryParameter);
+    }
+    /**
+     * @param rptId
+     * @return List<ReportCodeValueDto>
+     */
+    public List<ReportCodeValueDto> getReportLocaleLabel(Long rptId){
+        return persistentContext.findEntities("ReportCodeValueDto.getReportLocaleLabel", StoredProcedureParameter.with("p_rpt_id", rptId));
+    }
+    /**
+     * @param rptId
+     * @return List<ReportCodeValueDto>
+     */
+    public List<ReportCodeValueDto> getReportCurrencyLabel(Long rptId){
+        return persistentContext.findEntities("ReportCodeValueDto.getReportCurrencyLabel", StoredProcedureParameter.with("p_rpt_id", rptId));
+    }
+    /**
+     * @param rptId
+     * @return List<ReportCodeValueDto>
+     */
+    public List<ReportCodeValueDto> getReportWeightLabel(Long rptId){
+        return persistentContext.findEntities("ReportCodeValueDto.getReportWeightLabel", StoredProcedureParameter.with("p_rpt_id", rptId));
+    }
+    /**
+     * @param customerIds
+     * @param payRunNo
+     * @param checkNo
+     * @return List<ReportFormatDto>
+     */
+    public List<ReportFormatDto> getControlNumber(String customerIds,Integer payRunNo,Integer checkNo){
+        QueryParameter queryParameter = StoredProcedureParameter.with("p_customer_ids",customerIds)
+                .and("p_pay_run_no", payRunNo)
+                .and("p_check_no",checkNo);
+        return persistentContext.findEntities("ReportFormat.getControlNumber",queryParameter);
+    }
+    /**
+     * @param userId
+     * @return List<ReportFolderHierarchyDto>
+     */
+    public List<ReportFolderDto> getReportFolder(Long userId){
+        return persistentContext.findEntities("ReportFolder.getReportFolder", StoredProcedureParameter.with("p_user_id",userId));
+    }
+    /**
+     * @param customerIds
+     *  @param shipperGroupIds
+     *   @param shipperIds
+     * @return List<ReportFolderHierarchyDto>
+     */
+    public List<ReportFTPServerDto> getReportFTPServer(String customerIds,String shipperGroupIds ,String shipperIds){
+        QueryParameter queryParameter = StoredProcedureParameter.with("customerIds",customerIds)
+                .and("shipperGroupIds", shipperGroupIds)
+                .and("shipperIds",shipperIds);
+        return persistentContext.findEntities("ReportFTPServer.getFTPServer",queryParameter);
+    }/**
+     * @param rptId
+     * @return List<ReportFTPServerDto>
+     */
+    public List<ReportFTPServerDto> getSaveRptFTPServer(Long rptId){
+        return persistentContext.findEntities("ReportFTPServer.getSaveRptFTPServer", StoredProcedureParameter.with("p_rpt_id",rptId));
+    }
 }
