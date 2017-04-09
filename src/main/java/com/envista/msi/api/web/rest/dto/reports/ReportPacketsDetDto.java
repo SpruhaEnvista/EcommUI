@@ -16,7 +16,13 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "tabName", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "sequenceNum", type = Integer.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "templateId", type = Long.class)
-                })
+                }),
+        @NamedStoredProcedureQuery(name = "ReportGetPcktDetails.getReportPckts", procedureName = "SHP_GET_RPT_PKT_DETAILS_PRO",
+                resultSetMappings = "GetPacketReport",
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "pktDetIdCursor", type = Void.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "savedSchedRptId", type = Long.class)
+                 })
 })
 
 @SqlResultSetMappings({
@@ -25,6 +31,18 @@ import java.util.Date;
                         targetClass = ReportPacketsDetDto.class,
                         columns = {
                                 @ColumnResult(name = "packets_det_id", type = Long.class)
+                        }
+                )
+        }),
+        @SqlResultSetMapping(name = "GetPacketReport", classes = {
+                @ConstructorResult(
+                        targetClass = ReportPacketsDetDto.class,
+                        columns = {
+                                @ColumnResult(name = "packets_det_id", type = Long.class),
+                                @ColumnResult(name = "saved_sched_rpt_id", type = Long.class),
+                                @ColumnResult(name = "tab_name", type = String.class),
+                                @ColumnResult(name = "sequence", type = Integer.class),
+                                @ColumnResult(name = "template_id", type = Long.class)
                         }
                 )
         })
