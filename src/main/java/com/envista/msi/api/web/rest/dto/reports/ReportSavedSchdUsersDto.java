@@ -20,7 +20,7 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "isShared", type = Boolean.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "canEdit", type = Boolean.class)
                 }),
-        @NamedStoredProcedureQuery(name = "ReportGetSSUser.getReportUserList", procedureName = "shp_get_rpt_ss_users_proc",
+        @NamedStoredProcedureQuery(name = "ReportGetSSUser.reportUsersList", procedureName = "shp_get_rpt_ss_users_proc",
                 resultSetMappings = "GetSchedUsers",
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_savedSchedUserCur", type = Void.class),
