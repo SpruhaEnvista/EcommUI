@@ -58,5 +58,10 @@ public class ReportsApiTest extends WebappTestEnvironment {
                 .param("userId","23910").param("rptId", "197").param("carrierIds", " ")).andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE));
     }
-
+    @Test
+    public void getDefaultInclExclCol() throws Exception {
+        mockRestMvc().perform(get(SEARCH_API_BASE_PATH_VALUE+"/defaultinclexclecol")
+                .param("saveSchedId","12345").param("rptId", "197").param("createUser", "Siddhant")).andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE));
+    }
 }

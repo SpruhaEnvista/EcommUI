@@ -16,14 +16,6 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_carrier_ids", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "get_criteria_info", type = Void.class)
         }),
-        @NamedStoredProcedureQuery(name = "ReportCriteriaDto.getIncludeExcludeSortCol", procedureName = "shp_rpt_incl_excl_col_proc",
-                resultSetMappings = "InclExclSortCol",
-                parameters = {
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_user_id", type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_rpt_id", type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_carriers", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_refcur_excl_incl_info", type = Void.class)
-        }),
         @NamedStoredProcedureQuery(name = "ReportCriteriaDto.getSavedIncludeExcludeSortColByName", procedureName = "shp_rpt_save_excl_byname__proc",
                 resultSetMappings = "InclExclSortCol",
                 parameters = {
@@ -107,6 +99,7 @@ import java.io.Serializable;
                 @ConstructorResult(
                         targetClass = ReportColumnDto.class,
                         columns = {
+
                                 @ColumnResult(name = "SAVED_SCHED_RPT_ID", type = Long.class),
                                 @ColumnResult(name = "RPT_DETAILS_ID", type = Long.class),
                                 @ColumnResult(name = "CREATE_USER", type = String.class),
