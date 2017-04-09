@@ -1,6 +1,7 @@
 package com.envista.msi.api.web.rest.dto.reports;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -35,7 +36,7 @@ import java.util.Date;
 })
 
 @Entity
-public class ReportsSortDto {
+public class ReportsSortDto implements Serializable{
 
     @Id
     @Column(name = "saved_sched_sort_id")
@@ -157,5 +158,11 @@ public class ReportsSortDto {
 
     public void setGroupByCol(Boolean groupByCol) {
         this.groupByCol = groupByCol;
+    }
+
+    public ReportsSortDto(){}
+
+    public ReportsSortDto(Long savedSchedSortId){
+        this.savedSchedSortId = savedSchedSortId;
     }
 }

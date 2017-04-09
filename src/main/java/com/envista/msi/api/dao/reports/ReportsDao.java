@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import javax.persistence.ParameterMode;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -64,13 +65,15 @@ public class ReportsDao {
     }
 
     public static String convertDateFullYearString(String date) {
-        String sdate = "";
+        String dateText = "";
         try {
-            sdate = String.valueOf(new Date(Long.parseLong(date)));
+            Date sdate = new Date(Long.parseLong(date));
+            SimpleDateFormat df2 = new SimpleDateFormat("dd-MM-yyyy");
+            dateText = df2.format(sdate);
         }catch(Exception e){
             e.printStackTrace();
         }
-        return sdate;
+        return dateText;
     }
 
     /**
@@ -502,7 +505,7 @@ public class ReportsDao {
                 .and("rptDetailsId", criteriaDto.getRptDetailsId())
                 .and("assignOperator",criteriaDto.getAssignOperator()==null?"=":criteriaDto.getAssignOperator())
                 .and("value",criteriaDto.getValue())
-                .and("isMatchCase",criteriaDto.getMatchCase()==null?false:criteriaDto.getMatchCase())
+                .and("matchCase",criteriaDto.getMatchCase()==null?false:criteriaDto.getMatchCase())
                 .and("createUser",criteriaDto.getCreateUser())
                 .and("andOrOperator",criteriaDto.getAndOrOperator()==null?"AND":criteriaDto.getAndOrOperator());
         return persistentContext.findEntity("ReportSavedSchdCrit.insertRecord",queryParameter);
@@ -512,7 +515,7 @@ public class ReportsDao {
     @Transactional
     public ReportsInclColDto saveSchedIncColDetails(ReportsInclColDto inclColDto) {
 
-        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchdRptId",inclColDto.getSavedSchdRptId())
+        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchdRptId",inclColDto.getSavedSchdRptId()==null?0:inclColDto.getSavedSchdRptId())
                 .and("rptDetailsId", inclColDto.getRptDetailsId())
                 .and("createUser",inclColDto.getCreateUser());
         return persistentContext.findEntity("ReportInclCol.insertRecord",queryParameter);

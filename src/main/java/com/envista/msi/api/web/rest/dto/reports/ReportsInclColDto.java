@@ -74,7 +74,7 @@ public class ReportsInclColDto {
         return savedSchdRptId;
     }
 
-    public void setSavedSchedRptId(Long savedSchdRptId) {
+    public void setSavedSchdRptId(Long savedSchdRptId) {
         this.savedSchdRptId = savedSchdRptId;
     }
 

@@ -341,7 +341,7 @@ public class ReportsService {
 
         if(savedSchedReportDto.getReportsInclColDtoList()!=null && savedSchedReportDto.getReportsInclColDtoList().size()>0){
             for(ReportsInclColDto inclColDto : savedSchedReportDto.getReportsInclColDtoList()){
-                inclColDto.setSavedSchedRptId(savedSchedRrtId);
+                inclColDto.setSavedSchdRptId(savedSchedRrtId);
                 reportsDao.saveSchedIncColDetails(inclColDto);
             }
         }
