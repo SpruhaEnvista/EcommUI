@@ -491,7 +491,7 @@ public class ReportsDao {
     @Transactional
     public ReportsInclColDto saveSchedIncColDetails(ReportsInclColDto inclColDto) {
 
-        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchdRptId",inclColDto.getSavedSchdRptId())
+        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchdRptId",inclColDto.getSavedSchdRptId()==null?0:inclColDto.getSavedSchdRptId())
                 .and("rptDetailsId", inclColDto.getRptDetailsId())
                 .and("createUser",inclColDto.getCreateUser());
         return persistentContext.findEntity("ReportInclCol.insertRecord",queryParameter);

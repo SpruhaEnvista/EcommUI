@@ -158,4 +158,10 @@ public class ReportsSortDto {
     public void setGroupByCol(Boolean groupByCol) {
         this.groupByCol = groupByCol;
     }
+
+    public ReportsSortDto(){}
+
+    public ReportsSortDto(Long savedSchedSortId){
+        this.savedSchedSortId = savedSchedSortId;
+    }
 }
