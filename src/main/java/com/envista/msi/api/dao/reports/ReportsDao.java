@@ -312,7 +312,7 @@ public class ReportsDao {
                 .and("scMonthlyNoOfMonths",savedSchedReportDto.getScMonthlyNoOfMonths()==null?0:savedSchedReportDto.getScMonthlyNoOfMonths())
                 .and("scMonthlyPeriodicFreq",savedSchedReportDto.getScMonthlyPeriodicFrequency())
                 .and("svReportStatus",savedSchedReportDto.getSvReportStatus())
-                .and("scNextSubmitDate",null)
+                .and("scNextSubmitDate",savedSchedReportDto.getScNextSubmitDate())
                 .and("carrierIds",savedSchedReportDto.getCarrierIds())
                 .and("controlPayrunNumber",savedSchedReportDto.getControlPayrunNumber())
                 .and("consolidate",savedSchedReportDto.getConsolidate()==null?false:savedSchedReportDto.getConsolidate())
