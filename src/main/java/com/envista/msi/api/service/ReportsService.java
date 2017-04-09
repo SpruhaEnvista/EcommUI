@@ -254,6 +254,20 @@ public class ReportsService {
         SavedSchedReportDto savedSchedReport = reportsDao.saveSchedReport(savedSchedReportDto);
 
             if(savedSchedReport.getSavedSchedRptId()>0){
+                if(savedSchedReportDto.getReportsInclColDtoList() == null || savedSchedReportDto.getReportsInclColDtoList().size()==0){
+                    ArrayList<ReportColumnDto> defaultInclCols = (ArrayList<ReportColumnDto>) reportsDao.getDefaultInclExclCol(savedSchedReport.getSavedSchedRptId(),
+                            savedSchedReportDto.getRptId(),savedSchedReportDto.getCreateUser());
+                    ArrayList<ReportsInclColDto> finalColDto = new ArrayList<ReportsInclColDto>();
+                    for(ReportColumnDto columnDto : defaultInclCols){
+                        ReportsInclColDto inclColDto = new ReportsInclColDto();
+                        inclColDto.setSavedSchdRptId(savedSchedReport.getSavedSchedRptId());
+                        inclColDto.setRptDetailsId(columnDto.getRptDetailsId());
+                        inclColDto.setCreateUser(columnDto.getCreateUser());
+                        finalColDto.add(inclColDto);
+                    }
+                    savedSchedReportDto.setReportsInclColDtoList(finalColDto);
+                }
+
                 inserChildTables(savedSchedReportDto,savedSchedReport.getSavedSchedRptId());
             }
 
