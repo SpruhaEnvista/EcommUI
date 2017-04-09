@@ -102,7 +102,7 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "deletedRows", type = Void.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "savedSchedRptId", type = Long.class)
                 }),
-        @NamedStoredProcedureQuery(name = "SavedSchedReports.getReportDetails", procedureName = "shp_rpt_report_details",
+        @NamedStoredProcedureQuery(name = "SavedSchedReports.getReportDetails", procedureName = "shp_rpt_get_report_details",
                 resultSetMappings = "ReportDetails",
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "reportDetails", type = Void.class),
@@ -176,7 +176,7 @@ import java.util.Date;
                                 @ColumnResult(name = "locale", type = String.class),
                                 @ColumnResult(name = "currency", type = String.class),
                                 @ColumnResult(name = "weight_uom", type = String.class),
-                                @ColumnResult(name = "rptDescr", type = String.class)
+                                @ColumnResult(name = "rpt_descr", type = String.class)
                         }
                 )
         })
