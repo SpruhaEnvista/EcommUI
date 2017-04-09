@@ -24,7 +24,7 @@ public class ReportsApiTest extends WebappTestEnvironment {
     }
     @Test
     public void updateExpiryDate() throws Exception {
-        mockRestMvc().perform(get(SEARCH_API_BASE_PATH_VALUE+"/results/updateexpirydate")
+        mockRestMvc().perform(get(SEARCH_API_BASE_PATH_VALUE + "/results/updateexpirydate")
                 .param("generatedRptId", "1247400").param("expiryDate", String.valueOf(System.currentTimeMillis()))).andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE));
     }
