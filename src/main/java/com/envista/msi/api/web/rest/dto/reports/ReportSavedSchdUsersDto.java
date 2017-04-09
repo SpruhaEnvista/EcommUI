@@ -19,6 +19,12 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "createUser", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "isShared", type = Boolean.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "canEdit", type = Boolean.class)
+                }),
+        @NamedStoredProcedureQuery(name = "ReportGetSSUser.getReportUserList", procedureName = "shp_get_rpt_ss_users_proc",
+                resultSetMappings = "GetSchedUsers",
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_savedSchedUserCur", type = Void.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "savedSchedRptId", type = Long.class)
                 })
 })
 
@@ -28,6 +34,25 @@ import java.util.Date;
                         targetClass = ReportSavedSchdUsersDto.class,
                         columns = {
                                 @ColumnResult(name = "saved_sched_users_id", type = Long.class)
+                        }
+                )
+        }),
+        @SqlResultSetMapping(name = "GetSchedUsers", classes = {
+                @ConstructorResult(
+                        targetClass = ReportSavedSchdUsersDto.class,
+                        columns = {
+                                @ColumnResult(name = "saved_sched_users_id", type = Long.class),
+                                @ColumnResult(name = "saved_sched_rpt_id", type = Long.class),
+                                @ColumnResult(name = "user_id", type = Long.class),
+                                @ColumnResult(name = "is_email_template_to_be_sent", type = Boolean.class),
+                                @ColumnResult(name = "is_report_attach_email", type = Boolean.class),
+                                @ColumnResult(name = "is_report_subscribed", type = Boolean.class),
+                                @ColumnResult(name = "create_user", type = String.class),
+                                @ColumnResult(name = "create_date", type = Date.class),
+                                @ColumnResult(name = "last_update_user", type = String.class),
+                                @ColumnResult(name = "last_update_date", type = Date.class),
+                                @ColumnResult(name = "is_shared", type = Boolean.class),
+                                @ColumnResult(name = "can_edit", type = Boolean.class)
                         }
                 )
         })
