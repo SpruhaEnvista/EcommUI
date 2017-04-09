@@ -382,18 +382,6 @@ public class ReportsDao {
      * @param rptId
      * @return List<ReportColumnDto>
      */
-    public List<ReportColumnDto> getIncludeExcludeSortCol(Long userId, Long rptId, String carrierIds){
-        QueryParameter queryParameter = StoredProcedureParameter.with("p_user_id",userId)
-                .and("p_rpt_id", rptId)
-                .and("p_carriers",carrierIds);
-        return persistentContext.findEntities("ReportCriteriaDto.getIncludeExcludeSortCol",queryParameter);
-    }
-    /**
-     * @param userId
-     * @param carrierIds
-     * @param rptId
-     * @return List<ReportColumnDto>
-     */
     public List<ReportColumnDto> getSavedIncludeExcludeColNameOrder(Long userId, Long rptId, String carrierIds){
         QueryParameter queryParameter = StoredProcedureParameter.with("p_user_id",userId)
                 .and("p_rpt_id", rptId)

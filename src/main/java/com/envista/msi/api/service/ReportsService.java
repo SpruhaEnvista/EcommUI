@@ -361,32 +361,16 @@ public class ReportsService {
     public List<ReportColumnDto> getReportCriteria(Long userId, Long rptId, String carrierIds){ return reportsDao.getReportCriteria(userId,rptId,carrierIds); }
 
     public List<ReportColumnDto> getIncludeExcludeSortCol(Long userId, Long rptId, String carrierIds){
-        List<ReportColumnDto> inclExclColDtos= reportsDao.getIncludeExcludeSortCol(userId,rptId,carrierIds);
-        if(inclExclColDtos!=null && inclExclColDtos.size()>0){
-            for(ReportColumnDto inclExclColDto:inclExclColDtos){
-                if(inclExclColDto.getRptDetailsId()!=null)
-                    break;
-                else {
-                    List<ReportColumnDto> inclExclColNameDtos= reportsDao.getSavedIncludeExcludeColNameOrder(userId,rptId,carrierIds);
-                    List<ReportColumnDto> inclExclColSequenceDtos= reportsDao.getSavedIncludeExcludeColSequencOrder(userId,rptId,carrierIds);
-                    inclExclColDtos=new ArrayList<ReportColumnDto>();
-                    for (ReportColumnDto sequenceColDto:inclExclColSequenceDtos){
-                        inclExclColDtos.add(sequenceColDto);
-                    }
-                    for (ReportColumnDto colNameDto:inclExclColNameDtos){
-                        inclExclColDtos.add(colNameDto);
-                    }
-                    break;
-                }
-            }
-        } else {
-            List<ReportColumnDto> inclExclColNameDtos= reportsDao.getSavedIncludeExcludeColNameOrder(userId,rptId,carrierIds);
-            List<ReportColumnDto> inclExclColSequenceDtos= reportsDao.getSavedIncludeExcludeColSequencOrder(userId,rptId,carrierIds);
-            inclExclColDtos=new ArrayList<ReportColumnDto>();
-            for (ReportColumnDto sequenceColDto:inclExclColSequenceDtos){
+        List<ReportColumnDto> inclExclColNameDtos = reportsDao.getSavedIncludeExcludeColNameOrder(userId, rptId, carrierIds);
+        List<ReportColumnDto> inclExclColSequenceDtos = reportsDao.getSavedIncludeExcludeColSequencOrder(userId, rptId, carrierIds);
+        List<ReportColumnDto>  inclExclColDtos  = new ArrayList<ReportColumnDto>();
+        if (inclExclColSequenceDtos != null && inclExclColSequenceDtos.size() > 0){
+            for (ReportColumnDto sequenceColDto : inclExclColSequenceDtos) {
                 inclExclColDtos.add(sequenceColDto);
             }
-            for (ReportColumnDto colNameDto:inclExclColNameDtos){
+        }
+        if (inclExclColNameDtos != null && inclExclColNameDtos.size() > 0) {
+            for (ReportColumnDto colNameDto : inclExclColNameDtos) {
                 inclExclColDtos.add(colNameDto);
             }
         }

@@ -38,7 +38,7 @@ public class ReportModesDto implements Serializable {
 
     @Id
     @Column(name = "rpt_id")
-    private Long reportId;
+    private Long rptId;
 
     @Column(name = "report_name")
     private String reportName;
@@ -66,8 +66,8 @@ public class ReportModesDto implements Serializable {
 
     public ReportModesDto() {  }
 
-    public ReportModesDto(Long reportId, String reportName, Integer category, Integer isConsolidated, Integer reportGroupId, String groupName, Integer groupUnder, String groupUnderName,String reportDescr) {
-        this.reportId = reportId;
+    public ReportModesDto(Long rptId, String reportName, Integer category, Integer isConsolidated, Integer reportGroupId, String groupName, Integer groupUnder, String groupUnderName,String reportDescr) {
+        this.rptId = rptId;
         this.reportName = reportName;
         this.category = category;
         this.isConsolidated = isConsolidated;
@@ -78,12 +78,12 @@ public class ReportModesDto implements Serializable {
         this.reportDescr= reportDescr;
     }
 
-    public Long getReportId() {
-        return reportId;
+    public Long getRptId() {
+        return rptId;
     }
 
-    public void setReportId(Long reportId) {
-        this.reportId = reportId;
+    public void setRptId(Long reportId) {
+        this.rptId = rptId;
     }
 
     public String getReportName() {
