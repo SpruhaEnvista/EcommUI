@@ -108,7 +108,8 @@ public class ReportsDao {
         if(updateSavedSchedReportDto.getSharetoUserId()>0) {
             QueryParameter queryParameter = StoredProcedureParameter.with("userId", updateSavedSchedReportDto.getSharetoUserId())
                     .and("savedSchedId", updateSavedSchedReportDto.getSavedSchedRptId())
-                    .and("createUser",updateSavedSchedReportDto.getCreateUser());
+                    .and("createUser",updateSavedSchedReportDto.getCreateUser())
+                    .and("canEdit",updateSavedSchedReportDto.getCanEdit()==null?false:updateSavedSchedReportDto.getCanEdit());
             return persistentContext.findEntityAndMapFields("SavedReports.addUserToSavedReport", queryParameter);
         }
         else if(updateSavedSchedReportDto.getSharetoUserId()==0 && updateSavedSchedReportDto.isDeleteAll()){
