@@ -597,7 +597,7 @@ public class ReportsDao {
     @Transactional
     public List<ReportSavedSchdUsersDto> getReportSSUsersList(Long ssRptId){
         QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", ssRptId == null ? 0 : ssRptId );
-        return persistentContext.findEntities("ReportGetSSUser.getReportUserList",queryParameter);
+        return persistentContext.findEntities("ReportGetSSUser.reportUsersList",queryParameter);
     }
     @Transactional
     public List<ReportGetSSSortDto> getReportSortList(Long ssRptId){
