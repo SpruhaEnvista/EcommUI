@@ -601,13 +601,13 @@ public class ReportsDao {
 
     }
     @Transactional
-    public List<ReportGetPcktDetailsDto> getReportPacketDtlsList(Long ssRptId){
-        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", ssRptId == null ? 0 : ssRptId );
+    public List<ReportPacketsDetDto> getReportPacketDtlsList(Long savedSchedRptId){
+        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", savedSchedRptId == null ? 0 : savedSchedRptId );
         return persistentContext.findEntities("ReportGetPcktDetails.getReportPckts",queryParameter);
     }
 
     @Transactional
-    public List<ReportGetSSUserDto> getReportSSUsersList(Long ssRptId){
+    public List<ReportSavedSchdUsersDto> getReportSSUsersList(Long ssRptId){
         QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", ssRptId == null ? 0 : ssRptId );
         return persistentContext.findEntities("ReportGetSSUser.getReportUserList",queryParameter);
     }

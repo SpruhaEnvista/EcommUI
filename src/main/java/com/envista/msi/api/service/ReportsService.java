@@ -455,6 +455,11 @@ public class ReportsService {
 
         SavedSchedReportDto savedSchedReportDto = reportsDao.getReportDetails(savedSchedRptId);
 
+        if(savedSchedReportDto.getPacket()!=null && savedSchedReportDto.getPacket()) {
+            savedSchedReportDto.setReportPacketsDetList((ArrayList<ReportPacketsDetDto>) reportsDao.getReportPacketDtlsList(savedSchedRptId));
+        }
+        savedSchedReportDto.setSavedSchedUsersDtoList ((ArrayList<ReportSavedSchdUsersDto>)reportsDao.getReportSSUsersList(savedSchedRptId));
+
         return savedSchedReportDto;
     }
     public List<ReportColumnDto> getDefaultInclExclCol(Long saveSchedId,Long rptId,String createUser){
