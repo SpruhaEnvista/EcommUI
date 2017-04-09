@@ -135,7 +135,7 @@ public class ReportsDao {
                 .and("savedSchedId", updateSavedSchedReportDto.getSavedSchedRptId())
                 .and("createUser",updateSavedSchedReportDto.getCreateUser())
                 .and("reportName",updateSavedSchedReportDto.getReportName())
-                .and("rptFolderId",updateSavedSchedReportDto.getRptFolderId());;
+                .and("rptFolderId",updateSavedSchedReportDto.getRptFolderId()==null?0:updateSavedSchedReportDto.getRptFolderId());
         return persistentContext.findEntityAndMapFields("SavedReports.saveFromReportResults", queryParameter);
     }
     @Transactional
