@@ -3041,6 +3041,8 @@ public class DashboardsController extends DashboardBaseController {
                     filter.setToDate(DateUtil.format(new Date(), "dd-MMM-yyyy"));
 
                     DashSavedFilterDto dashSavedFilter = new DashSavedFilterDto();
+                    dashSavedFilter.setFilterId(0L);
+                    dashSavedFilter.setFilterName("Default");
                     dashSavedFilter.setDateType(filter.getDateType());
                     dashSavedFilter.setFromDate(filter.getFromDate());
                     dashSavedFilter.setToDate(filter.getToDate());

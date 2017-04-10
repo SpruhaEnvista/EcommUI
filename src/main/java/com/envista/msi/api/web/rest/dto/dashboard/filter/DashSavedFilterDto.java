@@ -75,7 +75,10 @@ import java.util.Date;
 public class DashSavedFilterDto implements Serializable {
     @Id
     @Column(name = "FILTER_ID")
-    private Long id;
+    private Long filterId;
+
+    @Column(name = "FILTER_NAME")
+    private String filterName;
 
     @Column(name = "USER_ID")
     private Long userId;
@@ -131,12 +134,20 @@ public class DashSavedFilterDto implements Serializable {
     @Column(name = "CREATE_DATE")
     private Date createDate;
 
-    public Long getId() {
-        return id;
+    public Long getFilterId() {
+        return filterId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setFilterId(Long filterId) {
+        this.filterId = filterId;
+    }
+
+    public String getFilterName() {
+        return filterName;
+    }
+
+    public void setFilterName(String filterName) {
+        this.filterName = filterName;
     }
 
     public Long getUserId() {

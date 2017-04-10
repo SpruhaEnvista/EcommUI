@@ -1375,7 +1375,7 @@ public class DashboardsDao {
     @Transactional
     public void updateSavedFilter(DashSavedFilterDto savedFilter){
         try{
-            QueryParameter queryParameter = QueryParameter.with(DashboardStoredProcParam.DashSavedFilterParam.FILTER_ID_PARAM, null == savedFilter.getId() ? 0L : savedFilter.getId())
+            QueryParameter queryParameter = QueryParameter.with(DashboardStoredProcParam.DashSavedFilterParam.FILTER_ID_PARAM, null == savedFilter.getFilterId() ? 0L : savedFilter.getFilterId())
                     .and(DashboardStoredProcParam.DashSavedFilterParam.USER_ID_PARAM, savedFilter.getUserId())
                     .and(DashboardStoredProcParam.DashSavedFilterParam.CUSTOMER_IDS_CSV_PARAM, savedFilter.getCustomerIds())
                     .and(DashboardStoredProcParam.DashSavedFilterParam.CARRIER_IDS_PARAM, savedFilter.getCarrierIds())
