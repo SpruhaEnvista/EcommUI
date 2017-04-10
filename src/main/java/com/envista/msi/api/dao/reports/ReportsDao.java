@@ -108,7 +108,8 @@ public class ReportsDao {
         if(updateSavedSchedReportDto.getSharetoUserId()>0) {
             QueryParameter queryParameter = StoredProcedureParameter.with("userId", updateSavedSchedReportDto.getSharetoUserId())
                     .and("savedSchedId", updateSavedSchedReportDto.getSavedSchedRptId())
-                    .and("createUser",updateSavedSchedReportDto.getCreateUser());
+                    .and("createUser",updateSavedSchedReportDto.getCreateUser())
+                    .and("canEdit",updateSavedSchedReportDto.getCanEdit()==null?false:updateSavedSchedReportDto.getCanEdit());
             return persistentContext.findEntityAndMapFields("SavedReports.addUserToSavedReport", queryParameter);
         }
         else if(updateSavedSchedReportDto.getSharetoUserId()==0 && updateSavedSchedReportDto.isDeleteAll()){
@@ -135,7 +136,7 @@ public class ReportsDao {
                 .and("savedSchedId", updateSavedSchedReportDto.getSavedSchedRptId())
                 .and("createUser",updateSavedSchedReportDto.getCreateUser())
                 .and("reportName",updateSavedSchedReportDto.getReportName())
-                .and("rptFolderId",updateSavedSchedReportDto.getRptFolderId());;
+                .and("rptFolderId",updateSavedSchedReportDto.getRptFolderId()==null?0:updateSavedSchedReportDto.getRptFolderId());
         return persistentContext.findEntityAndMapFields("SavedReports.saveFromReportResults", queryParameter);
     }
     @Transactional
@@ -311,7 +312,7 @@ public class ReportsDao {
                 .and("scMonthlyNoOfMonths",savedSchedReportDto.getScMonthlyNoOfMonths()==null?0:savedSchedReportDto.getScMonthlyNoOfMonths())
                 .and("scMonthlyPeriodicFreq",savedSchedReportDto.getScMonthlyPeriodicFrequency())
                 .and("svReportStatus",savedSchedReportDto.getSvReportStatus())
-                .and("scNextSubmitDate",null)
+                .and("scNextSubmitDate",savedSchedReportDto.getScNextSubmitDate())
                 .and("carrierIds",savedSchedReportDto.getCarrierIds())
                 .and("controlPayrunNumber",savedSchedReportDto.getControlPayrunNumber())
                 .and("consolidate",savedSchedReportDto.getConsolidate()==null?false:savedSchedReportDto.getConsolidate())
