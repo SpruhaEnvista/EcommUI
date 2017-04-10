@@ -25,6 +25,13 @@ import java.util.TreeSet;
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_user_id", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_refcur_folder_level_info", type = Void.class)
+                }),
+        @NamedStoredProcedureQuery(name = "ReportFolder.deleteRptFolder", procedureName = "shp_rpt_delete_folder_proc",
+                resultSetMappings = "insertCount",
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "rptFolderId", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "userId", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_delete_cur", type = Void.class)
                 })
 })
 @SqlResultSetMappings({

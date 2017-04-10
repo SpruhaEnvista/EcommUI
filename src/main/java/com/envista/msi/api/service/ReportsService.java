@@ -499,4 +499,8 @@ public class ReportsService {
         }
         return  jsonArray;
     }
+
+    public ReportFolderDto deleteFolder(Long rptFolderId, Long userId) {
+        return reportsDao.deleteFolder(rptFolderId,userId);
+    }
 }
