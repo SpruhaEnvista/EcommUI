@@ -1,7 +1,7 @@
 package com.envista.msi.api.domain.util;
 
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
-import com.envista.msi.api.web.rest.dto.dashboard.filter.UserFilterDto;
+import com.envista.msi.api.web.rest.dto.dashboard.filter.DashSavedFilterDto;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -175,8 +175,8 @@ public class DashboardUtil {
         return queryParam;
     }
 
-    public static UserFilterDto findDefaultUserFilter(List<UserFilterDto> userFilterList){
-        for(UserFilterDto userFilter : userFilterList){
+    public static DashSavedFilterDto findDefaultUserFilter(List<DashSavedFilterDto> userFilterList){
+        for(DashSavedFilterDto userFilter : userFilterList){
             if(userFilter != null && userFilter.getDefaultFilter() == 1){
                 return userFilter;
             }

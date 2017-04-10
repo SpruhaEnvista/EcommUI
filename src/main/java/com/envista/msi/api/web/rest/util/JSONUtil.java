@@ -2115,7 +2115,7 @@ public class JSONUtil {
 					JSONObject carrObj = new JSONObject();
 					carrObj.put("id", userFilterCarr.getCarrierId());
 					carrObj.put("name", userFilterCarr.getCarrierName());
-					carrObj.put("checked", null == selectedCarrList ? true : selectedCarrList != null && selectedCarrList.contains(userFilterCarr.getCarrierId()));
+					carrObj.put("checked", null == selectedCarrList || selectedCarrList.isEmpty() ? true : selectedCarrList != null && selectedCarrList.contains(userFilterCarr.getCarrierId()));
 
 					if("parcel".equalsIgnoreCase(userFilterCarr.getCarrierType())){
 						parcelCarJsonArr.put(carrObj);
@@ -2174,7 +2174,7 @@ public class JSONUtil {
 					jsonObject.put("name", serviceData.getName());
 					jsonObject.put("mode", serviceData.getType());
 					jsonObject.put("type", "category");
-					jsonObject.put("checked", null == selectedServices ? true : selectedServices.contains(serviceData.getId()));
+					jsonObject.put("checked", null == selectedServices || selectedServices.isEmpty() ? true : selectedServices.contains(serviceData.getId()));
 					jsonObject.put("uniqueType", "services");
 					jsonObject.put("isActive", serviceData.getActive());
 					jsonObject.put("isFreight", !"Small Package".equalsIgnoreCase(serviceData.getType()));
@@ -2317,12 +2317,8 @@ public class JSONUtil {
 		for (ReportCustomerCarrierDto customer : customerDto.getCollection()) {
 			if ("CUGRP".equalsIgnoreCase(customer.getType())) {
 				customer.setValue("CU" + getValueForCustGroup(customer));
-			} else if ("CUST".equalsIgnoreCase(customer.getType())) {
-				customer.setValue("CU" + customer.getCustomerId());
-			} else if ("SHGRP".equalsIgnoreCase(customer.getType())) {
-				customer.setValue("SG" + customer.getCustomerId());
-			} else if ("SHP".equalsIgnoreCase(customer.getType())) {
-				customer.setValue("SH" + customer.getCustomerId());
+			} else {
+				customer.setValue(String.valueOf(customer.getCustomerId()));
 			}
 		}
 	}

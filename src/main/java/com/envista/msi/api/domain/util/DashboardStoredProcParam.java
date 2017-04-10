@@ -235,5 +235,6 @@ public class DashboardStoredProcParam {
         public static final String RECEIVER_COUNTRIES_PARAM = "p_receiver_countries";
         public static final String DEFAULT_FILTER_PARAM = "p_default_filter";
         public static final String CREATE_DATE_PARAM = "p_create_date";
+        public static final String FILTER_DATA_PARAM = "p_filter_data";
     }
 }

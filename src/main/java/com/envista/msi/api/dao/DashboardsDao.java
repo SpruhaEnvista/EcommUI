@@ -16,7 +16,6 @@ import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.MonthlySpendByMo
 import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
 import com.envista.msi.api.web.rest.dto.dashboard.common.DashCustomColumnConfigDto;
 import com.envista.msi.api.web.rest.dto.dashboard.filter.DashSavedFilterDto;
-import com.envista.msi.api.web.rest.dto.dashboard.filter.UserFilterDto;
 import com.envista.msi.api.web.rest.dto.dashboard.filter.UserFilterUtilityDataDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.*;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.PortLanesDto;
@@ -1233,14 +1232,14 @@ public class DashboardsDao {
         return persistentContext.findEntities(ActualVsBilledWeightDto.Config.StoredProcedureQueryName.ACTUAL_VS_BILLED_WEIGHT_BY_MONTH, queryParameter);
     }
 
-    public UserFilterDto getUserFilterById(Long filterId){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardStoredProcParam.UserFilterParam.FILTER_ID_PARAM, filterId);
-        return persistentContext.findEntity(UserFilterDto.Config.StoredProcedureQueryName.USER_FILTER_BY_FILTER_ID, queryParameter);
+    public DashSavedFilterDto getFilterById(Long filterId){
+        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardStoredProcParam.DashSavedFilterParam.FILTER_ID_PARAM, filterId);
+        return persistentContext.findEntity(DashSavedFilterDto.Config.StoredProcedureQueryName.GET_FILTER_BY_ID, queryParameter);
     }
 
-    public List<UserFilterDto> getSavedFiltersByUser(Long userId){
-        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardStoredProcParam.UserFilterParam.USER_ID_PARAM, userId);
-        return persistentContext.findEntities(UserFilterDto.Config.StoredProcedureQueryName.USER_FILTER_BY_USER_ID, queryParameter);
+    public List<DashSavedFilterDto> getSavedFiltersByUser(Long userId){
+        QueryParameter queryParameter = StoredProcedureParameter.with(DashboardStoredProcParam.DashSavedFilterParam.USER_ID_PARAM, userId);
+        return persistentContext.findEntities(DashSavedFilterDto.Config.StoredProcedureQueryName.GET_FILTER_BY_USER, queryParameter);
     }
 
     public List<CodeValueDto> getCodeValuesByCodeGroup(Long codeGroupId){

@@ -16,7 +16,6 @@ import com.envista.msi.api.web.rest.dto.dashboard.common.CommonMonthlyChartDto;
 import com.envista.msi.api.web.rest.dto.dashboard.common.CommonValuesForChartDto;
 import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendCommonDto;
 import com.envista.msi.api.web.rest.dto.dashboard.filter.DashSavedFilterDto;
-import com.envista.msi.api.web.rest.dto.dashboard.filter.UserFilterDto;
 import com.envista.msi.api.web.rest.dto.dashboard.filter.UserFilterUtilityDataDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.*;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.PortLanesDto;
@@ -2996,37 +2995,25 @@ public class DashboardsController extends DashboardBaseController {
             if(null == user){
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(userFilterData);
             }
-            List<UserFilterDto> userSavedFilters = dashboardsService.getSavedFiltersByUser(user.getUserId());
+            List<DashSavedFilterDto> userSavedFilters = dashboardsService.getSavedFiltersByUser(user.getUserId());
             List<ReportCustomerCarrierDto> customers = dashboardsService.getDashboardCustomers(user.getUserId());
             Long customerId = 0L;
             userFilterData.put("savedFilterNames", userSavedFilters);
             userFilterData.put("currenciesList", JSONUtil.prepareCurrenciesJson(dashboardsService.getCodeValuesByCodeGroup(468L)));
             userFilterData.put("customers", JSONUtil.customerHierarchyJson(reportsService.getCustomerHierarchyObject(customers, false)));
             if(userSavedFilters != null && !userSavedFilters.isEmpty()){
-                UserFilterDto defaultFilter = DashboardUtil.findDefaultUserFilter(userSavedFilters);
+                DashSavedFilterDto defaultFilter = DashboardUtil.findDefaultUserFilter(userSavedFilters);
                 if(null == defaultFilter){
                     defaultFilter = userSavedFilters.get(0);
                 }
                 if(defaultFilter != null){
                     DashboardsFilterCriteria filter = new DashboardsFilterCriteria();
-                    JSONObject userFilterJson = new JSONObject(defaultFilter.getFilterDetails());
-                    if(userFilterJson.has("date")){
-                        JSONObject dateJson = userFilterJson.getJSONObject("date");
-                        if(dateJson.has("dateType")){
-                            filter.setDateType(dateJson.getJSONObject("dateType").getString("name"));
-                        }
-                        if(dateJson.has("fromdate")){
-                            filter.setFromDate(DateUtil.format(dateJson.getString("fromdate"), "yyyy/MM/dd","dd-MMM-yyyy"));
-                        }
-                        if(dateJson.has("todate")){
-                            filter.setToDate(DateUtil.format(dateJson.getString("todate"), "yyyy/MM/dd","dd-MMM-yyyy"));
-                        }
-                    }
-                    if(userFilterJson.has("carrierId")){
-                        filter.setCarriers(userFilterJson.getJSONArray("carrierId").toString().replaceAll("[\\[\\]]", ""));
-                    }
-                    userFilterData.put("defaultFilterDetails", dashboardsService.getUserFilterDetails(defaultFilter, user.isParcelDashlettes(), filter));
+                    filter.setDateType(defaultFilter.getDateType());
+                    filter.setFromDate(defaultFilter.getFromDate());
+                    filter.setToDate(defaultFilter.getToDate());
+                    userFilterData.putAll(dashboardsService.getUserFilterDetails(defaultFilter, user.isParcelDashlettes(), filter));
                 }
+                userFilterData.put("defaultFilterDetails", defaultFilter);
             }else{
                 if(customers != null && !customers.isEmpty()){
                     customerId = customers.get(0).getCustomerId();
@@ -3046,10 +3033,15 @@ public class DashboardsController extends DashboardBaseController {
                     filter.setFromDate(DateUtil.format(DateUtil.subtractDays(new Date(), 90), "dd-MMM-yyyy"));
                     filter.setToDate(DateUtil.format(new Date(), "dd-MMM-yyyy"));
 
-                    filterDataMap.put("carrDetails", JSONUtil.prepareFilterCarrierJson(carriers));
-                    filterDataMap.put("modesDetails", JSONUtil.prepareFilterModesJson(dashboardsService.getFilterModes(filter), modeWiseCarriers, user.isParcelDashlettes()));
-                    filterDataMap.put("servicesDetails", JSONUtil.prepareFilterServiceJson(dashboardsService.getFilterServices(filter)));
-                    userFilterData.put("defaultFilterDetails", filterDataMap);
+                    DashSavedFilterDto dashSavedFilter = new DashSavedFilterDto();
+                    dashSavedFilter.setDateType(filter.getDateType());
+                    dashSavedFilter.setFromDate(filter.getFromDate());
+                    dashSavedFilter.setToDate(filter.getToDate());
+                    dashSavedFilter.setCustomerIds(String.valueOf(customerId));
+                    dashSavedFilter.setCarrierIds(carrierCSV.toString());
+
+                    userFilterData.putAll(dashboardsService.getUserFilterDetails(dashSavedFilter, user.isParcelDashlettes(), filter));
+                    userFilterData.put("defaultFilterDetails", dashSavedFilter);
                 }
             }
         }catch (Exception e){

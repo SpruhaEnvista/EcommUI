@@ -50,6 +50,24 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashSavedFilterParam.FILTER_ID_PARAM, type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashSavedFilterParam.USER_ID_PARAM, type = Long.class)
                 }
+        ),
+        @NamedStoredProcedureQuery(
+                name = DashSavedFilterDto.Config.StoredProcedureQueryName.GET_FILTER_BY_USER,
+                procedureName = DashSavedFilterDto.Config.StoredProcedureName.GET_FILTER_BY_USER,
+                resultClasses = {DashSavedFilterDto.class},
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashSavedFilterParam.USER_ID_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.DashSavedFilterParam.FILTER_DATA_PARAM, type = Void.class)
+                }
+        ),
+        @NamedStoredProcedureQuery(
+                name = DashSavedFilterDto.Config.StoredProcedureQueryName.GET_FILTER_BY_ID,
+                procedureName = DashSavedFilterDto.Config.StoredProcedureName.GET_FILTER_BY_ID,
+                resultClasses = {DashSavedFilterDto.class},
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashSavedFilterParam.FILTER_ID_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.DashSavedFilterParam.FILTER_DATA_PARAM, type = Void.class)
+                }
         )
 })
 
@@ -270,12 +288,16 @@ public class DashSavedFilterDto implements Serializable {
             static final String DELETE_SAVED_FILTER = "SHP_DB_DEL_SAVED_FILTER_PROC";
             static final String UPDATE_SAVED_FILTER = "SHP_DB_UPDATE_SAVED_FILTR_PROC";
             static final String MAKE_DEFAULT_FILTER = "SHP_DB_SET_DEFAULT_FILTER_PROC";
+            static final String GET_FILTER_BY_USER = "SHP_SAVED_FILTER_BY_USER_PROC";
+            static final String GET_FILTER_BY_ID = "SHP_SAVED_FILTER_BY_ID_PROC";
         }
 
         public static class StoredProcedureQueryName{
             public static final String DELETE_SAVED_FILTER = "DashSavedFilterDto.DeleteSavedFilter";
             public static final String UPDATE_SAVED_FILTER = "DashSavedFilterDto.UpdateSavedFilter";
             public static final String MAKE_DEFAULT_FILTER = "DashSavedFilterDto.MakeDefaultFilter";
+            public static final String GET_FILTER_BY_USER = "DashSavedFilterDto.getSavedFilterByUser";
+            public static final String GET_FILTER_BY_ID = "DashSavedFilterDto.getSavedFilterById";
         }
     }
 }
