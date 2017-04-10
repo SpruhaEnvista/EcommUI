@@ -69,6 +69,7 @@ public class StoredProcedureContext extends EntityManagerImpl implements Persist
 
 	private Query setParams(Query query, QueryParameter parameters) {
 		if (parameters != null && parameters.parameters() != null && query != null) {
+
 			parameters.parameters().forEach((key, value) -> {
 				query.setParameter(key, value);
 			});
