@@ -449,4 +449,40 @@ public class ReportsService {
     public List<ReportColumnDto> getDefaultInclExclCol(Long saveSchedId,Long rptId,String createUser){
         return reportsDao.getDefaultInclExclCol(saveSchedId,rptId,createUser);
     }
+    public  JSONArray getReportTriggerOptions(Long rptId,String carrierIds) throws Exception{
+        List<ReportFormatDto> triggerOptionsDtos=reportsDao.getReportTriggerOptions(rptId,carrierIds);
+        JSONArray jsonArray=new JSONArray();
+        if(triggerOptionsDtos!=null){
+            for(ReportFormatDto dto:triggerOptionsDtos){
+                JSONObject triggerOptionJson=new JSONObject();
+                if(dto.getDateCriteriaName().equals("Invoice Date")){
+                    triggerOptionJson.put("triggerOptionName","New Invoice");
+                    triggerOptionJson.put("triggerOptionId",dto.getRptDateOptionId());
+                    triggerOptionJson.put("isDefault",dto.getIsDefault());
+                }
+                if(dto.getDateCriteriaName().equals("Control Number")){
+                    triggerOptionJson.put("triggerOptionName","New Control Number");
+                    triggerOptionJson.put("triggerOptionId",dto.getRptDateOptionId());
+                    triggerOptionJson.put("isDefault",dto.getIsDefault());
+                }
+                if(dto.getDateCriteriaName().equals("Closed Date")){
+                    triggerOptionJson.put("triggerOptionName","Recently Closed");
+                    triggerOptionJson.put("triggerOptionId",dto.getRptDateOptionId());
+                    triggerOptionJson.put("isDefault",dto.getIsDefault());
+                }
+                if(dto.getDateCriteriaName().equals("Pay Run Number")){
+                    triggerOptionJson.put("triggerOptionName","New Pay Run Number");
+                    triggerOptionJson.put("triggerOptionId",dto.getRptDateOptionId());
+                    triggerOptionJson.put("isDefault",dto.getIsDefault());
+                }
+                if(dto.getDateCriteriaName().equals("New Check Details")){
+                    triggerOptionJson.put("triggerOptionName","New Check Details");
+                    triggerOptionJson.put("triggerOptionId",dto.getRptDateOptionId());
+                    triggerOptionJson.put("isDefault",dto.getIsDefault());
+                }
+                jsonArray.put(triggerOptionJson);
+            }
+        }
+        return  jsonArray;
+    }
 }

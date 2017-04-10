@@ -435,5 +435,13 @@ public class ReportsController {
         List<ReportUserListByRptIdDto> rptUsersList = reportsService.getUserListByRptId(rptId);
         return new ResponseEntity<List<ReportUserListByRptIdDto>>(rptUsersList,HttpStatus.OK);
     }
-
+    @RequestMapping(value="/triggerbyoptions", method = {RequestMethod.GET,RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<JSONArray> getReportTriggerOptions(@RequestParam String rptId,@RequestParam String carrierIds){
+        try {
+            JSONArray triggerOptionsJsons =reportsService.getReportTriggerOptions(Long.parseLong(rptId),carrierIds);
+            return new ResponseEntity<JSONArray>(triggerOptionsJsons, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<JSONArray>(new JSONArray(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

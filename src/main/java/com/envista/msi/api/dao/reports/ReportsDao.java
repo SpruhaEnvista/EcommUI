@@ -622,6 +622,12 @@ public class ReportsDao {
         QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", ssRptId == null ? 0 : ssRptId );
         return persistentContext.findEntities("ReportGetSSAcc.getReportAccList",queryParameter);
     }
+    @Transactional
+    public List<ReportFormatDto> getReportTriggerOptions(Long rptId,String carrierIds){
+        QueryParameter queryParameter = StoredProcedureParameter.with("p_rpt_id",rptId)
+                .and("p_carriers", (carrierIds==null || (carrierIds.trim()).length()<1) ? "-1" : carrierIds);
+        return persistentContext.findEntities("ReportFormat.getReportTriggerOptions",queryParameter);
+    }
 
 
 }
