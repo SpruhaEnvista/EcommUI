@@ -28,7 +28,6 @@ import com.envista.msi.api.web.rest.util.DateUtil;
 import com.envista.msi.api.web.rest.util.JSONUtil;
 import com.envista.msi.api.web.rest.util.WebConstants;
 import com.envista.msi.api.web.rest.util.pagination.PaginationBean;
-import org.apache.commons.collections.map.HashedMap;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -3000,7 +2999,8 @@ public class DashboardsController extends DashboardBaseController {
             Long customerId = 0L;
             userFilterData.put("savedFilterNames", userSavedFilters);
             userFilterData.put("currenciesList", JSONUtil.prepareCurrenciesJson(dashboardsService.getCodeValuesByCodeGroup(468L)));
-            userFilterData.put("customers", JSONUtil.customerHierarchyJson(reportsService.getCustomerHierarchyObject(customers, false)));
+            ReportCustomerCarrierDto customerHierarchy = reportsService.getCustomerHierarchyObject(customers, false);
+            userFilterData.put("customers", JSONUtil.customerHierarchyJson(customerHierarchy));
             if(userSavedFilters != null && !userSavedFilters.isEmpty()){
                 DashSavedFilterDto defaultFilter = DashboardUtil.findDefaultUserFilter(userSavedFilters);
                 if(null == defaultFilter){
@@ -3016,8 +3016,16 @@ public class DashboardsController extends DashboardBaseController {
                 userFilterData.put("defaultFilterDetails", defaultFilter);
             }else{
                 if(customers != null && !customers.isEmpty()){
-                    customerId = customers.get(0).getCustomerId();
-                    Map<String, Object> filterDataMap = new HashedMap();
+                    if(user.getDefaultCustomer() != null && !user.getDefaultCustomer().isEmpty()){
+                        if(user.getDefaultCustomer().startsWith("CU")){
+                            customerId = Long.parseLong(user.getDefaultCustomer().substring(2).trim());
+                        }else{
+                            customerId = Long.parseLong(user.getDefaultCustomer().trim());
+                        }
+                    }else{
+                        customerId = Long.parseLong(customerHierarchy.getCollection().iterator().next().getValue().trim());
+                    }
+
                     List<UserFilterUtilityDataDto> carriers = dashboardsService.getCarrierByCustomer(String.valueOf(customerId), user.isParcelDashlettes());
                     StringJoiner carrierCSV = new StringJoiner(",");
                     for(UserFilterUtilityDataDto car : carriers){

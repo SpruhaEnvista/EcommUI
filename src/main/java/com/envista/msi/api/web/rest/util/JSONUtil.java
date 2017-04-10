@@ -2296,9 +2296,9 @@ public class JSONUtil {
 			custoemrJsonObject.put("value", null == customerCarrierDto.getValue() ? "" : customerCarrierDto.getValue());
 
 			if (customerCarrierDto.getRegion() == null || customerCarrierDto.getRegion().isEmpty() || "North America".equalsIgnoreCase(customerCarrierDto.getRegion()) ) {
-				custoemrJsonObject.put("weigtUnit", "LBS");
+				custoemrJsonObject.put("weightUnit", "LBS");
 			} else {
-				custoemrJsonObject.put("weigtUnit","KGS");
+				custoemrJsonObject.put("weightUnit","KGS");
 			}
 			custoemrJsonObject.put("currencyId", customerCarrierDto.getCurrencyId());
 
@@ -2316,7 +2316,7 @@ public class JSONUtil {
 	public static void setValuesForDropDownForCustomer(ReportCustomerCarrierDto customerDto) {
 		for (ReportCustomerCarrierDto customer : customerDto.getCollection()) {
 			if ("CUGRP".equalsIgnoreCase(customer.getType())) {
-				customer.setValue("CU" + getValueForCustGroup(customer));
+				customer.setValue(getValueForCustGroup(customer));
 			} else {
 				customer.setValue(String.valueOf(customer.getCustomerId()));
 			}
