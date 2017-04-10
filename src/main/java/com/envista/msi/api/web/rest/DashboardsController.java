@@ -3034,7 +3034,6 @@ public class DashboardsController extends DashboardBaseController {
                         }
                     }
 
-                    Map<String, String> modeWiseCarriers = dashboardsService.getModeWiseCarrier(carrierCSV.toString());
                     DashboardsFilterCriteria filter = new DashboardsFilterCriteria();
                     filter.setCarriers(carrierCSV.toString());
                     filter.setDateType("INVOICE_DATE");
