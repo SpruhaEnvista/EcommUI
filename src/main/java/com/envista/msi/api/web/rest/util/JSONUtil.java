@@ -2004,13 +2004,20 @@ public class JSONUtil {
 		if (commaSeperatedFields.contains(columnName)) {
 			try {
 				if (val != null) {
-					value = commaSeperatedDecimalFormat.format(Double.parseDouble(val.toString()));
+					value = commaSeperatedDecimalFormat.format(Math.ceil(Double.parseDouble(val.toString())));
 				}
 			} catch (Exception e) {
 				value = val != null ? val.toString() : "";
 			}
 		} else {
-			value = String.valueOf(val);
+			try {
+				if (val != null) {
+					value = String.valueOf(Math.ceil(Double.parseDouble(val.toString())));
+				}
+			} catch (Exception e) {
+				value = val != null ? val.toString() : "";
+			}
+
 		}
 		return value;
 	}
@@ -2026,8 +2033,8 @@ public class JSONUtil {
 				if (weightDto != null) {
 					JSONObject monthWiseObj = new JSONObject();
 					monthWiseObj.put("name", weightDto.getBillingDate());
-					monthWiseObj.put("Actual Weight", weightDto.getActualWeight());
-					monthWiseObj.put("Bill Weight", weightDto.getBilledWeight());
+					monthWiseObj.put("Actual Weight", Math.ceil(weightDto.getActualWeight()));
+					monthWiseObj.put("Bill Weight", Math.ceil(weightDto.getBilledWeight()));
 					valuesArray.put(monthWiseObj);
 				}
 			}
@@ -2057,8 +2064,8 @@ public class JSONUtil {
 					JSONObject wtJson = new JSONObject();
 					wtJson.put("id", weightDto.getCarrierId());
 					wtJson.put("name", weightDto.getCarrierName());
-					wtJson.put("Actual", weightDto.getActualWeight());
-					wtJson.put("Billed", weightDto.getBilledWeight());
+					wtJson.put("Actual", Math.ceil(weightDto.getActualWeight()));
+					wtJson.put("Billed", Math.ceil(weightDto.getBilledWeight()));
 					weightJsonArr.put(wtJson);
 				}
 			}
@@ -2080,8 +2087,8 @@ public class JSONUtil {
 					JSONArray dataArray = new JSONArray();
 					long dateInMilliSecs = weightDto.getBillDate() != null ? weightDto.getBillDate().getTime() : 0L;
 					dataArray.put(dateInMilliSecs);
-					dataArray.put(weightDto.getActualWeight());
-					dataArray.put(weightDto.getBilledWeight());
+					dataArray.put(Math.ceil(weightDto.getActualWeight()));
+					dataArray.put(Math.ceil(weightDto.getBilledWeight()));
 
 					returnArray.put(dataArray);
 					if (count == 0) {
@@ -2300,7 +2307,7 @@ public class JSONUtil {
 			} else {
 				custoemrJsonObject.put("weightUnit","KGS");
 			}
-			custoemrJsonObject.put("currencyId", customerCarrierDto.getCurrencyId());
+			custoemrJsonObject.put("currencyId", null == customerCarrierDto.getCurrencyId() ? "0" : customerCarrierDto.getCurrencyId());
 
 			if (!"SHP".equalsIgnoreCase(customerCarrierDto.getType())) {
 				custoemrJsonObject.put("children", customerHierarchyJson(customerCarrierDto));

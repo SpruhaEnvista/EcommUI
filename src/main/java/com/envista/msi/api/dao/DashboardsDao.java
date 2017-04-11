@@ -1373,9 +1373,10 @@ public class DashboardsDao {
     }
 
     @Transactional
-    public void updateSavedFilter(DashSavedFilterDto savedFilter){
+    public DashSavedFilterDto updateSavedFilter(DashSavedFilterDto savedFilter){
         try{
             QueryParameter queryParameter = QueryParameter.with(DashboardStoredProcParam.DashSavedFilterParam.FILTER_ID_PARAM, null == savedFilter.getFilterId() ? 0L : savedFilter.getFilterId())
+                    .and(DashboardStoredProcParam.DashSavedFilterParam.FILTER_NAME_PARAM, savedFilter.getFilterName() != null ? savedFilter.getFilterName().trim() : null)
                     .and(DashboardStoredProcParam.DashSavedFilterParam.USER_ID_PARAM, savedFilter.getUserId())
                     .and(DashboardStoredProcParam.DashSavedFilterParam.CUSTOMER_IDS_CSV_PARAM, savedFilter.getCustomerIds())
                     .and(DashboardStoredProcParam.DashSavedFilterParam.CARRIER_IDS_PARAM, savedFilter.getCarrierIds())
@@ -1394,7 +1395,7 @@ public class DashboardsDao {
                     .and(DashboardStoredProcParam.DashSavedFilterParam.RECEIVER_COUNTRIES_PARAM, savedFilter.getReceiverCountries())
                     .and(DashboardStoredProcParam.DashSavedFilterParam.DEFAULT_FILTER_PARAM, null == savedFilter.getDefaultFilter() ? 0 : savedFilter.getDefaultFilter())
                     .and(DashboardStoredProcParam.DashSavedFilterParam.CREATE_DATE_PARAM, savedFilter.getCreateDate());
-            persistentContext.findEntities(DashSavedFilterDto.Config.StoredProcedureQueryName.UPDATE_SAVED_FILTER, queryParameter);
+            return persistentContext.findEntity(DashSavedFilterDto.Config.StoredProcedureQueryName.UPDATE_SAVED_FILTER, queryParameter);
         }catch (Exception e){
             throw new DaoException("Failed to update saved filter details", e);
         }
@@ -1408,6 +1409,16 @@ public class DashboardsDao {
             persistentContext.findEntities(DashSavedFilterDto.Config.StoredProcedureQueryName.MAKE_DEFAULT_FILTER, queryParameter);
         }catch (Exception e){
             throw new DaoException("Failed to set default filter", e);
+        }
+    }
+
+    public List<DashSavedFilterDto> getUserFilterByName(long userId, String filterName){
+        try{
+            QueryParameter queryParameter = QueryParameter.with(DashboardStoredProcParam.DashSavedFilterParam.USER_ID_PARAM, userId)
+                    .and(DashboardStoredProcParam.DashSavedFilterParam.FILTER_NAME_PARAM, filterName);
+            return persistentContext.findEntities(DashSavedFilterDto.Config.StoredProcedureQueryName.GET_USER_FILTER_NY_FILTER_NAME, queryParameter);
+        }catch (Exception e){
+            throw new DaoException("Failed to get filter by name", e);
         }
     }
 }

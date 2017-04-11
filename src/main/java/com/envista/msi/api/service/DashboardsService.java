@@ -720,16 +720,34 @@ public class DashboardsService {
         return dashboardsDao.getActualVsBilledWeightByMonth(filter, isTopTenAccessorial);
     }
 
+    public Map<String, Object> getUserFilterDetails(Long filterId, boolean isParcelDashlettes) throws JSONException {
+        DashSavedFilterDto userFilter = getFilterById(filterId);
+        DashboardsFilterCriteria filter = new DashboardsFilterCriteria();
+        filter.setCustomerIdsCSV(userFilter.getCustomerIds());
+        filter.setDateType(userFilter.getDateType());
+        filter.setFromDate(userFilter.getFromDate());
+        filter.setToDate(userFilter.getToDate());
+
+        List<UserFilterUtilityDataDto> carriers = getCarrierByCustomer(String.valueOf(userFilter.getCustomerIds()), isParcelDashlettes);
+        StringJoiner carrierCSV = new StringJoiner(",");
+        for(UserFilterUtilityDataDto car : carriers){
+            if(car != null){
+                carrierCSV.add(car.getCarrierId().toString());
+            }
+        }
+        filter.setCarriers(carrierCSV.toString());
+        return getUserFilterDetails(userFilter, isParcelDashlettes, filter);
+    }
+
     public Map<String, Object> getUserFilterDetails(Long filterId, boolean isParcelDashlettes, DashboardsFilterCriteria filter) throws JSONException {
         DashSavedFilterDto userFilter = getFilterById(filterId);
         return getUserFilterDetails(userFilter, isParcelDashlettes, filter);
     }
 
     public Map<String, Object> getUserFilterDetails(DashSavedFilterDto userFilter, boolean isParcelDashlettes, DashboardsFilterCriteria filter) throws JSONException {
-        Map<String, Object> userFilterDetailsMap = null;
+        Map<String, Object> userFilterDetailsMap = new HashMap<String, Object>();;
 
         if(userFilter != null){
-            userFilterDetailsMap = new HashMap<String, Object>();
             List<Long> carrList = new ArrayList<Long>();
             List<String> servicesList = new ArrayList<String>();
 
@@ -761,6 +779,7 @@ public class DashboardsService {
             userFilterDetailsMap.put("carrDetails", JSONUtil.prepareFilterCarrierJson(getCarrierByCustomer(customerIds, isParcelDashlettes), carrList));
             userFilterDetailsMap.put("modesDetails", modesArray);
             userFilterDetailsMap.put("servicesDetails", JSONUtil.prepareFilterServiceJson(getFilterServices(filter), servicesList));
+            userFilterDetailsMap.put("filterDetails", userFilter);
         }
         return userFilterDetailsMap;
     }
@@ -1023,8 +1042,8 @@ public class DashboardsService {
      * save/update savedfilter details.
      * @param savedFilter
      */
-    public void updateSavedFilter(DashSavedFilterDto savedFilter){
-        dashboardsDao.updateSavedFilter(savedFilter);
+    public DashSavedFilterDto updateSavedFilter(DashSavedFilterDto savedFilter){
+        return dashboardsDao.updateSavedFilter(savedFilter);
     }
 
     /**
@@ -1034,5 +1053,15 @@ public class DashboardsService {
      */
     public void makeDefaultSavedFilter(long filterId, long userId){
         dashboardsDao.makeDefaultSavedFilter(filterId, userId);
+    }
+
+    /**
+     * Get saved filter by name for this userId.
+     * @param userId
+     * @param filterName
+     * @return
+     */
+    public List<DashSavedFilterDto> getUserFilterByName(long userId, String filterName){
+        return dashboardsDao.getUserFilterByName(userId, filterName);
     }
 }

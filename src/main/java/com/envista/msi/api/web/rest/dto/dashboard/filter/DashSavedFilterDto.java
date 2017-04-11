@@ -21,8 +21,10 @@ import java.util.Date;
         @NamedStoredProcedureQuery(
                 name = DashSavedFilterDto.Config.StoredProcedureQueryName.UPDATE_SAVED_FILTER,
                 procedureName = DashSavedFilterDto.Config.StoredProcedureName.UPDATE_SAVED_FILTER,
+                resultClasses = {DashSavedFilterDto.class},
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashSavedFilterParam.FILTER_ID_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashSavedFilterParam.FILTER_NAME_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashSavedFilterParam.USER_ID_PARAM, type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashSavedFilterParam.CUSTOMER_IDS_CSV_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashSavedFilterParam.CARRIER_IDS_PARAM, type = String.class),
@@ -40,7 +42,8 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashSavedFilterParam.RECEIVER_STATES_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashSavedFilterParam.RECEIVER_COUNTRIES_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashSavedFilterParam.DEFAULT_FILTER_PARAM, type = Integer.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashSavedFilterParam.CREATE_DATE_PARAM, type = Date.class)
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashSavedFilterParam.CREATE_DATE_PARAM, type = Date.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.DashSavedFilterParam.FILTER_DATA_PARAM, type = Void.class)
                 }
         ),
         @NamedStoredProcedureQuery(
@@ -68,9 +71,18 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashSavedFilterParam.FILTER_ID_PARAM, type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.DashSavedFilterParam.FILTER_DATA_PARAM, type = Void.class)
                 }
+        ),
+        @NamedStoredProcedureQuery(
+                name = DashSavedFilterDto.Config.StoredProcedureQueryName.GET_USER_FILTER_NY_FILTER_NAME,
+                procedureName = DashSavedFilterDto.Config.StoredProcedureName.GET_USER_FILTER_NY_FILTER_NAME,
+                resultClasses = {DashSavedFilterDto.class},
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashSavedFilterParam.USER_ID_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashSavedFilterParam.FILTER_NAME_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.DashSavedFilterParam.FILTER_DATA_PARAM, type = Void.class)
+                }
         )
 })
-
 @Entity
 public class DashSavedFilterDto implements Serializable {
     @Id
@@ -301,6 +313,7 @@ public class DashSavedFilterDto implements Serializable {
             static final String MAKE_DEFAULT_FILTER = "SHP_DB_SET_DEFAULT_FILTER_PROC";
             static final String GET_FILTER_BY_USER = "SHP_SAVED_FILTER_BY_USER_PROC";
             static final String GET_FILTER_BY_ID = "SHP_SAVED_FILTER_BY_ID_PROC";
+            static final String GET_USER_FILTER_NY_FILTER_NAME = "SHP_DB_USER_FLTR_BY_NAME_PROC";
         }
 
         public static class StoredProcedureQueryName{
@@ -309,6 +322,7 @@ public class DashSavedFilterDto implements Serializable {
             public static final String MAKE_DEFAULT_FILTER = "DashSavedFilterDto.MakeDefaultFilter";
             public static final String GET_FILTER_BY_USER = "DashSavedFilterDto.getSavedFilterByUser";
             public static final String GET_FILTER_BY_ID = "DashSavedFilterDto.getSavedFilterById";
+            public static final String GET_USER_FILTER_NY_FILTER_NAME = "DashSavedFilterDto.getFilterByUser";
         }
     }
 }

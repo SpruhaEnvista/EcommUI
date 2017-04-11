@@ -1,5 +1,6 @@
 package com.envista.msi.api.domain.util;
 
+import com.envista.msi.api.web.rest.dto.dashboard.DashboardAppliedFilterDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
 import com.envista.msi.api.web.rest.dto.dashboard.filter.DashSavedFilterDto;
 
@@ -182,5 +183,22 @@ public class DashboardUtil {
             }
         }
         return null;
+    }
+
+    public static DashboardAppliedFilterDto prepareAppliedFilter(DashSavedFilterDto savedFilter, String userName, long userid, String sessionId){
+        DashboardAppliedFilterDto appliedFilter = new DashboardAppliedFilterDto();
+        appliedFilter.setDateType(savedFilter.getDateType());
+        appliedFilter.setUserName(userName);
+        appliedFilter.setLoginUserId(userid);
+        appliedFilter.setjSessionId(sessionId);
+        appliedFilter.setCarrierIds(savedFilter.getCarrierIds());
+        appliedFilter.setCurrencyId(String.valueOf(savedFilter.getCurrencyId()));
+        appliedFilter.setCustomerIds(savedFilter.getCustomerIds());
+        appliedFilter.setFromDate(savedFilter.getFromDate());
+        appliedFilter.setToDate(savedFilter.getToDate());
+        appliedFilter.setModes(savedFilter.getModes());
+        appliedFilter.setServices(savedFilter.getServices());
+        appliedFilter.setWeightUnit(savedFilter.getWeightUnit());
+        return appliedFilter;
     }
 }

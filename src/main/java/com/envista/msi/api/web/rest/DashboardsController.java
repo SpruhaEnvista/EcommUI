@@ -2923,8 +2923,7 @@ public class DashboardsController extends DashboardBaseController {
             if(null == user){
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(userFilterData);
             }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            userFilterData = dashboardsService.getUserFilterDetails(filterId, isParcelDashlettes, filter);
+            userFilterData = dashboardsService.getUserFilterDetails(filterId, isParcelDashlettes);
         }catch (Exception e){
             return new ResponseEntity<Map<String, Object>>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -2987,7 +2986,7 @@ public class DashboardsController extends DashboardBaseController {
     }
 
     @RequestMapping(value = "/requiredFilter", method = {RequestMethod.GET, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<Map<String, Object>>  getCarriersByCustomer(){
+    public ResponseEntity<Map<String, Object>>  getCarriersByCustomer(HttpSession session){
         Map<String, Object> userFilterData = new HashMap();
         try{
             UserProfileDto user = getUserProfile();
@@ -3043,6 +3042,7 @@ public class DashboardsController extends DashboardBaseController {
                     DashSavedFilterDto dashSavedFilter = new DashSavedFilterDto();
                     dashSavedFilter.setFilterId(0L);
                     dashSavedFilter.setFilterName("Default");
+                    dashSavedFilter.setCurrencyId(0L);
                     dashSavedFilter.setDateType(filter.getDateType());
                     dashSavedFilter.setFromDate(filter.getFromDate());
                     dashSavedFilter.setToDate(filter.getToDate());
@@ -3052,6 +3052,9 @@ public class DashboardsController extends DashboardBaseController {
                     userFilterData.putAll(dashboardsService.getUserFilterDetails(dashSavedFilter, user.isParcelDashlettes(), filter));
                     userFilterData.put("defaultFilterDetails", dashSavedFilter);
                 }
+            }
+            if(userFilterData.get("defaultFilterDetails") != null){
+                dashboardsService.saveAppliedFilterDetails(DashboardUtil.prepareAppliedFilter((DashSavedFilterDto) userFilterData.get("defaultFilterDetails"), user.getUserName(), user.getUserId(), session.getId()));
             }
         }catch (Exception e){
             return new ResponseEntity<Map<String, Object>>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -3166,74 +3169,102 @@ public class DashboardsController extends DashboardBaseController {
     }
 
     @RequestMapping(value = "/deleteFilter", method = {RequestMethod.GET, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> deleteSavedFilter(@RequestParam long filterId){
-        JSONObject respJson = new JSONObject();
-        try{
-            dashboardsService.deleteSavedFilter(filterId);
-            respJson.put("status", HttpStatus.OK.value());
-            respJson.put("message", "Deleted Successfully");
-        }catch (Exception e){
-            try {
-                respJson.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
-                respJson.put("message", WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
-            } catch (JSONException e1) {
-                e1.printStackTrace();
-            }
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respJson.toString());
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(respJson.toString());
-    }
-
-    @RequestMapping(value = "/SaveFilter", method = {RequestMethod.POST}, produces = {MediaType.APPLICATION_JSON_VALUE}, consumes = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> updateSavedFilterDetails(@RequestBody DashSavedFilterDto savedFilter){
-        JSONObject respJson = new JSONObject();
+    public ResponseEntity<Map<String, Object>> deleteSavedFilter(@RequestParam long filterId){
+        Map<String, Object> respMap = new HashMap<String, Object>();
         try{
             UserProfileDto user = getUserProfile();
             if(null == user){
-                respJson.put("status", HttpStatus.UNAUTHORIZED.value());
-                respJson.put("message", WebConstants.ResponseMessage.INVALID_USER);
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(respJson.toString());
+                respMap.put("status", HttpStatus.UNAUTHORIZED.value());
+                respMap.put("message", WebConstants.ResponseMessage.INVALID_USER);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(respMap);
             }
 
-            savedFilter.setUserId(user.getUserId());
-            savedFilter.setCreateDate(new Date());
-            dashboardsService.updateSavedFilter(savedFilter);
-            respJson.put("status", HttpStatus.OK.value());
-            respJson.put("message", "Updated Successfully");
+            dashboardsService.deleteSavedFilter(filterId);
+            respMap.put("status", HttpStatus.OK.value());
+            respMap.put("message", "Deleted Successfully");
+            respMap.put("savedFilterNames", dashboardsService.getSavedFiltersByUser(user.getUserId()));
         }catch (Exception e){
             try {
-                respJson.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
-                respJson.put("message", WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
-            } catch (JSONException e1) {
+                respMap.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+                respMap.put("message", WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
+            } catch (Exception e1) {
                 e1.printStackTrace();
             }
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respJson.toString());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respMap);
         }
-        return ResponseEntity.status(HttpStatus.OK).body(respJson.toString());
+        return ResponseEntity.status(HttpStatus.OK).body(respMap);
+    }
+
+    @RequestMapping(value = "/saveFilter", method = {RequestMethod.POST}, produces = {MediaType.APPLICATION_JSON_VALUE}, consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<Map<String, Object>> updateSavedFilterDetails(@RequestBody DashSavedFilterDto savedFilter){
+        Map<String, Object> respMap = new HashMap<String, Object>();
+        try{
+            UserProfileDto user = getUserProfile();
+            if(null == user){
+                respMap.put("status", HttpStatus.UNAUTHORIZED.value());
+                respMap.put("message", WebConstants.ResponseMessage.INVALID_USER);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(respMap);
+            }
+            boolean validationError = false;
+            JSONObject validationMsg = new JSONObject();
+            if(savedFilter.getFilterId() == null || savedFilter.getFilterId() == 0L){
+                if(savedFilter.getFilterName() == null || savedFilter.getFilterName().isEmpty()){
+                    validationError = true;
+                    validationMsg.put("filterName", "Filter name should not be empty.");
+                }else{
+                    validationError = true;
+                    List<DashSavedFilterDto> filters = dashboardsService.getUserFilterByName(user.getUserId(), savedFilter.getFilterName());
+                    if(filters != null && !filters.isEmpty()){
+                        validationMsg.put("filterName", "Filter with name '" + savedFilter.getFilterName() + "' already exists.");
+                    }
+                }
+            }
+            if(validationError){
+                respMap.put("status", HttpStatus.EXPECTATION_FAILED.value());
+                respMap.put("validationError", validationMsg);
+                return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(respMap);
+            }
+            savedFilter.setUserId(user.getUserId());
+            savedFilter.setCreateDate(new Date());
+            DashSavedFilterDto updatedFilter = dashboardsService.updateSavedFilter(savedFilter);
+            respMap.put("status", HttpStatus.OK.value());
+            respMap.put("message", "Updated Successfully");
+            respMap.put("savedFilterNames", dashboardsService.getSavedFiltersByUser(user.getUserId()));
+        }catch (Exception e){
+            try {
+                respMap.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+                respMap.put("message", WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respMap);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(respMap);
     }
 
     @RequestMapping(value = "/setDefaultFilter", method = {RequestMethod.GET}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> makeDefaultFilter(@RequestParam long filterId){
-        JSONObject respJson = new JSONObject();
+    public ResponseEntity<Map<String, Object>> makeDefaultFilter(@RequestParam long filterId){
+        Map<String, Object> respMap = new HashMap<String, Object>();
         try {
             UserProfileDto user = getUserProfile();
             if (null == user) {
-                respJson.put("status", HttpStatus.UNAUTHORIZED.value());
-                respJson.put("message", WebConstants.ResponseMessage.INVALID_USER);
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(respJson.toString());
+                respMap.put("status", HttpStatus.UNAUTHORIZED.value());
+                respMap.put("message", WebConstants.ResponseMessage.INVALID_USER);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(respMap);
             }
             dashboardsService.makeDefaultSavedFilter(filterId, user.getUserId());
-            respJson.put("status", HttpStatus.OK.value());
-            respJson.put("message", "Updated Successfully");
+            respMap.put("status", HttpStatus.OK.value());
+            respMap.put("message", "Updated Successfully");
+            respMap.put("savedFilterNames", dashboardsService.getSavedFiltersByUser(user.getUserId()));
         }catch (Exception e){
             try {
-                respJson.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
-                respJson.put("message", WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
-            } catch (JSONException e1) {
+                respMap.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+                respMap.put("message", WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
+            } catch (Exception e1) {
                 e1.printStackTrace();
             }
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respJson.toString());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respMap);
         }
-        return ResponseEntity.status(HttpStatus.OK).body(respJson.toString());
+        return ResponseEntity.status(HttpStatus.OK).body(respMap);
     }
 }
