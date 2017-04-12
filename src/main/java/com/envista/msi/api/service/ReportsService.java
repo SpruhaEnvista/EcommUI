@@ -125,10 +125,17 @@ public class ReportsService {
                 }
             }
         }
+
+        String rgn = "";
+        String currId = "";
+        if(customerList != null && customerList.size() > 0){
+            rgn = customerList.get(0).getRegion();
+            currId = customerList.get(0).getCurrencyId();
+        }
         // Set the Parent Customer relationships.
-        ReportCustomerCarrierDto everything = new ReportCustomerCarrierDto("Everything", -1, false, "-1", "Everything", null, null, false, null, null);
+        ReportCustomerCarrierDto everything = new ReportCustomerCarrierDto("Everything", -1, false, "-1", "Everything", null, null, false, rgn, currId);
         TreeSet<ReportCustomerCarrierDto> customerGroupIds = new TreeSet<ReportCustomerCarrierDto>();
-        ReportCustomerCarrierDto customerGroups = new ReportCustomerCarrierDto("Customer Groups", -1, false, "-1", "CUGRP", null, null, false, null, null);
+        ReportCustomerCarrierDto customerGroups = new ReportCustomerCarrierDto("Customer Groups", -1, false, "-1", "CUGRP", null, null, false, rgn, currId);
         StringBuffer customerIdsCSVForLevelInfo = new StringBuffer();
         int count = 0;
         for (ReportCustomerCarrierDto customerDto : customerDtos) {
@@ -162,7 +169,7 @@ public class ReportsService {
                     ReportCustomerCarrierDto parentCustomerDto = findCustomerGroup(customerGroups, -parentCustomerId);
                     if (parentCustomerDto == null) {
                         if (i < level - 1) {
-                            parentCustomerDto = new ReportCustomerCarrierDto(parentCustomerName + " Group", -parentCustomerId, false, "-1", "CUGRP", null, null, false, null, null);
+                            parentCustomerDto = new ReportCustomerCarrierDto(parentCustomerName + " Group", -parentCustomerId, false, "-1", "CUGRP", null, null, false, rgn, currId);
                             if (i == 0) {
                                 customerGroups.getCollection().add(parentCustomerDto);
                             } else {
@@ -180,7 +187,7 @@ public class ReportsService {
                         } else {
                             ReportCustomerCarrierDto grandParent = findCustomerGroup(customerGroups, -grandCustomerId);
                             if (grandParent == null) {
-                                grandParent = new ReportCustomerCarrierDto(parentCustomerName + " Group", -parentCustomerId, false, "-1", "CUGRP", null, null, false, null, null);
+                                grandParent = new ReportCustomerCarrierDto(parentCustomerName + " Group", -parentCustomerId, false, "-1", "CUGRP", null, null, false, rgn, currId);
                                 customerGroups.getCollection().add(grandParent);
                             }
                             grandParent.getCollection().add(customerBean);

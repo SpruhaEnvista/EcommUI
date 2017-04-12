@@ -94,6 +94,9 @@ public class UserProfileDto implements Serializable {
 	@Column ( name = "ISPARCELDASHLETTES")
 	private Boolean parcelDashlettes ;
 
+	@Column(name = "db_def_cust")
+	private String defaultCustomer;
+
 	public UserProfileDto() {
 	}
 
@@ -159,6 +162,14 @@ public class UserProfileDto implements Serializable {
 
 	public void setParcelDashlettes(Boolean parcelDashlettes) {
 		this.parcelDashlettes = parcelDashlettes;
+	}
+
+	public String getDefaultCustomer() {
+		return defaultCustomer;
+	}
+
+	public void setDefaultCustomer(String defaultCustomer) {
+		this.defaultCustomer = defaultCustomer;
 	}
 
 	@Override
