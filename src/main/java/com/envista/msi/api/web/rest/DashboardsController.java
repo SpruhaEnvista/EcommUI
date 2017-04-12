@@ -2919,10 +2919,6 @@ public class DashboardsController extends DashboardBaseController {
     public ResponseEntity<Map<String, Object>> getUserFilterDetails(Long filterId, boolean isParcelDashlettes){
         Map<String, Object> userFilterData = new HashMap();
         try {
-            UserProfileDto user = getUserProfile();
-            if(null == user){
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(userFilterData);
-            }
             userFilterData = dashboardsService.getUserFilterDetails(filterId, isParcelDashlettes);
         }catch (Exception e){
             return new ResponseEntity<Map<String, Object>>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -3012,7 +3008,7 @@ public class DashboardsController extends DashboardBaseController {
                     filter.setToDate(defaultFilter.getToDate());
                     userFilterData.putAll(dashboardsService.getUserFilterDetails(defaultFilter, user.isParcelDashlettes(), filter));
                 }
-                userFilterData.put("defaultFilterDetails", defaultFilter);
+                //userFilterData.put("defaultFilterDetails", defaultFilter);
             }else{
                 if(customers != null && !customers.isEmpty()){
                     if(user.getDefaultCustomer() != null && !user.getDefaultCustomer().isEmpty()){
@@ -3056,6 +3052,7 @@ public class DashboardsController extends DashboardBaseController {
             if(userFilterData.get("defaultFilterDetails") != null){
                 dashboardsService.saveAppliedFilterDetails(DashboardUtil.prepareAppliedFilter((DashSavedFilterDto) userFilterData.get("defaultFilterDetails"), user.getUserName(), user.getUserId(), session.getId()));
             }
+            userFilterData.put("userColumnConfig", dashboardsService.getDashboardReportCustomColumnNames(loadAppliedFilters(user.getUserId())));
         }catch (Exception e){
             return new ResponseEntity<Map<String, Object>>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -3207,14 +3204,24 @@ public class DashboardsController extends DashboardBaseController {
             }
             boolean validationError = false;
             JSONObject validationMsg = new JSONObject();
+            if(savedFilter.getFilterName() == null || savedFilter.getFilterName().isEmpty()){
+                validationError = true;
+                validationMsg.put("filterName", "Filter name should not be empty.");
+            }
             if(savedFilter.getFilterId() == null || savedFilter.getFilterId() == 0L){
-                if(savedFilter.getFilterName() == null || savedFilter.getFilterName().isEmpty()){
-                    validationError = true;
-                    validationMsg.put("filterName", "Filter name should not be empty.");
-                }else{
-                    validationError = true;
+                if(savedFilter.getFilterName() != null || !savedFilter.getFilterName().isEmpty()){
                     List<DashSavedFilterDto> filters = dashboardsService.getUserFilterByName(user.getUserId(), savedFilter.getFilterName());
                     if(filters != null && !filters.isEmpty()){
+                        validationError = true;
+                        validationMsg.put("filterName", "Filter with name '" + savedFilter.getFilterName() + "' already exists.");
+                    }
+                }
+            }else{
+                List<DashSavedFilterDto> filters = dashboardsService.getSavedFiltersByUser(user.getUserId());
+                for(DashSavedFilterDto filter : filters){
+                    if(filter != null && filter.getFilterId() != savedFilter.getFilterId() && filter.getFilterName() != null && savedFilter.getFilterName() != null
+                            && filter.getFilterName().trim().equals(savedFilter.getFilterName().trim())){
+                        validationError = true;
                         validationMsg.put("filterName", "Filter with name '" + savedFilter.getFilterName() + "' already exists.");
                     }
                 }
