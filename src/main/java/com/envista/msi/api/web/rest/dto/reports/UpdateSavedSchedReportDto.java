@@ -28,7 +28,8 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "updateReturn", type = Void.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "userId", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "savedSchedId", type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "createUser", type = String.class)
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "createUser", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "canEdit", type = Boolean.class)
                 }),
         @NamedStoredProcedureQuery(name = "SavedReports.runSavedSchedReport", procedureName = "shp_rpt_saved_sched_run_proc",
                 resultSetMappings = "UpdateSavedReports",
@@ -45,7 +46,8 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "userId", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "savedSchedId", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "createUser", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "reportName", type = String.class)
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "reportName", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "rptFolderId", type = Long.class)
                 })
 })
 @SqlResultSetMappings({
@@ -76,8 +78,20 @@ public class UpdateSavedSchedReportDto implements Serializable {
 
     private String reportName;
 
+    private Long rptFolderId;
+
+    private Boolean canEdit;
+
     @Id
     private Long updateCount;
+
+    public Long getRptFolderId() {
+        return rptFolderId;
+    }
+
+    public void setRptFolderId(Long rptFolderId) {
+        this.rptFolderId = rptFolderId;
+    }
 
     public Long getUpdateCount() {
         return updateCount;
@@ -146,5 +160,14 @@ public class UpdateSavedSchedReportDto implements Serializable {
     public UpdateSavedSchedReportDto(Long updateCount) {
         this.updateCount = updateCount;
     }
+
     public UpdateSavedSchedReportDto() {    }
+
+    public Boolean getCanEdit() {
+        return canEdit;
+    }
+
+    public void setCanEdit(Boolean canEdit) {
+        this.canEdit = canEdit;
+    }
 }
