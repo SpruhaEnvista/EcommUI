@@ -7,11 +7,13 @@ import com.envista.msi.api.security.SecurityUtils;
 import com.envista.msi.api.web.rest.dto.UserProfileDto;
 import com.envista.msi.api.web.rest.dto.UserProfileDto;
 import com.envista.msi.api.web.rest.dto.reports.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import javax.persistence.ParameterMode;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -21,6 +23,9 @@ import java.util.List;
 
 @Repository("ReportsDao")
 public class ReportsDao {
+
+    @Value("${SUBMITTED_SYSTEM_FROM}")
+    private String submittedFromSystem;
 
     @Inject
     private PersistentContext persistentContext;
@@ -64,13 +69,15 @@ public class ReportsDao {
     }
 
     public static String convertDateFullYearString(String date) {
-        String sdate = "";
+        String dateText = "";
         try {
-            sdate = String.valueOf(new Date(Long.parseLong(date)));
+            Date sdate = new Date(Long.parseLong(date));
+            SimpleDateFormat df2 = new SimpleDateFormat("dd-MM-yyyy");
+            dateText = df2.format(sdate);
         }catch(Exception e){
             e.printStackTrace();
         }
-        return sdate;
+        return dateText;
     }
 
     /**
@@ -105,7 +112,8 @@ public class ReportsDao {
         if(updateSavedSchedReportDto.getSharetoUserId()>0) {
             QueryParameter queryParameter = StoredProcedureParameter.with("userId", updateSavedSchedReportDto.getSharetoUserId())
                     .and("savedSchedId", updateSavedSchedReportDto.getSavedSchedRptId())
-                    .and("createUser",updateSavedSchedReportDto.getCreateUser());
+                    .and("createUser",updateSavedSchedReportDto.getCreateUser())
+                    .and("canEdit",updateSavedSchedReportDto.getCanEdit()==null?false:updateSavedSchedReportDto.getCanEdit());
             return persistentContext.findEntityAndMapFields("SavedReports.addUserToSavedReport", queryParameter);
         }
         else if(updateSavedSchedReportDto.getSharetoUserId()==0 && updateSavedSchedReportDto.isDeleteAll()){
@@ -132,7 +140,7 @@ public class ReportsDao {
                 .and("savedSchedId", updateSavedSchedReportDto.getSavedSchedRptId())
                 .and("createUser",updateSavedSchedReportDto.getCreateUser())
                 .and("reportName",updateSavedSchedReportDto.getReportName())
-                .and("rptFolderId",updateSavedSchedReportDto.getRptFolderId());;
+                .and("rptFolderId",updateSavedSchedReportDto.getRptFolderId()==null?0:updateSavedSchedReportDto.getRptFolderId());
         return persistentContext.findEntityAndMapFields("SavedReports.saveFromReportResults", queryParameter);
     }
     @Transactional
@@ -308,7 +316,7 @@ public class ReportsDao {
                 .and("scMonthlyNoOfMonths",savedSchedReportDto.getScMonthlyNoOfMonths()==null?0:savedSchedReportDto.getScMonthlyNoOfMonths())
                 .and("scMonthlyPeriodicFreq",savedSchedReportDto.getScMonthlyPeriodicFrequency())
                 .and("svReportStatus",savedSchedReportDto.getSvReportStatus())
-                .and("scNextSubmitDate",null)
+                .and("scNextSubmitDate",savedSchedReportDto.getScNextSubmitDate())
                 .and("carrierIds",savedSchedReportDto.getCarrierIds())
                 .and("controlPayrunNumber",savedSchedReportDto.getControlPayrunNumber())
                 .and("consolidate",savedSchedReportDto.getConsolidate()==null?false:savedSchedReportDto.getConsolidate())
@@ -318,7 +326,7 @@ public class ReportsDao {
                 .and("dateRangeTodayMinus2",savedSchedReportDto.getDateRangeTodayMinus2()==null?0:savedSchedReportDto.getDateRangeTodayMinus2())
                 .and("ftpAccountsId",savedSchedReportDto.getFtpAccountsId())
                 .and("isSuppressInvoices",savedSchedReportDto.getSuppressInvoices()==null?false:savedSchedReportDto.getSuppressInvoices())
-                .and("submittedFromSystem",savedSchedReportDto.getSubmittedFromSystem())
+                .and("submittedFromSystem",submittedFromSystem)
                 .and("isPacket",savedSchedReportDto.getPacket()==null?false:savedSchedReportDto.getPacket())
                 .and("flagsJson",savedSchedReportDto.getFlagsJson())
                 .and("locale",savedSchedReportDto.getLocale())
@@ -347,12 +355,12 @@ public class ReportsDao {
 
         QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", saveSchedUser.getSavedSchdRptId())
                 .and("userId",saveSchedUser.getUserId())
-                .and("isEmailTempTobeSent",saveSchedUser.isEmailTemplateToBeSent())
-                .and("isReportAttachEmail",saveSchedUser.isReportAttachedMail())
-                .and("isReportSubscribed",saveSchedUser.isReportSubscribed())
-                .and("createUser",saveSchedUser.getCreateUser())
-                .and("isShared",saveSchedUser.isShared())
-                .and("canEdit",saveSchedUser.isCanEdit());
+                .and("isEmailTempTobeSent",saveSchedUser.isEmailTemplateToBeSent()==null?true:saveSchedUser.isEmailTemplateToBeSent())
+                .and("isReportAttachEmail",saveSchedUser.isReportAttachedMail()==null?false:saveSchedUser.isReportAttachedMail())
+                .and("isReportSubscribed",saveSchedUser.isReportSubscribed()==null?true:saveSchedUser.isReportSubscribed())
+                .and("createUser",saveSchedUser.getCreateUser()==null?"":saveSchedUser.getCreateUser())
+                .and("isShared",saveSchedUser.isShared()==null?false:saveSchedUser.isShared())
+                .and("canEdit",saveSchedUser.isCanEdit()==null?true:saveSchedUser.isCanEdit());
 
         return persistentContext.findEntity("SavedSchedReports.saveUsers",queryParameter);
 
@@ -386,11 +394,11 @@ public class ReportsDao {
      * @param rptId
      * @return List<ReportColumnDto>
      */
-    public List<ReportColumnDto> getIncludeExcludeSortCol(Long userId, Long rptId, String carrierIds){
+    public List<ReportColumnDto> getSavedIncludeExcludeColNameOrder(Long userId, Long rptId, String carrierIds){
         QueryParameter queryParameter = StoredProcedureParameter.with("p_user_id",userId)
                 .and("p_rpt_id", rptId)
                 .and("p_carriers",carrierIds);
-        return persistentContext.findEntities("ReportCriteriaDto.getIncludeExcludeSortCol",queryParameter);
+        return persistentContext.findEntities("ReportCriteriaDto.getSavedIncludeExcludeSortColByName",queryParameter);
     }
     /**
      * @param userId
@@ -398,11 +406,11 @@ public class ReportsDao {
      * @param rptId
      * @return List<ReportColumnDto>
      */
-    public List<ReportColumnDto> getSavedIncludeExcludeSortCol(Long userId, Long rptId, String carrierIds){
+    public List<ReportColumnDto> getSavedIncludeExcludeColSequencOrder(Long userId, Long rptId, String carrierIds){
         QueryParameter queryParameter = StoredProcedureParameter.with("p_user_id",userId)
                 .and("p_rpt_id", rptId)
                 .and("p_carriers",carrierIds);
-        return persistentContext.findEntities("ReportCriteriaDto.getSavedIncludeExcludeSortCol",queryParameter);
+        return persistentContext.findEntities("ReportCriteriaDto.getSavedIncludeExcludeColBySequence",queryParameter);
     }
     /**
      * @param rptId
@@ -462,6 +470,15 @@ public class ReportsDao {
     public List<ReportFTPServerDto> getSaveRptFTPServer(Long rptId){
         return persistentContext.findEntities("ReportFTPServer.getSaveRptFTPServer", StoredProcedureParameter.with("p_rpt_id",rptId));
     }
+    /**
+     * @param rptId
+     * @return List<ReportFTPServerDto>
+     */
+    public List<ReportColumnDto> getDefaultInclExclCol(Long saveSchedId,Long rptId,String createUser){
+        return persistentContext.findEntities("ReportCriteriaDto.getDefaultInclExclCol",
+               StoredProcedureParameter.with("p_savedSchedRptId",saveSchedId)
+               .and("p_rptid",rptId).and("p_createUser",createUser));
+    }
 
     @Transactional
     public List<ReportUserListByRptIdDto> getUsersListByRptId(Long rptId){
@@ -469,4 +486,161 @@ public class ReportsDao {
         return persistentContext.findEntities("UserListByRptId.getUsers",queryParameter);
     }
 
+    @Transactional
+    public ReportsSavedSchdAccountDto saveSchedAccountsDetails(ReportsSavedSchdAccountDto accoutsDto) {
+        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId",accoutsDto.getSavedSchdRptId())
+                .and("customerId", accoutsDto.getCustomerId())
+                .and("shipperGroupId",accoutsDto.getShipperGroupId()==null?0:accoutsDto.getShipperGroupId())
+                .and("shipperId",accoutsDto.getShipperId()==null?0:accoutsDto.getShipperId())
+                .and("createUser",accoutsDto.getCreateUser());
+        return persistentContext.findEntity("ReportSavedSchdAcc.insertRecord",queryParameter);
+    }
+    @Transactional
+    public ReportSavedSchdCriteriaDto saveSchedCriterisDetails(ReportSavedSchdCriteriaDto criteriaDto) {
+
+        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId",criteriaDto.getSavedSchdRptId())
+                .and("rptDetailsId", criteriaDto.getRptDetailsId())
+                .and("assignOperator",criteriaDto.getAssignOperator()==null?"=":criteriaDto.getAssignOperator())
+                .and("value",criteriaDto.getValue())
+                .and("matchCase",criteriaDto.getMatchCase()==null?false:criteriaDto.getMatchCase())
+                .and("createUser",criteriaDto.getCreateUser())
+                .and("andOrOperator",criteriaDto.getAndOrOperator()==null?"AND":criteriaDto.getAndOrOperator());
+        return persistentContext.findEntity("ReportSavedSchdCrit.insertRecord",queryParameter);
+
+    }
+
+    @Transactional
+    public ReportsInclColDto saveSchedIncColDetails(ReportsInclColDto inclColDto) {
+
+        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchdRptId",inclColDto.getSavedSchdRptId()==null?0:inclColDto.getSavedSchdRptId())
+                .and("rptDetailsId", inclColDto.getRptDetailsId())
+                .and("createUser",inclColDto.getCreateUser());
+        return persistentContext.findEntity("ReportInclCol.insertRecord",queryParameter);
+
+    }
+
+    @Transactional
+    public ReportsSortDto saveSchedSortColDetails(ReportsSortDto sortColDto) {
+
+        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId",sortColDto.getSavedSchedRptId())
+                .and("rptDetailsId", sortColDto.getRptDetailsId())
+                .and("isSubTotRequired",sortColDto.getSubTotRequired()==null?false:sortColDto.getSubTotRequired())
+                .and("isAscending",sortColDto.getAscending()==null?true:sortColDto.getAscending())
+                .and("sortOrder",sortColDto.getSortOrder()==null?1:sortColDto.getSortOrder())
+                .and("groupByCol",sortColDto.getGroupByCol()==null?false:sortColDto.getGroupByCol())
+                .and("createUser",sortColDto.getCreateUser());
+
+        return persistentContext.findEntity("ReportSortCol.insertRecord",queryParameter);
+
+    }
+    @Transactional
+    public SavedSchedReportDto updateSchedReport(SavedSchedReportDto savedSchedReportDto) {
+
+        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", savedSchedReportDto.getSavedSchedRptId())
+                .and("rptId", savedSchedReportDto.getRptId()==null?0:savedSchedReportDto.getRptId())
+                .and("isScheduled",(savedSchedReportDto.getScheduled()==null ? false : savedSchedReportDto.getScheduled()))
+                .and("rptDateOptionsId",savedSchedReportDto.getRptDateOptionsId()==null ? 0:savedSchedReportDto.getRptDateOptionsId())
+                .and("reportTypeId",savedSchedReportDto.getReportTypeId()==null ? 0:savedSchedReportDto.getReportTypeId())
+                .and("reportFileName",savedSchedReportDto.getReportFileName())
+                .and("dateSelectionFrequency",savedSchedReportDto.getDateSelectionFrequency())
+                .and("date1",savedSchedReportDto.getDate1())
+                .and("date2",savedSchedReportDto.getDate2())
+                .and("periodOption",savedSchedReportDto.getPeriodOption())
+                .and("lastNoOfDays",savedSchedReportDto.getLastNoOfDays()==null?0:savedSchedReportDto.getLastNoOfDays())
+                .and("scTriggerBy",savedSchedReportDto.getScTriggerBy())
+                .and("scScheduleType",savedSchedReportDto.getScScheduleType())
+                .and("scWeeklyFrequency",savedSchedReportDto.getScWeeklyFrequency()==null?0:savedSchedReportDto.getScWeeklyFrequency())
+                .and("scWeeklyMonthlyDayofWeek",savedSchedReportDto.getScWeeklyMonthlyDayofWeek())
+                .and("scMonthlyDayOfMonth",savedSchedReportDto.getScMonthlyDayOfMonth()==null?0:savedSchedReportDto.getScMonthlyDayOfMonth())
+                .and("scMonthlyNoOfMonths",savedSchedReportDto.getScMonthlyNoOfMonths()==null?0:savedSchedReportDto.getScMonthlyNoOfMonths())
+                .and("scMonthlyPeriodicFreq",savedSchedReportDto.getScMonthlyPeriodicFrequency())
+                .and("svReportStatus",savedSchedReportDto.getSvReportStatus())
+                .and("scNextSubmitDate",null)
+                .and("carrierIds",savedSchedReportDto.getCarrierIds())
+                .and("controlPayrunNumber",savedSchedReportDto.getControlPayrunNumber())
+                .and("consolidate",savedSchedReportDto.getConsolidate()==null?false:savedSchedReportDto.getConsolidate())
+                .and("createUser",savedSchedReportDto.getCreateUser())
+                .and("criteria",savedSchedReportDto.getCriteria())
+                .and("dateRangeTodayMinus1",savedSchedReportDto.getDateRangeTodayMinus1()==null?0:savedSchedReportDto.getDateRangeTodayMinus1())
+                .and("dateRangeTodayMinus2",savedSchedReportDto.getDateRangeTodayMinus2()==null?0:savedSchedReportDto.getDateRangeTodayMinus2())
+                .and("ftpAccountsId",savedSchedReportDto.getFtpAccountsId())
+                .and("isSuppressInvoices",savedSchedReportDto.getSuppressInvoices()==null?false:savedSchedReportDto.getSuppressInvoices())
+                .and("submittedFromSystem",savedSchedReportDto.getSubmittedFromSystem())
+                .and("isPacket",savedSchedReportDto.getPacket()==null?false:savedSchedReportDto.getPacket())
+                .and("flagsJson",savedSchedReportDto.getFlagsJson())
+                .and("locale",savedSchedReportDto.getLocale())
+                .and("currency",savedSchedReportDto.getCurrency())
+                .and("weightUom",savedSchedReportDto.getWeightUom())
+                .and("rptDescr",savedSchedReportDto.getRptDescr());
+
+        return persistentContext.findEntity("SavedSchedReports.updateSchedReport",queryParameter);
+    }
+    @Transactional
+    public SavedSchedReportDto deleteChildDataSchedReport(SavedSchedReportDto savedSchedReportDto) {
+
+        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", savedSchedReportDto.getSavedSchedRptId());
+
+        return persistentContext.findEntity("SavedSchedReports.deleteChildDataSchedReport",queryParameter);
+    }
+    @Transactional
+    public SavedSchedReportDto deletePacketsDataSchedReport(SavedSchedReportDto savedSchedReportDto) {
+
+        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", savedSchedReportDto.getSavedSchedRptId());
+
+        return persistentContext.findEntity("SavedSchedReports.deletePacketDataSchedReport",queryParameter);
+    }
+    @Transactional
+    public SavedSchedReportDto getReportDetails(Long savedSchedRptId) {
+
+        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", savedSchedRptId);
+
+        return persistentContext.findEntity("SavedSchedReports.getReportDetails",queryParameter);
+
+    }
+    @Transactional
+    public List<ReportPacketsDetDto> getReportPacketDtlsList(Long savedSchedRptId){
+        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", savedSchedRptId == null ? 0 : savedSchedRptId );
+        return persistentContext.findEntities("ReportGetPcktDetails.getReportPckts",queryParameter);
+    }
+
+    @Transactional
+    public List<ReportSavedSchdUsersDto> getReportSSUsersList(Long ssRptId){
+        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", ssRptId == null ? 0 : ssRptId );
+        return persistentContext.findEntities("ReportGetSSUser.reportUsersList",queryParameter);
+    }
+    @Transactional
+    public List<ReportGetSSSortDto> getReportSortList(Long ssRptId){
+        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", ssRptId == null ? 0 : ssRptId );
+        return persistentContext.findEntities("ReportGetSSSort.getReportSortList",queryParameter);
+    }
+
+    @Transactional
+    public List<ReportGetSSCritDto> getReportSSCritList(Long ssRptId){
+        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", ssRptId == null ? 0 : ssRptId );
+        return persistentContext.findEntities("ReportGetSSCirt.getReportCritList",queryParameter);
+    }
+
+    @Transactional
+    public List<ReportGetSSColInclDto> getReportSSColInclList(Long ssRptId){
+        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", ssRptId == null ? 0 : ssRptId );
+        return persistentContext.findEntities("ReportGetSSColIncl.getReportColInclList",queryParameter);
+    }
+
+    @Transactional
+    public List<ReportGetSSAccDto> getReportSSAccList(Long ssRptId){
+        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", ssRptId == null ? 0 : ssRptId );
+        return persistentContext.findEntities("ReportGetSSAcc.getReportAccList",queryParameter);
+    }
+    @Transactional
+    public List<ReportFormatDto> getReportTriggerOptions(Long rptId,String carrierIds){
+        QueryParameter queryParameter = StoredProcedureParameter.with("p_rpt_id",rptId)
+                .and("p_carriers", (carrierIds==null || (carrierIds.trim()).length()<1) ? "-1" : carrierIds);
+        return persistentContext.findEntities("ReportFormat.getReportTriggerOptions",queryParameter);
+    }
+    @Transactional
+    public ReportFolderDto deleteFolder(Long rptFolderId, Long userId) {
+        QueryParameter queryParameter = StoredProcedureParameter.with("rptFolderId",rptFolderId==null?0:rptFolderId)
+                .and("userId", userId==null?0:userId);
+        return persistentContext.findEntityAndMapFields("ReportFolder.deleteRptFolder", queryParameter);
+    }
 }

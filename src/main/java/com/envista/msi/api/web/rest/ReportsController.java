@@ -93,7 +93,7 @@ public class ReportsController {
     }
     @RequestMapping(value = "/updatesavedschedreport", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<UpdateSavedSchedReportDto> updateSavedSchedReport(@RequestBody UpdateSavedSchedReportDto updateSavedSchedReportDto){
-        UpdateSavedSchedReportDto updateDto = reportsService.runSavedSchedReport(updateSavedSchedReportDto);
+        UpdateSavedSchedReportDto updateDto = reportsService.updateSavedSchedReport(updateSavedSchedReportDto);
         return new ResponseEntity<UpdateSavedSchedReportDto>(updateDto, HttpStatus.OK);
     }
     @RequestMapping(value = "/runsavedschedreport", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
@@ -199,14 +199,30 @@ public class ReportsController {
         FileCopyUtils.copy(in, response.getOutputStream());
     }
 
-    @RequestMapping(value = "/saveSchedReport", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/saveschedreport", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<SavedSchedReportDto> saveSchedReport(@RequestBody SavedSchedReportDto savedSchedReportDto){
         SavedSchedReportDto savedDto = reportsService.saveSchedReport(savedSchedReportDto);
         return new ResponseEntity<SavedSchedReportDto>(savedDto, HttpStatus.OK);
     }
-    @RequestMapping(value = "/saveSchedPacketReport", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/saveschedpacketreport", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<SavedSchedReportDto> saveSchedPacketReport(@RequestBody SavedSchedReportDto savedSchedReportDto){
         SavedSchedReportDto savedDto = reportsService.saveSchedPacketReport(savedSchedReportDto);
+        return new ResponseEntity<SavedSchedReportDto>(savedDto, HttpStatus.OK);
+    }
+    @RequestMapping(value = "/updateschedseport", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<SavedSchedReportDto> updateSchedReport(@RequestBody SavedSchedReportDto savedSchedReportDto){
+        SavedSchedReportDto savedDto = reportsService.updateSchedReport(savedSchedReportDto);
+        return new ResponseEntity<SavedSchedReportDto>(savedDto, HttpStatus.OK);
+    }
+    @RequestMapping(value = "/updateschedpacketpeport", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<SavedSchedReportDto> updateSchedPacketReport(@RequestBody SavedSchedReportDto savedSchedReportDto){
+        SavedSchedReportDto savedDto = reportsService.updateSchedPacketReport(savedSchedReportDto);
+        return new ResponseEntity<SavedSchedReportDto>(savedDto, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/getreportdetails", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<SavedSchedReportDto> getReportDetails(@RequestParam Long savedSchedRptId){
+        SavedSchedReportDto savedDto = reportsService.getReportDetails(savedSchedRptId);
         return new ResponseEntity<SavedSchedReportDto>(savedDto, HttpStatus.OK);
     }
 
@@ -404,24 +420,37 @@ public class ReportsController {
         }
 
     }
-
-
-
+    @RequestMapping(value = "/defaultinclexclecol", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<List<ReportColumnDto>> getDefaultInclExclCol(@RequestParam String saveSchedId,@RequestParam String rptId,@RequestParam String createUser){
+        try {
+            List<ReportColumnDto> defaultCol =reportsService.getDefaultInclExclCol(Long.parseLong(saveSchedId),Long.parseLong(rptId),createUser);
+            return new ResponseEntity<List<ReportColumnDto>>(defaultCol, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<List<ReportColumnDto>>(new ArrayList<ReportColumnDto>(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @RequestMapping(value="/userListByRptId", method = {RequestMethod.GET,RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<List<ReportUserListByRptIdDto>> getUsersListByRptId(@RequestParam Long rptId){
         List<ReportUserListByRptIdDto> rptUsersList = reportsService.getUserListByRptId(rptId);
         return new ResponseEntity<List<ReportUserListByRptIdDto>>(rptUsersList,HttpStatus.OK);
     }
-
-    @RequestMapping(value = "/verifyaccounts", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<ReportsValidationDto> verifyAccounts(@RequestParam String savedschedrptId, @RequestParam String userId) {
+    @RequestMapping(value="/triggerbyoptions", method = {RequestMethod.GET,RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<JSONArray> getReportTriggerOptions(@RequestParam String rptId,@RequestParam String carrierIds){
         try {
-            ReportsValidationDto vadDto = reportsService.verifyAccounts(Long.parseLong(savedschedrptId), Long.parseLong(userId));
-            return new ResponseEntity<ReportsValidationDto>(vadDto, HttpStatus.OK);
+            JSONArray triggerOptionsJsons =reportsService.getReportTriggerOptions(Long.parseLong(rptId),carrierIds);
+            return new ResponseEntity<JSONArray>(triggerOptionsJsons, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<ReportsValidationDto>(new ReportsValidationDto(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<JSONArray>(new JSONArray(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    @RequestMapping(value = "/savedreports/deletefolder", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<ReportFolderDto> deleteFolder(@RequestParam String rptFolderId, @RequestParam String userId){
+        try {
+            ReportFolderDto reportFolderDto = reportsService.deleteFolder(Long.parseLong(rptFolderId),Long.parseLong(userId));
+            return new ResponseEntity<ReportFolderDto>(reportFolderDto, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<ReportFolderDto>(new ReportFolderDto(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

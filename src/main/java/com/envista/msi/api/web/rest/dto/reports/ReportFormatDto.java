@@ -27,6 +27,13 @@ import java.util.List;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_pay_run_no", type = Integer.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_check_no", type = Integer.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "get_lookup_ctrl_no", type = Void.class)
+        }),
+        @NamedStoredProcedureQuery(name = "ReportFormat.getReportTriggerOptions", procedureName = "shp_rpt_triggerby_option_proc",
+                resultSetMappings = "ReportTriggerOptions",
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_rpt_id", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_carriers", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "get_triggerby_options", type = Void.class)
         })
 })
 @SqlResultSetMappings({
@@ -54,6 +61,15 @@ import java.util.List;
                         targetClass = ReportFormatDto.class,
                         columns = {
                                 @ColumnResult(name ="control_number", type = String.class),
+                        })
+        }),
+        @SqlResultSetMapping(name = "ReportTriggerOptions", classes = {
+                @ConstructorResult(
+                        targetClass = ReportFormatDto.class,
+                        columns = {
+                                @ColumnResult(name ="rpt_date_options_id", type = Long.class),
+                                @ColumnResult(name ="is_default", type = Boolean.class),
+                                @ColumnResult(name ="date_criteria", type = String.class)
                         })
         })
 })
@@ -99,6 +115,11 @@ public class ReportFormatDto implements Serializable {
         this.typeId = typeId;
         this.reportFormat = reportFormat;
         this.selected=selected;
+    }
+    public ReportFormatDto(Long rptDateOptionId,Boolean isDefault,String dateCriteriaName) {
+        this.rptDateOptionId = rptDateOptionId;
+        this.isDefault=isDefault;
+        this.dateCriteriaName = dateCriteriaName;
     }
 
     public ReportFormatDto(String dateCriteriaName ,Long rptDateOptionId,Boolean isDefault,Boolean selected) {

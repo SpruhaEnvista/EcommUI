@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import java.util.Date;
+import java.util.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Date;
@@ -253,15 +253,39 @@ public class ReportsService {
 
         SavedSchedReportDto savedSchedReport = reportsDao.saveSchedReport(savedSchedReportDto);
 
-        if(savedSchedReport.getSavedSchedRptId()>0){
+            if(savedSchedReport.getSavedSchedRptId()>0){
+                if(savedSchedReportDto.getReportsInclColDtoList() == null || savedSchedReportDto.getReportsInclColDtoList().size()==0){
+                    ArrayList<ReportColumnDto> defaultInclCols = (ArrayList<ReportColumnDto>) reportsDao.getDefaultInclExclCol(savedSchedReport.getSavedSchedRptId(),
+                            savedSchedReportDto.getRptId(),savedSchedReportDto.getCreateUser());
+                    ArrayList<ReportsInclColDto> finalColDto = new ArrayList<ReportsInclColDto>();
+                    for(ReportColumnDto columnDto : defaultInclCols){
+                        ReportsInclColDto inclColDto = new ReportsInclColDto();
+                        inclColDto.setSavedSchdRptId(savedSchedReport.getSavedSchedRptId());
+                        inclColDto.setRptDetailsId(columnDto.getRptDetailsId());
+                        inclColDto.setCreateUser(columnDto.getCreateUser());
+                        finalColDto.add(inclColDto);
+                    }
+                    savedSchedReportDto.setReportsInclColDtoList(finalColDto);
+                }
 
+                inserChildTables(savedSchedReportDto,savedSchedReport.getSavedSchedRptId());
+            }
 
+        return savedSchedReport;
+    }
 
+    public SavedSchedReportDto updateSchedReport(SavedSchedReportDto savedSchedReportDto){
 
+        SavedSchedReportDto savedSchedReport = reportsDao.updateSchedReport(savedSchedReportDto);
+
+        if(savedSchedReport.getUpdateCount()!=null && savedSchedReport.getUpdateCount() >0){
+            reportsDao.deleteChildDataSchedReport(savedSchedReportDto);
+            inserChildTables(savedSchedReportDto,savedSchedReport.getSavedSchedRptId());
         }
 
-        return new SavedSchedReportDto();
+        return savedSchedReport;
     }
+
     public SavedSchedReportDto saveSchedPacketReport(SavedSchedReportDto savedSchedReportDto){
 
         SavedSchedReportDto savedSchedReport = new SavedSchedReportDto();
@@ -281,12 +305,67 @@ public class ReportsService {
                         saveSchedUser.setSavedSchdRptId(savedSchedReport.getSavedSchedRptId());
                         ReportSavedSchdUsersDto outUserDto = reportsDao.saveSchedUser(saveSchedUser);
                     }
-
                 }
 
             }
         }
         return savedSchedReport;
+    }
+    public SavedSchedReportDto updateSchedPacketReport(SavedSchedReportDto savedSchedReportDto){
+
+        SavedSchedReportDto savedSchedReport = reportsDao.updateSchedReport(savedSchedReportDto);
+
+        if(savedSchedReport.getUpdateCount()!=null && savedSchedReport.getUpdateCount() >0){
+            reportsDao.deletePacketsDataSchedReport(savedSchedReportDto);
+            for(ReportPacketsDetDto packetsDto : savedSchedReportDto.getReportPacketsDetList()){
+                packetsDto.setSavedSchdRptId(savedSchedReportDto.getSavedSchedRptId());
+                ReportPacketsDetDto outPacketDto = reportsDao.saveSchedPacketReport(packetsDto);
+            }
+
+            if(savedSchedReportDto.getSavedSchedUsersDtoList()!=null && savedSchedReportDto.getSavedSchedUsersDtoList().size()>0){
+                for(ReportSavedSchdUsersDto saveSchedUser : savedSchedReportDto.getSavedSchedUsersDtoList()){
+                    saveSchedUser.setSavedSchdRptId(savedSchedReportDto.getSavedSchedRptId());
+                    ReportSavedSchdUsersDto outUserDto = reportsDao.saveSchedUser(saveSchedUser);
+                }
+            }
+        }
+        return savedSchedReport;
+    }
+    public void inserChildTables(SavedSchedReportDto savedSchedReportDto,Long savedSchedRrtId){
+
+        if(savedSchedReportDto.getSavedSchedUsersDtoList()!=null && savedSchedReportDto.getSavedSchedUsersDtoList().size()>0){
+            for(ReportSavedSchdUsersDto saveSchedUser : savedSchedReportDto.getSavedSchedUsersDtoList()){
+                saveSchedUser.setSavedSchdRptId(savedSchedRrtId);
+                ReportSavedSchdUsersDto outUserDto = reportsDao.saveSchedUser(saveSchedUser);
+            }
+        }
+        if(savedSchedReportDto.getSavedSchedAccountsDtoList()!=null && savedSchedReportDto.getSavedSchedAccountsDtoList().size()>0){
+            for(ReportsSavedSchdAccountDto accoutsDto : savedSchedReportDto.getSavedSchedAccountsDtoList()){
+                accoutsDto.setSavedSchdRptId(savedSchedRrtId);
+                reportsDao.saveSchedAccountsDetails(accoutsDto);
+            }
+        }
+
+        if(savedSchedReportDto.getReportCriteriaList()!=null && savedSchedReportDto.getReportCriteriaList().size()>0){
+            for(ReportSavedSchdCriteriaDto criteriaDto : savedSchedReportDto.getReportCriteriaList()){
+                criteriaDto.setSavedSchdRptId(savedSchedRrtId);
+                reportsDao.saveSchedCriterisDetails(criteriaDto);
+            }
+        }
+
+        if(savedSchedReportDto.getReportsInclColDtoList()!=null && savedSchedReportDto.getReportsInclColDtoList().size()>0){
+            for(ReportsInclColDto inclColDto : savedSchedReportDto.getReportsInclColDtoList()){
+                inclColDto.setSavedSchdRptId(savedSchedRrtId);
+                reportsDao.saveSchedIncColDetails(inclColDto);
+            }
+        }
+
+        if(savedSchedReportDto.getReportsSortColDtoList()!=null && savedSchedReportDto.getReportsSortColDtoList().size()>0){
+            for(ReportsSortDto sortColDto : savedSchedReportDto.getReportsSortColDtoList()){
+                sortColDto.setSavedSchedRptId(savedSchedRrtId);
+                reportsDao.saveSchedSortColDetails(sortColDto);
+            }
+        }
     }
 
     public List<ReportFormatDto> getReportDateOptions(Long rptId) {
@@ -296,18 +375,18 @@ public class ReportsService {
     public List<ReportColumnDto> getReportCriteria(Long userId, Long rptId, String carrierIds){ return reportsDao.getReportCriteria(userId,rptId,carrierIds); }
 
     public List<ReportColumnDto> getIncludeExcludeSortCol(Long userId, Long rptId, String carrierIds){
-        List<ReportColumnDto> inclExclColDtos= reportsDao.getIncludeExcludeSortCol(userId,rptId,carrierIds);
-        if(inclExclColDtos!=null && inclExclColDtos.size()>0){
-            for(ReportColumnDto inclExclColDto:inclExclColDtos){
-                if(inclExclColDto.getRptDetailsId()!=null)
-                    break;
-                else {
-                    inclExclColDtos= reportsDao.getSavedIncludeExcludeSortCol(userId,rptId,carrierIds);
-                    break;
-                }
+        List<ReportColumnDto> inclExclColNameDtos = reportsDao.getSavedIncludeExcludeColNameOrder(userId, rptId, carrierIds);
+        List<ReportColumnDto> inclExclColSequenceDtos = reportsDao.getSavedIncludeExcludeColSequencOrder(userId, rptId, carrierIds);
+        List<ReportColumnDto>  inclExclColDtos  = new ArrayList<ReportColumnDto>();
+        if (inclExclColSequenceDtos != null && inclExclColSequenceDtos.size() > 0){
+            for (ReportColumnDto sequenceColDto : inclExclColSequenceDtos) {
+                inclExclColDtos.add(sequenceColDto);
             }
-        } else {
-            inclExclColDtos= reportsDao.getSavedIncludeExcludeSortCol(userId,rptId,carrierIds);
+        }
+        if (inclExclColNameDtos != null && inclExclColNameDtos.size() > 0) {
+            for (ReportColumnDto colNameDto : inclExclColNameDtos) {
+                inclExclColDtos.add(colNameDto);
+            }
         }
         return inclExclColDtos;
     }
@@ -367,12 +446,61 @@ public class ReportsService {
         return jsonObjectReturn.put("ftpServers", jsonArray);
     }
 
-
-
     public List<ReportUserListByRptIdDto> getUserListByRptId(Long rptId){
         return reportsDao.getUsersListByRptId(rptId);
     }
-    public ReportsValidationDto verifyAccounts(long savedschedrptId,long userId) {
-        return  reportsDao.verifyAccounts(savedschedrptId,userId);
+    public SavedSchedReportDto getReportDetails(Long savedSchedRptId) {
+
+        SavedSchedReportDto savedSchedReportDto = reportsDao.getReportDetails(savedSchedRptId);
+
+        if(savedSchedReportDto.getPacket()!=null && savedSchedReportDto.getPacket()) {
+            savedSchedReportDto.setReportPacketsDetList((ArrayList<ReportPacketsDetDto>) reportsDao.getReportPacketDtlsList(savedSchedRptId));
+        }
+        savedSchedReportDto.setSavedSchedUsersDtoList ((ArrayList<ReportSavedSchdUsersDto>)reportsDao.getReportSSUsersList(savedSchedRptId));
+
+        return savedSchedReportDto;
+    }
+    public List<ReportColumnDto> getDefaultInclExclCol(Long saveSchedId,Long rptId,String createUser){
+        return reportsDao.getDefaultInclExclCol(saveSchedId,rptId,createUser);
+    }
+    public  JSONArray getReportTriggerOptions(Long rptId,String carrierIds) throws Exception{
+        List<ReportFormatDto> triggerOptionsDtos=reportsDao.getReportTriggerOptions(rptId,carrierIds);
+        JSONArray jsonArray=new JSONArray();
+        if(triggerOptionsDtos!=null){
+            for(ReportFormatDto dto:triggerOptionsDtos){
+                JSONObject triggerOptionJson=new JSONObject();
+                if(dto.getDateCriteriaName().equals("Invoice Date")){
+                    triggerOptionJson.put("triggerOptionName","New Invoice");
+                    triggerOptionJson.put("triggerOptionId",dto.getRptDateOptionId());
+                    triggerOptionJson.put("isDefault",dto.getIsDefault());
+                }
+                if(dto.getDateCriteriaName().equals("Control Number")){
+                    triggerOptionJson.put("triggerOptionName","New Control Number");
+                    triggerOptionJson.put("triggerOptionId",dto.getRptDateOptionId());
+                    triggerOptionJson.put("isDefault",dto.getIsDefault());
+                }
+                if(dto.getDateCriteriaName().equals("Closed Date")){
+                    triggerOptionJson.put("triggerOptionName","Recently Closed");
+                    triggerOptionJson.put("triggerOptionId",dto.getRptDateOptionId());
+                    triggerOptionJson.put("isDefault",dto.getIsDefault());
+                }
+                if(dto.getDateCriteriaName().equals("Pay Run Number")){
+                    triggerOptionJson.put("triggerOptionName","New Pay Run Number");
+                    triggerOptionJson.put("triggerOptionId",dto.getRptDateOptionId());
+                    triggerOptionJson.put("isDefault",dto.getIsDefault());
+                }
+                if(dto.getDateCriteriaName().equals("New Check Details")){
+                    triggerOptionJson.put("triggerOptionName","New Check Details");
+                    triggerOptionJson.put("triggerOptionId",dto.getRptDateOptionId());
+                    triggerOptionJson.put("isDefault",dto.getIsDefault());
+                }
+                jsonArray.put(triggerOptionJson);
+            }
+        }
+        return  jsonArray;
+    }
+
+    public ReportFolderDto deleteFolder(Long rptFolderId, Long userId) {
+        return reportsDao.deleteFolder(rptFolderId,userId);
     }
 }

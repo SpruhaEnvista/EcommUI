@@ -15,7 +15,7 @@ import java.util.Date;
                             @StoredProcedureParameter(mode = ParameterMode.IN, name="rptDetailsId", type = Long.class),
                             @StoredProcedureParameter(mode = ParameterMode.IN, name="assignOperator", type = String.class),
                             @StoredProcedureParameter(mode = ParameterMode.IN, name="value", type=String.class),
-                            @StoredProcedureParameter(mode = ParameterMode.IN, name="isMatchCase", type = Long.class),
+                            @StoredProcedureParameter(mode = ParameterMode.IN, name="matchCase", type = Boolean.class),
                             @StoredProcedureParameter(mode = ParameterMode.IN, name="createUser", type=String.class),
                             @StoredProcedureParameter(mode = ParameterMode.IN, name="andOrOperator", type=String.class)
                     })
@@ -26,7 +26,7 @@ import java.util.Date;
                 @ConstructorResult(
                         targetClass = ReportSavedSchdCriteriaDto.class,
                         columns = {
-                                @ColumnResult(name = "savedSchedCritId", type = Long.class)
+                                @ColumnResult(name = "saved_sched_criteria_id", type = Long.class)
                         }
                 )
         })
@@ -51,7 +51,7 @@ public class ReportSavedSchdCriteriaDto {
     private String value;
 
     @Column(name="is_match_case")
-    private Long isMatchCase;
+    private Boolean matchCase;
 
     @Column(name="create_user")
     private String createUser;
@@ -124,14 +124,6 @@ public class ReportSavedSchdCriteriaDto {
         this.value = value;
     }
 
-    public Long getIsMatchCase() {
-        return isMatchCase;
-    }
-
-    public void setIsMatchCase(Long isMatchCase) {
-        this.isMatchCase = isMatchCase;
-    }
-
     public String getCreateUser() {
         return createUser;
     }
@@ -171,4 +163,13 @@ public class ReportSavedSchdCriteriaDto {
     public void setAndOrOperator(String andOrOperator) {
         this.andOrOperator = andOrOperator;
     }
+
+    public Boolean getMatchCase() {
+        return matchCase;
+    }
+
+    public void setMatchCase(Boolean matchCase) {
+        this.matchCase = matchCase;
+    }
+
 }

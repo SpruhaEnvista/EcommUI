@@ -89,14 +89,10 @@ public class ReportResultsDto implements Serializable {
     @Column(name = "type")
     private int type;
 
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "completion_date")
-    @JsonFormat(pattern="MM/dd/yyyy hh:mm a")
     private Date completedDate;
 
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "expires_date")
-    @JsonFormat(pattern="MM/dd/yyyy hh:mm a")
     private Date expiryDate;
 
     @Column(name="updateCount")

@@ -16,7 +16,7 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_carrier_ids", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "get_criteria_info", type = Void.class)
         }),
-        @NamedStoredProcedureQuery(name = "ReportCriteriaDto.getIncludeExcludeSortCol", procedureName = "shp_rpt_incl_excl_col_proc",
+        @NamedStoredProcedureQuery(name = "ReportCriteriaDto.getSavedIncludeExcludeSortColByName", procedureName = "shp_rpt_save_excl_byname__proc",
                 resultSetMappings = "InclExclSortCol",
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_user_id", type = Long.class),
@@ -24,14 +24,22 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_carriers", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_refcur_excl_incl_info", type = Void.class)
         }),
-        @NamedStoredProcedureQuery(name = "ReportCriteriaDto.getSavedIncludeExcludeSortCol", procedureName = "shp_rpt_save_incl_excl_cl_proc",
+        @NamedStoredProcedureQuery(name = "ReportCriteriaDto.getSavedIncludeExcludeColBySequence", procedureName = "shp_rpt_save_incl_byseque_proc",
                 resultSetMappings = "InclExclSortCol",
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_user_id", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_rpt_id", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_carriers", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_refcur_excl_incl_info", type = Void.class)
-        })
+        }),
+        @NamedStoredProcedureQuery(name = "ReportCriteriaDto.getDefaultInclExclCol", procedureName = "shp_rpt_default_incl_col_proc",
+                resultSetMappings = "DefaultInclExclCol",
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_savedSchedRptId", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_rptid", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_createUser", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "get_default_incl_col", type = Void.class)
+                })
 })
 @SqlResultSetMappings({
         @SqlResultSetMapping(name = "CriteriaCol", classes = {
@@ -85,6 +93,16 @@ import java.io.Serializable;
                                 @ColumnResult(name = "is_sub_total", type = Boolean.class),
                                 @ColumnResult(name = "in_sort", type = Boolean.class),
                                 @ColumnResult(name = "group_by_col", type = Boolean.class)
+                        })
+        }),
+        @SqlResultSetMapping(name = "DefaultInclExclCol", classes = {
+                @ConstructorResult(
+                        targetClass = ReportColumnDto.class,
+                        columns = {
+
+                                @ColumnResult(name = "SAVED_SCHED_RPT_ID", type = Long.class),
+                                @ColumnResult(name = "RPT_DETAILS_ID", type = Long.class),
+                                @ColumnResult(name = "CREATE_USER", type = String.class),
                         })
         })
 })
@@ -164,9 +182,21 @@ public class ReportColumnDto implements Serializable {
     @Column(name="group_by_col")
     private Boolean groupByCol ; // populate only for savedschedrtptId based on groupbyCol column in save_sched_sorT_tb
 
+    @Column(name="SAVED_SCHED_RPT_ID")
+    private Long savedSchedId;
+
+    @Column(name="CREATE_USER")
+    private String createUser;
+
     public ReportColumnDto() {  }
 
-    public ReportColumnDto(Integer sno,Long rptDetailsId, Long rptId, String columnName, String columnDataType, Boolean sortColumn, Boolean selectCriteria, String selectCluse, String query, String carrierId, Long sequence, Boolean excludable,Boolean inner, String specialTypeOptions, Boolean defaultExcluded, String aggregateType, String format, String showWhenNoInclColmns, String assignOperator, String value, Boolean selected) {
+    public ReportColumnDto(Long savedSchedId, Long rptDetailsId, String createUser) {
+        this.rptDetailsId = rptDetailsId;
+        this.savedSchedId = savedSchedId;
+        this.createUser = createUser;
+    }
+
+    public ReportColumnDto(Integer sno, Long rptDetailsId, Long rptId, String columnName, String columnDataType, Boolean sortColumn, Boolean selectCriteria, String selectCluse, String query, String carrierId, Long sequence, Boolean excludable, Boolean inner, String specialTypeOptions, Boolean defaultExcluded, String aggregateType, String format, String showWhenNoInclColmns, String assignOperator, String value, Boolean selected) {
         this.rptDetailsId = rptDetailsId;
         this.rptId = rptId;
         this.columnName = columnName;
@@ -307,4 +337,12 @@ public class ReportColumnDto implements Serializable {
     public Boolean isGroupByCol() {  return groupByCol; }
 
     public void setGroupByCol(Boolean groupByCol) {  this.groupByCol = groupByCol; }
+
+    public Long getSavedSchedId() { return savedSchedId; }
+
+    public void setSavedSchedId(Long savedSchedId) { this.savedSchedId = savedSchedId; }
+
+    public String getCreateUser() { return createUser; }
+
+    public void setCreateUser(String createUser) { this.createUser = createUser; }
 }
