@@ -106,13 +106,13 @@ public class MSIClientConfiguration {
 			return this.port;
 		}
 
-		private static final Integer DEFAULT_PORT = 8889;
-		private static final String DEFAULT_HOST = "172.16.6.59";
+		private static final Integer DEFAULT_PORT = 80;
+		private static final String DEFAULT_HOST = "localhost";
 		private static final String checkPath = "/msioauthapi/oauth/check_token";
 
-		@Value("${spring.oauth2.sso.server.port:8889}")
+		@Value("${spring.oauth2.sso.server.port:80}")
 		private Integer port;
-		@Value("${spring.oauth2.sso.server.host:172.16.6.59}")
+		@Value("${spring.oauth2.sso.server.host:localhost}")
 		private String hostName;
 		@Value("${spring.oauth2.sso.client.clientId:msioauthtestapp}")
 		private String clientId;
