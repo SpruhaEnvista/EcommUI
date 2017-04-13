@@ -353,7 +353,7 @@ public class ReportsDao {
     @Transactional
     public ReportSavedSchdUsersDto saveSchedUser(ReportSavedSchdUsersDto saveSchedUser){
 
-        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", saveSchedUser.getSavedSchdRptId())
+        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", saveSchedUser.getSavedSchedRptId())
                 .and("userId",saveSchedUser.getUserId())
                 .and("isEmailTempTobeSent",saveSchedUser.isEmailTemplateToBeSent()==null?true:saveSchedUser.isEmailTemplateToBeSent())
                 .and("isReportAttachEmail",saveSchedUser.isReportAttachedMail()==null?false:saveSchedUser.isReportAttachedMail())

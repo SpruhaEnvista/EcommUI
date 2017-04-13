@@ -112,4 +112,13 @@ public class ReportPacketsDetDto {
     public ReportPacketsDetDto(long packetsDetId){
         this.packetsDetId = packetsDetId;
     }
+
+    public ReportPacketsDetDto(Long packetsDetId,Long savedSchdRptId,String tabName,Integer sequence,Long templateId){
+        this.packetsDetId = packetsDetId;
+        this.savedSchdRptId = savedSchdRptId;
+        this.tabName = tabName;
+        this.sequence = sequence;
+        this.templateId = templateId;
+    }
+
 }

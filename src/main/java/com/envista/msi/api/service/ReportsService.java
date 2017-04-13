@@ -325,7 +325,7 @@ public class ReportsService {
 
                 if(savedSchedReportDto.getSavedSchedUsersDtoList()!=null && savedSchedReportDto.getSavedSchedUsersDtoList().size()>0){
                     for(ReportSavedSchdUsersDto saveSchedUser : savedSchedReportDto.getSavedSchedUsersDtoList()){
-                        saveSchedUser.setSavedSchdRptId(savedSchedReport.getSavedSchedRptId());
+                        saveSchedUser.setSavedSchedRptId(savedSchedReport.getSavedSchedRptId());
                         ReportSavedSchdUsersDto outUserDto = reportsDao.saveSchedUser(saveSchedUser);
                     }
                 }
@@ -347,7 +347,7 @@ public class ReportsService {
 
             if(savedSchedReportDto.getSavedSchedUsersDtoList()!=null && savedSchedReportDto.getSavedSchedUsersDtoList().size()>0){
                 for(ReportSavedSchdUsersDto saveSchedUser : savedSchedReportDto.getSavedSchedUsersDtoList()){
-                    saveSchedUser.setSavedSchdRptId(savedSchedReportDto.getSavedSchedRptId());
+                    saveSchedUser.setSavedSchedRptId(savedSchedReportDto.getSavedSchedRptId());
                     ReportSavedSchdUsersDto outUserDto = reportsDao.saveSchedUser(saveSchedUser);
                 }
             }
@@ -358,7 +358,7 @@ public class ReportsService {
 
         if(savedSchedReportDto.getSavedSchedUsersDtoList()!=null && savedSchedReportDto.getSavedSchedUsersDtoList().size()>0){
             for(ReportSavedSchdUsersDto saveSchedUser : savedSchedReportDto.getSavedSchedUsersDtoList()){
-                saveSchedUser.setSavedSchdRptId(savedSchedRrtId);
+                saveSchedUser.setSavedSchedRptId(savedSchedRrtId);
                 ReportSavedSchdUsersDto outUserDto = reportsDao.saveSchedUser(saveSchedUser);
             }
         }
