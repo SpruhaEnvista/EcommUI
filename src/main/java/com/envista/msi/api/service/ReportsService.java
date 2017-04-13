@@ -33,6 +33,9 @@ public class ReportsService {
 
     @Value("${EXPORTDIR}")
     private String exportDir;
+    @Value("${PRODEXPORTDIR}")
+    private String prodExportDir;
+
 
     public List<ReportResultsDto> getReportResults(long userId) {
         return  reportsDao.getReportResults(userId);
@@ -240,7 +243,14 @@ public class ReportsService {
 
                 File file = new File(filePath);
               if(!file.exists()){
-                  throw new FileNotFoundException(file.getName()+"File not exist ");
+
+                  if(prodExportDir!=null && !prodExportDir.isEmpty()){
+                      filePath = filePath.replaceAll("E:",prodExportDir);
+                      file = new File(filePath);
+                  }
+                  if(!file.exists()) {
+                      throw new FileNotFoundException(file.getName() + "File not exist ");
+                  }
               }
 
             return file;
@@ -269,6 +279,12 @@ public class ReportsService {
                 }
 
                 inserChildTables(savedSchedReportDto,savedSchedReport.getSavedSchedRptId());
+            }
+            if(savedSchedReportDto.getRptFolderId()!=null && savedSchedReportDto.getRptFolderId()>0){
+                ReportFolderDetailsDto rptFolderDtlsDto = new ReportFolderDetailsDto();
+                rptFolderDtlsDto.setReportFolderId(savedSchedReportDto.getRptFolderId());
+                rptFolderDtlsDto.setSavedSchdReportId(savedSchedReport.getSavedSchedRptId());
+                reportsDao.moveReportToFolder(rptFolderDtlsDto);
             }
 
         return savedSchedReport;
