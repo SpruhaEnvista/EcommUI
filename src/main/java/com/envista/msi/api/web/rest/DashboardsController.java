@@ -2991,7 +2991,7 @@ public class DashboardsController extends DashboardBaseController {
             }
             List<DashSavedFilterDto> userSavedFilters = dashboardsService.getSavedFiltersByUser(user.getUserId());
             List<ReportCustomerCarrierDto> customers = dashboardsService.getDashboardCustomers(user.getUserId());
-            Long customerId = 0L;
+            String customerId = null;
             userFilterData.put("savedFilterNames", userSavedFilters);
             userFilterData.put("currenciesList", JSONUtil.prepareCurrenciesJson(dashboardsService.getCodeValuesByCodeGroup(468L)));
             ReportCustomerCarrierDto customerHierarchy = reportsService.getCustomerHierarchyObject(customers, false);
@@ -3013,12 +3013,12 @@ public class DashboardsController extends DashboardBaseController {
                 if(customers != null && !customers.isEmpty()){
                     if(user.getDefaultCustomer() != null && !user.getDefaultCustomer().isEmpty()){
                         if(user.getDefaultCustomer().startsWith("CU")){
-                            customerId = Long.parseLong(user.getDefaultCustomer().substring(2).trim());
+                            customerId = user.getDefaultCustomer().replace("CU","");
                         }else{
-                            customerId = Long.parseLong(user.getDefaultCustomer().trim());
+                            customerId = user.getDefaultCustomer().trim();
                         }
                     }else{
-                        customerId = Long.parseLong(customerHierarchy.getCollection().iterator().next().getValue().trim());
+                        customerId = customerHierarchy.getCollection().iterator().next().getValue().trim();
                     }
 
                     List<UserFilterUtilityDataDto> carriers = dashboardsService.getCarrierByCustomer(String.valueOf(customerId), user.isParcelDashlettes());
