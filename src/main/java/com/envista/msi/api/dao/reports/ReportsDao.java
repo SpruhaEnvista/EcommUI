@@ -353,7 +353,7 @@ public class ReportsDao {
     @Transactional
     public ReportSavedSchdUsersDto saveSchedUser(ReportSavedSchdUsersDto saveSchedUser){
 
-        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", saveSchedUser.getSavedSchdRptId())
+        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", saveSchedUser.getSavedSchedRptId())
                 .and("userId",saveSchedUser.getUserId())
                 .and("isEmailTempTobeSent",saveSchedUser.isEmailTemplateToBeSent()==null?true:saveSchedUser.isEmailTemplateToBeSent())
                 .and("isReportAttachEmail",saveSchedUser.isReportAttachedMail()==null?false:saveSchedUser.isReportAttachedMail())
@@ -639,4 +639,17 @@ public class ReportsDao {
                 .and("userId", userId==null?0:userId);
         return persistentContext.findEntityAndMapFields("ReportFolder.deleteRptFolder", queryParameter);
     }
+    @Transactional
+    public List<SearchUserByCustomerDto> getReportUserCustomers(Long userId){
+        QueryParameter queryParameter = StoredProcedureParameter.with("p_user_id",userId);
+        return persistentContext.findEntities("SearchUserByCustomer.getReportUserCustomers",queryParameter);
+    }
+    @Transactional
+    public List<SearchUserByCustomerDto> getReportSearchUsers(Long userId,Long customerId,String fullName,String email,Boolean userOnly){
+        QueryParameter queryParameter = StoredProcedureParameter.with("p_user_id",userId).and("p_customer_id",customerId==null ? 0 : customerId)
+                                                  .and("p_full_name",fullName).and("p_email",email).and("p_is_user_only",userOnly ? 1 : 0);
+        return persistentContext.findEntities("SearchUserByCustomer.getReportSearchUsers",queryParameter);
+    }
+
+
 }

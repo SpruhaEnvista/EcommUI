@@ -38,12 +38,12 @@ public abstract class AbstractApiIntegrationTests {
 
 	private static final Logger log = LoggerFactory.getLogger(AbstractApiIntegrationTests.class);
 
-	private static final String globalTokenPath = "oauth/token";
-	private static final String globalCheckTokenPath = "oauth/check_token";
+	private static final String globalTokenPath = "msioauthapi/oauth/token";
+	private static final String globalCheckTokenPath = "msioauthapi/oauth/check_token";
 	private static final String UNDEFINED = "UNDEFINED";
 
-	private static final Integer DEFAULT_PORT = 8889;
-	private static final String DEFAULT_HOST = "172.16.6.59";
+	private static final Integer DEFAULT_PORT = 80;
+	private static final String DEFAULT_HOST = "msiuat02";
 
 	private static final String AUTH_HEADER = "Authorization";
 	private static final String DEFAULT_AUTH_HEADER_VALUE = "Basic bXNpb2F1dGh0ZXN0YXBwOm15LXNlY3JldC10b2tlbi10by1jaGFuZ2UtaW4tcHJvZHVjdGlvbg==";

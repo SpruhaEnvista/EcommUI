@@ -78,7 +78,7 @@ public class SavedSchedReportsDto implements Serializable{
     private boolean scheduled;
 
     @Column(name = "report_file_name")
-    private String reportName;
+    private String reportFileName;
 
     @Column(name = "sv_report_status")
     private String reportStatus;
@@ -119,12 +119,12 @@ public class SavedSchedReportsDto implements Serializable{
         this.reportUsersTbUpdateCount = reportUsersTbUpdateCount;
     }
 
-    public SavedSchedReportsDto(long savedSchedRptId,long rptId,boolean scheduled,String reportName,String reportStatus,
+    public SavedSchedReportsDto(long savedSchedRptId,long rptId,boolean scheduled,String reportFileName,String reportStatus,
                                 String createUser,Date createDate,String lastUpdateUser,Date lastUpdateDate,int usersCount,Long isFolder){
         this.savedSchedRptId = savedSchedRptId;
         this.rptId = rptId;
         this.scheduled = scheduled;
-        this.reportName = reportName;
+        this.reportFileName = reportFileName;
         this.reportStatus = reportStatus;
         this.createUser = createUser;
         this.createDate = createDate;
@@ -174,12 +174,12 @@ public class SavedSchedReportsDto implements Serializable{
         this.scheduled = scheduled;
     }
 
-    public String getReportName() {
-        return reportName;
+    public String getReportFileName() {
+        return reportFileName;
     }
 
-    public void setReportName(String reportName) {
-        this.reportName = reportName;
+    public void setReportFileName(String reportFileName) {
+        this.reportFileName = reportFileName;
     }
 
     public String getReportStatus() {
