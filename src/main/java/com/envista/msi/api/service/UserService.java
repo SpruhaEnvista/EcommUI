@@ -1,17 +1,14 @@
 package com.envista.msi.api.service;
 
-import java.util.Optional;
-
-import javax.inject.Inject;
-
-import com.envista.msi.api.security.SecurityUtils;
+import com.envista.msi.api.dao.UserProfileDao;
+import com.envista.msi.api.web.rest.dto.UserProfileDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.envista.msi.api.dao.UserProfileDao;
-import com.envista.msi.api.web.rest.dto.UserProfileDto;
+import javax.inject.Inject;
+import java.util.Optional;
 
 /**
  * Service class for managing users.
@@ -62,7 +59,7 @@ public class UserService {
 
 */
 	public UserProfileDto getUserProfileByUserName(String userName) throws Exception {
-		if(SecurityUtils.getUserCache().containsKey(userName)){
+		/*if(SecurityUtils.getUserCache().containsKey(userName)){
 			return (UserProfileDto) SecurityUtils.getUserCache().get(userName);
 		}else{
 			UserProfileDto user = null;
@@ -71,6 +68,8 @@ public class UserService {
 				SecurityUtils.getUserCache().put(userName, user);
 			}
 			return user;
-		}
+		}*/
+
+		return getUserWithAuthoritiesByUserName(userName).orElse(null);
 	}
 }
