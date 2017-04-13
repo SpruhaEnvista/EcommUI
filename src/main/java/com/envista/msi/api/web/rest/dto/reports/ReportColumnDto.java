@@ -16,7 +16,7 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_carrier_ids", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "get_criteria_info", type = Void.class)
         }),
-        @NamedStoredProcedureQuery(name = "ReportCriteriaDto.getSavedIncludeExcludeSortColByName", procedureName = "shp_rpt_save_excl_byname__proc",
+        @NamedStoredProcedureQuery(name = "ReportCriteriaDto.getSavedIncludeExcludeSortColByName", procedureName = "shp_rpt_save_excl_byname_proc",
                 resultSetMappings = "InclExclSortCol",
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_user_id", type = Long.class),
