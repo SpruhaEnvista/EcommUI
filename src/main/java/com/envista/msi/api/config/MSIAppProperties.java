@@ -74,29 +74,6 @@ public class MSIAppProperties {
 			this.from = from;
 		}
 	}
-
-	/*public static class Security {
-
-		private final RememberMe rememberMe = new RememberMe();
-
-		public RememberMe getRememberMe() {
-			return rememberMe;
-		}
-
-		public static class RememberMe {
-
-			@NotNull
-			private String key;
-
-			public String getKey() {
-				return key;
-			}
-
-			public void setKey(String key) {
-				this.key = key;
-			}
-		}
-	}*/
 	
     public static class Security {
 
