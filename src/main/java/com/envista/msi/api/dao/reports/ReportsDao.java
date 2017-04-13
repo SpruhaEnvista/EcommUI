@@ -629,6 +629,17 @@ public class ReportsDao {
                 .and("p_carriers", (carrierIds==null || (carrierIds.trim()).length()<1) ? "-1" : carrierIds);
         return persistentContext.findEntities("ReportFormat.getReportTriggerOptions",queryParameter);
     }
+    @Transactional
+    public List<SearchUserByCustomerDto> getReportUserCustomers(Long userId){
+        QueryParameter queryParameter = StoredProcedureParameter.with("p_user_id",userId);
+        return persistentContext.findEntities("SearchUserByCustomer.getReportUserCustomers",queryParameter);
+    }
+    @Transactional
+    public List<SearchUserByCustomerDto> getReportSearchUsers(Long userId,Long customerId,String fullName,String email,Boolean userOnly){
+        QueryParameter queryParameter = StoredProcedureParameter.with("p_user_id",userId).and("p_customer_id",customerId==null ? 0 : customerId)
+                                                  .and("p_full_name",fullName).and("p_email",email).and("p_is_user_only",userOnly ? 1 : 0);
+        return persistentContext.findEntities("SearchUserByCustomer.getReportSearchUsers",queryParameter);
+    }
 
 
 }

@@ -2344,13 +2344,15 @@ public class JSONUtil {
 
 	public static JSONArray carriersJson( List<ReportCustomerCarrierDto> carrierList) throws JSONException{
 		JSONArray carrierJsonArr= new JSONArray();
-		for (ReportCustomerCarrierDto carrierDto : carrierList) {
-			JSONObject jsonObject=new JSONObject();
-			jsonObject.put("carrierId",carrierDto.getCarrierId());
-			jsonObject.put("carrierName",carrierDto.getCarrierName());
-			jsonObject.put("isLtl",carrierDto.getIsLtl());
-			jsonObject.put("selected",carrierDto.getSelected());
-			carrierJsonArr.put(jsonObject);
+		if(carrierList.get(0).getCarrierId()!=null) {
+			for (ReportCustomerCarrierDto carrierDto : carrierList) {
+				JSONObject jsonObject = new JSONObject();
+				jsonObject.put("carrierId", carrierDto.getCarrierId());
+				jsonObject.put("carrierName", carrierDto.getCarrierName());
+				jsonObject.put("isLtl", carrierDto.getIsLtl());
+				jsonObject.put("selected", carrierDto.getSelected());
+				carrierJsonArr.put(jsonObject);
+			}
 		}
 		return  carrierJsonArr;
 	}
