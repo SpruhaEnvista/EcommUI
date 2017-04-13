@@ -28,9 +28,7 @@ import java.util.TreeSet;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_cusatomer_ids", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_refcur_customer_level_info", type = Void.class)
                 }),
-        @NamedStoredProcedureQuery(
-                name = "ReportCustomerCarrierDto.getDashboardCustomers",
-                procedureName = "SHP_DB_GET_CUSTOMERS_PROC",
+        @NamedStoredProcedureQuery(name = "ReportCustomerCarrierDto.getDashboardCustomers",procedureName = "SHP_DB_GET_CUSTOMERS_PROC",
                 resultSetMappings = "ReportCustomerCarrierDto.DashboardCustomerMapping",
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_user_id", type = Long.class),

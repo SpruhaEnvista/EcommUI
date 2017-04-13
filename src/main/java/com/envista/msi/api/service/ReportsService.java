@@ -33,6 +33,9 @@ public class ReportsService {
 
     @Value("${EXPORTDIR}")
     private String exportDir;
+    @Value("${PRODEXPORTDIR}")
+    private String prodExportDir;
+
 
     public List<ReportResultsDto> getReportResults(long userId) {
         return  reportsDao.getReportResults(userId);
@@ -125,10 +128,17 @@ public class ReportsService {
                 }
             }
         }
+
+        String rgn = "";
+        String currId = "";
+        if(customerList != null && customerList.size() > 0){
+            rgn = customerList.get(0).getRegion();
+            currId = customerList.get(0).getCurrencyId();
+        }
         // Set the Parent Customer relationships.
-        ReportCustomerCarrierDto everything = new ReportCustomerCarrierDto("Everything", -1, false, "-1", "Everything", null, null, false, null, null);
+        ReportCustomerCarrierDto everything = new ReportCustomerCarrierDto("Everything", -1, false, "-1", "Everything", null, null, false, rgn, currId);
         TreeSet<ReportCustomerCarrierDto> customerGroupIds = new TreeSet<ReportCustomerCarrierDto>();
-        ReportCustomerCarrierDto customerGroups = new ReportCustomerCarrierDto("Customer Groups", -1, false, "-1", "CUGRP", null, null, false, null, null);
+        ReportCustomerCarrierDto customerGroups = new ReportCustomerCarrierDto("Customer Groups", -1, false, "-1", "CUGRP", null, null, false, rgn, currId);
         StringBuffer customerIdsCSVForLevelInfo = new StringBuffer();
         int count = 0;
         for (ReportCustomerCarrierDto customerDto : customerDtos) {
@@ -162,7 +172,7 @@ public class ReportsService {
                     ReportCustomerCarrierDto parentCustomerDto = findCustomerGroup(customerGroups, -parentCustomerId);
                     if (parentCustomerDto == null) {
                         if (i < level - 1) {
-                            parentCustomerDto = new ReportCustomerCarrierDto(parentCustomerName + " Group", -parentCustomerId, false, "-1", "CUGRP", null, null, false, null, null);
+                            parentCustomerDto = new ReportCustomerCarrierDto(parentCustomerName + " Group", -parentCustomerId, false, "-1", "CUGRP", null, null, false, rgn, currId);
                             if (i == 0) {
                                 customerGroups.getCollection().add(parentCustomerDto);
                             } else {
@@ -180,7 +190,7 @@ public class ReportsService {
                         } else {
                             ReportCustomerCarrierDto grandParent = findCustomerGroup(customerGroups, -grandCustomerId);
                             if (grandParent == null) {
-                                grandParent = new ReportCustomerCarrierDto(parentCustomerName + " Group", -parentCustomerId, false, "-1", "CUGRP", null, null, false, null, null);
+                                grandParent = new ReportCustomerCarrierDto(parentCustomerName + " Group", -parentCustomerId, false, "-1", "CUGRP", null, null, false, rgn, currId);
                                 customerGroups.getCollection().add(grandParent);
                             }
                             grandParent.getCollection().add(customerBean);
@@ -240,7 +250,14 @@ public class ReportsService {
 
                 File file = new File(filePath);
               if(!file.exists()){
-                  throw new FileNotFoundException(file.getName()+"File not exist ");
+
+                  if(prodExportDir!=null && !prodExportDir.isEmpty()){
+                      filePath = filePath.replaceAll("E:",prodExportDir);
+                      file = new File(filePath);
+                  }
+                  if(!file.exists()) {
+                      throw new FileNotFoundException(file.getName() + "File not exist ");
+                  }
               }
 
             return file;
@@ -269,6 +286,12 @@ public class ReportsService {
                 }
 
                 inserChildTables(savedSchedReportDto,savedSchedReport.getSavedSchedRptId());
+            }
+            if(savedSchedReportDto.getRptFolderId()!=null && savedSchedReportDto.getRptFolderId()>0){
+                ReportFolderDetailsDto rptFolderDtlsDto = new ReportFolderDetailsDto();
+                rptFolderDtlsDto.setReportFolderId(savedSchedReportDto.getRptFolderId());
+                rptFolderDtlsDto.setSavedSchdReportId(savedSchedReport.getSavedSchedRptId());
+                reportsDao.moveReportToFolder(rptFolderDtlsDto);
             }
 
         return savedSchedReport;
@@ -532,6 +555,10 @@ public class ReportsService {
             }
         }
         return  jsonArray;
+    }
+
+    public ReportFolderDto deleteFolder(Long rptFolderId, Long userId) {
+        return reportsDao.deleteFolder(rptFolderId,userId);
     }
     public JSONArray getReportUserCustomers(Long userId) throws  Exception{
         JSONArray customerJsonArr=new JSONArray();

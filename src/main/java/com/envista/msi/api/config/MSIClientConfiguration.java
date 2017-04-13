@@ -25,7 +25,6 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Aut
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.token.RemoteTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
-import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
 import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 import org.springframework.util.StringUtils;
 
@@ -89,7 +88,11 @@ public class MSIClientConfiguration {
 		}
 
 		private String checkTokenPath() {
-			return "http://" + getHostName() + ":" + getPort() + "/" + checkPath;
+			String port = ":" + getPort();
+			if (getPort() == 80 || getPort() < 1) {
+				port = "";
+			}
+			return "http://" + getHostName() + port + "/" + checkPath;
 		}
 
 		private String getHostName() {
@@ -106,13 +109,14 @@ public class MSIClientConfiguration {
 			return this.port;
 		}
 
-		private static final Integer DEFAULT_PORT = 8889;
-		private static final String DEFAULT_HOST = "172.16.6.59";
-		private static final String checkPath = "/msioauthapi/oauth/check_token";
+		private static final Integer DEFAULT_PORT = 80;
+		private static final String DEFAULT_HOST = "localhost";
+		// "/msioauthserver/oauth/check_token" /oauth/check_token
+		private static final String checkPath = "msioauthserver/oauth/check_token";
 
-		@Value("${spring.oauth2.sso.server.port:8889}")
+		@Value("${spring.oauth2.sso.server.port:80}")
 		private Integer port;
-		@Value("${spring.oauth2.sso.server.host:172.16.6.59}")
+		@Value("${spring.oauth2.sso.server.host:localhost}")
 		private String hostName;
 		@Value("${spring.oauth2.sso.client.clientId:msioauthtestapp}")
 		private String clientId;
@@ -151,16 +155,14 @@ public class MSIClientConfiguration {
 
 		@Override
 		public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-			clients.inMemory()
-					.withClient(msiProperties.getSecurity().getAuthentication().getOauth().getClientid())
+			clients.inMemory().withClient(msiProperties.getSecurity().getAuthentication().getOauth().getClientid())
 					.scopes("read", "write")
 					.authorities(AuthoritiesConstants.ADMIN, AuthoritiesConstants.USER, AuthoritiesConstants.MSI_UI)
 					.authorizedGrantTypes("password", "refresh_token", "authorization_code", "implicit")
 					.secret(msiProperties.getSecurity().getAuthentication().getOauth().getSecret())
 					.accessTokenValiditySeconds(
 							msiProperties.getSecurity().getAuthentication().getOauth().getTokenValidityInSeconds())
-					.and()
-					.withClient("Other").secret("Others_Secret")
+					.and().withClient("Other").secret("Others_Secret")
 					.authorizedGrantTypes("password", "authorization_code", "refresh_token")
 					.authorities("ROLE_USER", "ROLE_CLIENT", "ROLE_TRUSTED_CLIENT").scopes("play", "trust")
 					.redirectUris("https://www.myshipinfo.com/oauth_tool/callback").autoApprove(true);

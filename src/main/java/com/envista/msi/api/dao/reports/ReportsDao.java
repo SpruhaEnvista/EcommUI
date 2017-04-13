@@ -7,6 +7,7 @@ import com.envista.msi.api.security.SecurityUtils;
 import com.envista.msi.api.web.rest.dto.UserProfileDto;
 import com.envista.msi.api.web.rest.dto.UserProfileDto;
 import com.envista.msi.api.web.rest.dto.reports.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,9 @@ import java.util.List;
 
 @Repository("ReportsDao")
 public class ReportsDao {
+
+    @Value("${SUBMITTED_SYSTEM_FROM}")
+    private String submittedFromSystem;
 
     @Inject
     private PersistentContext persistentContext;
@@ -322,7 +326,7 @@ public class ReportsDao {
                 .and("dateRangeTodayMinus2",savedSchedReportDto.getDateRangeTodayMinus2()==null?0:savedSchedReportDto.getDateRangeTodayMinus2())
                 .and("ftpAccountsId",savedSchedReportDto.getFtpAccountsId())
                 .and("isSuppressInvoices",savedSchedReportDto.getSuppressInvoices()==null?false:savedSchedReportDto.getSuppressInvoices())
-                .and("submittedFromSystem",savedSchedReportDto.getSubmittedFromSystem())
+                .and("submittedFromSystem",submittedFromSystem)
                 .and("isPacket",savedSchedReportDto.getPacket()==null?false:savedSchedReportDto.getPacket())
                 .and("flagsJson",savedSchedReportDto.getFlagsJson())
                 .and("locale",savedSchedReportDto.getLocale())
@@ -628,6 +632,12 @@ public class ReportsDao {
         QueryParameter queryParameter = StoredProcedureParameter.with("p_rpt_id",rptId)
                 .and("p_carriers", (carrierIds==null || (carrierIds.trim()).length()<1) ? "-1" : carrierIds);
         return persistentContext.findEntities("ReportFormat.getReportTriggerOptions",queryParameter);
+    }
+    @Transactional
+    public ReportFolderDto deleteFolder(Long rptFolderId, Long userId) {
+        QueryParameter queryParameter = StoredProcedureParameter.with("rptFolderId",rptFolderId==null?0:rptFolderId)
+                .and("userId", userId==null?0:userId);
+        return persistentContext.findEntityAndMapFields("ReportFolder.deleteRptFolder", queryParameter);
     }
     @Transactional
     public List<SearchUserByCustomerDto> getReportUserCustomers(Long userId){

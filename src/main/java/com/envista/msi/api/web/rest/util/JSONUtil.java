@@ -2004,13 +2004,20 @@ public class JSONUtil {
 		if (commaSeperatedFields.contains(columnName)) {
 			try {
 				if (val != null) {
-					value = commaSeperatedDecimalFormat.format(Double.parseDouble(val.toString()));
+					value = commaSeperatedDecimalFormat.format(Math.ceil(Double.parseDouble(val.toString())));
 				}
 			} catch (Exception e) {
 				value = val != null ? val.toString() : "";
 			}
 		} else {
-			value = String.valueOf(val);
+			try {
+				if (val != null) {
+					value = String.valueOf(Math.ceil(Double.parseDouble(val.toString())));
+				}
+			} catch (Exception e) {
+				value = val != null ? val.toString() : "";
+			}
+
 		}
 		return value;
 	}
@@ -2026,8 +2033,8 @@ public class JSONUtil {
 				if (weightDto != null) {
 					JSONObject monthWiseObj = new JSONObject();
 					monthWiseObj.put("name", weightDto.getBillingDate());
-					monthWiseObj.put("Actual Weight", weightDto.getActualWeight());
-					monthWiseObj.put("Bill Weight", weightDto.getBilledWeight());
+					monthWiseObj.put("Actual Weight", Math.ceil(weightDto.getActualWeight()));
+					monthWiseObj.put("Bill Weight", Math.ceil(weightDto.getBilledWeight()));
 					valuesArray.put(monthWiseObj);
 				}
 			}
@@ -2057,8 +2064,8 @@ public class JSONUtil {
 					JSONObject wtJson = new JSONObject();
 					wtJson.put("id", weightDto.getCarrierId());
 					wtJson.put("name", weightDto.getCarrierName());
-					wtJson.put("Actual", weightDto.getActualWeight());
-					wtJson.put("Billed", weightDto.getBilledWeight());
+					wtJson.put("Actual", Math.ceil(weightDto.getActualWeight()));
+					wtJson.put("Billed", Math.ceil(weightDto.getBilledWeight()));
 					weightJsonArr.put(wtJson);
 				}
 			}
@@ -2080,8 +2087,8 @@ public class JSONUtil {
 					JSONArray dataArray = new JSONArray();
 					long dateInMilliSecs = weightDto.getBillDate() != null ? weightDto.getBillDate().getTime() : 0L;
 					dataArray.put(dateInMilliSecs);
-					dataArray.put(weightDto.getActualWeight());
-					dataArray.put(weightDto.getBilledWeight());
+					dataArray.put(Math.ceil(weightDto.getActualWeight()));
+					dataArray.put(Math.ceil(weightDto.getBilledWeight()));
 
 					returnArray.put(dataArray);
 					if (count == 0) {
@@ -2115,7 +2122,7 @@ public class JSONUtil {
 					JSONObject carrObj = new JSONObject();
 					carrObj.put("id", userFilterCarr.getCarrierId());
 					carrObj.put("name", userFilterCarr.getCarrierName());
-					carrObj.put("checked", null == selectedCarrList ? true : selectedCarrList != null && selectedCarrList.contains(userFilterCarr.getCarrierId()));
+					carrObj.put("checked", null == selectedCarrList || selectedCarrList.isEmpty() ? true : selectedCarrList != null && selectedCarrList.contains(userFilterCarr.getCarrierId()));
 
 					if("parcel".equalsIgnoreCase(userFilterCarr.getCarrierType())){
 						parcelCarJsonArr.put(carrObj);
@@ -2174,7 +2181,7 @@ public class JSONUtil {
 					jsonObject.put("name", serviceData.getName());
 					jsonObject.put("mode", serviceData.getType());
 					jsonObject.put("type", "category");
-					jsonObject.put("checked", null == selectedServices ? true : selectedServices.contains(serviceData.getId()));
+					jsonObject.put("checked", null == selectedServices || selectedServices.isEmpty() ? true : selectedServices.contains(serviceData.getId()));
 					jsonObject.put("uniqueType", "services");
 					jsonObject.put("isActive", serviceData.getActive());
 					jsonObject.put("isFreight", !"Small Package".equalsIgnoreCase(serviceData.getType()));
@@ -2296,11 +2303,11 @@ public class JSONUtil {
 			custoemrJsonObject.put("value", null == customerCarrierDto.getValue() ? "" : customerCarrierDto.getValue());
 
 			if (customerCarrierDto.getRegion() == null || customerCarrierDto.getRegion().isEmpty() || "North America".equalsIgnoreCase(customerCarrierDto.getRegion()) ) {
-				custoemrJsonObject.put("weigtUnit", "LBS");
+				custoemrJsonObject.put("weightUnit", "LBS");
 			} else {
-				custoemrJsonObject.put("weigtUnit","KGS");
+				custoemrJsonObject.put("weightUnit","KGS");
 			}
-			custoemrJsonObject.put("currencyId", customerCarrierDto.getCurrencyId());
+			custoemrJsonObject.put("currencyId", null == customerCarrierDto.getCurrencyId() ? "0" : customerCarrierDto.getCurrencyId());
 
 			if (!"SHP".equalsIgnoreCase(customerCarrierDto.getType())) {
 				custoemrJsonObject.put("children", customerHierarchyJson(customerCarrierDto));
@@ -2316,13 +2323,9 @@ public class JSONUtil {
 	public static void setValuesForDropDownForCustomer(ReportCustomerCarrierDto customerDto) {
 		for (ReportCustomerCarrierDto customer : customerDto.getCollection()) {
 			if ("CUGRP".equalsIgnoreCase(customer.getType())) {
-				customer.setValue("CU" + getValueForCustGroup(customer));
-			} else if ("CUST".equalsIgnoreCase(customer.getType())) {
-				customer.setValue("CU" + customer.getCustomerId());
-			} else if ("SHGRP".equalsIgnoreCase(customer.getType())) {
-				customer.setValue("SG" + customer.getCustomerId());
-			} else if ("SHP".equalsIgnoreCase(customer.getType())) {
-				customer.setValue("SH" + customer.getCustomerId());
+				customer.setValue(getValueForCustGroup(customer));
+			} else {
+				customer.setValue(String.valueOf(customer.getCustomerId()));
 			}
 		}
 	}

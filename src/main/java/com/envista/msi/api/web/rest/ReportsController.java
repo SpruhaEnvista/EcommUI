@@ -467,4 +467,13 @@ public class ReportsController {
             return new ResponseEntity<JSONArray>(new JSONArray(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    @RequestMapping(value = "/savedreports/deletefolder", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<ReportFolderDto> deleteFolder(@RequestParam String rptFolderId, @RequestParam String userId){
+        try {
+            ReportFolderDto reportFolderDto = reportsService.deleteFolder(Long.parseLong(rptFolderId),Long.parseLong(userId));
+            return new ResponseEntity<ReportFolderDto>(reportFolderDto, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<ReportFolderDto>(new ReportFolderDto(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
