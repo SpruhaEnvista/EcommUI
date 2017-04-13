@@ -1,6 +1,8 @@
 package com.envista.msi.api.service;
 
+import com.envista.msi.api.dao.DaoException;
 import com.envista.msi.api.dao.reports.ReportsDao;
+import com.envista.msi.api.dao.reports.ReportsValidationDao;
 import com.envista.msi.api.web.rest.dto.UserProfileDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardAppliedFilterDto;
 import com.envista.msi.api.web.rest.dto.reports.*;
@@ -30,6 +32,9 @@ public class ReportsService {
 
     @Inject
     private ReportsDao reportsDao;
+
+    @Inject
+    private ReportsValidationDao reportsValidationDao;
 
     @Value("${EXPORTDIR}")
     private String exportDir;
@@ -222,8 +227,33 @@ public class ReportsService {
     public ReportFolderDetailsDto moveRptsToFolder( ReportFolderDetailsDto rptFolderDetailsDto ){
         return reportsDao.moveReportToFolder(rptFolderDetailsDto);
     }
-    public SavedSchedReportsDto changeOwnerBasedonSSRptId(String currentUserName,Long currentUserId,String newUserName,Long newUserId,Long ssRptId ){
-        return reportsDao.changeOwnerBasedonSSRptId(currentUserName,currentUserId,newUserName,newUserId,ssRptId);
+
+    public SavedSchedReportsDto changeOwnerBasedonSSRptId(String currentUserName, Long currentUserId, String newUserName, Long newUserId, Long ssRptId) {
+        if (reportsValidationDao.verifyuserRole(newUserId, "user").getVerificationMsg().equals("1") || reportsValidationDao.verifyuserRole(newUserId, "carrier").getVerificationMsg().equals("1")) {
+            Long rptId = reportsDao.getReportDetails(ssRptId).getRptId();
+            String msg = null;
+            if (rptId != null) {
+               msg = reportsValidationDao.verifyAssignedReport(newUserId, rptId).getVerificationMsg();
+                if (msg!=null && !msg.equals("1") ) {
+                    throw new DaoException(msg + newUserName);
+                }
+                msg = reportsValidationDao.verifyAccounts(ssRptId, newUserId).getVerificationMsg();
+                if (msg != null && !(msg.contains("1,"))) {
+                    throw new DaoException(msg);
+                }
+                msg = reportsValidationDao.verifyCarrier(newUserId, rptId, ssRptId).getVerificationMsg();
+                if (msg != null && !(msg.contains("1,"))) {
+                    throw new DaoException(msg);
+                }
+            } else {
+                throw new DaoException("Report not found ");
+            }
+          msg= reportsValidationDao.verifySavedSchedShippers(ssRptId,newUserId).getVerificationMsg();
+         if (msg != null && !(msg.contains("1,")))
+             throw  new DaoException(msg);
+        }
+        return reportsDao.changeOwnerBasedonSSRptId(currentUserName, currentUserId, newUserName, newUserId, ssRptId);
+
     }
 
     public File getReportFileDetails(Long generatedRptId) throws FileNotFoundException{

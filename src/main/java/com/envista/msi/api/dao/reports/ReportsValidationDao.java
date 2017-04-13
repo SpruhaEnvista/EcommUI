@@ -57,7 +57,7 @@ public class ReportsValidationDao {
     }
 
     @Transactional
-    public ReportsValidationDto varifyCarrier(String userId, Long rptId,Long savedschedrptid) {
+    public ReportsValidationDto verifyCarrier(Long userId, Long rptId,Long savedschedrptid) {
         return persistentContext.findEntity("ReportsValidation.verifyCarrier",
                 StoredProcedureParameter.with("p_userId", userId).and("p_rptId", rptId).and("p_savedschedRptId",savedschedrptid));
     }
