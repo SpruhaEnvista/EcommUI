@@ -38,8 +38,8 @@ public abstract class AbstractApiIntegrationTests {
 
 	private static final Logger log = LoggerFactory.getLogger(AbstractApiIntegrationTests.class);
 
-	private static final String globalTokenPath = "msioauthapi/oauth/token";
-	private static final String globalCheckTokenPath = "msioauthapi/oauth/check_token";
+	private static final String globalTokenPath = "oauth/token";
+	private static final String globalCheckTokenPath = "oauth/check_token";
 	private static final String UNDEFINED = "UNDEFINED";
 
 	private static final Integer DEFAULT_PORT = 80;
