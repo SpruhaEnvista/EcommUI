@@ -73,13 +73,7 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode= ParameterMode.IN, name = "p_user_id",type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_verificationMsg",type = Void.class)
                 }),
-        @NamedStoredProcedureQuery(name = "ReportsValidation.verifyuserRole", procedureName = "shp_rpt_verify_role_proc",
-                resultSetMappings = "VerifyAccounts",
-                parameters = {
-                        @StoredProcedureParameter(mode= ParameterMode.IN, name = "p_user_id",type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_user_role", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_verificationMsg",type = Void.class)
-                })
+
         })
 @SqlResultSetMappings({
         @SqlResultSetMapping(name = "VerifyAccounts", classes = {

@@ -68,9 +68,5 @@ public class ReportsValidationDao {
                 StoredProcedureParameter.with("p_customerIds", customerIds).and("p_user_id", userId));
     }
 
-    @Transactional
-    public ReportsValidationDto verifyuserRole( Long userId,String userRole) {
-        return persistentContext.findEntity("ReportsValidation.verifyuserRole",
-                StoredProcedureParameter.with("p_user_id", userId).and("p_user_role", userRole));
-    }
+
 }

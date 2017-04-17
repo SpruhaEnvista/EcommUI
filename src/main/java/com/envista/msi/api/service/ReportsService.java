@@ -3,6 +3,7 @@ package com.envista.msi.api.service;
 import com.envista.msi.api.dao.DaoException;
 import com.envista.msi.api.dao.reports.ReportsDao;
 import com.envista.msi.api.dao.reports.ReportsValidationDao;
+import com.envista.msi.api.dao.reports.UserRoleDao;
 import com.envista.msi.api.web.rest.dto.UserProfileDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardAppliedFilterDto;
 import com.envista.msi.api.web.rest.dto.reports.*;
@@ -35,6 +36,8 @@ public class ReportsService {
 
     @Inject
     private ReportsValidationDao reportsValidationDao;
+    @Inject
+    private UserRoleDao roleDao;
 
     @Value("${EXPORTDIR}")
     private String exportDir;
@@ -66,7 +69,40 @@ public class ReportsService {
     public UpdateSavedSchedReportDto saveFromReportResults(UpdateSavedSchedReportDto updateSavedSchedReportDto){
         return reportsDao.saveFromReportResults(updateSavedSchedReportDto);
     }
-    public ReportResultsUsersListDto pushToUser(List<ReportResultsUsersListDto> reportResultsUsersListDto){
+    public ReportResultsUsersListDto pushToUser(List<ReportResultsUsersListDto> reportResultsUsersListDto) {
+
+        for (ReportResultsUsersListDto usersListDto : reportResultsUsersListDto) {
+            String msg = null;
+            if (roleDao.verifyuserRole(usersListDto.getUserId(), "user").getVerificationMsg().equals("1") || roleDao.verifyuserRole(usersListDto.getUserId(), "carrier").getVerificationMsg().equals("1")) {
+                Long rptId = reportsDao.getReportDetails(usersListDto.getSavedSchedRptId()).getRptId();
+                if (rptId != null && rptId != 0) {
+                    msg = reportsValidationDao.verifyAssignedReport(usersListDto.getUserId(), rptId).getVerificationMsg();
+                    if (msg != null && !msg.equals("1")) {
+                        throw new DaoException(msg + usersListDto.getUserName());
+                    }
+
+                } else {
+                    throw new DaoException("Report not found ");
+                }
+                msg = reportsValidationDao.verifyAccounts(usersListDto.getSavedSchedRptId(), usersListDto.getUserId()).getVerificationMsg();
+                if (msg != null && !(msg.contains("1,"))) {
+                    throw new DaoException(msg);
+                }
+                msg = reportsValidationDao.verifyCarrier(usersListDto.getUserId(), rptId, usersListDto.getSavedSchedRptId()).getVerificationMsg();
+                if (msg != null && !(msg.contains("1,"))) {
+                    throw new DaoException(msg);
+                }
+                msg = reportsValidationDao.verifySavedSchedShippers(usersListDto.getSavedSchedRptId(), usersListDto.getUserId()).getVerificationMsg();
+                if (msg != null && !(msg.contains("1,"))) {
+                    throw new DaoException(msg);
+                }
+                msg =reportsValidationDao.verifySavedSchedShipperGroups(usersListDto.getSavedSchedRptId(),usersListDto.getUserId()).getVerificationMsg();
+                if (msg != null && !(msg.contains("1,"))) {
+                    throw new DaoException(msg);
+                }
+            }
+
+        }
         return reportsDao.pushToUser(reportResultsUsersListDto);
     }
     public List<ReportModesDto> getReportForModes(Long userId) {
@@ -229,7 +265,7 @@ public class ReportsService {
     }
 
     public SavedSchedReportsDto changeOwnerBasedonSSRptId(String currentUserName, Long currentUserId, String newUserName, Long newUserId, Long ssRptId) {
-        if (reportsValidationDao.verifyuserRole(newUserId, "user").getVerificationMsg().equals("1") || reportsValidationDao.verifyuserRole(newUserId, "carrier").getVerificationMsg().equals("1")) {
+        if (roleDao.verifyuserRole(newUserId, "user").getVerificationMsg().equals("1") || roleDao.verifyuserRole(newUserId, "carrier").getVerificationMsg().equals("1")) {
             Long rptId = reportsDao.getReportDetails(ssRptId).getRptId();
             String msg = null;
             if (rptId != null) {
