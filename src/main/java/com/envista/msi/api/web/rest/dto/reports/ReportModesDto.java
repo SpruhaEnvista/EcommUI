@@ -41,7 +41,7 @@ public class ReportModesDto implements Serializable {
     private Long rptId;
 
     @Column(name = "report_name")
-    private String reportName;
+    private String reportFileName;
 
     @Column(name = "category")
     private Integer category;
@@ -66,9 +66,9 @@ public class ReportModesDto implements Serializable {
 
     public ReportModesDto() {  }
 
-    public ReportModesDto(Long rptId, String reportName, Integer category, Integer isConsolidated, Integer reportGroupId, String groupName, Integer groupUnder, String groupUnderName,String reportDescr) {
+    public ReportModesDto(Long rptId, String reportFileName, Integer category, Integer isConsolidated, Integer reportGroupId, String groupName, Integer groupUnder, String groupUnderName,String reportDescr) {
         this.rptId = rptId;
-        this.reportName = reportName;
+        this.reportFileName = reportFileName;
         this.category = category;
         this.isConsolidated = isConsolidated;
         this.reportGroupId = reportGroupId;
@@ -82,16 +82,16 @@ public class ReportModesDto implements Serializable {
         return rptId;
     }
 
-    public void setRptId(Long reportId) {
+    public void setRptId(Long rptId) {
         this.rptId = rptId;
     }
 
-    public String getReportName() {
-        return reportName;
+    public String getReportFileName() {
+        return reportFileName;
     }
 
-    public void setReportName(String reportName) {
-        this.reportName = reportName;
+    public void setReportFileName(String reportFileName) {
+        this.reportFileName = reportFileName;
     }
 
     public Integer getCategory() {

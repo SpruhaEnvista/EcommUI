@@ -33,6 +33,11 @@ public class ReportsService {
 
     @Value("${EXPORTDIR}")
     private String exportDir;
+    @Value("${PRODEXPORTDIR}")
+    private String prodExportDir;
+    @Value("${FILESERVER}")
+    private String fileServer;
+
 
     public List<ReportResultsDto> getReportResults(long userId) {
         return  reportsDao.getReportResults(userId);
@@ -239,21 +244,33 @@ public class ReportsService {
         if(reportsFilesDtoList!=null && reportsFilesDtoList.size()>0){
             ReportsFilesDto reportsFilesDto = reportsFilesDtoList.get(0);
 
-            String filePath = reportsFilesDto.getFilePath();
-
-              if(exportDir!=null && !exportDir.isEmpty()){
-                  filePath = filePath.replaceAll("E:",exportDir);
-             }
+            String filePath = getFileServerAbsolutePath(reportsFilesDto.getFilePath());
 
                 File file = new File(filePath);
-              if(!file.exists()){
-                  throw new FileNotFoundException(file.getName()+"File not exist ");
+                if(!file.exists()){
+                      throw new FileNotFoundException(file.getName() + "File not exist ");
+
               }
 
             return file;
         }
 
+
         return null;
+    }
+    public String getFileServerAbsolutePath(String physicalFileName) throws FileNotFoundException {
+
+        String drive = physicalFileName.substring(0, physicalFileName.indexOf('\\'));
+        System.out.println("drive-->"+drive);
+        String relativeFileLocation = physicalFileName.substring(physicalFileName.indexOf('\\'));
+        System.out.println("relativeFileLocation-->"+relativeFileLocation);
+        physicalFileName = "\\\\" + fileServer + "\\" + drive.toLowerCase().replace(":", "$") + relativeFileLocation;
+        System.out.println("physicalFileName-->"+physicalFileName);
+        if (!(new File(physicalFileName)).exists()) {
+            physicalFileName = physicalFileName.replace("$", "");
+        }
+
+        return physicalFileName;
     }
 
     public SavedSchedReportDto saveSchedReport(SavedSchedReportDto savedSchedReportDto){
@@ -276,6 +293,12 @@ public class ReportsService {
                 }
 
                 inserChildTables(savedSchedReportDto,savedSchedReport.getSavedSchedRptId());
+            }
+            if(savedSchedReportDto.getRptFolderId()!=null && savedSchedReportDto.getRptFolderId()>0){
+                ReportFolderDetailsDto rptFolderDtlsDto = new ReportFolderDetailsDto();
+                rptFolderDtlsDto.setReportFolderId(savedSchedReportDto.getRptFolderId());
+                rptFolderDtlsDto.setSavedSchdReportId(savedSchedReport.getSavedSchedRptId());
+                reportsDao.moveReportToFolder(rptFolderDtlsDto);
             }
 
         return savedSchedReport;
@@ -309,7 +332,7 @@ public class ReportsService {
 
                 if(savedSchedReportDto.getSavedSchedUsersDtoList()!=null && savedSchedReportDto.getSavedSchedUsersDtoList().size()>0){
                     for(ReportSavedSchdUsersDto saveSchedUser : savedSchedReportDto.getSavedSchedUsersDtoList()){
-                        saveSchedUser.setSavedSchdRptId(savedSchedReport.getSavedSchedRptId());
+                        saveSchedUser.setSavedSchedRptId(savedSchedReport.getSavedSchedRptId());
                         ReportSavedSchdUsersDto outUserDto = reportsDao.saveSchedUser(saveSchedUser);
                     }
                 }
@@ -331,7 +354,7 @@ public class ReportsService {
 
             if(savedSchedReportDto.getSavedSchedUsersDtoList()!=null && savedSchedReportDto.getSavedSchedUsersDtoList().size()>0){
                 for(ReportSavedSchdUsersDto saveSchedUser : savedSchedReportDto.getSavedSchedUsersDtoList()){
-                    saveSchedUser.setSavedSchdRptId(savedSchedReportDto.getSavedSchedRptId());
+                    saveSchedUser.setSavedSchedRptId(savedSchedReportDto.getSavedSchedRptId());
                     ReportSavedSchdUsersDto outUserDto = reportsDao.saveSchedUser(saveSchedUser);
                 }
             }
@@ -342,7 +365,7 @@ public class ReportsService {
 
         if(savedSchedReportDto.getSavedSchedUsersDtoList()!=null && savedSchedReportDto.getSavedSchedUsersDtoList().size()>0){
             for(ReportSavedSchdUsersDto saveSchedUser : savedSchedReportDto.getSavedSchedUsersDtoList()){
-                saveSchedUser.setSavedSchdRptId(savedSchedRrtId);
+                saveSchedUser.setSavedSchedRptId(savedSchedRrtId);
                 ReportSavedSchdUsersDto outUserDto = reportsDao.saveSchedUser(saveSchedUser);
             }
         }
@@ -404,7 +427,41 @@ public class ReportsService {
 
     public List<ReportCodeValueDto> getReportWeightLabel(Long rptId){ return reportsDao.getReportWeightLabel(rptId); }
 
-    public List<ReportFormatDto> getControlNumber(String customerIds,Integer payRunNo,Integer checkNo){ return  reportsDao.getControlNumber(customerIds,payRunNo,checkNo); }
+    public List<ReportFormatDto> getControlNumber(String customerIds,Integer payRunNo,Integer checkNo){
+        String customerCondition="";
+        int count=0;
+        List<List<ReportFormatDto>> list=new ArrayList<List<ReportFormatDto>>() ;
+        List<ReportFormatDto> resultList=new ArrayList<ReportFormatDto>();
+        if (customerIds!=null && (customerIds.trim()).length()>0) {
+            customerCondition="";
+            String[] customerIdArr=customerIds.split(",");
+            for(int i=0;i<customerIdArr.length;i++){
+                if (count > 999) {
+                    count = 0;
+                    List<ReportFormatDto> dtos=reportsDao.getControlNumber(customerCondition,payRunNo,checkNo);
+                    if(dtos!=null & dtos.size()>0)
+                        list.add(dtos);
+                    customerCondition="";
+                }
+                if (count != 0)
+                    customerCondition = customerCondition + ",";
+                customerCondition = customerCondition + customerIdArr[i].trim();
+                count++;
+            }
+        }
+        List<ReportFormatDto> dtos=reportsDao.getControlNumber(customerCondition,payRunNo,checkNo);
+        if(dtos!=null & dtos.size()>0)
+            list.add(dtos);
+        if(list.size()>0){
+            for( List<ReportFormatDto> dtoList:list){
+                if(dtoList!=null && dtoList.size()>0){
+                    for(ReportFormatDto dto:dtoList)
+                        resultList.add(dto);
+                }
+            }
+        }
+        return  resultList;
+    }
 
     public List<ReportFolderDto> getReportFolder(Long userId){ return  reportsDao.getReportFolder(userId); }
 
@@ -509,5 +566,33 @@ public class ReportsService {
 
     public ReportFolderDto deleteFolder(Long rptFolderId, Long userId) {
         return reportsDao.deleteFolder(rptFolderId,userId);
+    }
+    public JSONArray getReportUserCustomers(Long userId) throws  Exception{
+        JSONArray customerJsonArr=new JSONArray();
+        List<SearchUserByCustomerDto> customerDtos=reportsDao.getReportUserCustomers(userId);
+        if(customerDtos != null && customerDtos.size()>0){
+            for(SearchUserByCustomerDto custoemrDto:customerDtos) {
+                JSONObject customerJson = new JSONObject();
+                customerJson.put("customerId", custoemrDto.getCustomerId());
+                customerJson.put("customerName", custoemrDto.getCustomerName());
+                customerJsonArr.put(customerJson);
+            }
+        }
+        return customerJsonArr;
+    }
+    public JSONArray getReportSearchUsers(Long userId,Long customerId,String fullName,String email,Boolean userOnly)throws Exception{
+        JSONArray userJsonArr=new JSONArray();
+        List<SearchUserByCustomerDto> usersDtos=reportsDao.getReportSearchUsers(userId,customerId,fullName,email,userOnly);
+        if(usersDtos != null && usersDtos.size()>0){
+            for(SearchUserByCustomerDto userDto:usersDtos) {
+                JSONObject userJson = new JSONObject();
+                userJson.put("userID", userDto.getUserId());
+                userJson.put("userName", userDto.getUserName());
+                userJson.put("fullName", userDto.getUserName());
+                userJson.put("email", userDto.getEmail());
+                userJsonArr.put(userJson);
+            }
+        }
+        return userJsonArr;
     }
 }

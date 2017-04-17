@@ -321,6 +321,7 @@ public class ReportsController {
         try {
             JSONObject ctrlNoJson=new JSONObject();
             String customers = "";
+            boolean flag=false;
             String customerIds = lookupBntDto.getCustomerIds();
             JSONArray jsonArray = new JSONArray(customerIds); // json
             if(jsonArray!=null) {
@@ -337,10 +338,14 @@ public class ReportsController {
                 if (reportControlNo != null && reportControlNo.size() > 0) {
                     JSONArray ctrlNoArray = new JSONArray();
                     for (ReportFormatDto dto : reportControlNo) {
-                        JSONObject dtoJson = new JSONObject();
-                        dtoJson.put("payRunNumber", dto.getControlNumber());
-                        ctrlNoArray.put(dtoJson);
+                        if(dto.getControlNumber()!=null) {
+                            flag=true;
+                            JSONObject dtoJson = new JSONObject();
+                            dtoJson.put("payRunNumber", dto.getControlNumber());
+                            ctrlNoArray.put(dtoJson);
+                        }
                     }
+                    if(flag)
                     ctrlNoJson.put("controlNumber", ctrlNoArray);
                 }
             }
@@ -440,6 +445,24 @@ public class ReportsController {
         try {
             JSONArray triggerOptionsJsons =reportsService.getReportTriggerOptions(Long.parseLong(rptId),carrierIds);
             return new ResponseEntity<JSONArray>(triggerOptionsJsons, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<JSONArray>(new JSONArray(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @RequestMapping(value = "/userscustomers", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<JSONArray> getReportUserCustomers(@RequestParam String userId){
+        try {
+            JSONArray cusstomerArray = reportsService.getReportUserCustomers(Long.parseLong(userId));
+            return new ResponseEntity<JSONArray>(cusstomerArray, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<JSONArray>(new JSONArray(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @RequestMapping(value = "/searchusers", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<JSONArray> getReportSearchUsers(@RequestParam Long userId,@RequestParam String customerId,@RequestParam String fullName,@RequestParam String email,@RequestParam String userOnly){
+        try {
+            JSONArray userArray = reportsService.getReportSearchUsers(userId,customerId==null ||  customerId.trim().equals("") ? 0 : Long.parseLong(customerId),fullName,email,Boolean.parseBoolean(userOnly));
+            return new ResponseEntity<JSONArray>(userArray, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<JSONArray>(new JSONArray(), HttpStatus.INTERNAL_SERVER_ERROR);
         }

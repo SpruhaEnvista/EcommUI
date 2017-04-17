@@ -176,7 +176,8 @@ import java.util.Date;
                                 @ColumnResult(name = "locale", type = String.class),
                                 @ColumnResult(name = "currency", type = String.class),
                                 @ColumnResult(name = "weight_uom", type = String.class),
-                                @ColumnResult(name = "rpt_descr", type = String.class)
+                                @ColumnResult(name = "rpt_descr", type = String.class),
+                                @ColumnResult(name = "rpt_folder_id", type = Long.class)
                         }
                 )
         })
@@ -317,6 +318,9 @@ public class SavedSchedReportDto {
 
     @Column(name = "updateCount")
     private Integer updateCount;
+
+    @Column(name = "rpt_folder_id")
+    private Long rptFolderId;
 
     public Long getSavedSchedRptId() {
         return savedSchedRptId;
@@ -662,6 +666,14 @@ public class SavedSchedReportDto {
         this.rptDescr = rptDescr;
     }
 
+    public Long getRptFolderId() {
+        return rptFolderId;
+    }
+
+    public void setRptFolderId(Long rptFolderId) {
+        this.rptFolderId = rptFolderId;
+    }
+
     public ArrayList<ReportPacketsDetDto> getReportPacketsDetList() {
         return reportPacketsDetList;
     }
@@ -736,5 +748,62 @@ public class SavedSchedReportDto {
 
     public void setUpdateCount(Integer updateCount) {
         this.updateCount = updateCount;
+    }
+
+    public SavedSchedReportDto(Long savedSchedRptId,
+                               Long rptId, Boolean isScheduled, Integer rptDateOptionsId,
+                               Integer reportTypeId,String reportFileName, String dateSelectionFrequency,String date1,String date2,
+                               String periodOption,Integer lastNoOfDays,String scTriggerBy,String scScheduleType,
+                               Integer scWeeklyFrequency,String scWeeklyMonthlyDayofWeek,Integer scMonthlyDayOfMonth,
+                               Integer scMonthlyNoOfMonths,String scMonthlyPeriodicFrequency,String svReportStatus,String submittedOn,
+                               String scNextSubmitDate,String carrierIds,String controlPayrunNumber,Boolean consolidate,Integer failedAttempts,
+                               String createUser,String createDate,String lastUpdateUser,String lastUpdateDate,String criteria,
+                               Integer dateRangeTodayMinus1,Integer dateRangeTodayMinus2,String ftpAccountsId,Boolean suppressInvoices,
+                               Integer highPriority,String submittedFromSystem,Boolean packet,String queueName,String flagsJson,
+                               String locale,String currency,String weightUom,String rptDescr, Long rptFolderId){
+        this.savedSchedRptId = savedSchedRptId;
+        this.rptId = rptId;
+        this.isScheduled = isScheduled;
+        this.rptDateOptionsId = rptDateOptionsId;
+        this.reportTypeId = reportTypeId;
+        this.reportFileName = reportFileName;
+        this.dateSelectionFrequency = dateSelectionFrequency;
+        this.date1 = date1;
+        this.date2 = date2;
+        this.periodOption = periodOption;
+        this.lastNoOfDays = lastNoOfDays;
+        this.scTriggerBy = scTriggerBy;
+        this.scScheduleType = scScheduleType;
+        this.scWeeklyFrequency = scWeeklyFrequency;
+        this.scWeeklyMonthlyDayofWeek = scWeeklyMonthlyDayofWeek;
+        this.scMonthlyDayOfMonth = scMonthlyDayOfMonth;
+        this.scMonthlyNoOfMonths = scMonthlyNoOfMonths;
+        this.scMonthlyPeriodicFrequency = scMonthlyPeriodicFrequency;
+        this.svReportStatus = svReportStatus;
+        this.submittedOn = submittedOn;
+        this.scNextSubmitDate = scNextSubmitDate;
+        this.carrierIds = carrierIds;
+        this.controlPayrunNumber = controlPayrunNumber;
+        this.consolidate = consolidate;
+        this.failedAttempts = failedAttempts;
+        this.createUser = createUser;
+        this.createDate = createDate;
+        this.lastUpdateUser = lastUpdateUser;
+        this.lastUpdateDate = lastUpdateDate;
+        this.criteria = criteria;
+        this.dateRangeTodayMinus1 = dateRangeTodayMinus1;
+        this.dateRangeTodayMinus2 = dateRangeTodayMinus2;
+        this.ftpAccountsId = ftpAccountsId;
+        this.suppressInvoices = suppressInvoices;
+        this.highPriority = highPriority;
+        this.submittedFromSystem = submittedFromSystem;
+        this.packet = packet;
+        this.queueName = queueName;
+        this.flagsJson = flagsJson;
+        this.locale = locale;
+        this.currency = currency;
+        this.weightUom = weightUom;
+        this.rptDescr = rptDescr;
+        this.rptFolderId = rptFolderId;
     }
 }
