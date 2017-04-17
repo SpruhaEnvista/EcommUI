@@ -164,6 +164,7 @@ public class DashboardStoredProcParam {
         public static final String REPORT_FOR_DASHLETTE_PARAM = "p_rpt_for_dashlette";
         public static final String PAGE_OFFSET_PARAM = "p_offset";
         public static final String PAGE_SIZE_PARAM = "p_page_size";
+        public static final String SEARCH_FILTER_CONDITION_PARAM = "p_search_filter";
     }
 
     public static class DashboardReportUtilityDataParams {

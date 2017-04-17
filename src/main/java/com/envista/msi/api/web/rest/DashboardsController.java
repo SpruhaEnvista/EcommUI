@@ -2770,25 +2770,32 @@ public class DashboardsController extends DashboardBaseController {
     @RequestMapping(value = "/dashboardReport", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<PaginationBean> getDashboardReport(@RequestParam(required = false) String invoiceDate, @RequestParam(required = false) String dashletteName, @RequestParam(required = false) String carrierId,
                                                              @RequestParam(required = false) String mode, @RequestParam(required = false) String carscoretype, @RequestParam(required = false) String service,
-                                                             @RequestParam(required = false, defaultValue = "0") Integer offset, @RequestParam(required = false, defaultValue = "0") Integer limit){
+                                                             @RequestParam(required = false, defaultValue = "0") Integer offset, @RequestParam(required = false, defaultValue = "20") Integer limit,
+                                                             @RequestParam(required = false) String filter){
         PaginationBean reportPaginationData = new PaginationBean();
         try{
             UserProfileDto user = getUserProfile();
             if(null == user){
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(reportPaginationData);
             }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            if(filter != null){
+            DashboardsFilterCriteria appliedFilter = loadAppliedFilters(user.getUserId());
+            if(appliedFilter != null){
                 if(invoiceDate != null && !invoiceDate.isEmpty()){
-                    DashboardUtil.setDatesFromMonth(filter, invoiceDate);
+                    DashboardUtil.setDatesFromMonth(appliedFilter, invoiceDate);
                 }
-                filter.setDashletteName(dashletteName);
-                filter.setCarriers(carrierId);
-                filter.setModeNames(mode);
-                filter.setScoreType(carscoretype);
-                filter.setService(service);
+                appliedFilter.setDashletteName(dashletteName);
+                appliedFilter.setCarriers(carrierId);
+                appliedFilter.setModeNames(mode);
+                appliedFilter.setScoreType(carscoretype);
+                appliedFilter.setService(service);
+                appliedFilter.setOffset(offset);
+                appliedFilter.setPageSize(limit);
             }
-            reportPaginationData = dashboardsService.getDashboardReportPaginationData(filter, offset, limit);
+            if(filter != null && !filter.isEmpty()){
+                reportPaginationData = dashboardsService.getDashboardReportPaginationData(appliedFilter, offset, limit, DashboardUtil.prepareSearchFilterCriteria(filter));
+            }else{
+                reportPaginationData = dashboardsService.getDashboardReportPaginationData(appliedFilter, offset, limit);
+            }
         }catch(Exception e){
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(reportPaginationData);
@@ -2991,7 +2998,7 @@ public class DashboardsController extends DashboardBaseController {
             }
             List<DashSavedFilterDto> userSavedFilters = dashboardsService.getSavedFiltersByUser(user.getUserId());
             List<ReportCustomerCarrierDto> customers = dashboardsService.getDashboardCustomers(user.getUserId());
-            Long customerId = 0L;
+            String customerId = "";
             userFilterData.put("savedFilterNames", userSavedFilters);
             userFilterData.put("currenciesList", JSONUtil.prepareCurrenciesJson(dashboardsService.getCodeValuesByCodeGroup(468L)));
             ReportCustomerCarrierDto customerHierarchy = reportsService.getCustomerHierarchyObject(customers, false);
@@ -3008,29 +3015,19 @@ public class DashboardsController extends DashboardBaseController {
                     filter.setToDate(defaultFilter.getToDate());
                     userFilterData.putAll(dashboardsService.getUserFilterDetails(defaultFilter, user.isParcelDashlettes(), filter));
                 }
-                //userFilterData.put("defaultFilterDetails", defaultFilter);
             }else{
                 if(customers != null && !customers.isEmpty()){
                     if(user.getDefaultCustomer() != null && !user.getDefaultCustomer().isEmpty()){
                         if(user.getDefaultCustomer().startsWith("CU")){
-                            customerId = Long.parseLong(user.getDefaultCustomer().substring(2).trim());
+                            customerId = user.getDefaultCustomer().replace("CU", "");
                         }else{
-                            customerId = Long.parseLong(user.getDefaultCustomer().trim());
+                            customerId = user.getDefaultCustomer().trim();
                         }
                     }else{
-                        customerId = Long.parseLong(customerHierarchy.getCollection().iterator().next().getValue().trim());
-                    }
-
-                    List<UserFilterUtilityDataDto> carriers = dashboardsService.getCarrierByCustomer(String.valueOf(customerId), user.isParcelDashlettes());
-                    StringJoiner carrierCSV = new StringJoiner(",");
-                    for(UserFilterUtilityDataDto car : carriers){
-                        if(car != null){
-                            carrierCSV.add(car.getCarrierId().toString());
-                        }
+                        customerId = customerHierarchy.getCollection().iterator().next().getValue().trim();
                     }
 
                     DashboardsFilterCriteria filter = new DashboardsFilterCriteria();
-                    filter.setCarriers(carrierCSV.toString());
                     filter.setDateType("INVOICE_DATE");
                     filter.setFromDate(DateUtil.format(DateUtil.subtractDays(new Date(), 90), "dd-MMM-yyyy"));
                     filter.setToDate(DateUtil.format(new Date(), "dd-MMM-yyyy"));
@@ -3043,18 +3040,17 @@ public class DashboardsController extends DashboardBaseController {
                     dashSavedFilter.setFromDate(filter.getFromDate());
                     dashSavedFilter.setToDate(filter.getToDate());
                     dashSavedFilter.setCustomerIds(String.valueOf(customerId));
-                    dashSavedFilter.setCarrierIds(carrierCSV.toString());
 
-                    userFilterData.putAll(dashboardsService.getUserFilterDetails(dashSavedFilter, user.isParcelDashlettes(), filter));
-                    userFilterData.put("defaultFilterDetails", dashSavedFilter);
+                    userFilterData.putAll(dashboardsService.getNewUserFilterDetails(dashSavedFilter, user.isParcelDashlettes(), filter));
                 }
             }
-            if(userFilterData.get("defaultFilterDetails") != null){
-                dashboardsService.saveAppliedFilterDetails(DashboardUtil.prepareAppliedFilter((DashSavedFilterDto) userFilterData.get("defaultFilterDetails"), user.getUserName(), user.getUserId(), session.getId()));
+            if(userFilterData.get("filterDetails") != null){
+                dashboardsService.saveAppliedFilterDetails(DashboardUtil.prepareAppliedFilter((DashSavedFilterDto) userFilterData.get("filterDetails"), user.getUserName(), user.getUserId(), session.getId()));
             }
             userFilterData.put("userColumnConfig", dashboardsService.getDashboardReportCustomColumnNames(loadAppliedFilters(user.getUserId())));
         }catch (Exception e){
-            return new ResponseEntity<Map<String, Object>>(HttpStatus.INTERNAL_SERVER_ERROR);
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(userFilterData);
         }
         return ResponseEntity.status(HttpStatus.OK).body(userFilterData);
     }
@@ -3262,6 +3258,30 @@ public class DashboardsController extends DashboardBaseController {
             dashboardsService.makeDefaultSavedFilter(filterId, user.getUserId());
             respMap.put("status", HttpStatus.OK.value());
             respMap.put("message", "Updated Successfully");
+            respMap.put("savedFilterNames", dashboardsService.getSavedFiltersByUser(user.getUserId()));
+        }catch (Exception e){
+            try {
+                respMap.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+                respMap.put("message", WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respMap);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(respMap);
+    }
+
+    @RequestMapping(value = "/savedFilters", method = {RequestMethod.GET}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<Map<String, Object>> getDashSavedFilters(){
+        Map<String, Object> respMap = new HashMap<String, Object>();
+        try {
+            UserProfileDto user = getUserProfile();
+            if (null == user) {
+                respMap.put("status", HttpStatus.UNAUTHORIZED.value());
+                respMap.put("message", WebConstants.ResponseMessage.INVALID_USER);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(respMap);
+            }
+            respMap.put("status", HttpStatus.OK.value());
             respMap.put("savedFilterNames", dashboardsService.getSavedFiltersByUser(user.getUserId()));
         }catch (Exception e){
             try {

@@ -3,12 +3,14 @@ package com.envista.msi.api.domain.util;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardAppliedFilterDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
 import com.envista.msi.api.web.rest.dto.dashboard.filter.DashSavedFilterDto;
+import com.envista.msi.api.web.rest.dto.dashboard.filter.UserFilterUtilityDataDto;
+import com.envista.msi.api.web.rest.util.JSONUtil;
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * Created by Sujit kumar on 06/02/2017.
@@ -200,5 +202,38 @@ public class DashboardUtil {
         appliedFilter.setServices(savedFilter.getServices());
         appliedFilter.setWeightUnit(savedFilter.getWeightUnit());
         return appliedFilter;
+    }
+
+    public static String prepareSearchFilterCriteria(String filter){
+        filter = filter.substring(1, filter.length() - 1);
+        String delimiter = filter.contains("||") ? "||" : "&&";
+        String sqlCondition = delimiter.equals("||") ? "OR" : "AND";
+        int i = 0;
+        int size = filter.split(Pattern.quote(delimiter)).length;
+        StringBuilder finalCondition = new StringBuilder("(");
+        for(String params : filter.split(Pattern.quote(delimiter))){
+            finalCondition.append("LOWER(" + params.split(":")[0] + ")" + " LIKE " + "'" + params.split(":")[1] + "'");
+            if(i != size - 1){
+                finalCondition.append(" " + sqlCondition + " ");
+            }
+            i++;
+        }
+        finalCondition.append(")");
+        return finalCondition.toString();
+    }
+
+    public static Map<String, Object> prepareFilterDetails(List<UserFilterUtilityDataDto> carriers, List<UserFilterUtilityDataDto> services, List<UserFilterUtilityDataDto> modes,
+                                                    List<Long> savedCarrList, List<Long> savedServices, DashSavedFilterDto savedFilter, Map<String, String> modeWiseCarriers,
+                                                    boolean isParcelDashlettes) throws JSONException {
+        Map<String, Object> userFilterDetailsMap = new HashMap<String, Object>();
+        JSONArray modesArray = new JSONArray();
+        if (savedCarrList.size() > 0) {
+            modesArray = JSONUtil.prepareFilterModesJson(modes, modeWiseCarriers, isParcelDashlettes);
+        }
+        userFilterDetailsMap.put("carrDetails", JSONUtil.prepareFilterCarrierJson(carriers, savedCarrList));
+        userFilterDetailsMap.put("modesDetails", modesArray);
+        userFilterDetailsMap.put("servicesDetails", JSONUtil.prepareFilterServiceJson(services, savedServices));
+        userFilterDetailsMap.put("filterDetails", savedFilter);
+        return userFilterDetailsMap;
     }
 }

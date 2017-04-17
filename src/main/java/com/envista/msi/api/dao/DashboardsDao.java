@@ -26,6 +26,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.report.DashboardReportDto;
 import com.envista.msi.api.web.rest.dto.dashboard.report.DashboardReportUtilityDataDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.*;
 import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
+import com.envista.msi.api.web.rest.util.WebConstants;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -33,10 +34,7 @@ import org.springframework.util.StringUtils;
 import javax.inject.Inject;
 import javax.persistence.ParameterMode;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by Sarvesh on 1/19/2017.
@@ -1109,16 +1107,16 @@ public class DashboardsDao {
         return persistentContext.findEntities(DashboardReportUtilityDataDto.Config.StoredProcedureQueryName.DASHBOARD_REPORT_CUST_DEF_LBL, queryParameter);
     }
 
-    public int getDashboardReportTotalRecordCount(DashboardsFilterCriteria filter){
-        DashboardReportUtilityDataDto reportDataCount = persistentContext.findEntity(DashboardReportUtilityDataDto.Config.StoredProcedureQueryName.RECORD_COUNT, prepareDashboardReportQueryParam(filter, true));
+    public int getDashboardReportTotalRecordCount(DashboardsFilterCriteria filter, Map<String, Object> paginationFilterMap){
+        DashboardReportUtilityDataDto reportDataCount = persistentContext.findEntity(DashboardReportUtilityDataDto.Config.StoredProcedureQueryName.RECORD_COUNT, prepareDashboardReportQueryParam(filter, paginationFilterMap, true));
         return reportDataCount.getRecordCount();
     }
 
-    public List<DashboardReportDto> getDashboardReport(DashboardsFilterCriteria filter){
-        return persistentContext.findEntities(DashboardReportDto.Config.StoredProcedureQueryName.PARCEL_AND_FREIGHT_REPORT, prepareDashboardReportQueryParam(filter, false));
+    public List<DashboardReportDto> getDashboardReport(DashboardsFilterCriteria filter, Map<String, Object> paginationFilterMap){
+        return persistentContext.findEntities(DashboardReportDto.Config.StoredProcedureQueryName.PARCEL_AND_FREIGHT_REPORT, prepareDashboardReportQueryParam(filter, paginationFilterMap, false));
     }
 
-    private QueryParameter prepareDashboardReportQueryParam(DashboardsFilterCriteria filter, boolean forCount){
+    private QueryParameter prepareDashboardReportQueryParam(DashboardsFilterCriteria filter, Map<String, Object> paginationFilterMap, boolean forCount){
         QueryParameter queryParameter = StoredProcedureParameter.with(DashboardStoredProcParam.DashboardReportParams.DATE_TYPE_PARAM, filter.getDateType())
                 .and(DashboardStoredProcParam.DashboardReportParams.CARRIER_IDS_PARAM, filter.getCarriers())
                 .and(DashboardStoredProcParam.DashboardReportParams.DASHLETTE_NAME_PARAM, filter.getDashletteName())
@@ -1165,6 +1163,17 @@ public class DashboardsDao {
                 .and(DashboardStoredProcParam.DashboardReportParams.PAGE_OFFSET_PARAM, filter.getOffset())
                 .and(DashboardStoredProcParam.DashboardReportParams.PAGE_SIZE_PARAM, filter.getPageSize())
                 .and(DashboardStoredProcParam.DashboardReportParams.REPORT_TOTAL_ROW_COUNT_PARAM, forCount ? 1 : 0);
+
+        boolean searchFilterConditionAdded = false;
+        if(paginationFilterMap != null){
+            if(paginationFilterMap.containsKey(WebConstants.SEARCH_FILTER_CONDITION)){
+                queryParameter.and(DashboardStoredProcParam.DashboardReportParams.SEARCH_FILTER_CONDITION_PARAM, paginationFilterMap.get(WebConstants.SEARCH_FILTER_CONDITION));
+                searchFilterConditionAdded = true;
+            }
+        }
+        if(!searchFilterConditionAdded){
+            queryParameter.and(DashboardStoredProcParam.DashboardReportParams.SEARCH_FILTER_CONDITION_PARAM, "");
+        }
         return queryParameter;
     }
 
