@@ -16,6 +16,7 @@ import javax.inject.Inject;
 public class UserRoleDao {
     @Inject
     private PersistentContext persistentContext;
+
     @Transactional
     public UserRoleDto verifyuserRole(Long userId, String userRole) {
         return persistentContext.findEntity("ReportsValidation.verifyuserRole",
