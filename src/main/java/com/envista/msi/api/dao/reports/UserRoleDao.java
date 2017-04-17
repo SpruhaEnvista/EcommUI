@@ -19,7 +19,7 @@ public class UserRoleDao {
 
     @Transactional
     public UserRoleDto verifyuserRole(Long userId, String userRole) {
-        return persistentContext.findEntity("ReportsValidation.verifyuserRole",
+        return persistentContext.findEntity("UserRole.verifyuserRole",
                 StoredProcedureParameter.with("p_user_id", userId).and("p_user_role", userRole));
     }
 

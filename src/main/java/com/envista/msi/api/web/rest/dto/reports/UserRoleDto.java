@@ -7,7 +7,7 @@ import java.io.Serializable;
  * Created by Ashish Kumar on 17/04/2017.
  */
 @NamedStoredProcedureQueries({
-@NamedStoredProcedureQuery(name = "ReportsValidation.verifyuserRole", procedureName = "shp_rpt_verify_role_proc",
+@NamedStoredProcedureQuery(name = "UserRole.verifyuserRole", procedureName = "shp_rpt_verify_role_proc",
         resultSetMappings = "VerifyRole",
         parameters = {
                 @StoredProcedureParameter(mode= ParameterMode.IN, name = "p_user_id",type = Long.class),
@@ -19,7 +19,7 @@ import java.io.Serializable;
 @SqlResultSetMappings({
         @SqlResultSetMapping(name = "VerifyRole", classes = {
                 @ConstructorResult(
-                        targetClass = ReportsValidationDto.class,
+                        targetClass = UserRoleDto.class,
                         columns = {
                                 @ColumnResult(name = "p_verificationMsg", type = String.class)
                         }
