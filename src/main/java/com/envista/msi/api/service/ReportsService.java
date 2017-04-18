@@ -595,4 +595,70 @@ public class ReportsService {
         }
         return userJsonArr;
     }
+
+    public ReportFolderDto getFolderHierarchy(Long userId){
+        List<ReportFolderDto> folderHeirarchy = reportsDao.getFolderHierarchy(userId);
+        List<ReportFolderDto> rptFolders = reportsDao.getReportFolder(userId);
+        TreeSet<ReportFolderDto> hierarchy = new TreeSet<ReportFolderDto>();
+        ReportFolderDto folderHierarchyDto=null;
+        if(rptFolders!=null && rptFolders.size()>0) {
+            for (ReportFolderDto dto : rptFolders) {
+                if (dto.getRptFolderId()==dto.getParentId())
+                    hierarchy.add(dto);
+            }
+        }
+        //54;;3;;22==name10;;12==new folder2;;54==1234546789
+        //55;;3;;22==name10;;12==new folder2;;55==new123
+        if(folderHeirarchy!=null && folderHeirarchy.size()>0) {
+            folderHierarchyDto=new ReportFolderDto(-1L,"FolderName",-1L);
+            for (ReportFolderDto hierarchyDto : folderHeirarchy) {
+                String folderH = hierarchyDto.getFolderHierarchy();
+                String[] folderDetA = folderH.split(";;");
+                String[] folderParentD = folderDetA[2].split("==");
+                Long parentId=Long.parseLong(folderParentD[0]);
+                ReportFolderDto folderDto = getByfolderIdFromSet(hierarchy,parentId);
+                for (int i = 0; i < folderDetA.length - 2; i++) {
+                    String[] folderDetD = folderDetA[i + 2].split("==");
+                    long folderHieId = Long.parseLong(folderDetD[0]);
+                    String folderName = folderDetD[1];
+                    long parentID = Long.parseLong(folderDetD[2]);
+                    ReportFolderDto parentFolderDto = findFolderGroup(folderDto, parentID);
+                    if(i==1){
+                        if(parentFolderDto==null){
+                            parentFolderDto = getByfolderIdFromSet(hierarchy,parentId);
+                            ReportFolderDto chiledFolderDto = findFolderGroup(folderDto, folderHieId);
+                            if(chiledFolderDto==null) {
+                                parentFolderDto.getCollection().add(new ReportFolderDto(folderHieId, folderName, parentID));
+                            }
+                        }
+                    }
+                    if (i >0) {
+                        ReportFolderDto chiledFolderDto = findFolderGroup(folderDto, folderHieId);
+                        if(chiledFolderDto==null) {
+                            parentFolderDto.getCollection().add(new ReportFolderDto(folderHieId, folderName, parentID));
+                        }
+                     }
+                }
+            }
+            folderHierarchyDto.setCollection(hierarchy);
+        }
+        return folderHierarchyDto;
+    }
+    public  ReportFolderDto getByfolderIdFromSet(Set<ReportFolderDto> set, long folderId) {
+        for (ReportFolderDto folderDto : set) {
+            if (folderDto.getRptFolderId() == folderId)
+                return folderDto;
+        }
+        return null;
+    }
+    public  ReportFolderDto findFolderGroup(ReportFolderDto folderGroups, long folderId) {
+        for (ReportFolderDto folderDto : folderGroups.getCollection()) {
+            if (folderDto.getRptFolderId() == folderId)
+                return folderDto;
+            ReportFolderDto child = findFolderGroup(folderDto, folderId);
+            if (child != null)
+                return child;
+        }
+        return null;
+    }
 }
