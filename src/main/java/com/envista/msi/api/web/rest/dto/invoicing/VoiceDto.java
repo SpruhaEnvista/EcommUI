@@ -16,6 +16,7 @@ import java.io.Serializable;
                 @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_USER_ID", type = Long.class),
                 @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_VOICE_ID", type = Long.class),
                 @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PARENT_VOICE_ID", type = Long.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class),
                 @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_VOICE_INFO", type = Void.class)
         }),
         @NamedStoredProcedureQuery(name = "VoiceDto.createOrUpdateVoice", procedureName = "SHP_INV_INSERT_OR_UPDATE_VOICE",

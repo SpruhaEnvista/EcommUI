@@ -25,7 +25,7 @@ public class VoiceDao {
     public List<VoiceDto> getAllVoices(Long userId) {
 
         QueryParameter queryParameter = StoredProcedureParameter.with("P_USER_ID", userId)
-                .and("P_VOICE_ID", 0L).and("P_PARENT_VOICE_ID", 0L);
+                .and("P_VOICE_ID", 0L).and("P_PARENT_VOICE_ID", 0L).and("P_ACTION_TYPE", "getAllVoices");
 
         return persistentContext.findEntities("VoiceDto.getVoiceList", queryParameter);
     }
@@ -33,7 +33,7 @@ public class VoiceDao {
     public List<VoiceDto> getParentVoiceNames(long voiceId) {
 
         QueryParameter queryParameter = StoredProcedureParameter.with("P_USER_ID", 0L)
-                .and("P_VOICE_ID", 0L).and("P_PARENT_VOICE_ID", voiceId);
+                .and("P_VOICE_ID", 0L).and("P_PARENT_VOICE_ID", voiceId).and("P_ACTION_TYPE", "getAllParentVoices");
 
         return persistentContext.findEntities("VoiceDto.getVoiceList", queryParameter);
     }
@@ -41,7 +41,7 @@ public class VoiceDao {
     public VoiceDto findByVoiceId(Long voiceId) {
 
         QueryParameter queryParameter = StoredProcedureParameter.with("P_USER_ID", 0L)
-                .and("P_VOICE_ID", voiceId).and("P_PARENT_VOICE_ID", 0L);
+                .and("P_VOICE_ID", voiceId).and("P_PARENT_VOICE_ID", 0L).and("P_ACTION_TYPE", "findByVoiceId");
 
         List<VoiceDto> dtos = persistentContext.findEntities("VoiceDto.getVoiceList", queryParameter);
 
