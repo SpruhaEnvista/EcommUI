@@ -650,6 +650,8 @@ public class ReportsDao {
                                                   .and("p_full_name",fullName).and("p_email",email).and("p_is_user_only",userOnly ? 1 : 0);
         return persistentContext.findEntities("SearchUserByCustomer.getReportSearchUsers",queryParameter);
     }
-
-
+    @Transactional
+    public List<ReportFolderDto> getFolderHierarchy(Long userId){
+        return persistentContext.findEntities("ReportFolder.getReportFolderHierarchy",StoredProcedureParameter.with("p_user_id",userId));
+    }
 }
