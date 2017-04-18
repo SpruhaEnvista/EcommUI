@@ -50,12 +50,18 @@ public class VoiceController {
 
     }
 
-    @RequestMapping(value = "/getSearchCriteriaList", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
-    public ResponseEntity<List<VoiceDto>> getSearchCriteriaList(@RequestBody VoiceSearchBean bean) {
+    @RequestMapping(value = "/getSearchCriteriaList", params = {"voiceNames", "voiceType", "voiceFlag", "pVoiceNames", "comments"}, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+    public ResponseEntity<List<VoiceDto>> getSearchCriteriaList(@RequestParam String voiceNames, @RequestParam String voiceType, @RequestParam String voiceFlag,
+                                                                @RequestParam String pVoiceNames, @RequestParam String comments) {
 
         log.info("***getSearchCriteriaList method started****");
 
-
+        VoiceSearchBean bean = new VoiceSearchBean();
+        bean.setVoiceName(voiceNames);
+        bean.setVoiceType(voiceType);
+        bean.setVoiceFlag(voiceFlag);
+        bean.setParentVoiceName(pVoiceNames);
+        bean.setComments(comments);
         List<VoiceDto> voiceTbs = service.getVoicesBySearchCriteria(bean);
 
         log.info("***getSearchCriteriaList method dbvoice****" + voiceTbs.size());
