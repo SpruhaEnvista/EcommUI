@@ -1,8 +1,5 @@
 package com.envista.msi.api.web.rest.dto.invoicing;
 
-import com.envista.msi.api.web.rest.dto.reports.ReportCodeValueDto;
-import com.sun.org.apache.xpath.internal.operations.Bool;
-
 import javax.persistence.*;
 import java.io.Serializable;
 

@@ -3,14 +3,12 @@ package com.envista.msi.api.dao.invoicing;
 import com.envista.msi.api.domain.PersistentContext;
 import com.envista.msi.api.domain.util.QueryParameter;
 import com.envista.msi.api.domain.util.StoredProcedureParameter;
-import com.envista.msi.api.web.rest.dto.UserProfileDto;
 import com.envista.msi.api.web.rest.dto.invoicing.VoiceDto;
 import com.envista.msi.api.web.rest.dto.invoicing.VoiceSearchBean;
 import org.springframework.stereotype.Repository;
 
 import javax.inject.Inject;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Created by KRISHNAREDDYM on 4/12/2017.

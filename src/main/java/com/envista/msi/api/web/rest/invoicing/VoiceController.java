@@ -1,11 +1,8 @@
 package com.envista.msi.api.web.rest.invoicing;
 
-import com.envista.msi.api.service.UserService;
 import com.envista.msi.api.service.invoicing.VoiceService;
-import com.envista.msi.api.web.rest.AccountController;
 import com.envista.msi.api.web.rest.dto.invoicing.VoiceDto;
 import com.envista.msi.api.web.rest.dto.invoicing.VoiceSearchBean;
-import io.swagger.models.auth.In;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -15,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Created by KRISHNAREDDYM on 4/12/2017.
@@ -50,7 +46,7 @@ public class VoiceController {
 
     }
 
-    @RequestMapping(value = "/getSearchCriteriaList", params = {"voiceNames", "voiceType", "voiceFlag", "pVoiceNames", "comments"}, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+    @RequestMapping(value = "/getSearchCriteriaList", params = {"voiceNames", "voiceType", "voiceFlag", "pVoiceNames", "comments"}, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
     public ResponseEntity<List<VoiceDto>> getSearchCriteriaList(@RequestParam String voiceNames, @RequestParam String voiceType, @RequestParam String voiceFlag,
                                                                 @RequestParam String pVoiceNames, @RequestParam String comments) {
 
