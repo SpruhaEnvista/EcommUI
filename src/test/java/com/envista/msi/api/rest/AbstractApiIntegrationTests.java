@@ -38,23 +38,35 @@ public abstract class AbstractApiIntegrationTests {
 
 	private static final Logger log = LoggerFactory.getLogger(AbstractApiIntegrationTests.class);
 
-	private static final String globalTokenPath = "/oauth/token";
-	private static final String globalCheckTokenPath = "/oauth/check_token";
+	private static final String globalTokenPath = "oauth/token";
+	private static final String globalCheckTokenPath = "oauth/check_token";
+	private static final String UNDEFINED = "UNDEFINED";
 
-	private static final Integer DEFAULT_PORT = 8889;
-	private static final String DEFAULT_HOST = "172.16.6.59";
+	private static final Integer DEFAULT_PORT = 80;
+	private static final String DEFAULT_HOST = "msiuat02";
 
 	private static final String AUTH_HEADER = "Authorization";
 	private static final String DEFAULT_AUTH_HEADER_VALUE = "Basic bXNpb2F1dGh0ZXN0YXBwOm15LXNlY3JldC10b2tlbi10by1jaGFuZ2UtaW4tcHJvZHVjdGlvbg==";
 
-	@Value("${auth.server.port:}")
+	/*@Value("${auth.server.port:}")
 	private Integer port;
 	@Value("${auth.server.host:}")
 	private String hostName;
 	@Value("${auth.security.clientId:}")
 	private String clientId;
 	@Value("${auth.security.clientSecret:}")
+	private String clientSecret;*/
+		
+	@Value("${spring.oauth2.sso.server.port:80}")
+	private Integer port;
+	@Value("${spring.oauth2.sso.server.host:localhost}")
+	private String hostName;
+	@Value("${spring.oauth2.sso.client.clientId:msioauthtestapp}")
+	private String clientId;
+	@Value("${spring.oauth2.sso.client.clientSecret:my-secret-token-to-change-in-production}")
 	private String clientSecret;
+	@Value("${spring.oauth2.sso.server.api:UNDEFINED}")
+	private String api;
 
 	private String authHeaderValue;
 
@@ -164,7 +176,11 @@ public abstract class AbstractApiIntegrationTests {
 	}
 
 	private String getBaseUrl() {
-		return "http://" + getHostName() + ":" + getPort();
+		String port = ":" + getPort();
+		if (getPort() == 80 || getPort() < 1) {
+			port = "";
+		}
+		return "http://" + getHostName() + port;
 	}
 
 	private String getUrl(String path) {
@@ -174,7 +190,7 @@ public abstract class AbstractApiIntegrationTests {
 		if (!path.startsWith("/")) {
 			path = "/" + path;
 		}
-		return getBaseUrl() + path;
+		return getBaseUrl() + ( "/" + getApi() + path).replace("//", "/");
 	}
 
 	private String getHostName() {
@@ -189,6 +205,13 @@ public abstract class AbstractApiIntegrationTests {
 			this.port = DEFAULT_PORT;
 		}
 		return this.port;
+	}
+	
+	private String getApi() {
+		if (this.api == null || UNDEFINED.equalsIgnoreCase(api) ) {
+			return "";
+		}
+		return api + "/";
 	}
 
 	/**

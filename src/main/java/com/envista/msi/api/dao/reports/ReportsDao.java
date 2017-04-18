@@ -341,10 +341,10 @@ public class ReportsDao {
     @Transactional
     public ReportPacketsDetDto saveSchedPacketReport(ReportPacketsDetDto reportPacketsDetDto){
 
-        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", reportPacketsDetDto.getSavedSchdRptId())
-                .and("tabName",reportPacketsDetDto.getTabName())
-                .and("sequenceNum",reportPacketsDetDto.getSequence())
-                .and("templateId",reportPacketsDetDto.getTemplateId());
+        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", reportPacketsDetDto.getSavedSchdRptId()==null?0:reportPacketsDetDto.getSavedSchdRptId())
+                .and("tabName",reportPacketsDetDto.getTabName()==null?"":reportPacketsDetDto.getTabName())
+                .and("sequenceNum",reportPacketsDetDto.getSequence()==null?0:reportPacketsDetDto.getSequence())
+                .and("templateId",reportPacketsDetDto.getTemplateId()==null?0:reportPacketsDetDto.getTemplateId());
 
         return persistentContext.findEntity("SavedSchedPackets.saveSchedPakcet",queryParameter);
 
@@ -353,7 +353,7 @@ public class ReportsDao {
     @Transactional
     public ReportSavedSchdUsersDto saveSchedUser(ReportSavedSchdUsersDto saveSchedUser){
 
-        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", saveSchedUser.getSavedSchdRptId())
+        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", saveSchedUser.getSavedSchedRptId())
                 .and("userId",saveSchedUser.getUserId())
                 .and("isEmailTempTobeSent",saveSchedUser.isEmailTemplateToBeSent()==null?true:saveSchedUser.isEmailTemplateToBeSent())
                 .and("isReportAttachEmail",saveSchedUser.isReportAttachedMail()==null?false:saveSchedUser.isReportAttachedMail())

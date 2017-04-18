@@ -65,7 +65,7 @@ public class ReportSavedSchdUsersDto {
     private Long savedSchdUsersId;
 
     @Column(name="saved_sched_rpt_id")
-    private Long savedSchdRptId;
+    private Long savedSchedRptId;
 
     @Column(name="user_id")
     private Long userId;
@@ -105,12 +105,12 @@ public class ReportSavedSchdUsersDto {
         this.savedSchdUsersId = savedSchdUsersId;
     }
 
-    public Long getSavedSchdRptId() {
-        return savedSchdRptId;
+    public Long getSavedSchedRptId() {
+        return savedSchedRptId;
     }
 
-    public void setSavedSchdRptId(Long savedSchdRptId) {
-        this.savedSchdRptId = savedSchdRptId;
+    public void setSavedSchedRptId(Long savedSchedRptId) {
+        this.savedSchedRptId = savedSchedRptId;
     }
 
     public Long getUserId() {
@@ -197,5 +197,22 @@ public class ReportSavedSchdUsersDto {
 
     public ReportSavedSchdUsersDto(Long savedSchdUsersId){
         this.savedSchdUsersId = savedSchdUsersId;
+    }
+
+    public ReportSavedSchdUsersDto(Long savedSchdUsersId,Long savedSchedRptId, Long userId,Boolean isEmailTemplateToBeSent,
+                                   Boolean isReportAttachedMail,Boolean isReportSubscribed,String createUser,Date createDate,
+                                   String lastUpdateUser,Date lastUpdateDate,Boolean shared,Boolean canEdit){
+        this.savedSchdUsersId = savedSchdUsersId;
+        this.savedSchedRptId = savedSchedRptId;
+        this.userId = userId;
+        this.isEmailTemplateToBeSent = isEmailTemplateToBeSent;
+        this.isReportAttachedMail = isReportAttachedMail;
+        this.isReportSubscribed = isReportSubscribed;
+        this.createUser = createUser;
+        this.createDate = createDate;
+        this.lastUpdateUser = lastUpdateUser;
+        this.lastUpdateDate = lastUpdateDate;
+        this.shared = shared;
+        this.canEdit = canEdit;
     }
 }

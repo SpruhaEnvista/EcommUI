@@ -35,6 +35,8 @@ public class ReportsService {
     private String exportDir;
     @Value("${PRODEXPORTDIR}")
     private String prodExportDir;
+    @Value("${FILESERVER}")
+    private String fileServer;
 
 
     public List<ReportResultsDto> getReportResults(long userId) {
@@ -242,28 +244,33 @@ public class ReportsService {
         if(reportsFilesDtoList!=null && reportsFilesDtoList.size()>0){
             ReportsFilesDto reportsFilesDto = reportsFilesDtoList.get(0);
 
-            String filePath = reportsFilesDto.getFilePath();
-
-              if(exportDir!=null && !exportDir.isEmpty()){
-                  filePath = filePath.replaceAll("E:",exportDir);
-             }
+            String filePath = getFileServerAbsolutePath(reportsFilesDto.getFilePath());
 
                 File file = new File(filePath);
-              if(!file.exists()){
-
-                  if(prodExportDir!=null && !prodExportDir.isEmpty()){
-                      filePath = filePath.replaceAll("E:",prodExportDir);
-                      file = new File(filePath);
-                  }
-                  if(!file.exists()) {
+                if(!file.exists()){
                       throw new FileNotFoundException(file.getName() + "File not exist ");
-                  }
+
               }
 
             return file;
         }
 
+
         return null;
+    }
+    public String getFileServerAbsolutePath(String physicalFileName) throws FileNotFoundException {
+
+        String drive = physicalFileName.substring(0, physicalFileName.indexOf('\\'));
+        System.out.println("drive-->"+drive);
+        String relativeFileLocation = physicalFileName.substring(physicalFileName.indexOf('\\'));
+        System.out.println("relativeFileLocation-->"+relativeFileLocation);
+        physicalFileName = "\\\\" + fileServer + "\\" + drive.toLowerCase().replace(":", "$") + relativeFileLocation;
+        System.out.println("physicalFileName-->"+physicalFileName);
+        if (!(new File(physicalFileName)).exists()) {
+            physicalFileName = physicalFileName.replace("$", "");
+        }
+
+        return physicalFileName;
     }
 
     public SavedSchedReportDto saveSchedReport(SavedSchedReportDto savedSchedReportDto){
@@ -325,7 +332,7 @@ public class ReportsService {
 
                 if(savedSchedReportDto.getSavedSchedUsersDtoList()!=null && savedSchedReportDto.getSavedSchedUsersDtoList().size()>0){
                     for(ReportSavedSchdUsersDto saveSchedUser : savedSchedReportDto.getSavedSchedUsersDtoList()){
-                        saveSchedUser.setSavedSchdRptId(savedSchedReport.getSavedSchedRptId());
+                        saveSchedUser.setSavedSchedRptId(savedSchedReport.getSavedSchedRptId());
                         ReportSavedSchdUsersDto outUserDto = reportsDao.saveSchedUser(saveSchedUser);
                     }
                 }
@@ -347,7 +354,7 @@ public class ReportsService {
 
             if(savedSchedReportDto.getSavedSchedUsersDtoList()!=null && savedSchedReportDto.getSavedSchedUsersDtoList().size()>0){
                 for(ReportSavedSchdUsersDto saveSchedUser : savedSchedReportDto.getSavedSchedUsersDtoList()){
-                    saveSchedUser.setSavedSchdRptId(savedSchedReportDto.getSavedSchedRptId());
+                    saveSchedUser.setSavedSchedRptId(savedSchedReportDto.getSavedSchedRptId());
                     ReportSavedSchdUsersDto outUserDto = reportsDao.saveSchedUser(saveSchedUser);
                 }
             }
@@ -358,7 +365,7 @@ public class ReportsService {
 
         if(savedSchedReportDto.getSavedSchedUsersDtoList()!=null && savedSchedReportDto.getSavedSchedUsersDtoList().size()>0){
             for(ReportSavedSchdUsersDto saveSchedUser : savedSchedReportDto.getSavedSchedUsersDtoList()){
-                saveSchedUser.setSavedSchdRptId(savedSchedRrtId);
+                saveSchedUser.setSavedSchedRptId(savedSchedRrtId);
                 ReportSavedSchdUsersDto outUserDto = reportsDao.saveSchedUser(saveSchedUser);
             }
         }

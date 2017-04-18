@@ -92,7 +92,7 @@ public class MSIClientConfiguration {
 			if (getPort() == 80 || getPort() < 1) {
 				port = "";
 			}
-			return "http://" + getHostName() + port + "/" + checkPath;
+			return "http://" + getHostName() + port + "/" + getApi() + checkPath;
 		}
 
 		private String getHostName() {
@@ -108,11 +108,19 @@ public class MSIClientConfiguration {
 			}
 			return this.port;
 		}
+		
+		private String getApi() {
+			if (this.api == null || UNDEFINED.equalsIgnoreCase(api) ) {
+				return "";
+			}
+			return api + "/";
+		}
 
 		private static final Integer DEFAULT_PORT = 80;
 		private static final String DEFAULT_HOST = "localhost";
+		private static final String UNDEFINED = "UNDEFINED";
 		// "/msioauthserver/oauth/check_token" /oauth/check_token
-		private static final String checkPath = "msioauthserver/oauth/check_token";
+		private static final String checkPath = "oauth/check_token";
 
 		@Value("${spring.oauth2.sso.server.port:80}")
 		private Integer port;
@@ -122,6 +130,8 @@ public class MSIClientConfiguration {
 		private String clientId;
 		@Value("${spring.oauth2.sso.client.clientSecret:my-secret-token-to-change-in-production}")
 		private String clientSecret;
+		@Value("${spring.oauth2.sso.server.api:UNDEFINED}")
+		private String api;
 	}
 
 	protected static class AuthorizationServerConfiguration extends AuthorizationServerConfigurerAdapter {
