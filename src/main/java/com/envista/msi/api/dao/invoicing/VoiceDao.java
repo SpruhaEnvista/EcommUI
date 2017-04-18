@@ -21,6 +21,7 @@ public class VoiceDao {
     @Inject
     private PersistentContext persistentContext;
 
+
     public List<VoiceDto> getAllVoices(Long userId) {
 
         QueryParameter queryParameter = StoredProcedureParameter.with("P_USER_ID", userId)

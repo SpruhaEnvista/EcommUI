@@ -35,7 +35,7 @@ public class VoiceController {
     public ResponseEntity<List<VoiceDto>> getAllVoices() {
         log.info("***getAllVoices method started****");
         List<VoiceDto> voices = service.getAllVoices(1L);
-        log.info("***voices json***====" + voices);
+        log.info("***voices json***==== " + voices);
         return new ResponseEntity<List<VoiceDto>>(voices, HttpStatus.OK);
     }
 

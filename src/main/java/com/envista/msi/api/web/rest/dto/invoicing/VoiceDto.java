@@ -56,7 +56,7 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_VOICE_INFO", type = Void.class)
         }),
         @NamedStoredProcedureQuery(name = "VoiceDto.getvoice", procedureName = "shp_rpt_wieght_proc",
-                resultSetMappings ="voiceTest",
+                resultSetMappings = "voiceTest1",
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_rpt_id", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_refcur_weight_info", type = Void.class)
