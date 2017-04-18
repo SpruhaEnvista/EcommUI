@@ -54,26 +54,17 @@ import java.io.Serializable;
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_VOICE_IDS", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_VOICE_INFO", type = Void.class)
-        }),
-        @NamedStoredProcedureQuery(name = "VoiceDto.getvoice", procedureName = "shp_rpt_wieght_proc",
-                resultSetMappings = "voiceTest1",
-                parameters = {
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_rpt_id", type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_refcur_weight_info", type = Void.class)
                 })
 })
-@SqlResultSetMappings({
-        @SqlResultSetMapping(name = "voiceTest", classes = {
+/*@SqlResultSetMappings({
+        @SqlResultSetMapping(name = "deleteCount", classes = {
                 @ConstructorResult(
                         targetClass = VoiceDto.class,
                         columns = {
-                                @ColumnResult(name = "VOICE_ID", type = Long.class),
-                                @ColumnResult(name = "VOICE_NAME", type = String.class),
-                                @ColumnResult(name = "VOICE_TYPE", type = String.class),
-                                @ColumnResult(name = "ALIAS_FOR", type = String.class)
+                                @ColumnResult(name = "DELETE_COUNT", type = int.class)
                         })
         })
-})
+})*/
 @Entity
 public class VoiceDto implements Serializable {
 
@@ -93,11 +84,6 @@ public class VoiceDto implements Serializable {
     @Column(name = "PARENT_VOICE_ID")
     private Long parentVoiceId;
 
-/*    @ManyToOne
-    @JoinColumn(name = "PARENT_VOICE_ID", insertable = false, updatable = false)
-    private Long parentVoiceId;*/
-
-
     @Column(name = "COMMENTS", nullable = true)
     private String comments;
 
@@ -107,8 +93,15 @@ public class VoiceDto implements Serializable {
     @Column(name = "USER_ID")
     private Long userId;
 
+/*    @Column(name = "DELETE_COUNT")
+    private int deleteCount;*/
+
     public VoiceDto() {
     }
+
+/*    public VoiceDto(int deleteCount) {
+        this.deleteCount = deleteCount;
+    }*/
 
     public VoiceDto(Long voiceId, String voiceName, String voiceType, String aliasFor) {
         this.voiceId = voiceId;
@@ -180,4 +173,12 @@ public class VoiceDto implements Serializable {
     public void setUserId(Long userId) {
         this.userId = userId;
     }
+
+/*    public int getDeleteCount() {
+        return deleteCount;
+    }
+
+    public void setDeleteCount(int deleteCount) {
+        this.deleteCount = deleteCount;
+    }*/
 }

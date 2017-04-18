@@ -51,13 +51,18 @@ public class VoiceService {
     }
 
 
-    public Optional<VoiceDto> findByVoiceName(String voiceName, String prevVoiceName) {
+    public VoiceDto findByVoiceName(String voiceName, String prevVoiceName) {
 
         return dao.findByVoiceName(voiceName,prevVoiceName);
     }
 
-    public VoiceDto deleteVoice(String voiceIds) {
+    public int deleteVoice(String voiceIds) {
 
         return dao.deleteVoice(voiceIds);
+    }
+
+    public VoiceDto findByVoiceId(Long voiceId) {
+
+        return dao.findByVoiceId(voiceId);
     }
 }

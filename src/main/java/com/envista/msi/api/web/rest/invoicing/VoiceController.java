@@ -5,6 +5,7 @@ import com.envista.msi.api.service.invoicing.VoiceService;
 import com.envista.msi.api.web.rest.AccountController;
 import com.envista.msi.api.web.rest.dto.invoicing.VoiceDto;
 import com.envista.msi.api.web.rest.dto.invoicing.VoiceSearchBean;
+import io.swagger.models.auth.In;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -34,7 +35,7 @@ public class VoiceController {
     @RequestMapping(value = "/getVoices", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
     public ResponseEntity<List<VoiceDto>> getAllVoices() {
         log.info("***getAllVoices method started****");
-        List<VoiceDto> voices = service.getAllVoices(1L);
+        List<VoiceDto> voices = service.getAllVoices(0L);
         log.info("***voices json***==== " + voices);
         return new ResponseEntity<List<VoiceDto>>(voices, HttpStatus.OK);
     }
@@ -49,7 +50,7 @@ public class VoiceController {
 
     }
 
-    @RequestMapping(value = "/getSearchCriteriaList", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+    @RequestMapping(value = "/getSearchCriteriaList", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
     public ResponseEntity<List<VoiceDto>> getSearchCriteriaList(@RequestBody VoiceSearchBean bean) {
 
         log.info("***getSearchCriteriaList method started****");
@@ -85,29 +86,38 @@ public class VoiceController {
         return new ResponseEntity<VoiceDto>(dbDto, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/findByVoiceName/{voiceName}/{prevVoiceName}", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
-    public ResponseEntity<Optional<VoiceDto>> findByVoiceName(@PathVariable("voiceName") String voiceName, @PathVariable("prevVoiceName") String prevVoiceName) {
+    @RequestMapping(value = "/findByVoiceName/{voiceName}/{prevVoiceName}", produces = MediaType.TEXT_PLAIN_VALUE, method = RequestMethod.GET)
+    public ResponseEntity<String> findByVoiceName(@PathVariable("voiceName") String voiceName, @PathVariable("prevVoiceName") String prevVoiceName) {
         log.info("***findByVoiceName method started****voice name is : " + voiceName);
 
-        Optional<VoiceDto> dto = service.findByVoiceName(voiceName, prevVoiceName);
+        VoiceDto dto = service.findByVoiceName(voiceName, prevVoiceName);
 
         String msg = "Voice Name is not exist";
 
-        if(dto == null)
+        if (dto != null)
             msg = "Voice Name is already exist";
 
-        return new ResponseEntity<Optional<VoiceDto>>(dto, HttpStatus.OK);
+        return new ResponseEntity<String>(msg, HttpStatus.OK);
     }
 
 /*    *//**
      * HTTP DELETE - Delete Voice
      * */
     @RequestMapping(value = "/deleteVoice", params = {"voiceIds"}, method = RequestMethod.PUT)
-    public ResponseEntity<VoiceDto> deleteVoice(@RequestParam String voiceIds) {
+    public ResponseEntity<Integer> deleteVoice(@RequestParam String voiceIds) {
         log.info("***deleteVoice method started****voice ids are : " + voiceIds);
 
-        VoiceDto dto = service.deleteVoice(voiceIds);
+        int count = service.deleteVoice(voiceIds);
 
-        return new ResponseEntity<VoiceDto>(dto, HttpStatus.OK);
+        return new ResponseEntity<Integer>(count, HttpStatus.OK);
+    }
+
+    /**
+     * HTTP GET -  get voice by voice id
+     */
+    @RequestMapping(value = "/{voiceId}", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+    public ResponseEntity<VoiceDto> findByVoiceId(@PathVariable("voiceId") Long voiceId) {
+        log.info("***findByVoiceId method started****voice id is : " + voiceId);
+        return new ResponseEntity<VoiceDto>(service.findByVoiceId(voiceId), HttpStatus.OK);
     }
 }

@@ -27,7 +27,7 @@ public class VoiceDao {
         QueryParameter queryParameter = StoredProcedureParameter.with("P_USER_ID", userId)
                 .and("P_VOICE_ID", 0L).and("P_PARENT_VOICE_ID", 0L);
 
-        return persistentContext.findEntitiesAndMapFields("VoiceDto.getVoiceList", queryParameter);
+        return persistentContext.findEntities("VoiceDto.getVoiceList", queryParameter);
     }
 
     public List<VoiceDto> getParentVoiceNames(long voiceId) {
@@ -38,12 +38,17 @@ public class VoiceDao {
         return persistentContext.findEntities("VoiceDto.getVoiceList", queryParameter);
     }
 
-    public List<VoiceDto> findByVoiceId(long voiceId) {
+    public VoiceDto findByVoiceId(Long voiceId) {
 
         QueryParameter queryParameter = StoredProcedureParameter.with("P_USER_ID", 0L)
                 .and("P_VOICE_ID", voiceId).and("P_PARENT_VOICE_ID", 0L);
 
-        return persistentContext.findEntitiesAndMapFields("VoiceDto.getVoiceList", queryParameter);
+        List<VoiceDto> dtos = persistentContext.findEntities("VoiceDto.getVoiceList", queryParameter);
+
+        VoiceDto dto = null;
+        if (dtos.size() > 0)
+            dto = dtos.get(0);
+        return dto;
     }
 
     public VoiceDto createVoice(VoiceDto dto) {
@@ -76,27 +81,37 @@ public class VoiceDao {
                 .and("P_VOICE_TYPE", bean.getVoiceType()).and("P_VOICE_FLAG", bean.getVoiceFlag())
                 .and("P_PARENT_VOICE_NAMES", bean.getParentVoiceName()).and("P_COMMENTS", bean.getComments());
 
-        return persistentContext.findEntitiesAndMapFields("VoiceDto.searchVoice", queryParameter);
+        return persistentContext.findEntities("VoiceDto.searchVoice", queryParameter);
     }
 
-    public Optional<VoiceDto> findByVoiceName(String voiceName, String prevVoiceName) {
+    public VoiceDto findByVoiceName(String voiceName, String prevVoiceName) {
 
         QueryParameter queryParameter = StoredProcedureParameter.with("P_VOICE_NAME", voiceName)
                 .and("P_PREV_VOICE_NAME", prevVoiceName);
 
        // return persistentContext.findEntity("VoiceDto.findByVoiceName", queryParameter);
 
-        Optional<VoiceDto> dto = Optional.ofNullable(persistentContext.findEntity("VoiceDto.findByVoiceName", queryParameter));
+        List<VoiceDto> dtos = persistentContext.findEntities("VoiceDto.findByVoiceName", queryParameter);
+
+        VoiceDto dto = null;
+        if (dtos.size() > 0)
+            dto = dtos.get(0);
 
         return dto;
 
     }
 
-    public VoiceDto deleteVoice(String voiceIds) {
+    public int deleteVoice(String voiceIds) {
 
         QueryParameter queryParameter = StoredProcedureParameter.with("P_VOICE_IDS", voiceIds);
 
-        return persistentContext.findEntityAndMapFields("VoiceDto.deleteVoice", queryParameter);
+        List<VoiceDto> dtos = persistentContext.findEntities("VoiceDto.deleteVoice", queryParameter);
+
+        int count = 0;
+        if (dtos != null)
+            count = dtos.size();
+
+        return count;
 
     }
 }
