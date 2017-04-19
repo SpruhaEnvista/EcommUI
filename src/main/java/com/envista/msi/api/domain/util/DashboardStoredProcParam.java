@@ -204,6 +204,7 @@ public class DashboardStoredProcParam {
 
     public static class ShipmentParam extends DashboardFilterParams{
         public static final String SHIPMENT_DATA_PARAM = "p_shipment_data";
+        public static final String PACKAGE_DISTRIBUTION_DATA_PARAM = "p_pkg_distr_data";
     }
 
     public static class AppliedFilterParam extends DashboardFilterParams {

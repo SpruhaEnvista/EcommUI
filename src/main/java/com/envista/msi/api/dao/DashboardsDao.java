@@ -1336,8 +1336,7 @@ public class DashboardsDao {
     @Transactional
     public void saveAppliedFilterDetails(DashboardAppliedFilterDto appliedFilter) {
         try{
-            QueryParameter queryParameter = QueryParameter.with(DashboardStoredProcParam.AppliedFilterParam.TOKEN_PARAM, appliedFilter.getjSessionId())
-                    .and(DashboardStoredProcParam.AppliedFilterParam.CUSTOMER_IDS_CSV_PARAM, appliedFilter.getCustomerIds())
+            QueryParameter queryParameter = QueryParameter.with(DashboardStoredProcParam.AppliedFilterParam.CUSTOMER_IDS_CSV_PARAM, appliedFilter.getCustomerIds())
                     .and(DashboardStoredProcParam.AppliedFilterParam.CARRIER_IDS_PARAM, appliedFilter.getCarrierIds())
                     .and(DashboardStoredProcParam.AppliedFilterParam.FROM_DATE_PARAM, appliedFilter.getFromDate())
                     .and(DashboardStoredProcParam.AppliedFilterParam.TO_DATE_PARAM, appliedFilter.getToDate())
@@ -1346,7 +1345,6 @@ public class DashboardsDao {
                     .and(DashboardStoredProcParam.AppliedFilterParam.DATE_TYPE_PARAM, appliedFilter.getDateType())
                     .and(DashboardStoredProcParam.AppliedFilterParam.LANES_PARAM, appliedFilter.getLanes())
                     .and(DashboardStoredProcParam.AppliedFilterParam.USER_ID_PARAM, appliedFilter.getLoginUserId())
-                    .and(DashboardStoredProcParam.AppliedFilterParam.USER_NAME_PARAM, appliedFilter.getUserName())
                     .and(DashboardStoredProcParam.AppliedFilterParam.CONVERTED_CURRENCY_ID_PARAM, appliedFilter.getCurrencyId() == null || appliedFilter.getCurrencyId().isEmpty() ? 0L : Long.parseLong(appliedFilter.getCurrencyId()))
                     .and(DashboardStoredProcParam.AppliedFilterParam.WEIGHT_UNIT_PARAM, appliedFilter.getWeightUnit())
                     .and(DashboardStoredProcParam.AppliedFilterParam.CURRENCY_CODE_PARAM, appliedFilter.getCurrencyCode());
@@ -1429,5 +1427,16 @@ public class DashboardsDao {
         }catch (Exception e){
             throw new DaoException("Failed to get filter by name", e);
         }
+    }
+
+    public List<ShipmentDto> getPackageDistributionCount(DashboardsFilterCriteria filter){
+        String[] paramNames = {
+                DashboardStoredProcParam.ShipmentParam.DATE_TYPE_PARAM, DashboardStoredProcParam.ShipmentParam.CUSTOMER_IDS_CSV_PARAM,
+                DashboardStoredProcParam.ShipmentParam.CARRIER_IDS_PARAM, DashboardStoredProcParam.ShipmentParam.MODES_PARAM,
+                DashboardStoredProcParam.ShipmentParam.SERVICES_PARAM, DashboardStoredProcParam.ShipmentParam.LANES_PARAM,
+                DashboardStoredProcParam.ShipmentParam.FROM_DATE_PARAM, DashboardStoredProcParam.ShipmentParam.TO_DATE_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(ShipmentDto.Config.StoredProcedureQueryName.PACKAGE_DISTRIBUTION_COUNT, queryParameter);
     }
 }

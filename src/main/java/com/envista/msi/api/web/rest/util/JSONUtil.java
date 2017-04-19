@@ -203,7 +203,7 @@ public class JSONUtil {
 					String billDate = overTimeDto.getBillingDate();
 					String carrierName = overTimeDto.getCarrierName();
 					long carrierId = overTimeDto.getCarrierId();
-					Double spend = Math.ceil(overTimeDto.getNetCharges());
+					Double spend = Math.rint(overTimeDto.getNetCharges());
 
 					if (spend != 0) {
 						String concatCarrier = carrierId + "#@#" + carrierName;
@@ -306,7 +306,7 @@ public class JSONUtil {
 			Iterator<String> taxIterator = spendMap.keySet().iterator();
 			while (taxIterator.hasNext()) {
 				String tax = taxIterator.next();
-				double spend = Math.ceil(spendMap.get(tax));
+				double spend = Math.rint(spendMap.get(tax));
 
 				JSONObject taxesJson = new JSONObject();
 				taxesJson.put("name", tax);
@@ -331,7 +331,7 @@ public class JSONUtil {
 				if (chartData != null) {
 					statusJson = new JSONObject();
 					statusJson.put("name", chartData.getName());
-					statusJson.put("value", Math.ceil(chartData.getValue()));
+					statusJson.put("value", Math.rint(chartData.getValue()));
 					statusJson.put("id", chartData.getId());
 
 					returnArray.put(statusJson);
@@ -354,7 +354,7 @@ public class JSONUtil {
 				if (chartData != null) {
 					statusJson = new JSONObject();
 					statusJson.put("name", chartData.getName());
-					statusJson.put("value", Math.ceil(chartData.getValue()));
+					statusJson.put("value", Math.rint(chartData.getValue()));
 					statusJson.put("id", chartData.getInvoiceMethodId());
 
 					returnArray.put(statusJson);
@@ -383,7 +383,7 @@ public class JSONUtil {
 				if (accSpend != null) {
 					String billDate = accSpend.getBillDate();
 					String service = accSpend.getAccessorialName();
-					Double spend = Math.ceil(accSpend.getSpend());
+					Double spend = Math.rint(accSpend.getSpend());
 
 					if (spend != 0) {
 
@@ -458,7 +458,7 @@ public class JSONUtil {
 		for (AverageSpendPerShipmentDto perShipmentDto : avgPerShipmentList) {
 			String billDate = perShipmentDto.getBillingDate();
 			String mode = perShipmentDto.getModes();
-			Double spend = Math.ceil(perShipmentDto.getNetWeight());
+			Double spend = Math.rint(perShipmentDto.getNetWeight());
 
 			if (spend != 0) {
 
@@ -529,7 +529,7 @@ public class JSONUtil {
 		for (AverageWeightModeShipmtDto perWeightShipmentDto : avgWeigthModeShpmtList) {
 			String billDate = perWeightShipmentDto.getBillingDate();
 			String mode = perWeightShipmentDto.getModes();
-			Double spend = Math.ceil(perWeightShipmentDto.getNetWeight());
+			Double spend = Math.rint(perWeightShipmentDto.getNetWeight());
 
 			if (spend != 0) {
 				if (!modeFlagList.contains(mode)) {
@@ -712,7 +712,7 @@ public class JSONUtil {
 				if (spendDto != null) {
 					String billDate = spendDto.getBillingDate();
 					String carrierScacCode = spendDto.getCarrierName();
-					Double spend = Math.ceil(spendDto.getNetDueAmount());
+					Double spend = Math.rint(spendDto.getNetDueAmount());
 					Long carrierId = spendDto.getCarrierId();
 					String carrierIaAndName = carrierId + "#@#" + carrierScacCode;
 					if (!carriersList.contains(carrierIaAndName)) {
@@ -835,9 +835,9 @@ public class JSONUtil {
 					statusJson = new JSONObject();
 					statusJson.put("id", billedVsApproved.getCarrierId());
 					statusJson.put("name", billedVsApproved.getCarrierName());
-					statusJson.put("Billed", Math.ceil(billedVsApproved.getBilledAmount()));
-					statusJson.put("Approved", Math.ceil(billedVsApproved.getApprovedAmount()));
-					statusJson.put("Recovered", Math.ceil(billedVsApproved.getRecoveredAmount()));
+					statusJson.put("Billed", Math.rint(billedVsApproved.getBilledAmount()));
+					statusJson.put("Approved", Math.rint(billedVsApproved.getApprovedAmount()));
+					statusJson.put("Recovered", Math.rint(billedVsApproved.getRecoveredAmount()));
 
 					returnArray.put(statusJson);
 					statusJson = null;
@@ -862,7 +862,7 @@ public class JSONUtil {
 				if (recoveryAdjustment != null) {
 					String month = recoveryAdjustment.getMonth();
 					String service = recoveryAdjustment.getService();
-					Double spend = Math.ceil(recoveryAdjustment.getSpend());
+					Double spend = Math.rint(recoveryAdjustment.getSpend());
 
 					if (spend != 0) {
 						if (!servicesList.contains(service)) {
@@ -2004,7 +2004,7 @@ public class JSONUtil {
 		if (commaSeperatedFields.contains(columnName)) {
 			try {
 				if (val != null) {
-					value = commaSeperatedDecimalFormat.format(Math.ceil(Double.parseDouble(val.toString())));
+					value = commaSeperatedDecimalFormat.format(Math.rint(Double.parseDouble(val.toString())));
 				}
 			} catch (Exception e) {
 				value = val != null ? val.toString() : "";
@@ -2012,7 +2012,7 @@ public class JSONUtil {
 		} else {
 			try {
 				if (val != null) {
-					value = String.valueOf(Math.ceil(Double.parseDouble(val.toString())));
+					value = String.valueOf(Math.rint(Double.parseDouble(val.toString())));
 				}
 			} catch (Exception e) {
 				value = val != null ? val.toString() : "";
@@ -2033,8 +2033,8 @@ public class JSONUtil {
 				if (weightDto != null) {
 					JSONObject monthWiseObj = new JSONObject();
 					monthWiseObj.put("name", weightDto.getBillingDate());
-					monthWiseObj.put("Actual Weight", Math.ceil(weightDto.getActualWeight()));
-					monthWiseObj.put("Bill Weight", Math.ceil(weightDto.getBilledWeight()));
+					monthWiseObj.put("Actual Weight", Math.rint(weightDto.getActualWeight()));
+					monthWiseObj.put("Bill Weight", Math.rint(weightDto.getBilledWeight()));
 					valuesArray.put(monthWiseObj);
 				}
 			}
@@ -2064,8 +2064,8 @@ public class JSONUtil {
 					JSONObject wtJson = new JSONObject();
 					wtJson.put("id", weightDto.getCarrierId());
 					wtJson.put("name", weightDto.getCarrierName());
-					wtJson.put("Actual", Math.ceil(weightDto.getActualWeight()));
-					wtJson.put("Billed", Math.ceil(weightDto.getBilledWeight()));
+					wtJson.put("Actual", Math.rint(weightDto.getActualWeight()));
+					wtJson.put("Billed", Math.rint(weightDto.getBilledWeight()));
 					weightJsonArr.put(wtJson);
 				}
 			}
@@ -2087,8 +2087,8 @@ public class JSONUtil {
 					JSONArray dataArray = new JSONArray();
 					long dateInMilliSecs = weightDto.getBillDate() != null ? weightDto.getBillDate().getTime() : 0L;
 					dataArray.put(dateInMilliSecs);
-					dataArray.put(Math.ceil(weightDto.getActualWeight()));
-					dataArray.put(Math.ceil(weightDto.getBilledWeight()));
+					dataArray.put(Math.rint(weightDto.getActualWeight()));
+					dataArray.put(Math.rint(weightDto.getBilledWeight()));
 
 					returnArray.put(dataArray);
 					if (count == 0) {
@@ -2289,6 +2289,17 @@ public class JSONUtil {
 		return null;
 	}
 
+	private static MapCoordinatesDto findMapCoordinateByAddress(Set<MapCoordinatesDto> mapCoordinates, String addressKey) {
+		for(MapCoordinatesDto mapCoordinate : mapCoordinates){
+			if(mapCoordinate != null){
+				if(mapCoordinate.getAddress().equalsIgnoreCase(addressKey)){
+					return mapCoordinate;
+				}
+			}
+		}
+		return null;
+	}
+
 	public static JSONArray customerHierarchyJson( ReportCustomerCarrierDto  customerDto) throws  JSONException{
 		setValuesForDropDownForCustomer(customerDto);
 		JSONArray jsonArray = new JSONArray();
@@ -2380,6 +2391,95 @@ public class JSONUtil {
 		return  currenciesJsonArray;
 	}
 
+	public static JSONObject preparePackageDistributionCountJson(List<ShipmentDto> pkgDistrList, Set<MapCoordinatesDto> mapCoordinates) throws JSONException {
+		JSONArray nodesArray = new JSONArray();
+		int counter = 0;
+		long totalPackageCount = 0;
+		Map<String, Integer> countryWiseCountMap = new HashMap<String, Integer>();
+		for(ShipmentDto pkgDistr : pkgDistrList){
+			if(pkgDistr != null) {
+				String  city = pkgDistr.getReceiverCity() != null ? pkgDistr.getReceiverCity() : "";
+				String state = pkgDistr.getReceiverState() != null ? pkgDistr.getReceiverState() : "";
+				String country = pkgDistr.getReceiverCountry() != null ? pkgDistr.getReceiverCountry() : "";
+				Integer packageCount = pkgDistr.getPackageCount();
+				String address = city+","+state+","+country;
+
+				JSONObject  nodeInfoObj = new JSONObject();
+
+				totalPackageCount += packageCount;
+
+				if( !countryWiseCountMap.containsKey(country)) {
+					countryWiseCountMap.put(country, packageCount);
+				} else {
+					countryWiseCountMap.put(country, countryWiseCountMap.get(country)+packageCount );
+				}
+
+				nodeInfoObj.put("id",counter++);
+				nodeInfoObj.put("name",city);
+				nodeInfoObj.put("value", packageCount);
+
+				MapCoordinatesDto mapCoordinate = findMapCoordinateByAddress(mapCoordinates, address);
+				if (mapCoordinate != null && mapCoordinate.getLongitude() != null && mapCoordinate.getLatitude() != null) {
+					JSONArray longLatJsonArray = new JSONArray();
+					longLatJsonArray.put(mapCoordinate.getLongitude());
+					longLatJsonArray.put(mapCoordinate.getLatitude());
+					nodeInfoObj.put("coordinates", longLatJsonArray);
+					nodesArray.put(nodeInfoObj);
+				}
+			}
+		}
+
+		Iterator<String> countryWiseCountIterator = countryWiseCountMap.keySet().iterator();
+		JSONArray countryWisePercentArray = new JSONArray();
+
+		while (countryWiseCountIterator.hasNext()) {
+			String country = countryWiseCountIterator.next();
+			Integer packageCount = countryWiseCountMap.get(country);
+			Double percentage = (packageCount/totalPackageCount)*100d;
+			String percentageRange = null;
+
+			if (percentage <= 1) {
+				percentageRange = "0% - 1%";
+
+			} else if (percentage > 1 && percentage <= 2) {
+				percentageRange = "1% - 2%";
+
+			} else if (percentage > 2 && percentage <= 4) {
+				percentageRange = "2% - 4%";
+
+			} else if (percentage > 4 && percentage <= 6) {
+				percentageRange = "4% - 6%";
+
+			} else if (percentage > 6 && percentage <= 8) {
+				percentageRange = "6% - 8%";
+
+			} else if (percentage > 8 && percentage <= 10) {
+				percentageRange = "8% - 10%";
+
+			} else if (percentage > 10 && percentage <= 15) {
+				percentageRange = "10% - 15%";
+
+			} else if (percentage > 15 && percentage <= 25) {
+				percentageRange = "15% - 25%";
+
+			} else if (percentage >25 && percentage <= 60) {
+				percentageRange = "25% - 60%";
+
+			} else if (percentage > 60 ) {
+				percentageRange = "60% - 100%";
+			}
+
+			JSONObject countryObj = new JSONObject();
+			countryObj.put("id", country);
+			countryObj.put("range", percentageRange);
+			countryWisePercentArray.put(countryObj);
+		}
+
+		JSONObject finalObject = new JSONObject();
+		finalObject.put("nodesData", nodesArray);
+		finalObject.put("countryWisePercentage", countryWisePercentArray);
+		return finalObject;
+	}
 }
 
 

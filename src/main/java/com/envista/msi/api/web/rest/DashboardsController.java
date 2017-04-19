@@ -215,7 +215,7 @@ public class DashboardsController extends DashboardBaseController {
                 return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
             }
             DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            JSONObject nspData = netSpendJsonData = loadNetSpendJsonData(NetSpendConstant.NET_SPEND_BY_MODE, filter);
+            JSONObject nspData = loadNetSpendJsonData(NetSpendConstant.NET_SPEND_BY_MODE, filter);
             netSpendJsonData = (nspData != null ? nspData : new JSONObject());
         }catch(Exception e){
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -2989,7 +2989,7 @@ public class DashboardsController extends DashboardBaseController {
     }
 
     @RequestMapping(value = "/requiredFilter", method = {RequestMethod.GET, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<Map<String, Object>>  getCarriersByCustomer(HttpSession session){
+    public ResponseEntity<Map<String, Object>>  getCarriersByCustomer(){
         Map<String, Object> userFilterData = new HashMap();
         try{
             UserProfileDto user = getUserProfile();
@@ -3039,13 +3039,13 @@ public class DashboardsController extends DashboardBaseController {
                     dashSavedFilter.setDateType(filter.getDateType());
                     dashSavedFilter.setFromDate(filter.getFromDate());
                     dashSavedFilter.setToDate(filter.getToDate());
-                    dashSavedFilter.setCustomerIds(String.valueOf(customerId));
+                    dashSavedFilter.setCustomerIds(customerId);
 
                     userFilterData.putAll(dashboardsService.getNewUserFilterDetails(dashSavedFilter, user.isParcelDashlettes(), filter));
                 }
             }
             if(userFilterData.get("filterDetails") != null){
-                dashboardsService.saveAppliedFilterDetails(DashboardUtil.prepareAppliedFilter((DashSavedFilterDto) userFilterData.get("filterDetails"), user.getUserName(), user.getUserId(), session.getId()));
+                dashboardsService.saveAppliedFilterDetails(DashboardUtil.prepareAppliedFilter((DashSavedFilterDto) userFilterData.get("filterDetails"), user.getUserName(), user.getUserId()));
             }
             userFilterData.put("userColumnConfig", dashboardsService.getDashboardReportCustomColumnNames(loadAppliedFilters(user.getUserId())));
         }catch (Exception e){
@@ -3117,9 +3117,7 @@ public class DashboardsController extends DashboardBaseController {
             if(customerId.startsWith("CU")){
                 filter.setCustomerIds(customerId.substring(2));
             }
-            filter.setjSessionId(session.getId());
             filter.setLoginUserId(user.getUserId());
-            filter.setUserName(user.getUserName());
             dashboardsService.saveAppliedFilterDetails(filter);
         }catch (Exception e){
             try {
@@ -3290,6 +3288,44 @@ public class DashboardsController extends DashboardBaseController {
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respMap);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(respMap);
+    }
+
+    @RequestMapping(value = "/pkgDistrCount", method = {RequestMethod.GET}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<Map<String, Object>> getPackageDistributionCount(){
+        Map<String, Object> respMap = new HashMap<String, Object>();
+        JSONObject pkgDistrJson = new JSONObject();
+        try {
+            UserProfileDto user = getUserProfile();
+            if (null == user) {
+                respMap.put("status", HttpStatus.UNAUTHORIZED.value());
+                respMap.put("message", WebConstants.ResponseMessage.INVALID_USER);
+                respMap.put("ERROR", "Invalid User.");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(respMap);
+            }
+            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+            List<ShipmentDto> pkgDistrData = dashboardsService.getPackageDistributionCount(filter);
+            if(pkgDistrData != null && !pkgDistrData.isEmpty()){
+                Set<String> addresses = new HashSet<String>();
+                for(ShipmentDto pkgDistr : pkgDistrData){
+                    if(pkgDistr != null){
+                        String receiverCity = pkgDistr.getReceiverCity() != null ? pkgDistr.getReceiverCity() : "";
+                        String receiverState = pkgDistr.getReceiverState() != null ? pkgDistr.getReceiverState() : "";
+                        String receiverCountry = pkgDistr.getReceiverCountry() != null ? pkgDistr.getReceiverCountry() : "";
+                        addresses.add(receiverCity + "," + receiverState + "," + receiverCountry);
+                    }
+                }
+                Set<MapCoordinatesDto> mapCoordinates = dashboardsService.getMapCoordinates(addresses);
+                pkgDistrJson = JSONUtil.preparePackageDistributionCountJson(pkgDistrData, mapCoordinates);
+            }
+            respMap.put("status", HttpStatus.OK.value());
+            respMap.put("packageDistributionData", pkgDistrJson);
+        }catch (Exception e){
+            respMap.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+            respMap.put("message", WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
+            respMap.put("ERROR", "Error while loading Package distribution count details.");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respMap);
         }
         return ResponseEntity.status(HttpStatus.OK).body(respMap);

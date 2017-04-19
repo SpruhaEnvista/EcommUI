@@ -1120,4 +1120,13 @@ public class DashboardsService {
     public List<DashSavedFilterDto> getUserFilterByName(long userId, String filterName){
         return dashboardsDao.getUserFilterByName(userId, filterName);
     }
+
+    /**
+     * Get package distribution count details.
+     * @param filter
+     * @return
+     */
+    public List<ShipmentDto> getPackageDistributionCount(DashboardsFilterCriteria filter){
+        return dashboardsDao.getPackageDistributionCount(filter);
+    }
 }

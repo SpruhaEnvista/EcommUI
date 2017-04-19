@@ -187,12 +187,10 @@ public class DashboardUtil {
         return null;
     }
 
-    public static DashboardAppliedFilterDto prepareAppliedFilter(DashSavedFilterDto savedFilter, String userName, long userid, String sessionId){
+    public static DashboardAppliedFilterDto prepareAppliedFilter(DashSavedFilterDto savedFilter, String userName, long userid){
         DashboardAppliedFilterDto appliedFilter = new DashboardAppliedFilterDto();
         appliedFilter.setDateType(savedFilter.getDateType());
-        appliedFilter.setUserName(userName);
         appliedFilter.setLoginUserId(userid);
-        appliedFilter.setjSessionId(sessionId);
         appliedFilter.setCarrierIds(savedFilter.getCarrierIds());
         appliedFilter.setCurrencyId(String.valueOf(savedFilter.getCurrencyId()));
         appliedFilter.setCustomerIds(savedFilter.getCustomerIds());
