@@ -57,4 +57,14 @@ public class UserProfileDao {
 		return null;
 		
 	}
+
+	public String getEmail() {
+		// TODO Auto-generated method stub
+		return "msiuser@envistcorp.com";
+	}
+
+	public String getLangKey() {
+		// TODO Auto-generated method stub
+		return "US_EN";
+	}
 }

@@ -32,7 +32,13 @@ import java.util.TreeSet;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "rptFolderId", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "userId", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_delete_cur", type = Void.class)
-                })
+                }),
+        @NamedStoredProcedureQuery(name = "ReportFolder.getReportFolderHierarchy", procedureName = "shp_rpt_folder_levels_proc",
+                resultSetMappings = "ReportFolderHierarchy",
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_user_id", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_refcur_folder_level_info", type = Void.class)
+                }),
 })
 @SqlResultSetMappings({
         @SqlResultSetMapping(name = "insertCount", classes = {
@@ -50,10 +56,17 @@ import java.util.TreeSet;
                                 @ColumnResult(name = "FOLDER_NAME", type = String.class),
                                 @ColumnResult(name = "PARENT_ID", type = Long.class)
                         })
+        }),
+        @SqlResultSetMapping(name = "ReportFolderHierarchy", classes = {
+                @ConstructorResult(
+                        targetClass = ReportFolderDto.class,
+                        columns = {
+                                @ColumnResult(name = "value", type = String.class),
+                        })
         })
 })
 @Entity
-public class ReportFolderDto implements Serializable {
+public class ReportFolderDto implements Serializable,Comparable<ReportFolderDto> {
     @Id
     @Column(name = "RPT_FOLDER_ID")
     private Long rptFolderId;
@@ -67,7 +80,14 @@ public class ReportFolderDto implements Serializable {
     @Column(name="counts")
     private Long updateCount;
 
+    @Column(name="value")
+    private String folderHierarchy;
+
+    private TreeSet<ReportFolderDto> collection = new TreeSet<ReportFolderDto>();
+
     public ReportFolderDto() { }
+
+    public ReportFolderDto(String folderHierarchy) { this.folderHierarchy = folderHierarchy;}
 
     public ReportFolderDto(Long count) {
         this.updateCount = count;
@@ -111,5 +131,15 @@ public class ReportFolderDto implements Serializable {
         this.updateCount = updateCount;
     }
 
+    public String getFolderHierarchy() {return folderHierarchy;}
 
+    public void setFolderHierarchy(String folderHierarchy) { this.folderHierarchy = folderHierarchy; }
+
+    public TreeSet<ReportFolderDto> getCollection() {  return collection;   }
+
+    public void setCollection(TreeSet<ReportFolderDto> collection) {   this.collection = collection;   }
+
+    public int compareTo(ReportFolderDto dto) {
+        return this.getRptFolderId().compareTo(dto.getRptFolderId());
+    }
 }

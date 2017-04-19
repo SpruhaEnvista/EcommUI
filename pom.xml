@@ -199,6 +199,10 @@
 			<artifactId>spring-boot-starter-logging</artifactId>
 		</dependency>
 		<dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
@@ -284,11 +288,6 @@
 			<version>1.8.5</version>
 		</dependency>
         <dependency>
-            <groupId>javax.mail</groupId>
-            <artifactId>javax.mail-api</artifactId>
-            <version>1.5.1</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
         </dependency>
@@ -296,11 +295,6 @@
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
 			<version>4.5.1</version>
-		</dependency>
-		<dependency>
-			<groupId>javax.mail</groupId>
-			<artifactId>javax.mail-api</artifactId>
-			<version>1.5.1</version>
 		</dependency>
 	</dependencies>
     <repositories>
@@ -610,6 +604,7 @@
 											<entry key="spring.datasource.username" value="uatuser" />
 											<entry key="spring.datasource.password" value="rtyu234y" />
 											<entry key="spring.datasource.name" value="uatuser" />
+											<entry key="spring.oauth2.sso.server.host" value="msiuat02" />
 										</propertyfile>
 									</tasks>
 								</configuration>

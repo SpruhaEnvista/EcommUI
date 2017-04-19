@@ -41,6 +41,11 @@ public class ReportsService {
 
     @Value("${EXPORTDIR}")
     private String exportDir;
+    @Value("${PRODEXPORTDIR}")
+    private String prodExportDir;
+    @Value("${FILESERVER}")
+    private String fileServer;
+
 
     public List<ReportResultsDto> getReportResults(long userId) {
         return  reportsDao.getReportResults(userId);
@@ -199,10 +204,17 @@ public class ReportsService {
                 }
             }
         }
+
+        String rgn = "";
+        String currId = "";
+        if(customerList != null && customerList.size() > 0){
+            rgn = customerList.get(0).getRegion();
+            currId = customerList.get(0).getCurrencyId();
+        }
         // Set the Parent Customer relationships.
-        ReportCustomerCarrierDto everything = new ReportCustomerCarrierDto("Everything", -1, false, "-1", "Everything", null, null, false, null, null);
+        ReportCustomerCarrierDto everything = new ReportCustomerCarrierDto("Everything", -1, false, "-1", "Everything", null, null, false, rgn, currId);
         TreeSet<ReportCustomerCarrierDto> customerGroupIds = new TreeSet<ReportCustomerCarrierDto>();
-        ReportCustomerCarrierDto customerGroups = new ReportCustomerCarrierDto("Customer Groups", -1, false, "-1", "CUGRP", null, null, false, null, null);
+        ReportCustomerCarrierDto customerGroups = new ReportCustomerCarrierDto("Customer Groups", -1, false, "-1", "CUGRP", null, null, false, rgn, currId);
         StringBuffer customerIdsCSVForLevelInfo = new StringBuffer();
         int count = 0;
         for (ReportCustomerCarrierDto customerDto : customerDtos) {
@@ -236,7 +248,7 @@ public class ReportsService {
                     ReportCustomerCarrierDto parentCustomerDto = findCustomerGroup(customerGroups, -parentCustomerId);
                     if (parentCustomerDto == null) {
                         if (i < level - 1) {
-                            parentCustomerDto = new ReportCustomerCarrierDto(parentCustomerName + " Group", -parentCustomerId, false, "-1", "CUGRP", null, null, false, null, null);
+                            parentCustomerDto = new ReportCustomerCarrierDto(parentCustomerName + " Group", -parentCustomerId, false, "-1", "CUGRP", null, null, false, rgn, currId);
                             if (i == 0) {
                                 customerGroups.getCollection().add(parentCustomerDto);
                             } else {
@@ -254,7 +266,7 @@ public class ReportsService {
                         } else {
                             ReportCustomerCarrierDto grandParent = findCustomerGroup(customerGroups, -grandCustomerId);
                             if (grandParent == null) {
-                                grandParent = new ReportCustomerCarrierDto(parentCustomerName + " Group", -parentCustomerId, false, "-1", "CUGRP", null, null, false, null, null);
+                                grandParent = new ReportCustomerCarrierDto(parentCustomerName + " Group", -parentCustomerId, false, "-1", "CUGRP", null, null, false, rgn, currId);
                                 customerGroups.getCollection().add(grandParent);
                             }
                             grandParent.getCollection().add(customerBean);
@@ -333,21 +345,33 @@ public class ReportsService {
         if(reportsFilesDtoList!=null && reportsFilesDtoList.size()>0){
             ReportsFilesDto reportsFilesDto = reportsFilesDtoList.get(0);
 
-            String filePath = reportsFilesDto.getFilePath();
-
-              if(exportDir!=null && !exportDir.isEmpty()){
-                  filePath = filePath.replaceAll("E:",exportDir);
-             }
+            String filePath = getFileServerAbsolutePath(reportsFilesDto.getFilePath());
 
                 File file = new File(filePath);
-              if(!file.exists()){
-                  throw new FileNotFoundException(file.getName()+"File not exist ");
+                if(!file.exists()){
+                      throw new FileNotFoundException(file.getName() + "File not exist ");
+
               }
 
             return file;
         }
 
+
         return null;
+    }
+    public String getFileServerAbsolutePath(String physicalFileName) throws FileNotFoundException {
+
+        String drive = physicalFileName.substring(0, physicalFileName.indexOf('\\'));
+        System.out.println("drive-->"+drive);
+        String relativeFileLocation = physicalFileName.substring(physicalFileName.indexOf('\\'));
+        System.out.println("relativeFileLocation-->"+relativeFileLocation);
+        physicalFileName = "\\\\" + fileServer + "\\" + drive.toLowerCase().replace(":", "$") + relativeFileLocation;
+        System.out.println("physicalFileName-->"+physicalFileName);
+        if (!(new File(physicalFileName)).exists()) {
+            physicalFileName = physicalFileName.replace("$", "");
+        }
+
+        return physicalFileName;
     }
 
     public SavedSchedReportDto saveSchedReport(SavedSchedReportDto savedSchedReportDto){
@@ -370,6 +394,12 @@ public class ReportsService {
                 }
 
                 inserChildTables(savedSchedReportDto,savedSchedReport.getSavedSchedRptId());
+            }
+            if(savedSchedReportDto.getRptFolderId()!=null && savedSchedReportDto.getRptFolderId()>0){
+                ReportFolderDetailsDto rptFolderDtlsDto = new ReportFolderDetailsDto();
+                rptFolderDtlsDto.setReportFolderId(savedSchedReportDto.getRptFolderId());
+                rptFolderDtlsDto.setSavedSchdReportId(savedSchedReport.getSavedSchedRptId());
+                reportsDao.moveReportToFolder(rptFolderDtlsDto);
             }
 
         return savedSchedReport;
@@ -403,7 +433,7 @@ public class ReportsService {
 
                 if(savedSchedReportDto.getSavedSchedUsersDtoList()!=null && savedSchedReportDto.getSavedSchedUsersDtoList().size()>0){
                     for(ReportSavedSchdUsersDto saveSchedUser : savedSchedReportDto.getSavedSchedUsersDtoList()){
-                        saveSchedUser.setSavedSchdRptId(savedSchedReport.getSavedSchedRptId());
+                        saveSchedUser.setSavedSchedRptId(savedSchedReport.getSavedSchedRptId());
                         ReportSavedSchdUsersDto outUserDto = reportsDao.saveSchedUser(saveSchedUser);
                     }
                 }
@@ -425,7 +455,7 @@ public class ReportsService {
 
             if(savedSchedReportDto.getSavedSchedUsersDtoList()!=null && savedSchedReportDto.getSavedSchedUsersDtoList().size()>0){
                 for(ReportSavedSchdUsersDto saveSchedUser : savedSchedReportDto.getSavedSchedUsersDtoList()){
-                    saveSchedUser.setSavedSchdRptId(savedSchedReportDto.getSavedSchedRptId());
+                    saveSchedUser.setSavedSchedRptId(savedSchedReportDto.getSavedSchedRptId());
                     ReportSavedSchdUsersDto outUserDto = reportsDao.saveSchedUser(saveSchedUser);
                 }
             }
@@ -436,7 +466,7 @@ public class ReportsService {
 
         if(savedSchedReportDto.getSavedSchedUsersDtoList()!=null && savedSchedReportDto.getSavedSchedUsersDtoList().size()>0){
             for(ReportSavedSchdUsersDto saveSchedUser : savedSchedReportDto.getSavedSchedUsersDtoList()){
-                saveSchedUser.setSavedSchdRptId(savedSchedRrtId);
+                saveSchedUser.setSavedSchedRptId(savedSchedRrtId);
                 ReportSavedSchdUsersDto outUserDto = reportsDao.saveSchedUser(saveSchedUser);
             }
         }
@@ -498,7 +528,41 @@ public class ReportsService {
 
     public List<ReportCodeValueDto> getReportWeightLabel(Long rptId){ return reportsDao.getReportWeightLabel(rptId); }
 
-    public List<ReportFormatDto> getControlNumber(String customerIds,Integer payRunNo,Integer checkNo){ return  reportsDao.getControlNumber(customerIds,payRunNo,checkNo); }
+    public List<ReportFormatDto> getControlNumber(String customerIds,Integer payRunNo,Integer checkNo){
+        String customerCondition="";
+        int count=0;
+        List<List<ReportFormatDto>> list=new ArrayList<List<ReportFormatDto>>() ;
+        List<ReportFormatDto> resultList=new ArrayList<ReportFormatDto>();
+        if (customerIds!=null && (customerIds.trim()).length()>0) {
+            customerCondition="";
+            String[] customerIdArr=customerIds.split(",");
+            for(int i=0;i<customerIdArr.length;i++){
+                if (count > 999) {
+                    count = 0;
+                    List<ReportFormatDto> dtos=reportsDao.getControlNumber(customerCondition,payRunNo,checkNo);
+                    if(dtos!=null & dtos.size()>0)
+                        list.add(dtos);
+                    customerCondition="";
+                }
+                if (count != 0)
+                    customerCondition = customerCondition + ",";
+                customerCondition = customerCondition + customerIdArr[i].trim();
+                count++;
+            }
+        }
+        List<ReportFormatDto> dtos=reportsDao.getControlNumber(customerCondition,payRunNo,checkNo);
+        if(dtos!=null & dtos.size()>0)
+            list.add(dtos);
+        if(list.size()>0){
+            for( List<ReportFormatDto> dtoList:list){
+                if(dtoList!=null && dtoList.size()>0){
+                    for(ReportFormatDto dto:dtoList)
+                        resultList.add(dto);
+                }
+            }
+        }
+        return  resultList;
+    }
 
     public List<ReportFolderDto> getReportFolder(Long userId){ return  reportsDao.getReportFolder(userId); }
 
@@ -603,5 +667,99 @@ public class ReportsService {
 
     public ReportFolderDto deleteFolder(Long rptFolderId, Long userId) {
         return reportsDao.deleteFolder(rptFolderId,userId);
+    }
+    public JSONArray getReportUserCustomers(Long userId) throws  Exception{
+        JSONArray customerJsonArr=new JSONArray();
+        List<SearchUserByCustomerDto> customerDtos=reportsDao.getReportUserCustomers(userId);
+        if(customerDtos != null && customerDtos.size()>0){
+            for(SearchUserByCustomerDto custoemrDto:customerDtos) {
+                JSONObject customerJson = new JSONObject();
+                customerJson.put("customerId", custoemrDto.getCustomerId());
+                customerJson.put("customerName", custoemrDto.getCustomerName());
+                customerJsonArr.put(customerJson);
+            }
+        }
+        return customerJsonArr;
+    }
+    public JSONArray getReportSearchUsers(Long userId,Long customerId,String fullName,String email,Boolean userOnly)throws Exception{
+        JSONArray userJsonArr=new JSONArray();
+        List<SearchUserByCustomerDto> usersDtos=reportsDao.getReportSearchUsers(userId,customerId,fullName,email,userOnly);
+        if(usersDtos != null && usersDtos.size()>0){
+            for(SearchUserByCustomerDto userDto:usersDtos) {
+                JSONObject userJson = new JSONObject();
+                userJson.put("userID", userDto.getUserId());
+                userJson.put("userName", userDto.getUserName());
+                userJson.put("fullName", userDto.getUserName());
+                userJson.put("email", userDto.getEmail());
+                userJsonArr.put(userJson);
+            }
+        }
+        return userJsonArr;
+    }
+
+    public ReportFolderDto getFolderHierarchy(Long userId){
+        List<ReportFolderDto> folderHeirarchy = reportsDao.getFolderHierarchy(userId);
+        List<ReportFolderDto> rptFolders = reportsDao.getReportFolder(userId);
+        TreeSet<ReportFolderDto> hierarchy = new TreeSet<ReportFolderDto>();
+        ReportFolderDto folderHierarchyDto=null;
+        if(rptFolders!=null && rptFolders.size()>0) {
+            for (ReportFolderDto dto : rptFolders) {
+                if (dto.getRptFolderId()==dto.getParentId())
+                    hierarchy.add(dto);
+            }
+        }
+        //54;;3;;22==name10;;12==new folder2;;54==1234546789
+        //55;;3;;22==name10;;12==new folder2;;55==new123
+        if(folderHeirarchy!=null && folderHeirarchy.size()>0) {
+            folderHierarchyDto=new ReportFolderDto(-1L,"FolderName",-1L);
+            for (ReportFolderDto hierarchyDto : folderHeirarchy) {
+                String folderH = hierarchyDto.getFolderHierarchy();
+                String[] folderDetA = folderH.split(";;");
+                String[] folderParentD = folderDetA[2].split("==");
+                Long parentId=Long.parseLong(folderParentD[0]);
+                ReportFolderDto folderDto = getByfolderIdFromSet(hierarchy,parentId);
+                for (int i = 0; i < folderDetA.length - 2; i++) {
+                    String[] folderDetD = folderDetA[i + 2].split("==");
+                    long folderHieId = Long.parseLong(folderDetD[0]);
+                    String folderName = folderDetD[1];
+                    long parentID = Long.parseLong(folderDetD[2]);
+                    ReportFolderDto parentFolderDto = findFolderGroup(folderDto, parentID);
+                    if(i==1){
+                        if(parentFolderDto==null){
+                            parentFolderDto = getByfolderIdFromSet(hierarchy,parentId);
+                            ReportFolderDto chiledFolderDto = findFolderGroup(folderDto, folderHieId);
+                            if(chiledFolderDto==null) {
+                                parentFolderDto.getCollection().add(new ReportFolderDto(folderHieId, folderName, parentID));
+                            }
+                        }
+                    }
+                    if (i >0) {
+                        ReportFolderDto chiledFolderDto = findFolderGroup(folderDto, folderHieId);
+                        if(chiledFolderDto==null) {
+                            parentFolderDto.getCollection().add(new ReportFolderDto(folderHieId, folderName, parentID));
+                        }
+                     }
+                }
+            }
+            folderHierarchyDto.setCollection(hierarchy);
+        }
+        return folderHierarchyDto;
+    }
+    public  ReportFolderDto getByfolderIdFromSet(Set<ReportFolderDto> set, long folderId) {
+        for (ReportFolderDto folderDto : set) {
+            if (folderDto.getRptFolderId() == folderId)
+                return folderDto;
+        }
+        return null;
+    }
+    public  ReportFolderDto findFolderGroup(ReportFolderDto folderGroups, long folderId) {
+        for (ReportFolderDto folderDto : folderGroups.getCollection()) {
+            if (folderDto.getRptFolderId() == folderId)
+                return folderDto;
+            ReportFolderDto child = findFolderGroup(folderDto, folderId);
+            if (child != null)
+                return child;
+        }
+        return null;
     }
 }

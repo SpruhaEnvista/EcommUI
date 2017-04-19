@@ -1,10 +1,13 @@
 package com.envista.msi.api.domain.util;
 
+import com.envista.msi.api.web.rest.dto.dashboard.DashboardAppliedFilterDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
+import com.envista.msi.api.web.rest.dto.dashboard.filter.DashSavedFilterDto;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -171,5 +174,31 @@ public class DashboardUtil {
             queryParam = queryParam.and(paramName, value);
         }
         return queryParam;
+    }
+
+    public static DashSavedFilterDto findDefaultUserFilter(List<DashSavedFilterDto> userFilterList){
+        for(DashSavedFilterDto userFilter : userFilterList){
+            if(userFilter != null && userFilter.getDefaultFilter() == 1){
+                return userFilter;
+            }
+        }
+        return null;
+    }
+
+    public static DashboardAppliedFilterDto prepareAppliedFilter(DashSavedFilterDto savedFilter, String userName, long userid, String sessionId){
+        DashboardAppliedFilterDto appliedFilter = new DashboardAppliedFilterDto();
+        appliedFilter.setDateType(savedFilter.getDateType());
+        appliedFilter.setUserName(userName);
+        appliedFilter.setLoginUserId(userid);
+        appliedFilter.setjSessionId(sessionId);
+        appliedFilter.setCarrierIds(savedFilter.getCarrierIds());
+        appliedFilter.setCurrencyId(String.valueOf(savedFilter.getCurrencyId()));
+        appliedFilter.setCustomerIds(savedFilter.getCustomerIds());
+        appliedFilter.setFromDate(savedFilter.getFromDate());
+        appliedFilter.setToDate(savedFilter.getToDate());
+        appliedFilter.setModes(savedFilter.getModes());
+        appliedFilter.setServices(savedFilter.getServices());
+        appliedFilter.setWeightUnit(savedFilter.getWeightUnit());
+        return appliedFilter;
     }
 }

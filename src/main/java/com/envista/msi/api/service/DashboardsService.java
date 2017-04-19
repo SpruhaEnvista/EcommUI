@@ -13,7 +13,8 @@ import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AccountSummaryDt
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AnnualSummaryDto;
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.MonthlySpendByModeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
-import com.envista.msi.api.web.rest.dto.dashboard.filter.UserFilterDto;
+import com.envista.msi.api.web.rest.dto.dashboard.common.DashCustomColumnConfigDto;
+import com.envista.msi.api.web.rest.dto.dashboard.filter.DashSavedFilterDto;
 import com.envista.msi.api.web.rest.dto.dashboard.filter.UserFilterUtilityDataDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.*;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.PortLanesDto;
@@ -719,44 +720,66 @@ public class DashboardsService {
         return dashboardsDao.getActualVsBilledWeightByMonth(filter, isTopTenAccessorial);
     }
 
+    public Map<String, Object> getUserFilterDetails(Long filterId, boolean isParcelDashlettes) throws JSONException {
+        DashSavedFilterDto userFilter = getFilterById(filterId);
+        DashboardsFilterCriteria filter = new DashboardsFilterCriteria();
+        filter.setCustomerIdsCSV(userFilter.getCustomerIds());
+        filter.setDateType(userFilter.getDateType());
+        filter.setFromDate(userFilter.getFromDate());
+        filter.setToDate(userFilter.getToDate());
+
+        List<UserFilterUtilityDataDto> carriers = getCarrierByCustomer(String.valueOf(userFilter.getCustomerIds()), isParcelDashlettes);
+        StringJoiner carrierCSV = new StringJoiner(",");
+        for(UserFilterUtilityDataDto car : carriers){
+            if(car != null){
+                carrierCSV.add(car.getCarrierId().toString());
+            }
+        }
+        filter.setCarriers(carrierCSV.toString());
+        return getUserFilterDetails(userFilter, isParcelDashlettes, filter);
+    }
+
     public Map<String, Object> getUserFilterDetails(Long filterId, boolean isParcelDashlettes, DashboardsFilterCriteria filter) throws JSONException {
-        Map<String, Object> userFilterDetailsMap = null;
-        UserFilterDto userFilter = getUserFilterById(filterId);
+        DashSavedFilterDto userFilter = getFilterById(filterId);
+        return getUserFilterDetails(userFilter, isParcelDashlettes, filter);
+    }
+
+    public Map<String, Object> getUserFilterDetails(DashSavedFilterDto userFilter, boolean isParcelDashlettes, DashboardsFilterCriteria filter) throws JSONException {
+        Map<String, Object> userFilterDetailsMap = new HashMap<String, Object>();;
+
         if(userFilter != null){
-            userFilterDetailsMap = new HashMap<String, Object>();
             List<Long> carrList = new ArrayList<Long>();
             List<String> servicesList = new ArrayList<String>();
 
-            JSONObject userFilterJson = new JSONObject(userFilter.getFilterDetails());
-            String customerIds = userFilterJson.getJSONObject("customerId").getString("value");
-            JSONArray carrArr = userFilterJson.getJSONArray("carrierId");
-            JSONArray servicesArr = userFilterJson.getJSONArray("services");
+            String customerIds = userFilter.getCustomerIds();
+            String carrierIds = userFilter.getCarrierIds();
+            String services = userFilter.getServices();
 
-            int carrArrLength = 0;
-            if(carrArr != null){
-                carrArrLength = carrArr.length();
-                for (int i = 0; i < carrArrLength; i++) {
-                    carrList.add(carrArr.getLong(i));
+            if(carrierIds != null){
+                for(String carrId : carrierIds.split(",")){
+                    if(carrId != null && !carrId.isEmpty()){
+                        carrList.add(Long.parseLong(carrId));
+                    }
                 }
             }
 
-            if(servicesArr != null){
-                int servicesArrLength = servicesArr.length();
-                for (int i = 0; i < servicesArrLength; i++) {
-                    servicesList.add(servicesArr.getString(i));
+            if(services != null){
+                for(String service : services.split(",")){
+                    if(service != null && !service.isEmpty()){
+                        servicesList.add(service);
+                    }
                 }
             }
 
             JSONArray modesArray = new JSONArray();
-            if (carrArr != null && carrArrLength > 0) {
-                String carrierString = carrArr.toString().replaceAll("[\\[\\]]", "");
-                Map<String, String> modeWiseCarriers = getModeWiseCarrier(carrierString);
+            if (carrierIds != null && carrList.size() > 0) {
+                Map<String, String> modeWiseCarriers = getModeWiseCarrier(carrierIds);
                 modesArray = JSONUtil.prepareFilterModesJson(getFilterModes(filter), modeWiseCarriers, isParcelDashlettes);
             }
-            userFilterDetailsMap.put("filterDetails", userFilter);
             userFilterDetailsMap.put("carrDetails", JSONUtil.prepareFilterCarrierJson(getCarrierByCustomer(customerIds, isParcelDashlettes), carrList));
             userFilterDetailsMap.put("modesDetails", modesArray);
             userFilterDetailsMap.put("servicesDetails", JSONUtil.prepareFilterServiceJson(getFilterServices(filter), servicesList));
+            userFilterDetailsMap.put("filterDetails", userFilter);
         }
         return userFilterDetailsMap;
     }
@@ -766,8 +789,8 @@ public class DashboardsService {
      * @param userFilterId
      * @return
      */
-    public UserFilterDto getUserFilterById(Long userFilterId){
-        return dashboardsDao.getUserFilterById(userFilterId);
+    public DashSavedFilterDto getFilterById(Long userFilterId){
+        return dashboardsDao.getFilterById(userFilterId);
     }
 
     /**
@@ -775,8 +798,8 @@ public class DashboardsService {
      * @param userId
      * @return
      */
-    public List<UserFilterDto> getUserFilterByUser(Long userId){
-        return dashboardsDao.getUserFilterByUser(userId);
+    public List<DashSavedFilterDto> getSavedFiltersByUser(Long userId){
+        return dashboardsDao.getSavedFiltersByUser(userId);
     }
 
     /**
@@ -915,6 +938,12 @@ public class DashboardsService {
         dashboardsDao.saveAppliedFilterDetails(appliedFilter);
     }
 
+    /**
+     * Get custom column details.
+     * @param filter
+     * @return
+     * @throws JSONException
+     */
     public JSONObject getDashboardReportCustomColumnNames(DashboardsFilterCriteria filter) throws JSONException {
         JSONObject colJson = new JSONObject();
         colJson.put("shipmentColumns", getCustomColumnDetails(filter, GlobalConstants.DASHBOARDS_SHIPMENT_DETAIL_INCLUDED_COLS, 100L));
@@ -922,6 +951,14 @@ public class DashboardsService {
         return colJson;
     }
 
+    /**
+     * Get custom column details.
+     * @param filter
+     * @param originalColumnNames
+     * @param reportId
+     * @return
+     * @throws JSONException
+     */
     public JSONArray getCustomColumnDetails(DashboardsFilterCriteria filter, String originalColumnNames, long reportId) throws JSONException {
         Map<String, String> customDefinedColsByCustomer = null;
         if (filter != null) {
@@ -963,5 +1000,68 @@ public class DashboardsService {
         return columnsDetailsJson;
     }
 
+    /**
+     * Save user column config.
+     * @param userId
+     * @param columnNames
+     * @param isLineItemReport
+     */
+    public void saveUserDefinedColumnConfig(long userId, String columnNames, boolean isLineItemReport){
+        DashCustomColumnConfigDto columnConfig = new DashCustomColumnConfigDto();
+        columnConfig.setReportId(isLineItemReport ? 197l : 100l);
+        columnConfig.setUserId(userId);
 
+        int columnsLen = columnNames.length();
+        if (columnsLen <= 4000) {
+            columnConfig.setColumnDefined1(columnNames);
+        } else if (columnsLen <= 8000) {
+            columnConfig.setColumnDefined1(columnNames.substring(0, 3999));
+            columnConfig.setColumnDefined2(columnNames.substring(4000, columnsLen));
+        } else if (columnsLen <= 12000) {
+            columnConfig.setColumnDefined1(columnNames.substring(0, 3999));
+            columnConfig.setColumnDefined2(columnNames.substring(4000, 7999));
+            columnConfig.setColumnDefined3(columnNames.substring(8000, columnsLen));
+        } else if (columnsLen <= 16000) {
+            columnConfig.setColumnDefined1(columnNames.substring(0, 3999));
+            columnConfig.setColumnDefined2(columnNames.substring(4000, 7999));
+            columnConfig.setColumnDefined3(columnNames.substring(8000, 11999));
+            columnConfig.setColumnDefined4(columnNames.substring(12000, columnsLen));
+        }
+        dashboardsDao.saveUserDefinedColumnConfig(columnConfig);
+    }
+
+    /**
+     * Delete saved filter by id.
+     * @param filterId
+     */
+    public void deleteSavedFilter(long filterId){
+        dashboardsDao.deleteSavedFilter(filterId);
+    }
+
+    /**
+     * save/update savedfilter details.
+     * @param savedFilter
+     */
+    public DashSavedFilterDto updateSavedFilter(DashSavedFilterDto savedFilter){
+        return dashboardsDao.updateSavedFilter(savedFilter);
+    }
+
+    /**
+     * To set default filter.
+     * @param filterId
+     * @param userId
+     */
+    public void makeDefaultSavedFilter(long filterId, long userId){
+        dashboardsDao.makeDefaultSavedFilter(filterId, userId);
+    }
+
+    /**
+     * Get saved filter by name for this userId.
+     * @param userId
+     * @param filterName
+     * @return
+     */
+    public List<DashSavedFilterDto> getUserFilterByName(long userId, String filterName){
+        return dashboardsDao.getUserFilterByName(userId, filterName);
+    }
 }
