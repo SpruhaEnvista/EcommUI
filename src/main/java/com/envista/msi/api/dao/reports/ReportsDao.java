@@ -365,10 +365,6 @@ public class ReportsDao {
         return persistentContext.findEntity("SavedSchedReports.saveUsers",queryParameter);
 
     }
-    public ReportsValidationDto verifyAccounts(Long savedschedrptid, Long userId){
-        return persistentContext.findEntity("ReportsValidation.verifyAccounts",
-                StoredProcedureParameter.with("p_saved_sched_rpt_id", savedschedrptid).and("p_user_id",userId));
-    }
     /**
      * @param rptId
      * @return List<ReportFormatDto>

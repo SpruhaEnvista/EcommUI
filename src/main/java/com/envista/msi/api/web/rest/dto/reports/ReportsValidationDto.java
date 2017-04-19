@@ -99,7 +99,7 @@ import java.io.Serializable;
 public class ReportsValidationDto implements Serializable {
 
     @Id
-    private long id;
+    private Long id;
 
     @Column(name = "p_verificationMsg")
     private String verificationMsg;
@@ -112,11 +112,11 @@ public class ReportsValidationDto implements Serializable {
         this.verificationMsg = verificationMsg;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

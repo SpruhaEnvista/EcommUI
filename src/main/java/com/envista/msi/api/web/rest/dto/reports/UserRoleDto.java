@@ -29,15 +29,15 @@ import java.io.Serializable;
 @Entity
 public class UserRoleDto implements Serializable{
     @Id
-    private long id;
+    private Long id;
     @Column(name = "p_verificationMsg")
     private String verificationMsg;
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
