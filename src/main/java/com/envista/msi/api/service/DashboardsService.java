@@ -873,22 +873,23 @@ public class DashboardsService {
     }
 
     public Map<String, String> getModeWiseCarrier(String carrierIds){
-        Map<String, String> modeWiseCarrMap = null;
-        List<UserFilterUtilityDataDto> carrierDataList = dashboardsDao.getCarrierDetailsByIds(carrierIds);
-        if(carrierDataList != null && !carrierDataList.isEmpty()){
-            modeWiseCarrMap = new HashMap<String, String>();
-            StringJoiner carrierCsv = new StringJoiner(",");
-            for(UserFilterUtilityDataDto carrierData : carrierDataList){
-                if(carrierData != null){
-                    if(Boolean.valueOf(carrierData.getLtl().toString())){
-                        carrierCsv.add(carrierData.getId().toString());
-                    }else{
-                        modeWiseCarrMap.put("freightCarrier", "freightCarrier");
+        Map<String, String> modeWiseCarrMap = new HashMap<String, String>();
+        if(carrierIds != null && !carrierIds.isEmpty()){
+            List<UserFilterUtilityDataDto> carrierDataList = dashboardsDao.getCarrierDetailsByIds(carrierIds);
+            if(carrierDataList != null && !carrierDataList.isEmpty()){
+                StringJoiner carrierCsv = new StringJoiner(",");
+                for(UserFilterUtilityDataDto carrierData : carrierDataList){
+                    if(carrierData != null){
+                        if(Boolean.valueOf(carrierData.getLtl().toString())){
+                            carrierCsv.add(carrierData.getId().toString());
+                        }else{
+                            modeWiseCarrMap.put("freightCarrier", "freightCarrier");
+                        }
                     }
                 }
-            }
-            if (carrierCsv.length() > 0) {
-                modeWiseCarrMap.put("parcelCarrier", carrierIds.toString());
+                if (carrierCsv.length() > 0) {
+                    modeWiseCarrMap.put("parcelCarrier", carrierIds.toString());
+                }
             }
         }
         return modeWiseCarrMap;
