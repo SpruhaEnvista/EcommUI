@@ -91,6 +91,9 @@ public class VoiceDto implements Serializable {
     @Column(name = "USER_ID")
     private Long userId;
 
+    @Column(name = "PARENT_VOICE_NAME", nullable = false, unique = true)
+    private String parentVoiceName;
+
 /*    @Column(name = "DELETE_COUNT")
     private int deleteCount;*/
 
@@ -172,7 +175,15 @@ public class VoiceDto implements Serializable {
         this.userId = userId;
     }
 
-/*    public int getDeleteCount() {
+    public String getParentVoiceName() {
+        return parentVoiceName;
+    }
+
+    public void setParentVoiceName(String parentVoiceName) {
+        this.parentVoiceName = parentVoiceName;
+    }
+
+    /*    public int getDeleteCount() {
         return deleteCount;
     }
 
