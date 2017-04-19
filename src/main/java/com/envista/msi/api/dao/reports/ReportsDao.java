@@ -667,4 +667,8 @@ public class ReportsDao {
         QueryParameter queryParameter = StoredProcedureParameter.with("userId",userId==null?0:userId);
         return persistentContext.findEntityAndMapFields("UserProfileTb.getUserDetailsById",queryParameter);
     }
+    @Transactional
+    public List<ReportFolderDto> getFolderHierarchy(Long userId){
+        return persistentContext.findEntities("ReportFolder.getReportFolderHierarchy",StoredProcedureParameter.with("p_user_id",userId));
+    }
 }

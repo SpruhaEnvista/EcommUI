@@ -1,9 +1,12 @@
 package com.envista.msi.api.service;
 
+import com.envista.msi.api.dao.DaoException;
 import com.envista.msi.api.dao.reports.ReportsDao;
 import com.envista.msi.api.domain.util.ReportsUtil;
 import com.envista.msi.api.domain.util.StringEncrypter;
 import com.envista.msi.api.web.rest.dto.UserDetailsDto;
+import com.envista.msi.api.dao.reports.ReportsValidationDao;
+import com.envista.msi.api.dao.reports.UserRoleDao;
 import com.envista.msi.api.web.rest.dto.UserProfileDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardAppliedFilterDto;
 import com.envista.msi.api.web.rest.dto.reports.*;
@@ -40,6 +43,11 @@ public class ReportsService {
     @Inject
     private MailService mailService;
 
+
+    @Inject
+    private ReportsValidationDao reportsValidationDao;
+    @Inject
+    private UserRoleDao roleDao;
 
     @Value("${EXPORTDIR}")
     private String exportDir;
@@ -82,6 +90,37 @@ public class ReportsService {
     }
 
     public UpdateSavedSchedReportDto updateSavedSchedReport(UpdateSavedSchedReportDto updateSavedSchedReportDto){
+        String msg = null;
+        if(roleDao.verifyuserRole(updateSavedSchedReportDto.getSharetoUserId(), "user").getVerificationMsg().equals("1") || roleDao.verifyuserRole(updateSavedSchedReportDto.getSharetoUserId(), "carrier").getVerificationMsg().equals("1")) {
+            Long rptId = reportsDao.getReportDetails(updateSavedSchedReportDto.getSavedSchedRptId()).getRptId();
+            if (rptId != null && rptId != 0) {
+                msg = reportsValidationDao.verifyAssignedReport(updateSavedSchedReportDto.getSharetoUserId(), rptId).getVerificationMsg();
+                if (msg != null && !msg.equals("1")) {
+                    throw new DaoException(msg + updateSavedSchedReportDto.getSharetoUserId());
+                }
+
+            } else {
+                throw new DaoException("Report not found ");
+            }
+            msg = reportsValidationDao.verifyAccounts(updateSavedSchedReportDto.getSavedSchedRptId(), updateSavedSchedReportDto.getSharetoUserId()).getVerificationMsg();
+            if (msg != null && !(msg.contains("1,"))) {
+                throw new DaoException(msg);
+            }
+            if(roleDao.verifyuserRole(updateSavedSchedReportDto.getSharetoUserId(), "carrier").getVerificationMsg().equals("1")) {
+                msg = reportsValidationDao.verifyCarrier(updateSavedSchedReportDto.getSharetoUserId(), rptId, updateSavedSchedReportDto.getSavedSchedRptId()).getVerificationMsg();
+                if (msg != null && !(msg.contains("1,"))) {
+                    throw new DaoException(msg);
+                }
+            }
+            msg = reportsValidationDao.verifySavedSchedShippers(updateSavedSchedReportDto.getSavedSchedRptId(), updateSavedSchedReportDto.getSharetoUserId()).getVerificationMsg();
+            if (msg != null && !(msg.contains("1,"))) {
+                throw new DaoException(msg);
+            }
+            msg =reportsValidationDao.verifySavedSchedShipperGroups(updateSavedSchedReportDto.getSavedSchedRptId(),updateSavedSchedReportDto.getSharetoUserId()).getVerificationMsg();
+            if (msg != null && !(msg.contains("1,"))) {
+                throw new DaoException(msg);
+            }
+        }
         return reportsDao.updateSavedSchedReport(updateSavedSchedReportDto);
     }
     public UpdateSavedSchedReportDto runSavedSchedReport(UpdateSavedSchedReportDto updateSavedSchedReportDto){
@@ -91,7 +130,40 @@ public class ReportsService {
         return reportsDao.saveFromReportResults(updateSavedSchedReportDto);
     }
     public ReportResultsUsersListDto pushToUser(List<ReportResultsUsersListDto> reportResultsUsersListDto) throws Exception {
+        for (ReportResultsUsersListDto usersListDto : reportResultsUsersListDto) {
+            String msg = null;
+            if (roleDao.verifyuserRole(usersListDto.getUserId(), "user").getVerificationMsg().equals("1") || roleDao.verifyuserRole(usersListDto.getUserId(), "carrier").getVerificationMsg().equals("1")) {
+                Long rptId = reportsDao.getReportDetails(usersListDto.getSavedSchedRptId()).getRptId();
+                if (rptId != null && rptId != 0) {
+                    msg = reportsValidationDao.verifyAssignedReport(usersListDto.getUserId(), rptId).getVerificationMsg();
+                    if (msg != null && !msg.equals("1")) {
+                        throw new DaoException(msg + usersListDto.getUserName());
+                    }
 
+                } else {
+                    throw new DaoException("Report not found ");
+                }
+                msg = reportsValidationDao.verifyAccounts(usersListDto.getSavedSchedRptId(), usersListDto.getUserId()).getVerificationMsg();
+                if (msg != null && !(msg.contains("1,"))) {
+                    throw new DaoException(msg);
+                }
+                if(roleDao.verifyuserRole(usersListDto.getUserId(), "carrier").getVerificationMsg().equals("1")) {
+                    msg = reportsValidationDao.verifyCarrier(usersListDto.getUserId(), rptId, usersListDto.getSavedSchedRptId()).getVerificationMsg();
+                    if (msg != null && !(msg.contains("1,"))) {
+                        throw new DaoException(msg);
+                    }
+                }
+                msg = reportsValidationDao.verifySavedSchedShippers(usersListDto.getSavedSchedRptId(), usersListDto.getUserId()).getVerificationMsg();
+                if (msg != null && !(msg.contains("1,"))) {
+                    throw new DaoException(msg);
+                }
+                msg =reportsValidationDao.verifySavedSchedShipperGroups(usersListDto.getSavedSchedRptId(),usersListDto.getUserId()).getVerificationMsg();
+                if (msg != null && !(msg.contains("1,"))) {
+                    throw new DaoException(msg);
+                }
+            }
+
+        }
         if(reportResultsUsersListDto!=null && reportResultsUsersListDto.size()>0){
             for(ReportResultsUsersListDto user : reportResultsUsersListDto){
                 ReportGeneratedDetailsDto genRptDetailsDto = new ReportGeneratedDetailsDto();
@@ -277,8 +349,35 @@ public class ReportsService {
     public ReportFolderDetailsDto moveRptsToFolder( ReportFolderDetailsDto rptFolderDetailsDto ){
         return reportsDao.moveReportToFolder(rptFolderDetailsDto);
     }
-    public SavedSchedReportsDto changeOwnerBasedonSSRptId(String currentUserName,Long currentUserId,String newUserName,Long newUserId,Long ssRptId ){
-        return reportsDao.changeOwnerBasedonSSRptId(currentUserName,currentUserId,newUserName,newUserId,ssRptId);
+
+    public SavedSchedReportsDto changeOwnerBasedonSSRptId(String currentUserName, Long currentUserId, String newUserName, Long newUserId, Long ssRptId) {
+        if (roleDao.verifyuserRole(newUserId, "user").getVerificationMsg().equals("1") || roleDao.verifyuserRole(newUserId, "carrier").getVerificationMsg().equals("1")) {
+            Long rptId = reportsDao.getReportDetails(ssRptId).getRptId();
+            String msg = null;
+            if (rptId != null) {
+               msg = reportsValidationDao.verifyAssignedReport(newUserId, rptId).getVerificationMsg();
+                if (msg!=null && !msg.equals("1") ) {
+                    throw new DaoException(msg + newUserName);
+                }
+                msg = reportsValidationDao.verifyAccounts(ssRptId, newUserId).getVerificationMsg();
+                if (msg != null && !(msg.contains("1,"))) {
+                    throw new DaoException(msg);
+                }
+                if (roleDao.verifyuserRole(newUserId, "carrier").getVerificationMsg().equals("1")) {
+                    msg = reportsValidationDao.verifyCarrier(newUserId, rptId, ssRptId).getVerificationMsg();
+                    if (msg != null && !(msg.contains("1,"))) {
+                        throw new DaoException(msg);
+                    }
+                }
+            } else {
+                throw new DaoException("Report not found ");
+            }
+            msg = reportsValidationDao.verifySavedSchedShippers(ssRptId, newUserId).getVerificationMsg();
+            if (msg != null && !(msg.contains("1,")))
+                throw new DaoException(msg);
+        }
+        return reportsDao.changeOwnerBasedonSSRptId(currentUserName, currentUserId, newUserName, newUserId, ssRptId);
+
     }
 
     public File getReportFileDetails(Long generatedRptId) throws FileNotFoundException{
@@ -669,6 +768,69 @@ public class ReportsService {
         }
 
     }
-
-
+    public ReportFolderDto getFolderHierarchy(Long userId){
+        List<ReportFolderDto> folderHeirarchy = reportsDao.getFolderHierarchy(userId);
+        List<ReportFolderDto> rptFolders = reportsDao.getReportFolder(userId);
+        TreeSet<ReportFolderDto> hierarchy = new TreeSet<ReportFolderDto>();
+        ReportFolderDto folderHierarchyDto=null;
+        if(rptFolders!=null && rptFolders.size()>0) {
+            for (ReportFolderDto dto : rptFolders) {
+                if (dto.getRptFolderId()==dto.getParentId())
+                    hierarchy.add(dto);
+            }
+        }
+        //54;;3;;22==name10;;12==new folder2;;54==1234546789
+        //55;;3;;22==name10;;12==new folder2;;55==new123
+        if(folderHeirarchy!=null && folderHeirarchy.size()>0) {
+            folderHierarchyDto=new ReportFolderDto(-1L,"FolderName",-1L);
+            for (ReportFolderDto hierarchyDto : folderHeirarchy) {
+                String folderH = hierarchyDto.getFolderHierarchy();
+                String[] folderDetA = folderH.split(";;");
+                String[] folderParentD = folderDetA[2].split("==");
+                Long parentId=Long.parseLong(folderParentD[0]);
+                ReportFolderDto folderDto = getByfolderIdFromSet(hierarchy,parentId);
+                for (int i = 0; i < folderDetA.length - 2; i++) {
+                    String[] folderDetD = folderDetA[i + 2].split("==");
+                    long folderHieId = Long.parseLong(folderDetD[0]);
+                    String folderName = folderDetD[1];
+                    long parentID = Long.parseLong(folderDetD[2]);
+                    ReportFolderDto parentFolderDto = findFolderGroup(folderDto, parentID);
+                    if(i==1){
+                        if(parentFolderDto==null){
+                            parentFolderDto = getByfolderIdFromSet(hierarchy,parentId);
+                            ReportFolderDto chiledFolderDto = findFolderGroup(folderDto, folderHieId);
+                            if(chiledFolderDto==null) {
+                                parentFolderDto.getCollection().add(new ReportFolderDto(folderHieId, folderName, parentID));
+                            }
+                        }
+                    }
+                    if (i >0) {
+                        ReportFolderDto chiledFolderDto = findFolderGroup(folderDto, folderHieId);
+                        if(chiledFolderDto==null) {
+                            parentFolderDto.getCollection().add(new ReportFolderDto(folderHieId, folderName, parentID));
+                        }
+                     }
+                }
+            }
+            folderHierarchyDto.setCollection(hierarchy);
+        }
+        return folderHierarchyDto;
+    }
+    public  ReportFolderDto getByfolderIdFromSet(Set<ReportFolderDto> set, long folderId) {
+        for (ReportFolderDto folderDto : set) {
+            if (folderDto.getRptFolderId() == folderId)
+                return folderDto;
+        }
+        return null;
+    }
+    public  ReportFolderDto findFolderGroup(ReportFolderDto folderGroups, long folderId) {
+        for (ReportFolderDto folderDto : folderGroups.getCollection()) {
+            if (folderDto.getRptFolderId() == folderId)
+                return folderDto;
+            ReportFolderDto child = findFolderGroup(folderDto, folderId);
+            if (child != null)
+                return child;
+        }
+        return null;
+    }
 }

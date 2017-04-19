@@ -481,4 +481,16 @@ public class ReportsController {
             return new ResponseEntity<ReportFolderDto>(new ReportFolderDto(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    @RequestMapping(value = "/folderhierarchy", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<JSONObject> getFolderHierarchy(@RequestParam String userId){
+        try {
+            ReportFolderDto folderHierarchyDto = reportsService.getFolderHierarchy(Long.parseLong(userId));
+            JSONObject foldersJson=new JSONObject();
+            if(folderHierarchyDto!=null)
+                foldersJson.put("folderList", JSONUtil.getFolderHierarchyJson(folderHierarchyDto,0));
+            return new ResponseEntity<JSONObject>(foldersJson, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<JSONObject>(new JSONObject(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
