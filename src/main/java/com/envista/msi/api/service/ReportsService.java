@@ -61,6 +61,37 @@ public class ReportsService {
     }
 
     public UpdateSavedSchedReportDto updateSavedSchedReport(UpdateSavedSchedReportDto updateSavedSchedReportDto){
+        String msg = null;
+        if(roleDao.verifyuserRole(updateSavedSchedReportDto.getSharetoUserId(), "user").getVerificationMsg().equals("1") || roleDao.verifyuserRole(updateSavedSchedReportDto.getSharetoUserId(), "carrier").getVerificationMsg().equals("1")) {
+            Long rptId = reportsDao.getReportDetails(updateSavedSchedReportDto.getSavedSchedRptId()).getRptId();
+            if (rptId != null && rptId != 0) {
+                msg = reportsValidationDao.verifyAssignedReport(updateSavedSchedReportDto.getSharetoUserId(), rptId).getVerificationMsg();
+                if (msg != null && !msg.equals("1")) {
+                    throw new DaoException(msg + updateSavedSchedReportDto.getSharetoUserId());
+                }
+
+            } else {
+                throw new DaoException("Report not found ");
+            }
+            msg = reportsValidationDao.verifyAccounts(updateSavedSchedReportDto.getSavedSchedRptId(), updateSavedSchedReportDto.getSharetoUserId()).getVerificationMsg();
+            if (msg != null && !(msg.contains("1,"))) {
+                throw new DaoException(msg);
+            }
+            if(roleDao.verifyuserRole(updateSavedSchedReportDto.getSharetoUserId(), "carrier").getVerificationMsg().equals("1")) {
+                msg = reportsValidationDao.verifyCarrier(updateSavedSchedReportDto.getSharetoUserId(), rptId, updateSavedSchedReportDto.getSavedSchedRptId()).getVerificationMsg();
+                if (msg != null && !(msg.contains("1,"))) {
+                    throw new DaoException(msg);
+                }
+            }
+            msg = reportsValidationDao.verifySavedSchedShippers(updateSavedSchedReportDto.getSavedSchedRptId(), updateSavedSchedReportDto.getSharetoUserId()).getVerificationMsg();
+            if (msg != null && !(msg.contains("1,"))) {
+                throw new DaoException(msg);
+            }
+            msg =reportsValidationDao.verifySavedSchedShipperGroups(updateSavedSchedReportDto.getSavedSchedRptId(),updateSavedSchedReportDto.getSharetoUserId()).getVerificationMsg();
+            if (msg != null && !(msg.contains("1,"))) {
+                throw new DaoException(msg);
+            }
+        }
         return reportsDao.updateSavedSchedReport(updateSavedSchedReportDto);
     }
     public UpdateSavedSchedReportDto runSavedSchedReport(UpdateSavedSchedReportDto updateSavedSchedReportDto){
@@ -88,9 +119,11 @@ public class ReportsService {
                 if (msg != null && !(msg.contains("1,"))) {
                     throw new DaoException(msg);
                 }
-                msg = reportsValidationDao.verifyCarrier(usersListDto.getUserId(), rptId, usersListDto.getSavedSchedRptId()).getVerificationMsg();
-                if (msg != null && !(msg.contains("1,"))) {
-                    throw new DaoException(msg);
+                if(roleDao.verifyuserRole(usersListDto.getUserId(), "carrier").getVerificationMsg().equals("1")) {
+                    msg = reportsValidationDao.verifyCarrier(usersListDto.getUserId(), rptId, usersListDto.getSavedSchedRptId()).getVerificationMsg();
+                    if (msg != null && !(msg.contains("1,"))) {
+                        throw new DaoException(msg);
+                    }
                 }
                 msg = reportsValidationDao.verifySavedSchedShippers(usersListDto.getSavedSchedRptId(), usersListDto.getUserId()).getVerificationMsg();
                 if (msg != null && !(msg.contains("1,"))) {
@@ -277,16 +310,18 @@ public class ReportsService {
                 if (msg != null && !(msg.contains("1,"))) {
                     throw new DaoException(msg);
                 }
-                msg = reportsValidationDao.verifyCarrier(newUserId, rptId, ssRptId).getVerificationMsg();
-                if (msg != null && !(msg.contains("1,"))) {
-                    throw new DaoException(msg);
+                if (roleDao.verifyuserRole(newUserId, "carrier").getVerificationMsg().equals("1")) {
+                    msg = reportsValidationDao.verifyCarrier(newUserId, rptId, ssRptId).getVerificationMsg();
+                    if (msg != null && !(msg.contains("1,"))) {
+                        throw new DaoException(msg);
+                    }
                 }
             } else {
                 throw new DaoException("Report not found ");
             }
-          msg= reportsValidationDao.verifySavedSchedShippers(ssRptId,newUserId).getVerificationMsg();
-         if (msg != null && !(msg.contains("1,")))
-             throw  new DaoException(msg);
+            msg = reportsValidationDao.verifySavedSchedShippers(ssRptId, newUserId).getVerificationMsg();
+            if (msg != null && !(msg.contains("1,")))
+                throw new DaoException(msg);
         }
         return reportsDao.changeOwnerBasedonSSRptId(currentUserName, currentUserId, newUserName, newUserId, ssRptId);
 
