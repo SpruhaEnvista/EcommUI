@@ -108,7 +108,12 @@ public class ReportsController {
     }
     @RequestMapping(value = "/results/pushtouser", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<ReportResultsUsersListDto> pushToUser(@RequestBody List<ReportResultsUsersListDto> reportResultsUsersListDto){
-        ReportResultsUsersListDto updateDto = reportsService.pushToUser(reportResultsUsersListDto);
+        ReportResultsUsersListDto updateDto = null;
+        try {
+            updateDto = reportsService.pushToUser(reportResultsUsersListDto);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return new ResponseEntity<ReportResultsUsersListDto>(updateDto, HttpStatus.OK);
     }
     @RequestMapping(value = "/getModesReport", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})

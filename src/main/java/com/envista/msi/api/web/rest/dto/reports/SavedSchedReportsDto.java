@@ -2,8 +2,6 @@ package com.envista.msi.api.web.rest.dto.reports;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import jdk.nashorn.internal.objects.annotations.Constructor;
-import org.hibernate.annotations.JoinColumnOrFormula;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -57,8 +55,8 @@ import java.util.Date;
                                 @ColumnResult(name = "last_update_date",type = Date.class),
                                 @ColumnResult(name = "userscount",type = Integer.class),
                                 @ColumnResult(name = "is_folder",type = Long.class),
+                                @ColumnResult(name = "is_packet",type = Boolean.class)
                         }
-
                 )
         })
 })
@@ -69,13 +67,13 @@ public class SavedSchedReportsDto implements Serializable{
 
     @Id
     @Column(name = "saved_sched_rpt_id")
-    private long savedSchedRptId;
+    private Long savedSchedRptId;
 
     @Column(name = "rpt_id")
-    private long rptId;
+    private Long rptId;
 
     @Column(name = "is_scheduled")
-    private boolean scheduled;
+    private Boolean scheduled;
 
     @Column(name = "report_file_name")
     private String reportFileName;
@@ -98,13 +96,16 @@ public class SavedSchedReportsDto implements Serializable{
     private Date lastUpdateDate;
 
     @Column(name = "userscount")
-    private int usersCount;
+    private Integer usersCount;
 
     @Column(name = "rpt_descr")
     private String reportDescr;
 
     @Column(name="is_folder")
     private Long isFolder;
+
+    @Column(name="is_packet")
+    private Boolean packet;
 
     @Column(name="ssRptTbCnt")
     private Long reportTbUpdatCount;
@@ -119,8 +120,9 @@ public class SavedSchedReportsDto implements Serializable{
         this.reportUsersTbUpdateCount = reportUsersTbUpdateCount;
     }
 
-    public SavedSchedReportsDto(long savedSchedRptId,long rptId,boolean scheduled,String reportFileName,String reportStatus,
-                                String createUser,Date createDate,String lastUpdateUser,Date lastUpdateDate,int usersCount,Long isFolder){
+    public SavedSchedReportsDto(Long savedSchedRptId,Long rptId,Boolean scheduled,String reportFileName,String reportStatus,
+                                String createUser,Date createDate,String lastUpdateUser,Date lastUpdateDate,Integer usersCount,
+                                Long isFolder, Boolean packet){
         this.savedSchedRptId = savedSchedRptId;
         this.rptId = rptId;
         this.scheduled = scheduled;
@@ -132,6 +134,7 @@ public class SavedSchedReportsDto implements Serializable{
         this.lastUpdateDate = lastUpdateDate;
         this.usersCount = usersCount;
         this.isFolder = isFolder;
+        this.packet = packet;
     }
 
     public Long getReportTbUpdatCount() {
@@ -150,27 +153,27 @@ public class SavedSchedReportsDto implements Serializable{
         this.reportUsersTbUpdateCount = reportUsersTbUpdateCount;
     }
 
-    public long getSavedSchedRptId() {
+    public Long getSavedSchedRptId() {
         return savedSchedRptId;
     }
 
-    public void setSavedSchedRptId(long savedSchedRptId) {
+    public void setSavedSchedRptId(Long savedSchedRptId) {
         this.savedSchedRptId = savedSchedRptId;
     }
 
-    public long getRptId() {
+    public Long getRptId() {
         return rptId;
     }
 
-    public void setRptId(long rptId) {
+    public void setRptId(Long rptId) {
         this.rptId = rptId;
     }
 
-    public boolean isScheduled() {
+    public Boolean getScheduled() {
         return scheduled;
     }
 
-    public void setScheduled(boolean scheduled) {
+    public void setScheduled(Boolean scheduled) {
         this.scheduled = scheduled;
     }
 
@@ -222,11 +225,11 @@ public class SavedSchedReportsDto implements Serializable{
         this.lastUpdateDate = lastUpdateDate;
     }
 
-    public int getUsersCount() {
+    public Integer getUsersCount() {
         return usersCount;
     }
 
-    public void setUsersCount(int usersCount) {
+    public void setUsersCount(Integer usersCount) {
         this.usersCount = usersCount;
     }
 
@@ -239,6 +242,15 @@ public class SavedSchedReportsDto implements Serializable{
     public void setIsFolder(Long isFolder) {
         this.isFolder = isFolder;
     }
+
+    public Boolean getPacket() {
+        return packet;
+    }
+
+    public void setPacket(Boolean packet) {
+        this.packet = packet;
+    }
+
 }
 
 

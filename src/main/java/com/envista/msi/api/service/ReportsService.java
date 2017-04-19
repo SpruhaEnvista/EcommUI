@@ -1,6 +1,9 @@
 package com.envista.msi.api.service;
 
 import com.envista.msi.api.dao.reports.ReportsDao;
+import com.envista.msi.api.domain.util.ReportsUtil;
+import com.envista.msi.api.domain.util.StringEncrypter;
+import com.envista.msi.api.web.rest.dto.UserDetailsDto;
 import com.envista.msi.api.web.rest.dto.UserProfileDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardAppliedFilterDto;
 import com.envista.msi.api.web.rest.dto.reports.*;
@@ -12,6 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.*;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -31,6 +37,10 @@ public class ReportsService {
     @Inject
     private ReportsDao reportsDao;
 
+    @Inject
+    private MailService mailService;
+
+
     @Value("${EXPORTDIR}")
     private String exportDir;
     @Value("${PRODEXPORTDIR}")
@@ -38,6 +48,20 @@ public class ReportsService {
     @Value("${FILESERVER}")
     private String fileServer;
 
+    @Value("${emailUnsubscribe.html}")
+    private String emailHtml;
+
+    @Value("${emailUnsubscribe.subject}")
+    private String emailSubject;
+
+    @Value("${website.0}")
+    private String website;
+
+    @Value("${support.emailid.0}")
+    private String supportEmailId;
+
+    @Value("${from.emailid.0}")
+    private String fromEmailId;
 
     public List<ReportResultsDto> getReportResults(long userId) {
         return  reportsDao.getReportResults(userId);
@@ -53,7 +77,7 @@ public class ReportsService {
         return  reportsDao.getUsersList(userName);
     }
 
-    public List<SavedSchedReportsDto> getSavedSchedReports(long userId,long filterId){
+    public List<SavedSchedReportsDto> getSavedSchedReports(Long userId,Long filterId){
         return reportsDao.getSavedSchedReports(userId,filterId);
     }
 
@@ -66,7 +90,26 @@ public class ReportsService {
     public UpdateSavedSchedReportDto saveFromReportResults(UpdateSavedSchedReportDto updateSavedSchedReportDto){
         return reportsDao.saveFromReportResults(updateSavedSchedReportDto);
     }
-    public ReportResultsUsersListDto pushToUser(List<ReportResultsUsersListDto> reportResultsUsersListDto){
+    public ReportResultsUsersListDto pushToUser(List<ReportResultsUsersListDto> reportResultsUsersListDto) throws Exception {
+
+        if(reportResultsUsersListDto!=null && reportResultsUsersListDto.size()>0){
+            for(ReportResultsUsersListDto user : reportResultsUsersListDto){
+                ReportGeneratedDetailsDto genRptDetailsDto = new ReportGeneratedDetailsDto();
+                genRptDetailsDto.setSavedSchedRptId(user.getSavedSchedRptId());
+                if(user.getGeneratedRptId()>0) {
+                    genRptDetailsDto = reportsDao.getGenReportDetails(user.getGeneratedRptId());
+                }
+                UserDetailsDto userDetails = reportsDao.getUserDetailsById(user.getUserId());
+                try{
+                if(user.isEmailAlert()) {
+                    sendReportConfirmationEmail(genRptDetailsDto, userDetails.getEmail(), "", user.isAttachReport(),fromEmailId ,
+                    0, false, false);
+                }
+                }catch (Exception e){
+                    throw new Exception("There is problem in sending email");
+                }
+            }
+        }
         return reportsDao.pushToUser(reportResultsUsersListDto);
     }
     public List<ReportModesDto> getReportForModes(Long userId) {
@@ -261,11 +304,8 @@ public class ReportsService {
     public String getFileServerAbsolutePath(String physicalFileName) throws FileNotFoundException {
 
         String drive = physicalFileName.substring(0, physicalFileName.indexOf('\\'));
-        System.out.println("drive-->"+drive);
         String relativeFileLocation = physicalFileName.substring(physicalFileName.indexOf('\\'));
-        System.out.println("relativeFileLocation-->"+relativeFileLocation);
         physicalFileName = "\\\\" + fileServer + "\\" + drive.toLowerCase().replace(":", "$") + relativeFileLocation;
-        System.out.println("physicalFileName-->"+physicalFileName);
         if (!(new File(physicalFileName)).exists()) {
             physicalFileName = physicalFileName.replace("$", "");
         }
@@ -595,4 +635,40 @@ public class ReportsService {
         }
         return userJsonArr;
     }
+    public void sendReportConfirmationEmail(ReportGeneratedDetailsDto generatedReportDetailsDto, String recipients, String key, boolean isFileToBeEmailed, String fromEmail,
+                                            long accessFrom, boolean forceAsAdHocReport, boolean isLandOnReportsPage) throws Exception {
+
+        String criteria = (generatedReportDetailsDto.getCriteria() == null) ? " " : generatedReportDetailsDto.getCriteria().replaceAll(";", "<BR>");
+
+        SavedSchedReportDto savedSchedReportDto = reportsDao.getReportDetails(generatedReportDetailsDto.getSavedSchedRptId());
+
+        // Initialize the string objects based on the pattern.
+        String[] object = { (savedSchedReportDto.getReportFileName() == null) ? " " : savedSchedReportDto.getReportFileName(),
+                (generatedReportDetailsDto.getExpiresDate() == null) ? " " : ReportsUtil.convertDateBasedOnFormat(generatedReportDetailsDto.getExpiresDate(), " MM/dd/yyyy 'at' HH:mm a z"),
+                (forceAsAdHocReport ? "Adhoc" : (savedSchedReportDto == null ? "Scheduled" : (savedSchedReportDto.getScheduled()==null ? "Adhoc" : "Scheduled"))), criteria,
+                Long.toString(generatedReportDetailsDto.getFileSize() == null ? 0 :generatedReportDetailsDto.getFileSize()),
+                (generatedReportDetailsDto.getCompletionDate() == null) ? " " : ReportsUtil.convertDateBasedOnFormat(generatedReportDetailsDto.getCompletionDate(), " MM/dd/yyyy HH:mm:ss z"),
+                (generatedReportDetailsDto.getExpiresDate() == null) ? " " : ReportsUtil.convertDateBasedOnFormat(generatedReportDetailsDto.getExpiresDate(), " MM/dd/yyyy HH:mm:ss z"),
+                Long.toString(generatedReportDetailsDto.getCost() == null ? 0 : generatedReportDetailsDto.getCost()), URLEncoder.encode((key == null) ? " " : StringEncrypter.getInstance().encrypt(key), "UTF-8"), supportEmailId, website,
+                (isLandOnReportsPage ? "true" : "false") };
+
+        String[] object2 = { (savedSchedReportDto.getReportFileName() == null) ? " " : savedSchedReportDto.getReportFileName(), supportEmailId };
+
+        String body = ReportsUtil.constructMessage(emailHtml, object);
+
+        String subject = ReportsUtil.constructMessage(emailSubject, object2);
+
+       if (isFileToBeEmailed) {
+
+           ReportTypeDto reportTypeDto =   reportsDao.getReportTypeDetails(Long.parseLong(String.valueOf(savedSchedReportDto.getReportTypeId())));
+
+           mailService.sendMail(fromEmail,recipients,subject,body,false,true,generatedReportDetailsDto.getReportFileName(),getFileServerAbsolutePath(generatedReportDetailsDto.getPhysicalFileName()));
+
+        } else {
+           mailService.sendEmail(recipients,subject,body,false,true);
+        }
+
+    }
+
+
 }

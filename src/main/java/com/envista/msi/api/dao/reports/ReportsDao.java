@@ -4,6 +4,7 @@ import com.envista.msi.api.domain.PersistentContext;
 import com.envista.msi.api.domain.util.QueryParameter;
 import com.envista.msi.api.domain.util.StoredProcedureParameter;
 import com.envista.msi.api.security.SecurityUtils;
+import com.envista.msi.api.web.rest.dto.UserDetailsDto;
 import com.envista.msi.api.web.rest.dto.UserProfileDto;
 import com.envista.msi.api.web.rest.dto.UserProfileDto;
 import com.envista.msi.api.web.rest.dto.reports.*;
@@ -101,10 +102,10 @@ public class ReportsDao {
      */
 
     @Transactional( readOnly = true )
-    public List<SavedSchedReportsDto> getSavedSchedReports(long userId,long folderId) {
-        return persistentContext.findEntitiesAndMapFields("SavedSchedReports.gerSavedSchedReports",
-                StoredProcedureParameter.with("userId", userId)
-                                        .and("folderId",folderId));
+    public List<SavedSchedReportsDto> getSavedSchedReports(Long userId,Long folderId) {
+        return persistentContext.findEntities("SavedSchedReports.gerSavedSchedReports",
+                StoredProcedureParameter.with("userId", userId == null?0:userId)
+                                        .and("folderId",folderId == null?0: folderId));
     }
 
     @Transactional
@@ -651,5 +652,19 @@ public class ReportsDao {
         return persistentContext.findEntities("SearchUserByCustomer.getReportSearchUsers",queryParameter);
     }
 
-
+    @Transactional
+    public ReportGeneratedDetailsDto getGenReportDetails(Long genRptId){
+        QueryParameter queryParameter = StoredProcedureParameter.with("crGeneratedRptId",genRptId==null?0:genRptId);
+        return persistentContext.findEntityAndMapFields("EmailReports.getGenReportDetPath",queryParameter);
+    }
+    @Transactional
+    public ReportTypeDto getReportTypeDetails(Long rptTypeId){
+        QueryParameter queryParameter = StoredProcedureParameter.with("rptTypeId",rptTypeId==null?0:rptTypeId);
+        return persistentContext.findEntityAndMapFields("ReportTypes.reportTypeDetails",queryParameter);
+    }
+    @Transactional
+    public UserDetailsDto getUserDetailsById(Long userId){
+        QueryParameter queryParameter = StoredProcedureParameter.with("userId",userId==null?0:userId);
+        return persistentContext.findEntityAndMapFields("UserProfileTb.getUserDetailsById",queryParameter);
+    }
 }
