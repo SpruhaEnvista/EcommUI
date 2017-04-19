@@ -604,6 +604,7 @@
 											<entry key="spring.datasource.username" value="uatuser" />
 											<entry key="spring.datasource.password" value="rtyu234y" />
 											<entry key="spring.datasource.name" value="uatuser" />
+											<entry key="spring.oauth2.sso.server.host" value="msiuat02" />
 										</propertyfile>
 									</tasks>
 								</configuration>
