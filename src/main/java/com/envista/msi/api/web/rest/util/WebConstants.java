@@ -37,4 +37,6 @@ public final class WebConstants {
 		public static final String INVALID_USER = "Invalid User";
 		public static final String INTERNAL_SERVER_ERROR = "Internal Server Error";
 	}
+
+	public static final String SEARCH_FILTER_CONDITION = "searchFilter";
 }
