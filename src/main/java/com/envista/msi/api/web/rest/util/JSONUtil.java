@@ -24,6 +24,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.AverageSpendP
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.AverageWeightModeShipmtDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.ServiceLevelUsageAndPerformanceDto;
 import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
+import com.envista.msi.api.web.rest.dto.reports.ReportFolderDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
@@ -2389,6 +2390,24 @@ public class JSONUtil {
 			currenciesJsonArray.put(jsonObject);
 		}
 		return  currenciesJsonArray;
+	}
+	public static JSONArray getFolderHierarchyJson(ReportFolderDto folderHierarchyDto,Integer count) throws Exception{
+		JSONArray jsonArray=new JSONArray();
+		String str="";
+		if (count>0) {
+			for (int i = 0; i < count; i++)
+				str=str+"-";
+		}
+		for (ReportFolderDto dtoHierarchy:folderHierarchyDto.getCollection()){
+			JSONObject jsonObject=new JSONObject();
+			jsonObject.put("folderId",str+" "+dtoHierarchy.getRptFolderId());
+			jsonObject.put("folderName",dtoHierarchy.getRptFolderName());
+			jsonObject.put("parentId",dtoHierarchy.getParentId());
+			if(dtoHierarchy.getCollection()!=null && dtoHierarchy.getCollection().size()>0)
+                jsonObject.put("child",getFolderHierarchyJson(dtoHierarchy,count+1));
+			jsonArray.put(jsonObject);
+		}
+		return jsonArray;
 	}
 
 	public static JSONObject preparePackageDistributionCountJson(List<ShipmentDto> pkgDistrList, Set<MapCoordinatesDto> mapCoordinates) throws JSONException {

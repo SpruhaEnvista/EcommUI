@@ -48,7 +48,6 @@ public class MailService {
     @Inject
     private SpringTemplateEngine templateEngine;
 
-    @Async
     public void sendEmail(String to, String subject, String content, boolean isMultipart, boolean isHtml) {
         log.debug("Send e-mail[multipart '{}' and html '{}'] to '{}' with subject '{}' and content={}",
             isMultipart, isHtml, to, subject, content);
@@ -64,6 +63,7 @@ public class MailService {
             log.debug("Sent e-mail to User '{}'", to);
         } catch (Exception e) {
             log.warn("E-mail could not be sent to user '{}', exception is: {}", to, e.getMessage());
+            e.printStackTrace();
         }
     }
 

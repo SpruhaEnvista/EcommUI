@@ -52,7 +52,8 @@ import java.util.Date;
                                 @ColumnResult(name = "last_update_user", type = String.class),
                                 @ColumnResult(name = "last_update_date", type = Date.class),
                                 @ColumnResult(name = "is_shared", type = Boolean.class),
-                                @ColumnResult(name = "can_edit", type = Boolean.class)
+                                @ColumnResult(name = "can_edit", type = Boolean.class),
+                                @ColumnResult(name = "user_name", type = String.class)
                         }
                 )
         })
@@ -71,13 +72,13 @@ public class ReportSavedSchdUsersDto {
     private Long userId;
 
     @Column(name="is_email_template_to_be_sent")
-    private Boolean isEmailTemplateToBeSent;
+    private Boolean emailTemplateToBeSent;
 
     @Column(name="is_report_attach_email")
-    private Boolean isReportAttachedMail;
+    private Boolean reportAttachedMail;
 
     @Column(name="is_report_subscribed")
-    private Boolean isReportSubscribed;
+    private Boolean reportSubscribed;
 
     @Column(name="create_user")
     private String createUser;
@@ -96,6 +97,9 @@ public class ReportSavedSchdUsersDto {
 
     @Column(name="can_edit")
     private Boolean canEdit;
+
+    @Column(name="user_name")
+    private String userName;
 
     public Long getSavedSchdUsersId() {
         return savedSchdUsersId;
@@ -119,30 +123,6 @@ public class ReportSavedSchdUsersDto {
 
     public void setUserId(Long userId) {
         this.userId = userId;
-    }
-
-    public Boolean isEmailTemplateToBeSent() {
-        return isEmailTemplateToBeSent;
-    }
-
-    public void setEmailTemplateToBeSent(Boolean emailTemplateToBeSent) {
-        isEmailTemplateToBeSent = emailTemplateToBeSent;
-    }
-
-    public Boolean isReportAttachedMail() {
-        return isReportAttachedMail;
-    }
-
-    public void setReportAttachedMail(Boolean reportAttachedMail) {
-        isReportAttachedMail = reportAttachedMail;
-    }
-
-    public Boolean isReportSubscribed() {
-        return isReportSubscribed;
-    }
-
-    public void setReportSubscribed(Boolean reportSubscribed) {
-        isReportSubscribed = reportSubscribed;
     }
 
     public String getCreateUser() {
@@ -177,21 +157,54 @@ public class ReportSavedSchdUsersDto {
         this.lastUpdateDate = lastUpdateDate;
     }
 
-    public Boolean isShared() {
+    public Boolean getEmailTemplateToBeSent() {
+        return emailTemplateToBeSent;
+    }
+
+    public void setEmailTemplateToBeSent(Boolean emailTemplateToBeSent) {
+        this.emailTemplateToBeSent = emailTemplateToBeSent;
+    }
+
+    public Boolean getReportAttachedMail() {
+        return reportAttachedMail;
+    }
+
+    public void setReportAttachedMail(Boolean reportAttachedMail) {
+        this.reportAttachedMail = reportAttachedMail;
+    }
+
+    public Boolean getReportSubscribed() {
+        return reportSubscribed;
+    }
+
+    public void setReportSubscribed(Boolean reportSubscribed) {
+        this.reportSubscribed = reportSubscribed;
+    }
+
+    public Boolean getShared() {
         return shared;
     }
 
-    public void setShared(Boolean shared) {
-        shared = shared;
+    public Boolean getCanEdit() {
+        return canEdit;
     }
 
-    public Boolean isCanEdit() {
-        return canEdit;
+    public void setShared(Boolean shared) {
+        this.shared = shared;
     }
 
     public void setCanEdit(Boolean canEdit) {
         this.canEdit = canEdit;
     }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
 
     public ReportSavedSchdUsersDto(){}
 
@@ -199,20 +212,37 @@ public class ReportSavedSchdUsersDto {
         this.savedSchdUsersId = savedSchdUsersId;
     }
 
-    public ReportSavedSchdUsersDto(Long savedSchdUsersId,Long savedSchedRptId, Long userId,Boolean isEmailTemplateToBeSent,
-                                   Boolean isReportAttachedMail,Boolean isReportSubscribed,String createUser,Date createDate,
+    public ReportSavedSchdUsersDto(Long savedSchdUsersId,Long savedSchedRptId, Long userId,Boolean emailTemplateToBeSent,
+                                   Boolean reportAttachedMail,Boolean reportSubscribed,String createUser,Date createDate,
                                    String lastUpdateUser,Date lastUpdateDate,Boolean shared,Boolean canEdit){
         this.savedSchdUsersId = savedSchdUsersId;
         this.savedSchedRptId = savedSchedRptId;
         this.userId = userId;
-        this.isEmailTemplateToBeSent = isEmailTemplateToBeSent;
-        this.isReportAttachedMail = isReportAttachedMail;
-        this.isReportSubscribed = isReportSubscribed;
+        this.emailTemplateToBeSent = emailTemplateToBeSent;
+        this.reportAttachedMail = reportAttachedMail;
+        this.reportSubscribed = reportSubscribed;
         this.createUser = createUser;
         this.createDate = createDate;
         this.lastUpdateUser = lastUpdateUser;
         this.lastUpdateDate = lastUpdateDate;
         this.shared = shared;
         this.canEdit = canEdit;
+    }
+    public ReportSavedSchdUsersDto(Long savedSchdUsersId,Long savedSchedRptId, Long userId,Boolean emailTemplateToBeSent,
+                                   Boolean reportAttachedMail,Boolean reportSubscribed,String createUser,Date createDate,
+                                   String lastUpdateUser,Date lastUpdateDate,Boolean shared,Boolean canEdit,String userName){
+        this.savedSchdUsersId = savedSchdUsersId;
+        this.savedSchedRptId = savedSchedRptId;
+        this.userId = userId;
+        this.emailTemplateToBeSent = emailTemplateToBeSent;
+        this.reportAttachedMail = reportAttachedMail;
+        this.reportSubscribed = reportSubscribed;
+        this.createUser = createUser;
+        this.createDate = createDate;
+        this.lastUpdateUser = lastUpdateUser;
+        this.lastUpdateDate = lastUpdateDate;
+        this.shared = shared;
+        this.canEdit = canEdit;
+        this.userName = userName;
     }
 }
