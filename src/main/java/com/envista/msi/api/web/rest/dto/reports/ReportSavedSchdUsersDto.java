@@ -52,7 +52,8 @@ import java.util.Date;
                                 @ColumnResult(name = "last_update_user", type = String.class),
                                 @ColumnResult(name = "last_update_date", type = Date.class),
                                 @ColumnResult(name = "is_shared", type = Boolean.class),
-                                @ColumnResult(name = "can_edit", type = Boolean.class)
+                                @ColumnResult(name = "can_edit", type = Boolean.class),
+                                @ColumnResult(name = "user_name", type = String.class)
                         }
                 )
         })
@@ -96,6 +97,9 @@ public class ReportSavedSchdUsersDto {
 
     @Column(name="can_edit")
     private Boolean canEdit;
+
+    @Column(name="user_name")
+    private String userName;
 
     public Long getSavedSchdUsersId() {
         return savedSchdUsersId;
@@ -193,6 +197,15 @@ public class ReportSavedSchdUsersDto {
         this.canEdit = canEdit;
     }
 
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+
     public ReportSavedSchdUsersDto(){}
 
     public ReportSavedSchdUsersDto(Long savedSchdUsersId){
@@ -214,5 +227,22 @@ public class ReportSavedSchdUsersDto {
         this.lastUpdateDate = lastUpdateDate;
         this.shared = shared;
         this.canEdit = canEdit;
+    }
+    public ReportSavedSchdUsersDto(Long savedSchdUsersId,Long savedSchedRptId, Long userId,Boolean emailTemplateToBeSent,
+                                   Boolean reportAttachedMail,Boolean reportSubscribed,String createUser,Date createDate,
+                                   String lastUpdateUser,Date lastUpdateDate,Boolean shared,Boolean canEdit,String userName){
+        this.savedSchdUsersId = savedSchdUsersId;
+        this.savedSchedRptId = savedSchedRptId;
+        this.userId = userId;
+        this.emailTemplateToBeSent = emailTemplateToBeSent;
+        this.reportAttachedMail = reportAttachedMail;
+        this.reportSubscribed = reportSubscribed;
+        this.createUser = createUser;
+        this.createDate = createDate;
+        this.lastUpdateUser = lastUpdateUser;
+        this.lastUpdateDate = lastUpdateDate;
+        this.shared = shared;
+        this.canEdit = canEdit;
+        this.userName = userName;
     }
 }

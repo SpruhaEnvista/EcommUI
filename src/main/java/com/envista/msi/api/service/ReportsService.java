@@ -97,31 +97,33 @@ public class ReportsService {
 
     public UpdateSavedSchedReportDto updateSavedSchedReport(UpdateSavedSchedReportDto updateSavedSchedReportDto){
         String msg = null;
-        if(roleDao.verifyuserRole(updateSavedSchedReportDto.getSharetoUserId(), "user").getVerificationMsg().equals("1") || roleDao.verifyuserRole(updateSavedSchedReportDto.getSharetoUserId(), "carrier").getVerificationMsg().equals("1")) {
-            Long rptId = reportsDao.getReportDetails(updateSavedSchedReportDto.getSavedSchedRptId()).getRptId();
-            if (rptId != null && rptId != 0) {
-                msg = reportsValidationDao.verifyAssignedReport(updateSavedSchedReportDto.getSharetoUserId(), rptId).getVerificationMsg();
-                if (msg != null && !msg.equals("1")) {
-                    throw new DaoException(msg + updateSavedSchedReportDto.getSharetoUserId());
-                }
+        if(updateSavedSchedReportDto.getSharetoUserId()>0){
+            if(roleDao.verifyuserRole(updateSavedSchedReportDto.getSharetoUserId(), "user").getVerificationMsg().equals("1") || roleDao.verifyuserRole(updateSavedSchedReportDto.getSharetoUserId(), "carrier").getVerificationMsg().equals("1")) {
+                Long rptId = reportsDao.getReportDetails(updateSavedSchedReportDto.getSavedSchedRptId()).getRptId();
+                if (rptId != null && rptId != 0) {
+                    msg = reportsValidationDao.verifyAssignedReport(updateSavedSchedReportDto.getSharetoUserId(), rptId).getVerificationMsg();
+                    if (msg != null && !msg.equals("1")) {
+                        throw new DaoException(msg + updateSavedSchedReportDto.getSharetoUserId());
+                    }
 
-                msg = reportsValidationDao.verifyAccounts(updateSavedSchedReportDto.getSavedSchedRptId(), updateSavedSchedReportDto.getSharetoUserId()).getVerificationMsg();
-                if (msg != null && !(msg.contains("1,"))) {
-                    throw new DaoException(msg);
-                }
-                if (roleDao.verifyuserRole(updateSavedSchedReportDto.getSharetoUserId(), "carrier").getVerificationMsg().equals("1")) {
-                    msg = reportsValidationDao.verifyCarrier(updateSavedSchedReportDto.getSharetoUserId(), rptId, updateSavedSchedReportDto.getSavedSchedRptId()).getVerificationMsg();
+                    msg = reportsValidationDao.verifyAccounts(updateSavedSchedReportDto.getSavedSchedRptId(), updateSavedSchedReportDto.getSharetoUserId()).getVerificationMsg();
                     if (msg != null && !(msg.contains("1,"))) {
                         throw new DaoException(msg);
                     }
-                }
-                msg = reportsValidationDao.verifySavedSchedShippers(updateSavedSchedReportDto.getSavedSchedRptId(), updateSavedSchedReportDto.getSharetoUserId()).getVerificationMsg();
-                if (msg != null && !(msg.contains("1,"))) {
-                    throw new DaoException(msg);
-                }
-                msg = reportsValidationDao.verifySavedSchedShipperGroups(updateSavedSchedReportDto.getSavedSchedRptId(), updateSavedSchedReportDto.getSharetoUserId()).getVerificationMsg();
-                if (msg != null && !(msg.contains("1,"))) {
-                    throw new DaoException(msg);
+                    if (roleDao.verifyuserRole(updateSavedSchedReportDto.getSharetoUserId(), "carrier").getVerificationMsg().equals("1")) {
+                        msg = reportsValidationDao.verifyCarrier(updateSavedSchedReportDto.getSharetoUserId(), rptId, updateSavedSchedReportDto.getSavedSchedRptId()).getVerificationMsg();
+                        if (msg != null && !(msg.contains("1,"))) {
+                            throw new DaoException(msg);
+                        }
+                    }
+                    msg = reportsValidationDao.verifySavedSchedShippers(updateSavedSchedReportDto.getSavedSchedRptId(), updateSavedSchedReportDto.getSharetoUserId()).getVerificationMsg();
+                    if (msg != null && !(msg.contains("1,"))) {
+                        throw new DaoException(msg);
+                    }
+                    msg = reportsValidationDao.verifySavedSchedShipperGroups(updateSavedSchedReportDto.getSavedSchedRptId(), updateSavedSchedReportDto.getSharetoUserId()).getVerificationMsg();
+                    if (msg != null && !(msg.contains("1,"))) {
+                        throw new DaoException(msg);
+                    }
                 }
             }
         }
@@ -441,6 +443,12 @@ public class ReportsService {
                     }
                     savedSchedReportDto.setReportsInclColDtoList(finalColDto);
                 }
+                if(savedSchedReportDto.getRptFolderId()!=null && savedSchedReportDto.getRptFolderId()>0){
+                    ReportFolderDetailsDto rptFolderDetails = new ReportFolderDetailsDto();
+                    rptFolderDetails.setSavedSchdReportId(savedSchedReport.getSavedSchedRptId());
+                    rptFolderDetails.setReportFolderId(savedSchedReportDto.getRptFolderId());
+                    reportsDao.moveReportToFolder(rptFolderDetails);
+                }
 
                 inserChildTables(savedSchedReportDto,savedSchedReport.getSavedSchedRptId());
             }
@@ -486,11 +494,18 @@ public class ReportsService {
                         ReportSavedSchdUsersDto outUserDto = reportsDao.saveSchedUser(saveSchedUser);
                     }
                 }
-
+                if(savedSchedReportDto.getRptFolderId()!=null && savedSchedReportDto.getRptFolderId()>0){
+                    ReportFolderDetailsDto rptFolderDetails = new ReportFolderDetailsDto();
+                    rptFolderDetails.setSavedSchdReportId(savedSchedReport.getSavedSchedRptId());
+                    rptFolderDetails.setReportFolderId(savedSchedReportDto.getRptFolderId());
+                    reportsDao.moveReportToFolder(rptFolderDetails);
+                }
             }
+
         }
         return savedSchedReport;
     }
+
     public ArrayList<ReportSavedSchdUsersDto> removeDuplicateUsers(ArrayList<ReportSavedSchdUsersDto> reportsavedUsersList){
 
         ArrayList<ReportSavedSchdUsersDto> finaluserlist =  new ArrayList<ReportSavedSchdUsersDto>();
@@ -795,7 +810,7 @@ public class ReportsService {
                 JSONObject userJson = new JSONObject();
                 userJson.put("userID", userDto.getUserId());
                 userJson.put("userName", userDto.getUserName());
-                userJson.put("fullName", userDto.getUserName());
+                userJson.put("fullName", userDto.getFullName());
                 userJson.put("email", userDto.getEmail());
                 userJsonArr.put(userJson);
             }
