@@ -36,5 +36,6 @@ public final class WebConstants {
 	public static class ResponseMessage{
 		public static final String INVALID_USER = "Invalid User";
 		public static final String INTERNAL_SERVER_ERROR = "Internal Server Error";
+		public static final String EXPECTATION_FAILED ="Expected Validation Faild";
 	}
 }
