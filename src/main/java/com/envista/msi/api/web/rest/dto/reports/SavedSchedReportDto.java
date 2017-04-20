@@ -39,7 +39,7 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "criteria", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "dateRangeTodayMinus1", type = Integer.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "dateRangeTodayMinus2", type = Integer.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "ftpAccountsId", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "ftpAccountsId", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "isSuppressInvoices", type = Boolean.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "submittedFromSystem", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "isPacket", type = Boolean.class),
@@ -80,7 +80,7 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "criteria", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "dateRangeTodayMinus1", type = Integer.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "dateRangeTodayMinus2", type = Integer.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "ftpAccountsId", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "ftpAccountsId", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "isSuppressInvoices", type = Boolean.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "submittedFromSystem", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "isPacket", type = Boolean.class),
@@ -166,7 +166,7 @@ import java.util.Date;
                                 @ColumnResult(name = "criteria", type = String.class),
                                 @ColumnResult(name = "date_range_today_minus1", type = Integer.class),
                                 @ColumnResult(name = "date_range_today_minus2", type = Integer.class),
-                                @ColumnResult(name = "ftp_accounts_id", type = String.class),
+                                @ColumnResult(name = "ftp_accounts_id", type = Long.class),
                                 @ColumnResult(name = "is_suppress_invoices", type = Boolean.class),
                                 @ColumnResult(name = "high_priority", type = Integer.class),
                                 @ColumnResult(name = "submitted_from_system", type = String.class),
@@ -194,7 +194,7 @@ public class SavedSchedReportDto {
     private Long rptId;
 
     @Column(name = "is_scheduled")
-    private Boolean isScheduled;
+    private Boolean scheduled;
 
     @Column(name = "rpt_date_options_id")
     private Integer rptDateOptionsId;
@@ -284,7 +284,7 @@ public class SavedSchedReportDto {
     private Integer dateRangeTodayMinus2;
 
     @Column(name = "ftp_accounts_id")
-    private String ftpAccountsId;
+    private Long ftpAccountsId;
 
     @Column(name = "is_suppress_invoices")
     private Boolean suppressInvoices;
@@ -307,10 +307,14 @@ public class SavedSchedReportDto {
     @Column(name = "locale")
     private String locale;
 
-    public SavedSchedReportDto(Long savedSchedRptId, Long rptId, Boolean isScheduled, Integer rptDateOptionsId, Integer reportTypeId, String reportFileName, String dateSelectionFrequency, String date1, String date2, String periodOption, Integer lastNoOfDays, String scTriggerBy, String scScheduleType, Integer scWeeklyFrequency, String scWeeklyMonthlyDayofWeek, Integer scMonthlyDayOfMonth, Integer scMonthlyNoOfMonths, String scMonthlyPeriodicFrequency, String svReportStatus, String submittedOn, String scNextSubmitDate, String carrierIds, String controlPayrunNumber, Boolean consolidate, Integer failedAttempts, String createUser, String createDate, String lastUpdateUser, String lastUpdateDate, String criteria, Integer dateRangeTodayMinus1, Integer dateRangeTodayMinus2, String ftpAccountsId, Boolean suppressInvoices, Integer highPriority, String submittedFromSystem, Boolean packet, String queueName, String flagsJson, String locale, String currency, String weightUom, String rptDescr) {
+    public SavedSchedReportDto(Long savedSchedRptId, Long rptId, Boolean scheduled, Integer rptDateOptionsId, Integer reportTypeId, String reportFileName, String dateSelectionFrequency, String date1, String date2,
+                               String periodOption, Integer lastNoOfDays, String scTriggerBy, String scScheduleType, Integer scWeeklyFrequency, String scWeeklyMonthlyDayofWeek, Integer scMonthlyDayOfMonth,
+                               Integer scMonthlyNoOfMonths, String scMonthlyPeriodicFrequency, String svReportStatus, String submittedOn, String scNextSubmitDate, String carrierIds, String controlPayrunNumber, Boolean consolidate,
+                               Integer failedAttempts, String createUser, String createDate, String lastUpdateUser, String lastUpdateDate, String criteria, Integer dateRangeTodayMinus1, Integer dateRangeTodayMinus2,
+                               Long ftpAccountsId, Boolean suppressInvoices, Integer highPriority, String submittedFromSystem, Boolean packet, String queueName, String flagsJson, String locale, String currency, String weightUom, String rptDescr) {
         this.savedSchedRptId = savedSchedRptId;
         this.rptId = rptId;
-        this.isScheduled = isScheduled;
+        this.scheduled = scheduled;
         this.rptDateOptionsId = rptDateOptionsId;
         this.reportTypeId = reportTypeId;
         this.reportFileName = reportFileName;
@@ -382,14 +386,6 @@ public class SavedSchedReportDto {
 
     public void setRptId(Long rptId) {
         this.rptId = rptId;
-    }
-
-    public Boolean getScheduled() {
-        return isScheduled;
-    }
-
-    public void setScheduled(Boolean scheduled) {
-        isScheduled = scheduled;
     }
 
     public Integer getRptDateOptionsId() {
@@ -624,11 +620,11 @@ public class SavedSchedReportDto {
         this.dateRangeTodayMinus2 = dateRangeTodayMinus2;
     }
 
-    public String getFtpAccountsId() {
+    public Long getFtpAccountsId() {
         return ftpAccountsId;
     }
 
-    public void setFtpAccountsId(String ftpAccountsId) {
+    public void setFtpAccountsId(Long ftpAccountsId) {
         this.ftpAccountsId = ftpAccountsId;
     }
 
@@ -720,6 +716,14 @@ public class SavedSchedReportDto {
         this.rptFolderId = rptFolderId;
     }
 
+    public Boolean getScheduled() {
+        return scheduled;
+    }
+
+    public void setScheduled(Boolean scheduled) {
+        this.scheduled = scheduled;
+    }
+
     public ArrayList<ReportPacketsDetDto> getReportPacketsDetList() {
         return reportPacketsDetList;
     }
@@ -784,7 +788,7 @@ public class SavedSchedReportDto {
 
     }
     public SavedSchedReportDto(Long savedSchedRptId){
-         this.savedSchedRptId = savedSchedRptId;
+        this.savedSchedRptId = savedSchedRptId;
     }
 
 
@@ -797,19 +801,19 @@ public class SavedSchedReportDto {
     }
 
     public SavedSchedReportDto(Long savedSchedRptId,
-                               Long rptId, Boolean isScheduled, Integer rptDateOptionsId,
+                               Long rptId, Boolean scheduled, Integer rptDateOptionsId,
                                Integer reportTypeId,String reportFileName, String dateSelectionFrequency,String date1,String date2,
                                String periodOption,Integer lastNoOfDays,String scTriggerBy,String scScheduleType,
                                Integer scWeeklyFrequency,String scWeeklyMonthlyDayofWeek,Integer scMonthlyDayOfMonth,
                                Integer scMonthlyNoOfMonths,String scMonthlyPeriodicFrequency,String svReportStatus,String submittedOn,
                                String scNextSubmitDate,String carrierIds,String controlPayrunNumber,Boolean consolidate,Integer failedAttempts,
                                String createUser,String createDate,String lastUpdateUser,String lastUpdateDate,String criteria,
-                               Integer dateRangeTodayMinus1,Integer dateRangeTodayMinus2,String ftpAccountsId,Boolean suppressInvoices,
+                               Integer dateRangeTodayMinus1,Integer dateRangeTodayMinus2,Long ftpAccountsId,Boolean suppressInvoices,
                                Integer highPriority,String submittedFromSystem,Boolean packet,String queueName,String flagsJson,
                                String locale,String currency,String weightUom,String rptDescr, Long rptFolderId){
         this.savedSchedRptId = savedSchedRptId;
         this.rptId = rptId;
-        this.isScheduled = isScheduled;
+        this.scheduled = scheduled;
         this.rptDateOptionsId = rptDateOptionsId;
         this.reportTypeId = reportTypeId;
         this.reportFileName = reportFileName;
