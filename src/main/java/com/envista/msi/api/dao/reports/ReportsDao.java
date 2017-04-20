@@ -325,7 +325,7 @@ public class ReportsDao {
                 .and("criteria",savedSchedReportDto.getCriteria())
                 .and("dateRangeTodayMinus1",savedSchedReportDto.getDateRangeTodayMinus1()==null?0:savedSchedReportDto.getDateRangeTodayMinus1())
                 .and("dateRangeTodayMinus2",savedSchedReportDto.getDateRangeTodayMinus2()==null?0:savedSchedReportDto.getDateRangeTodayMinus2())
-                .and("ftpAccountsId",savedSchedReportDto.getFtpAccountsId())
+                .and("ftpAccountsId",(savedSchedReportDto.getFtpAccountsId() == null || savedSchedReportDto.getFtpAccountsId().toString().isEmpty()) ? 0 :savedSchedReportDto.getFtpAccountsId())
                 .and("isSuppressInvoices",savedSchedReportDto.getSuppressInvoices()==null?false:savedSchedReportDto.getSuppressInvoices())
                 .and("submittedFromSystem",submittedFromSystem)
                 .and("isPacket",savedSchedReportDto.getPacket()==null?false:savedSchedReportDto.getPacket())
@@ -356,12 +356,12 @@ public class ReportsDao {
 
         QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", saveSchedUser.getSavedSchedRptId())
                 .and("userId",saveSchedUser.getUserId())
-                .and("isEmailTempTobeSent",saveSchedUser.isEmailTemplateToBeSent()==null?true:saveSchedUser.isEmailTemplateToBeSent())
-                .and("isReportAttachEmail",saveSchedUser.isReportAttachedMail()==null?false:saveSchedUser.isReportAttachedMail())
-                .and("isReportSubscribed",saveSchedUser.isReportSubscribed()==null?true:saveSchedUser.isReportSubscribed())
+                .and("isEmailTempTobeSent",saveSchedUser.getEmailTemplateToBeSent()==null?true:saveSchedUser.getEmailTemplateToBeSent())
+                .and("isReportAttachEmail",saveSchedUser.getReportAttachedMail()==null?false:saveSchedUser.getReportAttachedMail())
+                .and("isReportSubscribed",saveSchedUser.getReportSubscribed()==null?true:saveSchedUser.getReportSubscribed())
                 .and("createUser",saveSchedUser.getCreateUser()==null?"":saveSchedUser.getCreateUser())
-                .and("isShared",saveSchedUser.isShared()==null?false:saveSchedUser.isShared())
-                .and("canEdit",saveSchedUser.isCanEdit()==null?true:saveSchedUser.isCanEdit());
+                .and("isShared",saveSchedUser.getShared()==null?false:saveSchedUser.getShared())
+                .and("canEdit",saveSchedUser.getCanEdit()==null?true:saveSchedUser.getCanEdit());
 
         return persistentContext.findEntity("SavedSchedReports.saveUsers",queryParameter);
 
@@ -670,5 +670,10 @@ public class ReportsDao {
     @Transactional
     public List<ReportFolderDto> getFolderHierarchy(Long userId){
         return persistentContext.findEntities("ReportFolder.getReportFolderHierarchy",StoredProcedureParameter.with("p_user_id",userId));
+    }
+
+    public List<SavedSchedReportsDto> getSavedSchedTemplates(Long userId) {
+        return persistentContext.findEntities("SavedSchedReports.gerSavedSchedTemplates",
+                StoredProcedureParameter.with("userId", userId == null?0:userId));
     }
 }

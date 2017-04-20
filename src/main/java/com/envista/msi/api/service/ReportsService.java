@@ -56,6 +56,9 @@ public class ReportsService {
     @Value("${FILESERVER}")
     private String fileServer;
 
+    @Value("${PRODFILESERVER}")
+    private String prodFileServer;
+
     @Value("${emailUnsubscribe.html}")
     private String emailHtml;
 
@@ -87,6 +90,9 @@ public class ReportsService {
 
     public List<SavedSchedReportsDto> getSavedSchedReports(Long userId,Long filterId){
         return reportsDao.getSavedSchedReports(userId,filterId);
+    }
+    public List<SavedSchedReportsDto> getSavedSchedTemplates(Long userId){
+        return reportsDao.getSavedSchedTemplates(userId);
     }
 
     public UpdateSavedSchedReportDto updateSavedSchedReport(UpdateSavedSchedReportDto updateSavedSchedReportDto){
@@ -385,26 +391,36 @@ public class ReportsService {
         List<ReportsFilesDto> reportsFilesDtoList = reportsDao.getReportFileDetails(generatedRptId);
         if(reportsFilesDtoList!=null && reportsFilesDtoList.size()>0){
             ReportsFilesDto reportsFilesDto = reportsFilesDtoList.get(0);
-
             String filePath = getFileServerAbsolutePath(reportsFilesDto.getFilePath());
-
                 File file = new File(filePath);
                 if(!file.exists()){
-                      throw new FileNotFoundException(file.getName() + "File not exist ");
-
+                    filePath = getFileServerAbsolutePath(reportsFilesDto.getFilePath());
+                    file = new File(filePath);
+                    if(!file.exists()) {
+                        throw new FileNotFoundException(file.getName() + "File not exist ");
+                    }
               }
-
             return file;
         }
-
-
         return null;
     }
+
     public String getFileServerAbsolutePath(String physicalFileName) throws FileNotFoundException {
 
         String drive = physicalFileName.substring(0, physicalFileName.indexOf('\\'));
         String relativeFileLocation = physicalFileName.substring(physicalFileName.indexOf('\\'));
         physicalFileName = "\\\\" + fileServer + "\\" + drive.toLowerCase().replace(":", "$") + relativeFileLocation;
+        if (!(new File(physicalFileName)).exists()) {
+            physicalFileName = physicalFileName.replace("$", "");
+        }
+
+        return physicalFileName;
+    }
+    public String getProdFileServerAbsolutePath(String physicalFileName) throws FileNotFoundException {
+
+        String drive = physicalFileName.substring(0, physicalFileName.indexOf('\\'));
+        String relativeFileLocation = physicalFileName.substring(physicalFileName.indexOf('\\'));
+        physicalFileName = "\\\\" + prodFileServer + "\\" + drive.toLowerCase().replace(":", "$") + relativeFileLocation;
         if (!(new File(physicalFileName)).exists()) {
             physicalFileName = physicalFileName.replace("$", "");
         }
@@ -470,7 +486,7 @@ public class ReportsService {
                 }
 
                 if(savedSchedReportDto.getSavedSchedUsersDtoList()!=null && savedSchedReportDto.getSavedSchedUsersDtoList().size()>0){
-                    for(ReportSavedSchdUsersDto saveSchedUser : savedSchedReportDto.getSavedSchedUsersDtoList()){
+                    for(ReportSavedSchdUsersDto saveSchedUser : removeDuplicateUsers(savedSchedReportDto.getSavedSchedUsersDtoList())){
                         saveSchedUser.setSavedSchedRptId(savedSchedReport.getSavedSchedRptId());
                         ReportSavedSchdUsersDto outUserDto = reportsDao.saveSchedUser(saveSchedUser);
                     }
@@ -480,6 +496,63 @@ public class ReportsService {
         }
         return savedSchedReport;
     }
+    public ArrayList<ReportSavedSchdUsersDto> removeDuplicateUsers(ArrayList<ReportSavedSchdUsersDto> reportsavedUsersList){
+
+        ArrayList<ReportSavedSchdUsersDto> finaluserlist =  new ArrayList<ReportSavedSchdUsersDto>();
+        ArrayList<ReportSavedSchdUsersDto> secuserlist =  new ArrayList<ReportSavedSchdUsersDto>();
+        boolean unique = true;
+        ReportSavedSchdUsersDto finalObjforDup  = new ReportSavedSchdUsersDto();
+        ArrayList<Long> usersList = new ArrayList<Long>();
+        ArrayList<Long> finalObjUsersList = new ArrayList<Long>();
+
+        for(ReportSavedSchdUsersDto saveSchedUser : reportsavedUsersList){
+                if(usersList.contains(saveSchedUser.getUserId())){
+                    secuserlist.add(saveSchedUser);
+                }
+            usersList.add(saveSchedUser.getUserId());
+        }
+        for(ReportSavedSchdUsersDto saveSchedUser : reportsavedUsersList){
+            unique = true;
+            finalObjforDup  = new ReportSavedSchdUsersDto();
+            for(ReportSavedSchdUsersDto dupUser : secuserlist){
+                if(dupUser.getUserId() == saveSchedUser.getUserId()){
+                    unique = false;
+                    finalObjforDup  = new ReportSavedSchdUsersDto();
+                    finalObjforDup.setUserId(dupUser.getUserId());
+                    finalObjforDup.setSavedSchedRptId(dupUser.getSavedSchedRptId());
+                    finalObjforDup.setCreateUser(dupUser.getCreateUser());
+
+                    if(dupUser.getShared() || saveSchedUser.getShared()){
+                        finalObjforDup.setShared(true);
+                    }
+                    if(dupUser.getEmailTemplateToBeSent() || saveSchedUser.getEmailTemplateToBeSent()){
+                        finalObjforDup.setEmailTemplateToBeSent(true);
+                    }
+                    if(dupUser.getReportAttachedMail() || saveSchedUser.getReportAttachedMail()){
+                        finalObjforDup.setReportAttachedMail(true);
+                    }
+                    if(dupUser.getCanEdit() || saveSchedUser.getCanEdit()){
+                        finalObjforDup.setCanEdit(true);
+                    }
+                    if(dupUser.getReportSubscribed() || saveSchedUser.getReportSubscribed()){
+                        finalObjforDup.setReportSubscribed(true);
+                    }
+                }
+
+            }
+            if(!finalObjUsersList.contains(saveSchedUser.getUserId())) {
+                if (unique) {
+                    finaluserlist.add(saveSchedUser);
+                } else {
+                    finaluserlist.add(finalObjforDup);
+                }
+                finalObjUsersList.add(saveSchedUser.getUserId());
+            }
+
+        }
+        return finaluserlist;
+    }
+
     public SavedSchedReportDto updateSchedPacketReport(SavedSchedReportDto savedSchedReportDto){
 
         SavedSchedReportDto savedSchedReport = reportsDao.updateSchedReport(savedSchedReportDto);
@@ -492,7 +565,7 @@ public class ReportsService {
             }
 
             if(savedSchedReportDto.getSavedSchedUsersDtoList()!=null && savedSchedReportDto.getSavedSchedUsersDtoList().size()>0){
-                for(ReportSavedSchdUsersDto saveSchedUser : savedSchedReportDto.getSavedSchedUsersDtoList()){
+                for(ReportSavedSchdUsersDto saveSchedUser : removeDuplicateUsers(savedSchedReportDto.getSavedSchedUsersDtoList())){
                     saveSchedUser.setSavedSchedRptId(savedSchedReportDto.getSavedSchedRptId());
                     ReportSavedSchdUsersDto outUserDto = reportsDao.saveSchedUser(saveSchedUser);
                 }
@@ -503,7 +576,7 @@ public class ReportsService {
     public void inserChildTables(SavedSchedReportDto savedSchedReportDto,Long savedSchedRrtId){
 
         if(savedSchedReportDto.getSavedSchedUsersDtoList()!=null && savedSchedReportDto.getSavedSchedUsersDtoList().size()>0){
-            for(ReportSavedSchdUsersDto saveSchedUser : savedSchedReportDto.getSavedSchedUsersDtoList()){
+            for(ReportSavedSchdUsersDto saveSchedUser : removeDuplicateUsers(savedSchedReportDto.getSavedSchedUsersDtoList())){
                 saveSchedUser.setSavedSchedRptId(savedSchedRrtId);
                 ReportSavedSchdUsersDto outUserDto = reportsDao.saveSchedUser(saveSchedUser);
             }

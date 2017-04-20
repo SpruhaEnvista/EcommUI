@@ -91,6 +91,11 @@ public class ReportsController {
         List<SavedSchedReportsDto> resultsList = reportsService.getSavedSchedReports(Long.parseLong(userId), (folderId == null ? 0 : Long.parseLong(folderId)));
         return new ResponseEntity<List<SavedSchedReportsDto>>(resultsList, HttpStatus.OK);
     }
+    @RequestMapping(value = "/savedschedtemplates", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<List<SavedSchedReportsDto>> getSavedSchedTemplates(@RequestParam String userId){
+        List<SavedSchedReportsDto> resultsList = reportsService.getSavedSchedTemplates(Long.parseLong(userId));
+        return new ResponseEntity<List<SavedSchedReportsDto>>(resultsList, HttpStatus.OK);
+    }
     @RequestMapping(value = "/updatesavedschedreport", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<UpdateSavedSchedReportDto> updateSavedSchedReport(@RequestBody UpdateSavedSchedReportDto updateSavedSchedReportDto){
         UpdateSavedSchedReportDto updateDto = reportsService.updateSavedSchedReport(updateSavedSchedReportDto);

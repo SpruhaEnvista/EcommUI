@@ -27,7 +27,13 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "newUserName", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "newUserId" , type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "ssRptId" , type = Long.class)
-                })
+                }),
+        @NamedStoredProcedureQuery(name = "SavedSchedReports.gerSavedSchedTemplates", procedureName = "shp_rpt_saved_sched_temp_proc",
+                resultSetMappings = "savedSchedReportsList",
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "reportsList", type = Void.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "userId", type = Long.class)
+                }),
 })
 
 @SqlResultSetMappings({
