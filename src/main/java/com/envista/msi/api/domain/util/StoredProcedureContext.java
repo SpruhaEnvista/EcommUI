@@ -260,9 +260,6 @@ public class StoredProcedureContext extends EntityManagerImpl implements Persist
 					;
 				}
 			}
-			if(connection != null){
-				connection.close();
-			}
 		}
 
 		return returnList;

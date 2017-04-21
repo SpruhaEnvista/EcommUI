@@ -2,6 +2,7 @@ package com.envista.msi.api.service;
 
 import com.envista.msi.api.dao.DaoException;
 import com.envista.msi.api.dao.reports.ReportsDao;
+import com.envista.msi.api.dao.type.GenericObject;
 import com.envista.msi.api.domain.util.ReportsUtil;
 import com.envista.msi.api.domain.util.StringEncrypter;
 import com.envista.msi.api.web.rest.dto.UserDetailsDto;
@@ -21,6 +22,7 @@ import javax.inject.Inject;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.sql.SQLException;
 import java.util.*;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -444,22 +446,19 @@ public class ReportsService {
                     savedSchedReportDto.setReportsInclColDtoList(finalColDto);
                 }
                 if(savedSchedReportDto.getRptFolderId()!=null && savedSchedReportDto.getRptFolderId()>0){
-                    ReportFolderDetailsDto rptFolderDetails = new ReportFolderDetailsDto();
-                    rptFolderDetails.setSavedSchdReportId(savedSchedReport.getSavedSchedRptId());
-                    rptFolderDetails.setReportFolderId(savedSchedReportDto.getRptFolderId());
-                    reportsDao.moveReportToFolder(rptFolderDetails);
+                    moveReportToFolder(savedSchedReport.getSavedSchedRptId(),savedSchedReportDto.getRptFolderId());
                 }
 
                 inserChildTables(savedSchedReportDto,savedSchedReport.getSavedSchedRptId());
             }
-            if(savedSchedReportDto.getRptFolderId()!=null && savedSchedReportDto.getRptFolderId()>0){
-                ReportFolderDetailsDto rptFolderDtlsDto = new ReportFolderDetailsDto();
-                rptFolderDtlsDto.setReportFolderId(savedSchedReportDto.getRptFolderId());
-                rptFolderDtlsDto.setSavedSchdReportId(savedSchedReport.getSavedSchedRptId());
-                reportsDao.moveReportToFolder(rptFolderDtlsDto);
-            }
 
         return savedSchedReport;
+    }
+    private void moveReportToFolder(Long savedSchedRptId, Long rptFolderId){
+        ReportFolderDetailsDto rptFolderDetails = new ReportFolderDetailsDto();
+        rptFolderDetails.setSavedSchdReportId(savedSchedRptId);
+        rptFolderDetails.setReportFolderId(rptFolderId);
+        reportsDao.moveReportToFolder(rptFolderDetails);
     }
 
     public SavedSchedReportDto updateSchedReport(SavedSchedReportDto savedSchedReportDto){
@@ -495,10 +494,7 @@ public class ReportsService {
                     }
                 }
                 if(savedSchedReportDto.getRptFolderId()!=null && savedSchedReportDto.getRptFolderId()>0){
-                    ReportFolderDetailsDto rptFolderDetails = new ReportFolderDetailsDto();
-                    rptFolderDetails.setSavedSchdReportId(savedSchedReport.getSavedSchedRptId());
-                    rptFolderDetails.setReportFolderId(savedSchedReportDto.getRptFolderId());
-                    reportsDao.moveReportToFolder(rptFolderDetails);
+                    moveReportToFolder(savedSchedReport.getSavedSchedRptId(),savedSchedReportDto.getRptFolderId());
                 }
             }
 
@@ -592,9 +588,17 @@ public class ReportsService {
             }
         }
         if(savedSchedReportDto.getSavedSchedAccountsDtoList()!=null && savedSchedReportDto.getSavedSchedAccountsDtoList().size()>0){
+            ArrayList<GenericObject> genericObjectAcctList = new ArrayList<GenericObject>();
             for(ReportsSavedSchdAccountDto accoutsDto : savedSchedReportDto.getSavedSchedAccountsDtoList()){
-                accoutsDto.setSavedSchdRptId(savedSchedRrtId);
-                reportsDao.saveSchedAccountsDetails(accoutsDto);
+                GenericObject genericObject = new  GenericObject();
+                genericObject.setParam1(String.valueOf(savedSchedRrtId));
+                genericObject.setParam2(String.valueOf(accoutsDto.getCustomerId()));
+                genericObject.setParam3(accoutsDto.getCreateUser());
+                genericObjectAcctList.add(genericObject);
+            }
+            try {
+                reportsDao.saveSchedAcctDetails(genericObjectAcctList);
+            } catch (SQLException e) {
             }
         }
 
@@ -606,9 +610,17 @@ public class ReportsService {
         }
 
         if(savedSchedReportDto.getReportsInclColDtoList()!=null && savedSchedReportDto.getReportsInclColDtoList().size()>0){
+            ArrayList<GenericObject> genericObjectList = new ArrayList<GenericObject>();
             for(ReportsInclColDto inclColDto : savedSchedReportDto.getReportsInclColDtoList()){
-                inclColDto.setSavedSchdRptId(savedSchedRrtId);
-                reportsDao.saveSchedIncColDetails(inclColDto);
+                GenericObject genericObject = new  GenericObject();
+                genericObject.setParam1(String.valueOf(savedSchedRrtId));
+                genericObject.setParam2(String.valueOf(inclColDto.getRptDetailsId()));
+                genericObject.setParam3(inclColDto.getCreateUser());
+                genericObjectList.add(genericObject);
+            }
+            try {
+                reportsDao.saveSchedIncColDetails(genericObjectList);
+            } catch (SQLException e) {
             }
         }
 

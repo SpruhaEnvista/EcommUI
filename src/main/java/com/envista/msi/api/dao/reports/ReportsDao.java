@@ -1,5 +1,6 @@
 package com.envista.msi.api.dao.reports;
 
+import com.envista.msi.api.dao.type.GenericObject;
 import com.envista.msi.api.domain.PersistentContext;
 import com.envista.msi.api.domain.util.QueryParameter;
 import com.envista.msi.api.domain.util.StoredProcedureParameter;
@@ -14,7 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import javax.persistence.ParameterMode;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -514,6 +517,22 @@ public class ReportsDao {
                 .and("rptDetailsId", inclColDto.getRptDetailsId())
                 .and("createUser",inclColDto.getCreateUser());
         return persistentContext.findEntity("ReportInclCol.insertRecord",queryParameter);
+
+    }
+    @Transactional
+    public void saveSchedIncColDetails(List<GenericObject> inclColDtoList) throws SQLException {
+        QueryParameter queryParameter = StoredProcedureParameter.withPosition(1, ParameterMode.IN, GenericObject[].class, inclColDtoList)
+                .andPosition(2, ParameterMode.REF_CURSOR, void.class, null);
+
+         persistentContext.executeStoredProcedure("shp_rpt_savesched_incl_proc",queryParameter);
+
+    }
+    @Transactional
+    public void saveSchedAcctDetails(List<GenericObject> actDtoList) throws SQLException {
+        QueryParameter queryParameter = StoredProcedureParameter.withPosition(1, ParameterMode.IN, GenericObject[].class, actDtoList)
+                .andPosition(2, ParameterMode.REF_CURSOR, void.class, null);
+
+        persistentContext.executeStoredProcedure("shp_rpt_savesched_accts_proc",queryParameter);
 
     }
 
