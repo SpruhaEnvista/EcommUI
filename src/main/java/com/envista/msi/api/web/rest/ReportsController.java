@@ -8,6 +8,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendRequestDto;
 import com.envista.msi.api.web.rest.dto.reports.*;
 import com.envista.msi.api.web.rest.util.JSONUtil;
+import com.envista.msi.api.web.rest.util.WebConstants;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,6 +26,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
+import java.util.HashMap;
+
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -91,10 +95,25 @@ public class ReportsController {
         List<SavedSchedReportsDto> resultsList = reportsService.getSavedSchedReports(Long.parseLong(userId), (folderId == null ? 0 : Long.parseLong(folderId)));
         return new ResponseEntity<List<SavedSchedReportsDto>>(resultsList, HttpStatus.OK);
     }
+    @RequestMapping(value = "/savedschedtemplates", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<List<SavedSchedReportsDto>> getSavedSchedTemplates(@RequestParam String userId){
+        List<SavedSchedReportsDto> resultsList = reportsService.getSavedSchedTemplates(Long.parseLong(userId));
+        return new ResponseEntity<List<SavedSchedReportsDto>>(resultsList, HttpStatus.OK);
+    }
     @RequestMapping(value = "/updatesavedschedreport", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<UpdateSavedSchedReportDto> updateSavedSchedReport(@RequestBody UpdateSavedSchedReportDto updateSavedSchedReportDto){
-        UpdateSavedSchedReportDto updateDto = reportsService.updateSavedSchedReport(updateSavedSchedReportDto);
-        return new ResponseEntity<UpdateSavedSchedReportDto>(updateDto, HttpStatus.OK);
+    public ResponseEntity<Map<String, Object>> updateSavedSchedReport(@RequestBody UpdateSavedSchedReportDto updateSavedSchedReportDto) {
+        Map<String, Object> respMap = new HashMap<String, Object>();
+        try {
+            UpdateSavedSchedReportDto updateDto = reportsService.updateSavedSchedReport(updateSavedSchedReportDto);
+            respMap.put("status", HttpStatus.OK.value());
+            respMap.put("UpdatesavedSchedReportsDtoData", updateSavedSchedReportDto);
+        } catch (Exception e) {
+            respMap.put("status", HttpStatus.EXPECTATION_FAILED.value());
+            respMap.put("message", WebConstants.ResponseMessage.EXPECTATION_FAILED);
+            respMap.put("ERROR", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respMap);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(respMap);
     }
     @RequestMapping(value = "/runsavedschedreport", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<UpdateSavedSchedReportDto> runSavedSchedReport(@RequestBody UpdateSavedSchedReportDto updateSavedSchedReportDto){
@@ -107,9 +126,19 @@ public class ReportsController {
         return new ResponseEntity<UpdateSavedSchedReportDto>(updateDto, HttpStatus.OK);
     }
     @RequestMapping(value = "/results/pushtouser", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<ReportResultsUsersListDto> pushToUser(@RequestBody List<ReportResultsUsersListDto> reportResultsUsersListDto){
-        ReportResultsUsersListDto updateDto = reportsService.pushToUser(reportResultsUsersListDto);
-        return new ResponseEntity<ReportResultsUsersListDto>(updateDto, HttpStatus.OK);
+    public ResponseEntity<Map<String, Object>> pushToUser(@RequestBody List<ReportResultsUsersListDto> reportResultsUsersListDto) {
+        Map<String, Object> respMap = new HashMap<String, Object>();
+        try {
+            ReportResultsUsersListDto updateDto = reportsService.pushToUser(reportResultsUsersListDto);
+            respMap.put("status", HttpStatus.OK.value());
+            respMap.put("updateDtoData", updateDto);
+        } catch (Exception e) {
+            respMap.put("status", HttpStatus.EXPECTATION_FAILED.value());
+            respMap.put("message", WebConstants.ResponseMessage.EXPECTATION_FAILED);
+            respMap.put("ERROR", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respMap);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(respMap);
     }
     @RequestMapping(value = "/getModesReport", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<List<ReportModesDto>> getReportForModes(@RequestParam String userId){
@@ -245,15 +274,25 @@ public class ReportsController {
     }
 
     @RequestMapping(value = "/chageowner", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<SavedSchedReportsDto> changeOwnerBasedOnSSRptId(@RequestParam String currentUserName,@RequestParam Long currentUserId,
-                                                                         @RequestParam String newUserName,@RequestParam Long newUserId,@RequestParam Long ssRptId){
+    public ResponseEntity<Map<String, Object>> changeOwnerBasedOnSSRptId(@RequestParam String currentUserName, @RequestParam Long currentUserId,
+                                                                         @RequestParam String newUserName, @RequestParam Long newUserId, @RequestParam Long ssRptId) {
         SavedSchedReportsDto savedSchedReportsDto = null;
-        if(ssRptId != null && ssRptId > 0 && currentUserName != null && currentUserName.trim().length() > 0
-                && currentUserId != null && currentUserId >0 && newUserName != null && newUserName.trim().length() > 0
+        Map<String, Object> respMap = new HashMap<String, Object>();
+        try {
+            if (ssRptId != null && ssRptId > 0 && currentUserName != null && currentUserName.trim().length() > 0
+                    && currentUserId != null && currentUserId > 0 && newUserName != null && newUserName.trim().length() > 0
                     && newUserId != null && newUserId > 0) {
-            savedSchedReportsDto = reportsService.changeOwnerBasedonSSRptId(currentUserName,currentUserId,newUserName,newUserId,ssRptId);
+                savedSchedReportsDto = reportsService.changeOwnerBasedonSSRptId(currentUserName, currentUserId, newUserName, newUserId, ssRptId);
+            }
+            respMap.put("status", HttpStatus.OK.value());
+            respMap.put("savedSchedReportsDtoData", savedSchedReportsDto);
+        } catch (Exception e) {
+            respMap.put("status", HttpStatus.EXPECTATION_FAILED.value());
+            respMap.put("message", WebConstants.ResponseMessage.EXPECTATION_FAILED);
+            respMap.put("ERROR", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respMap);
         }
-        return new ResponseEntity<SavedSchedReportsDto>(savedSchedReportsDto,HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK).body(respMap);
     }
 
     @RequestMapping(value = "/criteriacolumn", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
@@ -474,6 +513,18 @@ public class ReportsController {
             return new ResponseEntity<ReportFolderDto>(reportFolderDto, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<ReportFolderDto>(new ReportFolderDto(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @RequestMapping(value = "/folderhierarchy", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<JSONObject> getFolderHierarchy(@RequestParam String userId){
+        try {
+            ReportFolderDto folderHierarchyDto = reportsService.getFolderHierarchy(Long.parseLong(userId));
+            JSONObject foldersJson=new JSONObject();
+            if(folderHierarchyDto!=null)
+                foldersJson.put("folderList", JSONUtil.getFolderHierarchyJson(folderHierarchyDto,0));
+            return new ResponseEntity<JSONObject>(foldersJson, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<JSONObject>(new JSONObject(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
