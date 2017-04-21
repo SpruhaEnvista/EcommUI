@@ -532,7 +532,7 @@ public class ReportsDao {
         QueryParameter queryParameter = StoredProcedureParameter.withPosition(1, ParameterMode.IN, GenericObject[].class, actDtoList)
                 .andPosition(2, ParameterMode.REF_CURSOR, void.class, null);
 
-        persistentContext.executeStoredProcedure("shp_rpt_savesched_accts_proc",queryParameter);
+        persistentContext.executeStoredProcedure("shp_rpt_savesched_actlist_proc",queryParameter);
 
     }
 
