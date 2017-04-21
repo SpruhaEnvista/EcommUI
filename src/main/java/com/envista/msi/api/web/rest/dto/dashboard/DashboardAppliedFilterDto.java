@@ -19,7 +19,6 @@ import java.io.Serializable;
         @NamedStoredProcedureQuery(name = "DashboardAppliedFilterDto.saveAppliedFilter", procedureName = "shp_db_ins_applied_filter_proc",
                 resultClasses = DashboardAppliedFilterDto.class,
                 parameters = {
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AppliedFilterParam.TOKEN_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AppliedFilterParam.CUSTOMER_IDS_CSV_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AppliedFilterParam.CARRIER_IDS_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AppliedFilterParam.FROM_DATE_PARAM, type = String.class),
@@ -29,7 +28,6 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AppliedFilterParam.DATE_TYPE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AppliedFilterParam.LANES_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AppliedFilterParam.USER_ID_PARAM, type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AppliedFilterParam.USER_NAME_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AppliedFilterParam.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AppliedFilterParam.WEIGHT_UNIT_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AppliedFilterParam.CURRENCY_CODE_PARAM, type = String.class),
@@ -42,8 +40,8 @@ public class DashboardAppliedFilterDto implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @Column(name = "JSESSION_ID",unique = true)
-    private String jSessionId;
+    @Column(name="USER_ID")
+    private long loginUserId;
 
     @Column(name="CUSTOMER_ID")
     private String customerIds;
@@ -66,40 +64,17 @@ public class DashboardAppliedFilterDto implements Serializable {
 
     private String lanes;
 
-    @Column(name="CUSTOMER_GROUP_NAME")
-    private String customerGroupName;
-
-    @Column(name="LOGINUSER_ID")
-    private long loginUserId;
-
-    @Column(name="DASHLET_CATE")
-    private  String dashletCategory;
-
-    @Column(name="USER_NAME")
-    private String  userName;
-
     @Column(name="CURRENCY_ID")
     private String currencyId;
 
     @Column(name="WEIGHT_UNIT")
     private String weightUnit;
 
-    @Column(name="SHIPPER_GROUP_ID")
-    private String shipperGroupId;
-
     @Column(name="CURRENCY_CODE")
     private String currencyCode;
 
     public static long getSerialVersionUID() {
         return serialVersionUID;
-    }
-
-    public String getjSessionId() {
-        return jSessionId;
-    }
-
-    public void setjSessionId(String jSessionId) {
-        this.jSessionId = jSessionId;
     }
 
     public String getCustomerIds() {
@@ -166,36 +141,12 @@ public class DashboardAppliedFilterDto implements Serializable {
         this.lanes = lanes;
     }
 
-    public String getCustomerGroupName() {
-        return customerGroupName;
-    }
-
-    public void setCustomerGroupName(String customerGroupName) {
-        this.customerGroupName = customerGroupName;
-    }
-
     public long getLoginUserId() {
         return loginUserId;
     }
 
     public void setLoginUserId(long loginUserId) {
         this.loginUserId = loginUserId;
-    }
-
-    public String getDashletCategory() {
-        return dashletCategory;
-    }
-
-    public void setDashletCategory(String dashletCategory) {
-        this.dashletCategory = dashletCategory;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
     }
 
     public String getCurrencyId() {
@@ -212,14 +163,6 @@ public class DashboardAppliedFilterDto implements Serializable {
 
     public void setWeightUnit(String weightUnit) {
         this.weightUnit = weightUnit;
-    }
-
-    public String getShipperGroupId() {
-        return shipperGroupId;
-    }
-
-    public void setShipperGroupId(String shipperGroupId) {
-        this.shipperGroupId = shipperGroupId;
     }
 
     public String getCurrencyCode() {

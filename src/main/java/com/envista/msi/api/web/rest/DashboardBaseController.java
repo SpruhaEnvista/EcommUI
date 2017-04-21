@@ -46,7 +46,6 @@ public class DashboardBaseController {
         dashboardsFilterCriteria.setModes(dashboardAppliedFilterDto.getModes());
         dashboardsFilterCriteria.setService(dashboardAppliedFilterDto.getServices());
         dashboardsFilterCriteria.setToDate(dashboardAppliedFilterDto.getToDate());
-        dashboardsFilterCriteria.setShipperGroupIdsCSV(dashboardAppliedFilterDto.getShipperGroupId());
         dashboardsFilterCriteria.setConvertWeightUnit(dashboardAppliedFilterDto.getWeightUnit());
         dashboardsFilterCriteria.setUserId(dashboardAppliedFilterDto.getLoginUserId());
         dashboardsFilterCriteria.setCustomerIdsCSV(dashboardAppliedFilterDto.getCustomerIds());

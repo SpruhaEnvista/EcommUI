@@ -41,11 +41,12 @@ import java.util.*;
  */
 public class JSONUtil {
 	static ArrayList<String> colorsList = new ArrayList<String>();
-	static final DecimalFormat commaSeperatedDecimalFormat = new DecimalFormat("#,##0.00");
+	static final DecimalFormat commaSeperatedDecimalFormat = new DecimalFormat("#,##0");
 	static String[] commaSeperatedFieldsArr = {
 			"Total Weight", "Total Charges", "Line Haul", "Fuel Surcharge", "Discount", "Accessorials",
 			"Adjustments", "Total Due Amount", "Invoice Amount", "Approved Line Charges", "Line Charges", "Adjustment"
 	};
+	static final List<String> commaSeperatedFields = Arrays.asList(commaSeperatedFieldsArr);
 
 	static {
 		if (colorsList.isEmpty()) {
@@ -203,7 +204,7 @@ public class JSONUtil {
 					String billDate = overTimeDto.getBillingDate();
 					String carrierName = overTimeDto.getCarrierName();
 					long carrierId = overTimeDto.getCarrierId();
-					Double spend = Math.ceil(overTimeDto.getNetCharges());
+					Double spend = Math.rint(overTimeDto.getNetCharges());
 
 					if (spend != 0) {
 						String concatCarrier = carrierId + "#@#" + carrierName;
@@ -306,7 +307,7 @@ public class JSONUtil {
 			Iterator<String> taxIterator = spendMap.keySet().iterator();
 			while (taxIterator.hasNext()) {
 				String tax = taxIterator.next();
-				double spend = Math.ceil(spendMap.get(tax));
+				double spend = Math.rint(spendMap.get(tax));
 
 				JSONObject taxesJson = new JSONObject();
 				taxesJson.put("name", tax);
@@ -331,7 +332,7 @@ public class JSONUtil {
 				if (chartData != null) {
 					statusJson = new JSONObject();
 					statusJson.put("name", chartData.getName());
-					statusJson.put("value", Math.ceil(chartData.getValue()));
+					statusJson.put("value", Math.rint(chartData.getValue()));
 					statusJson.put("id", chartData.getId());
 
 					returnArray.put(statusJson);
@@ -354,7 +355,7 @@ public class JSONUtil {
 				if (chartData != null) {
 					statusJson = new JSONObject();
 					statusJson.put("name", chartData.getName());
-					statusJson.put("value", Math.ceil(chartData.getValue()));
+					statusJson.put("value", Math.rint(chartData.getValue()));
 					statusJson.put("id", chartData.getInvoiceMethodId());
 
 					returnArray.put(statusJson);
@@ -383,7 +384,7 @@ public class JSONUtil {
 				if (accSpend != null) {
 					String billDate = accSpend.getBillDate();
 					String service = accSpend.getAccessorialName();
-					Double spend = Math.ceil(accSpend.getSpend());
+					Double spend = Math.rint(accSpend.getSpend());
 
 					if (spend != 0) {
 
@@ -458,7 +459,7 @@ public class JSONUtil {
 		for (AverageSpendPerShipmentDto perShipmentDto : avgPerShipmentList) {
 			String billDate = perShipmentDto.getBillingDate();
 			String mode = perShipmentDto.getModes();
-			Double spend = Math.ceil(perShipmentDto.getNetWeight());
+			Double spend = Math.rint(perShipmentDto.getNetWeight());
 
 			if (spend != 0) {
 
@@ -529,7 +530,7 @@ public class JSONUtil {
 		for (AverageWeightModeShipmtDto perWeightShipmentDto : avgWeigthModeShpmtList) {
 			String billDate = perWeightShipmentDto.getBillingDate();
 			String mode = perWeightShipmentDto.getModes();
-			Double spend = Math.ceil(perWeightShipmentDto.getNetWeight());
+			Double spend = Math.rint(perWeightShipmentDto.getNetWeight());
 
 			if (spend != 0) {
 				if (!modeFlagList.contains(mode)) {
@@ -712,7 +713,7 @@ public class JSONUtil {
 				if (spendDto != null) {
 					String billDate = spendDto.getBillingDate();
 					String carrierScacCode = spendDto.getCarrierName();
-					Double spend = Math.ceil(spendDto.getNetDueAmount());
+					Double spend = Math.rint(spendDto.getNetDueAmount());
 					Long carrierId = spendDto.getCarrierId();
 					String carrierIaAndName = carrierId + "#@#" + carrierScacCode;
 					if (!carriersList.contains(carrierIaAndName)) {
@@ -835,9 +836,9 @@ public class JSONUtil {
 					statusJson = new JSONObject();
 					statusJson.put("id", billedVsApproved.getCarrierId());
 					statusJson.put("name", billedVsApproved.getCarrierName());
-					statusJson.put("Billed", Math.ceil(billedVsApproved.getBilledAmount()));
-					statusJson.put("Approved", Math.ceil(billedVsApproved.getApprovedAmount()));
-					statusJson.put("Recovered", Math.ceil(billedVsApproved.getRecoveredAmount()));
+					statusJson.put("Billed", Math.rint(billedVsApproved.getBilledAmount()));
+					statusJson.put("Approved", Math.rint(billedVsApproved.getApprovedAmount()));
+					statusJson.put("Recovered", Math.rint(billedVsApproved.getRecoveredAmount()));
 
 					returnArray.put(statusJson);
 					statusJson = null;
@@ -862,7 +863,7 @@ public class JSONUtil {
 				if (recoveryAdjustment != null) {
 					String month = recoveryAdjustment.getMonth();
 					String service = recoveryAdjustment.getService();
-					Double spend = Math.ceil(recoveryAdjustment.getSpend());
+					Double spend = Math.rint(recoveryAdjustment.getSpend());
 
 					if (spend != 0) {
 						if (!servicesList.contains(service)) {
@@ -1823,85 +1824,85 @@ public class JSONUtil {
 							String value = columnEntry.getValue();
 							switch (key) {
 								case "CARRIER_NAME":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getCarrierName()));
+									reportJsonObj.put(value, reportData.getCarrierName());
 									break;
 								case "INVOICE_NUMBER":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getInvoiceNumber()));
+									reportJsonObj.put(value, reportData.getInvoiceNumber());
 									break;
 								case "PRO_NUMBER":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getProNumber()));
+									reportJsonObj.put(value, reportData.getProNumber());
 									break;
 								case "BOL_NUMBER":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getBolNumber()));
+									reportJsonObj.put(value, reportData.getBolNumber());
 									break;
 								case "BILL_OPTION":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getBillOption()));
+									reportJsonObj.put(value, reportData.getBillOption());
 									break;
 								case "BILL_DATE":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getBillDate()));
+									reportJsonObj.put(value, reportData.getBillDate());
 									break;
 								case "SHIP_DATE":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getShipDate()));
+									reportJsonObj.put(value, reportData.getShipDate());
 									break;
 								case "DELIVERY_DATE":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getDeliveryDate()));
+									reportJsonObj.put(value, reportData.getDeliveryDate());
 									break;
 								case "INVOICE_MODE":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getInvoiceNumber()));
+									reportJsonObj.put(value, reportData.getInvoiceNumber());
 									break;
 								case "INVOICE_METHOD":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getInvoiceMethod()));
+									reportJsonObj.put(value, reportData.getInvoiceMethod());
 									break;
 								case "GL_ACCOUNTS_CODE":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getGlAccountCode()));
+									reportJsonObj.put(value, reportData.getGlAccountCode());
 									break;
 								case "PO_NUMBER":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getPoNumber()));
+									reportJsonObj.put(value, reportData.getPoNumber());
 									break;
 								case "REFERENCE1":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getReference1()));
+									reportJsonObj.put(value, reportData.getReference1());
 									break;
 								case "REFERENCE2":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getReference2()));
+									reportJsonObj.put(value, reportData.getReference2());
 									break;
 								case "SCAC_CODE":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getScacCode()));
+									reportJsonObj.put(value, reportData.getScacCode());
 									break;
 								case "SHIPPER_NAME":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getShipperName()));
+									reportJsonObj.put(value, reportData.getShipperName());
 									break;
 								case "SHIPPER_ADDRESS_1":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getShipperAddress1()));
+									reportJsonObj.put(value, reportData.getShipperAddress1());
 									break;
 								case "SHIPPER_CITY":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getShipperCity()));
+									reportJsonObj.put(value, reportData.getShipperCity());
 									break;
 								case "SHIPPER_STATE":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getShipperState()));
+									reportJsonObj.put(value, reportData.getShipperState());
 									break;
 								case "SHIPPER_ZIPCODE":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getShipperZipCode()));
+									reportJsonObj.put(value, reportData.getShipperZipCode());
 									break;
 								case "SHIPPER_COUNTRY":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getShipperCountry()));
+									reportJsonObj.put(value, reportData.getShipperCountry());
 									break;
 								case "RECEIVER_NAME":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getReceiverName()));
+									reportJsonObj.put(value, reportData.getReceiverName());
 									break;
 								case "RECEIVER_ADDRESS_1":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getReceiverAddress1()));
+									reportJsonObj.put(value, reportData.getReceiverAddress1());
 									break;
 								case "RECEIVER_CITY":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getReceiverCity()));
+									reportJsonObj.put(value, reportData.getReceiverCity());
 									break;
 								case "RECEIVER_STATE":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getReceiverState()));
+									reportJsonObj.put(value, reportData.getReceiverState());
 									break;
 								case "RECEIVER_ZIPCODE":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getReceiverZipCode()));
+									reportJsonObj.put(value, reportData.getReceiverZipCode());
 									break;
 								case "RECEIVER_COUNTRY":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getReceiverCountry()));
+									reportJsonObj.put(value, reportData.getReceiverCountry());
 									break;
 								case "TOTAL_WEIGHT":
 									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getTotalWeight()));
@@ -1928,64 +1929,64 @@ public class JSONUtil {
 									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getTotalDueAmount()));
 									break;
 								case "INVOICE_STATUS":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getInvoiceStatus()));
+									reportJsonObj.put(value, reportData.getInvoiceStatus());
 									break;
 								case "CHECK_NO":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getCheckNumber()));
+									reportJsonObj.put(value, reportData.getCheckNumber());
 									break;
 								case "CHECK_DATE":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getCheckDate()));
+									reportJsonObj.put(value, reportData.getCheckDate());
 									break;
 								case "CHECK_AMOUNT":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getCheckAmount()));
+									reportJsonObj.put(value, reportData.getCheckAmount());
 									break;
 								case "ADJUSTMENT_REASON":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getAdjustmentReason()));
+									reportJsonObj.put(value, reportData.getAdjustmentReason());
 									break;
 								case "SHIPPER_REGION":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getShipperRegion()));
+									reportJsonObj.put(value, reportData.getShipperRegion());
 									break;
 								case "RECEIVER_REGION":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getReceiverRegion()));
+									reportJsonObj.put(value, reportData.getReceiverRegion());
 									break;
 								case "MULTI_WT":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getMultiWeight()));
+									reportJsonObj.put(value, reportData.getMultiWeight());
 									break;
 								case "SERVICE_LEVEL":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getServiceLevel()));
+									reportJsonObj.put(value, reportData.getServiceLevel());
 									break;
 								case "DELIVERY_FLAG":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getDeliveryFlag()));
+									reportJsonObj.put(value, reportData.getDeliveryFlag());
 									break;
 								case "CUSTOM_DEFINED_1":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getCustomDefined1()));
+									reportJsonObj.put(value, reportData.getCustomDefined1());
 									break;
 								case "CUSTOM_DEFINED_2":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getCustomDefined2()));
+									reportJsonObj.put(value, reportData.getCustomDefined2());
 									break;
 								case "CUSTOM_DEFINED_3":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getCustomDefined3()));
+									reportJsonObj.put(value, reportData.getCustomDefined3());
 									break;
 								case "CUSTOM_DEFINED_4":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getCustomDefined4()));
+									reportJsonObj.put(value, reportData.getCustomDefined4());
 									break;
 								case "CUSTOM_DEFINED_5":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getCustomDefined5()));
+									reportJsonObj.put(value, reportData.getCustomDefined5());
 									break;
 								case "CUSTOM_DEFINED_6":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getCustomDefined6()));
+									reportJsonObj.put(value, reportData.getCustomDefined6());
 									break;
 								case "CUSTOM_DEFINED_7":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getCustomDefined7()));
+									reportJsonObj.put(value, reportData.getCustomDefined7());
 									break;
 								case "CUSTOM_DEFINED_8":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getCustomDefined8()));
+									reportJsonObj.put(value, reportData.getCustomDefined8());
 									break;
 								case "CUSTOM_DEFINED_9":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getCustomDefined9()));
+									reportJsonObj.put(value, reportData.getCustomDefined9());
 									break;
 								case "CUSTOM_DEFINED_10":
-									reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getCustomDefined10()));
+									reportJsonObj.put(value, reportData.getCustomDefined10());
 									break;
 							}
 						}
@@ -2000,12 +2001,11 @@ public class JSONUtil {
 	}
 
 	private static String checkCommaSeparaedDecimalFormat(String columnName, Object val) {
-		List<String> commaSeperatedFields = Arrays.asList(commaSeperatedFieldsArr);
 		String value = "";
 		if (commaSeperatedFields.contains(columnName)) {
 			try {
 				if (val != null) {
-					value = commaSeperatedDecimalFormat.format(Math.ceil(Double.parseDouble(val.toString())));
+					value = commaSeperatedDecimalFormat.format(Math.rint(Double.parseDouble(val.toString())));
 				}
 			} catch (Exception e) {
 				value = val != null ? val.toString() : "";
@@ -2013,7 +2013,7 @@ public class JSONUtil {
 		} else {
 			try {
 				if (val != null) {
-					value = String.valueOf(Math.ceil(Double.parseDouble(val.toString())));
+					value = String.valueOf(Math.rint(Double.parseDouble(val.toString())));
 				}
 			} catch (Exception e) {
 				value = val != null ? val.toString() : "";
@@ -2034,8 +2034,8 @@ public class JSONUtil {
 				if (weightDto != null) {
 					JSONObject monthWiseObj = new JSONObject();
 					monthWiseObj.put("name", weightDto.getBillingDate());
-					monthWiseObj.put("Actual Weight", Math.ceil(weightDto.getActualWeight()));
-					monthWiseObj.put("Bill Weight", Math.ceil(weightDto.getBilledWeight()));
+					monthWiseObj.put("Actual Weight", Math.rint(weightDto.getActualWeight()));
+					monthWiseObj.put("Bill Weight", Math.rint(weightDto.getBilledWeight()));
 					valuesArray.put(monthWiseObj);
 				}
 			}
@@ -2065,8 +2065,8 @@ public class JSONUtil {
 					JSONObject wtJson = new JSONObject();
 					wtJson.put("id", weightDto.getCarrierId());
 					wtJson.put("name", weightDto.getCarrierName());
-					wtJson.put("Actual", Math.ceil(weightDto.getActualWeight()));
-					wtJson.put("Billed", Math.ceil(weightDto.getBilledWeight()));
+					wtJson.put("Actual", Math.rint(weightDto.getActualWeight()));
+					wtJson.put("Billed", Math.rint(weightDto.getBilledWeight()));
 					weightJsonArr.put(wtJson);
 				}
 			}
@@ -2088,8 +2088,8 @@ public class JSONUtil {
 					JSONArray dataArray = new JSONArray();
 					long dateInMilliSecs = weightDto.getBillDate() != null ? weightDto.getBillDate().getTime() : 0L;
 					dataArray.put(dateInMilliSecs);
-					dataArray.put(Math.ceil(weightDto.getActualWeight()));
-					dataArray.put(Math.ceil(weightDto.getBilledWeight()));
+					dataArray.put(Math.rint(weightDto.getActualWeight()));
+					dataArray.put(Math.rint(weightDto.getBilledWeight()));
 
 					returnArray.put(dataArray);
 					if (count == 0) {
@@ -2138,11 +2138,11 @@ public class JSONUtil {
 		return carrJson;
 	}
 
-	public static JSONArray prepareFilterModesJson(List<UserFilterUtilityDataDto> carrierList, Map<String, String> modeWiseCarriers, boolean isParcelDashlettes) throws JSONException {
+	public static JSONArray prepareFilterModesJson(List<UserFilterUtilityDataDto> modes, Map<String, String> modeWiseCarriers, boolean isParcelDashlettes) throws JSONException {
 		JSONArray modesDetailsArray = new JSONArray();
-		if (carrierList != null && !carrierList.isEmpty()) {
+		if (modes != null && !modes.isEmpty()) {
 			List<String> modesList = new ArrayList<String>();
-			for (UserFilterUtilityDataDto userFilterMode : carrierList) {
+			for (UserFilterUtilityDataDto userFilterMode : modes) {
 				if (userFilterMode != null) {
 					if (!isParcelDashlettes && modeWiseCarriers.containsKey("freightCarrier")) {
 						if (!modesList.contains(userFilterMode.getId())) {
@@ -2171,7 +2171,7 @@ public class JSONUtil {
 		return prepareFilterServiceJson(serviceDataList, null);
 	}
 
-	public static JSONArray prepareFilterServiceJson(List<UserFilterUtilityDataDto> serviceDataList, List<String> selectedServices) throws JSONException {
+	public static JSONArray prepareFilterServiceJson(List<UserFilterUtilityDataDto> serviceDataList, List<Long> selectedServices) throws JSONException {
 		JSONArray serviceDetailsArray = new JSONArray();
 		if (serviceDataList != null && !serviceDataList.isEmpty()) {
 			ArrayList<Long> serviceList = new ArrayList<Long>();
@@ -2290,6 +2290,17 @@ public class JSONUtil {
 		return null;
 	}
 
+	private static MapCoordinatesDto findMapCoordinateByAddress(Set<MapCoordinatesDto> mapCoordinates, String addressKey) {
+		for(MapCoordinatesDto mapCoordinate : mapCoordinates){
+			if(mapCoordinate != null){
+				if(mapCoordinate.getAddress().equalsIgnoreCase(addressKey)){
+					return mapCoordinate;
+				}
+			}
+		}
+		return null;
+	}
+
 	public static JSONArray customerHierarchyJson( ReportCustomerCarrierDto  customerDto) throws  JSONException{
 		setValuesForDropDownForCustomer(customerDto);
 		JSONArray jsonArray = new JSONArray();
@@ -2399,6 +2410,95 @@ public class JSONUtil {
 		return jsonArray;
 	}
 
+	public static JSONObject preparePackageDistributionCountJson(List<ShipmentDto> pkgDistrList, Set<MapCoordinatesDto> mapCoordinates) throws JSONException {
+		JSONArray nodesArray = new JSONArray();
+		int counter = 0;
+		long totalPackageCount = 0;
+		Map<String, Integer> countryWiseCountMap = new HashMap<String, Integer>();
+		for(ShipmentDto pkgDistr : pkgDistrList){
+			if(pkgDistr != null) {
+				String  city = pkgDistr.getReceiverCity() != null ? pkgDistr.getReceiverCity() : "";
+				String state = pkgDistr.getReceiverState() != null ? pkgDistr.getReceiverState() : "";
+				String country = pkgDistr.getReceiverCountry() != null ? pkgDistr.getReceiverCountry() : "";
+				Integer packageCount = pkgDistr.getPackageCount();
+				String address = city+","+state+","+country;
+
+				JSONObject  nodeInfoObj = new JSONObject();
+
+				totalPackageCount += packageCount;
+
+				if( !countryWiseCountMap.containsKey(country)) {
+					countryWiseCountMap.put(country, packageCount);
+				} else {
+					countryWiseCountMap.put(country, countryWiseCountMap.get(country)+packageCount );
+				}
+
+				nodeInfoObj.put("id",counter++);
+				nodeInfoObj.put("name",city);
+				nodeInfoObj.put("value", packageCount);
+
+				MapCoordinatesDto mapCoordinate = findMapCoordinateByAddress(mapCoordinates, address);
+				if (mapCoordinate != null && mapCoordinate.getLongitude() != null && mapCoordinate.getLatitude() != null) {
+					JSONArray longLatJsonArray = new JSONArray();
+					longLatJsonArray.put(mapCoordinate.getLongitude());
+					longLatJsonArray.put(mapCoordinate.getLatitude());
+					nodeInfoObj.put("coordinates", longLatJsonArray);
+					nodesArray.put(nodeInfoObj);
+				}
+			}
+		}
+
+		Iterator<String> countryWiseCountIterator = countryWiseCountMap.keySet().iterator();
+		JSONArray countryWisePercentArray = new JSONArray();
+
+		while (countryWiseCountIterator.hasNext()) {
+			String country = countryWiseCountIterator.next();
+			Integer packageCount = countryWiseCountMap.get(country);
+			Double percentage = (packageCount/totalPackageCount)*100d;
+			String percentageRange = null;
+
+			if (percentage <= 1) {
+				percentageRange = "0% - 1%";
+
+			} else if (percentage > 1 && percentage <= 2) {
+				percentageRange = "1% - 2%";
+
+			} else if (percentage > 2 && percentage <= 4) {
+				percentageRange = "2% - 4%";
+
+			} else if (percentage > 4 && percentage <= 6) {
+				percentageRange = "4% - 6%";
+
+			} else if (percentage > 6 && percentage <= 8) {
+				percentageRange = "6% - 8%";
+
+			} else if (percentage > 8 && percentage <= 10) {
+				percentageRange = "8% - 10%";
+
+			} else if (percentage > 10 && percentage <= 15) {
+				percentageRange = "10% - 15%";
+
+			} else if (percentage > 15 && percentage <= 25) {
+				percentageRange = "15% - 25%";
+
+			} else if (percentage >25 && percentage <= 60) {
+				percentageRange = "25% - 60%";
+
+			} else if (percentage > 60 ) {
+				percentageRange = "60% - 100%";
+			}
+
+			JSONObject countryObj = new JSONObject();
+			countryObj.put("id", country);
+			countryObj.put("range", percentageRange);
+			countryWisePercentArray.put(countryObj);
+		}
+
+		JSONObject finalObject = new JSONObject();
+		finalObject.put("nodesData", nodesArray);
+		finalObject.put("countryWisePercentage", countryWisePercentArray);
+		return finalObject;
+	}
 }
 
 
