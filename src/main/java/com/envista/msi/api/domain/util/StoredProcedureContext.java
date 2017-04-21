@@ -171,8 +171,9 @@ public class StoredProcedureContext extends EntityManagerImpl implements Persist
 		CallableStatement st = null;
 		List returnList = new ArrayList();
 		ResultSet rs = null;
+		OracleConnection connection = null;
 		try {
-			OracleConnection connection = getNativeConnection();
+			connection = getNativeConnection();
 			st = connection.prepareCall("call " + params);
 
 			int outCount = 0;
@@ -258,6 +259,9 @@ public class StoredProcedureContext extends EntityManagerImpl implements Persist
 				} catch (SQLException e) {
 					;
 				}
+			}
+			if(connection != null){
+				connection.close();
 			}
 		}
 
