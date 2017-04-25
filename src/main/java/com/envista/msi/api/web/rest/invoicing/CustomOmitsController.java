@@ -2,8 +2,10 @@ package com.envista.msi.api.web.rest.invoicing;
 
 import com.envista.msi.api.service.DashboardsService;
 import com.envista.msi.api.service.ReportsService;
+import com.envista.msi.api.service.invoicing.CodeValueService;
 import com.envista.msi.api.service.invoicing.CustomOmitsService;
 import com.envista.msi.api.web.rest.dto.dashboard.filter.UserFilterUtilityDataDto;
+import com.envista.msi.api.web.rest.dto.invoicing.CodeValueDto;
 import com.envista.msi.api.web.rest.dto.invoicing.CustomOmitsDto;
 import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
 import com.envista.msi.api.web.rest.util.JSONUtil;
@@ -32,6 +34,9 @@ public class CustomOmitsController {
 
     @Inject
     private CustomOmitsService service;
+
+    @Inject
+    private CodeValueService codeValueService;
 
     @Autowired
     private DashboardsService dashboardsService;
@@ -169,5 +174,14 @@ public class CustomOmitsController {
         List<UserFilterUtilityDataDto> carrList = dashboardsService.getCarrierByCustomer(customerIds, true);
         LOG.info("***getCariersByCustomer json***====" + carrList);
         return new ResponseEntity<List<UserFilterUtilityDataDto>>(carrList, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/getCodeValues", params = {"carrierId", "codeGroupId"}, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+    public ResponseEntity<List<CodeValueDto>> getCodeValues(@RequestParam Long carrierId, @RequestParam Long codeGroupId) {
+
+
+        List<CodeValueDto> dtos = codeValueService.GetCodeValues(carrierId, codeGroupId);
+
+        return new ResponseEntity<List<CodeValueDto>>(dtos, HttpStatus.OK);
     }
 }
