@@ -791,6 +791,9 @@ public class SavedSchedReportDto {
         this.savedSchedRptId = savedSchedRptId;
     }
 
+    public SavedSchedReportDto(Integer updateCount){
+        this.updateCount = updateCount;
+    }
 
     public Integer getUpdateCount() {
         return updateCount;
