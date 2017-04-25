@@ -34,21 +34,21 @@ public interface PersistentContext extends EntityManager {
 	public <T> List<T> findAll();
 
 	/**
-	 * @param storedProcedureName
+	 * @param StoredProcedureQueryName
 	 * @param parameters
 	 * @return
 	 */
 	public <T> T findEntity(String StoredProcedureQueryName, QueryParameter parameters);
 
 	/**
-	 * @param storedProcedureName
+	 * @param StoredProcedureQueryName
 	 * @param parameters
 	 * @return
 	 */
 	public <T> List<T> findEntities(String StoredProcedureQueryName, QueryParameter parameters);
 
 	/**
-	 * @param storedProcedureName
+	 * @param StoredProcedureQueryName
 	 * @param parameters
 	 * @param maxCount
 	 * @return
@@ -56,14 +56,14 @@ public interface PersistentContext extends EntityManager {
 	public <T> List<T> findEntities(String StoredProcedureQueryName, QueryParameter parameters, int maxCount);
 
 	/**
-	 * @param storedProcedureName
+	 * @param StoredProcedureQueryName
 	 * @param parameters
 	 * @return
 	 */
 	public <T> T findEntityAndMapFields(String StoredProcedureQueryName, QueryParameter parameters);
 
 	/**
-	 * @param storedProcedureName
+	 * @param StoredProcedureQueryName
 	 * @param parameters
 	 * @return
 	 */
