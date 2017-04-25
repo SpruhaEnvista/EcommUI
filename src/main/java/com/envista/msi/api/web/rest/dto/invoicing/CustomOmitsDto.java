@@ -27,7 +27,6 @@ import java.sql.Timestamp;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_IS_ACTIVE", type = Boolean.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CARRIER_ID", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CUSTOMER_ID", type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PARENT_CUSTOMER_ID", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CUSTOMER_IDS", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CREDIT_TYPE_ID", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class),
@@ -46,7 +45,7 @@ import java.sql.Timestamp;
         @NamedStoredProcedureQuery(name = "CustomOmitsDto.deleteCustomOmits", procedureName = "SHP_INV_DEL_OMITS",
                 resultClasses = CustomOmitsDto.class,
                 parameters = {
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CUSTOM_OMITS_IDS", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CUSTOM_OMITS_IDS", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_OMITS_INFO", type = Void.class)
                 })
 })

@@ -3,6 +3,7 @@ package com.envista.msi.api.web.rest.invoicing;
 import com.envista.msi.api.service.DashboardsService;
 import com.envista.msi.api.service.ReportsService;
 import com.envista.msi.api.service.invoicing.CustomOmitsService;
+import com.envista.msi.api.web.rest.dto.dashboard.filter.UserFilterUtilityDataDto;
 import com.envista.msi.api.web.rest.dto.invoicing.CustomOmitsDto;
 import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
 import com.envista.msi.api.web.rest.util.JSONUtil;
@@ -96,8 +97,8 @@ public class CustomOmitsController {
         return new ResponseEntity<CustomOmitsDto>(dto, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/findSearchCriteria", params = {"trackingNumber", "customerIds", "creditType", "comments", "carrierId", "userId"}, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
-    public ResponseEntity<List<CustomOmitsDto>> findBySearchCriteria(@RequestParam String trackingNumber, @RequestParam String customerIds, @RequestParam String creditType, @RequestParam String comments, long carrierId, long userId) {
+    @RequestMapping(value = "/findSearchCriteria", params = {"trackingNumber", "customerIds", "creditTypeId", "comments", "carrierId", "userId"}, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+    public ResponseEntity<List<CustomOmitsDto>> findBySearchCriteria(@RequestParam String trackingNumber, @RequestParam String customerIds, @RequestParam long creditTypeId, @RequestParam String comments, long carrierId, long userId) {
 
         LOG.info("***findBySearchCriteria method started****" + trackingNumber);
 
@@ -109,7 +110,7 @@ public class CustomOmitsController {
 
         dto.setCustomerIds(customerIds);
         dto.setTrackingNumber(trackingNumber);
-        dto.setCreditType(creditType);
+        dto.setCreditTypeId(creditTypeId);
         dto.setComments(comments);
         dto.setCarrierId(carrierId);
         dto.setUserId(userId);
@@ -141,17 +142,32 @@ public class CustomOmitsController {
     public ResponseEntity<JSONObject> getCustomers(@PathVariable("userId") Long userId) throws JSONException {
         LOG.info("***getCustomers method started****");
         JSONObject jsonObject = new JSONObject();
+
+        if (userId == null)
+            userId = (long) 0;
+
         List<ReportCustomerCarrierDto> customers = dashboardsService.getDashboardCustomers(userId);
 
         ReportCustomerCarrierDto customerHierarchy = reportsService.getCustomerHierarchyObject(customers, false);
         jsonObject.put("customers", JSONUtil.customerHierarchyJson(customerHierarchy));
 
-        jsonObject.put("customers", true);
-        jsonObject.put("carriers", true);
         LOG.info("***jsonObject***" + jsonObject);
-        if (userId == null)
-            userId = (long) 0;
+
 
         return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.OK);
+    }
+
+    /**
+     * HTTP GET - Get all
+     */
+    @RequestMapping(value = "/getCariersByCustomer/{customerIds}", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+    public ResponseEntity<List<UserFilterUtilityDataDto>> getCariersByCustomer(@PathVariable("customerIds") String customerIds) {
+        LOG.info("***getCariersByCustomer method started****");
+        if (StringUtils.containsIgnoreCase(customerIds, "CU")) {
+            customerIds = StringUtils.remove(customerIds, "CU");
+        }
+        List<UserFilterUtilityDataDto> carrList = dashboardsService.getCarrierByCustomer(customerIds, true);
+        LOG.info("***getCariersByCustomer json***====" + carrList);
+        return new ResponseEntity<List<UserFilterUtilityDataDto>>(carrList, HttpStatus.OK);
     }
 }
