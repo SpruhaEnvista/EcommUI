@@ -467,7 +467,7 @@ public class ReportsService {
 
         if(savedSchedReport.getUpdateCount()!=null && savedSchedReport.getUpdateCount() >0){
             reportsDao.deleteChildDataSchedReport(savedSchedReportDto);
-            inserChildTables(savedSchedReportDto,savedSchedReport.getSavedSchedRptId());
+            inserChildTables(savedSchedReportDto,savedSchedReportDto.getSavedSchedRptId());
         }
 
         return savedSchedReport;
