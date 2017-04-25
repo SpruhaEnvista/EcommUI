@@ -553,6 +553,16 @@ public class ReportsDao {
     @Transactional
     public SavedSchedReportDto updateSchedReport(SavedSchedReportDto savedSchedReportDto) {
 
+        if(savedSchedReportDto.getDate1()!=null && !savedSchedReportDto.getDate1().isEmpty()){
+            savedSchedReportDto.setDate1(convertDateFullYearString(savedSchedReportDto.getDate1()));
+        }
+        if(savedSchedReportDto.getDate2()!=null && !savedSchedReportDto.getDate2().isEmpty()){
+            savedSchedReportDto.setDate2(convertDateFullYearString(savedSchedReportDto.getDate2()));
+        }
+        if(savedSchedReportDto.getScNextSubmitDate()!=null && !savedSchedReportDto.getScNextSubmitDate().isEmpty()){
+            savedSchedReportDto.setScNextSubmitDate(convertDateFullYearString(savedSchedReportDto.getScNextSubmitDate()));
+        }
+
         QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", savedSchedReportDto.getSavedSchedRptId())
                 .and("rptId", savedSchedReportDto.getRptId()==null?0:savedSchedReportDto.getRptId())
                 .and("isScheduled",(savedSchedReportDto.getScheduled()==null ? false : savedSchedReportDto.getScheduled()))
@@ -572,7 +582,7 @@ public class ReportsDao {
                 .and("scMonthlyNoOfMonths",savedSchedReportDto.getScMonthlyNoOfMonths()==null?0:savedSchedReportDto.getScMonthlyNoOfMonths())
                 .and("scMonthlyPeriodicFreq",savedSchedReportDto.getScMonthlyPeriodicFrequency())
                 .and("svReportStatus",savedSchedReportDto.getSvReportStatus())
-                .and("scNextSubmitDate",null)
+                .and("scNextSubmitDate",savedSchedReportDto.getScNextSubmitDate())
                 .and("carrierIds",savedSchedReportDto.getCarrierIds())
                 .and("controlPayrunNumber",savedSchedReportDto.getControlPayrunNumber())
                 .and("consolidate",savedSchedReportDto.getConsolidate()==null?false:savedSchedReportDto.getConsolidate())
@@ -580,9 +590,9 @@ public class ReportsDao {
                 .and("criteria",savedSchedReportDto.getCriteria())
                 .and("dateRangeTodayMinus1",savedSchedReportDto.getDateRangeTodayMinus1()==null?0:savedSchedReportDto.getDateRangeTodayMinus1())
                 .and("dateRangeTodayMinus2",savedSchedReportDto.getDateRangeTodayMinus2()==null?0:savedSchedReportDto.getDateRangeTodayMinus2())
-                .and("ftpAccountsId",savedSchedReportDto.getFtpAccountsId())
+                .and("ftpAccountsId",(savedSchedReportDto.getFtpAccountsId() == null || savedSchedReportDto.getFtpAccountsId().toString().isEmpty()) ? 0 :savedSchedReportDto.getFtpAccountsId())
                 .and("isSuppressInvoices",savedSchedReportDto.getSuppressInvoices()==null?false:savedSchedReportDto.getSuppressInvoices())
-                .and("submittedFromSystem",savedSchedReportDto.getSubmittedFromSystem())
+                .and("submittedFromSystem",submittedFromSystem)
                 .and("isPacket",savedSchedReportDto.getPacket()==null?false:savedSchedReportDto.getPacket())
                 .and("flagsJson",savedSchedReportDto.getFlagsJson())
                 .and("locale",savedSchedReportDto.getLocale())

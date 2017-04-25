@@ -569,6 +569,9 @@ public class ReportsService {
                 packetsDto.setSavedSchdRptId(savedSchedReportDto.getSavedSchedRptId());
                 ReportPacketsDetDto outPacketDto = reportsDao.saveSchedPacketReport(packetsDto);
             }
+            if(savedSchedReport.getUpdateCount()!=null && savedSchedReport.getUpdateCount() >0){
+                reportsDao.deleteChildDataSchedReport(savedSchedReportDto);
+            }
 
             if(savedSchedReportDto.getSavedSchedUsersDtoList()!=null && savedSchedReportDto.getSavedSchedUsersDtoList().size()>0){
                 for(ReportSavedSchdUsersDto saveSchedUser : removeDuplicateUsers(savedSchedReportDto.getSavedSchedUsersDtoList())){
