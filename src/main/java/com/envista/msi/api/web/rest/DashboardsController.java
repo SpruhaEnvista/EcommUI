@@ -196,6 +196,7 @@ public class DashboardsController extends DashboardBaseController {
             DashboardsFilterCriteria dashboardsFilterCriteria = populateDashboardFilterCriteria(dashboardAppliedFilterDto);
             return new ResponseEntity<DashboardAppliedFilterDto>(dashboardAppliedFilterDto, HttpStatus.OK );
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<DashboardAppliedFilterDto>(new DashboardAppliedFilterDto(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -218,6 +219,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject nspData = loadNetSpendJsonData(NetSpendConstant.NET_SPEND_BY_MODE, filter);
             netSpendJsonData = (nspData != null ? nspData : new JSONObject());
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(netSpendJsonData.toString(), HttpStatus.OK);
@@ -254,6 +256,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject nspData = loadNetSpendJsonData(NetSpendConstant.NET_SPEND_OVER_TIME_BY_MONTH, filter);
             netSpendJsonData = (nspData != null ? nspData : new JSONObject());
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(netSpendJsonData.toString(), HttpStatus.OK);
@@ -271,6 +274,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject nspData = loadNetSpendJsonData(NetSpendConstant.NET_SPEND_BY_OVER_TIME, filter);
             netSpendJsonData = (nspData != null ? nspData : new JSONObject());
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(netSpendJsonData.toString(), HttpStatus.OK);
@@ -291,6 +295,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject nspData = loadNetSpendJsonData(NetSpendConstant.NET_SPEND_BY_CARRIER, filter);
             netSpendJsonData = (nspData != null ? nspData : new JSONObject());
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(netSpendJsonData.toString(), HttpStatus.OK);
@@ -317,6 +322,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject nspData = loadNetSpendJsonData(NetSpendConstant.NET_SPEND_BY_MONTH, filter);
             netSpendJsonData = (nspData != null ? nspData : new JSONObject());
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(netSpendJsonData.toString(), HttpStatus.OK);
@@ -334,6 +340,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject taxData = loadTaxSpendJsonData(TaxSpendConstant.TAX_SPEND, filter);
             taxSpendJson = (taxData != null ? taxData : new JSONObject());
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(taxSpendJson.toString(), HttpStatus.OK);
@@ -354,6 +361,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject taxData = loadTaxSpendJsonData(TaxSpendConstant.TAX_SPEND_BY_CARRIER, filter);
             taxSpendJson = (taxData != null ? taxData : new JSONObject());
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(taxSpendJson.toString(), HttpStatus.OK);
@@ -379,6 +387,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject taxData = loadTaxSpendJsonData(TaxSpendConstant.TAX_SPEND_BY_MONTH, filter);
             taxSpendJson = (taxData != null ? taxData : new JSONObject());
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(taxSpendJson.toString(), HttpStatus.OK);
@@ -396,6 +405,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject accData = loadAccessorialSpendJsonData(AccessorialSpendConstant.TOP_ACCESSORIAL_SPEND, filter);
             accSpendJson = (accData != null ? accData : new JSONObject());
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(accSpendJson.toString(), HttpStatus.OK);
@@ -421,6 +431,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject accData = loadAccessorialSpendJsonData(AccessorialSpendConstant.TOP_ACCESSORIAL_SPEND_BY_CARRIER, filter);
             accSpendJson = (accData != null ? accData : new JSONObject());
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(accSpendJson.toString(), HttpStatus.OK);
@@ -449,6 +460,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject accData = loadAccessorialSpendJsonData(AccessorialSpendConstant.TOP_ACCESSORIAL_SPEND_BY_MONTH, filter);
             accSpendJson = (accData != null ? accData : new JSONObject());
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(accSpendJson.toString(), HttpStatus.OK);
@@ -466,6 +478,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject accData = loadAccessorialSpendJsonData(AccessorialSpendConstant.ACCESSORIAL_SPEND, filter);
             accSpendJson = (accData != null ? accData : new JSONObject());
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(accSpendJson.toString(), HttpStatus.OK);
@@ -486,6 +499,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject accData = loadAccessorialSpendJsonData(AccessorialSpendConstant.ACCESSORIAL_SPEND_BY_CARRIER, filter);
             accSpendJson = (accData != null ? accData : new JSONObject());
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(accSpendJson.toString(), HttpStatus.OK);
@@ -511,6 +525,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject accData = loadAccessorialSpendJsonData(AccessorialSpendConstant.ACCESSORIAL_SPEND_BY_MONTH, filter);
             accSpendJson = (accData != null ? accData : new JSONObject());
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(accSpendJson.toString(), HttpStatus.OK);
@@ -730,6 +745,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject avgShipmentData = loadShipmentOverviewJsonData(ShipmentOverviewConstant.AVG_SPEND_PER_SHIPMT, filter);
             avgSpendPerShipmtJsonData = (avgShipmentData != null ? avgShipmentData : new JSONObject());
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(avgSpendPerShipmtJsonData.toString(), HttpStatus.OK);
@@ -747,6 +763,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject avgShipmentData = loadShipmentOverviewJsonData(ShipmentOverviewConstant.AVG_WEIGHT_BY_MODE_SHIPMT, filter);
             avgWeightModeShipmtJsonData = (avgShipmentData != null ? avgShipmentData : new JSONObject());
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(avgWeightModeShipmtJsonData.toString(), HttpStatus.OK);
@@ -765,6 +782,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject sfJson = JSONUtil.prepareServiceLevelUsageAndPerfromanceJson(serviceLevelUsageAndPerfList);
             serviceLvlPerf = sfJson != null ? sfJson : new JSONObject();
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(serviceLvlPerf.toString(), HttpStatus.OK);
@@ -782,6 +800,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject inbSpendJson = loadInboundSpendJsonData(InboundSpendConstant.INBOUND_SPEND, filter);
             inboundSpendJson = inbSpendJson != null ? inbSpendJson : new JSONObject();
         }catch (Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(inboundSpendJson.toString(), HttpStatus.OK);
@@ -807,6 +826,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject inbSpendJson = loadInboundSpendJsonData(InboundSpendConstant.INBOUND_SPEND_BY_MONTH, filter);
             inboundSpendJson = inbSpendJson != null ? inbSpendJson : new JSONObject();
         }catch (Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(inboundSpendJson.toString(), HttpStatus.OK);
@@ -824,6 +844,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject outbSpendJson = loadOutboundSpendJsonData(OutboundSpendConstant.OUTBOUND_SPEND, filter);
             outboundSpendJson = outbSpendJson != null ? outbSpendJson : new JSONObject();
         }catch (Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(outboundSpendJson.toString(), HttpStatus.OK);
@@ -849,6 +870,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject outbSpendJson = loadOutboundSpendJsonData(OutboundSpendConstant.OUTBOUND_SPEND_BY_MONTH, filter);
             outboundSpendJson = outbSpendJson != null ? outbSpendJson : new JSONObject();
         }catch (Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(outboundSpendJson.toString(), HttpStatus.OK);
@@ -940,6 +962,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject stsCntJson = loadInvoiceStatusCountJsonData(InvoiceStatusCountConstant.INVOICE_STATUS_COUNT, filter);
             invStsCountJson = (stsCntJson != null ? stsCntJson : new JSONObject());
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(invStsCountJson.toString(), HttpStatus.OK);
@@ -960,6 +983,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject stsCntJson = loadInvoiceStatusCountJsonData(InvoiceStatusCountConstant.INVOICE_STATUS_COUNT_BY_CARRIER, filter);
             invStsCountJson = (stsCntJson != null ? stsCntJson : new JSONObject());
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(invStsCountJson.toString(), HttpStatus.OK);
@@ -981,6 +1005,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject stsCntJson = loadInvoiceStatusCountJsonData(InvoiceStatusCountConstant.INVOICE_STATUS_COUNT_BY_MONTH, filter);
             invStsCountJson = (stsCntJson != null ? stsCntJson : new JSONObject());
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(invStsCountJson.toString(), HttpStatus.OK);
@@ -998,6 +1023,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject stsAmtJson = loadInvoiceStatusAmountJsonData(InvoiceStatusAmountConstant.INVOICE_STATUS_AMOUNT, filter);
             invStsAmountJson = (stsAmtJson != null ? stsAmtJson : new JSONObject());
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(invStsAmountJson.toString(), HttpStatus.OK);
@@ -1018,6 +1044,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject stsAmtJson = loadInvoiceStatusAmountJsonData(InvoiceStatusAmountConstant.INVOICE_STATUS_AMOUNT_BY_CARRIER, filter);
             invStsAmountJson = (stsAmtJson != null ? stsAmtJson : new JSONObject());
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(invStsAmountJson.toString(), HttpStatus.OK);
@@ -1039,6 +1066,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject stsAmtJson = loadInvoiceStatusAmountJsonData(InvoiceStatusAmountConstant.INVOICE_STATUS_AMOUNT_BY_MONTH, filter);
             invStsAmountJson = (stsAmtJson != null ? stsAmtJson : new JSONObject());
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(invStsAmountJson.toString(), HttpStatus.OK);
@@ -1056,6 +1084,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject invScoreJson = loadInvoiceMethodScoreJsonData(InvoiceMethodScoreConstant.INVOICE_METHOD_SCORE, filter);
             invMethodScoreJson = (invScoreJson != null ? invScoreJson : new JSONObject());
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(invMethodScoreJson.toString(), HttpStatus.OK);
@@ -1076,6 +1105,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject invScoreJson = loadInvoiceMethodScoreJsonData(InvoiceMethodScoreConstant.INVOICE_METHOD_SCORE_BY_CARRIER, filter);
             invMethodScoreJson = (invScoreJson != null ? invScoreJson : new JSONObject());
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(invMethodScoreJson.toString(), HttpStatus.OK);
@@ -1097,6 +1127,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject invScoreJson = loadInvoiceMethodScoreJsonData(InvoiceMethodScoreConstant.INVOICE_METHOD_SCORE_BY_MONTH, filter);
             invMethodScoreJson = (invScoreJson != null ? invScoreJson : new JSONObject());
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(invMethodScoreJson.toString(), HttpStatus.OK);
@@ -1114,6 +1145,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject ordMchJson = loadOrderMatchJsonData(OrderMatchConstant.ORDER_MATCH, filter);
             orderMatchJson = (ordMchJson != null ? ordMchJson : new JSONObject());
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(orderMatchJson.toString(), HttpStatus.OK);
@@ -1134,6 +1166,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject ordMchJson = loadOrderMatchJsonData(OrderMatchConstant.ORDER_MATCH_BY_CARRIER, filter);
             orderMatchJson = (ordMchJson != null ? ordMchJson : new JSONObject());
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(orderMatchJson.toString(), HttpStatus.OK);
@@ -1155,6 +1188,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject ordMchJson = loadOrderMatchJsonData(OrderMatchConstant.ORDER_MATCH_BY_MONTH, filter);
             orderMatchJson = (ordMchJson != null ? ordMchJson : new JSONObject());
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(orderMatchJson.toString(), HttpStatus.OK);
@@ -1172,6 +1206,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject bvaJson = loadBilledVsApprovedJsonData(BilledVsApprovedConstant.BILLED_VS_APPROVED, filter);
             billedVsApprovedJson = (bvaJson != null ? bvaJson : new JSONObject());
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(billedVsApprovedJson.toString(), HttpStatus.OK);
@@ -1193,6 +1228,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject bvaJson = loadBilledVsApprovedJsonData(BilledVsApprovedConstant.BILLED_VS_APPROVED_BY_MONTH, filter);
             billedVsApprovedJson = (bvaJson != null ? bvaJson : new JSONObject());
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(billedVsApprovedJson.toString(), HttpStatus.OK);
@@ -1210,6 +1246,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject raJson = loadRecoveryAdjustmentJsonData(RecoveryAdjustmentConstants.RECOVERY_ADJUSTMENT, filter);
             recovAdjJson = (raJson != null ? raJson : new JSONObject());
         }catch (Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(recovAdjJson.toString(), HttpStatus.OK);
@@ -1235,6 +1272,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject raJson = loadRecoveryAdjustmentJsonData(RecoveryAdjustmentConstants.RECOVERY_ADJUSTMENT_BY_CARRIER, filter);
             recovAdjJson = (raJson != null ? raJson : new JSONObject());
         }catch (Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(recovAdjJson.toString(), HttpStatus.OK);
@@ -1263,6 +1301,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject raJson = loadRecoveryAdjustmentJsonData(RecoveryAdjustmentConstants.RECOVERY_ADJUSTMENT_BY_MONTH, filter);
             recovAdjJson = (raJson != null ? raJson : new JSONObject());
         }catch (Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(recovAdjJson.toString(), HttpStatus.OK);
@@ -1280,6 +1319,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject rsJson = loadRecoveryServicesJsonData(RecoveryServiceConstants.RECOVERY_SERVICE, filter);
             recovServJson = (rsJson != null ? rsJson : new JSONObject());
         }catch (Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(recovServJson.toString(), HttpStatus.OK);
@@ -1305,6 +1345,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject rsJson = loadRecoveryServicesJsonData(RecoveryServiceConstants.RECOVERY_SERVICE_BY_MONTH, filter);
             recovServJson = (rsJson != null ? rsJson : new JSONObject());
         }catch (Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(recovServJson.toString(), HttpStatus.OK);
@@ -1322,6 +1363,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject rsJson = loadPackageExceptionsJsonData(PackageExceptionConstants.PACKAGE_EXCEPTION, filter);
             pkgExcpJson = (rsJson != null ? rsJson : new JSONObject());
         }catch (Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(pkgExcpJson.toString(), HttpStatus.OK);
@@ -1344,6 +1386,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject rsJson = loadPackageExceptionsJsonData(PackageExceptionConstants.PACKAGE_EXCEPTION_BY_CARRIER, filter);
             pkgExcpJson = (rsJson != null ? rsJson : new JSONObject());
         }catch (Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(pkgExcpJson.toString(), HttpStatus.OK);
@@ -1370,6 +1413,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject rsJson = loadPackageExceptionsJsonData(PackageExceptionConstants.PACKAGE_EXCEPTION_BY_MONTH, filter);
             pkgExcpJson = (rsJson != null ? rsJson : new JSONObject());
         }catch (Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(pkgExcpJson.toString(), HttpStatus.OK);
@@ -1397,6 +1441,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject avgShipmentData = loadShipmentOverviewJsonData(ShipmentOverviewConstant.AVG_SPEND_PER_SHIPMT_BY_CARRIER, filter);
             avgSpendPerShipmtByCarrierJsonData = (avgShipmentData != null ? avgShipmentData : new JSONObject());
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(avgSpendPerShipmtByCarrierJsonData.toString(), HttpStatus.OK);
@@ -1427,6 +1472,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject avgShipmentData = loadShipmentOverviewJsonData(ShipmentOverviewConstant.AVG_SPEND_PER_SHIPMT_BY_MONTH, filter);
             avgSpendPerShipmtByCarrierJsonData = (avgShipmentData != null ? avgShipmentData : new JSONObject());
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(avgSpendPerShipmtByCarrierJsonData.toString(), HttpStatus.OK);
@@ -1454,6 +1500,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject avgWeightModeData = loadShipmentOverviewJsonData(ShipmentOverviewConstant.AVG_WEIGHT_SHIPMT_BY_CARRIER, filter);
             avgWeightModeByCarrierJsonData = (avgWeightModeData != null ? avgWeightModeData : new JSONObject());
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(avgWeightModeByCarrierJsonData.toString(), HttpStatus.OK);
@@ -1484,6 +1531,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject avgWeightModeData = loadShipmentOverviewJsonData(ShipmentOverviewConstant.AVG_WEIGHT_SHIPMT_BY_MONTH, filter);
             avgWeightModeByCarrierJsonData = (avgWeightModeData != null ? avgWeightModeData : new JSONObject());
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(avgWeightModeByCarrierJsonData.toString(), HttpStatus.OK);
@@ -1502,6 +1550,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject asJson = loadAnnualSummaryJsonData(AnnualSummaryConstants.ANNUAL_SUMMARY, filter);
             annualSummaryJson = asJson != null ? asJson : new JSONObject();
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(annualSummaryJson.toString(), HttpStatus.OK);
@@ -1524,6 +1573,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject asJson = loadAnnualSummaryJsonData(AnnualSummaryConstants.ANNUAL_SUMMARY_BY_SERVICE, filter);
             annualSummaryJson = asJson != null ? asJson : new JSONObject();
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(annualSummaryJson.toString(), HttpStatus.OK);
@@ -1549,6 +1599,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject asJson = loadAnnualSummaryJsonData(AnnualSummaryConstants.ANNUAL_SUMMARY_BY_CARRIER, filter);
             annualSummaryJson = asJson != null ? asJson : new JSONObject();
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(annualSummaryJson.toString(), HttpStatus.OK);
@@ -1577,6 +1628,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject asJson = loadAnnualSummaryJsonData(AnnualSummaryConstants.ANNUAL_SUMMARY_BY_MONTH, filter);
             annualSummaryJson = asJson != null ? asJson : new JSONObject();
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(annualSummaryJson.toString(), HttpStatus.OK);
@@ -1594,6 +1646,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject msJson = loadMonthlySpendByModeJsonData(MonthlySpendByModeConstants.MONTHLY_SPEND_BY_MODE, filter);
             monthlySpendJson = msJson != null ? msJson : new JSONObject();
         }catch (Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(monthlySpendJson.toString(), HttpStatus.OK);
@@ -1616,6 +1669,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject msJson = loadMonthlySpendByModeJsonData(MonthlySpendByModeConstants.MONTHLY_SPEND_BY_MODE_BY_SERVICE, filter);
             monthlySpendJson = msJson != null ? msJson : new JSONObject();
         }catch (Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(monthlySpendJson.toString(), HttpStatus.OK);
@@ -1633,6 +1687,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject asJson = loadAccountSummaryJsonData(AccountSummaryConstants.ACCOUNT_SUMMARY, filter);
             accSummJson = asJson != null ? asJson : new JSONObject();
         }catch (Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(accSummJson.toString(), HttpStatus.OK);
@@ -1650,6 +1705,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject asJson = loadAccountSummaryJsonData(AccountSummaryConstants.PARCEL_ACCOUNT_SUMMARY, filter);
             accSummJson = asJson != null ? asJson : new JSONObject();
         }catch (Exception e){
+            e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>(accSummJson.toString(), HttpStatus.OK);
@@ -2820,6 +2876,7 @@ public class DashboardsController extends DashboardBaseController {
             DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
             reportColumnNames = dashboardsService.getDashboardReportCustomColumnNames(filter);
         }catch (Exception e){
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
         }
         return ResponseEntity.status(HttpStatus.OK).body(reportColumnNames.toString());
@@ -2837,6 +2894,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject whtJson = loadActualVsBilledWeightJsonData(ActualVsBilledWeightConstants.ACTUAL_VS_BILLED_WEIGHT, filter);
             weightJson = (whtJson != null ? whtJson : new JSONObject());
         }catch(Exception e){
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
         }
         return ResponseEntity.status(HttpStatus.OK).body(weightJson.toString());
@@ -2859,6 +2917,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject whtJson = loadActualVsBilledWeightJsonData(ActualVsBilledWeightConstants.ACTUAL_VS_BILLED_WEIGHT_BY_CARRIER, filter);
             weightJson = (whtJson != null ? whtJson : new JSONObject());
         }catch(Exception e){
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
         }
         return ResponseEntity.status(HttpStatus.OK).body(weightJson.toString());
@@ -2884,6 +2943,7 @@ public class DashboardsController extends DashboardBaseController {
             JSONObject whtJson = loadActualVsBilledWeightJsonData(ActualVsBilledWeightConstants.ACTUAL_VS_BILLED_WEIGHT_BY_MONTH, filter);
             weightJson = (whtJson != null ? whtJson : new JSONObject());
         }catch(Exception e){
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
         }
         return ResponseEntity.status(HttpStatus.OK).body(weightJson.toString());
@@ -2928,6 +2988,7 @@ public class DashboardsController extends DashboardBaseController {
         try {
             userFilterData = dashboardsService.getUserFilterDetails(filterId, isParcelDashlettes);
         }catch (Exception e){
+            e.printStackTrace();
             return new ResponseEntity<Map<String, Object>>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return ResponseEntity.status(HttpStatus.OK).body(userFilterData);
@@ -2949,6 +3010,7 @@ public class DashboardsController extends DashboardBaseController {
                 userFilterData.put("serviceLevelsListData", JSONUtil.prepareFilterServiceJson(serviceList));
             }
         }catch (Exception e){
+            e.printStackTrace();
             return new ResponseEntity<Map<String, Object>>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return ResponseEntity.status(HttpStatus.OK).body(userFilterData);
@@ -2963,6 +3025,7 @@ public class DashboardsController extends DashboardBaseController {
                 userFilterData.put("carriers", JSONUtil.prepareFilterCarrierJson(carrList));
             }
         }catch (Exception e){
+            e.printStackTrace();
             return new ResponseEntity<Map<String, Object>>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return ResponseEntity.status(HttpStatus.OK).body(userFilterData);
@@ -2983,6 +3046,7 @@ public class DashboardsController extends DashboardBaseController {
                 userFilterData.put("modesListData", JSONUtil.prepareFilterModesJson(modesList, dashboardsService.getModeWiseCarrier(carrierIds), false));
             }
         }catch (Exception e){
+            e.printStackTrace();
             return new ResponseEntity<Map<String, Object>>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return ResponseEntity.status(HttpStatus.OK).body(userFilterData);
@@ -3080,6 +3144,7 @@ public class DashboardsController extends DashboardBaseController {
             }
             shipmentCountJson = shipmentCountJson != null ? shipmentCountJson : new JSONObject();
         }catch (Exception e){
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
         }
         return ResponseEntity.status(HttpStatus.OK).body(shipmentCountJson.toString());
@@ -3096,6 +3161,7 @@ public class DashboardsController extends DashboardBaseController {
             reportsService.getCustomerHierarchyObject(dashboardsService.getDashboardCustomers(user.getUserId()), false);
             customerJson.put("customers", JSONUtil.customerHierarchyJson(reportsService.getCustomerHierarchyObject(dashboardsService.getDashboardCustomers(user.getUserId()), false)));
         }catch (Exception e){
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
         }
         return ResponseEntity.status(HttpStatus.OK).body(customerJson.toString());
@@ -3120,6 +3186,7 @@ public class DashboardsController extends DashboardBaseController {
             filter.setLoginUserId(user.getUserId());
             dashboardsService.saveAppliedFilterDetails(filter);
         }catch (Exception e){
+            e.printStackTrace();
             try {
                 respJson.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
                 respJson.put("message", WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
@@ -3148,6 +3215,7 @@ public class DashboardsController extends DashboardBaseController {
             DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
             respJson.put("data", dashboardsService.getDashboardReportCustomColumnNames(filter));
         }catch (Exception e){
+            e.printStackTrace();
             try {
                 respJson.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
                 respJson.put("message", WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
@@ -3175,6 +3243,7 @@ public class DashboardsController extends DashboardBaseController {
             respMap.put("message", "Deleted Successfully");
             respMap.put("savedFilterNames", dashboardsService.getSavedFiltersByUser(user.getUserId()));
         }catch (Exception e){
+            e.printStackTrace();
             try {
                 respMap.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
                 respMap.put("message", WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
@@ -3232,6 +3301,7 @@ public class DashboardsController extends DashboardBaseController {
             respMap.put("message", "Updated Successfully");
             respMap.put("savedFilterNames", dashboardsService.getSavedFiltersByUser(user.getUserId()));
         }catch (Exception e){
+            e.printStackTrace();
             try {
                 respMap.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
                 respMap.put("message", WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
@@ -3258,6 +3328,7 @@ public class DashboardsController extends DashboardBaseController {
             respMap.put("message", "Updated Successfully");
             respMap.put("savedFilterNames", dashboardsService.getSavedFiltersByUser(user.getUserId()));
         }catch (Exception e){
+            e.printStackTrace();
             try {
                 respMap.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
                 respMap.put("message", WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
@@ -3282,6 +3353,7 @@ public class DashboardsController extends DashboardBaseController {
             respMap.put("status", HttpStatus.OK.value());
             respMap.put("savedFilterNames", dashboardsService.getSavedFiltersByUser(user.getUserId()));
         }catch (Exception e){
+            e.printStackTrace();
             try {
                 respMap.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
                 respMap.put("message", WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
@@ -3323,6 +3395,7 @@ public class DashboardsController extends DashboardBaseController {
             respMap.put("status", HttpStatus.OK.value());
             respMap.put("packageDistributionData", pkgDistrJson);
         }catch (Exception e){
+            e.printStackTrace();
             respMap.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
             respMap.put("message", WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
             respMap.put("ERROR", "Error while loading Package distribution count details.");
