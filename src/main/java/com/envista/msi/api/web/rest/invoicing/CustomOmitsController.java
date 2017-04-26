@@ -8,6 +8,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.filter.UserFilterUtilityDataDt
 import com.envista.msi.api.web.rest.dto.invoicing.CodeValueDto;
 import com.envista.msi.api.web.rest.dto.invoicing.CustomOmitsDto;
 import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
+import com.envista.msi.api.web.rest.util.DateUtil;
 import com.envista.msi.api.web.rest.util.JSONUtil;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
@@ -21,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -84,6 +86,9 @@ public class CustomOmitsController {
 
         tb.setCustomerName(StringUtils.replace(tb.getCustomerName(), "----", "").trim());
 
+        if (tb.getExpiryDate() != null)
+            tb.setExpiryDate(DateUtil.format(new Date(Long.valueOf(tb.getExpiryDate())), "dd-MM-yyyy"));
+
         CustomOmitsDto dto = service.insert(tb);
 
         LOG.info("***create method ****" + dto);
@@ -97,8 +102,11 @@ public class CustomOmitsController {
     public ResponseEntity<CustomOmitsDto> update(@RequestBody CustomOmitsDto tb) {
         LOG.info("***update method started****" + tb);
         tb.setCustomerName(StringUtils.replace(tb.getCustomerName(), "----", "").trim());
+        if (tb.getExpiryDate() != null)
+            tb.setExpiryDate(DateUtil.format(new Date(Long.valueOf(tb.getExpiryDate())), "dd-MM-yyyy"));
 
         CustomOmitsDto dto = service.update(tb);
+
         return new ResponseEntity<CustomOmitsDto>(dto, HttpStatus.OK);
     }
 

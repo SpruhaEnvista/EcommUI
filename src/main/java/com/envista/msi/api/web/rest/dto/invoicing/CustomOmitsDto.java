@@ -2,7 +2,6 @@ package com.envista.msi.api.web.rest.dto.invoicing;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.sql.Timestamp;
 
 /**
  * Created by KRISHNAREDDYM on 4/20/2017.
@@ -23,12 +22,11 @@ import java.sql.Timestamp;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CUSTOMER_NAME", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_TRACKING_NUMBER", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_COMMENTS", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_EBILL_MANIFEST_ID", type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_IS_ACTIVE", type = Boolean.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CARRIER_ID", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CUSTOMER_ID", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CUSTOMER_IDS", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CREDIT_TYPE_ID", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_EXPIRY_DATE", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_OMITS_INFO", type = Void.class)
                 }),
@@ -66,20 +64,20 @@ public class CustomOmitsDto implements Serializable {
     @Column(name = "CREDIT_TYPE", nullable = true)
     private String creditType;
 
-    @Column(name = "PICKUP_DATE", nullable = true)
-    private Timestamp pickupDate;
+    @Column(name = "PICKUP_DATE")
+    private String pickupDate;
 
     @Column(name = "ENTERED_DATE", nullable = true)
-    private Timestamp enteredDate;
+    private String enteredDate;
 
     @Column(name = "COMMENTS", nullable = true)
     private String comments;
 
     @Column(name = "SRUB_DATE", nullable = true)
-    private Timestamp scrubDate;
+    private String scrubDate;
 
     @Column(name = "INVOICE_DATE", nullable = true)
-    private Timestamp invoiceDate;
+    private String invoiceDate;
 
     @Column(name = "EBILL_MANIFEST_ID")
     private Long ebillManifestId;
@@ -91,7 +89,7 @@ public class CustomOmitsDto implements Serializable {
     private Long carrierId;
 
     @Column(name = "EXPIRY_DATE")
-    private Timestamp expiryDate;
+    private String expiryDate;
 
     @Column(name = "CUSTOMER_ID")
     private Long customerId;
@@ -188,28 +186,28 @@ public class CustomOmitsDto implements Serializable {
     /**
      * @return the pickupDate
      */
-    public Timestamp getPickupDate() {
+    public String getPickupDate() {
         return pickupDate;
     }
 
     /**
      * @param pickupDate the pickupDate to set
      */
-    public void setPickupDate(Timestamp pickupDate) {
+    public void setPickupDate(String pickupDate) {
         this.pickupDate = pickupDate;
     }
 
     /**
      * @return the enteredDate
      */
-    public Timestamp getEnteredDate() {
+    public String getEnteredDate() {
         return enteredDate;
     }
 
     /**
      * @param enteredDate the enteredDate to set
      */
-    public void setEnteredDate(Timestamp enteredDate) {
+    public void setEnteredDate(String enteredDate) {
         this.enteredDate = enteredDate;
     }
 
@@ -230,28 +228,28 @@ public class CustomOmitsDto implements Serializable {
     /**
      * @return the scrubDate
      */
-    public Timestamp getScrubDate() {
+    public String getScrubDate() {
         return scrubDate;
     }
 
     /**
      * @param scrubDate the scrubDate to set
      */
-    public void setScrubDate(Timestamp scrubDate) {
+    public void setScrubDate(String scrubDate) {
         this.scrubDate = scrubDate;
     }
 
     /**
      * @return the invoiceDate
      */
-    public Timestamp getInvoiceDate() {
+    public String getInvoiceDate() {
         return invoiceDate;
     }
 
     /**
      * @param invoiceDate the invoiceDate to set
      */
-    public void setInvoiceDate(Timestamp invoiceDate) {
+    public void setInvoiceDate(String invoiceDate) {
         this.invoiceDate = invoiceDate;
     }
 
@@ -286,14 +284,14 @@ public class CustomOmitsDto implements Serializable {
     /**
      * @return the expiryDate
      */
-    public Timestamp getExpiryDate() {
+    public String getExpiryDate() {
         return expiryDate;
     }
 
     /**
      * @param expiryDate the expiryDate to set
      */
-    public void setExpiryDate(Timestamp expiryDate) {
+    public void setExpiryDate(String expiryDate) {
         this.expiryDate = expiryDate;
     }
 
@@ -352,35 +350,6 @@ public class CustomOmitsDto implements Serializable {
     public void setCreditTypeId(Long creditTypeId) {
         this.creditTypeId = creditTypeId;
     }
-
-  /*  *//**
-     * @return the codeValuesTb
-     *//*
-    public CodeValuesTb getCodeValuesTb() {
-        return codeValuesTb;
-    }
-
-    *//**
-     * @param codeValuesTb the codeValuesTb to set
-     *//*
-    public void setCodeValuesTb(CodeValuesTb codeValuesTb) {
-        this.codeValuesTb = codeValuesTb;
-    }
-
-    *//**
-     * @return the carrierTb
-     *//*
-    public CarrierTb getCarrierTb() {
-        return carrierTb;
-    }
-
-    *//**
-     * @param carrierTb the carrierTb to set
-     *//*
-    public void setCarrierTb(CarrierTb carrierTb) {
-        this.carrierTb = carrierTb;
-    }
-*/
 
     /**
      * @return the userId

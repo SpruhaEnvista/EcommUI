@@ -50,36 +50,35 @@ public class CustomOmitsDao {
 
         if (dto.getCustomerId() == null)
             dto.setCustomerId(-1L);
-        if (dto.getEbillManifestId() == null)
-            dto.setEbillManifestId(-1L);
         if (dto.getCreditTypeId() == null)
             dto.setCreditTypeId(-1L);
 
         QueryParameter queryParameter = StoredProcedureParameter.with("P_CUSTOMER_NAME", dto.getCustomerName()).and("P_CUSTOM_OMITS_ID", dto.getCustomOmitsId())
                 .and("P_TRACKING_NUMBER", dto.getTrackingNumber()).and("P_COMMENTS", dto.getComments())
-                .and("P_EBILL_MANIFEST_ID", dto.getEbillManifestId()).and("P_IS_ACTIVE", dto.isActive())
                 .and("P_CARRIER_ID", dto.getCarrierId()).and("P_CUSTOMER_ID", dto.getCustomerId())
-                .and("P_CUSTOMER_IDS", dto.getCustomerIds())
-                .and("P_CREDIT_TYPE_ID", dto.getCreditTypeId()).and("P_ACTION_TYPE", "INSERT");
+                .and("P_CUSTOMER_IDS", dto.getCustomerIds()).and("P_CREDIT_TYPE_ID", dto.getCreditTypeId())
+                .and("P_EXPIRY_DATE", dto.getExpiryDate()).and("P_ACTION_TYPE", "INSERT");
 
         return persistentContext.findEntity("CustomOmitsDto.insertOrUpdateCustomOmit", queryParameter);
     }
 
     public CustomOmitsDto update(CustomOmitsDto dto) {
 
-        if (dto.getEbillManifestId() == null)
-            dto.setEbillManifestId(-1L);
         if (dto.getCreditTypeId() == null)
             dto.setCreditTypeId(-1L);
 
         QueryParameter queryParameter = StoredProcedureParameter.with("P_CUSTOMER_NAME", dto.getCustomerName()).and("P_CUSTOM_OMITS_ID", dto.getCustomOmitsId())
                 .and("P_TRACKING_NUMBER", dto.getTrackingNumber()).and("P_COMMENTS", dto.getComments())
-                .and("P_EBILL_MANIFEST_ID", dto.getEbillManifestId()).and("P_IS_ACTIVE", dto.isActive())
                 .and("P_CARRIER_ID", dto.getCarrierId()).and("P_CUSTOMER_ID", dto.getCustomerId())
-                .and("P_CUSTOMER_IDS", dto.getCustomerIds())
-                .and("P_CREDIT_TYPE_ID", dto.getCreditTypeId()).and("P_ACTION_TYPE", "UPDATE");
+                .and("P_CUSTOMER_IDS", dto.getCustomerIds()).and("P_CREDIT_TYPE_ID", dto.getCreditTypeId())
+                .and("P_EXPIRY_DATE", dto.getExpiryDate()).and("P_ACTION_TYPE", "UPDATE");
 
-        return persistentContext.findEntity("CustomOmitsDto.insertOrUpdateCustomOmit", queryParameter);
+        List<CustomOmitsDto> dtos = persistentContext.findEntities("CustomOmitsDto.insertOrUpdateCustomOmit", queryParameter);
+        CustomOmitsDto dbDto = null;
+        if (dtos != null && dtos.size() > 0)
+            dbDto = dtos.get(0);
+
+        return dbDto;
     }
 
     public List<CustomOmitsDto> findBySearchCriteria(CustomOmitsDto dto) {
