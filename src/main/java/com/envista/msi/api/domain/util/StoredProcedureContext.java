@@ -4,17 +4,17 @@
 package com.envista.msi.api.domain.util;
 
 import java.io.Serializable;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
+import java.lang.reflect.Field;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Query;
 import javax.persistence.StoredProcedureQuery;
 
+import com.envista.msi.api.dao.type.GenericObject;
+import oracle.sql.STRUCT;
+import oracle.sql.StructDescriptor;
 import org.hibernate.Session;
 import org.hibernate.jdbc.ReturningWork;
 import org.springframework.core.GenericTypeResolver;
@@ -171,8 +171,9 @@ public class StoredProcedureContext extends EntityManagerImpl implements Persist
 		CallableStatement st = null;
 		List returnList = new ArrayList();
 		ResultSet rs = null;
+		OracleConnection connection = null;
 		try {
-			OracleConnection connection = getNativeConnection();
+			connection = getNativeConnection();
 			st = connection.prepareCall("call " + params);
 
 			int outCount = 0;
@@ -184,6 +185,30 @@ public class StoredProcedureContext extends EntityManagerImpl implements Persist
 							if (storedParameter.type.equals(String[].class)) {
 								st.setArray(storedParameter.position,
 										createOracleArray(connection, (String[]) storedParameter.value));
+							} else if(storedParameter.type.equals(GenericObject[].class)) {
+								STRUCT[] structs = null;
+								if(null != storedParameter.value){
+									List<GenericObject> paramsList = (List<GenericObject>) storedParameter.value;
+									StructDescriptor structDescriptor = StructDescriptor.createDescriptor("genericobject".toUpperCase(), st.getConnection());
+									structs = new STRUCT[paramsList.size()];
+									Field[] objParams = GenericObject.class.getDeclaredFields();
+									for (int index = 0; index < paramsList.size(); index++) {
+										GenericObject genericObject = paramsList.get(index);
+										int i = 0;
+										Object[] sqlParams = new Object[objParams.length];
+										for(Field field : objParams){
+											field.setAccessible(true);
+											sqlParams[i++] = field.get(genericObject);
+										}
+
+										STRUCT struct = new STRUCT(structDescriptor, st.getConnection(), sqlParams);
+										structs[index] = struct;
+									}
+								}
+
+								ArrayDescriptor desc = ArrayDescriptor.createDescriptor("genericobject_array".toUpperCase(), st.getConnection());
+								ARRAY oracleArray = new ARRAY(desc, st.getConnection(), structs);
+								st.setArray(storedParameter.position, oracleArray);
 							} else {
 								st.setObject(storedParameter.position, storedParameter.value);
 							}
@@ -239,5 +264,4 @@ public class StoredProcedureContext extends EntityManagerImpl implements Persist
 
 		return returnList;
 	}
-
 }

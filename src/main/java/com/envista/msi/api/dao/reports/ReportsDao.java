@@ -1,9 +1,11 @@
 package com.envista.msi.api.dao.reports;
 
+import com.envista.msi.api.dao.type.GenericObject;
 import com.envista.msi.api.domain.PersistentContext;
 import com.envista.msi.api.domain.util.QueryParameter;
 import com.envista.msi.api.domain.util.StoredProcedureParameter;
 import com.envista.msi.api.security.SecurityUtils;
+import com.envista.msi.api.web.rest.dto.UserDetailsDto;
 import com.envista.msi.api.web.rest.dto.UserProfileDto;
 import com.envista.msi.api.web.rest.dto.UserProfileDto;
 import com.envista.msi.api.web.rest.dto.reports.*;
@@ -13,7 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import javax.persistence.ParameterMode;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -101,10 +105,10 @@ public class ReportsDao {
      */
 
     @Transactional( readOnly = true )
-    public List<SavedSchedReportsDto> getSavedSchedReports(long userId,long folderId) {
-        return persistentContext.findEntitiesAndMapFields("SavedSchedReports.gerSavedSchedReports",
-                StoredProcedureParameter.with("userId", userId)
-                                        .and("folderId",folderId));
+    public List<SavedSchedReportsDto> getSavedSchedReports(Long userId,Long folderId) {
+        return persistentContext.findEntities("SavedSchedReports.gerSavedSchedReports",
+                StoredProcedureParameter.with("userId", userId == null?0:userId)
+                                        .and("folderId",folderId == null?0: folderId));
     }
 
     @Transactional
@@ -131,6 +135,7 @@ public class ReportsDao {
     public UpdateSavedSchedReportDto runSavedSchedReport(UpdateSavedSchedReportDto updateSavedSchedReportDto) {
             QueryParameter queryParameter = StoredProcedureParameter.with("userId", updateSavedSchedReportDto.getLoggedinuserId())
                     .and("savedSchedId", updateSavedSchedReportDto.getSavedSchedRptId())
+                    .and("submittedFromSystem", submittedFromSystem)
                     .and("createUser",updateSavedSchedReportDto.getCreateUser());
             return persistentContext.findEntityAndMapFields("SavedReports.runSavedSchedReport", queryParameter);
     }
@@ -324,7 +329,7 @@ public class ReportsDao {
                 .and("criteria",savedSchedReportDto.getCriteria())
                 .and("dateRangeTodayMinus1",savedSchedReportDto.getDateRangeTodayMinus1()==null?0:savedSchedReportDto.getDateRangeTodayMinus1())
                 .and("dateRangeTodayMinus2",savedSchedReportDto.getDateRangeTodayMinus2()==null?0:savedSchedReportDto.getDateRangeTodayMinus2())
-                .and("ftpAccountsId",savedSchedReportDto.getFtpAccountsId())
+                .and("ftpAccountsId",(savedSchedReportDto.getFtpAccountsId() == null || savedSchedReportDto.getFtpAccountsId().toString().isEmpty()) ? 0 :savedSchedReportDto.getFtpAccountsId())
                 .and("isSuppressInvoices",savedSchedReportDto.getSuppressInvoices()==null?false:savedSchedReportDto.getSuppressInvoices())
                 .and("submittedFromSystem",submittedFromSystem)
                 .and("isPacket",savedSchedReportDto.getPacket()==null?false:savedSchedReportDto.getPacket())
@@ -355,12 +360,12 @@ public class ReportsDao {
 
         QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", saveSchedUser.getSavedSchedRptId())
                 .and("userId",saveSchedUser.getUserId())
-                .and("isEmailTempTobeSent",saveSchedUser.isEmailTemplateToBeSent()==null?true:saveSchedUser.isEmailTemplateToBeSent())
-                .and("isReportAttachEmail",saveSchedUser.isReportAttachedMail()==null?false:saveSchedUser.isReportAttachedMail())
-                .and("isReportSubscribed",saveSchedUser.isReportSubscribed()==null?true:saveSchedUser.isReportSubscribed())
+                .and("isEmailTempTobeSent",saveSchedUser.getEmailTemplateToBeSent()==null?true:saveSchedUser.getEmailTemplateToBeSent())
+                .and("isReportAttachEmail",saveSchedUser.getReportAttachedMail()==null?false:saveSchedUser.getReportAttachedMail())
+                .and("isReportSubscribed",saveSchedUser.getReportSubscribed()==null?true:saveSchedUser.getReportSubscribed())
                 .and("createUser",saveSchedUser.getCreateUser()==null?"":saveSchedUser.getCreateUser())
-                .and("isShared",saveSchedUser.isShared()==null?false:saveSchedUser.isShared())
-                .and("canEdit",saveSchedUser.isCanEdit()==null?true:saveSchedUser.isCanEdit());
+                .and("isShared",saveSchedUser.getShared()==null?false:saveSchedUser.getShared())
+                .and("canEdit",saveSchedUser.getCanEdit()==null?true:saveSchedUser.getCanEdit());
 
         return persistentContext.findEntity("SavedSchedReports.saveUsers",queryParameter);
 
@@ -514,6 +519,22 @@ public class ReportsDao {
         return persistentContext.findEntity("ReportInclCol.insertRecord",queryParameter);
 
     }
+    @Transactional
+    public void saveSchedIncColDetails(List<GenericObject> inclColDtoList) throws SQLException {
+        QueryParameter queryParameter = StoredProcedureParameter.withPosition(1, ParameterMode.IN, GenericObject[].class, inclColDtoList)
+                .andPosition(2, ParameterMode.REF_CURSOR, void.class, null);
+
+         persistentContext.executeStoredProcedure("shp_rpt_savesched_incl_proc",queryParameter);
+
+    }
+    @Transactional
+    public void saveSchedAcctDetails(List<GenericObject> actDtoList) throws SQLException {
+        QueryParameter queryParameter = StoredProcedureParameter.withPosition(1, ParameterMode.IN, GenericObject[].class, actDtoList)
+                .andPosition(2, ParameterMode.REF_CURSOR, void.class, null);
+
+        persistentContext.executeStoredProcedure("shp_rpt_savesched_actlist_proc",queryParameter);
+
+    }
 
     @Transactional
     public ReportsSortDto saveSchedSortColDetails(ReportsSortDto sortColDto) {
@@ -531,6 +552,16 @@ public class ReportsDao {
     }
     @Transactional
     public SavedSchedReportDto updateSchedReport(SavedSchedReportDto savedSchedReportDto) {
+
+        if(savedSchedReportDto.getDate1()!=null && !savedSchedReportDto.getDate1().isEmpty()){
+            savedSchedReportDto.setDate1(convertDateFullYearString(savedSchedReportDto.getDate1()));
+        }
+        if(savedSchedReportDto.getDate2()!=null && !savedSchedReportDto.getDate2().isEmpty()){
+            savedSchedReportDto.setDate2(convertDateFullYearString(savedSchedReportDto.getDate2()));
+        }
+        if(savedSchedReportDto.getScNextSubmitDate()!=null && !savedSchedReportDto.getScNextSubmitDate().isEmpty()){
+            savedSchedReportDto.setScNextSubmitDate(convertDateFullYearString(savedSchedReportDto.getScNextSubmitDate()));
+        }
 
         QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", savedSchedReportDto.getSavedSchedRptId())
                 .and("rptId", savedSchedReportDto.getRptId()==null?0:savedSchedReportDto.getRptId())
@@ -551,7 +582,7 @@ public class ReportsDao {
                 .and("scMonthlyNoOfMonths",savedSchedReportDto.getScMonthlyNoOfMonths()==null?0:savedSchedReportDto.getScMonthlyNoOfMonths())
                 .and("scMonthlyPeriodicFreq",savedSchedReportDto.getScMonthlyPeriodicFrequency())
                 .and("svReportStatus",savedSchedReportDto.getSvReportStatus())
-                .and("scNextSubmitDate",null)
+                .and("scNextSubmitDate",savedSchedReportDto.getScNextSubmitDate())
                 .and("carrierIds",savedSchedReportDto.getCarrierIds())
                 .and("controlPayrunNumber",savedSchedReportDto.getControlPayrunNumber())
                 .and("consolidate",savedSchedReportDto.getConsolidate()==null?false:savedSchedReportDto.getConsolidate())
@@ -559,9 +590,9 @@ public class ReportsDao {
                 .and("criteria",savedSchedReportDto.getCriteria())
                 .and("dateRangeTodayMinus1",savedSchedReportDto.getDateRangeTodayMinus1()==null?0:savedSchedReportDto.getDateRangeTodayMinus1())
                 .and("dateRangeTodayMinus2",savedSchedReportDto.getDateRangeTodayMinus2()==null?0:savedSchedReportDto.getDateRangeTodayMinus2())
-                .and("ftpAccountsId",savedSchedReportDto.getFtpAccountsId())
+                .and("ftpAccountsId",(savedSchedReportDto.getFtpAccountsId() == null || savedSchedReportDto.getFtpAccountsId().toString().isEmpty()) ? 0 :savedSchedReportDto.getFtpAccountsId())
                 .and("isSuppressInvoices",savedSchedReportDto.getSuppressInvoices()==null?false:savedSchedReportDto.getSuppressInvoices())
-                .and("submittedFromSystem",savedSchedReportDto.getSubmittedFromSystem())
+                .and("submittedFromSystem",submittedFromSystem)
                 .and("isPacket",savedSchedReportDto.getPacket()==null?false:savedSchedReportDto.getPacket())
                 .and("flagsJson",savedSchedReportDto.getFlagsJson())
                 .and("locale",savedSchedReportDto.getLocale())
@@ -651,5 +682,28 @@ public class ReportsDao {
         return persistentContext.findEntities("SearchUserByCustomer.getReportSearchUsers",queryParameter);
     }
 
+    @Transactional
+    public ReportGeneratedDetailsDto getGenReportDetails(Long genRptId){
+        QueryParameter queryParameter = StoredProcedureParameter.with("crGeneratedRptId",genRptId==null?0:genRptId);
+        return persistentContext.findEntityAndMapFields("EmailReports.getGenReportDetPath",queryParameter);
+    }
+    @Transactional
+    public ReportTypeDto getReportTypeDetails(Long rptTypeId){
+        QueryParameter queryParameter = StoredProcedureParameter.with("rptTypeId",rptTypeId==null?0:rptTypeId);
+        return persistentContext.findEntityAndMapFields("ReportTypes.reportTypeDetails",queryParameter);
+    }
+    @Transactional
+    public UserDetailsDto getUserDetailsById(Long userId){
+        QueryParameter queryParameter = StoredProcedureParameter.with("userId",userId==null?0:userId);
+        return persistentContext.findEntityAndMapFields("UserProfileTb.getUserDetailsById",queryParameter);
+    }
+    @Transactional
+    public List<ReportFolderDto> getFolderHierarchy(Long userId){
+        return persistentContext.findEntities("ReportFolder.getReportFolderHierarchy",StoredProcedureParameter.with("p_user_id",userId));
+    }
 
+    public List<SavedSchedReportsDto> getSavedSchedTemplates(Long userId) {
+        return persistentContext.findEntities("SavedSchedReports.gerSavedSchedTemplates",
+                StoredProcedureParameter.with("userId", userId == null?0:userId));
+    }
 }

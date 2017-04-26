@@ -34,7 +34,7 @@ public class ReportsFilesDto {
 
     @Id
     @Column(name = "generated_rpt_det_id")
-    private long generatedRptId;
+    private Long generatedRptId;
 
     @Column(name = "report_file_name")
     private String reportName;
@@ -42,7 +42,7 @@ public class ReportsFilesDto {
     @Column(name = "physical_file_name")
     private String filePath;
 
-    public long getGeneratedRptId() {
+    public Long getGeneratedRptId() {
         return generatedRptId;
     }
 
@@ -68,7 +68,7 @@ public class ReportsFilesDto {
 
     public ReportsFilesDto(){}
 
-    public ReportsFilesDto(long generatedRptId, String reportName, String filePath) {
+    public ReportsFilesDto(Long generatedRptId, String reportName, String filePath) {
         this.generatedRptId = generatedRptId;
         this.reportName = reportName;
         this.filePath = filePath;
