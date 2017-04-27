@@ -106,15 +106,8 @@ public class CustomOmitsDto implements Serializable {
     public CustomOmitsDto() {
     }
 
-    /*    @OneToOne(fetch=FetchType.EAGER, cascade=CascadeType.ALL, targetEntity=CodeValuesTb.class)
-    @JoinColumn(name="CREDIT_TYPE_ID", insertable=false, updatable = false)
-    //@JsonIgnore
-    private CodeValuesTb codeValuesTb;
-
-    @OneToOne(fetch=FetchType.EAGER, cascade=CascadeType.ALL, targetEntity=CarrierTb.class)
-    @JoinColumn(name="CARRIER_ID", insertable=false, updatable = false)
-    //@JsonIgnore
-    private CarrierTb carrierTb;*/
+    @Column(name = "CARRIER_NAME")
+    private String carrierName;
 
     @Column(name = "USER_ID")
     private Long userId;
@@ -363,5 +356,13 @@ public class CustomOmitsDto implements Serializable {
      */
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public String getCarrierName() {
+        return carrierName;
+    }
+
+    public void setCarrierName(String carrierName) {
+        this.carrierName = carrierName;
     }
 }
