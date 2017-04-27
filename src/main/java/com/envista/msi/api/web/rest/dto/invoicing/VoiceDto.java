@@ -7,7 +7,7 @@ import java.io.Serializable;
  * Created by KRISHNAREDDYM on 4/12/2017.
  */
 @NamedStoredProcedureQueries({
-        @NamedStoredProcedureQuery(name = "VoiceDto.getVoiceList", procedureName = "shp_inv_get_voice_list",
+        @NamedStoredProcedureQuery(name = "VoiceDto.getVoiceList", procedureName = "SHP_INV_GET_VOICE_LIST_PRO",
         resultClasses = VoiceDto.class,
         parameters = {
                 @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_USER_ID", type = Long.class),
@@ -16,7 +16,7 @@ import java.io.Serializable;
                 @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class),
                 @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_VOICE_INFO", type = Void.class)
         }),
-        @NamedStoredProcedureQuery(name = "VoiceDto.createOrUpdateVoice", procedureName = "SHP_INV_INSERT_OR_UPDATE_VOICE",
+        @NamedStoredProcedureQuery(name = "VoiceDto.createOrUpdateVoice", procedureName = "SHP_INV_INST_OR_UPD_VOICE_PRO",
                 resultClasses = VoiceDto.class,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_VOICE_ID", type = Long.class),
@@ -30,7 +30,7 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_VOICE_INFO", type = Void.class)
         }),
-        @NamedStoredProcedureQuery(name = "VoiceDto.searchVoice", procedureName = "SHP_INV_SEARCH_VOICE",
+        @NamedStoredProcedureQuery(name = "VoiceDto.searchVoice", procedureName = "SHP_INV_SEARCH_VOICE_PRO",
                 resultClasses = VoiceDto.class,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_VOICE_NAMES", type = String.class),
@@ -40,14 +40,14 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_COMMENTS", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_VOICE_INFO", type = Void.class)
         }),
-        @NamedStoredProcedureQuery(name = "VoiceDto.findByVoiceName", procedureName = "SHP_INV_GET_BY_VOICE_NAME",
+        @NamedStoredProcedureQuery(name = "VoiceDto.findByVoiceName", procedureName = "SHP_INV_GET_BY_VOICE_NAME_PRO",
                 resultClasses = VoiceDto.class,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_VOICE_NAME", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PREV_VOICE_NAME", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_VOICE_INFO", type = Void.class)
         }),
-        @NamedStoredProcedureQuery(name = "VoiceDto.deleteVoice", procedureName = "SHP_INV_DELETE_VOICE",
+        @NamedStoredProcedureQuery(name = "VoiceDto.deleteVoice", procedureName = "SHP_INV_DELETE_VOICE_PRO",
                 resultClasses = VoiceDto.class,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_VOICE_IDS", type = String.class),
