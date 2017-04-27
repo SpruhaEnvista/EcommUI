@@ -469,7 +469,7 @@ public class ReportsDao {
      * @return List<ReportFTPServerDto>
      */
     public List<ReportFTPServerDto> getSaveRptFTPServer(Long rptId){
-        return persistentContext.findEntities("ReportFTPServer.getSaveRptFTPServer", StoredProcedureParameter.with("p_rpt_id",rptId));
+        return persistentContext.findEntities("ReportFTPServer.getSaveRptFTPServer", StoredProcedureParameter.with("p_rpt_id",rptId==null?0:rptId));
     }
     /**
      * @param rptId
