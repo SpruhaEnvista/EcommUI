@@ -600,7 +600,7 @@
 								<configuration>
 									<tasks>
 										<propertyfile file="target\classes\config\application.properties">
-											<entry key="spring.datasource.url" value="jdbc\:oracle\:thin\:@172.16.4.10\:1521\:DB02" />
+											<entry key="spring.datasource.url" value="jdbc:oracle:thin:@172.16.4.10:1521:DB02" />
 											<entry key="spring.datasource.username" value="compete" />
 											<entry key="spring.datasource.password" value="compete" />
 											<entry key="spring.datasource.name" value="compete" />

@@ -1015,9 +1015,11 @@ public class DashboardsService {
 
         Map<String, String> allColumnNames = getReportColumnNames(filter);
         Map<String, String> reqColumnNames = new HashMap<String, String>();
-        for(Map.Entry<String, String> colEntry : allColumnNames.entrySet()){
-            if(reqColList.contains(colEntry.getValue())){
-                reqColumnNames.put(colEntry.getKey(), colEntry.getValue());
+        if(allColumnNames != null){
+            for(Map.Entry<String, String> colEntry : allColumnNames.entrySet()){
+                if(reqColList.contains(colEntry.getValue())){
+                    reqColumnNames.put(colEntry.getKey(), colEntry.getValue());
+                }
             }
         }
 
