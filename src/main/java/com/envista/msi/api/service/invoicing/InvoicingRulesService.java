@@ -2,6 +2,7 @@ package com.envista.msi.api.service.invoicing;
 
 import com.envista.msi.api.dao.invoicing.CustomOmitsDao;
 import com.envista.msi.api.dao.invoicing.InvoicingRulesDao;
+import com.envista.msi.api.web.rest.dto.invoicing.InvoicingRuleDetailsDto;
 import com.envista.msi.api.web.rest.dto.invoicing.InvoicingRuleDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +29,7 @@ public class InvoicingRulesService {
         return dao.findByCustomerIds(customOmitIds);
     }
 
-    public List<InvoicingRuleDto> findById(Long id) {
+    public List<InvoicingRuleDetailsDto> findById(Long id) {
 
         return dao.findById(id);
     }

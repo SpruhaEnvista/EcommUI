@@ -3,6 +3,7 @@ package com.envista.msi.api.dao.invoicing;
 import com.envista.msi.api.domain.PersistentContext;
 import com.envista.msi.api.domain.util.QueryParameter;
 import com.envista.msi.api.domain.util.StoredProcedureParameter;
+import com.envista.msi.api.web.rest.dto.invoicing.InvoicingRuleDetailsDto;
 import com.envista.msi.api.web.rest.dto.invoicing.InvoicingRuleDto;
 import org.springframework.stereotype.Repository;
 
@@ -25,10 +26,10 @@ public class InvoicingRulesDao {
         return persistentContext.findEntities("InvoicingRuleDto.findByCustomerIds", queryParameter);
     }
 
-    public List<InvoicingRuleDto> findById(Long id) {
+    public List<InvoicingRuleDetailsDto> findById(Long id) {
 
         QueryParameter queryParameter = StoredProcedureParameter.with("P_INVOICING_RULE_ID", id);
 
-        return persistentContext.findEntities("InvoicingRuleDto.findById", queryParameter);
+        return persistentContext.findEntitiesAndMapFields("InvoicingRuleDto.findById", queryParameter);
     }
 }

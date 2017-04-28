@@ -1,6 +1,7 @@
 package com.envista.msi.api.web.rest.invoicing;
 
 import com.envista.msi.api.service.invoicing.InvoicingRulesService;
+import com.envista.msi.api.web.rest.dto.invoicing.InvoicingRuleDetailsDto;
 import com.envista.msi.api.web.rest.dto.invoicing.InvoicingRuleDto;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -49,8 +50,8 @@ public class InvoicingRulesController {
      * HTTP GET - get by id
      */
     @RequestMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
-    public ResponseEntity<List<InvoicingRuleDto>> findById(@PathVariable("id") Long id) {
+    public ResponseEntity<List<InvoicingRuleDetailsDto>> findById(@PathVariable("id") Long id) {
         LOG.info("***findById method started**** id is : " + id);
-        return new ResponseEntity<List<InvoicingRuleDto>>(service.findById(id), HttpStatus.OK);
+        return new ResponseEntity<List<InvoicingRuleDetailsDto>>(service.findById(id), HttpStatus.OK);
     }
 }

@@ -4,20 +4,24 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 /**
- * Created by KRISHNAREDDYM on 4/27/2017.
+ * Created by KRISHNAREDDYM on 4/28/2017.
  */
 @NamedStoredProcedureQueries({
-        @NamedStoredProcedureQuery(name = "InvoicingRuleDto.findByCustomerIds", procedureName = "SHP_INV_GET_RULES_PRO",
-                resultClasses = InvoicingRuleDto.class,
+        @NamedStoredProcedureQuery(name = "InvoicingRuleDto.findById", procedureName = "SHP_INV_GET_RULES_BY_ID_PRO",
+                resultClasses = InvoicingRuleDetailsDto.class,
                 parameters = {
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CUSTOMER_IDS", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_INVOICING_RULE_ID", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_RULES_INFO", type = Void.class)
                 })
 })
+
 @Entity
-public class InvoicingRuleDto implements Serializable {
+public class InvoicingRuleDetailsDto implements Serializable {
 
     @Id
+    @Column(name = "Invoicing_Rule_Det_Id")
+    private Long invoicingRuleDetId;
+
     @Column(name = "INVOICING_RULE_ID")
     private Long id;
 
@@ -60,8 +64,8 @@ public class InvoicingRuleDto implements Serializable {
     @Column(name = "ISMATCH")
     private boolean matchCase;
 
-    public InvoicingRuleDto() {
-    }
+  /*  public InvoicingRuleDto() {
+    }*/
 
     public Long getId() {
         return id;
