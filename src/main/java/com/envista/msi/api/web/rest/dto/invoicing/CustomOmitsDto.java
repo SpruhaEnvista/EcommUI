@@ -7,7 +7,7 @@ import java.io.Serializable;
  * Created by KRISHNAREDDYM on 4/20/2017.
  */
 @NamedStoredProcedureQueries({
-        @NamedStoredProcedureQuery(name = "CustomOmitsDto.getCutomOmitsList", procedureName = "SHP_INV_GET_CUSTOM_OMITS_LIST",
+        @NamedStoredProcedureQuery(name = "CustomOmitsDto.getCutomOmitsList", procedureName = "SHP_INV_GET_CUSTOM_OMITS_PRO",
                 resultClasses = CustomOmitsDto.class,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_USER_ID", type = Long.class),
@@ -15,7 +15,7 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_OMITS_INFO", type = Void.class)
                 }),
-        @NamedStoredProcedureQuery(name = "CustomOmitsDto.insertOrUpdateCustomOmit", procedureName = "SHP_INV_INSERT_UPDATE_OMITS",
+        @NamedStoredProcedureQuery(name = "CustomOmitsDto.insertOrUpdateCustomOmit", procedureName = "SHP_INV_INST_UPDATE_OMITS_PRO",
                 resultClasses = CustomOmitsDto.class,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CUSTOM_OMITS_ID", type = Long.class),
@@ -27,10 +27,11 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CUSTOMER_IDS", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CREDIT_TYPE_ID", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_EXPIRY_DATE", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_USER_ID", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_OMITS_INFO", type = Void.class)
                 }),
-        @NamedStoredProcedureQuery(name = "CustomOmitsDto.findBySearchCriteria", procedureName = "SHP_INV_SEARCH_OMITS",
+        @NamedStoredProcedureQuery(name = "CustomOmitsDto.findBySearchCriteria", procedureName = "SHP_INV_SEARCH_OMITS_PRO",
                 resultClasses = CustomOmitsDto.class,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_TRACKING_NUMBER", type = String.class),
@@ -38,9 +39,10 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CUSTOMER_IDS", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_COMMENTS", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CARRIER_ID", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_USER_ID", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_OMITS_INFO", type = Void.class)
                 }),
-        @NamedStoredProcedureQuery(name = "CustomOmitsDto.deleteCustomOmits", procedureName = "SHP_INV_DEL_OMITS",
+        @NamedStoredProcedureQuery(name = "CustomOmitsDto.deleteCustomOmits", procedureName = "SHP_INV_DEL_OMITS_PRO",
                 resultClasses = CustomOmitsDto.class,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CUSTOM_OMITS_IDS", type = String.class),
@@ -93,9 +95,6 @@ public class CustomOmitsDto implements Serializable {
 
     @Column(name = "CUSTOMER_ID")
     private Long customerId;
-
-    @Column(name = "PARENT_CUSTOMER_ID")
-    private Long parentCustomerId;
 
     @Column(name = "CUSTOMER_IDS")
     private String customerIds;
@@ -300,20 +299,6 @@ public class CustomOmitsDto implements Serializable {
      */
     public void setCustomerId(Long customerId) {
         this.customerId = customerId;
-    }
-
-    /**
-     * @return the parentCustomerId
-     */
-    public Long getParentCustomerId() {
-        return parentCustomerId;
-    }
-
-    /**
-     * @param parentCustomerId the parentCustomerId to set
-     */
-    public void setParentCustomerId(Long parentCustomerId) {
-        this.parentCustomerId = parentCustomerId;
     }
 
     /**

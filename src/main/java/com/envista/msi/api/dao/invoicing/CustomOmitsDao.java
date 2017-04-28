@@ -57,7 +57,7 @@ public class CustomOmitsDao {
                 .and("P_TRACKING_NUMBER", dto.getTrackingNumber()).and("P_COMMENTS", dto.getComments())
                 .and("P_CARRIER_ID", dto.getCarrierId()).and("P_CUSTOMER_ID", dto.getCustomerId())
                 .and("P_CUSTOMER_IDS", dto.getCustomerIds()).and("P_CREDIT_TYPE_ID", dto.getCreditTypeId())
-                .and("P_EXPIRY_DATE", dto.getExpiryDate()).and("P_ACTION_TYPE", "INSERT");
+                .and("P_EXPIRY_DATE", dto.getExpiryDate()).and("P_USER_ID", dto.getUserId()).and("P_ACTION_TYPE", "INSERT");
 
         return persistentContext.findEntity("CustomOmitsDto.insertOrUpdateCustomOmit", queryParameter);
     }
@@ -71,7 +71,7 @@ public class CustomOmitsDao {
                 .and("P_TRACKING_NUMBER", dto.getTrackingNumber()).and("P_COMMENTS", dto.getComments())
                 .and("P_CARRIER_ID", dto.getCarrierId()).and("P_CUSTOMER_ID", dto.getCustomerId())
                 .and("P_CUSTOMER_IDS", dto.getCustomerIds()).and("P_CREDIT_TYPE_ID", dto.getCreditTypeId())
-                .and("P_EXPIRY_DATE", dto.getExpiryDate()).and("P_ACTION_TYPE", "UPDATE");
+                .and("P_EXPIRY_DATE", dto.getExpiryDate()).and("P_USER_ID", dto.getUserId()).and("P_ACTION_TYPE", "UPDATE");
 
         List<CustomOmitsDto> dtos = persistentContext.findEntities("CustomOmitsDto.insertOrUpdateCustomOmit", queryParameter);
         CustomOmitsDto dbDto = null;
@@ -85,7 +85,7 @@ public class CustomOmitsDao {
 
         QueryParameter queryParameter = StoredProcedureParameter.with("P_TRACKING_NUMBER", dto.getTrackingNumber())
                 .and("P_CREDIT_TYPE_ID", dto.getCreditTypeId()).and("P_CUSTOMER_IDS", dto.getCustomerIds())
-                .and("P_COMMENTS", dto.getComments()).and("P_CARRIER_ID", dto.getCarrierId());
+                .and("P_COMMENTS", dto.getComments()).and("P_CARRIER_ID", dto.getCarrierId()).and("P_USER_ID", dto.getUserId());
 
         return persistentContext.findEntities("CustomOmitsDto.findBySearchCriteria", queryParameter);
     }
