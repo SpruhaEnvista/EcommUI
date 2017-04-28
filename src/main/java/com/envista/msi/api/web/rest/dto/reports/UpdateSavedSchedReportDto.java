@@ -37,6 +37,7 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "updateReturn", type = Void.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "userId", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "savedSchedId", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "submittedFromSystem", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "createUser", type = String.class)
                 }),
         @NamedStoredProcedureQuery(name = "SavedReports.saveFromReportResults", procedureName = "shp_rpt_save_results_proc",

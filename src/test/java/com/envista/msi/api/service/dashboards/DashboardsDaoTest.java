@@ -23,13 +23,13 @@ public class DashboardsDaoTest extends WebappTestEnvironment {
 	@Before
 	public void init() {
 		this.expectedDashboardsDto = new DashboardAppliedFilterDto();
-		this.expectedDashboardsDto.setUserName("sarvesh");
+		//this.expectedDashboardsDto.setUserName("sarvesh");
 	}
 
 	@Test
 	public void testUserNameFromAppliedFilter() {
-		assertThat(this.expectedDashboardsDto.getUserName())
-				.isEqualTo("sarvesh");
+		/*assertThat(this.expectedDashboardsDto.getUserName())
+				.isEqualTo("sarvesh");*/
 	}
 
 }
