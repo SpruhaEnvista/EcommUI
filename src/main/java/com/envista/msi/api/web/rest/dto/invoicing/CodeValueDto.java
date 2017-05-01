@@ -8,7 +8,7 @@ import java.io.Serializable;
  */
 
 @NamedStoredProcedureQueries({
-        @NamedStoredProcedureQuery(name = "CodeValueDto.getCodeValues", procedureName = "SHP_INV_GET_CODE_VALUES",
+        @NamedStoredProcedureQuery(name = "CodeValueDto.getCodeValues", procedureName = "SHP_INV_GET_CODE_VALUES_PRO",
                 resultClasses = CodeValueDto.class,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CARRIER_ID", type = Long.class),
