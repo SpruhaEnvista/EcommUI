@@ -4,6 +4,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.DashboardAppliedFilterDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
 import com.envista.msi.api.web.rest.dto.dashboard.filter.DashSavedFilterDto;
 import com.envista.msi.api.web.rest.dto.dashboard.filter.UserFilterUtilityDataDto;
+import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
 import com.envista.msi.api.web.rest.util.JSONUtil;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -233,5 +234,16 @@ public class DashboardUtil {
         userFilterDetailsMap.put("servicesDetails", JSONUtil.prepareFilterServiceJson(services, savedServices));
         userFilterDetailsMap.put("filterDetails", savedFilter);
         return userFilterDetailsMap;
+    }
+
+    public static boolean isContainsCustomer(String customerId, List<ReportCustomerCarrierDto> customers){
+        if(customers != null && customerId != null){
+            for(ReportCustomerCarrierDto customer : customers){
+                if(customer != null && customer.getCustomerId() != null && customerId.equals(customer.getCustomerId().toString())){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

@@ -860,6 +860,7 @@ public class DashboardsService {
      * @return
      */
     public List<UserFilterUtilityDataDto> getFilterModes(DashboardsFilterCriteria filter){
+        if(filter.getCarriers() == null || filter.getCarriers().isEmpty()) return null;
         return dashboardsDao.getFilterModes(filter);
     }
 
@@ -869,6 +870,7 @@ public class DashboardsService {
      * @return
      */
     public List<UserFilterUtilityDataDto> getFilterServices(DashboardsFilterCriteria filter){
+        if(filter.getModes() == null || filter.getModes().isEmpty()) return null;
         return dashboardsDao.getFilterServices(filter);
     }
 
