@@ -620,7 +620,7 @@
 							<server>TomcatServer</server>
 							<path>${finalName}</path>
 							<username>admin</username>
-							<password>admin</password>
+							<password>avataradmin</password>
 						</configuration>
 					</plugin>
 				</plugins>
