@@ -3031,7 +3031,9 @@ public class DashboardsController extends DashboardBaseController {
                     DashboardUtil.setDatesFromMonth(appliedFilter, invoiceDate);
                 }
                 appliedFilter.setDashletteName(dashletteName);
-                appliedFilter.setCarriers(carrierId);
+                if(carrierId != null && !carrierId.isEmpty()){
+                    appliedFilter.setCarriers(carrierId);
+                }
                 appliedFilter.setModeNames(mode);
                 appliedFilter.setScoreType(carscoretype);
                 appliedFilter.setService(service);
@@ -3296,11 +3298,7 @@ public class DashboardsController extends DashboardBaseController {
                 }
                 if(defaultFilter != null){
                     if(DashboardUtil.isContainsCustomer(defaultFilter.getCustomerIds(), customers)){
-                        DashboardsFilterCriteria filter = new DashboardsFilterCriteria();
-                        filter.setDateType(defaultFilter.getDateType());
-                        filter.setFromDate(defaultFilter.getFromDate());
-                        filter.setToDate(defaultFilter.getToDate());
-                        userFilterData.putAll(dashboardsService.getUserFilterDetails(defaultFilter, user.isParcelDashlettes(), filter));
+                        userFilterData.putAll(dashboardsService.getUserFilterDetails(defaultFilter, user.isParcelDashlettes(), DashboardUtil.prepareDashboardFilterCriteria(defaultFilter)));
                     }else{
                         userFilterData.putAll(loadFilterBasedOnCustomer(customers, customerHierarchy, user));
                     }

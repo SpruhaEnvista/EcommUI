@@ -1,5 +1,6 @@
 package com.envista.msi.api.web.rest;
 
+import com.envista.msi.api.domain.util.DashboardUtil;
 import com.envista.msi.api.security.SecurityUtils;
 import com.envista.msi.api.service.UserService;
 import com.envista.msi.api.web.rest.dto.UserProfileDto;
@@ -32,23 +33,6 @@ public class DashboardBaseController {
     }
 
     protected DashboardsFilterCriteria populateDashboardFilterCriteria(DashboardAppliedFilterDto dashboardAppliedFilterDto){
-        if(null == dashboardAppliedFilterDto){ return null; }
-
-        DashboardsFilterCriteria dashboardsFilterCriteria = new DashboardsFilterCriteria();
-        dashboardsFilterCriteria.setConvertCurrencyCode(dashboardAppliedFilterDto.getCurrencyCode());
-        if(dashboardAppliedFilterDto.getCurrencyId() != null && !dashboardAppliedFilterDto.getCurrencyId().isEmpty()){
-            dashboardsFilterCriteria.setConvertCurrencyId(Long.parseLong(dashboardAppliedFilterDto.getCurrencyId()));
-        }
-        dashboardsFilterCriteria.setCarriers(dashboardAppliedFilterDto.getCarrierIds());
-        dashboardsFilterCriteria.setDateType(dashboardAppliedFilterDto.getDateType());
-        dashboardsFilterCriteria.setFromDate(dashboardAppliedFilterDto.getFromDate());
-        dashboardsFilterCriteria.setLanes(dashboardAppliedFilterDto.getLanes());
-        dashboardsFilterCriteria.setModes(dashboardAppliedFilterDto.getModes());
-        dashboardsFilterCriteria.setService(dashboardAppliedFilterDto.getServices());
-        dashboardsFilterCriteria.setToDate(dashboardAppliedFilterDto.getToDate());
-        dashboardsFilterCriteria.setConvertWeightUnit(dashboardAppliedFilterDto.getWeightUnit());
-        dashboardsFilterCriteria.setUserId(dashboardAppliedFilterDto.getLoginUserId());
-        dashboardsFilterCriteria.setCustomerIdsCSV(dashboardAppliedFilterDto.getCustomerIds());
-        return dashboardsFilterCriteria;
+        return DashboardUtil.prepareDashboardFilterCriteria(dashboardAppliedFilterDto);
     }
 }

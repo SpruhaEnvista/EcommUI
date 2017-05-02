@@ -179,6 +179,11 @@ public class DashboardUtil {
         return queryParam;
     }
 
+    /**
+     * Find default Filter from list of filters.
+     * @param userFilterList
+     * @return
+     */
     public static DashSavedFilterDto findDefaultUserFilter(List<DashSavedFilterDto> userFilterList){
         for(DashSavedFilterDto userFilter : userFilterList){
             if(userFilter != null && userFilter.getDefaultFilter() == 1){
@@ -188,6 +193,13 @@ public class DashboardUtil {
         return null;
     }
 
+    /**
+     *
+     * @param savedFilter
+     * @param userName
+     * @param userid
+     * @return
+     */
     public static DashboardAppliedFilterDto prepareAppliedFilter(DashSavedFilterDto savedFilter, String userName, long userid){
         DashboardAppliedFilterDto appliedFilter = new DashboardAppliedFilterDto();
         appliedFilter.setDateType(savedFilter.getDateType());
@@ -203,6 +215,11 @@ public class DashboardUtil {
         return appliedFilter;
     }
 
+    /**
+     * To prepare search filter criteria from enspire search filter.
+     * @param filter
+     * @return
+     */
     public static String prepareSearchFilterCriteria(String filter){
         filter = filter.substring(1, filter.length() - 1);
         String delimiter = filter.contains("||") ? "||" : "&&";
@@ -221,6 +238,19 @@ public class DashboardUtil {
         return finalCondition.toString();
     }
 
+    /**
+     * To prepare dashboard filter details.
+     * @param carriers
+     * @param services
+     * @param modes
+     * @param savedCarrList
+     * @param savedServices
+     * @param savedFilter
+     * @param modeWiseCarriers
+     * @param isParcelDashlettes
+     * @return
+     * @throws JSONException
+     */
     public static Map<String, Object> prepareFilterDetails(List<UserFilterUtilityDataDto> carriers, List<UserFilterUtilityDataDto> services, List<UserFilterUtilityDataDto> modes,
                                                     List<Long> savedCarrList, List<Long> savedServices, DashSavedFilterDto savedFilter, Map<String, String> modeWiseCarriers,
                                                     boolean isParcelDashlettes) throws JSONException {
@@ -236,6 +266,12 @@ public class DashboardUtil {
         return userFilterDetailsMap;
     }
 
+    /**
+     * To check contains of customerId in customers list.
+     * @param customerId
+     * @param customers
+     * @return
+     */
     public static boolean isContainsCustomer(String customerId, List<ReportCustomerCarrierDto> customers){
         if(customers != null && customerId != null){
             for(ReportCustomerCarrierDto customer : customers){
@@ -245,5 +281,53 @@ public class DashboardUtil {
             }
         }
         return false;
+    }
+
+    /**
+     * Create DashboardsFilterCriteria object from DashboardAppliedFilterDto object.
+     * @param dashboardAppliedFilter
+     * @return
+     */
+    public static DashboardsFilterCriteria prepareDashboardFilterCriteria(DashboardAppliedFilterDto dashboardAppliedFilter){
+        if(null == dashboardAppliedFilter){ return null; }
+
+        DashboardsFilterCriteria dashboardsFilterCriteria = new DashboardsFilterCriteria();
+        dashboardsFilterCriteria.setConvertCurrencyCode(dashboardAppliedFilter.getCurrencyCode());
+        if(dashboardAppliedFilter.getCurrencyId() != null && !dashboardAppliedFilter.getCurrencyId().isEmpty()){
+            dashboardsFilterCriteria.setConvertCurrencyId(Long.parseLong(dashboardAppliedFilter.getCurrencyId()));
+        }
+        dashboardsFilterCriteria.setCarriers(dashboardAppliedFilter.getCarrierIds());
+        dashboardsFilterCriteria.setDateType(dashboardAppliedFilter.getDateType());
+        dashboardsFilterCriteria.setFromDate(dashboardAppliedFilter.getFromDate());
+        dashboardsFilterCriteria.setLanes(dashboardAppliedFilter.getLanes());
+        dashboardsFilterCriteria.setModes(dashboardAppliedFilter.getModes());
+        dashboardsFilterCriteria.setService(dashboardAppliedFilter.getServices());
+        dashboardsFilterCriteria.setToDate(dashboardAppliedFilter.getToDate());
+        dashboardsFilterCriteria.setConvertWeightUnit(dashboardAppliedFilter.getWeightUnit());
+        dashboardsFilterCriteria.setUserId(dashboardAppliedFilter.getLoginUserId());
+        dashboardsFilterCriteria.setCustomerIdsCSV(dashboardAppliedFilter.getCustomerIds());
+        return dashboardsFilterCriteria;
+    }
+
+    /**
+     * Create DashboardsFilterCriteria object from DashSavedFilterDto object.
+     * @param dashSavedFilter
+     * @return
+     */
+    public static DashboardsFilterCriteria prepareDashboardFilterCriteria(DashSavedFilterDto dashSavedFilter){
+        if(null == dashSavedFilter){ return null; }
+
+        DashboardsFilterCriteria dashboardsFilterCriteria = new DashboardsFilterCriteria();
+        dashboardsFilterCriteria.setConvertCurrencyId(dashSavedFilter.getCurrencyId());
+        dashboardsFilterCriteria.setCarriers(dashSavedFilter.getCarrierIds());
+        dashboardsFilterCriteria.setDateType(dashSavedFilter.getDateType());
+        dashboardsFilterCriteria.setFromDate(dashSavedFilter.getFromDate());
+        dashboardsFilterCriteria.setModes(dashSavedFilter.getModes());
+        dashboardsFilterCriteria.setService(dashSavedFilter.getServices());
+        dashboardsFilterCriteria.setToDate(dashSavedFilter.getToDate());
+        dashboardsFilterCriteria.setConvertWeightUnit(dashSavedFilter.getWeightUnit());
+        dashboardsFilterCriteria.setUserId(dashSavedFilter.getUserId());
+        dashboardsFilterCriteria.setCustomerIdsCSV(dashSavedFilter.getCustomerIds());
+        return dashboardsFilterCriteria;
     }
 }
