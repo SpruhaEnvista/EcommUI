@@ -1,5 +1,6 @@
 package com.envista.msi.api.web.rest;
 
+import com.envista.msi.api.dao.NoAppliedFilterFoundException;
 import com.envista.msi.api.domain.util.DashboardUtil;
 import com.envista.msi.api.service.DashboardsService;
 import com.envista.msi.api.service.ReportsService;
@@ -202,9 +203,7 @@ public class DashboardsController extends DashboardBaseController {
     }
 
     private DashboardsFilterCriteria loadAppliedFilters(Long userId){
-        DashboardAppliedFilterDto dashboardAppliedFilterDto = null;
-        dashboardAppliedFilterDto = dashboardsService.getUserAppliedFilter(userId);
-        return populateDashboardFilterCriteria(dashboardAppliedFilterDto);
+        return populateDashboardFilterCriteria(dashboardsService.getUserAppliedFilter(userId));
     }
 
     @RequestMapping(value = "/netSpendByMode", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
@@ -218,6 +217,9 @@ public class DashboardsController extends DashboardBaseController {
             DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
             JSONObject nspData = loadNetSpendJsonData(NetSpendConstant.NET_SPEND_BY_MODE, filter);
             netSpendJsonData = (nspData != null ? nspData : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -255,6 +257,9 @@ public class DashboardsController extends DashboardBaseController {
             }
             JSONObject nspData = loadNetSpendJsonData(NetSpendConstant.NET_SPEND_OVER_TIME_BY_MONTH, filter);
             netSpendJsonData = (nspData != null ? nspData : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -273,6 +278,9 @@ public class DashboardsController extends DashboardBaseController {
             DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
             JSONObject nspData = loadNetSpendJsonData(NetSpendConstant.NET_SPEND_BY_OVER_TIME, filter);
             netSpendJsonData = (nspData != null ? nspData : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -294,6 +302,9 @@ public class DashboardsController extends DashboardBaseController {
             }
             JSONObject nspData = loadNetSpendJsonData(NetSpendConstant.NET_SPEND_BY_CARRIER, filter);
             netSpendJsonData = (nspData != null ? nspData : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -321,6 +332,9 @@ public class DashboardsController extends DashboardBaseController {
             }
             JSONObject nspData = loadNetSpendJsonData(NetSpendConstant.NET_SPEND_BY_MONTH, filter);
             netSpendJsonData = (nspData != null ? nspData : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -339,6 +353,9 @@ public class DashboardsController extends DashboardBaseController {
             DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
             JSONObject taxData = loadTaxSpendJsonData(TaxSpendConstant.TAX_SPEND, filter);
             taxSpendJson = (taxData != null ? taxData : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -360,6 +377,9 @@ public class DashboardsController extends DashboardBaseController {
             }
             JSONObject taxData = loadTaxSpendJsonData(TaxSpendConstant.TAX_SPEND_BY_CARRIER, filter);
             taxSpendJson = (taxData != null ? taxData : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -386,6 +406,9 @@ public class DashboardsController extends DashboardBaseController {
             }
             JSONObject taxData = loadTaxSpendJsonData(TaxSpendConstant.TAX_SPEND_BY_MONTH, filter);
             taxSpendJson = (taxData != null ? taxData : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -404,6 +427,9 @@ public class DashboardsController extends DashboardBaseController {
             DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
             JSONObject accData = loadAccessorialSpendJsonData(AccessorialSpendConstant.TOP_ACCESSORIAL_SPEND, filter);
             accSpendJson = (accData != null ? accData : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -430,6 +456,9 @@ public class DashboardsController extends DashboardBaseController {
             }
             JSONObject accData = loadAccessorialSpendJsonData(AccessorialSpendConstant.TOP_ACCESSORIAL_SPEND_BY_CARRIER, filter);
             accSpendJson = (accData != null ? accData : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -459,6 +488,9 @@ public class DashboardsController extends DashboardBaseController {
             }
             JSONObject accData = loadAccessorialSpendJsonData(AccessorialSpendConstant.TOP_ACCESSORIAL_SPEND_BY_MONTH, filter);
             accSpendJson = (accData != null ? accData : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -477,6 +509,9 @@ public class DashboardsController extends DashboardBaseController {
             DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
             JSONObject accData = loadAccessorialSpendJsonData(AccessorialSpendConstant.ACCESSORIAL_SPEND, filter);
             accSpendJson = (accData != null ? accData : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -498,6 +533,9 @@ public class DashboardsController extends DashboardBaseController {
             }
             JSONObject accData = loadAccessorialSpendJsonData(AccessorialSpendConstant.ACCESSORIAL_SPEND_BY_CARRIER, filter);
             accSpendJson = (accData != null ? accData : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -524,6 +562,9 @@ public class DashboardsController extends DashboardBaseController {
             }
             JSONObject accData = loadAccessorialSpendJsonData(AccessorialSpendConstant.ACCESSORIAL_SPEND_BY_MONTH, filter);
             accSpendJson = (accData != null ? accData : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -542,6 +583,9 @@ public class DashboardsController extends DashboardBaseController {
             DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
             shipmentsRegionJsonData = loadShipmentByRegionJsonData(ShipmentsRegionConstant.SHIPMENTS_REGION, filter);
             shipmentsRegionJsonData = (shipmentsRegionJsonData != null ? shipmentsRegionJsonData : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -566,6 +610,9 @@ public class DashboardsController extends DashboardBaseController {
 
             shipmentsRegionJsonData = loadShipmentByRegionJsonData(ShipmentsRegionConstant.SHIPMENTS_REGION_BY_CARRIER, filter);
             shipmentsRegionJsonData = (shipmentsRegionJsonData != null ? shipmentsRegionJsonData : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -591,6 +638,9 @@ public class DashboardsController extends DashboardBaseController {
 
             shipmentsRegionJsonData = loadShipmentByRegionJsonData(ShipmentsRegionConstant.SHIPMENTS_REGION_BY_MONTH, filter);
             shipmentsRegionJsonData = (shipmentsRegionJsonData != null ? shipmentsRegionJsonData : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -609,6 +659,9 @@ public class DashboardsController extends DashboardBaseController {
             DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
             resultJsonData = loadTopShippingLanesJsonData(ShippingLanesConstant.SHIPPING_LANES, filter);
             resultJsonData = (resultJsonData != null ? resultJsonData : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -633,6 +686,9 @@ public class DashboardsController extends DashboardBaseController {
 
             resultJsonObj = loadTopShippingLanesJsonData(ShippingLanesConstant.SHIPPING_LANES_BY_CARRIER, filter);
             resultJsonObj = (resultJsonObj != null ? resultJsonObj : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -658,6 +714,9 @@ public class DashboardsController extends DashboardBaseController {
 
             resultsJsonObj = loadTopShippingLanesJsonData(ShippingLanesConstant.SHIPPING_LANES_BY_MONTH, filter);
             resultsJsonObj = (resultsJsonObj != null ? resultsJsonObj : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -676,6 +735,9 @@ public class DashboardsController extends DashboardBaseController {
             DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
             resultJsonData = loadTopPortLanesJsonData(PortLanesConstant.PORT_LANES, filter);
             resultJsonData = (resultJsonData != null ? resultJsonData : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -700,6 +762,9 @@ public class DashboardsController extends DashboardBaseController {
 
             resultJsonObj = loadTopPortLanesJsonData(PortLanesConstant.PORT_LANES_BY_CARRIER, filter);
             resultJsonObj = (resultJsonObj != null ? resultJsonObj : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -725,6 +790,9 @@ public class DashboardsController extends DashboardBaseController {
 
             resultsJsonObj = loadTopPortLanesJsonData(PortLanesConstant.PORT_LANES_BY_MONTH, filter);
             resultsJsonObj = (resultsJsonObj != null ? resultsJsonObj : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -744,6 +812,9 @@ public class DashboardsController extends DashboardBaseController {
             DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
             JSONObject avgShipmentData = loadShipmentOverviewJsonData(ShipmentOverviewConstant.AVG_SPEND_PER_SHIPMT, filter);
             avgSpendPerShipmtJsonData = (avgShipmentData != null ? avgShipmentData : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -762,6 +833,9 @@ public class DashboardsController extends DashboardBaseController {
             DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
             JSONObject avgShipmentData = loadShipmentOverviewJsonData(ShipmentOverviewConstant.AVG_WEIGHT_BY_MODE_SHIPMT, filter);
             avgWeightModeShipmtJsonData = (avgShipmentData != null ? avgShipmentData : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -781,6 +855,9 @@ public class DashboardsController extends DashboardBaseController {
             List<ServiceLevelUsageAndPerformanceDto> serviceLevelUsageAndPerfList = dashboardsService.getServiceLevelUsageAndPerformance(filter, false);
             JSONObject sfJson = JSONUtil.prepareServiceLevelUsageAndPerfromanceJson(serviceLevelUsageAndPerfList);
             serviceLvlPerf = sfJson != null ? sfJson : new JSONObject();
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -799,6 +876,9 @@ public class DashboardsController extends DashboardBaseController {
             DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
             JSONObject inbSpendJson = loadInboundSpendJsonData(InboundSpendConstant.INBOUND_SPEND, filter);
             inboundSpendJson = inbSpendJson != null ? inbSpendJson : new JSONObject();
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch (Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -825,6 +905,9 @@ public class DashboardsController extends DashboardBaseController {
             }
             JSONObject inbSpendJson = loadInboundSpendJsonData(InboundSpendConstant.INBOUND_SPEND_BY_MONTH, filter);
             inboundSpendJson = inbSpendJson != null ? inbSpendJson : new JSONObject();
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch (Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -843,6 +926,9 @@ public class DashboardsController extends DashboardBaseController {
             DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
             JSONObject outbSpendJson = loadOutboundSpendJsonData(OutboundSpendConstant.OUTBOUND_SPEND, filter);
             outboundSpendJson = outbSpendJson != null ? outbSpendJson : new JSONObject();
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch (Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -869,6 +955,9 @@ public class DashboardsController extends DashboardBaseController {
             }
             JSONObject outbSpendJson = loadOutboundSpendJsonData(OutboundSpendConstant.OUTBOUND_SPEND_BY_MONTH, filter);
             outboundSpendJson = outbSpendJson != null ? outbSpendJson : new JSONObject();
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch (Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -961,6 +1050,9 @@ public class DashboardsController extends DashboardBaseController {
             DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
             JSONObject stsCntJson = loadInvoiceStatusCountJsonData(InvoiceStatusCountConstant.INVOICE_STATUS_COUNT, filter);
             invStsCountJson = (stsCntJson != null ? stsCntJson : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -982,6 +1074,9 @@ public class DashboardsController extends DashboardBaseController {
             }
             JSONObject stsCntJson = loadInvoiceStatusCountJsonData(InvoiceStatusCountConstant.INVOICE_STATUS_COUNT_BY_CARRIER, filter);
             invStsCountJson = (stsCntJson != null ? stsCntJson : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -1004,6 +1099,9 @@ public class DashboardsController extends DashboardBaseController {
             }
             JSONObject stsCntJson = loadInvoiceStatusCountJsonData(InvoiceStatusCountConstant.INVOICE_STATUS_COUNT_BY_MONTH, filter);
             invStsCountJson = (stsCntJson != null ? stsCntJson : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -1022,6 +1120,9 @@ public class DashboardsController extends DashboardBaseController {
             DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
             JSONObject stsAmtJson = loadInvoiceStatusAmountJsonData(InvoiceStatusAmountConstant.INVOICE_STATUS_AMOUNT, filter);
             invStsAmountJson = (stsAmtJson != null ? stsAmtJson : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -1043,6 +1144,9 @@ public class DashboardsController extends DashboardBaseController {
             }
             JSONObject stsAmtJson = loadInvoiceStatusAmountJsonData(InvoiceStatusAmountConstant.INVOICE_STATUS_AMOUNT_BY_CARRIER, filter);
             invStsAmountJson = (stsAmtJson != null ? stsAmtJson : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -1065,6 +1169,9 @@ public class DashboardsController extends DashboardBaseController {
             }
             JSONObject stsAmtJson = loadInvoiceStatusAmountJsonData(InvoiceStatusAmountConstant.INVOICE_STATUS_AMOUNT_BY_MONTH, filter);
             invStsAmountJson = (stsAmtJson != null ? stsAmtJson : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -1083,6 +1190,9 @@ public class DashboardsController extends DashboardBaseController {
             DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
             JSONObject invScoreJson = loadInvoiceMethodScoreJsonData(InvoiceMethodScoreConstant.INVOICE_METHOD_SCORE, filter);
             invMethodScoreJson = (invScoreJson != null ? invScoreJson : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -1104,6 +1214,9 @@ public class DashboardsController extends DashboardBaseController {
             }
             JSONObject invScoreJson = loadInvoiceMethodScoreJsonData(InvoiceMethodScoreConstant.INVOICE_METHOD_SCORE_BY_CARRIER, filter);
             invMethodScoreJson = (invScoreJson != null ? invScoreJson : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -1126,6 +1239,9 @@ public class DashboardsController extends DashboardBaseController {
             }
             JSONObject invScoreJson = loadInvoiceMethodScoreJsonData(InvoiceMethodScoreConstant.INVOICE_METHOD_SCORE_BY_MONTH, filter);
             invMethodScoreJson = (invScoreJson != null ? invScoreJson : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -1144,6 +1260,9 @@ public class DashboardsController extends DashboardBaseController {
             DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
             JSONObject ordMchJson = loadOrderMatchJsonData(OrderMatchConstant.ORDER_MATCH, filter);
             orderMatchJson = (ordMchJson != null ? ordMchJson : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -1165,6 +1284,9 @@ public class DashboardsController extends DashboardBaseController {
             }
             JSONObject ordMchJson = loadOrderMatchJsonData(OrderMatchConstant.ORDER_MATCH_BY_CARRIER, filter);
             orderMatchJson = (ordMchJson != null ? ordMchJson : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -1187,6 +1309,9 @@ public class DashboardsController extends DashboardBaseController {
             }
             JSONObject ordMchJson = loadOrderMatchJsonData(OrderMatchConstant.ORDER_MATCH_BY_MONTH, filter);
             orderMatchJson = (ordMchJson != null ? ordMchJson : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -1205,6 +1330,9 @@ public class DashboardsController extends DashboardBaseController {
             DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
             JSONObject bvaJson = loadBilledVsApprovedJsonData(BilledVsApprovedConstant.BILLED_VS_APPROVED, filter);
             billedVsApprovedJson = (bvaJson != null ? bvaJson : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -1227,6 +1355,9 @@ public class DashboardsController extends DashboardBaseController {
             }
             JSONObject bvaJson = loadBilledVsApprovedJsonData(BilledVsApprovedConstant.BILLED_VS_APPROVED_BY_MONTH, filter);
             billedVsApprovedJson = (bvaJson != null ? bvaJson : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -1245,6 +1376,9 @@ public class DashboardsController extends DashboardBaseController {
             DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
             JSONObject raJson = loadRecoveryAdjustmentJsonData(RecoveryAdjustmentConstants.RECOVERY_ADJUSTMENT, filter);
             recovAdjJson = (raJson != null ? raJson : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch (Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -1271,6 +1405,9 @@ public class DashboardsController extends DashboardBaseController {
             }
             JSONObject raJson = loadRecoveryAdjustmentJsonData(RecoveryAdjustmentConstants.RECOVERY_ADJUSTMENT_BY_CARRIER, filter);
             recovAdjJson = (raJson != null ? raJson : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch (Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -1300,6 +1437,9 @@ public class DashboardsController extends DashboardBaseController {
             }
             JSONObject raJson = loadRecoveryAdjustmentJsonData(RecoveryAdjustmentConstants.RECOVERY_ADJUSTMENT_BY_MONTH, filter);
             recovAdjJson = (raJson != null ? raJson : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch (Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -1318,6 +1458,9 @@ public class DashboardsController extends DashboardBaseController {
             DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
             JSONObject rsJson = loadRecoveryServicesJsonData(RecoveryServiceConstants.RECOVERY_SERVICE, filter);
             recovServJson = (rsJson != null ? rsJson : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch (Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -1344,6 +1487,9 @@ public class DashboardsController extends DashboardBaseController {
             }
             JSONObject rsJson = loadRecoveryServicesJsonData(RecoveryServiceConstants.RECOVERY_SERVICE_BY_MONTH, filter);
             recovServJson = (rsJson != null ? rsJson : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch (Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -1362,6 +1508,9 @@ public class DashboardsController extends DashboardBaseController {
             DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
             JSONObject rsJson = loadPackageExceptionsJsonData(PackageExceptionConstants.PACKAGE_EXCEPTION, filter);
             pkgExcpJson = (rsJson != null ? rsJson : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch (Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -1385,6 +1534,9 @@ public class DashboardsController extends DashboardBaseController {
             }
             JSONObject rsJson = loadPackageExceptionsJsonData(PackageExceptionConstants.PACKAGE_EXCEPTION_BY_CARRIER, filter);
             pkgExcpJson = (rsJson != null ? rsJson : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch (Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -1412,6 +1564,9 @@ public class DashboardsController extends DashboardBaseController {
             }
             JSONObject rsJson = loadPackageExceptionsJsonData(PackageExceptionConstants.PACKAGE_EXCEPTION_BY_MONTH, filter);
             pkgExcpJson = (rsJson != null ? rsJson : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch (Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -1440,6 +1595,9 @@ public class DashboardsController extends DashboardBaseController {
 
             JSONObject avgShipmentData = loadShipmentOverviewJsonData(ShipmentOverviewConstant.AVG_SPEND_PER_SHIPMT_BY_CARRIER, filter);
             avgSpendPerShipmtByCarrierJsonData = (avgShipmentData != null ? avgShipmentData : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -1471,6 +1629,9 @@ public class DashboardsController extends DashboardBaseController {
 
             JSONObject avgShipmentData = loadShipmentOverviewJsonData(ShipmentOverviewConstant.AVG_SPEND_PER_SHIPMT_BY_MONTH, filter);
             avgSpendPerShipmtByCarrierJsonData = (avgShipmentData != null ? avgShipmentData : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -1499,6 +1660,9 @@ public class DashboardsController extends DashboardBaseController {
 
             JSONObject avgWeightModeData = loadShipmentOverviewJsonData(ShipmentOverviewConstant.AVG_WEIGHT_SHIPMT_BY_CARRIER, filter);
             avgWeightModeByCarrierJsonData = (avgWeightModeData != null ? avgWeightModeData : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -1530,6 +1694,9 @@ public class DashboardsController extends DashboardBaseController {
 
             JSONObject avgWeightModeData = loadShipmentOverviewJsonData(ShipmentOverviewConstant.AVG_WEIGHT_SHIPMT_BY_MONTH, filter);
             avgWeightModeByCarrierJsonData = (avgWeightModeData != null ? avgWeightModeData : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -1549,6 +1716,9 @@ public class DashboardsController extends DashboardBaseController {
             DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
             JSONObject asJson = loadAnnualSummaryJsonData(AnnualSummaryConstants.ANNUAL_SUMMARY, filter);
             annualSummaryJson = asJson != null ? asJson : new JSONObject();
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -1572,6 +1742,9 @@ public class DashboardsController extends DashboardBaseController {
             }
             JSONObject asJson = loadAnnualSummaryJsonData(AnnualSummaryConstants.ANNUAL_SUMMARY_BY_SERVICE, filter);
             annualSummaryJson = asJson != null ? asJson : new JSONObject();
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -1598,6 +1771,9 @@ public class DashboardsController extends DashboardBaseController {
             }
             JSONObject asJson = loadAnnualSummaryJsonData(AnnualSummaryConstants.ANNUAL_SUMMARY_BY_CARRIER, filter);
             annualSummaryJson = asJson != null ? asJson : new JSONObject();
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -1627,6 +1803,9 @@ public class DashboardsController extends DashboardBaseController {
             }
             JSONObject asJson = loadAnnualSummaryJsonData(AnnualSummaryConstants.ANNUAL_SUMMARY_BY_MONTH, filter);
             annualSummaryJson = asJson != null ? asJson : new JSONObject();
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -1645,6 +1824,9 @@ public class DashboardsController extends DashboardBaseController {
             DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
             JSONObject msJson = loadMonthlySpendByModeJsonData(MonthlySpendByModeConstants.MONTHLY_SPEND_BY_MODE, filter);
             monthlySpendJson = msJson != null ? msJson : new JSONObject();
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch (Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -1668,6 +1850,9 @@ public class DashboardsController extends DashboardBaseController {
             }
             JSONObject msJson = loadMonthlySpendByModeJsonData(MonthlySpendByModeConstants.MONTHLY_SPEND_BY_MODE_BY_SERVICE, filter);
             monthlySpendJson = msJson != null ? msJson : new JSONObject();
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch (Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -1686,6 +1871,9 @@ public class DashboardsController extends DashboardBaseController {
             DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
             JSONObject asJson = loadAccountSummaryJsonData(AccountSummaryConstants.ACCOUNT_SUMMARY, filter);
             accSummJson = asJson != null ? asJson : new JSONObject();
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch (Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -1704,6 +1892,9 @@ public class DashboardsController extends DashboardBaseController {
             DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
             JSONObject asJson = loadAccountSummaryJsonData(AccountSummaryConstants.PARCEL_ACCOUNT_SUMMARY, filter);
             accSummJson = asJson != null ? asJson : new JSONObject();
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch (Exception e){
             e.printStackTrace();
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -2840,7 +3031,9 @@ public class DashboardsController extends DashboardBaseController {
                     DashboardUtil.setDatesFromMonth(appliedFilter, invoiceDate);
                 }
                 appliedFilter.setDashletteName(dashletteName);
-                appliedFilter.setCarriers(carrierId);
+                if(carrierId != null && !carrierId.isEmpty()){
+                    appliedFilter.setCarriers(carrierId);
+                }
                 appliedFilter.setModeNames(mode);
                 appliedFilter.setScoreType(carscoretype);
                 appliedFilter.setService(service);
@@ -2852,6 +3045,9 @@ public class DashboardsController extends DashboardBaseController {
             }else{
                 reportPaginationData = dashboardsService.getDashboardReportPaginationData(appliedFilter, offset, limit);
             }
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(reportPaginationData);
         }catch(Exception e){
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(reportPaginationData);
@@ -2875,6 +3071,9 @@ public class DashboardsController extends DashboardBaseController {
             }
             DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
             reportColumnNames = dashboardsService.getDashboardReportCustomColumnNames(filter);
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch (Exception e){
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
@@ -2893,6 +3092,9 @@ public class DashboardsController extends DashboardBaseController {
             DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
             JSONObject whtJson = loadActualVsBilledWeightJsonData(ActualVsBilledWeightConstants.ACTUAL_VS_BILLED_WEIGHT, filter);
             weightJson = (whtJson != null ? whtJson : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
@@ -2916,6 +3118,9 @@ public class DashboardsController extends DashboardBaseController {
             }
             JSONObject whtJson = loadActualVsBilledWeightJsonData(ActualVsBilledWeightConstants.ACTUAL_VS_BILLED_WEIGHT_BY_CARRIER, filter);
             weightJson = (whtJson != null ? whtJson : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
@@ -2942,6 +3147,9 @@ public class DashboardsController extends DashboardBaseController {
             }
             JSONObject whtJson = loadActualVsBilledWeightJsonData(ActualVsBilledWeightConstants.ACTUAL_VS_BILLED_WEIGHT_BY_MONTH, filter);
             weightJson = (whtJson != null ? whtJson : new JSONObject());
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
@@ -2987,6 +3195,9 @@ public class DashboardsController extends DashboardBaseController {
         Map<String, Object> userFilterData = new HashMap();
         try {
             userFilterData = dashboardsService.getUserFilterDetails(filterId, isParcelDashlettes);
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(userFilterData);
         }catch (Exception e){
             e.printStackTrace();
             return new ResponseEntity<Map<String, Object>>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -3009,6 +3220,9 @@ public class DashboardsController extends DashboardBaseController {
             if(serviceList != null && !serviceList.isEmpty()){
                 userFilterData.put("serviceLevelsListData", JSONUtil.prepareFilterServiceJson(serviceList));
             }
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(userFilterData);
         }catch (Exception e){
             e.printStackTrace();
             return new ResponseEntity<Map<String, Object>>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -3024,6 +3238,9 @@ public class DashboardsController extends DashboardBaseController {
             if(carrList != null && !carrList.isEmpty()){
                 userFilterData.put("carriers", JSONUtil.prepareFilterCarrierJson(carrList));
             }
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(userFilterData);
         }catch (Exception e){
             e.printStackTrace();
             return new ResponseEntity<Map<String, Object>>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -3045,6 +3262,9 @@ public class DashboardsController extends DashboardBaseController {
             if(modesList != null && !modesList.isEmpty()){
                 userFilterData.put("modesListData", JSONUtil.prepareFilterModesJson(modesList, dashboardsService.getModeWiseCarrier(carrierIds), false));
             }
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(userFilterData);
         }catch (Exception e){
             e.printStackTrace();
             return new ResponseEntity<Map<String, Object>>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -3062,61 +3282,82 @@ public class DashboardsController extends DashboardBaseController {
             }
             List<DashSavedFilterDto> userSavedFilters = dashboardsService.getSavedFiltersByUser(user.getUserId());
             List<ReportCustomerCarrierDto> customers = dashboardsService.getDashboardCustomers(user.getUserId());
-            String customerId = "";
             userFilterData.put("savedFilterNames", userSavedFilters);
             userFilterData.put("currenciesList", JSONUtil.prepareCurrenciesJson(dashboardsService.getCodeValuesByCodeGroup(468L)));
-            ReportCustomerCarrierDto customerHierarchy = reportsService.getCustomerHierarchyObject(customers, false);
-            userFilterData.put("customers", JSONUtil.customerHierarchyJson(customerHierarchy));
+            ReportCustomerCarrierDto customerHierarchy = null;
+
+            if(customers != null && !customers.isEmpty()){
+                customerHierarchy = reportsService.getCustomerHierarchyObject(customers, false);
+            }
+            userFilterData.put("customers", customerHierarchy != null ? JSONUtil.customerHierarchyJson(customerHierarchy) : new JSONArray());
+
             if(userSavedFilters != null && !userSavedFilters.isEmpty()){
                 DashSavedFilterDto defaultFilter = DashboardUtil.findDefaultUserFilter(userSavedFilters);
                 if(null == defaultFilter){
                     defaultFilter = userSavedFilters.get(0);
                 }
                 if(defaultFilter != null){
-                    DashboardsFilterCriteria filter = new DashboardsFilterCriteria();
-                    filter.setDateType(defaultFilter.getDateType());
-                    filter.setFromDate(defaultFilter.getFromDate());
-                    filter.setToDate(defaultFilter.getToDate());
-                    userFilterData.putAll(dashboardsService.getUserFilterDetails(defaultFilter, user.isParcelDashlettes(), filter));
+                    if(DashboardUtil.isContainsCustomer(defaultFilter.getCustomerIds(), customers)){
+                        userFilterData.putAll(dashboardsService.getUserFilterDetails(defaultFilter, user.isParcelDashlettes(), DashboardUtil.prepareDashboardFilterCriteria(defaultFilter)));
+                    }else{
+                        userFilterData.putAll(loadFilterBasedOnCustomer(customers, customerHierarchy, user));
+                    }
                 }
             }else{
-                if(customers != null && !customers.isEmpty()){
-                    if(user.getDefaultCustomer() != null && !user.getDefaultCustomer().isEmpty()){
-                        if(user.getDefaultCustomer().startsWith("CU")){
-                            customerId = user.getDefaultCustomer().replace("CU", "");
-                        }else{
-                            customerId = user.getDefaultCustomer().trim();
-                        }
-                    }else{
-                        customerId = customerHierarchy.getCollection().iterator().next().getValue().trim();
-                    }
-
-                    DashboardsFilterCriteria filter = new DashboardsFilterCriteria();
-                    filter.setDateType("INVOICE_DATE");
-                    filter.setFromDate(DateUtil.format(DateUtil.subtractDays(new Date(), 90), "dd-MMM-yyyy"));
-                    filter.setToDate(DateUtil.format(new Date(), "dd-MMM-yyyy"));
-
-                    DashSavedFilterDto dashSavedFilter = new DashSavedFilterDto();
-                    dashSavedFilter.setFilterId(0L);
-                    dashSavedFilter.setFilterName("Default");
-                    dashSavedFilter.setCurrencyId(0L);
-                    dashSavedFilter.setDateType(filter.getDateType());
-                    dashSavedFilter.setFromDate(filter.getFromDate());
-                    dashSavedFilter.setToDate(filter.getToDate());
-                    dashSavedFilter.setCustomerIds(customerId);
-
-                    userFilterData.putAll(dashboardsService.getNewUserFilterDetails(dashSavedFilter, user.isParcelDashlettes(), filter));
-                }
+                userFilterData.putAll(loadFilterBasedOnCustomer(customers, customerHierarchy, user));
             }
             if(userFilterData.get("filterDetails") != null){
                 dashboardsService.saveAppliedFilterDetails(DashboardUtil.prepareAppliedFilter((DashSavedFilterDto) userFilterData.get("filterDetails"), user.getUserName(), user.getUserId()));
             }
             userFilterData.put("userColumnConfig", dashboardsService.getDashboardReportCustomColumnNames(loadAppliedFilters(user.getUserId())));
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(userFilterData);
         }catch (Exception e){
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(userFilterData);
         }
         return ResponseEntity.status(HttpStatus.OK).body(userFilterData);
+    }
+
+    private Map<String, Object> loadFilterBasedOnCustomer(List<ReportCustomerCarrierDto> customers, ReportCustomerCarrierDto customerHierarchy, UserProfileDto user) throws JSONException {
+        String customerId = "";
+        Map<String, Object> userFilterData = new HashMap();
+        if(customers != null && !customers.isEmpty()){
+            if(user.getDefaultCustomer() != null && !user.getDefaultCustomer().isEmpty()){
+                if(user.getDefaultCustomer().startsWith("CU")){
+                    customerId = user.getDefaultCustomer().replace("CU", "");
+                }else{
+                    customerId = user.getDefaultCustomer().trim();
+                }
+                if(!DashboardUtil.isContainsCustomer(customerId, customers)){
+                    customerId = customerHierarchy.getCollection().iterator().next().getValue().trim();
+                }
+            }else{
+                if(customerHierarchy != null && customerHierarchy.getCollection() != null){
+                    customerId = customerHierarchy.getCollection().iterator().next().getValue().trim();
+                }
+            }
+
+            if (customerId != null && !customerId.isEmpty()){
+                DashboardsFilterCriteria filter = new DashboardsFilterCriteria();
+                filter.setDateType("INVOICE_DATE");
+                filter.setFromDate(DateUtil.format(DateUtil.subtractDays(new Date(), 90), "dd-MMM-yyyy"));
+                filter.setToDate(DateUtil.format(new Date(), "dd-MMM-yyyy"));
+
+                DashSavedFilterDto dashSavedFilter = new DashSavedFilterDto();
+                dashSavedFilter.setFilterId(0L);
+                dashSavedFilter.setFilterName("Default");
+                dashSavedFilter.setCurrencyId(0L);
+                dashSavedFilter.setDateType(filter.getDateType());
+                dashSavedFilter.setFromDate(filter.getFromDate());
+                dashSavedFilter.setToDate(filter.getToDate());
+                dashSavedFilter.setCustomerIds(customerId);
+
+                userFilterData.putAll(dashboardsService.getNewUserFilterDetails(dashSavedFilter, user.isParcelDashlettes(), filter));
+            }
+        }
+        return userFilterData;
     }
 
     @RequestMapping(value = "/shipmentCountByZone", method = {RequestMethod.GET, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
@@ -3143,6 +3384,9 @@ public class DashboardsController extends DashboardBaseController {
                 shipmentCountJson = JSONUtil.prepareShipmentCountByZoneJson(shipmentData, mapCoordinates);
             }
             shipmentCountJson = shipmentCountJson != null ? shipmentCountJson : new JSONObject();
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch (Exception e){
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
@@ -3160,6 +3404,9 @@ public class DashboardsController extends DashboardBaseController {
             }
             reportsService.getCustomerHierarchyObject(dashboardsService.getDashboardCustomers(user.getUserId()), false);
             customerJson.put("customers", JSONUtil.customerHierarchyJson(reportsService.getCustomerHierarchyObject(dashboardsService.getDashboardCustomers(user.getUserId()), false)));
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch (Exception e){
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
@@ -3214,6 +3461,9 @@ public class DashboardsController extends DashboardBaseController {
             dashboardsService.saveUserDefinedColumnConfig(user.getUserId(), columnNames, isLineItemReport);
             DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
             respJson.put("data", dashboardsService.getDashboardReportCustomColumnNames(filter));
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(respJson.toString());
         }catch (Exception e){
             e.printStackTrace();
             try {
@@ -3394,6 +3644,9 @@ public class DashboardsController extends DashboardBaseController {
             }
             respMap.put("status", HttpStatus.OK.value());
             respMap.put("packageDistributionData", pkgDistrJson);
+        }catch (NoAppliedFilterFoundException e){
+            //need to handle proper message to clint.
+            return ResponseEntity.status(HttpStatus.OK).body(respMap);
         }catch (Exception e){
             e.printStackTrace();
             respMap.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
