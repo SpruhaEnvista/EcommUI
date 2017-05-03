@@ -771,11 +771,7 @@ public class DashboardsService {
 
     public Map<String, Object> getUserFilterDetails(Long filterId, boolean isParcelDashlettes) throws JSONException {
         DashSavedFilterDto userFilter = getFilterById(filterId);
-        DashboardsFilterCriteria filter = new DashboardsFilterCriteria();
-        filter.setCustomerIdsCSV(userFilter.getCustomerIds());
-        filter.setDateType(userFilter.getDateType());
-        filter.setFromDate(userFilter.getFromDate());
-        filter.setToDate(userFilter.getToDate());
+        DashboardsFilterCriteria filter = DashboardUtil.prepareDashboardFilterCriteria(userFilter);
 
         List<UserFilterUtilityDataDto> carriers = getCarrierByCustomer(String.valueOf(userFilter.getCustomerIds()), isParcelDashlettes);
         StringJoiner carrierCSV = new StringJoiner(",");
