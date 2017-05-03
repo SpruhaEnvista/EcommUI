@@ -745,25 +745,30 @@ public class DashboardsService {
         userFilter.setCarrierIds(carrierCSV.toString());
 
         List<UserFilterUtilityDataDto> modes = getFilterModes(filter);
-        StringJoiner modeCSV = new StringJoiner(",");
-        for(UserFilterUtilityDataDto mode : modes){
-            if(mode != null){
-                modeCSV.add(mode.getId().toString());
+        if(modes != null && !modes.isEmpty()){
+            StringJoiner modeCSV = new StringJoiner(",");
+            for(UserFilterUtilityDataDto mode : modes){
+                if(mode != null){
+                    modeCSV.add(mode.getId().toString());
+                }
             }
+            filter.setModes(modeCSV.toString());
+            userFilter.setModes(modeCSV.toString());
         }
-        filter.setModes(modeCSV.toString());
-        userFilter.setModes(modeCSV.toString());
 
         List<UserFilterUtilityDataDto> services = getFilterServices(filter);
-        StringJoiner servicesCSV = new StringJoiner(",");
-        for(UserFilterUtilityDataDto service : services){
-            if(service != null){
-                servicesList.add(service.getId());
-                servicesCSV.add(service.getId().toString());
+        if(services != null && !services.isEmpty()){
+            StringJoiner servicesCSV = new StringJoiner(",");
+            for(UserFilterUtilityDataDto service : services){
+                if(service != null){
+                    servicesList.add(service.getId());
+                    servicesCSV.add(service.getId().toString());
+                }
             }
+            filter.setServices(servicesCSV.toString());
+            userFilter.setServices(servicesCSV.toString());
         }
-        filter.setServices(servicesCSV.toString());
-        userFilter.setServices(servicesCSV.toString());
+
 
         return DashboardUtil.prepareFilterDetails(carriers, services,
                 modes, carrList, servicesList, userFilter, getModeWiseCarrier(carrierCSV.toString()), isParcelDashlettes);
@@ -772,15 +777,6 @@ public class DashboardsService {
     public Map<String, Object> getUserFilterDetails(Long filterId, boolean isParcelDashlettes) throws JSONException {
         DashSavedFilterDto userFilter = getFilterById(filterId);
         DashboardsFilterCriteria filter = DashboardUtil.prepareDashboardFilterCriteria(userFilter);
-
-        List<UserFilterUtilityDataDto> carriers = getCarrierByCustomer(String.valueOf(userFilter.getCustomerIds()), isParcelDashlettes);
-        StringJoiner carrierCSV = new StringJoiner(",");
-        for(UserFilterUtilityDataDto car : carriers){
-            if(car != null){
-                carrierCSV.add(car.getCarrierId().toString());
-            }
-        }
-        filter.setCarriers(carrierCSV.toString());
         return getUserFilterDetails(userFilter, isParcelDashlettes, filter);
     }
 

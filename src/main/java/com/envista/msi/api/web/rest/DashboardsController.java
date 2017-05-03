@@ -3344,6 +3344,7 @@ public class DashboardsController extends DashboardBaseController {
                 filter.setDateType("INVOICE_DATE");
                 filter.setFromDate(DateUtil.format(DateUtil.subtractDays(new Date(), 90), "dd-MMM-yyyy"));
                 filter.setToDate(DateUtil.format(new Date(), "dd-MMM-yyyy"));
+                filter.setCustomerIdsCSV(customerId);
 
                 DashSavedFilterDto dashSavedFilter = new DashSavedFilterDto();
                 dashSavedFilter.setFilterId(0L);
