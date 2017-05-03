@@ -47,8 +47,17 @@ public class DashboardsDao {
     private PersistentContext persistentContext;
 
     public DashboardAppliedFilterDto getUserAppliedFilter(Long userId) {
-        return persistentContext.findEntity("DashAppliedFilterTb.getUserAppliedFilter",
-                StoredProcedureParameter.with("p_user_id", userId));
+        DashboardAppliedFilterDto appliedFilter = null;
+        try{
+            appliedFilter = persistentContext.findEntity("DashAppliedFilterTb.getUserAppliedFilter",
+                    StoredProcedureParameter.with("p_user_id", userId));
+            if(null == appliedFilter){
+                throw new NoAppliedFilterFoundException("Applied Filter not Found");
+            }
+        }catch (Exception e){
+            throw new NoAppliedFilterFoundException("Applied Filter not Found", e);
+        }
+        return appliedFilter;
     }
 
     /**
