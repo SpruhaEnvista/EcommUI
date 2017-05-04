@@ -1274,8 +1274,7 @@ public class DashboardsDao {
     public List<UserFilterUtilityDataDto> getFilterModes(DashboardsFilterCriteria filter){
         String[] paramNames = {
                 DashboardStoredProcParam.NetSpendParams.DATE_TYPE_PARAM, DashboardStoredProcParam.NetSpendParams.CUSTOMER_IDS_CSV_PARAM,
-                DashboardStoredProcParam.NetSpendParams.CARRIER_IDS_PARAM, DashboardStoredProcParam.NetSpendParams.FROM_DATE_PARAM,
-                DashboardStoredProcParam.NetSpendParams.TO_DATE_PARAM
+                DashboardStoredProcParam.NetSpendParams.CARRIER_IDS_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
         return persistentContext.findEntities(UserFilterUtilityDataDto.Config.StoredProcedureQueryName.MODES_BY_CARRIER, queryParameter);
@@ -1285,8 +1284,7 @@ public class DashboardsDao {
         filter.setTopTenAccessorial(false);
         String[] paramNames = {
                 DashboardStoredProcParam.NetSpendParams.DATE_TYPE_PARAM, DashboardStoredProcParam.NetSpendParams.CUSTOMER_IDS_CSV_PARAM,
-                DashboardStoredProcParam.NetSpendParams.CARRIER_IDS_PARAM, DashboardStoredProcParam.NetSpendParams.MODES_PARAM,
-                DashboardStoredProcParam.NetSpendParams.FROM_DATE_PARAM, DashboardStoredProcParam.NetSpendParams.TO_DATE_PARAM
+                DashboardStoredProcParam.NetSpendParams.CARRIER_IDS_PARAM, DashboardStoredProcParam.NetSpendParams.MODES_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
         return persistentContext.findEntities(UserFilterUtilityDataDto.Config.StoredProcedureQueryName.SERVICE_BY_GROUP, queryParameter);
