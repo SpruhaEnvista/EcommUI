@@ -1271,24 +1271,24 @@ public class DashboardsDao {
         return persistentContext.findEntities(UserFilterUtilityDataDto.Config.StoredProcedureQueryName.CARRIER_BY_CUSTOMER, queryParameter);
     }
 
-    public List<UserFilterUtilityDataDto> getFilterModes(DashboardsFilterCriteria filter){
+    public List<UserFilterUtilityDataDto> getFilterModes(DashboardsFilterCriteria filter, boolean isParcelDashlettes){
         String[] paramNames = {
                 DashboardStoredProcParam.NetSpendParams.DATE_TYPE_PARAM, DashboardStoredProcParam.NetSpendParams.CUSTOMER_IDS_CSV_PARAM,
-                DashboardStoredProcParam.NetSpendParams.CARRIER_IDS_PARAM, DashboardStoredProcParam.NetSpendParams.FROM_DATE_PARAM,
-                DashboardStoredProcParam.NetSpendParams.TO_DATE_PARAM
+                DashboardStoredProcParam.NetSpendParams.CARRIER_IDS_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        queryParameter.and(DashboardStoredProcParam.UserFilterUtilityDataParam.IS_PARCEL_DASHLETTES_PARAM, isParcelDashlettes ? 1 : 0);
         return persistentContext.findEntities(UserFilterUtilityDataDto.Config.StoredProcedureQueryName.MODES_BY_CARRIER, queryParameter);
     }
 
-    public List<UserFilterUtilityDataDto> getFilterServices(DashboardsFilterCriteria filter){
+    public List<UserFilterUtilityDataDto> getFilterServices(DashboardsFilterCriteria filter, boolean isParcelDashlettes){
         filter.setTopTenAccessorial(false);
         String[] paramNames = {
                 DashboardStoredProcParam.NetSpendParams.DATE_TYPE_PARAM, DashboardStoredProcParam.NetSpendParams.CUSTOMER_IDS_CSV_PARAM,
-                DashboardStoredProcParam.NetSpendParams.CARRIER_IDS_PARAM, DashboardStoredProcParam.NetSpendParams.MODES_PARAM,
-                DashboardStoredProcParam.NetSpendParams.FROM_DATE_PARAM, DashboardStoredProcParam.NetSpendParams.TO_DATE_PARAM
+                DashboardStoredProcParam.NetSpendParams.CARRIER_IDS_PARAM, DashboardStoredProcParam.NetSpendParams.MODES_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        queryParameter.and(DashboardStoredProcParam.UserFilterUtilityDataParam.IS_PARCEL_DASHLETTES_PARAM, isParcelDashlettes ? 1 : 0);
         return persistentContext.findEntities(UserFilterUtilityDataDto.Config.StoredProcedureQueryName.SERVICE_BY_GROUP, queryParameter);
     }
 

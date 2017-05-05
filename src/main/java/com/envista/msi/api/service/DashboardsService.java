@@ -744,7 +744,7 @@ public class DashboardsService {
         filter.setCarriers(carrierCSV.toString());
         userFilter.setCarrierIds(carrierCSV.toString());
 
-        List<UserFilterUtilityDataDto> modes = getFilterModes(filter);
+        List<UserFilterUtilityDataDto> modes = getFilterModes(filter, isParcelDashlettes);
         if(modes != null && !modes.isEmpty()){
             StringJoiner modeCSV = new StringJoiner(",");
             for(UserFilterUtilityDataDto mode : modes){
@@ -756,7 +756,7 @@ public class DashboardsService {
             userFilter.setModes(modeCSV.toString());
         }
 
-        List<UserFilterUtilityDataDto> services = getFilterServices(filter);
+        List<UserFilterUtilityDataDto> services = getFilterServices(filter, isParcelDashlettes);
         if(services != null && !services.isEmpty()){
             StringJoiner servicesCSV = new StringJoiner(",");
             for(UserFilterUtilityDataDto service : services){
@@ -812,8 +812,8 @@ public class DashboardsService {
                 }
             }
 
-            userFilterDetailsMap = DashboardUtil.prepareFilterDetails(getCarrierByCustomer(customerIds, isParcelDashlettes), getFilterServices(filter),
-                    getFilterModes(filter), carrList, servicesList, userFilter, getModeWiseCarrier(carrierIds), isParcelDashlettes);
+            userFilterDetailsMap = DashboardUtil.prepareFilterDetails(getCarrierByCustomer(customerIds, isParcelDashlettes), getFilterServices(filter, isParcelDashlettes),
+                    getFilterModes(filter, isParcelDashlettes), carrList, servicesList, userFilter, getModeWiseCarrier(carrierIds), isParcelDashlettes);
         }
         return userFilterDetailsMap;
     }
@@ -851,9 +851,9 @@ public class DashboardsService {
      * @param filter
      * @return
      */
-    public List<UserFilterUtilityDataDto> getFilterModes(DashboardsFilterCriteria filter){
+    public List<UserFilterUtilityDataDto> getFilterModes(DashboardsFilterCriteria filter, boolean isParcelDashlettes){
         if(filter.getCarriers() == null || filter.getCarriers().isEmpty()) return null;
-        return dashboardsDao.getFilterModes(filter);
+        return dashboardsDao.getFilterModes(filter, isParcelDashlettes);
     }
 
     /**
@@ -861,9 +861,9 @@ public class DashboardsService {
      * @param filter
      * @return
      */
-    public List<UserFilterUtilityDataDto> getFilterServices(DashboardsFilterCriteria filter){
+    public List<UserFilterUtilityDataDto> getFilterServices(DashboardsFilterCriteria filter, boolean isParcelDashlettes){
         if(filter.getModes() == null || filter.getModes().isEmpty()) return null;
-        return dashboardsDao.getFilterServices(filter);
+        return dashboardsDao.getFilterServices(filter, isParcelDashlettes);
     }
 
     public Map<String, String> getModeWiseCarrier(String carrierIds){
@@ -1002,13 +1002,13 @@ public class DashboardsService {
             customDefinedColsByCustomer = getCustomDefinedLabelsByCustomer(filter, reportId);
         }
 
-        List<String> reqColList = new ArrayList<String>();
+        Set<String> reqColList = new TreeSet<String>();
         for(String colName : originalColumnNames.split(",")){
             reqColList.add(colName);
         }
 
         Map<String, String> allColumnNames = getReportColumnNames(filter);
-        Map<String, String> reqColumnNames = new HashMap<String, String>();
+        Map<String, String> reqColumnNames = new TreeMap<String, String>();
         if(allColumnNames != null){
             for(Map.Entry<String, String> colEntry : allColumnNames.entrySet()){
                 if(reqColList.contains(colEntry.getValue())){
