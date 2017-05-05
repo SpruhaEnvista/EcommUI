@@ -3209,12 +3209,19 @@ public class DashboardsController extends DashboardBaseController {
     public ResponseEntity<Map<String, Object>>  getServicesByGroupCode(@RequestParam String customerId, @RequestParam String carrierIds, @RequestParam String modes, @RequestParam String dateType){
         Map<String, Object> userFilterData = new HashMap();
         try{
+            UserProfileDto user = getUserProfile();
+            if(null == user){
+                userFilterData.put("status", HttpStatus.UNAUTHORIZED.value());
+                userFilterData.put("message", WebConstants.ResponseMessage.INVALID_USER);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(userFilterData);
+            }
+
             DashboardsFilterCriteria filter = new DashboardsFilterCriteria();
             filter.setCustomerIdsCSV(customerId);
             filter.setCarriers(carrierIds);
             filter.setDateType(dateType);
             filter.setModes(modes);
-            List<UserFilterUtilityDataDto> serviceList = dashboardsService.getFilterServices(filter);
+            List<UserFilterUtilityDataDto> serviceList = dashboardsService.getFilterServices(filter, user.isParcelDashlettes());
             if(serviceList != null && !serviceList.isEmpty()){
                 userFilterData.put("serviceLevelsListData", JSONUtil.prepareFilterServiceJson(serviceList));
             }
@@ -3244,13 +3251,20 @@ public class DashboardsController extends DashboardBaseController {
     public ResponseEntity<Map<String, Object>>  getCarriersByCustomer(@RequestParam String customerId, @RequestParam String carrierIds, @RequestParam String dateType){
         Map<String, Object> userFilterData = new HashMap();
         try{
+            UserProfileDto user = getUserProfile();
+            if(null == user){
+                userFilterData.put("status", HttpStatus.UNAUTHORIZED.value());
+                userFilterData.put("message", WebConstants.ResponseMessage.INVALID_USER);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(userFilterData);
+            }
+
             DashboardsFilterCriteria filter = new DashboardsFilterCriteria();
             filter.setCustomerIdsCSV(customerId);
             filter.setCarriers(carrierIds);
             filter.setDateType(dateType);
-            List<UserFilterUtilityDataDto> modesList = dashboardsService.getFilterModes(filter);
+            List<UserFilterUtilityDataDto> modesList = dashboardsService.getFilterModes(filter, user.isParcelDashlettes());
             if(modesList != null && !modesList.isEmpty()){
-                userFilterData.put("modesListData", JSONUtil.prepareFilterModesJson(modesList, dashboardsService.getModeWiseCarrier(carrierIds), false));
+                userFilterData.put("modesListData", JSONUtil.prepareFilterModesJson(modesList, dashboardsService.getModeWiseCarrier(carrierIds), user.isParcelDashlettes()));
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -3520,7 +3534,7 @@ public class DashboardsController extends DashboardBaseController {
             }else{
                 List<DashSavedFilterDto> filters = dashboardsService.getSavedFiltersByUser(user.getUserId());
                 for(DashSavedFilterDto filter : filters){
-                    if(filter != null && filter.getFilterId() != savedFilter.getFilterId() && filter.getFilterName() != null && savedFilter.getFilterName() != null
+                    if(filter != null && filter.getFilterId() != null && !filter.getFilterId().equals(savedFilter.getFilterId()) && filter.getFilterName() != null && savedFilter.getFilterName() != null
                             && filter.getFilterName().trim().equals(savedFilter.getFilterName().trim())){
                         validationError = true;
                         validationMsg.put("filterName", "Filter with name '" + savedFilter.getFilterName() + "' already exists.");
