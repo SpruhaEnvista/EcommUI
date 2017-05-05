@@ -19,7 +19,8 @@ public class ReportsApiTest extends WebappTestEnvironment {
 
     @Test
     public void testReportResultsByUserId() throws Exception {
-        mockRestMvc().perform(get(SEARCH_API_BASE_PATH_VALUE+"/results/reportslist/{userId}" , 23910)).andExpect(status().isOk())
+        mockRestMvc().perform(get(SEARCH_API_BASE_PATH_VALUE+"/results/reportslist/{userId}" , 23910)
+                .param("orderBy","status").param("ascDesc","desc")).andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE));
     }
     @Test

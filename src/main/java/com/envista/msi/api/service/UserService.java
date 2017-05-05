@@ -1,6 +1,11 @@
 package com.envista.msi.api.service;
 
+import com.envista.msi.api.dao.DaoException;
+import com.envista.msi.api.dao.UserDetailsDao;
 import com.envista.msi.api.dao.UserProfileDao;
+import com.envista.msi.api.domain.util.ReportsUtil;
+import com.envista.msi.api.domain.util.StringEncrypter;
+import com.envista.msi.api.web.rest.dto.UserDetailsDto;
 import com.envista.msi.api.web.rest.dto.UserProfileDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +33,9 @@ public class UserService {
 	
 	@Inject
 	private UserProfileDao userProfileDao;
+
+	@Inject
+	private UserDetailsDao userDetailsDao;
 
 	/**
 	 * @param userName
@@ -71,5 +79,25 @@ public class UserService {
 		}*/
 
 		return getUserWithAuthoritiesByUserName(userName).orElse(null);
+	}
+	public UserProfileDto validatePassword(String password, Long userId) throws Exception {
+		StringEncrypter stringEncrypter = StringEncrypter.getInstance() ;
+		String enCryptedPwd = ReportsUtil.encrypt(password);
+		UserProfileDto userDetails = userProfileDao.validatePassword(enCryptedPwd,userId);
+		if (userDetails ==null || (userDetails != null && userDetails.getUserId()==0)) {
+			throw new DaoException("Invalid Password");
+		}
+		return userDetails;
+	}
+	public UserDetailsDto changePassword(String currentPassword, String newPassword,Long userId) throws Exception {
+		StringEncrypter stringEncrypter = StringEncrypter.getInstance() ;
+		String enCryptedPwd = ReportsUtil.encrypt(currentPassword);
+		String enCryptedNewPwd = ReportsUtil.encrypt(newPassword);
+		UserDetailsDto userDetails = userDetailsDao.changePassword(enCryptedPwd,enCryptedNewPwd,userId);
+		return userDetails;
+	}
+
+	public UserDetailsDto updateUserProfile(String fullname,String email,String phone, Long userId) {
+		return userDetailsDao.updateUserProfile(fullname,email,phone,userId);
 	}
 }
