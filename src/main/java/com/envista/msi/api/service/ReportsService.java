@@ -76,8 +76,8 @@ public class ReportsService {
     @Value("${from.emailid.0}")
     private String fromEmailId;
 
-    public List<ReportResultsDto> getReportResults(long userId) {
-        return  reportsDao.getReportResults(userId);
+    public List<ReportResultsDto> getReportResults(Long userId,String orderBy, String ascDesc) {
+        return  reportsDao.getReportResults(userId,orderBy,ascDesc);
     }
     public ReportResultsDto updateExpiryDate(Long generatedRptId,String expiryDate) {
         return  reportsDao.updateExpiryDate(generatedRptId,expiryDate);

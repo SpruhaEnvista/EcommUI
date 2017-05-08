@@ -744,26 +744,31 @@ public class DashboardsService {
         filter.setCarriers(carrierCSV.toString());
         userFilter.setCarrierIds(carrierCSV.toString());
 
-        List<UserFilterUtilityDataDto> modes = getFilterModes(filter);
-        StringJoiner modeCSV = new StringJoiner(",");
-        for(UserFilterUtilityDataDto mode : modes){
-            if(mode != null){
-                modeCSV.add(mode.getId().toString());
+        List<UserFilterUtilityDataDto> modes = getFilterModes(filter, isParcelDashlettes);
+        if(modes != null && !modes.isEmpty()){
+            StringJoiner modeCSV = new StringJoiner(",");
+            for(UserFilterUtilityDataDto mode : modes){
+                if(mode != null){
+                    modeCSV.add(mode.getId().toString());
+                }
             }
+            filter.setModes(modeCSV.toString());
+            userFilter.setModes(modeCSV.toString());
         }
-        filter.setModes(modeCSV.toString());
-        userFilter.setModes(modeCSV.toString());
 
-        List<UserFilterUtilityDataDto> services = getFilterServices(filter);
-        StringJoiner servicesCSV = new StringJoiner(",");
-        for(UserFilterUtilityDataDto service : services){
-            if(service != null){
-                servicesList.add(service.getId());
-                servicesCSV.add(service.getId().toString());
+        List<UserFilterUtilityDataDto> services = getFilterServices(filter, isParcelDashlettes);
+        if(services != null && !services.isEmpty()){
+            StringJoiner servicesCSV = new StringJoiner(",");
+            for(UserFilterUtilityDataDto service : services){
+                if(service != null){
+                    servicesList.add(service.getId());
+                    servicesCSV.add(service.getId().toString());
+                }
             }
+            filter.setServices(servicesCSV.toString());
+            userFilter.setServices(servicesCSV.toString());
         }
-        filter.setServices(servicesCSV.toString());
-        userFilter.setServices(servicesCSV.toString());
+
 
         return DashboardUtil.prepareFilterDetails(carriers, services,
                 modes, carrList, servicesList, userFilter, getModeWiseCarrier(carrierCSV.toString()), isParcelDashlettes);
@@ -771,20 +776,7 @@ public class DashboardsService {
 
     public Map<String, Object> getUserFilterDetails(Long filterId, boolean isParcelDashlettes) throws JSONException {
         DashSavedFilterDto userFilter = getFilterById(filterId);
-        DashboardsFilterCriteria filter = new DashboardsFilterCriteria();
-        filter.setCustomerIdsCSV(userFilter.getCustomerIds());
-        filter.setDateType(userFilter.getDateType());
-        filter.setFromDate(userFilter.getFromDate());
-        filter.setToDate(userFilter.getToDate());
-
-        List<UserFilterUtilityDataDto> carriers = getCarrierByCustomer(String.valueOf(userFilter.getCustomerIds()), isParcelDashlettes);
-        StringJoiner carrierCSV = new StringJoiner(",");
-        for(UserFilterUtilityDataDto car : carriers){
-            if(car != null){
-                carrierCSV.add(car.getCarrierId().toString());
-            }
-        }
-        filter.setCarriers(carrierCSV.toString());
+        DashboardsFilterCriteria filter = DashboardUtil.prepareDashboardFilterCriteria(userFilter);
         return getUserFilterDetails(userFilter, isParcelDashlettes, filter);
     }
 
@@ -820,8 +812,8 @@ public class DashboardsService {
                 }
             }
 
-            userFilterDetailsMap = DashboardUtil.prepareFilterDetails(getCarrierByCustomer(customerIds, isParcelDashlettes), getFilterServices(filter),
-                    getFilterModes(filter), carrList, servicesList, userFilter, getModeWiseCarrier(carrierIds), isParcelDashlettes);
+            userFilterDetailsMap = DashboardUtil.prepareFilterDetails(getCarrierByCustomer(customerIds, isParcelDashlettes), getFilterServices(filter, isParcelDashlettes),
+                    getFilterModes(filter, isParcelDashlettes), carrList, servicesList, userFilter, getModeWiseCarrier(carrierIds), isParcelDashlettes);
         }
         return userFilterDetailsMap;
     }
@@ -859,9 +851,9 @@ public class DashboardsService {
      * @param filter
      * @return
      */
-    public List<UserFilterUtilityDataDto> getFilterModes(DashboardsFilterCriteria filter){
+    public List<UserFilterUtilityDataDto> getFilterModes(DashboardsFilterCriteria filter, boolean isParcelDashlettes){
         if(filter.getCarriers() == null || filter.getCarriers().isEmpty()) return null;
-        return dashboardsDao.getFilterModes(filter);
+        return dashboardsDao.getFilterModes(filter, isParcelDashlettes);
     }
 
     /**
@@ -869,9 +861,9 @@ public class DashboardsService {
      * @param filter
      * @return
      */
-    public List<UserFilterUtilityDataDto> getFilterServices(DashboardsFilterCriteria filter){
+    public List<UserFilterUtilityDataDto> getFilterServices(DashboardsFilterCriteria filter, boolean isParcelDashlettes){
         if(filter.getModes() == null || filter.getModes().isEmpty()) return null;
-        return dashboardsDao.getFilterServices(filter);
+        return dashboardsDao.getFilterServices(filter, isParcelDashlettes);
     }
 
     public Map<String, String> getModeWiseCarrier(String carrierIds){
@@ -1010,13 +1002,13 @@ public class DashboardsService {
             customDefinedColsByCustomer = getCustomDefinedLabelsByCustomer(filter, reportId);
         }
 
-        List<String> reqColList = new ArrayList<String>();
+        Set<String> reqColList = new TreeSet<String>();
         for(String colName : originalColumnNames.split(",")){
             reqColList.add(colName);
         }
 
         Map<String, String> allColumnNames = getReportColumnNames(filter);
-        Map<String, String> reqColumnNames = new HashMap<String, String>();
+        Map<String, String> reqColumnNames = new TreeMap<String, String>();
         if(allColumnNames != null){
             for(Map.Entry<String, String> colEntry : allColumnNames.entrySet()){
                 if(reqColList.contains(colEntry.getValue())){

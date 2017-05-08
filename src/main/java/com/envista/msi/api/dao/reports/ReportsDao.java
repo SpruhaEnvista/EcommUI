@@ -39,9 +39,10 @@ public class ReportsDao {
      * @return list<ReportResultsDto>
      */
     @Transactional( readOnly = true )
-    public List<ReportResultsDto> getReportResults(Long userId) {
-        return persistentContext.findEntitiesAndMapFields("ReportResults.getReportResults",
-                StoredProcedureParameter.with("userId", userId));
+    public List<ReportResultsDto> getReportResults(Long userId,String orderBy, String ascDesc) {
+        QueryParameter queryParameter = StoredProcedureParameter.with("userId", userId)
+                .and("orderBy", orderBy).and("ascDesc", ascDesc);
+        return persistentContext.findEntitiesAndMapFields("ReportResults.getReportResults",queryParameter);
     }
     /**
      * Update Expiry Date.

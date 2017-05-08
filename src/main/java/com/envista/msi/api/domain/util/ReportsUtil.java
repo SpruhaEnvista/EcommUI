@@ -2,6 +2,7 @@ package com.envista.msi.api.domain.util;
 
 import org.springframework.beans.factory.annotation.Value;
 
+import java.security.MessageDigest;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 
@@ -23,6 +24,13 @@ public class ReportsUtil {
     public static String convertDateBasedOnFormat(Object date, String format) {
         SimpleDateFormat sdfOutput = new SimpleDateFormat(format);
         return sdfOutput.format(date);
+    }
+
+    public static String encrypt(String plaintext) throws Exception {
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        md.update(plaintext.getBytes("UTF-8"));
+        byte raw[] = md.digest();
+        return (new sun.misc.BASE64Encoder()).encode(raw);
     }
 
 }
