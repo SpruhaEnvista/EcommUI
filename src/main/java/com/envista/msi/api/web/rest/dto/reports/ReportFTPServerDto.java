@@ -13,13 +13,8 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "customerIds", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "shipperGroupIds", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "shipperIds", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "userId", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_refcur_ftp_server_info", type = Void.class)
-        }),
-        @NamedStoredProcedureQuery(name = "ReportFTPServer.getSaveRptFTPServer", procedureName = "shp_rpt_saved_ftp_account_proc",
-                resultSetMappings = "SaveRptFTPServer",
-                parameters = {
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_rpt_id", type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_refcur_saved_ftp_acc_info", type = Void.class)
         })
 })
 @SqlResultSetMappings({
@@ -29,15 +24,6 @@ import java.io.Serializable;
                         columns = {
                                 @ColumnResult(name = "FTP_ACCOUNTS_ID", type = Long.class),
                                 @ColumnResult(name = "FTP_ACCOUNT_NAME", type = String.class)
-                        })
-        }),
-        @SqlResultSetMapping(name = "SaveRptFTPServer", classes = {
-                @ConstructorResult(
-                        targetClass = ReportFTPServerDto.class,
-                        columns = {
-                                @ColumnResult(name = "FTP_ACCOUNTS_ID", type = Long.class),
-                                @ColumnResult(name = "FTP_ACCOUNT_NAME", type = String.class),
-                                @ColumnResult(name = "IS_ACTIVE", type = Boolean.class)
                         })
         }),
 
@@ -52,28 +38,19 @@ public class ReportFTPServerDto implements Serializable {
     @Column(name="FTP_ACCOUNT_NAME")
     private String ftpAccountName;
 
-    @Column(name="IS_ACTIVE")
-    private Boolean isActive;
-
     private String customerIds;
 
     private String shipperGroupIds;
 
     private String shipersIds;
 
-    private Long rptId;
+    private Long userId;
 
     public ReportFTPServerDto() { }
 
     public ReportFTPServerDto(Long ftpAccountId, String ftpAccountName) {
         this.ftpAccountId = ftpAccountId;
         this.ftpAccountName = ftpAccountName;
-    }
-
-    public ReportFTPServerDto(Long ftpAccountId, String ftpAccountName, Boolean isActive) {
-        this.ftpAccountId = ftpAccountId;
-        this.ftpAccountName = ftpAccountName;
-        this.isActive = isActive;
     }
 
     public Long getFtpAccountId() {return ftpAccountId;}
@@ -83,10 +60,6 @@ public class ReportFTPServerDto implements Serializable {
     public String getFtpAccountName() {return ftpAccountName; }
 
     public void setFtpAccountName(String ftpAccountName) { this.ftpAccountName = ftpAccountName;}
-
-    public Boolean getIsActive() { return isActive; }
-
-    public void setIsActive(Boolean active) { isActive = active; }
 
     public String getCustomerIds() { return customerIds;  }
 
@@ -100,7 +73,7 @@ public class ReportFTPServerDto implements Serializable {
 
     public void setShipersIds(String shipersIds) { this.shipersIds = shipersIds; }
 
-    public Long getRptId() { return rptId; }
+    public Long getUserId() { return userId;  }
 
-    public void setRptId(Long rptId) { this.rptId = rptId; }
+    public void setUserId(Long userId) {  this.userId = userId; }
 }

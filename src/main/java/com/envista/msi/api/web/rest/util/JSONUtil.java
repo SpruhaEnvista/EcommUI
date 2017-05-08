@@ -2385,12 +2385,12 @@ public class JSONUtil {
 		String str="";
 		if (count>0) {
 			for (int i = 0; i < count; i++)
-				str=str+"-";
+				str=str+"  ";
 		}
 		for (ReportFolderDto dtoHierarchy:folderHierarchyDto.getCollection()){
 			JSONObject jsonObject=new JSONObject();
-			jsonObject.put("folderId",str+" "+dtoHierarchy.getRptFolderId());
-			jsonObject.put("folderName",dtoHierarchy.getRptFolderName());
+			jsonObject.put("folderId",dtoHierarchy.getRptFolderId());
+			jsonObject.put("folderName",str+dtoHierarchy.getRptFolderName());
 			jsonObject.put("parentId",dtoHierarchy.getParentId());
 			if(dtoHierarchy.getCollection()!=null && dtoHierarchy.getCollection().size()>0)
                 jsonObject.put("child",getFolderHierarchyJson(dtoHierarchy,count+1));
