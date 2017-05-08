@@ -87,13 +87,14 @@ public class UserService {
 		String enCryptedPwd = ReportsUtil.encrypt(password);
 		List<UserProfileDto> userDetails = userProfileDao.validatePassword(enCryptedPwd,userId);
 		UserProfileDto userProfileDto = null;
+
 		if(userDetails!= null && userDetails.size()>0){
 			userProfileDto = userDetails.get(0);
 			if (userProfileDto ==null || (userProfileDto != null && userProfileDto.getUserId()==0)) {
-				throw new DaoException("Invalid Password");
+				throw new DaoException("Invalid Current Password");
 			}
 		}else{
-			throw new DaoException("Invalid Password");
+			throw new DaoException("Invalid Current Password");
 		}
 
 		return userProfileDto;
