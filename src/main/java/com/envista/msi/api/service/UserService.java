@@ -82,6 +82,7 @@ public class UserService {
 		return getUserWithAuthoritiesByUserName(userName).orElse(null);
 	}
 	public UserProfileDto validatePassword(String password, Long userId) throws Exception {
+
 		StringEncrypter stringEncrypter = StringEncrypter.getInstance() ;
 		String enCryptedPwd = ReportsUtil.encrypt(password);
 		List<UserProfileDto> userDetails = userProfileDao.validatePassword(enCryptedPwd,userId);
