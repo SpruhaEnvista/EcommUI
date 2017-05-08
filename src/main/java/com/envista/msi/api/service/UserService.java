@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -83,11 +84,18 @@ public class UserService {
 	public UserProfileDto validatePassword(String password, Long userId) throws Exception {
 		StringEncrypter stringEncrypter = StringEncrypter.getInstance() ;
 		String enCryptedPwd = ReportsUtil.encrypt(password);
-		UserProfileDto userDetails = userProfileDao.validatePassword(enCryptedPwd,userId);
-		if (userDetails ==null || (userDetails != null && userDetails.getUserId()==0)) {
+		List<UserProfileDto> userDetails = userProfileDao.validatePassword(enCryptedPwd,userId);
+		UserProfileDto userProfileDto = null;
+		if(userDetails!= null && userDetails.size()>0){
+			userProfileDto = userDetails.get(0);
+			if (userProfileDto ==null || (userProfileDto != null && userProfileDto.getUserId()==0)) {
+				throw new DaoException("Invalid Password");
+			}
+		}else{
 			throw new DaoException("Invalid Password");
 		}
-		return userDetails;
+
+		return userProfileDto;
 	}
 	public UserDetailsDto changePassword(String currentPassword, String newPassword,Long userId) throws Exception {
 		StringEncrypter stringEncrypter = StringEncrypter.getInstance() ;

@@ -101,6 +101,7 @@ public class ReportsController {
     }
     @RequestMapping(value = "/savedschedreports", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<List<SavedSchedReportsDto>> getSavedSchedReports(@RequestParam String userId,@RequestParam(required = false) String folderId){
+        folderId = folderId.replaceAll("-","");
         List<SavedSchedReportsDto> resultsList = reportsService.getSavedSchedReports(Long.parseLong(userId), (folderId == null ? 0 : Long.parseLong(folderId.trim())));
         return new ResponseEntity<List<SavedSchedReportsDto>>(resultsList, HttpStatus.OK);
     }

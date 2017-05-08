@@ -70,9 +70,9 @@ public class UserProfileDao {
 		return "US_EN";
 	}
 
-	public UserProfileDto validatePassword(String password, Long userId) {
+	public List<UserProfileDto> validatePassword(String password, Long userId) {
 		QueryParameter queryParameter = StoredProcedureParameter.with("inParamPassword",password)
 				.and("userId", userId==null?0:userId);
-		return persistentContext.findEntityAndMapFields("UserProfileTb.validatePassword", queryParameter);
+		return persistentContext.findEntitiesAndMapFields("UserProfileTb.validatePassword", queryParameter);
 	}
 }
