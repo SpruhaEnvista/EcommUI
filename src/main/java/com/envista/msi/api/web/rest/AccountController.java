@@ -119,7 +119,7 @@ public class AccountController {
 	public ResponseEntity<Map<String, Object>> updateUserProfile(@RequestParam String fullname,@RequestParam String email,@RequestParam String phone, @RequestParam Long userId){
 		Map<String, Object> respMap = new HashMap<String, Object>();
 		try {
-			UserDetailsDto updateUserProfileDto = userService.updateUserProfile(fullname,email,phone,userId);
+			UserDetailsDto updateUserProfileDto = userService.updateUserProfile(fullname.trim(),email.trim(),phone.trim(),userId);
 			respMap.put("status", HttpStatus.OK.value());
 			respMap.put("userProfileDto", updateUserProfileDto);
 		} catch (Exception e) {
