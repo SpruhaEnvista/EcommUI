@@ -24,6 +24,15 @@ import java.util.Date;
                                 @ColumnResult(name = "land_on_reports_page",type = Boolean.class)
                         }
                 )
+        }),
+        @SqlResultSetMapping(name = "UpdateUserCount",
+                classes = {
+                    @ConstructorResult(
+                            targetClass = UserDetailsDto.class,
+                            columns = {
+                                @ColumnResult(name = "updateCount", type = Integer.class)
+                            }
+                    )
         })
 })
 @NamedStoredProcedureQueries({
@@ -31,6 +40,25 @@ import java.util.Date;
                 resultSetMappings = "UserDetailsMapper",
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "UserDetails", type = void.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "userId", type = Long.class)
+                }
+        ),
+        @NamedStoredProcedureQuery(name = "UserProfileTb.changePassword", procedureName = "shp_avtr_user_changepwd_proc",
+                resultSetMappings = "UpdateUserCount",
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "RetUser", type = void.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "inParamPassword", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "inNewPassword", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "userId", type = Long.class)
+                }
+        ),
+        @NamedStoredProcedureQuery(name = "UserProfileTb.updateUserProfile", procedureName = "shp_avtr_user_update_proc",
+                resultSetMappings = "UpdateUserCount",
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "RetUser", type = void.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "fullNameParam", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "emailParam", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "phoneParam", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "userId", type = Long.class)
                 }
         )
@@ -65,6 +93,15 @@ public class UserDetailsDto {
 
     @Column(name = "land_on_reports_page")
     private Boolean landOnReportsPage;
+
+    @Column(name ="updateCount")
+    private Integer updateCount;
+
+    @Column(name = "fullname")
+    private String fullname;
+
+    @Column(name = "phone")
+    private String phone;
 
     public static long getSerialVersionUID() {
         return serialVersionUID;
@@ -134,7 +171,35 @@ public class UserDetailsDto {
         this.landOnReportsPage = landOnReportsPage;
     }
 
+    public Integer getUpdateCount() {
+        return updateCount;
+    }
+
+    public void setUpdateCount(Integer updateCount) {
+        this.updateCount = updateCount;
+    }
+
+    public String getFullname() {
+        return fullname;
+    }
+
+    public void setFullname(String fullname) {
+        this.fullname = fullname;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
     public  UserDetailsDto(){}
+
+    public  UserDetailsDto(Integer updateCount){
+        this.updateCount = updateCount;
+    }
 
     public UserDetailsDto(Boolean emailToBeSent,Long userId,String email,Integer accessFrom,Boolean active,String fromEmail,String userName,Boolean landOnReportsPage){
         this.userId = userId;
