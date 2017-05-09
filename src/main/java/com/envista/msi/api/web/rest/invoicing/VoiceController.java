@@ -3,6 +3,7 @@ package com.envista.msi.api.web.rest.invoicing;
 import com.envista.msi.api.service.invoicing.VoiceService;
 import com.envista.msi.api.web.rest.dto.invoicing.VoiceDto;
 import com.envista.msi.api.web.rest.dto.invoicing.VoiceSearchBean;
+import com.envista.msi.api.web.rest.util.pagination.PaginationBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -29,11 +30,16 @@ public class VoiceController {
      * HTTP GET - Get all Voices
      * */
     @RequestMapping(value = "/getVoices", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
-    public ResponseEntity<List<VoiceDto>> getAllVoices() {
+    public ResponseEntity<PaginationBean> getAllVoices(@RequestParam(required = false, defaultValue = "0") Integer offset,
+                                                       @RequestParam(required = false, defaultValue = "2") Integer limit
+                                                       ) throws Exception{
+
         log.info("***getAllVoices method started****");
-        List<VoiceDto> voices = service.getAllVoices(0L);
-        log.info("***voices json***==== " + voices);
-        return new ResponseEntity<List<VoiceDto>>(voices, HttpStatus.OK);
+
+        PaginationBean voicesPaginationData = new PaginationBean();
+        voicesPaginationData = service.getVoicesPaginationData(offset, limit);
+        log.info("***voices json***==== " + voicesPaginationData);
+        return ResponseEntity.status(HttpStatus.OK).body(voicesPaginationData);
     }
 
     @RequestMapping(value = "/getParentVoiceNames/{voiceId}", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
@@ -47,8 +53,10 @@ public class VoiceController {
     }
 
     @RequestMapping(value = "/getSearchCriteriaList", params = {"voiceNames", "voiceType", "voiceFlag", "pVoiceNames", "comments"}, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
-    public ResponseEntity<List<VoiceDto>> getSearchCriteriaList(@RequestParam String voiceNames, @RequestParam String voiceType, @RequestParam String voiceFlag,
-                                                                @RequestParam String pVoiceNames, @RequestParam String comments) {
+    public ResponseEntity<PaginationBean> getSearchCriteriaList(@RequestParam String voiceNames, @RequestParam String voiceType, @RequestParam String voiceFlag,
+                                                                @RequestParam String pVoiceNames, @RequestParam String comments,
+                                                                @RequestParam(required = false, defaultValue = "0") Integer offset, @RequestParam(required = false, defaultValue = "2") Integer limit
+                                                                ) throws Exception{
 
         log.info("***getSearchCriteriaList method started****");
 
@@ -58,11 +66,16 @@ public class VoiceController {
         bean.setVoiceFlag(voiceFlag);
         bean.setParentVoiceName(pVoiceNames);
         bean.setComments(comments);
-        List<VoiceDto> voiceTbs = service.getVoicesBySearchCriteria(bean);
+        bean.setOffset(offset);
+        bean.setPageSize(limit);
+        //List<VoiceDto> voiceTbs = service.getVoicesBySearchCriteria(bean);
 
-        log.info("***getSearchCriteriaList method dbvoice****" + voiceTbs.size());
+        PaginationBean voicesPaginationData = new PaginationBean();
+        voicesPaginationData = service.getSearchVoicesPaginationData(bean, offset, limit);
 
-        return new ResponseEntity<List<VoiceDto>>(voiceTbs, HttpStatus.OK);
+        log.info("***getSearchCriteriaList method dbvoice****" + voicesPaginationData);
+
+        return ResponseEntity.status(HttpStatus.OK).body(voicesPaginationData);
     }
 
     /**

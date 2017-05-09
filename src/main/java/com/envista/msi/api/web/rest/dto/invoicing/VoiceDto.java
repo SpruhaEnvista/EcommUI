@@ -13,9 +13,22 @@ import java.io.Serializable;
                 @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_USER_ID", type = Long.class),
                 @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_VOICE_ID", type = Long.class),
                 @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PARENT_VOICE_ID", type = Long.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_OFFSET", type = Integer.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PAGE_SIZE", type = Integer.class),
                 @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class),
                 @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_VOICE_INFO", type = Void.class)
         }),
+        @NamedStoredProcedureQuery(name = "VoiceDto.getTotalCount", procedureName = "SHP_INV_GET_VOICE_LIST_PRO",
+                resultSetMappings = "totalCount",
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_USER_ID", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_VOICE_ID", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PARENT_VOICE_ID", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_OFFSET", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PAGE_SIZE", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_VOICE_INFO", type = Void.class)
+                }),
         @NamedStoredProcedureQuery(name = "VoiceDto.createOrUpdateVoice", procedureName = "SHP_INV_INST_OR_UPD_VOICE_PRO",
                 resultClasses = VoiceDto.class,
                 parameters = {
@@ -38,8 +51,24 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_VOICE_FLAG", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PARENT_VOICE_NAMES", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_COMMENTS", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_OFFSET", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PAGE_SIZE", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_VOICE_INFO", type = Void.class)
         }),
+        @NamedStoredProcedureQuery(name = "VoiceDto.searchCount", procedureName = "SHP_INV_SEARCH_VOICE_PRO",
+                resultSetMappings = "totalCount",
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_VOICE_NAMES", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_VOICE_TYPE", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_VOICE_FLAG", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PARENT_VOICE_NAMES", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_COMMENTS", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_OFFSET", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PAGE_SIZE", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_VOICE_INFO", type = Void.class)
+                }),
         @NamedStoredProcedureQuery(name = "VoiceDto.findByVoiceName", procedureName = "SHP_INV_GET_BY_VOICE_NAME_PRO",
                 resultClasses = VoiceDto.class,
                 parameters = {
@@ -54,15 +83,15 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_VOICE_INFO", type = Void.class)
                 })
 })
-/*@SqlResultSetMappings({
-        @SqlResultSetMapping(name = "deleteCount", classes = {
+@SqlResultSetMappings({
+        @SqlResultSetMapping(name = "totalCount", classes = {
                 @ConstructorResult(
                         targetClass = VoiceDto.class,
                         columns = {
-                                @ColumnResult(name = "DELETE_COUNT", type = int.class)
+                                @ColumnResult(name = "TOTAL_COUNT", type = int.class)
                         })
         })
-})*/
+})
 @Entity
 public class VoiceDto implements Serializable {
 
@@ -91,18 +120,21 @@ public class VoiceDto implements Serializable {
     @Column(name = "USER_ID")
     private Long userId;
 
+    @Column(name = "ROW_NUM")
+    private Long rowNumber;
+
     @Column(name = "PARENT_VOICE_NAME", nullable = false, unique = true)
     private String parentVoiceName;
 
-/*    @Column(name = "DELETE_COUNT")
-    private int deleteCount;*/
+    @Column(name = "TOTAL_COUNT")
+    private int totalCount;
 
     public VoiceDto() {
     }
 
-/*    public VoiceDto(int deleteCount) {
-        this.deleteCount = deleteCount;
-    }*/
+    public VoiceDto(int totalCount) {
+        this.totalCount = totalCount;
+    }
 
     public VoiceDto(Long voiceId, String voiceName, String voiceType, String aliasFor) {
         this.voiceId = voiceId;
@@ -183,11 +215,19 @@ public class VoiceDto implements Serializable {
         this.parentVoiceName = parentVoiceName;
     }
 
-    /*    public int getDeleteCount() {
-        return deleteCount;
+    public Long getRowNumber() {
+        return rowNumber;
     }
 
-    public void setDeleteCount(int deleteCount) {
-        this.deleteCount = deleteCount;
-    }*/
+    public void setRowNumber(Long rowNumber) {
+        this.rowNumber = rowNumber;
+    }
+
+    public int getTotalCount() {
+        return totalCount;
+    }
+
+    public void setTotalCount(int totalCount) {
+        this.totalCount = totalCount;
+    }
 }
