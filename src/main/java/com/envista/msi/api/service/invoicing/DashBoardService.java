@@ -22,4 +22,9 @@ public class DashBoardService {
 
         return dao.getDashBoardInfo(fromDate, toDate, actionType);
     }
+
+    public int getPendingCredits(String fromDate, String toDate, String actionType) {
+
+        return dao.getPendingCredits(fromDate, toDate, actionType);
+    }
 }

@@ -48,6 +48,9 @@ public class DashBoardController {
         List<DashBoardDto> totalsByCreditClass = service.getDashBoardInfo(fromDate, toDate, "totalsByCreditClass");
         jsonObject.put("totalsByCreditClass", totalsByCreditClass);
 
+        int pendingCredits = service.getPendingCredits(fromDate, toDate, "pendingCredits");
+        jsonObject.put("pendingCredits", pendingCredits);
+
         log.info("***getDashBoardInfo json***==== " + jsonObject);
         return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.OK);
     }
