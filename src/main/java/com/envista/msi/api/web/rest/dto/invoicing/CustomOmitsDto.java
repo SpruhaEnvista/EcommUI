@@ -12,6 +12,18 @@ import java.io.Serializable;
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_USER_ID", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_OMIT_ID", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_OFFSET", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PAGE_SIZE", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_OMITS_INFO", type = Void.class)
+                }),
+        @NamedStoredProcedureQuery(name = "CustomOmitsDto.getCount", procedureName = "SHP_INV_GET_CUSTOM_OMITS_PRO",
+                resultSetMappings = "omitsCount",
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_USER_ID", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_OMIT_ID", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_OFFSET", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PAGE_SIZE", type = Integer.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_OMITS_INFO", type = Void.class)
                 }),
@@ -40,6 +52,23 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_COMMENTS", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CARRIER_ID", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_USER_ID", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_OFFSET", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PAGE_SIZE", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_OMITS_INFO", type = Void.class)
+                }),
+        @NamedStoredProcedureQuery(name = "CustomOmitsDto.searchCount", procedureName = "SHP_INV_SEARCH_OMITS_PRO",
+                resultSetMappings = "omitsCount",
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_TRACKING_NUMBER", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CREDIT_TYPE_ID", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CUSTOMER_IDS", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_COMMENTS", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CARRIER_ID", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_USER_ID", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_OFFSET", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PAGE_SIZE", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_OMITS_INFO", type = Void.class)
                 }),
         @NamedStoredProcedureQuery(name = "CustomOmitsDto.deleteCustomOmits", procedureName = "SHP_INV_DEL_OMITS_PRO",
@@ -49,6 +78,17 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_OMITS_INFO", type = Void.class)
                 })
 })
+@SqlResultSetMappings({
+        @SqlResultSetMapping(name = "omitsCount", classes = {
+                @ConstructorResult(
+                        targetClass = CustomOmitsDto.class,
+                        columns = {
+                                @ColumnResult(name = "TOTAL_COUNT", type = int.class)
+                        })
+        })
+})
+
+
 @Entity
 public class CustomOmitsDto implements Serializable {
 
@@ -102,14 +142,21 @@ public class CustomOmitsDto implements Serializable {
     @Column(name = "CREDIT_TYPE_ID", nullable = true)
     private Long creditTypeId;
 
-    public CustomOmitsDto() {
-    }
-
     @Column(name = "CARRIER_NAME")
     private String carrierName;
 
     @Column(name = "USER_ID")
     private Long userId;
+
+    @Column(name = "TOTAL_COUNT")
+    private int totalCount;
+
+    public CustomOmitsDto() {
+    }
+
+    public CustomOmitsDto(int totalCount) {
+        this.totalCount = totalCount;
+    }
 
     public boolean isActive() {
         return active;
@@ -349,5 +396,14 @@ public class CustomOmitsDto implements Serializable {
 
     public void setCarrierName(String carrierName) {
         this.carrierName = carrierName;
+    }
+
+
+    public int getTotalCount() {
+        return totalCount;
+    }
+
+    public void setTotalCount(int totalCount) {
+        this.totalCount = totalCount;
     }
 }

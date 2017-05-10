@@ -31,7 +31,7 @@ public class VoiceController {
      * */
     @RequestMapping(value = "/getVoices", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
     public ResponseEntity<PaginationBean> getAllVoices(@RequestParam(required = false, defaultValue = "0") Integer offset,
-                                                       @RequestParam(required = false, defaultValue = "2") Integer limit
+                                                       @RequestParam(required = false, defaultValue = "10") Integer limit
                                                        ) throws Exception{
 
         log.info("***getAllVoices method started****");
@@ -55,7 +55,7 @@ public class VoiceController {
     @RequestMapping(value = "/getSearchCriteriaList", params = {"voiceNames", "voiceType", "voiceFlag", "pVoiceNames", "comments"}, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
     public ResponseEntity<PaginationBean> getSearchCriteriaList(@RequestParam String voiceNames, @RequestParam String voiceType, @RequestParam String voiceFlag,
                                                                 @RequestParam String pVoiceNames, @RequestParam String comments,
-                                                                @RequestParam(required = false, defaultValue = "0") Integer offset, @RequestParam(required = false, defaultValue = "2") Integer limit
+                                                                @RequestParam(required = false, defaultValue = "0") Integer offset, @RequestParam(required = false, defaultValue = "10") Integer limit
                                                                 ) throws Exception{
 
         log.info("***getSearchCriteriaList method started****");

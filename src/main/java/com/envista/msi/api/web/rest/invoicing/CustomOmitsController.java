@@ -10,6 +10,7 @@ import com.envista.msi.api.web.rest.dto.invoicing.CustomOmitsDto;
 import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
 import com.envista.msi.api.web.rest.util.DateUtil;
 import com.envista.msi.api.web.rest.util.JSONUtil;
+import com.envista.msi.api.web.rest.util.pagination.PaginationBean;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -70,11 +71,15 @@ public class CustomOmitsController {
      * HTTP GET - Get all
      */
     @RequestMapping(value = "/getByUserId/{userId}", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
-    public ResponseEntity<List<CustomOmitsDto>> getByUserId(@PathVariable("userId") Long userId) {
+    public ResponseEntity<PaginationBean> getByUserId(@PathVariable("userId") Long userId,
+                                                            @RequestParam(required = false, defaultValue = "0") Integer offset,
+                                                            @RequestParam(required = false, defaultValue = "10") Integer limit ) throws Exception{
         LOG.info("***getByUserId method started****");
-        List<CustomOmitsDto> dtos = service.findByuserId(userId);
-        LOG.info("***getByUserId json***====" + dtos);
-        return new ResponseEntity<List<CustomOmitsDto>>(dtos, HttpStatus.OK);
+        PaginationBean customOmitsPaginationData = new PaginationBean();
+        customOmitsPaginationData = service.findByUserIdWithPagination(userId,offset, limit);
+        //List<CustomOmitsDto> dtos = service.findByuserId(userId);
+        LOG.info("***getByUserId json***====" + customOmitsPaginationData);
+        return new ResponseEntity<PaginationBean>(customOmitsPaginationData, HttpStatus.OK);
     }
 
     /**
@@ -111,9 +116,12 @@ public class CustomOmitsController {
     }
 
     @RequestMapping(value = "/findSearchCriteria", params = {"trackingNumber", "customerIds", "creditTypeId", "comments", "carrierId", "userId"}, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
-    public ResponseEntity<List<CustomOmitsDto>> findBySearchCriteria(@RequestParam String trackingNumber, @RequestParam String customerIds, @RequestParam long creditTypeId, @RequestParam String comments, long carrierId, long userId) {
+    public ResponseEntity<PaginationBean> findBySearchCriteria(@RequestParam String trackingNumber, @RequestParam String customerIds, @RequestParam long creditTypeId, @RequestParam String comments, long carrierId, long userId,
+                                                                    @RequestParam(required = false, defaultValue = "0") Integer offset,@RequestParam(required = false, defaultValue = "10") Integer limit
+                                                                    ) throws Exception{
 
         LOG.info("***findBySearchCriteria method started****" + trackingNumber);
+        PaginationBean CustomOmitsPaginationData = new PaginationBean();
 
         if (customerIds != null && StringUtils.containsIgnoreCase(customerIds, "CU")) {
             customerIds = StringUtils.remove(customerIds, "CU");
@@ -127,12 +135,13 @@ public class CustomOmitsController {
         dto.setComments(comments);
         dto.setCarrierId(carrierId);
         dto.setUserId(userId);
+        CustomOmitsPaginationData = service.findBySearchCriteria(dto, offset, limit);
 
-        List<CustomOmitsDto> dtos = service.findBySearchCriteria(dto);
+        //List<CustomOmitsDto> dtos = service.findBySearchCriteria(dto);
 
-        LOG.info("***findBySearchCriteria method****" + dtos.size());
+        LOG.info("***findBySearchCriteria method****" + CustomOmitsPaginationData);
 
-        return new ResponseEntity<List<CustomOmitsDto>>(dtos, HttpStatus.OK);
+        return new ResponseEntity<PaginationBean>(CustomOmitsPaginationData, HttpStatus.OK);
     }
 
     /**
