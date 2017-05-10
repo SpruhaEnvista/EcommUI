@@ -54,4 +54,16 @@ public class DashBoardController {
         log.info("***getDashBoardInfo json***==== " + jsonObject);
         return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.OK);
     }
+
+    /**
+     * HTTP GET - Get all Voices
+     */
+    @RequestMapping(value = "/closeWeek", params = {"omitFlag", "reviewFlag"}, method = RequestMethod.PUT)
+    public ResponseEntity<Integer> closeCurrentWeek(@RequestParam String omitFlag, @RequestParam String reviewFlag) {
+        log.info("***closeCurrentWeek method started****");
+
+        int updatedRows = service.closeCurrentWeekCredits(omitFlag, reviewFlag);
+
+        return new ResponseEntity<Integer>(updatedRows, HttpStatus.OK);
+    }
 }

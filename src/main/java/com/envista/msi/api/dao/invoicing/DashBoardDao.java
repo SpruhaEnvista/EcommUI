@@ -40,4 +40,15 @@ public class DashBoardDao {
 
         return count;
     }
+
+    public int closeCurrentWeekCredits(String omitFlag, String reviewFlag) {
+
+        QueryParameter queryParameter = StoredProcedureParameter.with("P_OMIT_FLAG", omitFlag)
+                .and("P_REVIEW_FLAG", reviewFlag);
+
+        persistentContext.findEntities("DashBoardDto.closeCurrentWeek", queryParameter);
+
+
+        return 0;
+    }
 }

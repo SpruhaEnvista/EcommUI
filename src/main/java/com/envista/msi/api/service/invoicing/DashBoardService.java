@@ -27,4 +27,9 @@ public class DashBoardService {
 
         return dao.getPendingCredits(fromDate, toDate, actionType);
     }
+
+    public int closeCurrentWeekCredits(String omitFlag, String reviewFlag) {
+
+        return dao.closeCurrentWeekCredits(omitFlag, reviewFlag);
+    }
 }
