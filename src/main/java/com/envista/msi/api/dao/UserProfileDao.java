@@ -8,6 +8,8 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
+import com.envista.msi.api.domain.util.QueryParameter;
+import com.envista.msi.api.web.rest.dto.UserDetailsDto;
 import org.springframework.stereotype.Repository;
 
 import com.envista.msi.api.domain.PersistentContext;
@@ -66,5 +68,11 @@ public class UserProfileDao {
 	public String getLangKey() {
 		// TODO Auto-generated method stub
 		return "US_EN";
+	}
+
+	public List<UserProfileDto> validatePassword(String password, Long userId) {
+		QueryParameter queryParameter = StoredProcedureParameter.with("inParamPassword",password)
+				.and("userId", userId==null?0:userId);
+		return persistentContext.findEntitiesAndMapFields("UserProfileTb.validatePassword", queryParameter);
 	}
 }

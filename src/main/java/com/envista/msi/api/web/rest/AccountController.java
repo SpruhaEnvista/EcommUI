@@ -1,18 +1,20 @@
 package com.envista.msi.api.web.rest;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
+import com.envista.msi.api.web.rest.dto.UserDetailsDto;
+import com.envista.msi.api.web.rest.util.WebConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.envista.msi.api.security.SecurityUtils;
 import com.envista.msi.api.service.UserService;
@@ -82,5 +84,50 @@ public class AccountController {
 			}
 			
 		return new ResponseEntity<UserProfileDto>(new UserProfileDto(), HttpStatus.UNAUTHORIZED);
+	}
+	@RequestMapping(value = "/user/validatepassword", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+	public ResponseEntity<Map<String, Object>> validatePassword(@RequestParam String password, @RequestParam String userId){
+		Map<String, Object> respMap = new HashMap<String, Object>();
+		try {
+			UserProfileDto userProfileDto = userService.validatePassword(password,Long.parseLong(userId));
+			respMap.put("status", HttpStatus.OK.value());
+			respMap.put("userProfileDto", userProfileDto);
+		} catch (Exception e) {
+			respMap.put("status", HttpStatus.EXPECTATION_FAILED.value());
+			respMap.put("message", WebConstants.ResponseMessage.INVALID_PWD);
+			respMap.put("ERROR", e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respMap);
+		}
+		return ResponseEntity.status(HttpStatus.OK).body(respMap);
+	}
+	@RequestMapping(value = "/user/changepassword", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+	public ResponseEntity<Map<String, Object>> changePassword(@RequestParam String currentPassword,@RequestParam String newPassword, @RequestParam String userId){
+		Map<String, Object> respMap = new HashMap<String, Object>();
+		try {
+			UserDetailsDto userDetailsDto = userService.changePassword(currentPassword,newPassword,Long.parseLong(userId));
+			respMap.put("status", HttpStatus.OK.value());
+			respMap.put("userProfileDto", userDetailsDto);
+		} catch (Exception e) {
+			respMap.put("status", HttpStatus.EXPECTATION_FAILED.value());
+			respMap.put("message", WebConstants.ResponseMessage.INVALID_PWD);
+			respMap.put("ERROR", e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respMap);
+		}
+		return ResponseEntity.status(HttpStatus.OK).body(respMap);
+	}
+	@RequestMapping(value = "/user/updateuserprofile", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+	public ResponseEntity<Map<String, Object>> updateUserProfile(@RequestParam String fullname,@RequestParam String email,@RequestParam String phone, @RequestParam Long userId){
+		Map<String, Object> respMap = new HashMap<String, Object>();
+		try {
+			UserDetailsDto updateUserProfileDto = userService.updateUserProfile(fullname.trim(),email.trim(),phone.trim(),userId);
+			respMap.put("status", HttpStatus.OK.value());
+			respMap.put("userProfileDto", updateUserProfileDto);
+		} catch (Exception e) {
+			respMap.put("status", HttpStatus.EXPECTATION_FAILED.value());
+			respMap.put("message", WebConstants.ResponseMessage.INVALID_PWD);
+			respMap.put("ERROR", e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respMap);
+		}
+		return ResponseEntity.status(HttpStatus.OK).body(respMap);
 	}
 }

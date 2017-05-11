@@ -60,8 +60,17 @@ public class ReportsController {
     }
 
     @RequestMapping(value = "/results/reportslist/{userId}", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<List<ReportResultsDto>> getReportResults(@PathVariable String userId){
-        List<ReportResultsDto> resultsList = reportsService.getReportResults(Long.parseLong(userId));
+    public ResponseEntity<List<ReportResultsDto>> getReportResults(@PathVariable String userId,@RequestParam String sort){
+        String ascDesc=null;
+        if(sort!=null && sort.trim().length()>0){
+            if(sort.startsWith("-")){
+                ascDesc = "desc";
+                sort = sort.replace("-","");
+            }else{
+                ascDesc = "asc";
+            }
+        }
+        List<ReportResultsDto> resultsList = reportsService.getReportResults(Long.parseLong(userId),sort,ascDesc);
         return new ResponseEntity<List<ReportResultsDto>>(resultsList, HttpStatus.OK);
     }
     @RequestMapping(value = "/results/updateexpirydate", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
@@ -92,7 +101,9 @@ public class ReportsController {
     }
     @RequestMapping(value = "/savedschedreports", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<List<SavedSchedReportsDto>> getSavedSchedReports(@RequestParam String userId,@RequestParam(required = false) String folderId){
-        List<SavedSchedReportsDto> resultsList = reportsService.getSavedSchedReports(Long.parseLong(userId), (folderId == null ? 0 : Long.parseLong(folderId)));
+        if(folderId!=null)
+            folderId = folderId.replaceAll("-","");
+        List<SavedSchedReportsDto> resultsList = reportsService.getSavedSchedReports(Long.parseLong(userId), (folderId == null ? 0 : Long.parseLong(folderId.trim())));
         return new ResponseEntity<List<SavedSchedReportsDto>>(resultsList, HttpStatus.OK);
     }
     @RequestMapping(value = "/savedschedtemplates", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
