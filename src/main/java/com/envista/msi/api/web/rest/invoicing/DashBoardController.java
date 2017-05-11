@@ -32,23 +32,13 @@ public class DashBoardController {
     /**
      * HTTP GET - Get all Voices
      */
-    @RequestMapping(value = "/getDashBoardInfo", params = {"fromDate", "toDate"}, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
-    public ResponseEntity<JSONObject> getDashBoardInfo(@RequestParam String fromDate, @RequestParam String toDate) throws JSONException {
+    @RequestMapping(value = "/getDashBoardInfo", params = {"fromDate", "toDate","actionType"}, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+    public ResponseEntity<List<DashBoardDto>> getDashBoardInfoByBusinessPartner(@RequestParam String fromDate, @RequestParam String toDate, @RequestParam String actionType) throws JSONException {
         log.info("***getDashBoardInfo method started****");
-        JSONObject jsonObject = new JSONObject();
-        List<DashBoardDto> totalsByBusinessPartner = service.getDashBoardInfo(fromDate, toDate, "totalsByBusinessPartner");
-        jsonObject.put("totalsByBusinessPartner", totalsByBusinessPartner);
 
-        List<DashBoardDto> totalsByCarrier = service.getDashBoardInfo(fromDate, toDate, "totalsByCarrier");
-        jsonObject.put("totalsByCarrier", totalsByCarrier);
+        List<DashBoardDto> dashboardInfoList = service.getDashBoardInfo(fromDate, toDate, actionType);
 
-        List<DashBoardDto> totalsByInvCatagory = service.getDashBoardInfo(fromDate, toDate, "totalsByInvCatagory");
-        jsonObject.put("totalsByInvCatagory", totalsByInvCatagory);
-
-        List<DashBoardDto> totalsByCreditClass = service.getDashBoardInfo(fromDate, toDate, "totalsByCreditClass");
-        jsonObject.put("totalsByCreditClass", totalsByCreditClass);
-
-        log.info("***getDashBoardInfo json***==== " + jsonObject);
-        return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.OK);
+        log.info("***getDashBoardInfo json***==== " + dashboardInfoList);
+        return new ResponseEntity<List<DashBoardDto>>(dashboardInfoList, HttpStatus.OK);
     }
 }
