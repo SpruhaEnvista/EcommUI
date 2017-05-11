@@ -14,7 +14,31 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_TO_DATE", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_DAS_INFO", type = Void.class)
+                }),
+        @NamedStoredProcedureQuery(name = "DashBoardDto.getPendingCreditsCount", procedureName = "SHP_INV_GET_DASHBOARD_INFO_PRO",
+                resultSetMappings = "pendingCreditsCount",
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_FROM_DATE", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_TO_DATE", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_DAS_INFO", type = Void.class)
+                }),
+        @NamedStoredProcedureQuery(name = "DashBoardDto.closeCurrentWeek", procedureName = "SHP_INV_CLOSE_CUR_WEEK_PRO",
+
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_OMIT_FLAG", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_REVIEW_FLAG", type = String.class)
+                       /* @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_DAS_INFO", type = Void.class)*/
                 })
+})
+@SqlResultSetMappings({
+        @SqlResultSetMapping(name = "pendingCreditsCount", classes = {
+                @ConstructorResult(
+                        targetClass = DashBoardDto.class,
+                        columns = {
+                                @ColumnResult(name = "PENDING_CREDITS_COUNT", type = int.class)
+                        })
+        })
 })
 @Entity
 public class DashBoardDto implements Serializable {
@@ -83,8 +107,15 @@ public class DashBoardDto implements Serializable {
     @Column(name = "CREDIT_CLASS")
     private String creditClass;
 
+    @Column(name = "PENDING_CREDITS_COUNT")
+    private int pendingCreditsCount;
+
 
     public DashBoardDto() {
+    }
+
+    public DashBoardDto(int pendingCreditsCount) {
+        this.pendingCreditsCount = pendingCreditsCount;
     }
 
     public Long getId() {
@@ -253,5 +284,13 @@ public class DashBoardDto implements Serializable {
 
     public void setCreditClass(String creditClass) {
         this.creditClass = creditClass;
+    }
+
+    public int getPendingCreditsCount() {
+        return pendingCreditsCount;
+    }
+
+    public void setPendingCreditsCount(int pendingCreditsCount) {
+        this.pendingCreditsCount = pendingCreditsCount;
     }
 }
