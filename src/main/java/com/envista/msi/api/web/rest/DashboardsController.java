@@ -198,7 +198,7 @@ public class DashboardsController extends DashboardBaseController {
             return new ResponseEntity<DashboardAppliedFilterDto>(dashboardAppliedFilterDto, HttpStatus.OK );
         } catch (Exception e) {
             e.printStackTrace();
-            return new ResponseEntity<DashboardAppliedFilterDto>(new DashboardAppliedFilterDto(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<DashboardAppliedFilterDto>(new DashboardAppliedFilterDto(), HttpStatus.OK);
         }
     }
 
@@ -222,7 +222,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(netSpendJsonData.toString(), HttpStatus.OK);
     }
@@ -262,7 +262,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(netSpendJsonData.toString(), HttpStatus.OK);
     }
@@ -283,7 +283,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(netSpendJsonData.toString(), HttpStatus.OK);
     }
@@ -307,7 +307,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(netSpendJsonData.toString(), HttpStatus.OK);
     }
@@ -337,7 +337,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(netSpendJsonData.toString(), HttpStatus.OK);
     }
@@ -358,7 +358,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(taxSpendJson.toString(), HttpStatus.OK);
     }
@@ -382,7 +382,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(taxSpendJson.toString(), HttpStatus.OK);
     }
@@ -411,7 +411,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(taxSpendJson.toString(), HttpStatus.OK);
     }
@@ -432,7 +432,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(accSpendJson.toString(), HttpStatus.OK);
     }
@@ -461,7 +461,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(accSpendJson.toString(), HttpStatus.OK);
     }
@@ -493,7 +493,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(accSpendJson.toString(), HttpStatus.OK);
     }
@@ -514,7 +514,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(accSpendJson.toString(), HttpStatus.OK);
     }
@@ -538,7 +538,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(accSpendJson.toString(), HttpStatus.OK);
     }
@@ -567,7 +567,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(accSpendJson.toString(), HttpStatus.OK);
     }
@@ -588,7 +588,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(shipmentsRegionJsonData.toString(), HttpStatus.OK);
     }
@@ -615,7 +615,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(shipmentsRegionJsonData.toString(), HttpStatus.OK);
     }
@@ -643,7 +643,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(shipmentsRegionJsonData.toString(), HttpStatus.OK);
     }
@@ -664,7 +664,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(resultJsonData.toString(), HttpStatus.OK);
     }
@@ -691,7 +691,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(resultJsonObj.toString(), HttpStatus.OK);
     }
@@ -719,7 +719,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(resultsJsonObj.toString(), HttpStatus.OK);
     }
@@ -740,7 +740,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(resultJsonData.toString(), HttpStatus.OK);
     }
@@ -767,7 +767,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(resultJsonObj.toString(), HttpStatus.OK);
     }
@@ -795,7 +795,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(resultsJsonObj.toString(), HttpStatus.OK);
     }
@@ -817,7 +817,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(avgSpendPerShipmtJsonData.toString(), HttpStatus.OK);
     }
@@ -838,7 +838,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(avgWeightModeShipmtJsonData.toString(), HttpStatus.OK);
     }
@@ -860,7 +860,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(serviceLvlPerf.toString(), HttpStatus.OK);
     }
@@ -881,7 +881,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch (Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(inboundSpendJson.toString(), HttpStatus.OK);
     }
@@ -910,7 +910,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch (Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(inboundSpendJson.toString(), HttpStatus.OK);
     }
@@ -931,7 +931,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch (Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(outboundSpendJson.toString(), HttpStatus.OK);
     }
@@ -960,7 +960,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch (Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(outboundSpendJson.toString(), HttpStatus.OK);
     }
@@ -1055,7 +1055,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(invStsCountJson.toString(), HttpStatus.OK);
     }
@@ -1079,7 +1079,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(invStsCountJson.toString(), HttpStatus.OK);
     }
@@ -1104,7 +1104,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(invStsCountJson.toString(), HttpStatus.OK);
     }
@@ -1125,7 +1125,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(invStsAmountJson.toString(), HttpStatus.OK);
     }
@@ -1149,7 +1149,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(invStsAmountJson.toString(), HttpStatus.OK);
     }
@@ -1174,7 +1174,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(invStsAmountJson.toString(), HttpStatus.OK);
     }
@@ -1195,7 +1195,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(invMethodScoreJson.toString(), HttpStatus.OK);
     }
@@ -1219,7 +1219,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(invMethodScoreJson.toString(), HttpStatus.OK);
     }
@@ -1244,7 +1244,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(invMethodScoreJson.toString(), HttpStatus.OK);
     }
@@ -1265,7 +1265,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(orderMatchJson.toString(), HttpStatus.OK);
     }
@@ -1289,7 +1289,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(orderMatchJson.toString(), HttpStatus.OK);
     }
@@ -1314,7 +1314,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(orderMatchJson.toString(), HttpStatus.OK);
     }
@@ -1335,7 +1335,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(billedVsApprovedJson.toString(), HttpStatus.OK);
     }
@@ -1360,7 +1360,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(billedVsApprovedJson.toString(), HttpStatus.OK);
     }
@@ -1381,7 +1381,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch (Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(recovAdjJson.toString(), HttpStatus.OK);
     }
@@ -1410,7 +1410,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch (Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(recovAdjJson.toString(), HttpStatus.OK);
     }
@@ -1442,7 +1442,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch (Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(recovAdjJson.toString(), HttpStatus.OK);
     }
@@ -1463,7 +1463,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch (Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(recovServJson.toString(), HttpStatus.OK);
     }
@@ -1492,7 +1492,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch (Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(recovServJson.toString(), HttpStatus.OK);
     }
@@ -1513,7 +1513,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch (Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(pkgExcpJson.toString(), HttpStatus.OK);
     }
@@ -1539,7 +1539,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch (Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(pkgExcpJson.toString(), HttpStatus.OK);
     }
@@ -1569,7 +1569,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch (Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(pkgExcpJson.toString(), HttpStatus.OK);
     }
@@ -1600,7 +1600,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(avgSpendPerShipmtByCarrierJsonData.toString(), HttpStatus.OK);
     }
@@ -1634,7 +1634,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(avgSpendPerShipmtByCarrierJsonData.toString(), HttpStatus.OK);
     }
@@ -1665,7 +1665,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(avgWeightModeByCarrierJsonData.toString(), HttpStatus.OK);
     }
@@ -1699,7 +1699,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(avgWeightModeByCarrierJsonData.toString(), HttpStatus.OK);
     }
@@ -1721,7 +1721,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(annualSummaryJson.toString(), HttpStatus.OK);
     }
@@ -1747,7 +1747,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(annualSummaryJson.toString(), HttpStatus.OK);
     }
@@ -1776,7 +1776,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(annualSummaryJson.toString(), HttpStatus.OK);
     }
@@ -1808,7 +1808,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(annualSummaryJson.toString(), HttpStatus.OK);
     }
@@ -1829,7 +1829,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch (Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(monthlySpendJson.toString(), HttpStatus.OK);
     }
@@ -1855,7 +1855,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch (Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(monthlySpendJson.toString(), HttpStatus.OK);
     }
@@ -1876,7 +1876,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch (Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(accSummJson.toString(), HttpStatus.OK);
     }
@@ -1897,7 +1897,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch (Exception e){
             e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
         return new ResponseEntity<String>(accSummJson.toString(), HttpStatus.OK);
     }
@@ -3050,7 +3050,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(reportPaginationData);
         }catch(Exception e){
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(reportPaginationData);
+            return ResponseEntity.status(HttpStatus.OK).body(reportPaginationData);
         }
         return ResponseEntity.status(HttpStatus.OK).body(reportPaginationData);
     }
@@ -3076,7 +3076,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch (Exception e){
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.OK).body(WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
         }
         return ResponseEntity.status(HttpStatus.OK).body(reportColumnNames.toString());
     }
@@ -3097,7 +3097,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.OK).body(WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
         }
         return ResponseEntity.status(HttpStatus.OK).body(weightJson.toString());
     }
@@ -3123,7 +3123,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.OK).body(WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
         }
         return ResponseEntity.status(HttpStatus.OK).body(weightJson.toString());
     }
@@ -3152,7 +3152,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch(Exception e){
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.OK).body(WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
         }
         return ResponseEntity.status(HttpStatus.OK).body(weightJson.toString());
     }
@@ -3200,7 +3200,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(userFilterData);
         }catch (Exception e){
             e.printStackTrace();
-            return new ResponseEntity<Map<String, Object>>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<Map<String, Object>>(HttpStatus.OK);
         }
         return ResponseEntity.status(HttpStatus.OK).body(userFilterData);
     }
@@ -3227,7 +3227,7 @@ public class DashboardsController extends DashboardBaseController {
             }
         }catch (Exception e){
             e.printStackTrace();
-            return new ResponseEntity<Map<String, Object>>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<Map<String, Object>>(HttpStatus.OK);
         }
         return ResponseEntity.status(HttpStatus.OK).body(userFilterData);
     }
@@ -3242,7 +3242,7 @@ public class DashboardsController extends DashboardBaseController {
             }
         }catch (Exception e){
             e.printStackTrace();
-            return new ResponseEntity<Map<String, Object>>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<Map<String, Object>>(HttpStatus.OK);
         }
         return ResponseEntity.status(HttpStatus.OK).body(userFilterData);
     }
@@ -3268,7 +3268,7 @@ public class DashboardsController extends DashboardBaseController {
             }
         }catch (Exception e){
             e.printStackTrace();
-            return new ResponseEntity<Map<String, Object>>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<Map<String, Object>>(HttpStatus.OK);
         }
         return ResponseEntity.status(HttpStatus.OK).body(userFilterData);
     }
@@ -3316,7 +3316,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(userFilterData);
         }catch (Exception e){
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(userFilterData);
+            return ResponseEntity.status(HttpStatus.OK).body(userFilterData);
         }
         return ResponseEntity.status(HttpStatus.OK).body(userFilterData);
     }
@@ -3391,7 +3391,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch (Exception e){
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.OK).body(WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
         }
         return ResponseEntity.status(HttpStatus.OK).body(shipmentCountJson.toString());
     }
@@ -3411,7 +3411,7 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
         }catch (Exception e){
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.OK).body(WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
         }
         return ResponseEntity.status(HttpStatus.OK).body(customerJson.toString());
     }
@@ -3437,12 +3437,12 @@ public class DashboardsController extends DashboardBaseController {
         }catch (Exception e){
             e.printStackTrace();
             try {
-                respJson.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+                respJson.put("status", HttpStatus.OK.value());
                 respJson.put("message", WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
             } catch (JSONException e1) {
                 e1.printStackTrace();
             }
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respJson.toString());
+            return ResponseEntity.status(HttpStatus.OK).body(respJson.toString());
         }
         return ResponseEntity.status(HttpStatus.OK).body(respJson.toString());
     }
@@ -3469,12 +3469,12 @@ public class DashboardsController extends DashboardBaseController {
         }catch (Exception e){
             e.printStackTrace();
             try {
-                respJson.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+                respJson.put("status", HttpStatus.OK.value());
                 respJson.put("message", WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
             } catch (JSONException e1) {
                 e1.printStackTrace();
             }
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respJson.toString());
+            return ResponseEntity.status(HttpStatus.OK).body(respJson.toString());
         }
         return ResponseEntity.status(HttpStatus.OK).body(respJson.toString());
     }
@@ -3497,12 +3497,12 @@ public class DashboardsController extends DashboardBaseController {
         }catch (Exception e){
             e.printStackTrace();
             try {
-                respMap.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+                respMap.put("status", HttpStatus.OK.value());
                 respMap.put("message", WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respMap);
+            return ResponseEntity.status(HttpStatus.OK).body(respMap);
         }
         return ResponseEntity.status(HttpStatus.OK).body(respMap);
     }
@@ -3555,12 +3555,12 @@ public class DashboardsController extends DashboardBaseController {
         }catch (Exception e){
             e.printStackTrace();
             try {
-                respMap.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+                respMap.put("status", HttpStatus.OK.value());
                 respMap.put("message", WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respMap);
+            return ResponseEntity.status(HttpStatus.OK).body(respMap);
         }
         return ResponseEntity.status(HttpStatus.OK).body(respMap);
     }
@@ -3582,12 +3582,12 @@ public class DashboardsController extends DashboardBaseController {
         }catch (Exception e){
             e.printStackTrace();
             try {
-                respMap.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+                respMap.put("status", HttpStatus.OK.value());
                 respMap.put("message", WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respMap);
+            return ResponseEntity.status(HttpStatus.OK).body(respMap);
         }
         return ResponseEntity.status(HttpStatus.OK).body(respMap);
     }
@@ -3607,12 +3607,12 @@ public class DashboardsController extends DashboardBaseController {
         }catch (Exception e){
             e.printStackTrace();
             try {
-                respMap.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+                respMap.put("status", HttpStatus.OK.value());
                 respMap.put("message", WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respMap);
+            return ResponseEntity.status(HttpStatus.OK).body(respMap);
         }
         return ResponseEntity.status(HttpStatus.OK).body(respMap);
     }
@@ -3651,10 +3651,10 @@ public class DashboardsController extends DashboardBaseController {
             return ResponseEntity.status(HttpStatus.OK).body(respMap);
         }catch (Exception e){
             e.printStackTrace();
-            respMap.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+            respMap.put("status", HttpStatus.OK.value());
             respMap.put("message", WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
             respMap.put("ERROR", "Error while loading Package distribution count details.");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respMap);
+            return ResponseEntity.status(HttpStatus.OK).body(respMap);
         }
         return ResponseEntity.status(HttpStatus.OK).body(respMap);
     }
