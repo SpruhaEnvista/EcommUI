@@ -4,6 +4,9 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Date;
+import java.sql.Timestamp;
+
 /**
  * Created by KRISHNAREDDYM on 5/1/2017.
  */
@@ -88,6 +91,12 @@ public final class InvoicingUtilities {
             creditClass = "Other";
 
         return creditClass;
+    }
+
+    public static Timestamp getCurrentTimeStamp() {
+
+        return new java.sql.Timestamp(new java.util.Date().getTime());
+
     }
 
 }

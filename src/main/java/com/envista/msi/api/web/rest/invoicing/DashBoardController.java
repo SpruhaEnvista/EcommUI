@@ -1,11 +1,14 @@
 package com.envista.msi.api.web.rest.invoicing;
 
+import com.envista.msi.api.service.invoicing.CreditResponseService;
 import com.envista.msi.api.service.invoicing.DashBoardService;
+import com.envista.msi.api.web.rest.dto.invoicing.CreditResponseDto;
 import com.envista.msi.api.web.rest.dto.invoicing.DashBoardDto;
+import com.envista.msi.api.web.rest.util.FileOperations;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +35,12 @@ public class DashBoardController {
 
     @Inject
     private DashBoardService service;
+
+    @Inject
+    private CreditResponseService creditResponseService;
+
+    @Autowired
+    FileOperations fileOperations;
 
     /**
      * HTTP GET - Get all Voices
@@ -71,14 +80,15 @@ public class DashBoardController {
         return new ResponseEntity<Integer>(updatedRows, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/uploadCreditResp", method = RequestMethod.POST)
+    @RequestMapping(value = "/uploadCreditRespInfo", method = RequestMethod.POST)
     public ResponseEntity<String> UploadCreditResp(@RequestParam("files") MultipartFile[] file, HttpServletRequest request) throws IOException {
-        log.info("***customOmitFileUpload method started***");
+        log.info("***UploadCreditResp method started***");
         try {
             MultipartHttpServletRequest mRequest;
             mRequest = (MultipartHttpServletRequest) request;
             List<MultipartFile> files = mRequest.getFiles("file");
-            //fileOperations.customOmitFileUploadOperation(files, request);
+            List<CreditResponseDto> dtos = fileOperations.customOmitFileUploadOperation(files);
+            creditResponseService.insert(dtos);
         } catch (Exception e) {
             e.printStackTrace();
         }
