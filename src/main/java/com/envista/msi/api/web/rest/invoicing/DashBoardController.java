@@ -13,8 +13,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -45,6 +49,19 @@ public class DashBoardController {
     /**
      * HTTP GET - Get all Voices
      */
+    @RequestMapping(value = "/getPendingCredits", params = {"fromDate", "toDate", "actionType"}, method = RequestMethod.GET)
+    public ResponseEntity<Integer> getPendingCredits(@RequestParam String fromDate, @RequestParam String toDate, @RequestParam String actionType) throws JSONException {
+        log.info("***getPendingCredits method started****");
+
+        int pendingCredits = service.getPendingCredits(fromDate, toDate, actionType);
+
+        log.info("***getPendingCredits count***==== " + pendingCredits);
+        return new ResponseEntity<Integer>(pendingCredits, HttpStatus.OK);
+    }
+
+    /**
+     * HTTP GET - Get all Voices
+     */
     @RequestMapping(value = "/closeWeek", params = {"omitFlag", "reviewFlag"}, method = RequestMethod.PUT)
     public ResponseEntity<Integer> closeCurrentWeek(@RequestParam String omitFlag, @RequestParam String reviewFlag) {
         log.info("***closeCurrentWeek method started****");
@@ -52,5 +69,19 @@ public class DashBoardController {
         int updatedRows = service.closeCurrentWeekCredits(omitFlag, reviewFlag);
 
         return new ResponseEntity<Integer>(updatedRows, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/uploadCreditResp", method = RequestMethod.POST)
+    public ResponseEntity<String> UploadCreditResp(@RequestParam("files") MultipartFile[] file, HttpServletRequest request) throws IOException {
+        log.info("***customOmitFileUpload method started***");
+        try {
+            MultipartHttpServletRequest mRequest;
+            mRequest = (MultipartHttpServletRequest) request;
+            List<MultipartFile> files = mRequest.getFiles("file");
+            //fileOperations.customOmitFileUploadOperation(files, request);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<String>("file(s) uploaded Successfully", HttpStatus.OK);
     }
 }
