@@ -807,14 +807,6 @@ public class DashboardsService {
                 }
             }
 
-            if(services != null){
-                for(String service : services.split(",")){
-                    if(service != null && !service.isEmpty()){
-                        servicesList.add(Long.parseLong(service));
-                    }
-                }
-            }
-
             if(modes != null){
                 for(String mode : modes.split(",")){
                     if(mode != null && !mode.isEmpty()){
@@ -823,8 +815,16 @@ public class DashboardsService {
                 }
             }
 
+            if(services != null){
+                for(String service : services.split(",")){
+                    if(service != null && !service.isEmpty()){
+                        servicesList.add(Long.parseLong(service));
+                    }
+                }
+            }
+
             userFilterDetailsMap = DashboardUtil.prepareFilterDetails(getCarrierByCustomer(customerIds, isParcelDashlettes), getFilterServices(filter, isParcelDashlettes),
-                    getFilterModes(filter, isParcelDashlettes), carrList, servicesList, modeList, userFilter, getModeWiseCarrier(carrierIds), isParcelDashlettes, false);
+                    getFilterModes(filter, isParcelDashlettes), carrList, modeList, servicesList, userFilter, getModeWiseCarrier(carrierIds), isParcelDashlettes, false);
         }
         return userFilterDetailsMap;
     }
