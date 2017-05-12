@@ -28,4 +28,9 @@ public class CreditsPRService {
 
         return dao.search(bean);
     }
+
+    public int update(String ebillManifestIds, String actionType) {
+
+        return dao.update(ebillManifestIds, actionType);
+    }
 }

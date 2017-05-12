@@ -71,4 +71,16 @@ public class CreditsPRController {
     }
 
 
+    /**
+     * HTTP DELETE - Delete custom omits
+     */
+    @RequestMapping(value = "/update", params = {"ebillManifestIds", "actionType"}, method = RequestMethod.PUT)
+    public ResponseEntity<Integer> updateStatus(@RequestParam String ebillManifestIds, @RequestParam String actionType) {
+
+        log.info("***updateStatus method started****ebillManifestIds are : " + ebillManifestIds);
+
+        int updateddRows = service.update(ebillManifestIds, actionType);
+
+        return new ResponseEntity<Integer>(updateddRows, HttpStatus.OK);
+    }
 }

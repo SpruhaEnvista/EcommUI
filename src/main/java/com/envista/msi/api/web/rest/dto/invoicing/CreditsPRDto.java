@@ -33,7 +33,23 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ADJ_REASONS", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_INV_COMMENTS", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_CREDITS_PR_INFO", type = Void.class)
+                }),
+        @NamedStoredProcedureQuery(name = "CreditsPRDto.updateIdsStatus", procedureName = "SHP_INV_UPDATE_PR_STATUS_PRO",
+                resultSetMappings = "prUpdateCount",
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_EBILL_MANIFEST_IDS", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_CREDITS_PR_INFO", type = Void.class)
                 })
+})
+@SqlResultSetMappings({
+        @SqlResultSetMapping(name = "prUpdateCount", classes = {
+                @ConstructorResult(
+                        targetClass = CustomOmitsDto.class,
+                        columns = {
+                                @ColumnResult(name = "UPDATE_COUNT", type = int.class)
+                        })
+        })
 })
 @Entity
 public class CreditsPRDto implements Serializable {
@@ -87,7 +103,14 @@ public class CreditsPRDto implements Serializable {
     @Column(name = "INTERNAL_INVOICING_COMMENTS")
     private String comments;
 
+    @Column(name = "UPDATE_COUNT")
+    private int updateCount;
+
     public CreditsPRDto() {
+    }
+
+    public CreditsPRDto(int updateCount) {
+        this.updateCount = updateCount;
     }
 
     public Long getId() {
@@ -216,5 +239,13 @@ public class CreditsPRDto implements Serializable {
 
     public void setComments(String comments) {
         this.comments = comments;
+    }
+
+    public int getUpdateCount() {
+        return updateCount;
+    }
+
+    public void setUpdateCount(int updateCount) {
+        this.updateCount = updateCount;
     }
 }

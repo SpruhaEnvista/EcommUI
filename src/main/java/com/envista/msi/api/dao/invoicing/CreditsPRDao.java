@@ -5,6 +5,7 @@ import com.envista.msi.api.domain.util.QueryParameter;
 import com.envista.msi.api.domain.util.StoredProcedureParameter;
 import com.envista.msi.api.web.rest.dto.invoicing.CreditsPRDto;
 import com.envista.msi.api.web.rest.dto.invoicing.CreditsPRSearchBean;
+import com.envista.msi.api.web.rest.dto.invoicing.CustomOmitsDto;
 import com.envista.msi.api.web.rest.dto.invoicing.VoiceDto;
 import org.springframework.stereotype.Repository;
 
@@ -37,5 +38,19 @@ public class CreditsPRDao {
                 .and("P_INV_COMMENTS", bean.getInvComments());
 
         return persistentContext.findEntities("CreditsPRDto.getSearchInfo", queryParameter);
+    }
+
+    public int update(String ebillManifestIds, String actionType) {
+
+        QueryParameter queryParameter = StoredProcedureParameter.with("P_EBILL_MANIFEST_IDS", ebillManifestIds).and("P_ACTION_TYPE", actionType);
+
+        List<CreditsPRDto> dtos = persistentContext.findEntities("CreditsPRDto.updateIdsStatus", queryParameter);
+
+        int count = 0;
+        if (dtos != null)
+            count = dtos.size();
+
+        return count;
+
     }
 }
