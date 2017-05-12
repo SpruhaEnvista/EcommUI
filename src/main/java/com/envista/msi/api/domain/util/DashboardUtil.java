@@ -212,7 +212,40 @@ public class DashboardUtil {
         appliedFilter.setModes(savedFilter.getModes());
         appliedFilter.setServices(savedFilter.getServices());
         appliedFilter.setWeightUnit(savedFilter.getWeightUnit());
+        String lanesInfo = prepareLanesInfo(savedFilter);
+        if(lanesInfo != null && !lanesInfo.isEmpty()){
+            appliedFilter.setLanes(lanesInfo);
+        }
         return appliedFilter;
+    }
+
+    public static String prepareLanesInfo(DashSavedFilterDto savedFilter){
+        StringBuilder lanesInfo = new StringBuilder();
+        if(savedFilter != null){
+            populateLanesInfo(lanesInfo, "a.shipper_countries", savedFilter.getShipperCountries());
+            populateLanesInfo(lanesInfo, "a.shipper_states", savedFilter.getShipperStates());
+            populateLanesInfo(lanesInfo, "a.shipper_cities", savedFilter.getShipperCities());
+            populateLanesInfo(lanesInfo, "a.receiver_countries", savedFilter.getReceiverCountries());
+            populateLanesInfo(lanesInfo, "a.receiver_states", savedFilter.getReceiverStates());
+            populateLanesInfo(lanesInfo, "a.receiver_cities", savedFilter.getReceiverCities());
+        }
+        return lanesInfo.toString();
+    }
+
+    private static void populateLanesInfo(StringBuilder lanesInfo, String fieldName, String fieldValuesCSV){
+        if(fieldValuesCSV != null && !fieldValuesCSV.isEmpty()){
+            StringJoiner stringJoiner = new StringJoiner(",");
+            for(String value : fieldValuesCSV.split(",")){
+                if(value != null && !value.isEmpty()){
+                    stringJoiner.add("'" + value + "'");
+                }
+            }
+            if(lanesInfo.toString().isEmpty()){
+                lanesInfo.append(" "+ fieldName + " IN (" + stringJoiner.toString() + ") ");
+            }else{
+                lanesInfo.append(" AND " + fieldName + " IN (" + stringJoiner.toString() + ") ");
+            }
+        }
     }
 
     /**
