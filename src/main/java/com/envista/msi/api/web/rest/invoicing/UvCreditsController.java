@@ -33,11 +33,11 @@ public class UvCreditsController {
     /**
      * HTTP Get - Search
      */
-    @RequestMapping(value = "/search", params = {"businessPartnerId", "customerIds", "savedFilter", "invoicingStatus", "invCatagoryId", "invWeekEndDate", "invoiceModeId",
+    @RequestMapping(value = "/search", params = {"businessPartnerId", "customerIds", "savedFilter", "invStatusId", "invCatagoryId", "invWeekEndDate", "invoiceModeId",
             "carrierId", "creditClassId", "omitFlag", "reviewFlag", "createDate", "invoiceDate", "closeDate", "invoiceNumbers", "trackingNumbers", "internalKeyIds", "invoiceMethodId",
             "payRunNos", "controlNums", "adjReasons", "invComments"}, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
     public ResponseEntity<List<UvCreditsDto>> search(@RequestParam Long businessPartnerId, @RequestParam String customerIds, @RequestParam String savedFilter
-            , @RequestParam String invoicingStatus, @RequestParam Long invCatagoryId, @RequestParam String invWeekEndDate, @RequestParam Long invoiceModeId
+            , @RequestParam Long invStatusId, @RequestParam Long invCatagoryId, @RequestParam String invWeekEndDate, @RequestParam Long invoiceModeId
             , @RequestParam Long carrierId, @RequestParam Long creditClassId, @RequestParam String omitFlag, @RequestParam String reviewFlag
             , @RequestParam String createDate, @RequestParam String invoiceDate, @RequestParam String closeDate, @RequestParam String invoiceNumbers
             , @RequestParam String trackingNumbers, @RequestParam String internalKeyIds, @RequestParam Long invoiceMethodId, @RequestParam String payRunNos
@@ -48,7 +48,7 @@ public class UvCreditsController {
         bean.setBusinessPartnerId(businessPartnerId);
         bean.setCustomerIds(customerIds);
         bean.setSavedFilter(savedFilter);
-        bean.setInvoicingStatus(invoicingStatus);
+        bean.setInvoicingStatus(invStatusId);
         bean.setInvCatagoryId(invCatagoryId);
         bean.setInvWeekEndDate(invWeekEndDate);
         bean.setInvoiceModeId(invoiceModeId);

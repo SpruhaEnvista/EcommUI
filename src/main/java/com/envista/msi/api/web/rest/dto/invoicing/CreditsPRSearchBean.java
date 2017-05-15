@@ -13,7 +13,7 @@ public class CreditsPRSearchBean implements Serializable {
 
     private String savedFilter;
 
-    private String invoicingStatus;
+    private Long invoicingStatus;
 
     private Long invCatagoryId;
 
@@ -75,11 +75,11 @@ public class CreditsPRSearchBean implements Serializable {
         this.savedFilter = savedFilter;
     }
 
-    public String getInvoicingStatus() {
+    public Long getInvoicingStatus() {
         return invoicingStatus;
     }
 
-    public void setInvoicingStatus(String invoicingStatus) {
+    public void setInvoicingStatus(Long invoicingStatus) {
         this.invoicingStatus = invoicingStatus;
     }
 
