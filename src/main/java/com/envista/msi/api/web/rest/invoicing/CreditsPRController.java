@@ -2,9 +2,11 @@ package com.envista.msi.api.web.rest.invoicing;
 
 import com.envista.msi.api.service.invoicing.CodeValueService;
 import com.envista.msi.api.service.invoicing.CreditsPRService;
+import com.envista.msi.api.service.invoicing.WeekEndService;
 import com.envista.msi.api.web.rest.dto.invoicing.CodeValueDto;
 import com.envista.msi.api.web.rest.dto.invoicing.CreditsPRDto;
 import com.envista.msi.api.web.rest.dto.invoicing.CreditsPRSearchBean;
+import com.envista.msi.api.web.rest.dto.invoicing.WeekEndDto;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -31,6 +33,9 @@ public class CreditsPRController {
 
     @Inject
     private CodeValueService codeValueService;
+
+    @Inject
+    private WeekEndService weekEndService;
 
     /**
      * HTTP Get - Search
@@ -104,6 +109,9 @@ public class CreditsPRController {
 
         List<CodeValueDto> invStatuses = codeValueService.GetCodeValues("Invoicing Statuses", null, null, null);
         jsonObject.put("invStatuses", invStatuses);
+
+        List<WeekEndDto> weekEndDtos = weekEndService.getAll();
+        jsonObject.put("weekEndIfo", weekEndDtos);
 
         return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.OK);
     }

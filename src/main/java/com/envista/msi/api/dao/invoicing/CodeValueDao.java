@@ -25,5 +25,4 @@ public class CodeValueDao {
 
         return persistentContext.findEntities("CodeValueDto.getCodeValues", queryParameter);
     }
-
 }
