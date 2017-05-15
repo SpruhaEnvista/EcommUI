@@ -1,8 +1,12 @@
 package com.envista.msi.api.web.rest.invoicing;
 
+import com.envista.msi.api.service.invoicing.CodeValueService;
 import com.envista.msi.api.service.invoicing.CreditsPRService;
+import com.envista.msi.api.web.rest.dto.invoicing.CodeValueDto;
 import com.envista.msi.api.web.rest.dto.invoicing.CreditsPRDto;
 import com.envista.msi.api.web.rest.dto.invoicing.CreditsPRSearchBean;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -24,6 +28,9 @@ public class CreditsPRController {
 
     @Inject
     private CreditsPRService service;
+
+    @Inject
+    private CodeValueService codeValueService;
 
     /**
      * HTTP Get - Search
@@ -82,5 +89,22 @@ public class CreditsPRController {
         int updateddRows = service.update(ebillManifestIds, actionType);
 
         return new ResponseEntity<Integer>(updateddRows, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/getSSCodeValues", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+    public ResponseEntity<JSONObject> getSearchScreenCodeValues() throws JSONException {
+
+        JSONObject jsonObject = new JSONObject();
+
+        List<CodeValueDto> creditTypes = codeValueService.GetCodeValues("CreditTypes", null, null, null);
+        jsonObject.put("creditTypes", creditTypes);
+
+        List<CodeValueDto> invCatagories = codeValueService.GetCodeValues("Internal Invoicing Categories", null, null, null);
+        jsonObject.put("invCatagories", invCatagories);
+
+        List<CodeValueDto> invStatuses = codeValueService.GetCodeValues("Invoicing Statuses", null, null, null);
+        jsonObject.put("invStatuses", invStatuses);
+
+        return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.OK);
     }
 }

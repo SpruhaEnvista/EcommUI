@@ -22,8 +22,8 @@ public class CodeValueService {
     @Inject
     private CodeValueDao dao;
 
-    public List<CodeValueDto> GetCodeValues(Long carrierId, Long codeGroupId) {
+    public List<CodeValueDto> GetCodeValues(String groupName, String property1, String codeValue, String actionType) {
 
-        return dao.getCodeValues(carrierId, codeGroupId);
+        return dao.getCodeValues(groupName, property1, codeValue, actionType);
     }
 }

@@ -11,6 +11,15 @@ import java.io.Serializable;
         @NamedStoredProcedureQuery(name = "CodeValueDto.getCodeValues", procedureName = "SHP_INV_GET_CODE_VALUES_PRO",
                 resultClasses = CodeValueDto.class,
                 parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CODE_GROUP_NAME", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PROPERTY_1", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CODE_VALUE", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_CODES_INFO", type = Void.class)
+                }),
+        @NamedStoredProcedureQuery(name = "CodeValueDto.getCodeValuesBygroupName", procedureName = "SHP_INV_GET_CODE_VALUES_PRO",
+                resultClasses = CodeValueDto.class,
+                parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CARRIER_ID", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CODE_GROUP_ID", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_CODES_INFO", type = Void.class)

@@ -18,10 +18,12 @@ public class CodeValueDao {
     @Inject
     private PersistentContext persistentContext;
 
-    public List<CodeValueDto> getCodeValues(Long carrierId, Long codeGroupId) {
+    public List<CodeValueDto> getCodeValues(String groupName, String property1, String codeValue, String actionType) {
 
-        QueryParameter queryParameter = StoredProcedureParameter.with("P_CARRIER_ID", carrierId).and("P_CODE_GROUP_ID", codeGroupId);
+        QueryParameter queryParameter = StoredProcedureParameter.with("P_CODE_GROUP_NAME", groupName).and("P_PROPERTY_1", property1)
+                .and("P_CODE_VALUE", codeValue).and("P_ACTION_TYPE", actionType);
 
         return persistentContext.findEntities("CodeValueDto.getCodeValues", queryParameter);
     }
+
 }

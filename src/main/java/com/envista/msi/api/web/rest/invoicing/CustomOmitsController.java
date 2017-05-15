@@ -193,11 +193,11 @@ public class CustomOmitsController {
         return new ResponseEntity<List<UserFilterUtilityDataDto>>(carrList, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/getCodeValues", params = {"carrierId", "codeGroupId"}, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
-    public ResponseEntity<List<CodeValueDto>> getCodeValues(@RequestParam Long carrierId, @RequestParam Long codeGroupId) {
+    @RequestMapping(value = "/getCodeValues", params = {"codeGroupName", "property1", "codeValue", "actionType"}, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+    public ResponseEntity<List<CodeValueDto>> getCodeValues(@RequestParam String codeGroupName, @RequestParam String property1, @RequestParam String codeValue, @RequestParam String actionType) {
 
 
-        List<CodeValueDto> dtos = codeValueService.GetCodeValues(carrierId, codeGroupId);
+        List<CodeValueDto> dtos = codeValueService.GetCodeValues(codeGroupName, property1, codeValue, actionType);
 
         return new ResponseEntity<List<CodeValueDto>>(dtos, HttpStatus.OK);
     }
