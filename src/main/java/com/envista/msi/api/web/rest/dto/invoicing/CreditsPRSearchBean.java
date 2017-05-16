@@ -17,7 +17,7 @@ public class CreditsPRSearchBean implements Serializable {
 
     private Long invCatagoryId;
 
-    private String invWeekEndDate;
+    private Long invWeekEnId;
 
     private Long invoiceModeId;
 
@@ -91,12 +91,12 @@ public class CreditsPRSearchBean implements Serializable {
         this.invCatagoryId = invCatagoryId;
     }
 
-    public String getInvWeekEndDate() {
-        return invWeekEndDate;
+    public Long getInvWeekEnId() {
+        return invWeekEnId;
     }
 
-    public void setInvWeekEndDate(String invWeekEndDate) {
-        this.invWeekEndDate = invWeekEndDate;
+    public void setInvWeekEnId(Long invWeekEnId) {
+        this.invWeekEnId = invWeekEnId;
     }
 
     public Long getInvoiceModeId() {

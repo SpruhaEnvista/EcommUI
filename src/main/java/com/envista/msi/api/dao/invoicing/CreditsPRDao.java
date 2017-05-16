@@ -27,7 +27,7 @@ public class CreditsPRDao {
         QueryParameter queryParameter = StoredProcedureParameter.with("P_BUSINESS_PARTNER_ID", bean.getBusinessPartnerId())
                 .and("P_CUSTOMER_IDS", bean.getCustomerIds()).and("P_SAVED_FILTER", bean.getSavedFilter())
                 .and("P_INV_STATUS_ID", bean.getInvoicingStatus()).and("P_INV_CATAGORY_ID", bean.getInvCatagoryId())
-                .and("P_INV_WEEK_END_DATE", bean.getInvWeekEndDate()).and("P_INVOICE_MODE_ID", bean.getInvoiceModeId())
+                .and("P_INV_WEEK_END_ID", bean.getInvWeekEnId()).and("P_INVOICE_MODE_ID", bean.getInvoiceModeId())
                 .and("P_CARRIER_ID", bean.getCarrierId()).and("P_CREDIT_CLASS_ID", bean.getCreditClassId())
                 .and("P_OMIT_FLAG", bean.getOmitFlag()).and("P_REVIEW_FLAG", bean.getReviewFlag())
                 .and("P_CREATE_DATE", bean.getCreateDate()).and("P_INVOICE_DATE", bean.getInvoiceDate())
