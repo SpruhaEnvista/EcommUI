@@ -124,8 +124,13 @@ public class CreditsPRController {
         List<WeekEndDto> weekEndDtos = weekEndService.getAll();
         jsonObject.put("weekEndIfo", weekEndDtos);
 
-        WeekEndDto weekEndDto = weekEndService.findByWeekEndDate(weekEndDate);
-        jsonObject.put("weekEndDateInfo", weekEndDto);
+        WeekEndDto weekEndDto = null;
+        if (weekEndDate != null && !StringUtils.equalsIgnoreCase(weekEndDate, "null"))
+            weekEndDto = weekEndService.findByWeekEndDate(weekEndDate);
+        if (weekEndDto == null)
+            jsonObject.put("weekEndDateInfo", "No Data");
+        else
+            jsonObject.put("weekEndDateInfo", weekEndDto);
 
         return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.OK);
     }
