@@ -261,7 +261,7 @@ public class DashboardUtil {
         int size = filter.split(Pattern.quote(delimiter)).length;
         StringBuilder finalCondition = new StringBuilder("(");
         for(String params : filter.split(Pattern.quote(delimiter))){
-            finalCondition.append("LOWER(" + params.split(":")[0] + ")" + " LIKE " + "'" + params.split(":")[1] + "'");
+            finalCondition.append(" " + params.split(":")[0] + " LIKE " + "'" + params.split(":")[1] + "'");
             if(i != size - 1){
                 finalCondition.append(" " + sqlCondition + " ");
             }
