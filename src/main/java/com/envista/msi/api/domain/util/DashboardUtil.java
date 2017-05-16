@@ -222,12 +222,12 @@ public class DashboardUtil {
     public static String prepareLanesInfo(DashSavedFilterDto savedFilter){
         StringBuilder lanesInfo = new StringBuilder();
         if(savedFilter != null){
-            populateLanesInfo(lanesInfo, "a.shipper_countries", savedFilter.getShipperCountries());
-            populateLanesInfo(lanesInfo, "a.shipper_states", savedFilter.getShipperStates());
-            populateLanesInfo(lanesInfo, "a.shipper_cities", savedFilter.getShipperCities());
-            populateLanesInfo(lanesInfo, "a.receiver_countries", savedFilter.getReceiverCountries());
-            populateLanesInfo(lanesInfo, "a.receiver_states", savedFilter.getReceiverStates());
-            populateLanesInfo(lanesInfo, "a.receiver_cities", savedFilter.getReceiverCities());
+            populateLanesInfo(lanesInfo, "a.shipper_country", savedFilter.getShipperCountries());
+            populateLanesInfo(lanesInfo, "a.shipper_state", savedFilter.getShipperStates());
+            populateLanesInfo(lanesInfo, "a.shipper_city", savedFilter.getShipperCities());
+            populateLanesInfo(lanesInfo, "a.receiver_country", savedFilter.getReceiverCountries());
+            populateLanesInfo(lanesInfo, "a.receiver_state", savedFilter.getReceiverStates());
+            populateLanesInfo(lanesInfo, "a.receiver_city", savedFilter.getReceiverCities());
         }
         return lanesInfo.toString();
     }
@@ -261,7 +261,7 @@ public class DashboardUtil {
         int size = filter.split(Pattern.quote(delimiter)).length;
         StringBuilder finalCondition = new StringBuilder("(");
         for(String params : filter.split(Pattern.quote(delimiter))){
-            finalCondition.append("LOWER(" + params.split(":")[0] + ")" + " LIKE " + "'" + params.split(":")[1] + "'");
+            finalCondition.append(" " + params.split(":")[0] + " LIKE " + "'" + params.split(":")[1] + "'");
             if(i != size - 1){
                 finalCondition.append(" " + sqlCondition + " ");
             }
