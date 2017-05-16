@@ -8,6 +8,8 @@ import com.envista.msi.api.web.rest.dto.invoicing.CreditsPRDto;
 import com.envista.msi.api.web.rest.dto.invoicing.CreditsPRSearchBean;
 import com.envista.msi.api.web.rest.dto.invoicing.WeekEndDto;
 import com.envista.msi.api.web.rest.util.DateUtil;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -65,11 +67,11 @@ public class CreditsPRController {
         bean.setCreditClassId(creditClassId);
         bean.setOmitFlag(omitFlag);
         bean.setReviewFlag(reviewFlag);
-        if (createDate != null)
+        if (createDate != null && !StringUtils.equalsIgnoreCase(createDate, "null"))
             bean.setCreateDate(DateUtil.format(new Date(Long.valueOf(createDate)), "dd-MM-yyyy"));
-        if (invoiceDate != null)
+        if (invoiceDate != null && !StringUtils.equalsIgnoreCase(invoiceDate, "null"))
             bean.setInvoiceDate(DateUtil.format(new Date(Long.valueOf(invoiceDate)), "dd-MM-yyyy"));
-        if (closeDate != null)
+        if (closeDate != null && !StringUtils.equalsIgnoreCase(closeDate, "null"))
             bean.setCloseDate(DateUtil.format(new Date(Long.valueOf(closeDate)), "dd-MM-yyyy"));
 
         bean.setInvoiceNumbers(invoiceNumbers);

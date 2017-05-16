@@ -5,6 +5,8 @@ import com.envista.msi.api.service.invoicing.UvCreditsService;
 import com.envista.msi.api.web.rest.dto.invoicing.CreditsPRDto;
 import com.envista.msi.api.web.rest.dto.invoicing.CreditsPRSearchBean;
 import com.envista.msi.api.web.rest.dto.invoicing.UvCreditsDto;
+import com.envista.msi.api.web.rest.util.DateUtil;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.inject.Inject;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -56,9 +59,12 @@ public class UvCreditsController {
         bean.setCreditClassId(creditClassId);
         bean.setOmitFlag(omitFlag);
         bean.setReviewFlag(reviewFlag);
-        bean.setCreateDate(createDate);
-        bean.setInvoiceDate(invoiceDate);
-        bean.setCloseDate(closeDate);
+        if (createDate != null && !StringUtils.equalsIgnoreCase(createDate, "null"))
+            bean.setCreateDate(DateUtil.format(new Date(Long.valueOf(createDate)), "dd-MM-yyyy"));
+        if (invoiceDate != null && !StringUtils.equalsIgnoreCase(invoiceDate, "null"))
+            bean.setInvoiceDate(DateUtil.format(new Date(Long.valueOf(invoiceDate)), "dd-MM-yyyy"));
+        if (closeDate != null && !StringUtils.equalsIgnoreCase(closeDate, "null"))
+            bean.setCloseDate(DateUtil.format(new Date(Long.valueOf(closeDate)), "dd-MM-yyyy"));
         bean.setInvoiceNumbers(invoiceNumbers);
         bean.setTrackingNumbers(trackingNumbers);
         bean.setInternalKeyIds(internalKeyIds);
