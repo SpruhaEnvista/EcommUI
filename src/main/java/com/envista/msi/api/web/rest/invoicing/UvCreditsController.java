@@ -49,6 +49,9 @@ public class UvCreditsController {
 
         CreditsPRSearchBean bean = new CreditsPRSearchBean();
         bean.setBusinessPartnerId(businessPartnerId);
+        if (StringUtils.containsIgnoreCase(customerIds, "CU")) {
+            customerIds = StringUtils.remove(customerIds, "CU");
+        }
         bean.setCustomerIds(customerIds);
         bean.setSavedFilter(savedFilter);
         bean.setInvoicingStatus(invStatusId);
