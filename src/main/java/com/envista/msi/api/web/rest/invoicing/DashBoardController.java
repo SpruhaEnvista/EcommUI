@@ -46,7 +46,7 @@ public class DashBoardController {
      * HTTP GET - Get all Voices
      */
     @RequestMapping(value = "/getDashBoardInfo", params = {"fromDate", "toDate","actionType"}, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
-    public ResponseEntity<List<DashBoardDto>> getDashBoardInfoByBusinessPartner(@RequestParam String fromDate, @RequestParam String toDate, @RequestParam String actionType) throws JSONException {
+    public ResponseEntity<List<DashBoardDto>> getDashBoardInfo(@RequestParam String fromDate, @RequestParam String toDate, @RequestParam String actionType) throws JSONException {
         log.info("***getDashBoardInfo method started****");
 
         List<DashBoardDto> dashboardInfoList = service.getDashBoardInfo(fromDate, toDate, actionType);

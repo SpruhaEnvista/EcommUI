@@ -15,7 +15,7 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_SAVED_FILTER", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_INV_STATUS_ID", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_INV_CATAGORY_ID", type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_INV_WEEK_END_ID", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_INV_WEEK_END_ID", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_INVOICE_MODE_ID", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CARRIER_ID", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CREDIT_CLASS_ID", type = Long.class),
