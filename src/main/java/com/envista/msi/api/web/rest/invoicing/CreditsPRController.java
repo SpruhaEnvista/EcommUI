@@ -7,6 +7,7 @@ import com.envista.msi.api.web.rest.dto.invoicing.CodeValueDto;
 import com.envista.msi.api.web.rest.dto.invoicing.CreditsPRDto;
 import com.envista.msi.api.web.rest.dto.invoicing.CreditsPRSearchBean;
 import com.envista.msi.api.web.rest.dto.invoicing.WeekEndDto;
+import com.envista.msi.api.web.rest.util.DateUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -17,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -63,9 +65,13 @@ public class CreditsPRController {
         bean.setCreditClassId(creditClassId);
         bean.setOmitFlag(omitFlag);
         bean.setReviewFlag(reviewFlag);
-        bean.setCreateDate(createDate);
-        bean.setInvoiceDate(invoiceDate);
-        bean.setCloseDate(closeDate);
+        if (createDate != null)
+            bean.setCreateDate(DateUtil.format(new Date(Long.valueOf(createDate)), "dd-MM-yyyy"));
+        if (invoiceDate != null)
+            bean.setInvoiceDate(DateUtil.format(new Date(Long.valueOf(invoiceDate)), "dd-MM-yyyy"));
+        if (closeDate != null)
+            bean.setCloseDate(DateUtil.format(new Date(Long.valueOf(closeDate)), "dd-MM-yyyy"));
+
         bean.setInvoiceNumbers(invoiceNumbers);
         bean.setTrackingNumbers(trackingNumbers);
         bean.setInternalKeyIds(internalKeyIds);
