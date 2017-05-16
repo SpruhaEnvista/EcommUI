@@ -26,4 +26,9 @@ public class WeekEndService {
 
         return dao.getAll();
     }
+
+    public WeekEndDto findByWeekEndDate(String weekEndDate) {
+
+        return dao.findByWeekEndDate(weekEndDate);
+    }
 }

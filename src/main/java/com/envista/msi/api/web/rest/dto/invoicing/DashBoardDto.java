@@ -110,6 +110,15 @@ public class DashBoardDto implements Serializable {
     @Column(name = "PENDING_CREDITS_COUNT")
     private int pendingCreditsCount;
 
+    @Column(name = "CARRIER_ID")
+    private Long carrierId;
+
+    @Column(name = "INTERNAL_INVOICING_CATEGORY_ID")
+    private Long invCategoryId;
+
+    @Column(name = "CREDIT_CLASS_ID")
+    private Long creditClassId;
+
 
     public DashBoardDto() {
     }
@@ -292,5 +301,29 @@ public class DashBoardDto implements Serializable {
 
     public void setPendingCreditsCount(int pendingCreditsCount) {
         this.pendingCreditsCount = pendingCreditsCount;
+    }
+
+    public Long getCarrierId() {
+        return carrierId;
+    }
+
+    public void setCarrierId(Long carrierId) {
+        this.carrierId = carrierId;
+    }
+
+    public Long getInvCategoryId() {
+        return invCategoryId;
+    }
+
+    public void setInvCategoryId(Long invCategoryId) {
+        this.invCategoryId = invCategoryId;
+    }
+
+    public Long getCreditClassId() {
+        return creditClassId;
+    }
+
+    public void setCreditClassId(Long creditClassId) {
+        this.creditClassId = creditClassId;
     }
 }

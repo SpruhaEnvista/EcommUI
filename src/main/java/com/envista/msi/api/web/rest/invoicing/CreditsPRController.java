@@ -107,8 +107,8 @@ public class CreditsPRController {
         return new ResponseEntity<Integer>(updateddRows, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/getSSCodeValues", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
-    public ResponseEntity<JSONObject> getSearchScreenCodeValues() throws JSONException {
+    @RequestMapping(value = "/getSSCodeValues", params = {"weekEndDate"}, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+    public ResponseEntity<JSONObject> getSearchScreenCodeValues(@RequestParam String weekEndDate) throws JSONException {
 
         JSONObject jsonObject = new JSONObject();
 
@@ -123,6 +123,9 @@ public class CreditsPRController {
 
         List<WeekEndDto> weekEndDtos = weekEndService.getAll();
         jsonObject.put("weekEndIfo", weekEndDtos);
+
+        WeekEndDto weekEndDto = weekEndService.findByWeekEndDate(weekEndDate);
+        jsonObject.put("weekEndDateInfo", weekEndDto);
 
         return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.OK);
     }

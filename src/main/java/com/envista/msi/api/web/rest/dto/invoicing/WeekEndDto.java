@@ -10,6 +10,8 @@ import java.io.Serializable;
         @NamedStoredProcedureQuery(name = "WeekEndDto.getAll", procedureName = "SHP_INV_GET_WEEK_END_INFO_PRO",
                 resultClasses = WeekEndDto.class,
                 parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_WEEK_END_DATE", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_WEEK_END_INFO", type = Void.class)
                 })
 })
