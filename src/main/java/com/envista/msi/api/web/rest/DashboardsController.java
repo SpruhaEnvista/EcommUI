@@ -25,6 +25,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentRegion
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShippingLanesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.*;
 import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
+import com.envista.msi.api.web.rest.errors.InvalidUserException;
 import com.envista.msi.api.web.rest.util.DateUtil;
 import com.envista.msi.api.web.rest.util.JSONUtil;
 import com.envista.msi.api.web.rest.util.WebConstants;
@@ -78,6 +79,7 @@ public class DashboardsController extends DashboardBaseController {
         TOP_ACCESSORIAL_SPEND,
         TOP_ACCESSORIAL_SPEND_BY_CARRIER,
         TOP_ACCESSORIAL_SPEND_BY_MONTH,
+        TOP_ACCESSORIAL_SPEND_BY_ACC,
         ACCESSORIAL_SPEND,
         ACCESSORIAL_SPEND_BY_CARRIER,
         ACCESSORIAL_SPEND_BY_MONTH;
@@ -192,14 +194,9 @@ public class DashboardsController extends DashboardBaseController {
     @RequestMapping(value = "/appliedFilter", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DashboardAppliedFilterDto> getAppliedFilterDetails(@RequestParam(value = "userId" , required = true) String userId  ){
         DashboardAppliedFilterDto dashboardAppliedFilterDto = null;
-        try {
-            dashboardAppliedFilterDto = dashboardsService.getUserAppliedFilter(Long.parseLong(userId));
-            DashboardsFilterCriteria dashboardsFilterCriteria = populateDashboardFilterCriteria(dashboardAppliedFilterDto);
-            return new ResponseEntity<DashboardAppliedFilterDto>(dashboardAppliedFilterDto, HttpStatus.OK );
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<DashboardAppliedFilterDto>(new DashboardAppliedFilterDto(), HttpStatus.OK);
-        }
+        dashboardAppliedFilterDto = dashboardsService.getUserAppliedFilter(Long.parseLong(userId));
+        DashboardsFilterCriteria dashboardsFilterCriteria = populateDashboardFilterCriteria(dashboardAppliedFilterDto);
+        return new ResponseEntity<DashboardAppliedFilterDto>(dashboardAppliedFilterDto, HttpStatus.OK );
     }
 
     private DashboardsFilterCriteria loadAppliedFilters(Long userId){
@@ -207,762 +204,374 @@ public class DashboardsController extends DashboardBaseController {
     }
 
     @RequestMapping(value = "/netSpendByMode", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getNetSpendByModes() throws JSONException {
-        JSONObject netSpendJsonData = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if(null == user){
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            JSONObject nspData = loadNetSpendJsonData(NetSpendConstant.NET_SPEND_BY_MODE, filter);
-            netSpendJsonData = (nspData != null ? nspData : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
-        }
-        return new ResponseEntity<String>(netSpendJsonData.toString(), HttpStatus.OK);
+    public ResponseEntity<String> getNetSpendByModes() throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        JSONObject nspData = loadNetSpendJsonData(NetSpendConstant.NET_SPEND_BY_MODE, filter);
+        return new ResponseEntity<String>(nspData != null ? nspData.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/netSpendOvrTmByMnth", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE}, consumes = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getNetSpendOverTimeByMonth(@RequestBody NetSpendRequestDto netSpendRequest){
-        JSONObject netSpendJsonData = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if(null == user){
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            String carrierName = netSpendRequest.getCarrierName();
-            String carrierDetails = netSpendRequest.getCarrierDetails();
-            String invoiceDate = netSpendRequest.getInvoiceDate();
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            if(filter != null){
-                if (carrierName != null && !carrierName.isEmpty() && carrierDetails != null && !carrierDetails.isEmpty()) {
-                    JSONArray carrierDetailsArr = new JSONArray(carrierDetails);
-                    int carriersLen = carrierDetailsArr.length();
-                    for ( int i = 0; i < carriersLen; i++) {
-                        JSONObject carrierInfo = carrierDetailsArr.getJSONObject(i);
-                        if ( carrierName.equalsIgnoreCase(carrierInfo.getString("carrierName") ) ) {
-                            filter.setCarriers(carrierInfo.getString("carrierId"));
-                            break;
-                        }
+    public ResponseEntity<String> getNetSpendOverTimeByMonth(@RequestBody NetSpendRequestDto netSpendRequest) throws Exception{
+        UserProfileDto user = getUserProfile();
+        String carrierName = netSpendRequest.getCarrierName();
+        String carrierDetails = netSpendRequest.getCarrierDetails();
+        String invoiceDate = netSpendRequest.getInvoiceDate();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if(filter != null){
+            if (carrierName != null && !carrierName.isEmpty() && carrierDetails != null && !carrierDetails.isEmpty()) {
+                JSONArray carrierDetailsArr = new JSONArray(carrierDetails);
+                int carriersLen = carrierDetailsArr.length();
+                for ( int i = 0; i < carriersLen; i++) {
+                    JSONObject carrierInfo = carrierDetailsArr.getJSONObject(i);
+                    if ( carrierName.equalsIgnoreCase(carrierInfo.getString("carrierName") ) ) {
+                        filter.setCarriers(carrierInfo.getString("carrierId"));
+                        break;
                     }
                 }
-                if (invoiceDate != null) {
-                    DashboardUtil.setDatesFromMonth(filter, invoiceDate);
-                }
             }
-            JSONObject nspData = loadNetSpendJsonData(NetSpendConstant.NET_SPEND_OVER_TIME_BY_MONTH, filter);
-            netSpendJsonData = (nspData != null ? nspData : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
+            if (invoiceDate != null) {
+                DashboardUtil.setDatesFromMonth(filter, invoiceDate);
+            }
         }
-        return new ResponseEntity<String>(netSpendJsonData.toString(), HttpStatus.OK);
+        JSONObject nspData = loadNetSpendJsonData(NetSpendConstant.NET_SPEND_OVER_TIME_BY_MONTH, filter);
+        return new ResponseEntity<String>(nspData != null ? nspData.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/netSpendByOverTime", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getNetSpendByOverTime(){
-        JSONObject netSpendJsonData = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if(null == user){
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            JSONObject nspData = loadNetSpendJsonData(NetSpendConstant.NET_SPEND_BY_OVER_TIME, filter);
-            netSpendJsonData = (nspData != null ? nspData : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
-        }
-        return new ResponseEntity<String>(netSpendJsonData.toString(), HttpStatus.OK);
+    public ResponseEntity<String> getNetSpendByOverTime() throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        JSONObject nspData = loadNetSpendJsonData(NetSpendConstant.NET_SPEND_BY_OVER_TIME, filter);
+        return new ResponseEntity<String>(nspData != null ? nspData.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/netSpendByCarr", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getNetSpendByCarrier(@RequestParam String mode){
-        JSONObject netSpendJsonData = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if(null == user){
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            if(filter != null && mode != null){
-                filter.setModeNames(mode);
-            }
-            JSONObject nspData = loadNetSpendJsonData(NetSpendConstant.NET_SPEND_BY_CARRIER, filter);
-            netSpendJsonData = (nspData != null ? nspData : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
+    public ResponseEntity<String> getNetSpendByCarrier(@RequestParam String mode) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if(filter != null && mode != null){
+            filter.setModeNames(mode);
         }
-        return new ResponseEntity<String>(netSpendJsonData.toString(), HttpStatus.OK);
+        JSONObject nspData = loadNetSpendJsonData(NetSpendConstant.NET_SPEND_BY_CARRIER, filter);
+        return new ResponseEntity<String>(nspData != null ? nspData.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/netSpendByMth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getNetSpendByMonth(@RequestParam String carrier, @RequestParam  String mode){
-        JSONObject netSpendJsonData = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if(null == user){
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<String> getNetSpendByMonth(@RequestParam String carrier, @RequestParam  String mode) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if(filter != null){
+            if(carrier != null){
+                filter.setCarriers(carrier);
             }
-
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            if(filter != null){
-                if(carrier != null){
-                    filter.setCarriers(carrier);
-                }
-                if(mode != null){
-                    filter.setModeNames(mode);
-                }
+            if(mode != null){
+                filter.setModeNames(mode);
             }
-            JSONObject nspData = loadNetSpendJsonData(NetSpendConstant.NET_SPEND_BY_MONTH, filter);
-            netSpendJsonData = (nspData != null ? nspData : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
         }
-        return new ResponseEntity<String>(netSpendJsonData.toString(), HttpStatus.OK);
+        JSONObject nspData = loadNetSpendJsonData(NetSpendConstant.NET_SPEND_BY_MONTH, filter);
+        return new ResponseEntity<String>(nspData != null ? nspData.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/taxSpend", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getTaxSpend(){
+    public ResponseEntity<String> getTaxSpend() throws Exception {
         JSONObject taxSpendJson = null;
-        try {
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            JSONObject taxData = loadTaxSpendJsonData(TaxSpendConstant.TAX_SPEND, filter);
-            taxSpendJson = (taxData != null ? taxData : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
-        }
-        return new ResponseEntity<String>(taxSpendJson.toString(), HttpStatus.OK);
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        JSONObject taxData = loadTaxSpendJsonData(TaxSpendConstant.TAX_SPEND, filter);
+        return new ResponseEntity<String>(taxData != null ? taxData.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/taxSpendByCarr", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getTaxSpendByCarrier(@RequestParam String tax){
-        JSONObject taxSpendJson = null;
-        try {
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            if(filter != null && tax != null){
-                filter.setTax(tax);
-            }
-            JSONObject taxData = loadTaxSpendJsonData(TaxSpendConstant.TAX_SPEND_BY_CARRIER, filter);
-            taxSpendJson = (taxData != null ? taxData : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
+    public ResponseEntity<String> getTaxSpendByCarrier(@RequestParam String tax) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if(filter != null && tax != null){
+            filter.setTax(tax);
         }
-        return new ResponseEntity<String>(taxSpendJson.toString(), HttpStatus.OK);
+        JSONObject taxSpendJson = loadTaxSpendJsonData(TaxSpendConstant.TAX_SPEND_BY_CARRIER, filter);
+        return new ResponseEntity<String>(taxSpendJson != null ? taxSpendJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/taxSpendByMth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getTaxSpendByMonth(@RequestParam String carrierId, @RequestParam String tax){
-        JSONObject taxSpendJson = null;
-        try {
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<String> getTaxSpendByMonth(@RequestParam String carrierId, @RequestParam String tax) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if(filter != null){
+            if(carrierId != null){
+                filter.setCarriers(carrierId);
             }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            if(filter != null){
-                if(carrierId != null){
-                    filter.setCarriers(carrierId);
-                }
-                if(tax != null){
-                    filter.setTax(tax);
-                }
+            if(tax != null){
+                filter.setTax(tax);
             }
-            JSONObject taxData = loadTaxSpendJsonData(TaxSpendConstant.TAX_SPEND_BY_MONTH, filter);
-            taxSpendJson = (taxData != null ? taxData : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
         }
-        return new ResponseEntity<String>(taxSpendJson.toString(), HttpStatus.OK);
+        JSONObject taxSpendJson = loadTaxSpendJsonData(TaxSpendConstant.TAX_SPEND_BY_MONTH, filter);
+        return new ResponseEntity<String>(taxSpendJson != null ? taxSpendJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/topAccSpend", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getTopAccessorialSpend(){
-        JSONObject accSpendJson = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            JSONObject accData = loadAccessorialSpendJsonData(AccessorialSpendConstant.TOP_ACCESSORIAL_SPEND, filter);
-            accSpendJson = (accData != null ? accData : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
-        }
-        return new ResponseEntity<String>(accSpendJson.toString(), HttpStatus.OK);
+    public ResponseEntity<String> getTopAccessorialSpend() throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        JSONObject accSpendJson = loadAccessorialSpendJsonData(AccessorialSpendConstant.TOP_ACCESSORIAL_SPEND, filter);
+        return new ResponseEntity<String>(accSpendJson != null ? accSpendJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/topAccSpendByCarr", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getTopAccessorialSpendByCarrier(@RequestParam String accessorial, @RequestParam String invoiceDate){
-        JSONObject accSpendJson = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<String> getTopAccessorialSpendByCarrier(@RequestParam String accessorial, @RequestParam String invoiceDate) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if(filter !=  null){
+            if(accessorial != null && !accessorial.isEmpty()){
+                filter.setAccessorialName(accessorial);
             }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            if(filter !=  null){
-                if(accessorial != null && !accessorial.isEmpty()){
-                    filter.setAccessorialName(accessorial);
-                }
-                if(invoiceDate != null && !invoiceDate.isEmpty()){
-                    DashboardUtil.setDatesFromMonth(filter, invoiceDate);
-                }
+            if(invoiceDate != null && !invoiceDate.isEmpty()){
+                DashboardUtil.setDatesFromMonth(filter, invoiceDate);
             }
-            JSONObject accData = loadAccessorialSpendJsonData(AccessorialSpendConstant.TOP_ACCESSORIAL_SPEND_BY_CARRIER, filter);
-            accSpendJson = (accData != null ? accData : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
         }
-        return new ResponseEntity<String>(accSpendJson.toString(), HttpStatus.OK);
+        JSONObject accSpendJson = loadAccessorialSpendJsonData(AccessorialSpendConstant.TOP_ACCESSORIAL_SPEND_BY_CARRIER, filter);
+        return new ResponseEntity<String>(accSpendJson != null ? accSpendJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/topAccSpendByMonth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getTopAccessorialSpendByMonth(@RequestParam String accessorial, @RequestParam String invoiceDate, @RequestParam String carrierId){
-        JSONObject accSpendJson = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<String> getTopAccessorialSpendByMonth(@RequestParam String accessorial, @RequestParam String invoiceDate, @RequestParam String carrierId) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if(filter !=  null){
+            if(accessorial != null && !accessorial.isEmpty()){
+                filter.setAccessorialName(accessorial);
             }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            if(filter !=  null){
-                if(accessorial != null && !accessorial.isEmpty()){
-                    filter.setAccessorialName(accessorial);
-                }
-                if(invoiceDate != null && !invoiceDate.isEmpty()){
-                    DashboardUtil.setDatesFromMonth(filter, invoiceDate);
-                }
-                if(carrierId != null && !carrierId.isEmpty()){
-                    filter.setCarriers(carrierId);
-                }
+            if(invoiceDate != null && !invoiceDate.isEmpty()){
+                DashboardUtil.setDatesFromMonth(filter, invoiceDate);
             }
-            JSONObject accData = loadAccessorialSpendJsonData(AccessorialSpendConstant.TOP_ACCESSORIAL_SPEND_BY_MONTH, filter);
-            accSpendJson = (accData != null ? accData : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
+            if(carrierId != null && !carrierId.isEmpty()){
+                filter.setCarriers(carrierId);
+            }
         }
-        return new ResponseEntity<String>(accSpendJson.toString(), HttpStatus.OK);
+        JSONObject accSpendJson = loadAccessorialSpendJsonData(AccessorialSpendConstant.TOP_ACCESSORIAL_SPEND_BY_MONTH, filter);
+        return new ResponseEntity<String>(accSpendJson != null ? accSpendJson.toString() : new JSONObject().toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/topAccSpendByAcc", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getTopAccessorialSpendByAcc(@RequestParam String invoiceDate) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if(filter !=  null){
+            if(invoiceDate != null && !invoiceDate.isEmpty()){
+                DashboardUtil.setDatesFromMonth(filter, invoiceDate);
+            }
+        }
+        JSONObject accSpendJson = loadAccessorialSpendJsonData(AccessorialSpendConstant.TOP_ACCESSORIAL_SPEND_BY_ACC, filter);
+        return new ResponseEntity<String>(accSpendJson != null ? accSpendJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/accSpend", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getAccessorialSpend(){
-        JSONObject accSpendJson = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            JSONObject accData = loadAccessorialSpendJsonData(AccessorialSpendConstant.ACCESSORIAL_SPEND, filter);
-            accSpendJson = (accData != null ? accData : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
-        }
-        return new ResponseEntity<String>(accSpendJson.toString(), HttpStatus.OK);
+    public ResponseEntity<String> getAccessorialSpend() throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        JSONObject accSpendJson = loadAccessorialSpendJsonData(AccessorialSpendConstant.ACCESSORIAL_SPEND, filter);
+        accSpendJson = (accSpendJson != null ? accSpendJson : new JSONObject());
+        return new ResponseEntity<String>(accSpendJson != null ? accSpendJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/accSpendByCarr", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getAccessorialSpendByCarrier(@RequestParam String tax){
-        JSONObject accSpendJson = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            if(filter != null && tax != null && !tax.isEmpty()){
-                filter.setAccDesc(tax);
-            }
-            JSONObject accData = loadAccessorialSpendJsonData(AccessorialSpendConstant.ACCESSORIAL_SPEND_BY_CARRIER, filter);
-            accSpendJson = (accData != null ? accData : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
+    public ResponseEntity<String> getAccessorialSpendByCarrier(@RequestParam String tax) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if(filter != null && tax != null && !tax.isEmpty()){
+            filter.setAccDesc(tax);
         }
-        return new ResponseEntity<String>(accSpendJson.toString(), HttpStatus.OK);
+        JSONObject accSpendJson = loadAccessorialSpendJsonData(AccessorialSpendConstant.ACCESSORIAL_SPEND_BY_CARRIER, filter);
+        return new ResponseEntity<String>(accSpendJson != null ? accSpendJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/accSpendByMonth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getAccessorialSpendByMonth(@RequestParam String carrierId, @RequestParam String tax){
-        JSONObject accSpendJson = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<String> getAccessorialSpendByMonth(@RequestParam String carrierId, @RequestParam String tax) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if(filter != null){
+            if(carrierId != null && !carrierId.isEmpty()){
+                filter.setCarriers(carrierId);
             }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            if(filter != null){
-                if(carrierId != null && !carrierId.isEmpty()){
-                    filter.setCarriers(carrierId);
-                }
-                if(tax != null && !tax.isEmpty()){
-                    filter.setAccDesc(tax);
-                }
+            if(tax != null && !tax.isEmpty()){
+                filter.setAccDesc(tax);
             }
-            JSONObject accData = loadAccessorialSpendJsonData(AccessorialSpendConstant.ACCESSORIAL_SPEND_BY_MONTH, filter);
-            accSpendJson = (accData != null ? accData : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
         }
-        return new ResponseEntity<String>(accSpendJson.toString(), HttpStatus.OK);
+        JSONObject accSpendJson = loadAccessorialSpendJsonData(AccessorialSpendConstant.ACCESSORIAL_SPEND_BY_MONTH, filter);
+        return new ResponseEntity<String>(accSpendJson != null ? accSpendJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/shipmentsByRegion", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getShipmentsByRegion() throws JSONException {
-        JSONObject shipmentsRegionJsonData = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if(null == user){
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            shipmentsRegionJsonData = loadShipmentByRegionJsonData(ShipmentsRegionConstant.SHIPMENTS_REGION, filter);
-            shipmentsRegionJsonData = (shipmentsRegionJsonData != null ? shipmentsRegionJsonData : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
-        }
-        return new ResponseEntity<String>(shipmentsRegionJsonData.toString(), HttpStatus.OK);
+    public ResponseEntity<String> getShipmentsByRegion() throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        JSONObject shipmentsRegionJsonData = loadShipmentByRegionJsonData(ShipmentsRegionConstant.SHIPMENTS_REGION, filter);
+        return new ResponseEntity<String>(shipmentsRegionJsonData != null ? shipmentsRegionJsonData.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/shipmentRegionByCarrier", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getShipmentRegionByCarrier(@RequestParam String shipperCity,@RequestParam String receiverCity ) throws JSONException {
-        JSONObject shipmentsRegionJsonData = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if(null == user){
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-
-            if( filter != null ) {
-                filter.setShipperCity(shipperCity);
-                filter.setReceiverCity(receiverCity);
-            }
-
-            shipmentsRegionJsonData = loadShipmentByRegionJsonData(ShipmentsRegionConstant.SHIPMENTS_REGION_BY_CARRIER, filter);
-            shipmentsRegionJsonData = (shipmentsRegionJsonData != null ? shipmentsRegionJsonData : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
+    public ResponseEntity<String> getShipmentRegionByCarrier(@RequestParam String shipperCity,@RequestParam String receiverCity ) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if( filter != null ) {
+            filter.setShipperCity(shipperCity);
+            filter.setReceiverCity(receiverCity);
         }
-        return new ResponseEntity<String>(shipmentsRegionJsonData.toString(), HttpStatus.OK);
+        JSONObject shipmentsRegionJsonData = loadShipmentByRegionJsonData(ShipmentsRegionConstant.SHIPMENTS_REGION_BY_CARRIER, filter);
+        return new ResponseEntity<String>(shipmentsRegionJsonData != null ? shipmentsRegionJsonData.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/shipmentRegionByMonth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getShipmentRegionByMonth(@RequestParam String shipperCity,@RequestParam String receiverCity, @RequestParam String carrierId) throws JSONException {
-        JSONObject shipmentsRegionJsonData = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if(null == user){
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-
-            if( filter != null ) {
-                filter.setShipperCity(shipperCity);
-                filter.setReceiverCity(receiverCity);
-                filter.setCarriers(carrierId);
-            }
-
-            shipmentsRegionJsonData = loadShipmentByRegionJsonData(ShipmentsRegionConstant.SHIPMENTS_REGION_BY_MONTH, filter);
-            shipmentsRegionJsonData = (shipmentsRegionJsonData != null ? shipmentsRegionJsonData : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
+    public ResponseEntity<String> getShipmentRegionByMonth(@RequestParam String shipperCity,@RequestParam String receiverCity, @RequestParam String carrierId) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if( filter != null ) {
+            filter.setShipperCity(shipperCity);
+            filter.setReceiverCity(receiverCity);
+            filter.setCarriers(carrierId);
         }
-        return new ResponseEntity<String>(shipmentsRegionJsonData.toString(), HttpStatus.OK);
+        JSONObject shipmentsRegionJsonData = loadShipmentByRegionJsonData(ShipmentsRegionConstant.SHIPMENTS_REGION_BY_MONTH, filter);
+        return new ResponseEntity<String>(shipmentsRegionJsonData != null ? shipmentsRegionJsonData.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/topShippingLanes", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getTopShippingLanes() throws JSONException {
-        JSONObject resultJsonData = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if(null == user){
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            resultJsonData = loadTopShippingLanesJsonData(ShippingLanesConstant.SHIPPING_LANES, filter);
-            resultJsonData = (resultJsonData != null ? resultJsonData : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
-        }
-        return new ResponseEntity<String>(resultJsonData.toString(), HttpStatus.OK);
+    public ResponseEntity<String> getTopShippingLanes() throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        JSONObject resultJsonData = loadTopShippingLanesJsonData(ShippingLanesConstant.SHIPPING_LANES, filter);
+        return new ResponseEntity<String>(resultJsonData != null ? resultJsonData.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/shippingLanesByCarrier", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getShippingLanesByCarrier(@RequestParam String shipperAddress,@RequestParam String receiverAddress) throws JSONException {
-        JSONObject resultJsonObj = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if(null == user){
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-
-            if( filter != null ) {
-                filter.setShipperAddress(shipperAddress);
-                filter.setReceiverAddress(receiverAddress);
-            }
-
-            resultJsonObj = loadTopShippingLanesJsonData(ShippingLanesConstant.SHIPPING_LANES_BY_CARRIER, filter);
-            resultJsonObj = (resultJsonObj != null ? resultJsonObj : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
+    public ResponseEntity<String> getShippingLanesByCarrier(@RequestParam String shipperAddress,@RequestParam String receiverAddress) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if( filter != null ) {
+            filter.setShipperAddress(shipperAddress);
+            filter.setReceiverAddress(receiverAddress);
         }
-        return new ResponseEntity<String>(resultJsonObj.toString(), HttpStatus.OK);
+        JSONObject resultJsonObj = loadTopShippingLanesJsonData(ShippingLanesConstant.SHIPPING_LANES_BY_CARRIER, filter);
+        return new ResponseEntity<String>(resultJsonObj != null ? resultJsonObj.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/shippingLanesByMonth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getShippingLanesByMonth(@RequestParam String shipperAddress,@RequestParam String receiverAddress, @RequestParam String carrierId) throws JSONException {
-        JSONObject resultsJsonObj = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if(null == user){
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-
-            if( filter != null ) {
-                filter.setShipperAddress(shipperAddress);
-                filter.setReceiverAddress(receiverAddress);
-                filter.setCarriers(carrierId);
-            }
-
-            resultsJsonObj = loadTopShippingLanesJsonData(ShippingLanesConstant.SHIPPING_LANES_BY_MONTH, filter);
-            resultsJsonObj = (resultsJsonObj != null ? resultsJsonObj : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
+    public ResponseEntity<String> getShippingLanesByMonth(@RequestParam String shipperAddress,@RequestParam String receiverAddress, @RequestParam String carrierId) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if( filter != null ) {
+            filter.setShipperAddress(shipperAddress);
+            filter.setReceiverAddress(receiverAddress);
+            filter.setCarriers(carrierId);
         }
-        return new ResponseEntity<String>(resultsJsonObj.toString(), HttpStatus.OK);
+        JSONObject resultsJsonObj = loadTopShippingLanesJsonData(ShippingLanesConstant.SHIPPING_LANES_BY_MONTH, filter);
+        return new ResponseEntity<String>(resultsJsonObj != null ? resultsJsonObj.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/topPortLanes", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getTopPortLanes() throws JSONException {
-        JSONObject resultJsonData = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if(null == user){
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            resultJsonData = loadTopPortLanesJsonData(PortLanesConstant.PORT_LANES, filter);
-            resultJsonData = (resultJsonData != null ? resultJsonData : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
-        }
-        return new ResponseEntity<String>(resultJsonData.toString(), HttpStatus.OK);
+    public ResponseEntity<String> getTopPortLanes() throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        JSONObject resultJsonData = loadTopPortLanesJsonData(PortLanesConstant.PORT_LANES, filter);
+        return new ResponseEntity<String>(resultJsonData != null ? resultJsonData.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/portLanesByCarrier", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getPortLanesByCarrier(@RequestParam String pol,@RequestParam String pod) throws JSONException {
-        JSONObject resultJsonObj = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if(null == user){
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-
-            if( filter != null ) {
-                filter.setPol(pol);
-                filter.setPod(pod);
-            }
-
-            resultJsonObj = loadTopPortLanesJsonData(PortLanesConstant.PORT_LANES_BY_CARRIER, filter);
-            resultJsonObj = (resultJsonObj != null ? resultJsonObj : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
+    public ResponseEntity<String> getPortLanesByCarrier(@RequestParam String pol,@RequestParam String pod) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if( filter != null ) {
+            filter.setPol(pol);
+            filter.setPod(pod);
         }
-        return new ResponseEntity<String>(resultJsonObj.toString(), HttpStatus.OK);
+        JSONObject resultJsonObj = loadTopPortLanesJsonData(PortLanesConstant.PORT_LANES_BY_CARRIER, filter);
+        return new ResponseEntity<String>(resultJsonObj != null ? resultJsonObj.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/portLanesByMonth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getPortLanesByMonth(@RequestParam String pol,@RequestParam String pod, @RequestParam String carrierId) throws JSONException {
-        JSONObject resultsJsonObj = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if(null == user){
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-
-            if( filter != null ) {
-                filter.setPol(pol);
-                filter.setPod(pod);
-                filter.setCarriers(carrierId);
-            }
-
-            resultsJsonObj = loadTopPortLanesJsonData(PortLanesConstant.PORT_LANES_BY_MONTH, filter);
-            resultsJsonObj = (resultsJsonObj != null ? resultsJsonObj : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
+    public ResponseEntity<String> getPortLanesByMonth(@RequestParam String pol,@RequestParam String pod, @RequestParam String carrierId) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if( filter != null ) {
+            filter.setPol(pol);
+            filter.setPod(pod);
+            filter.setCarriers(carrierId);
         }
-        return new ResponseEntity<String>(resultsJsonObj.toString(), HttpStatus.OK);
+        JSONObject resultsJsonObj = loadTopPortLanesJsonData(PortLanesConstant.PORT_LANES_BY_MONTH, filter);
+        return new ResponseEntity<String>(resultsJsonObj != null ? resultsJsonObj.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
 
     @RequestMapping(value = "/avgSpendPerShipment", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getAvgSpendPerShipment(){
-        JSONObject avgSpendPerShipmtJsonData = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if(null == user){
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            JSONObject avgShipmentData = loadShipmentOverviewJsonData(ShipmentOverviewConstant.AVG_SPEND_PER_SHIPMT, filter);
-            avgSpendPerShipmtJsonData = (avgShipmentData != null ? avgShipmentData : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
-        }
-        return new ResponseEntity<String>(avgSpendPerShipmtJsonData.toString(), HttpStatus.OK);
+    public ResponseEntity<String> getAvgSpendPerShipment() throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        JSONObject avgShipmentData = loadShipmentOverviewJsonData(ShipmentOverviewConstant.AVG_SPEND_PER_SHIPMT, filter);
+        return new ResponseEntity<String>(avgShipmentData != null ? avgShipmentData.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/avgWeightByModeShipment", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getAverageWeightByModeShipment(){
-        JSONObject avgWeightModeShipmtJsonData = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if(null == user){
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            JSONObject avgShipmentData = loadShipmentOverviewJsonData(ShipmentOverviewConstant.AVG_WEIGHT_BY_MODE_SHIPMT, filter);
-            avgWeightModeShipmtJsonData = (avgShipmentData != null ? avgShipmentData : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
-        }
-        return new ResponseEntity<String>(avgWeightModeShipmtJsonData.toString(), HttpStatus.OK);
+    public ResponseEntity<String> getAverageWeightByModeShipment() throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        JSONObject avgShipmentData = loadShipmentOverviewJsonData(ShipmentOverviewConstant.AVG_WEIGHT_BY_MODE_SHIPMT, filter);
+        return new ResponseEntity<String>(avgShipmentData != null ? avgShipmentData.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/serviceUsagePerf", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getServiceLevelUsageAndPerformance(){
-        JSONObject serviceLvlPerf = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if(null == user){
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            List<ServiceLevelUsageAndPerformanceDto> serviceLevelUsageAndPerfList = dashboardsService.getServiceLevelUsageAndPerformance(filter, false);
-            JSONObject sfJson = JSONUtil.prepareServiceLevelUsageAndPerfromanceJson(serviceLevelUsageAndPerfList);
-            serviceLvlPerf = sfJson != null ? sfJson : new JSONObject();
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
-        }
-        return new ResponseEntity<String>(serviceLvlPerf.toString(), HttpStatus.OK);
+    public ResponseEntity<String> getServiceLevelUsageAndPerformance() throws JSONException {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        List<ServiceLevelUsageAndPerformanceDto> serviceLevelUsageAndPerfList = dashboardsService.getServiceLevelUsageAndPerformance(filter, false);
+        JSONObject sfJson = JSONUtil.prepareServiceLevelUsageAndPerfromanceJson(serviceLevelUsageAndPerfList);
+        return new ResponseEntity<String>(sfJson != null ? sfJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/inboundSpend", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getInboundSpend(){
-        JSONObject inboundSpendJson = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if(null == user){
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            JSONObject inbSpendJson = loadInboundSpendJsonData(InboundSpendConstant.INBOUND_SPEND, filter);
-            inboundSpendJson = inbSpendJson != null ? inbSpendJson : new JSONObject();
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch (Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
-        }
-        return new ResponseEntity<String>(inboundSpendJson.toString(), HttpStatus.OK);
+    public ResponseEntity<String> getInboundSpend() throws JSONException {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        JSONObject inbSpendJson = loadInboundSpendJsonData(InboundSpendConstant.INBOUND_SPEND, filter);
+        return new ResponseEntity<String>(inbSpendJson != null ? inbSpendJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/inboundSpendByMnth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getInboundSpendByMonth(@RequestParam String carrierId, @RequestParam String invoiceDate){
-        JSONObject inboundSpendJson = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if(null == user){
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<String> getInboundSpendByMonth(@RequestParam String carrierId, @RequestParam String invoiceDate) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if(filter != null){
+            if(carrierId != null && !carrierId.isEmpty()){
+                filter.setCarriers(carrierId);
             }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            if(filter != null){
-                if(carrierId != null && !carrierId.isEmpty()){
-                    filter.setCarriers(carrierId);
-                }
-                if(invoiceDate != null && !invoiceDate.isEmpty()){
-                    DashboardUtil.setDatesFromMonth(filter, invoiceDate);
-                }
+            if(invoiceDate != null && !invoiceDate.isEmpty()){
+                DashboardUtil.setDatesFromMonth(filter, invoiceDate);
             }
-            JSONObject inbSpendJson = loadInboundSpendJsonData(InboundSpendConstant.INBOUND_SPEND_BY_MONTH, filter);
-            inboundSpendJson = inbSpendJson != null ? inbSpendJson : new JSONObject();
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch (Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
         }
-        return new ResponseEntity<String>(inboundSpendJson.toString(), HttpStatus.OK);
+        JSONObject inbSpendJson = loadInboundSpendJsonData(InboundSpendConstant.INBOUND_SPEND_BY_MONTH, filter);
+        return new ResponseEntity<String>(inbSpendJson != null ? inbSpendJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/outboundSpend", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getoutboundSpend(){
-        JSONObject outboundSpendJson = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if(null == user){
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            JSONObject outbSpendJson = loadOutboundSpendJsonData(OutboundSpendConstant.OUTBOUND_SPEND, filter);
-            outboundSpendJson = outbSpendJson != null ? outbSpendJson : new JSONObject();
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch (Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
-        }
-        return new ResponseEntity<String>(outboundSpendJson.toString(), HttpStatus.OK);
+    public ResponseEntity<String> getoutboundSpend() throws JSONException {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        JSONObject outbSpendJson = loadOutboundSpendJsonData(OutboundSpendConstant.OUTBOUND_SPEND, filter);
+        return new ResponseEntity<String>(outbSpendJson != null ? outbSpendJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/outboundSpendByMnth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getoutboundSpendByMonth(@RequestParam String carrierId, @RequestParam String invoiceDate){
-        JSONObject outboundSpendJson = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if(null == user){
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<String> getoutboundSpendByMonth(@RequestParam String carrierId, @RequestParam String invoiceDate) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if(filter != null){
+            if(carrierId != null && !carrierId.isEmpty()){
+                filter.setCarriers(carrierId);
             }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            if(filter != null){
-                if(carrierId != null && !carrierId.isEmpty()){
-                    filter.setCarriers(carrierId);
-                }
-                if(invoiceDate != null && !invoiceDate.isEmpty()){
-                    DashboardUtil.setDatesFromMonth(filter, invoiceDate);
-                }
+            if(invoiceDate != null && !invoiceDate.isEmpty()){
+                DashboardUtil.setDatesFromMonth(filter, invoiceDate);
             }
-            JSONObject outbSpendJson = loadOutboundSpendJsonData(OutboundSpendConstant.OUTBOUND_SPEND_BY_MONTH, filter);
-            outboundSpendJson = outbSpendJson != null ? outbSpendJson : new JSONObject();
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch (Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
         }
-        return new ResponseEntity<String>(outboundSpendJson.toString(), HttpStatus.OK);
+        JSONObject outbSpendJson = loadOutboundSpendJsonData(OutboundSpendConstant.OUTBOUND_SPEND_BY_MONTH, filter);
+        return new ResponseEntity<String>(outbSpendJson != null ? outbSpendJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     private JSONObject loadOutboundSpendJsonData(OutboundSpendConstant outboundSpendType, DashboardsFilterCriteria filter) throws JSONException {
@@ -1040,866 +649,416 @@ public class DashboardsController extends DashboardBaseController {
     }
 
     @RequestMapping(value = "/invStsCnt", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getInvoiceStatusCount(){
-        JSONObject invStsCountJson = null;
-        try {
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            JSONObject stsCntJson = loadInvoiceStatusCountJsonData(InvoiceStatusCountConstant.INVOICE_STATUS_COUNT, filter);
-            invStsCountJson = (stsCntJson != null ? stsCntJson : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
-        }
-        return new ResponseEntity<String>(invStsCountJson.toString(), HttpStatus.OK);
+    public ResponseEntity<String> getInvoiceStatusCount() throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        JSONObject stsCntJson = loadInvoiceStatusCountJsonData(InvoiceStatusCountConstant.INVOICE_STATUS_COUNT, filter);
+        return new ResponseEntity<String>(stsCntJson != null ? stsCntJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/invStsCntByCarr", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getInvoiceStatusCountByCarrier(@RequestParam String invoiceStatusId){
-        JSONObject invStsCountJson = null;
-        try {
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            if(filter != null){
-                filter.setInvoiceStatusId(invoiceStatusId);
-            }
-            JSONObject stsCntJson = loadInvoiceStatusCountJsonData(InvoiceStatusCountConstant.INVOICE_STATUS_COUNT_BY_CARRIER, filter);
-            invStsCountJson = (stsCntJson != null ? stsCntJson : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
+    public ResponseEntity<String> getInvoiceStatusCountByCarrier(@RequestParam String invoiceStatusId) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if(filter != null){
+            filter.setInvoiceStatusId(invoiceStatusId);
         }
-        return new ResponseEntity<String>(invStsCountJson.toString(), HttpStatus.OK);
+        JSONObject stsCntJson = loadInvoiceStatusCountJsonData(InvoiceStatusCountConstant.INVOICE_STATUS_COUNT_BY_CARRIER, filter);
+        return new ResponseEntity<String>(stsCntJson != null ? stsCntJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/invStsCntByMnth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getInvoiceStatusCountByMonth(@RequestParam String carrierId, @RequestParam String invoiceStatusId){
-        JSONObject invStsCountJson = null;
-        try {
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            if(filter != null){
-                filter.setCarriers(carrierId);
-                filter.setInvoiceStatusId(invoiceStatusId);
-            }
-            JSONObject stsCntJson = loadInvoiceStatusCountJsonData(InvoiceStatusCountConstant.INVOICE_STATUS_COUNT_BY_MONTH, filter);
-            invStsCountJson = (stsCntJson != null ? stsCntJson : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
+    public ResponseEntity<String> getInvoiceStatusCountByMonth(@RequestParam String carrierId, @RequestParam String invoiceStatusId) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if(filter != null){
+            filter.setCarriers(carrierId);
+            filter.setInvoiceStatusId(invoiceStatusId);
         }
-        return new ResponseEntity<String>(invStsCountJson.toString(), HttpStatus.OK);
+        JSONObject stsCntJson = loadInvoiceStatusCountJsonData(InvoiceStatusCountConstant.INVOICE_STATUS_COUNT_BY_MONTH, filter);
+        return new ResponseEntity<String>(stsCntJson != null ? stsCntJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/invStsAmt", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getInvoiceStatusAmount(){
-        JSONObject invStsAmountJson = null;
-        try {
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            JSONObject stsAmtJson = loadInvoiceStatusAmountJsonData(InvoiceStatusAmountConstant.INVOICE_STATUS_AMOUNT, filter);
-            invStsAmountJson = (stsAmtJson != null ? stsAmtJson : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
-        }
-        return new ResponseEntity<String>(invStsAmountJson.toString(), HttpStatus.OK);
+    public ResponseEntity<String> getInvoiceStatusAmount() throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        JSONObject stsAmtJson = loadInvoiceStatusAmountJsonData(InvoiceStatusAmountConstant.INVOICE_STATUS_AMOUNT, filter);
+        return new ResponseEntity<String>(stsAmtJson != null ? stsAmtJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/invStsAmtByCarr", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getInvoiceStatusAmountByCarrier(@RequestParam String invoiceStatusId){
-        JSONObject invStsAmountJson = null;
-        try {
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            if(filter != null){
-                filter.setInvoiceStatusId(invoiceStatusId);
-            }
-            JSONObject stsAmtJson = loadInvoiceStatusAmountJsonData(InvoiceStatusAmountConstant.INVOICE_STATUS_AMOUNT_BY_CARRIER, filter);
-            invStsAmountJson = (stsAmtJson != null ? stsAmtJson : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
+    public ResponseEntity<String> getInvoiceStatusAmountByCarrier(@RequestParam String invoiceStatusId) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if(filter != null){
+            filter.setInvoiceStatusId(invoiceStatusId);
         }
-        return new ResponseEntity<String>(invStsAmountJson.toString(), HttpStatus.OK);
+        JSONObject stsAmtJson = loadInvoiceStatusAmountJsonData(InvoiceStatusAmountConstant.INVOICE_STATUS_AMOUNT_BY_CARRIER, filter);
+        return new ResponseEntity<String>(stsAmtJson != null ? stsAmtJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/invStsAmtByMnth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getInvoiceStatusAmountByMonth(@RequestParam String carrierId, @RequestParam String invoiceStatusId){
-        JSONObject invStsAmountJson = null;
-        try {
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            if(filter != null){
-                filter.setCarriers(carrierId);
-                filter.setInvoiceStatusId(invoiceStatusId);
-            }
-            JSONObject stsAmtJson = loadInvoiceStatusAmountJsonData(InvoiceStatusAmountConstant.INVOICE_STATUS_AMOUNT_BY_MONTH, filter);
-            invStsAmountJson = (stsAmtJson != null ? stsAmtJson : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
+    public ResponseEntity<String> getInvoiceStatusAmountByMonth(@RequestParam String carrierId, @RequestParam String invoiceStatusId) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if(filter != null){
+            filter.setCarriers(carrierId);
+            filter.setInvoiceStatusId(invoiceStatusId);
         }
-        return new ResponseEntity<String>(invStsAmountJson.toString(), HttpStatus.OK);
+        JSONObject stsAmtJson = loadInvoiceStatusAmountJsonData(InvoiceStatusAmountConstant.INVOICE_STATUS_AMOUNT_BY_MONTH, filter);
+        return new ResponseEntity<String>(stsAmtJson != null ? stsAmtJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/invMthdScore", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getInvoiceMethodScore(){
-        JSONObject invMethodScoreJson = null;
-        try {
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            JSONObject invScoreJson = loadInvoiceMethodScoreJsonData(InvoiceMethodScoreConstant.INVOICE_METHOD_SCORE, filter);
-            invMethodScoreJson = (invScoreJson != null ? invScoreJson : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
-        }
-        return new ResponseEntity<String>(invMethodScoreJson.toString(), HttpStatus.OK);
+    public ResponseEntity<String> getInvoiceMethodScore() throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        JSONObject invScoreJson = loadInvoiceMethodScoreJsonData(InvoiceMethodScoreConstant.INVOICE_METHOD_SCORE, filter);
+        return new ResponseEntity<String>(invScoreJson != null ? invScoreJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/invMthdScoreByCarr", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getInvoiceMethodScoreByCarrier(@RequestParam String invoiceMethod){
-        JSONObject invMethodScoreJson = null;
-        try {
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            if(filter != null){
-                filter.setInvoiceMethod(invoiceMethod);
-            }
-            JSONObject invScoreJson = loadInvoiceMethodScoreJsonData(InvoiceMethodScoreConstant.INVOICE_METHOD_SCORE_BY_CARRIER, filter);
-            invMethodScoreJson = (invScoreJson != null ? invScoreJson : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
+    public ResponseEntity<String> getInvoiceMethodScoreByCarrier(@RequestParam String invoiceMethod) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if(filter != null){
+            filter.setInvoiceMethod(invoiceMethod);
         }
-        return new ResponseEntity<String>(invMethodScoreJson.toString(), HttpStatus.OK);
+        JSONObject invScoreJson = loadInvoiceMethodScoreJsonData(InvoiceMethodScoreConstant.INVOICE_METHOD_SCORE_BY_CARRIER, filter);
+        return new ResponseEntity<String>(invScoreJson != null ? invScoreJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/invMthdScoreByMnth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getInvoiceMethodScoreByMonth(@RequestParam String invoiceMethod, @RequestParam String carrierId){
-        JSONObject invMethodScoreJson = null;
-        try {
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            if(filter != null){
-                filter.setInvoiceMethod(invoiceMethod);
-                filter.setCarriers(carrierId);
-            }
-            JSONObject invScoreJson = loadInvoiceMethodScoreJsonData(InvoiceMethodScoreConstant.INVOICE_METHOD_SCORE_BY_MONTH, filter);
-            invMethodScoreJson = (invScoreJson != null ? invScoreJson : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
+    public ResponseEntity<String> getInvoiceMethodScoreByMonth(@RequestParam String invoiceMethod, @RequestParam String carrierId) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if(filter != null){
+            filter.setInvoiceMethod(invoiceMethod);
+            filter.setCarriers(carrierId);
         }
-        return new ResponseEntity<String>(invMethodScoreJson.toString(), HttpStatus.OK);
+        JSONObject invScoreJson = loadInvoiceMethodScoreJsonData(InvoiceMethodScoreConstant.INVOICE_METHOD_SCORE_BY_MONTH, filter);
+        return new ResponseEntity<String>(invScoreJson != null ? invScoreJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/orderMatch", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getOrderMatchStatus(){
-        JSONObject orderMatchJson = null;
-        try {
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            JSONObject ordMchJson = loadOrderMatchJsonData(OrderMatchConstant.ORDER_MATCH, filter);
-            orderMatchJson = (ordMchJson != null ? ordMchJson : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
-        }
-        return new ResponseEntity<String>(orderMatchJson.toString(), HttpStatus.OK);
+    public ResponseEntity<String> getOrderMatchStatus() throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        JSONObject ordMchJson = loadOrderMatchJsonData(OrderMatchConstant.ORDER_MATCH, filter);
+        return new ResponseEntity<String>(ordMchJson != null ? ordMchJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/orderMatchByCarr", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getOrderMatchByCarrier(@RequestParam String orderMatchValue){
-        JSONObject orderMatchJson = null;
-        try {
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            if(filter != null){
-                filter.setOrderMatch(orderMatchValue);
-            }
-            JSONObject ordMchJson = loadOrderMatchJsonData(OrderMatchConstant.ORDER_MATCH_BY_CARRIER, filter);
-            orderMatchJson = (ordMchJson != null ? ordMchJson : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
+    public ResponseEntity<String> getOrderMatchByCarrier(@RequestParam String orderMatchValue) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if(filter != null){
+            filter.setOrderMatch(orderMatchValue);
         }
-        return new ResponseEntity<String>(orderMatchJson.toString(), HttpStatus.OK);
+        JSONObject ordMchJson = loadOrderMatchJsonData(OrderMatchConstant.ORDER_MATCH_BY_CARRIER, filter);
+        return new ResponseEntity<String>(ordMchJson != null ? ordMchJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/orderMatchByMnth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getOrderMatchByMonth(@RequestParam String carrierId, @RequestParam String orderMatchValue){
-        JSONObject orderMatchJson = null;
-        try {
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            if(filter != null){
-                filter.setCarriers(carrierId);
-                filter.setOrderMatch(orderMatchValue);
-            }
-            JSONObject ordMchJson = loadOrderMatchJsonData(OrderMatchConstant.ORDER_MATCH_BY_MONTH, filter);
-            orderMatchJson = (ordMchJson != null ? ordMchJson : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
+    public ResponseEntity<String> getOrderMatchByMonth(@RequestParam String carrierId, @RequestParam String orderMatchValue) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if(filter != null){
+            filter.setCarriers(carrierId);
+            filter.setOrderMatch(orderMatchValue);
         }
-        return new ResponseEntity<String>(orderMatchJson.toString(), HttpStatus.OK);
+        JSONObject ordMchJson = loadOrderMatchJsonData(OrderMatchConstant.ORDER_MATCH_BY_MONTH, filter);
+        return new ResponseEntity<String>(ordMchJson != null ? ordMchJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/billedVsApproved", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getBilledVsApproved(){
-        JSONObject billedVsApprovedJson = null;
-        try {
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            JSONObject bvaJson = loadBilledVsApprovedJsonData(BilledVsApprovedConstant.BILLED_VS_APPROVED, filter);
-            billedVsApprovedJson = (bvaJson != null ? bvaJson : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
-        }
-        return new ResponseEntity<String>(billedVsApprovedJson.toString(), HttpStatus.OK);
+    public ResponseEntity<String> getBilledVsApproved() throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        JSONObject billedVsApprovedJson = loadBilledVsApprovedJsonData(BilledVsApprovedConstant.BILLED_VS_APPROVED, filter);
+        return new ResponseEntity<String>(billedVsApprovedJson != null ? billedVsApprovedJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/billedVsApprovedByMnth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getBilledVsApprovedByMonth(@RequestParam String carrierId, @RequestParam String billedVsApproved){
-        JSONObject billedVsApprovedJson = null;
-        try {
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            if(filter != null){
-                filter.setCarriers(carrierId);
-                filter.setBilledVsApproved(billedVsApproved);
-            }
-            JSONObject bvaJson = loadBilledVsApprovedJsonData(BilledVsApprovedConstant.BILLED_VS_APPROVED_BY_MONTH, filter);
-            billedVsApprovedJson = (bvaJson != null ? bvaJson : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
+    public ResponseEntity<String> getBilledVsApprovedByMonth(@RequestParam String carrierId, @RequestParam String billedVsApproved) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if(filter != null){
+            filter.setCarriers(carrierId);
+            filter.setBilledVsApproved(billedVsApproved);
         }
-        return new ResponseEntity<String>(billedVsApprovedJson.toString(), HttpStatus.OK);
+        JSONObject billedVsApprovedJson = loadBilledVsApprovedJsonData(BilledVsApprovedConstant.BILLED_VS_APPROVED_BY_MONTH, filter);
+        return new ResponseEntity<String>(billedVsApprovedJson != null ? billedVsApprovedJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/recovAdj", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getRecoveryAdjustment(){
-        JSONObject recovAdjJson = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            JSONObject raJson = loadRecoveryAdjustmentJsonData(RecoveryAdjustmentConstants.RECOVERY_ADJUSTMENT, filter);
-            recovAdjJson = (raJson != null ? raJson : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch (Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
-        }
-        return new ResponseEntity<String>(recovAdjJson.toString(), HttpStatus.OK);
+    public ResponseEntity<String> getRecoveryAdjustment() throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        JSONObject recovAdjJson = loadRecoveryAdjustmentJsonData(RecoveryAdjustmentConstants.RECOVERY_ADJUSTMENT, filter);
+        return new ResponseEntity<String>(recovAdjJson != null ? recovAdjJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/recovAdjByCarr", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getRecoveryAdjustmentByCarrier(@RequestParam String service, @RequestParam String invoiceDate){
-        JSONObject recovAdjJson = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<String> getRecoveryAdjustmentByCarrier(@RequestParam String service, @RequestParam String invoiceDate) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if(filter != null){
+            if (service != null && !service.isEmpty()){
+                filter.setService(service);
             }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            if(filter != null){
-                if (service != null && !service.isEmpty()){
-                    filter.setService(service);
-                }
-                if(invoiceDate != null && !invoiceDate.isEmpty()){
-                    DashboardUtil.setDatesFromMonth(filter, invoiceDate);
-                }
+            if(invoiceDate != null && !invoiceDate.isEmpty()){
+                DashboardUtil.setDatesFromMonth(filter, invoiceDate);
             }
-            JSONObject raJson = loadRecoveryAdjustmentJsonData(RecoveryAdjustmentConstants.RECOVERY_ADJUSTMENT_BY_CARRIER, filter);
-            recovAdjJson = (raJson != null ? raJson : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch (Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
         }
-        return new ResponseEntity<String>(recovAdjJson.toString(), HttpStatus.OK);
+        JSONObject recovAdjJson = loadRecoveryAdjustmentJsonData(RecoveryAdjustmentConstants.RECOVERY_ADJUSTMENT_BY_CARRIER, filter);
+        return new ResponseEntity<String>(recovAdjJson != null ? recovAdjJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/recovAdjByMnth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getRecoveryAdjustmentByMonth(@RequestParam String service, @RequestParam String invoiceDate, @RequestParam String carrierId){
-        JSONObject recovAdjJson = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<String> getRecoveryAdjustmentByMonth(@RequestParam String service, @RequestParam String invoiceDate, @RequestParam String carrierId) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if(filter != null){
+            if (service != null && !service.isEmpty()){
+                filter.setService(service);
             }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            if(filter != null){
-                if (service != null && !service.isEmpty()){
-                    filter.setService(service);
-                }
-                if(invoiceDate != null && !invoiceDate.isEmpty()){
-                    DashboardUtil.setDatesFromMonth(filter, invoiceDate);
-                }
-                if(carrierId != null && !carrierId.isEmpty()){
-                    filter.setCarriers(carrierId);
-                }
+            if(invoiceDate != null && !invoiceDate.isEmpty()){
+                DashboardUtil.setDatesFromMonth(filter, invoiceDate);
             }
-            JSONObject raJson = loadRecoveryAdjustmentJsonData(RecoveryAdjustmentConstants.RECOVERY_ADJUSTMENT_BY_MONTH, filter);
-            recovAdjJson = (raJson != null ? raJson : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch (Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
+            if(carrierId != null && !carrierId.isEmpty()){
+                filter.setCarriers(carrierId);
+            }
         }
-        return new ResponseEntity<String>(recovAdjJson.toString(), HttpStatus.OK);
+        JSONObject recovAdjJson = loadRecoveryAdjustmentJsonData(RecoveryAdjustmentConstants.RECOVERY_ADJUSTMENT_BY_MONTH, filter);
+        return new ResponseEntity<String>(recovAdjJson != null ? recovAdjJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/recovServ", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getRecoveryServices(){
-        JSONObject recovServJson = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            JSONObject rsJson = loadRecoveryServicesJsonData(RecoveryServiceConstants.RECOVERY_SERVICE, filter);
-            recovServJson = (rsJson != null ? rsJson : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch (Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
-        }
-        return new ResponseEntity<String>(recovServJson.toString(), HttpStatus.OK);
+    public ResponseEntity<String> getRecoveryServices() throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        JSONObject recovServJson = loadRecoveryServicesJsonData(RecoveryServiceConstants.RECOVERY_SERVICE, filter);
+        return new ResponseEntity<String>(recovServJson != null ? recovServJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/recovServByMnth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getRecoveryServicesByMonth(@RequestParam String carrierId, @RequestParam String service){
-        JSONObject recovServJson = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<String> getRecoveryServicesByMonth(@RequestParam String carrierId, @RequestParam String service) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if(filter != null){
+            if(carrierId != null && !carrierId.isEmpty()){
+                filter.setCarriers(carrierId);
             }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            if(filter != null){
-                if(carrierId != null && !carrierId.isEmpty()){
-                    filter.setCarriers(carrierId);
-                }
-                if(service != null && !service.isEmpty()){
-                    filter.setService(service);
-                }
+            if(service != null && !service.isEmpty()){
+                filter.setService(service);
             }
-            JSONObject rsJson = loadRecoveryServicesJsonData(RecoveryServiceConstants.RECOVERY_SERVICE_BY_MONTH, filter);
-            recovServJson = (rsJson != null ? rsJson : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch (Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
         }
-        return new ResponseEntity<String>(recovServJson.toString(), HttpStatus.OK);
+        JSONObject recovServJson = loadRecoveryServicesJsonData(RecoveryServiceConstants.RECOVERY_SERVICE_BY_MONTH, filter);
+        return new ResponseEntity<String>(recovServJson != null ? recovServJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/pkgExcp", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getPackageExceptions(){
-        JSONObject pkgExcpJson = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            JSONObject rsJson = loadPackageExceptionsJsonData(PackageExceptionConstants.PACKAGE_EXCEPTION, filter);
-            pkgExcpJson = (rsJson != null ? rsJson : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch (Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
-        }
-        return new ResponseEntity<String>(pkgExcpJson.toString(), HttpStatus.OK);
+    public ResponseEntity<String> getPackageExceptions() throws JSONException {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        JSONObject pkgExcpJson = loadPackageExceptionsJsonData(PackageExceptionConstants.PACKAGE_EXCEPTION, filter);
+        return new ResponseEntity<String>(pkgExcpJson != null ? pkgExcpJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/pkgExcpByCarr", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getPackageExceptionsByCarrier(@RequestParam String invoiceDate, @RequestParam String deliveryFlag){
-        JSONObject pkgExcpJson = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            if(filter != null){
-                if (deliveryFlag != null && !deliveryFlag.isEmpty())
-                    filter.setDeliveryFlag(deliveryFlag);
-                DashboardUtil.setDatesFromMonth(filter, invoiceDate);
-            }
-            JSONObject rsJson = loadPackageExceptionsJsonData(PackageExceptionConstants.PACKAGE_EXCEPTION_BY_CARRIER, filter);
-            pkgExcpJson = (rsJson != null ? rsJson : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch (Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
+    public ResponseEntity<String> getPackageExceptionsByCarrier(@RequestParam String invoiceDate, @RequestParam String deliveryFlag) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if(filter != null){
+            if (deliveryFlag != null && !deliveryFlag.isEmpty())
+                filter.setDeliveryFlag(deliveryFlag);
+            DashboardUtil.setDatesFromMonth(filter, invoiceDate);
         }
-        return new ResponseEntity<String>(pkgExcpJson.toString(), HttpStatus.OK);
+        JSONObject pkgExcpJson = loadPackageExceptionsJsonData(PackageExceptionConstants.PACKAGE_EXCEPTION_BY_CARRIER, filter);
+        return new ResponseEntity<String>(pkgExcpJson != null ? pkgExcpJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/pkgExcpByMnth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getPackageExceptionsByMonth(@RequestParam String invoiceDate, @RequestParam String deliveryFlag,@RequestParam String carrierId){
-        JSONObject pkgExcpJson = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<String> getPackageExceptionsByMonth(@RequestParam String invoiceDate, @RequestParam String deliveryFlag,@RequestParam String carrierId) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if(filter != null){
+            if(carrierId != null && !carrierId.isEmpty()){
+                filter.setCarriers(carrierId);
             }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            if(filter != null){
-                if(carrierId != null && !carrierId.isEmpty()){
-                    filter.setCarriers(carrierId);
-                }
-                if (deliveryFlag != null && !deliveryFlag.isEmpty()){
-                    filter.setDeliveryFlag(deliveryFlag);
-                }
-                DashboardUtil.setDatesFromMonth(filter, invoiceDate);
+            if (deliveryFlag != null && !deliveryFlag.isEmpty()){
+                filter.setDeliveryFlag(deliveryFlag);
             }
-            JSONObject rsJson = loadPackageExceptionsJsonData(PackageExceptionConstants.PACKAGE_EXCEPTION_BY_MONTH, filter);
-            pkgExcpJson = (rsJson != null ? rsJson : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch (Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
+            DashboardUtil.setDatesFromMonth(filter, invoiceDate);
         }
-        return new ResponseEntity<String>(pkgExcpJson.toString(), HttpStatus.OK);
+        JSONObject pkgExcpJson = loadPackageExceptionsJsonData(PackageExceptionConstants.PACKAGE_EXCEPTION_BY_MONTH, filter);
+        return new ResponseEntity<String>(pkgExcpJson != null ? pkgExcpJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/avgSpendPerShipmentByCarrier", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getAverageSpendPerShipmentByCarrier(@RequestParam String service, @RequestParam String invoiceDate){
-        JSONObject avgSpendPerShipmtByCarrierJsonData = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if(null == user){
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<String> getAverageSpendPerShipmentByCarrier(@RequestParam String service, @RequestParam String invoiceDate) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if(filter !=  null){
+            if(service != null && !service.isEmpty()){
+                filter.setService(service);
             }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-
-            if(filter !=  null){
-                if(service != null && !service.isEmpty()){
-                    filter.setService(service);
-                }
-                if(invoiceDate != null && !invoiceDate.isEmpty()){
-                    DashboardUtil.setDatesFromMonth(filter, invoiceDate);
-                }
+            if(invoiceDate != null && !invoiceDate.isEmpty()){
+                DashboardUtil.setDatesFromMonth(filter, invoiceDate);
             }
-
-            JSONObject avgShipmentData = loadShipmentOverviewJsonData(ShipmentOverviewConstant.AVG_SPEND_PER_SHIPMT_BY_CARRIER, filter);
-            avgSpendPerShipmtByCarrierJsonData = (avgShipmentData != null ? avgShipmentData : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
         }
-        return new ResponseEntity<String>(avgSpendPerShipmtByCarrierJsonData.toString(), HttpStatus.OK);
+        JSONObject avgShipmentData = loadShipmentOverviewJsonData(ShipmentOverviewConstant.AVG_SPEND_PER_SHIPMT_BY_CARRIER, filter);
+        return new ResponseEntity<String>(avgShipmentData != null ? avgShipmentData.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/avgSpendPerShipmentByMonth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getAverageSpendPerShipmentByMonth(@RequestParam String invoiceDate,@RequestParam String carrierId,@RequestParam String service){
-        JSONObject avgSpendPerShipmtByCarrierJsonData = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if(null == user){
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<String> getAverageSpendPerShipmentByMonth(@RequestParam String invoiceDate,@RequestParam String carrierId,@RequestParam String service) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if(filter !=  null){
+            if(service != null && !service.isEmpty()){
+                filter.setService(service);
             }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-
-            if(filter !=  null){
-                if(service != null && !service.isEmpty()){
-                    filter.setService(service);
-                }
-                if(invoiceDate != null && !invoiceDate.isEmpty()){
-                    DashboardUtil.setDatesFromMonth(filter, invoiceDate);
-                }
-                if(carrierId != null && !carrierId.isEmpty()){
-                    filter.setCarriers(carrierId);
-                }
+            if(invoiceDate != null && !invoiceDate.isEmpty()){
+                DashboardUtil.setDatesFromMonth(filter, invoiceDate);
             }
-
-            JSONObject avgShipmentData = loadShipmentOverviewJsonData(ShipmentOverviewConstant.AVG_SPEND_PER_SHIPMT_BY_MONTH, filter);
-            avgSpendPerShipmtByCarrierJsonData = (avgShipmentData != null ? avgShipmentData : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
+            if(carrierId != null && !carrierId.isEmpty()){
+                filter.setCarriers(carrierId);
+            }
         }
-        return new ResponseEntity<String>(avgSpendPerShipmtByCarrierJsonData.toString(), HttpStatus.OK);
+        JSONObject avgShipmentData = loadShipmentOverviewJsonData(ShipmentOverviewConstant.AVG_SPEND_PER_SHIPMT_BY_MONTH, filter);
+        return new ResponseEntity<String>(avgShipmentData != null ? avgShipmentData.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/avgWeightModeByCarrier", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getAverageWeightModeByCarrier(@RequestParam String service, @RequestParam String invoiceDate){
-        JSONObject avgWeightModeByCarrierJsonData = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if(null == user){
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<String> getAverageWeightModeByCarrier(@RequestParam String service, @RequestParam String invoiceDate) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if(filter !=  null){
+            if(service != null && !service.isEmpty()){
+                filter.setService(service);
             }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-
-            if(filter !=  null){
-                if(service != null && !service.isEmpty()){
-                    filter.setService(service);
-                }
-                if(invoiceDate != null && !invoiceDate.isEmpty()){
-                    DashboardUtil.setDatesFromMonth(filter, invoiceDate);
-                }
+            if(invoiceDate != null && !invoiceDate.isEmpty()){
+                DashboardUtil.setDatesFromMonth(filter, invoiceDate);
             }
-
-            JSONObject avgWeightModeData = loadShipmentOverviewJsonData(ShipmentOverviewConstant.AVG_WEIGHT_SHIPMT_BY_CARRIER, filter);
-            avgWeightModeByCarrierJsonData = (avgWeightModeData != null ? avgWeightModeData : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
         }
-        return new ResponseEntity<String>(avgWeightModeByCarrierJsonData.toString(), HttpStatus.OK);
+        JSONObject avgWeightModeData = loadShipmentOverviewJsonData(ShipmentOverviewConstant.AVG_WEIGHT_SHIPMT_BY_CARRIER, filter);
+        return new ResponseEntity<String>(avgWeightModeData != null ? avgWeightModeData.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/avgWeightModeByMonth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getAverageWeightModeByMonth(@RequestParam String service,@RequestParam String invoiceDate,@RequestParam String carrierId){
-        JSONObject avgWeightModeByCarrierJsonData = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if(null == user){
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<String> getAverageWeightModeByMonth(@RequestParam String service,@RequestParam String invoiceDate,@RequestParam String carrierId) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if(filter !=  null){
+            if(service != null && !service.isEmpty()){
+                filter.setService(service);
             }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-
-            if(filter !=  null){
-                if(service != null && !service.isEmpty()){
-                    filter.setService(service);
-                }
-                if(invoiceDate != null && !invoiceDate.isEmpty()){
-                    DashboardUtil.setDatesFromMonth(filter, invoiceDate);
-                }
-                if(carrierId != null && !carrierId.isEmpty()){
-                    filter.setCarriers(carrierId);
-                }
+            if(invoiceDate != null && !invoiceDate.isEmpty()){
+                DashboardUtil.setDatesFromMonth(filter, invoiceDate);
             }
-
-            JSONObject avgWeightModeData = loadShipmentOverviewJsonData(ShipmentOverviewConstant.AVG_WEIGHT_SHIPMT_BY_MONTH, filter);
-            avgWeightModeByCarrierJsonData = (avgWeightModeData != null ? avgWeightModeData : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
+            if(carrierId != null && !carrierId.isEmpty()){
+                filter.setCarriers(carrierId);
+            }
         }
-        return new ResponseEntity<String>(avgWeightModeByCarrierJsonData.toString(), HttpStatus.OK);
+        JSONObject avgWeightModeData = loadShipmentOverviewJsonData(ShipmentOverviewConstant.AVG_WEIGHT_SHIPMT_BY_MONTH, filter);
+        return new ResponseEntity<String>(avgWeightModeData != null ? avgWeightModeData.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
 
     @RequestMapping(value = "/annualSumm", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getAnnualSummary(){
-        JSONObject annualSummaryJson = null;
-        try {
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            JSONObject asJson = loadAnnualSummaryJsonData(AnnualSummaryConstants.ANNUAL_SUMMARY, filter);
-            annualSummaryJson = asJson != null ? asJson : new JSONObject();
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
-        }
-        return new ResponseEntity<String>(annualSummaryJson.toString(), HttpStatus.OK);
+    public ResponseEntity<String> getAnnualSummary() throws JSONException {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        JSONObject annualSummaryJson = loadAnnualSummaryJsonData(AnnualSummaryConstants.ANNUAL_SUMMARY, filter);
+        return new ResponseEntity<String>(annualSummaryJson != null ? annualSummaryJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/annualSummByService", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getAnnualSummaryByService(@RequestParam String mode){
-        JSONObject annualSummaryJson = null;
-        try {
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<String> getAnnualSummaryByService(@RequestParam String mode) throws JSONException {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if(filter != null){
+            if(mode != null && !mode.isEmpty()){
+                filter.setService(mode);
             }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            if(filter != null){
-                if(mode != null && !mode.isEmpty()){
-                    filter.setService(mode);
-                }
-            }
-            JSONObject asJson = loadAnnualSummaryJsonData(AnnualSummaryConstants.ANNUAL_SUMMARY_BY_SERVICE, filter);
-            annualSummaryJson = asJson != null ? asJson : new JSONObject();
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
         }
-        return new ResponseEntity<String>(annualSummaryJson.toString(), HttpStatus.OK);
+        JSONObject annualSummaryJson = loadAnnualSummaryJsonData(AnnualSummaryConstants.ANNUAL_SUMMARY_BY_SERVICE, filter);
+        return new ResponseEntity<String>(annualSummaryJson != null ? annualSummaryJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/annualSummByCarrier", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getAnnualSummaryByCarrier(@RequestParam String service, @RequestParam String mode){
-        JSONObject annualSummaryJson = null;
-        try {
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<String> getAnnualSummaryByCarrier(@RequestParam String service, @RequestParam String mode) throws JSONException {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if(filter != null){
+            if(service != null && !service.isEmpty()){
+                filter.setService(service);
             }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            if(filter != null){
-                if(service != null && !service.isEmpty()){
-                    filter.setService(service);
-                }
-                if(mode != null && !mode.isEmpty()){
-                    filter.setModeNames(mode);
-                }
+            if(mode != null && !mode.isEmpty()){
+                filter.setModeNames(mode);
             }
-            JSONObject asJson = loadAnnualSummaryJsonData(AnnualSummaryConstants.ANNUAL_SUMMARY_BY_CARRIER, filter);
-            annualSummaryJson = asJson != null ? asJson : new JSONObject();
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
         }
-        return new ResponseEntity<String>(annualSummaryJson.toString(), HttpStatus.OK);
+        JSONObject annualSummaryJson = loadAnnualSummaryJsonData(AnnualSummaryConstants.ANNUAL_SUMMARY_BY_CARRIER, filter);
+        return new ResponseEntity<String>(annualSummaryJson != null ? annualSummaryJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/annualSummByMonth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getAnnualSummaryByMonth(@RequestParam String service, @RequestParam String mode, @RequestParam String carrierId){
-        JSONObject annualSummaryJson = null;
-        try {
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<String> getAnnualSummaryByMonth(@RequestParam String service, @RequestParam String mode, @RequestParam String carrierId) throws JSONException {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if(filter != null){
+            if(service != null && !service.isEmpty()){
+                filter.setService(service);
             }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            if(filter != null){
-                if(service != null && !service.isEmpty()){
-                    filter.setService(service);
-                }
-                if(mode != null && !mode.isEmpty()){
-                    filter.setModeNames(mode);
-                }
-                if(carrierId != null && !carrierId.isEmpty()){
-                    filter.setCarriers(carrierId);
-                }
+            if(mode != null && !mode.isEmpty()){
+                filter.setModeNames(mode);
             }
-            JSONObject asJson = loadAnnualSummaryJsonData(AnnualSummaryConstants.ANNUAL_SUMMARY_BY_MONTH, filter);
-            annualSummaryJson = asJson != null ? asJson : new JSONObject();
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
+            if(carrierId != null && !carrierId.isEmpty()){
+                filter.setCarriers(carrierId);
+            }
         }
-        return new ResponseEntity<String>(annualSummaryJson.toString(), HttpStatus.OK);
+        JSONObject annualSummaryJson = loadAnnualSummaryJsonData(AnnualSummaryConstants.ANNUAL_SUMMARY_BY_MONTH, filter);
+        return new ResponseEntity<String>(annualSummaryJson != null ? annualSummaryJson.toString(): new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/monthlySpendByMode", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getMonthlySpendByMode(){
-        JSONObject monthlySpendJson = null;
-        try {
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            JSONObject msJson = loadMonthlySpendByModeJsonData(MonthlySpendByModeConstants.MONTHLY_SPEND_BY_MODE, filter);
-            monthlySpendJson = msJson != null ? msJson : new JSONObject();
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch (Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
-        }
-        return new ResponseEntity<String>(monthlySpendJson.toString(), HttpStatus.OK);
+    public ResponseEntity<String> getMonthlySpendByMode() throws JSONException {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        JSONObject monthlySpendJson = loadMonthlySpendByModeJsonData(MonthlySpendByModeConstants.MONTHLY_SPEND_BY_MODE, filter);
+        return new ResponseEntity<String>(monthlySpendJson != null ? monthlySpendJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/monthlySpendByModeByServ", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getMonthlySpendByModeByService(@RequestParam String mode){
-        JSONObject monthlySpendJson = null;
-        try {
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<String> getMonthlySpendByModeByService(@RequestParam String mode) throws JSONException {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if(filter != null){
+            if(mode != null && !mode.isEmpty()){
+                filter.setService(mode);
             }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            if(filter != null){
-                if(mode != null && !mode.isEmpty()){
-                    filter.setService(mode);
-                }
-            }
-            JSONObject msJson = loadMonthlySpendByModeJsonData(MonthlySpendByModeConstants.MONTHLY_SPEND_BY_MODE_BY_SERVICE, filter);
-            monthlySpendJson = msJson != null ? msJson : new JSONObject();
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch (Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
         }
-        return new ResponseEntity<String>(monthlySpendJson.toString(), HttpStatus.OK);
+        JSONObject monthlySpendJson = loadMonthlySpendByModeJsonData(MonthlySpendByModeConstants.MONTHLY_SPEND_BY_MODE_BY_SERVICE, filter);
+        return new ResponseEntity<String>(monthlySpendJson != null ? monthlySpendJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/accSumm", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getAccountSummary(){
-        JSONObject accSummJson = null;
-        try {
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            JSONObject asJson = loadAccountSummaryJsonData(AccountSummaryConstants.ACCOUNT_SUMMARY, filter);
-            accSummJson = asJson != null ? asJson : new JSONObject();
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch (Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
-        }
-        return new ResponseEntity<String>(accSummJson.toString(), HttpStatus.OK);
+    public ResponseEntity<String> getAccountSummary() throws JSONException {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        JSONObject accSummJson = loadAccountSummaryJsonData(AccountSummaryConstants.ACCOUNT_SUMMARY, filter);
+        return new ResponseEntity<String>(accSummJson != null ? accSummJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/parcelAccSumm", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getParcelAccountSummary(){
-        JSONObject accSummJson = null;
-        try {
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            JSONObject asJson = loadAccountSummaryJsonData(AccountSummaryConstants.PARCEL_ACCOUNT_SUMMARY, filter);
-            accSummJson = asJson != null ? asJson : new JSONObject();
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch (Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<String>(HttpStatus.OK);
-        }
-        return new ResponseEntity<String>(accSummJson.toString(), HttpStatus.OK);
+    public ResponseEntity<String> getParcelAccountSummary() throws JSONException {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        JSONObject accSummJson = loadAccountSummaryJsonData(AccountSummaryConstants.PARCEL_ACCOUNT_SUMMARY, filter);
+        return new ResponseEntity<String>(accSummJson != null ? accSummJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
     private JSONObject loadAccountSummaryJsonData(AccountSummaryConstants accountSummaryType, DashboardsFilterCriteria filter) throws JSONException {
@@ -2611,6 +1770,9 @@ public class DashboardsController extends DashboardBaseController {
             case TOP_ACCESSORIAL_SPEND_BY_MONTH:
                 accSpendJson = loadTopAccessorialSpendByMonthJson(filter);
                 break;
+            case TOP_ACCESSORIAL_SPEND_BY_ACC:
+                accSpendJson = loadTopAccessorialSpendByAccJson(filter);
+                break;
             case ACCESSORIAL_SPEND:
                 accSpendJson = loadAccessorialSpendJson(filter);
                 break;
@@ -2622,6 +1784,27 @@ public class DashboardsController extends DashboardBaseController {
                 break;
             default:
                 throw new MethodNotFoundException("Method param value not matched");
+        }
+        return accSpendJson;
+    }
+
+    private JSONObject loadTopAccessorialSpendByAccJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject accSpendJson = null;
+        List<AccessorialSpendDto> accSpendList = dashboardsService.getTopAccessorialSpendByAccessorial(filter, false);
+        if(accSpendList != null && accSpendList.size() > 0){
+            List<CommonValuesForChartDto> commonValList = null;
+            if(accSpendList != null && accSpendList.size() > 0){
+                commonValList = new ArrayList<CommonValuesForChartDto>();
+                for(AccessorialSpendDto accSpend : accSpendList){
+                    if(accSpend != null){
+                        CommonValuesForChartDto commonValuesForChart = new CommonValuesForChartDto();
+                        commonValuesForChart.setName(accSpend.getAccessorialName());
+                        commonValuesForChart.setValue(accSpend.getSpend());
+                        commonValList.add(commonValuesForChart);
+                    }
+                }
+                accSpendJson = JSONUtil.prepareCommonJsonForChart(commonValList);
+            }
         }
         return accSpendJson;
     }
@@ -3018,39 +2201,28 @@ public class DashboardsController extends DashboardBaseController {
     public ResponseEntity<PaginationBean> getDashboardReport(@RequestParam(required = false) String invoiceDate, @RequestParam(required = false) String dashletteName, @RequestParam(required = false) String carrierId,
                                                              @RequestParam(required = false) String mode, @RequestParam(required = false) String carscoretype, @RequestParam(required = false) String service,
                                                              @RequestParam(required = false, defaultValue = "0") Integer offset, @RequestParam(required = false, defaultValue = "20") Integer limit,
-                                                             @RequestParam(required = false) String filter){
+                                                             @RequestParam(required = false) String filter) throws Exception {
         PaginationBean reportPaginationData = new PaginationBean();
-        try{
-            UserProfileDto user = getUserProfile();
-            if(null == user){
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(reportPaginationData);
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria appliedFilter = loadAppliedFilters(user.getUserId());
+        if(appliedFilter != null){
+            if(invoiceDate != null && !invoiceDate.isEmpty()){
+                DashboardUtil.setDatesFromMonth(appliedFilter, invoiceDate);
             }
-            DashboardsFilterCriteria appliedFilter = loadAppliedFilters(user.getUserId());
-            if(appliedFilter != null){
-                if(invoiceDate != null && !invoiceDate.isEmpty()){
-                    DashboardUtil.setDatesFromMonth(appliedFilter, invoiceDate);
-                }
-                appliedFilter.setDashletteName(dashletteName);
-                if(carrierId != null && !carrierId.isEmpty()){
-                    appliedFilter.setCarriers(carrierId);
-                }
-                appliedFilter.setModeNames(mode);
-                appliedFilter.setScoreType(carscoretype);
-                appliedFilter.setService(service);
-                appliedFilter.setOffset(offset);
-                appliedFilter.setPageSize(limit);
+            appliedFilter.setDashletteName(dashletteName);
+            if(carrierId != null && !carrierId.isEmpty()){
+                appliedFilter.setCarriers(carrierId);
             }
-            if(filter != null && !filter.isEmpty()){
-                reportPaginationData = dashboardsService.getDashboardReportPaginationData(appliedFilter, offset, limit, DashboardUtil.prepareSearchFilterCriteria(filter));
-            }else{
-                reportPaginationData = dashboardsService.getDashboardReportPaginationData(appliedFilter, offset, limit);
-            }
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(reportPaginationData);
-        }catch(Exception e){
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.OK).body(reportPaginationData);
+            appliedFilter.setModeNames(mode);
+            appliedFilter.setScoreType(carscoretype);
+            appliedFilter.setService(service);
+            appliedFilter.setOffset(offset);
+            appliedFilter.setPageSize(limit);
+        }
+        if(filter != null && !filter.isEmpty()){
+            reportPaginationData = dashboardsService.getDashboardReportPaginationData(appliedFilter, offset, limit, DashboardUtil.prepareSearchFilterCriteria(filter));
+        }else{
+            reportPaginationData = dashboardsService.getDashboardReportPaginationData(appliedFilter, offset, limit);
         }
         return ResponseEntity.status(HttpStatus.OK).body(reportPaginationData);
     }
@@ -3062,99 +2234,48 @@ public class DashboardsController extends DashboardBaseController {
      * @return
      */
     @RequestMapping(value = "/colConfigByUser", method = {RequestMethod.GET, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getColumnConfigByUser(){
-        JSONObject reportColumnNames = new JSONObject();
-        try{
-            UserProfileDto user = getUserProfile();
-            if(null == user){
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(WebConstants.ResponseMessage.INVALID_USER);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            reportColumnNames = dashboardsService.getDashboardReportCustomColumnNames(filter);
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch (Exception e){
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.OK).body(WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(reportColumnNames.toString());
+    public ResponseEntity<String> getColumnConfigByUser() throws JSONException {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        JSONObject reportColumnNames = dashboardsService.getDashboardReportCustomColumnNames(filter);
+        return ResponseEntity.status(HttpStatus.OK).body(reportColumnNames != null ? reportColumnNames.toString() : new JSONObject().toString());
     }
 
     @RequestMapping(value = "/actualVsBillWeight", method = {RequestMethod.GET, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getActualVsBilledWeight(){
-        JSONObject weightJson = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if(null == user){
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(WebConstants.ResponseMessage.INVALID_USER);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            JSONObject whtJson = loadActualVsBilledWeightJsonData(ActualVsBilledWeightConstants.ACTUAL_VS_BILLED_WEIGHT, filter);
-            weightJson = (whtJson != null ? whtJson : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.OK).body(WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(weightJson.toString());
+    public ResponseEntity<String> getActualVsBilledWeight() throws JSONException {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        JSONObject weightJson = loadActualVsBilledWeightJsonData(ActualVsBilledWeightConstants.ACTUAL_VS_BILLED_WEIGHT, filter);
+        return ResponseEntity.status(HttpStatus.OK).body(weightJson != null ? weightJson.toString() : new JSONObject().toString());
     }
 
     @RequestMapping(value = "/actualVsBillWeightByCarr", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getActualVsBilledWeightByCarrier(@RequestParam String invoiceDate){
-        JSONObject weightJson = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if(null == user){
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(WebConstants.ResponseMessage.INVALID_USER);
+    public ResponseEntity<String> getActualVsBilledWeightByCarrier(@RequestParam String invoiceDate) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if(filter != null){
+            if(invoiceDate != null && !invoiceDate.isEmpty()){
+                DashboardUtil.setDatesFromMonth(filter, invoiceDate);
             }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            if(filter != null){
-                if(invoiceDate != null && !invoiceDate.isEmpty()){
-                    DashboardUtil.setDatesFromMonth(filter, invoiceDate);
-                }
-            }
-            JSONObject whtJson = loadActualVsBilledWeightJsonData(ActualVsBilledWeightConstants.ACTUAL_VS_BILLED_WEIGHT_BY_CARRIER, filter);
-            weightJson = (whtJson != null ? whtJson : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.OK).body(WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
         }
-        return ResponseEntity.status(HttpStatus.OK).body(weightJson.toString());
+        JSONObject weightJson = loadActualVsBilledWeightJsonData(ActualVsBilledWeightConstants.ACTUAL_VS_BILLED_WEIGHT_BY_CARRIER, filter);
+        return ResponseEntity.status(HttpStatus.OK).body(weightJson != null ? weightJson.toString() : new JSONObject().toString());
     }
 
     @RequestMapping(value = "/actualVsBillWeightByMnth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getActualVsBilledWeightByMonth(@RequestParam String carrierIds, @RequestParam String invoiceDate){
-        JSONObject weightJson = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if(null == user){
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(WebConstants.ResponseMessage.INVALID_USER);
+    public ResponseEntity<String> getActualVsBilledWeightByMonth(@RequestParam String carrierIds, @RequestParam String invoiceDate) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if(filter != null){
+            if(carrierIds != null && !carrierIds.isEmpty()){
+                filter.setCarriers(carrierIds);
             }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            if(filter != null){
-                if(carrierIds != null && !carrierIds.isEmpty()){
-                    filter.setCarriers(carrierIds);
-                }
-                if(invoiceDate != null && !invoiceDate.isEmpty()){
-                    DashboardUtil.setDatesFromMonth(filter, invoiceDate);
-                }
+            if(invoiceDate != null && !invoiceDate.isEmpty()){
+                DashboardUtil.setDatesFromMonth(filter, invoiceDate);
             }
-            JSONObject whtJson = loadActualVsBilledWeightJsonData(ActualVsBilledWeightConstants.ACTUAL_VS_BILLED_WEIGHT_BY_MONTH, filter);
-            weightJson = (whtJson != null ? whtJson : new JSONObject());
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch(Exception e){
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.OK).body(WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
         }
-        return ResponseEntity.status(HttpStatus.OK).body(weightJson.toString());
+        JSONObject weightJson = loadActualVsBilledWeightJsonData(ActualVsBilledWeightConstants.ACTUAL_VS_BILLED_WEIGHT_BY_MONTH, filter);
+        return ResponseEntity.status(HttpStatus.OK).body(weightJson != null ? weightJson.toString() : new JSONObject().toString());
     }
 
     private JSONObject loadActualVsBilledWeightJsonData(ActualVsBilledWeightConstants weightType, DashboardsFilterCriteria filter) throws JSONException {
@@ -3191,133 +2312,88 @@ public class DashboardsController extends DashboardBaseController {
     }
 
     @RequestMapping(value = "/filterDetailsById", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<Map<String, Object>> getUserFilterDetails(Long filterId, boolean isParcelDashlettes){
-        Map<String, Object> userFilterData = new HashMap();
-        try {
-            userFilterData = dashboardsService.getUserFilterDetails(filterId, isParcelDashlettes);
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(userFilterData);
-        }catch (Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<Map<String, Object>>(HttpStatus.OK);
-        }
+    public ResponseEntity<Map<String, Object>> getUserFilterDetails(Long filterId, boolean isParcelDashlettes) throws JSONException {
+        Map<String, Object> userFilterData = dashboardsService.getUserFilterDetails(filterId, isParcelDashlettes);
         return ResponseEntity.status(HttpStatus.OK).body(userFilterData);
     }
 
     @RequestMapping(value = "/servicesByModes", method = {RequestMethod.GET, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<Map<String, Object>>  getServicesByGroupCode(@RequestParam String customerId, @RequestParam String carrierIds, @RequestParam String modes, @RequestParam String dateType){
+    public ResponseEntity<Map<String, Object>>  getServicesByGroupCode(@RequestParam String customerId, @RequestParam String carrierIds, @RequestParam String modes, @RequestParam String dateType) throws JSONException {
         Map<String, Object> userFilterData = new HashMap();
-        try{
-            UserProfileDto user = getUserProfile();
-            if(null == user){
-                userFilterData.put("status", HttpStatus.UNAUTHORIZED.value());
-                userFilterData.put("message", WebConstants.ResponseMessage.INVALID_USER);
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(userFilterData);
-            }
+        UserProfileDto user = getUserProfile();
 
-            DashboardsFilterCriteria filter = new DashboardsFilterCriteria();
-            filter.setCustomerIdsCSV(customerId);
-            filter.setCarriers(carrierIds);
-            filter.setDateType(dateType);
-            filter.setModes(modes);
-            List<UserFilterUtilityDataDto> serviceList = dashboardsService.getFilterServices(filter, user.isParcelDashlettes());
-            if(serviceList != null && !serviceList.isEmpty()){
-                userFilterData.put("serviceLevelsListData", JSONUtil.prepareFilterServiceJson(serviceList));
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<Map<String, Object>>(HttpStatus.OK);
+        DashboardsFilterCriteria filter = new DashboardsFilterCriteria();
+        filter.setCustomerIdsCSV(customerId);
+        filter.setCarriers(carrierIds);
+        filter.setDateType(dateType);
+        filter.setModes(modes);
+        List<UserFilterUtilityDataDto> serviceList = dashboardsService.getFilterServices(filter, user.isParcelDashlettes());
+        if(serviceList != null && !serviceList.isEmpty()){
+            userFilterData.put("serviceLevelsListData", JSONUtil.prepareFilterServiceJson(serviceList));
         }
         return ResponseEntity.status(HttpStatus.OK).body(userFilterData);
     }
 
     @RequestMapping(value = "/carrsByCustomer", method = {RequestMethod.GET, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<Map<String, Object>>  getCarriersByCustomer(@RequestParam String customerIds, @RequestParam boolean isParcelDashlettes){
+    public ResponseEntity<Map<String, Object>>  getCarriersByCustomer(@RequestParam String customerIds, @RequestParam boolean isParcelDashlettes) throws JSONException {
         Map<String, Object> userFilterData = new HashMap();
-        try{
-            List<UserFilterUtilityDataDto> carrList = dashboardsService.getCarrierByCustomer(customerIds, isParcelDashlettes);
-            if(carrList != null && !carrList.isEmpty()){
-                userFilterData.put("carriers", JSONUtil.prepareFilterCarrierJson(carrList));
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<Map<String, Object>>(HttpStatus.OK);
+        List<UserFilterUtilityDataDto> carrList = dashboardsService.getCarrierByCustomer(customerIds, isParcelDashlettes);
+        if(carrList != null && !carrList.isEmpty()){
+            userFilterData.put("carriers", JSONUtil.prepareFilterCarrierJson(carrList));
         }
         return ResponseEntity.status(HttpStatus.OK).body(userFilterData);
     }
 
     @RequestMapping(value = "/modesByCarr", method = {RequestMethod.GET, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<Map<String, Object>>  getCarriersByCustomer(@RequestParam String customerId, @RequestParam String carrierIds, @RequestParam String dateType){
+    public ResponseEntity<Map<String, Object>>  getCarriersByCustomer(@RequestParam String customerId, @RequestParam String carrierIds, @RequestParam String dateType) throws JSONException {
         Map<String, Object> userFilterData = new HashMap();
-        try{
-            UserProfileDto user = getUserProfile();
-            if(null == user){
-                userFilterData.put("status", HttpStatus.UNAUTHORIZED.value());
-                userFilterData.put("message", WebConstants.ResponseMessage.INVALID_USER);
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(userFilterData);
-            }
+        UserProfileDto user = getUserProfile();
 
-            DashboardsFilterCriteria filter = new DashboardsFilterCriteria();
-            filter.setCustomerIdsCSV(customerId);
-            filter.setCarriers(carrierIds);
-            filter.setDateType(dateType);
-            List<UserFilterUtilityDataDto> modesList = dashboardsService.getFilterModes(filter, user.isParcelDashlettes());
-            if(modesList != null && !modesList.isEmpty()){
-                userFilterData.put("modesListData", JSONUtil.prepareFilterModesJson(modesList, dashboardsService.getModeWiseCarrier(carrierIds), user.isParcelDashlettes()));
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<Map<String, Object>>(HttpStatus.OK);
+        DashboardsFilterCriteria filter = new DashboardsFilterCriteria();
+        filter.setCustomerIdsCSV(customerId);
+        filter.setCarriers(carrierIds);
+        filter.setDateType(dateType);
+        List<UserFilterUtilityDataDto> modesList = dashboardsService.getFilterModes(filter, user.isParcelDashlettes());
+        if(modesList != null && !modesList.isEmpty()){
+            userFilterData.put("modesListData", JSONUtil.prepareFilterModesJson(modesList, dashboardsService.getModeWiseCarrier(carrierIds), user.isParcelDashlettes()));
         }
         return ResponseEntity.status(HttpStatus.OK).body(userFilterData);
     }
 
     @RequestMapping(value = "/requiredFilter", method = {RequestMethod.GET, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<Map<String, Object>>  getCarriersByCustomer(){
+    public ResponseEntity<Map<String, Object>>  getCarriersByCustomer() throws JSONException {
         Map<String, Object> userFilterData = new HashMap();
-        try{
-            UserProfileDto user = getUserProfile();
-            if(null == user){
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(userFilterData);
-            }
-            List<DashSavedFilterDto> userSavedFilters = dashboardsService.getSavedFiltersByUser(user.getUserId());
-            List<ReportCustomerCarrierDto> customers = dashboardsService.getDashboardCustomers(user.getUserId());
-            userFilterData.put("savedFilterNames", userSavedFilters);
-            userFilterData.put("currenciesList", JSONUtil.prepareCurrenciesJson(dashboardsService.getCodeValuesByCodeGroup(468L)));
-            ReportCustomerCarrierDto customerHierarchy = null;
+        UserProfileDto user = getUserProfile();
+        List<DashSavedFilterDto> userSavedFilters = dashboardsService.getSavedFiltersByUser(user.getUserId());
+        List<ReportCustomerCarrierDto> customers = dashboardsService.getDashboardCustomers(user.getUserId());
+        userFilterData.put("savedFilterNames", userSavedFilters);
+        userFilterData.put("currenciesList", JSONUtil.prepareCurrenciesJson(dashboardsService.getCodeValuesByCodeGroup(468L)));
+        ReportCustomerCarrierDto customerHierarchy = null;
 
-            if(customers != null && !customers.isEmpty()){
-                customerHierarchy = reportsService.getCustomerHierarchyObject(customers, false);
-            }
-            userFilterData.put("customers", customerHierarchy != null ? JSONUtil.customerHierarchyJson(customerHierarchy) : new JSONArray());
-
-            if(userSavedFilters != null && !userSavedFilters.isEmpty()){
-                DashSavedFilterDto defaultFilter = DashboardUtil.findDefaultUserFilter(userSavedFilters);
-                if(null == defaultFilter){
-                    defaultFilter = userSavedFilters.get(0);
-                }
-                if(defaultFilter != null){
-                    if(DashboardUtil.isContainsCustomer(defaultFilter.getCustomerIds(), customers)){
-                        userFilterData.putAll(dashboardsService.getUserFilterDetails(defaultFilter, user.isParcelDashlettes(), DashboardUtil.prepareDashboardFilterCriteria(defaultFilter)));
-                    }else{
-                        userFilterData.putAll(loadFilterBasedOnCustomer(customers, customerHierarchy, user));
-                    }
-                }
-            }else{
-                userFilterData.putAll(loadFilterBasedOnCustomer(customers, customerHierarchy, user));
-            }
-            if(userFilterData.get("filterDetails") != null){
-                dashboardsService.saveAppliedFilterDetails(DashboardUtil.prepareAppliedFilter((DashSavedFilterDto) userFilterData.get("filterDetails"), user.getUserName(), user.getUserId()));
-            }
-            userFilterData.put("userColumnConfig", dashboardsService.getDashboardReportCustomColumnNames(loadAppliedFilters(user.getUserId())));
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(userFilterData);
-        }catch (Exception e){
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.OK).body(userFilterData);
+        if(customers != null && !customers.isEmpty()){
+            customerHierarchy = reportsService.getCustomerHierarchyObject(customers, false);
         }
+        userFilterData.put("customers", customerHierarchy != null ? JSONUtil.customerHierarchyJson(customerHierarchy) : new JSONArray());
+
+        if(userSavedFilters != null && !userSavedFilters.isEmpty()){
+            DashSavedFilterDto defaultFilter = DashboardUtil.findDefaultUserFilter(userSavedFilters);
+            if(null == defaultFilter){
+                defaultFilter = userSavedFilters.get(0);
+            }
+            if(defaultFilter != null){
+                if(DashboardUtil.isContainsCustomer(defaultFilter.getCustomerIds(), customers)){
+                    userFilterData.putAll(dashboardsService.getUserFilterDetails(defaultFilter, user.isParcelDashlettes(), DashboardUtil.prepareDashboardFilterCriteria(defaultFilter)));
+                }else{
+                    userFilterData.putAll(loadFilterBasedOnCustomer(customers, customerHierarchy, user));
+                }
+            }
+        }else{
+            userFilterData.putAll(loadFilterBasedOnCustomer(customers, customerHierarchy, user));
+        }
+        if(userFilterData.get("filterDetails") != null){
+            dashboardsService.saveAppliedFilterDetails(DashboardUtil.prepareAppliedFilter((DashSavedFilterDto) userFilterData.get("filterDetails"), user.getUserName(), user.getUserId()));
+        }
+        userFilterData.put("userColumnConfig", dashboardsService.getDashboardReportCustomColumnNames(loadAppliedFilters(user.getUserId())));
         return ResponseEntity.status(HttpStatus.OK).body(userFilterData);
     }
 
@@ -3363,299 +2439,160 @@ public class DashboardsController extends DashboardBaseController {
     }
 
     @RequestMapping(value = "/shipmentCountByZone", method = {RequestMethod.GET, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getShipmentCountByZone(){
+    public ResponseEntity<String> getShipmentCountByZone() throws JSONException {
         JSONObject shipmentCountJson = null;
-        try{
-            UserProfileDto user = getUserProfile();
-            if(null == user){
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(WebConstants.ResponseMessage.INVALID_USER);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            List<ShipmentDto> shipmentData = dashboardsService.getShipmentCountByZone(filter);
-            if(shipmentData != null && !shipmentData.isEmpty()){
-                Set<String> addresses = new HashSet<String>();
-                for(ShipmentDto shipmentDto : shipmentData){
-                    if(shipmentDto != null){
-                        String shipperCity = shipmentDto.getShipperCity() != null ? shipmentDto.getShipperCity() : "";
-                        String shipperState = shipmentDto.getShipperState() != null ? shipmentDto.getShipperState() : "";
-                        String shipperCountry = shipmentDto.getShipperCountry() != null ? shipmentDto.getShipperCountry() : "";
-                        addresses.add(shipperCity + "," + shipperState + "," + shipperCountry);
-                    }
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        List<ShipmentDto> shipmentData = dashboardsService.getShipmentCountByZone(filter);
+        if(shipmentData != null && !shipmentData.isEmpty()){
+            Set<String> addresses = new HashSet<String>();
+            for(ShipmentDto shipmentDto : shipmentData){
+                if(shipmentDto != null){
+                    String shipperCity = shipmentDto.getShipperCity() != null ? shipmentDto.getShipperCity() : "";
+                    String shipperState = shipmentDto.getShipperState() != null ? shipmentDto.getShipperState() : "";
+                    String shipperCountry = shipmentDto.getShipperCountry() != null ? shipmentDto.getShipperCountry() : "";
+                    addresses.add(shipperCity + "," + shipperState + "," + shipperCountry);
                 }
-                Set<MapCoordinatesDto> mapCoordinates = dashboardsService.getMapCoordinates(addresses);
-                shipmentCountJson = JSONUtil.prepareShipmentCountByZoneJson(shipmentData, mapCoordinates);
             }
-            shipmentCountJson = shipmentCountJson != null ? shipmentCountJson : new JSONObject();
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch (Exception e){
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.OK).body(WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
+            Set<MapCoordinatesDto> mapCoordinates = dashboardsService.getMapCoordinates(addresses);
+            shipmentCountJson = JSONUtil.prepareShipmentCountByZoneJson(shipmentData, mapCoordinates);
         }
-        return ResponseEntity.status(HttpStatus.OK).body(shipmentCountJson.toString());
+        shipmentCountJson = shipmentCountJson != null ? shipmentCountJson : new JSONObject();
+        return ResponseEntity.status(HttpStatus.OK).body(shipmentCountJson != null ? shipmentCountJson.toString() : new JSONObject().toString());
     }
 
     @RequestMapping(value = "/dashboardCustomers", method = {RequestMethod.GET, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getDashboardCustomers() {
+    public ResponseEntity<String> getDashboardCustomers() throws JSONException {
         JSONObject customerJson = new JSONObject();
-        try{
-            UserProfileDto user = getUserProfile();
-            if(null == user){
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(WebConstants.ResponseMessage.INVALID_USER);
-            }
-            reportsService.getCustomerHierarchyObject(dashboardsService.getDashboardCustomers(user.getUserId()), false);
-            customerJson.put("customers", JSONUtil.customerHierarchyJson(reportsService.getCustomerHierarchyObject(dashboardsService.getDashboardCustomers(user.getUserId()), false)));
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().toString());
-        }catch (Exception e){
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.OK).body(WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
-        }
+        UserProfileDto user = getUserProfile();
+        reportsService.getCustomerHierarchyObject(dashboardsService.getDashboardCustomers(user.getUserId()), false);
+        customerJson.put("customers", JSONUtil.customerHierarchyJson(reportsService.getCustomerHierarchyObject(dashboardsService.getDashboardCustomers(user.getUserId()), false)));
         return ResponseEntity.status(HttpStatus.OK).body(customerJson.toString());
     }
 
     @RequestMapping(value = "/applyFilter", method = {RequestMethod.POST}, produces = {MediaType.APPLICATION_JSON_VALUE}, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> saveFilterData(@RequestBody DashboardAppliedFilterDto filter, HttpSession session) {
+    public ResponseEntity<String> saveFilterData(@RequestBody DashboardAppliedFilterDto filter, HttpSession session) throws JSONException {
         JSONObject respJson = new JSONObject();
-        try{
-            respJson.put("status", HttpStatus.OK.value());
-            respJson.put("message", "Saved Successfully");
-            UserProfileDto user = getUserProfile();
-            if(null == user){
-                respJson.put("status", HttpStatus.UNAUTHORIZED.value());
-                respJson.put("message", WebConstants.ResponseMessage.INVALID_USER);
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(respJson.toString());
-            }
-            String customerId = filter.getCustomerIds();
-            if(customerId.startsWith("CU")){
-                filter.setCustomerIds(customerId.substring(2));
-            }
-            filter.setLoginUserId(user.getUserId());
-            dashboardsService.saveAppliedFilterDetails(filter);
-        }catch (Exception e){
-            e.printStackTrace();
-            try {
-                respJson.put("status", HttpStatus.OK.value());
-                respJson.put("message", WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
-            } catch (JSONException e1) {
-                e1.printStackTrace();
-            }
-            return ResponseEntity.status(HttpStatus.OK).body(respJson.toString());
+        UserProfileDto user = getUserProfile();
+        String customerId = filter.getCustomerIds();
+        if(customerId.startsWith("CU")){
+            filter.setCustomerIds(customerId.substring(2));
         }
+        filter.setLoginUserId(user.getUserId());
+        dashboardsService.saveAppliedFilterDetails(filter);
+        respJson.put("status", HttpStatus.OK.value());
+        respJson.put("message", "Saved Successfully");
         return ResponseEntity.status(HttpStatus.OK).body(respJson.toString());
     }
 
     @RequestMapping(value = "/saveDashColumnsConfig", method = {RequestMethod.GET, RequestMethod.POST}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> saveUserDefinedColumnConfig(@RequestBody String columnNames, @RequestParam boolean isLineItemReport){
+    public ResponseEntity<String> saveUserDefinedColumnConfig(@RequestBody String columnNames, @RequestParam boolean isLineItemReport) throws JSONException {
         JSONObject respJson = new JSONObject();
-        try {
-            respJson.put("status", HttpStatus.OK.value());
-            respJson.put("message", "Saved Successfully");
-            UserProfileDto user = getUserProfile();
-            if(null == user){
-                respJson.put("status", HttpStatus.UNAUTHORIZED.value());
-                respJson.put("message", WebConstants.ResponseMessage.INVALID_USER);
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(respJson.toString());
-            }
-
-            dashboardsService.saveUserDefinedColumnConfig(user.getUserId(), columnNames, isLineItemReport);
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            respJson.put("data", dashboardsService.getDashboardReportCustomColumnNames(filter));
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(respJson.toString());
-        }catch (Exception e){
-            e.printStackTrace();
-            try {
-                respJson.put("status", HttpStatus.OK.value());
-                respJson.put("message", WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
-            } catch (JSONException e1) {
-                e1.printStackTrace();
-            }
-            return ResponseEntity.status(HttpStatus.OK).body(respJson.toString());
-        }
+        UserProfileDto user = getUserProfile();
+        dashboardsService.saveUserDefinedColumnConfig(user.getUserId(), columnNames, isLineItemReport);
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        respJson.put("data", dashboardsService.getDashboardReportCustomColumnNames(filter));
+        respJson.put("status", HttpStatus.OK.value());
+        respJson.put("message", "Saved Successfully");
         return ResponseEntity.status(HttpStatus.OK).body(respJson.toString());
     }
 
     @RequestMapping(value = "/deleteFilter", method = {RequestMethod.GET, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<Map<String, Object>> deleteSavedFilter(@RequestParam long filterId){
         Map<String, Object> respMap = new HashMap<String, Object>();
-        try{
-            UserProfileDto user = getUserProfile();
-            if(null == user){
-                respMap.put("status", HttpStatus.UNAUTHORIZED.value());
-                respMap.put("message", WebConstants.ResponseMessage.INVALID_USER);
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(respMap);
-            }
+        UserProfileDto user = getUserProfile();
 
-            dashboardsService.deleteSavedFilter(filterId);
-            respMap.put("status", HttpStatus.OK.value());
-            respMap.put("message", "Deleted Successfully");
-            respMap.put("savedFilterNames", dashboardsService.getSavedFiltersByUser(user.getUserId()));
-        }catch (Exception e){
-            e.printStackTrace();
-            try {
-                respMap.put("status", HttpStatus.OK.value());
-                respMap.put("message", WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
-            } catch (Exception e1) {
-                e1.printStackTrace();
-            }
-            return ResponseEntity.status(HttpStatus.OK).body(respMap);
-        }
+        dashboardsService.deleteSavedFilter(filterId);
+        respMap.put("status", HttpStatus.OK.value());
+        respMap.put("message", "Deleted Successfully");
+        respMap.put("savedFilterNames", dashboardsService.getSavedFiltersByUser(user.getUserId()));
         return ResponseEntity.status(HttpStatus.OK).body(respMap);
     }
 
     @RequestMapping(value = "/saveFilter", method = {RequestMethod.POST}, produces = {MediaType.APPLICATION_JSON_VALUE}, consumes = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<Map<String, Object>> updateSavedFilterDetails(@RequestBody DashSavedFilterDto savedFilter){
+    public ResponseEntity<Map<String, Object>> updateSavedFilterDetails(@RequestBody DashSavedFilterDto savedFilter) throws JSONException {
         Map<String, Object> respMap = new HashMap<String, Object>();
-        try{
-            UserProfileDto user = getUserProfile();
-            if(null == user){
-                respMap.put("status", HttpStatus.UNAUTHORIZED.value());
-                respMap.put("message", WebConstants.ResponseMessage.INVALID_USER);
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(respMap);
-            }
-            boolean validationError = false;
-            JSONObject validationMsg = new JSONObject();
-            if(savedFilter.getFilterName() == null || savedFilter.getFilterName().isEmpty()){
-                validationError = true;
-                validationMsg.put("filterName", "Filter name should not be empty.");
-            }
-            if(savedFilter.getFilterId() == null || savedFilter.getFilterId() == 0L){
-                if(savedFilter.getFilterName() != null || !savedFilter.getFilterName().isEmpty()){
-                    List<DashSavedFilterDto> filters = dashboardsService.getUserFilterByName(user.getUserId(), savedFilter.getFilterName());
-                    if(filters != null && !filters.isEmpty()){
-                        validationError = true;
-                        validationMsg.put("filterName", "Filter with name '" + savedFilter.getFilterName() + "' already exists.");
-                    }
-                }
-            }else{
-                List<DashSavedFilterDto> filters = dashboardsService.getSavedFiltersByUser(user.getUserId());
-                for(DashSavedFilterDto filter : filters){
-                    if(filter != null && filter.getFilterId() != null && !filter.getFilterId().equals(savedFilter.getFilterId()) && filter.getFilterName() != null && savedFilter.getFilterName() != null
-                            && filter.getFilterName().trim().equals(savedFilter.getFilterName().trim())){
-                        validationError = true;
-                        validationMsg.put("filterName", "Filter with name '" + savedFilter.getFilterName() + "' already exists.");
-                    }
-                }
-            }
-            if(validationError){
-                respMap.put("status", HttpStatus.EXPECTATION_FAILED.value());
-                respMap.put("validationError", validationMsg);
-                return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(respMap);
-            }
-            savedFilter.setUserId(user.getUserId());
-            savedFilter.setCreateDate(new Date());
-            DashSavedFilterDto updatedFilter = dashboardsService.updateSavedFilter(savedFilter);
-            respMap.put("status", HttpStatus.OK.value());
-            respMap.put("message", "Updated Successfully");
-            respMap.put("savedFilterNames", dashboardsService.getSavedFiltersByUser(user.getUserId()));
-        }catch (Exception e){
-            e.printStackTrace();
-            try {
-                respMap.put("status", HttpStatus.OK.value());
-                respMap.put("message", WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
-            } catch (Exception e1) {
-                e1.printStackTrace();
-            }
-            return ResponseEntity.status(HttpStatus.OK).body(respMap);
+        UserProfileDto user = getUserProfile();
+        boolean validationError = false;
+        JSONObject validationMsg = new JSONObject();
+        if(savedFilter.getFilterName() == null || savedFilter.getFilterName().isEmpty()){
+            validationError = true;
+            validationMsg.put("filterName", "Filter name should not be empty.");
         }
+        if(savedFilter.getFilterId() == null || savedFilter.getFilterId() == 0L){
+            if(savedFilter.getFilterName() != null || !savedFilter.getFilterName().isEmpty()){
+                List<DashSavedFilterDto> filters = dashboardsService.getUserFilterByName(user.getUserId(), savedFilter.getFilterName());
+                if(filters != null && !filters.isEmpty()){
+                    validationError = true;
+                    validationMsg.put("filterName", "Filter with name '" + savedFilter.getFilterName() + "' already exists.");
+                }
+            }
+        }else{
+            List<DashSavedFilterDto> filters = dashboardsService.getSavedFiltersByUser(user.getUserId());
+            for(DashSavedFilterDto filter : filters){
+                if(filter != null && filter.getFilterId() != null && !filter.getFilterId().equals(savedFilter.getFilterId()) && filter.getFilterName() != null && savedFilter.getFilterName() != null
+                        && filter.getFilterName().trim().equals(savedFilter.getFilterName().trim())){
+                    validationError = true;
+                    validationMsg.put("filterName", "Filter with name '" + savedFilter.getFilterName() + "' already exists.");
+                }
+            }
+        }
+        if(validationError){
+            respMap.put("status", HttpStatus.EXPECTATION_FAILED.value());
+            respMap.put("validationError", validationMsg);
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(respMap);
+        }
+        savedFilter.setUserId(user.getUserId());
+        savedFilter.setCreateDate(new Date());
+        DashSavedFilterDto updatedFilter = dashboardsService.updateSavedFilter(savedFilter);
+        respMap.put("status", HttpStatus.OK.value());
+        respMap.put("message", "Updated Successfully");
+        respMap.put("savedFilterNames", dashboardsService.getSavedFiltersByUser(user.getUserId()));
         return ResponseEntity.status(HttpStatus.OK).body(respMap);
     }
 
     @RequestMapping(value = "/setDefaultFilter", method = {RequestMethod.GET}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<Map<String, Object>> makeDefaultFilter(@RequestParam long filterId){
         Map<String, Object> respMap = new HashMap<String, Object>();
-        try {
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                respMap.put("status", HttpStatus.UNAUTHORIZED.value());
-                respMap.put("message", WebConstants.ResponseMessage.INVALID_USER);
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(respMap);
-            }
-            dashboardsService.makeDefaultSavedFilter(filterId, user.getUserId());
-            respMap.put("status", HttpStatus.OK.value());
-            respMap.put("message", "Updated Successfully");
-            respMap.put("savedFilterNames", dashboardsService.getSavedFiltersByUser(user.getUserId()));
-        }catch (Exception e){
-            e.printStackTrace();
-            try {
-                respMap.put("status", HttpStatus.OK.value());
-                respMap.put("message", WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
-            } catch (Exception e1) {
-                e1.printStackTrace();
-            }
-            return ResponseEntity.status(HttpStatus.OK).body(respMap);
-        }
+        UserProfileDto user = getUserProfile();
+        dashboardsService.makeDefaultSavedFilter(filterId, user.getUserId());
+        respMap.put("status", HttpStatus.OK.value());
+        respMap.put("message", "Updated Successfully");
+        respMap.put("savedFilterNames", dashboardsService.getSavedFiltersByUser(user.getUserId()));
         return ResponseEntity.status(HttpStatus.OK).body(respMap);
     }
 
     @RequestMapping(value = "/savedFilters", method = {RequestMethod.GET}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<Map<String, Object>> getDashSavedFilters(){
         Map<String, Object> respMap = new HashMap<String, Object>();
-        try {
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                respMap.put("status", HttpStatus.UNAUTHORIZED.value());
-                respMap.put("message", WebConstants.ResponseMessage.INVALID_USER);
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(respMap);
-            }
-            respMap.put("status", HttpStatus.OK.value());
-            respMap.put("savedFilterNames", dashboardsService.getSavedFiltersByUser(user.getUserId()));
-        }catch (Exception e){
-            e.printStackTrace();
-            try {
-                respMap.put("status", HttpStatus.OK.value());
-                respMap.put("message", WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
-            } catch (Exception e1) {
-                e1.printStackTrace();
-            }
-            return ResponseEntity.status(HttpStatus.OK).body(respMap);
-        }
+        UserProfileDto user = getUserProfile();
+        respMap.put("status", HttpStatus.OK.value());
+        respMap.put("savedFilterNames", dashboardsService.getSavedFiltersByUser(user.getUserId()));
         return ResponseEntity.status(HttpStatus.OK).body(respMap);
     }
 
     @RequestMapping(value = "/pkgDistrCount", method = {RequestMethod.GET}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<Map<String, Object>> getPackageDistributionCount(){
+    public ResponseEntity<Map<String, Object>> getPackageDistributionCount() throws JSONException {
         Map<String, Object> respMap = new HashMap<String, Object>();
         JSONObject pkgDistrJson = new JSONObject();
-        try {
-            UserProfileDto user = getUserProfile();
-            if (null == user) {
-                respMap.put("status", HttpStatus.UNAUTHORIZED.value());
-                respMap.put("message", WebConstants.ResponseMessage.INVALID_USER);
-                respMap.put("ERROR", "Invalid User.");
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(respMap);
-            }
-            DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-            List<ShipmentDto> pkgDistrData = dashboardsService.getPackageDistributionCount(filter);
-            if(pkgDistrData != null && !pkgDistrData.isEmpty()){
-                Set<String> addresses = new HashSet<String>();
-                for(ShipmentDto pkgDistr : pkgDistrData){
-                    if(pkgDistr != null){
-                        String receiverCity = pkgDistr.getReceiverCity() != null ? pkgDistr.getReceiverCity() : "";
-                        String receiverState = pkgDistr.getReceiverState() != null ? pkgDistr.getReceiverState() : "";
-                        String receiverCountry = pkgDistr.getReceiverCountry() != null ? pkgDistr.getReceiverCountry() : "";
-                        addresses.add(receiverCity + "," + receiverState + "," + receiverCountry);
-                    }
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        List<ShipmentDto> pkgDistrData = dashboardsService.getPackageDistributionCount(filter);
+        if(pkgDistrData != null && !pkgDistrData.isEmpty()){
+            Set<String> addresses = new HashSet<String>();
+            for(ShipmentDto pkgDistr : pkgDistrData){
+                if(pkgDistr != null){
+                    String receiverCity = pkgDistr.getReceiverCity() != null ? pkgDistr.getReceiverCity() : "";
+                    String receiverState = pkgDistr.getReceiverState() != null ? pkgDistr.getReceiverState() : "";
+                    String receiverCountry = pkgDistr.getReceiverCountry() != null ? pkgDistr.getReceiverCountry() : "";
+                    addresses.add(receiverCity + "," + receiverState + "," + receiverCountry);
                 }
-                Set<MapCoordinatesDto> mapCoordinates = dashboardsService.getMapCoordinates(addresses);
-                pkgDistrJson = JSONUtil.preparePackageDistributionCountJson(pkgDistrData, mapCoordinates);
             }
-            respMap.put("status", HttpStatus.OK.value());
-            respMap.put("packageDistributionData", pkgDistrJson);
-        }catch (NoAppliedFilterFoundException e){
-            //need to handle proper message to clint.
-            return ResponseEntity.status(HttpStatus.OK).body(respMap);
-        }catch (Exception e){
-            e.printStackTrace();
-            respMap.put("status", HttpStatus.OK.value());
-            respMap.put("message", WebConstants.ResponseMessage.INTERNAL_SERVER_ERROR);
-            respMap.put("ERROR", "Error while loading Package distribution count details.");
-            return ResponseEntity.status(HttpStatus.OK).body(respMap);
+            Set<MapCoordinatesDto> mapCoordinates = dashboardsService.getMapCoordinates(addresses);
+            pkgDistrJson = JSONUtil.preparePackageDistributionCountJson(pkgDistrData, mapCoordinates);
         }
+        respMap.put("status", HttpStatus.OK.value());
+        respMap.put("packageDistributionData", pkgDistrJson);
         return ResponseEntity.status(HttpStatus.OK).body(respMap);
     }
 }

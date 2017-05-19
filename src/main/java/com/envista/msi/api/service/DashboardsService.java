@@ -173,6 +173,16 @@ public class DashboardsService {
     }
 
     /**
+     * Get top accessorial spend for all accessorial.
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<AccessorialSpendDto> getTopAccessorialSpendByAccessorial(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        return dashboardsDao.getTopAccessorialSpendByAccessorial(filter, isTopTenAccessorial);
+    }
+
+    /**
      *
      * @param filter
      * @param isTopTenAccessorial
