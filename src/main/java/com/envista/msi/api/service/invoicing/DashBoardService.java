@@ -23,13 +23,13 @@ public class DashBoardService {
         return dao.getDashBoardInfo(fromDate, toDate, actionType);
     }
 
-    public int getPendingCredits(String fromDate, String toDate, String actionType) {
+    public List<DashBoardDto> getPendingCredits(String fromDate, String toDate, String actionType) {
 
         return dao.getPendingCredits(fromDate, toDate, actionType);
     }
 
-    public int closeCurrentWeekCredits(String omitFlag, String reviewFlag) {
+    public int closeCurrentWeekCredits(String ebillManifestIds, String action) {
 
-        return dao.closeCurrentWeekCredits(omitFlag, reviewFlag);
+        return dao.closeCurrentWeekCredits(ebillManifestIds, action);
     }
 }

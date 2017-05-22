@@ -6,6 +6,7 @@ import com.envista.msi.api.web.rest.dto.invoicing.CreditResponseDto;
 import com.envista.msi.api.web.rest.dto.invoicing.DashBoardDto;
 import com.envista.msi.api.web.rest.util.FileOperations;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,23 +60,42 @@ public class DashBoardController {
      * HTTP GET - Get all Voices
      */
     @RequestMapping(value = "/getPendingCredits", params = {"fromDate", "toDate", "actionType"}, method = RequestMethod.GET)
-    public ResponseEntity<Integer> getPendingCredits(@RequestParam String fromDate, @RequestParam String toDate, @RequestParam String actionType) throws JSONException {
+    public ResponseEntity<JSONObject> getPendingCredits(@RequestParam String fromDate, @RequestParam String toDate, @RequestParam String actionType) throws JSONException {
         log.info("***getPendingCredits method started****");
 
-        int pendingCredits = service.getPendingCredits(fromDate, toDate, actionType);
+        JSONObject jsonObject = new JSONObject();
 
-        log.info("***getPendingCredits count***==== " + pendingCredits);
-        return new ResponseEntity<Integer>(pendingCredits, HttpStatus.OK);
+        List<DashBoardDto> dtos = service.getPendingCredits(fromDate, toDate, actionType);
+
+        if (dtos != null) {
+            jsonObject.put("pendingCreditsCount", dtos.size());
+            StringBuilder builder = new StringBuilder();
+            int count = 0;
+            for (DashBoardDto dto : dtos) {
+                if (count != 0)
+                    builder.append(",");
+
+                builder.append(dto.getEbillManifestId());
+                count++;
+            }
+            jsonObject.put("pendingEbillIds", builder.toString());
+        } else {
+            jsonObject.put("pendingCreditsCount", 0);
+            jsonObject.put("pendingEbillIds", "");
+        }
+
+        log.info("***getPendingCredits count***==== " + jsonObject);
+        return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.OK);
     }
 
     /**
      * HTTP GET - Get all Voices
      */
-    @RequestMapping(value = "/closeWeek", params = {"omitFlag", "reviewFlag"}, method = RequestMethod.PUT)
-    public ResponseEntity<Integer> closeCurrentWeek(@RequestParam String omitFlag, @RequestParam String reviewFlag) {
+    @RequestMapping(value = "/closeWeek", params = {"ebillManifestIds", "action"}, method = RequestMethod.PUT)
+    public ResponseEntity<Integer> closeCurrentWeek(@RequestParam String ebillManifestIds, @RequestParam String action) {
         log.info("***closeCurrentWeek method started****");
 
-        int updatedRows = service.closeCurrentWeekCredits(omitFlag, reviewFlag);
+        int updatedRows = service.closeCurrentWeekCredits(ebillManifestIds, action);
 
         return new ResponseEntity<Integer>(updatedRows, HttpStatus.OK);
     }
