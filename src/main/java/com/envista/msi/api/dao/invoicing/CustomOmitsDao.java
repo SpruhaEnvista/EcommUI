@@ -3,6 +3,7 @@ package com.envista.msi.api.dao.invoicing;
 import com.envista.msi.api.domain.PersistentContext;
 import com.envista.msi.api.domain.util.QueryParameter;
 import com.envista.msi.api.domain.util.StoredProcedureParameter;
+import com.envista.msi.api.web.rest.dto.invoicing.CarrierDto;
 import com.envista.msi.api.web.rest.dto.invoicing.CustomOmitsDto;
 import org.springframework.stereotype.Repository;
 
@@ -134,6 +135,13 @@ public class CustomOmitsDao {
             count=dtos.get(0).getTotalCount();
         }
         return count;
+    }
+
+    public List<CarrierDto> getAllCarriers() {
+
+        QueryParameter queryParameter = null;
+
+        return persistentContext.findEntities("CarrierDto.getAllCarriers", queryParameter);
     }
 
 }

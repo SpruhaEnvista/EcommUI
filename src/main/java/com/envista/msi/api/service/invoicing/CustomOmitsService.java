@@ -1,6 +1,7 @@
 package com.envista.msi.api.service.invoicing;
 
 import com.envista.msi.api.dao.invoicing.CustomOmitsDao;
+import com.envista.msi.api.web.rest.dto.invoicing.CarrierDto;
 import com.envista.msi.api.web.rest.dto.invoicing.CustomOmitsDto;
 import com.envista.msi.api.web.rest.util.pagination.EnspirePagination;
 import com.envista.msi.api.web.rest.util.pagination.PaginationBean;
@@ -84,5 +85,10 @@ public class CustomOmitsService {
                 return dao.findBySearchCriteria(filter, paginationFilterMap, offset,limit);
             }
         }.preparePaginationData(paginationFilterMap, offset, limit);
+    }
+
+    public List<CarrierDto> getAllCarriers() {
+
+        return dao.getAllCarriers();
     }
 }

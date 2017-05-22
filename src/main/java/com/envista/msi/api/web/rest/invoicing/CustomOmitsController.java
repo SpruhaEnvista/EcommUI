@@ -173,6 +173,8 @@ public class CustomOmitsController {
         ReportCustomerCarrierDto customerHierarchy = reportsService.getCustomerHierarchyObject(customers, false);
         jsonObject.put("customers", JSONUtil.customerHierarchyJson(customerHierarchy));
 
+        jsonObject.put("carriers", service.getAllCarriers());
+
         LOG.info("***jsonObject***" + jsonObject);
 
 
