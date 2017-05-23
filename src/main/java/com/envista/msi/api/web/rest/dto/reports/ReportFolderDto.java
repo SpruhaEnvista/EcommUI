@@ -39,6 +39,13 @@ import java.util.TreeSet;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_user_id", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_refcur_folder_level_info", type = Void.class)
                 }),
+        @NamedStoredProcedureQuery(name = "ReportFolder.getReportSubFolders", procedureName = "shp_rpt_get_subfolders_proc",
+                resultSetMappings = "ReportSubFolder",
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "rptFolderId", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "userId", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_subfolders_cur", type = Void.class)
+                })
 })
 @SqlResultSetMappings({
         @SqlResultSetMapping(name = "insertCount", classes = {
@@ -61,7 +68,15 @@ import java.util.TreeSet;
                 @ConstructorResult(
                         targetClass = ReportFolderDto.class,
                         columns = {
-                                @ColumnResult(name = "value", type = String.class),
+                                @ColumnResult(name = "value", type = String.class)
+                        })
+        }),
+        @SqlResultSetMapping(name = "ReportSubFolder", classes = {
+                @ConstructorResult(
+                        targetClass = ReportFolderDto.class,
+                        columns = {
+                                @ColumnResult(name = "RPT_FOLDER_ID", type = Long.class),
+                                @ColumnResult(name = "FOLDER_NAME",type = String.class)
                         })
         })
 })
@@ -91,6 +106,11 @@ public class ReportFolderDto implements Serializable,Comparable<ReportFolderDto>
 
     public ReportFolderDto(Long count) {
         this.updateCount = count;
+    }
+
+    public ReportFolderDto(Long rptFolderId, String rptFolderName) {
+        this.rptFolderId = rptFolderId;
+        this.rptFolderName = rptFolderName;
     }
 
     public ReportFolderDto(Long rptFolderId, String rptFolderName,Long parentId) {
