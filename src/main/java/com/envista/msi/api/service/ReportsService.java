@@ -802,8 +802,29 @@ public class ReportsService {
     }
 
     public ReportFolderDto deleteFolder(Long rptFolderId, Long userId) {
+
+        List<ReportFolderDto> list = reportsDao.getSubFolders(rptFolderId,userId);
+
+        for(int i =0;i<list.size();i++){
+            ReportFolderDto folderDto = list.get(i);
+            if(folderDto.getRptFolderId()!=null && folderDto.getRptFolderId()>0){
+                List<ReportFolderDto> subFolderList = reportsDao.getSubFolders(folderDto.getRptFolderId(),userId);
+                if(subFolderList!=null && subFolderList.size()>0){
+                    deleteFolder(folderDto.getRptFolderId(), userId);
+                }else{
+                    reportsDao.deleteFolder(folderDto.getRptFolderId(),userId);
+                }
+            }
+        }
+
         return reportsDao.deleteFolder(rptFolderId,userId);
     }
+
+    public List<ReportFolderDto> getSubFolders(Long rptFolderId, Long userId) {
+
+        return reportsDao.getSubFolders(rptFolderId,userId);
+    }
+
     public JSONArray getReportUserCustomers(Long userId) throws  Exception{
         JSONArray customerJsonArr=new JSONArray();
         List<SearchUserByCustomerDto> customerDtos=reportsDao.getReportUserCustomers(userId);
