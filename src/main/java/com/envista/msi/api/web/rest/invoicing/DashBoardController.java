@@ -13,12 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
+import springfox.documentation.spring.web.json.Json;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -91,11 +89,10 @@ public class DashBoardController {
     /**
      * HTTP GET - Get all Voices
      */
-    @RequestMapping(value = "/closeWeek", params = {"ebillManifestIds", "action"}, method = RequestMethod.PUT)
-    public ResponseEntity<Integer> closeCurrentWeek(@RequestParam String ebillManifestIds, @RequestParam String action) {
+    @RequestMapping(value = "/closeWeek",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
+    public ResponseEntity<Integer> closeCurrentWeek(@RequestBody JSONObject myJSON) throws JSONException{
         log.info("***closeCurrentWeek method started****");
-
-        int updatedRows = service.closeCurrentWeekCredits(ebillManifestIds, action);
+        int updatedRows = service.closeCurrentWeekCredits( "123445,566,888889,899009" , myJSON.getString("action") );
 
         return new ResponseEntity<Integer>(updatedRows, HttpStatus.OK);
     }
