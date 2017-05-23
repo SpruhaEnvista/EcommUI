@@ -263,6 +263,19 @@ public class DashboardsDao {
         return persistentContext.findEntities(AccessorialSpendDto.Config.StoredProcedureQueryName.TOP_ACCESSORIAL_SPEND_BY_MONTH, queryParameter);
     }
 
+    public List<AccessorialSpendDto> getTopAccessorialSpendByAccessorial(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {DashboardStoredProcParam.AccessorialSpendParams.DATE_TYPE_PARAM, DashboardStoredProcParam.AccessorialSpendParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardStoredProcParam.AccessorialSpendParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardStoredProcParam.AccessorialSpendParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardStoredProcParam.AccessorialSpendParams.CARRIER_IDS_PARAM, DashboardStoredProcParam.AccessorialSpendParams.MODES_PARAM,
+                DashboardStoredProcParam.AccessorialSpendParams.SERVICES_PARAM, DashboardStoredProcParam.AccessorialSpendParams.LANES_PARAM,
+                DashboardStoredProcParam.AccessorialSpendParams.FROM_DATE_PARAM, DashboardStoredProcParam.AccessorialSpendParams.TO_DATE_PARAM,
+                DashboardStoredProcParam.AccessorialSpendParams.TOP_TEN_ACCESSORIAL_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(AccessorialSpendDto.Config.StoredProcedureQueryName.TOP_ACCESSORIAL_SPEND_BY_ACCESSORIAL, queryParameter);
+    }
+
     /**
      * @param filter
      * @param isTopTenAccessorial
