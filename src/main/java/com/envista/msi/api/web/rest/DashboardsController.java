@@ -1,6 +1,5 @@
 package com.envista.msi.api.web.rest;
 
-import com.envista.msi.api.dao.NoAppliedFilterFoundException;
 import com.envista.msi.api.domain.util.DashboardUtil;
 import com.envista.msi.api.service.DashboardsService;
 import com.envista.msi.api.service.ReportsService;
@@ -25,10 +24,8 @@ import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentRegion
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShippingLanesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.*;
 import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
-import com.envista.msi.api.web.rest.errors.InvalidUserException;
 import com.envista.msi.api.web.rest.util.DateUtil;
 import com.envista.msi.api.web.rest.util.JSONUtil;
-import com.envista.msi.api.web.rest.util.WebConstants;
 import com.envista.msi.api.web.rest.util.pagination.PaginationBean;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -551,7 +548,7 @@ public class DashboardsController extends DashboardBaseController {
     }
 
     @RequestMapping(value = "/outboundSpend", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getoutboundSpend() throws JSONException {
+    public ResponseEntity<String> getOutboundSpend() throws JSONException {
         UserProfileDto user = getUserProfile();
         DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
         JSONObject outbSpendJson = loadOutboundSpendJsonData(OutboundSpendConstant.OUTBOUND_SPEND, filter);
@@ -559,7 +556,7 @@ public class DashboardsController extends DashboardBaseController {
     }
 
     @RequestMapping(value = "/outboundSpendByMnth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getoutboundSpendByMonth(@RequestParam String carrierId, @RequestParam String invoiceDate) throws Exception {
+    public ResponseEntity<String> getOutboundSpendByMonth(@RequestParam String carrierId, @RequestParam String invoiceDate) throws Exception {
         UserProfileDto user = getUserProfile();
         DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
         if(filter != null){
@@ -1464,7 +1461,6 @@ public class DashboardsController extends DashboardBaseController {
     private JSONObject loadInvoiceMethodScoreJson(DashboardsFilterCriteria filter) throws JSONException {
         JSONObject invMethodScoreJson = null;
         List<InvoiceMethodScoreDto> invMthScrList = dashboardsService.getInvoiceMethodScore(filter);
-        List<CommonValuesForChartDto> chartValueList = null;
         if(invMthScrList != null && invMthScrList.size() > 0){
             invMethodScoreJson = JSONUtil.prepareInvoiceMethodScoreJson(invMthScrList);
         }
@@ -2076,7 +2072,7 @@ public class DashboardsController extends DashboardBaseController {
                 avgShipmentJson = loadAvgSpendPerShipmtJson(filter);
                 break;
             case AVG_WEIGHT_BY_MODE_SHIPMT:
-                avgShipmentJson = loadNetSpendByOverTimeJson(filter);
+                avgShipmentJson = loadAvgWeightByModeShipmtJson(filter);
                 break;
             case AVG_SPEND_PER_SHIPMT_BY_CARRIER:
                 avgShipmentJson = loadAvgSpendPerShipmtByCarrierJson(filter);
