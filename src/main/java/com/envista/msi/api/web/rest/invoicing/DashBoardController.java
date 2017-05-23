@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -101,13 +102,24 @@ public class DashBoardController {
     }
 
     @RequestMapping(value = "/uploadCreditRespInfo", method = RequestMethod.POST)
-    public ResponseEntity<String> UploadCreditResp(@RequestParam("files") MultipartFile[] file, HttpServletRequest request) throws IOException {
+    public ResponseEntity<String> UploadCreditResp(@RequestParam("files") MultipartFile file) throws IOException {
         log.info("***UploadCreditResp method started***");
         try {
-            MultipartHttpServletRequest mRequest;
-            mRequest = (MultipartHttpServletRequest) request;
-            List<MultipartFile> files = mRequest.getFiles("file");
-            List<CreditResponseDto> dtos = fileOperations.customOmitFileUploadOperation(files);
+
+            List<CreditResponseDto> dtos = fileOperations.customOmitFileUploadOperation(file);
+            creditResponseService.insert(dtos);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<String>("file(s) uploaded Successfully", HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/testUpload", method = RequestMethod.POST)
+    public ResponseEntity<String> testUpload() throws IOException {
+        log.info("***UploadCreditResp method started***");
+        try {
+
+            List<CreditResponseDto> dtos = fileOperations.customOmitFileUploadOperation(null);
             creditResponseService.insert(dtos);
         } catch (Exception e) {
             e.printStackTrace();
