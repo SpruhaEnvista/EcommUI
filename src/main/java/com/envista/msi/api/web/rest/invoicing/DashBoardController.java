@@ -15,8 +15,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
 
@@ -95,11 +97,13 @@ public class DashBoardController {
     }
 
     @RequestMapping(value = "/uploadCreditRespInfo", method = RequestMethod.POST)
-    public ResponseEntity<String> UploadCreditResp(@RequestParam("files") MultipartFile file) throws IOException {
+    public ResponseEntity<String> UploadCreditResp(@RequestParam("files") MultipartFile[] file, HttpServletRequest request) throws IOException {
         log.info("***UploadCreditResp method started***");
         try {
-
-            List<CreditResponseDto> dtos = fileOperations.customOmitFileUploadOperation(file);
+            MultipartHttpServletRequest mRequest;
+            mRequest = (MultipartHttpServletRequest) request;
+            List<MultipartFile> files = mRequest.getFiles("file");
+            List<CreditResponseDto> dtos = fileOperations.customOmitFileUploadOperation(files.get(0));
             creditResponseService.insert(dtos);
         } catch (Exception e) {
             e.printStackTrace();
