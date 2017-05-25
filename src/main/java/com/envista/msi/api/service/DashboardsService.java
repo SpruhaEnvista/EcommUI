@@ -1,6 +1,7 @@
 package com.envista.msi.api.service;
 
 import com.envista.msi.api.dao.DashboardsDao;
+import com.envista.msi.api.domain.util.DashboardUtil;
 import com.envista.msi.api.geocode.AddressConverter;
 import com.envista.msi.api.geocode.GoogleResponse;
 import com.envista.msi.api.geocode.Result;
@@ -26,6 +27,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.report.DashboardReportUtilityD
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.*;
 import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
 import com.envista.msi.api.web.rest.util.JSONUtil;
+import com.envista.msi.api.web.rest.util.WebConstants;
 import com.envista.msi.api.web.rest.util.pac.GlobalConstants;
 import com.envista.msi.api.web.rest.util.pagination.EnspirePagination;
 import com.envista.msi.api.web.rest.util.pagination.PaginationBean;
@@ -587,7 +589,7 @@ public class DashboardsService {
             columnMap = new LinkedHashMap<String, String>();
             for(DashboardReportUtilityDataDto columnName : reportColumnNames){
                 if(columnName != null){
-                    columnMap.put(columnName.getSelectClause(), columnName.getColumnName());
+                    columnMap.put(columnName.getSelectClause().trim(), columnName.getColumnName().trim());
                 }
             }
             columnMap.put("SERVICE_LEVEL", "Service Level");
@@ -606,30 +608,38 @@ public class DashboardsService {
     }
 
     public PaginationBean getDashboardReportPaginationData(DashboardsFilterCriteria filter, int offset, int limit) throws Exception {
+        return getDashboardReportPaginationData(filter, offset, limit, null);
+    }
+
+    public PaginationBean getDashboardReportPaginationData(DashboardsFilterCriteria filter, int offset, int limit, String searchFilter) throws Exception {
         Map<String, Object> paginationFilterMap = new HashMap<String, Object>();
         filter.setOffset(offset);
         filter.setPageSize(limit);
         paginationFilterMap.put("filter", filter);
+
+        if(searchFilter != null && !searchFilter.isEmpty()){
+            paginationFilterMap.put(WebConstants.SEARCH_FILTER_CONDITION, searchFilter);
+        }
         return new EnspirePagination() {
             @Override
             protected int getTotalRowCount(Map<String, Object> paginationFilterMap) {
-                return dashboardsDao.getDashboardReportTotalRecordCount(filter);
+                return dashboardsDao.getDashboardReportTotalRecordCount(filter, paginationFilterMap);
             }
 
             @Override
             protected Object loadPaginationData(Map<String, Object> paginationFilterMap, int offset, int limit, String sortOrder) throws Exception {
-                return loadDashboardReportJson(filter);
+                return loadDashboardReportJson(filter, paginationFilterMap);
             }
         }.preparePaginationData(paginationFilterMap, offset, limit);
     }
 
-    private JSONArray loadDashboardReportJson(DashboardsFilterCriteria filter) throws JSONException {
+    private JSONArray loadDashboardReportJson(DashboardsFilterCriteria filter, Map<String, Object> paginationFilterMap) throws JSONException {
         JSONArray dashboardReportJson = null;
         List<DashboardReportDto> reportDataList = null;
         if(filter.isLineItemReport()){
             reportDataList = getLineItemReportDetails(filter);
         }else{
-            reportDataList = getDashboardReport(filter);
+            reportDataList = getDashboardReport(filter, paginationFilterMap);
         }
         if(reportDataList != null && !reportDataList.isEmpty()){
             Map<String, String> resultColumnsMap = getReportColumnNames(filter);
@@ -643,8 +653,8 @@ public class DashboardsService {
      * @param filter
      * @return
      */
-    public List<DashboardReportDto> getDashboardReport(DashboardsFilterCriteria filter){
-        return dashboardsDao.getDashboardReport(filter);
+    public List<DashboardReportDto> getDashboardReport(DashboardsFilterCriteria filter, Map<String, Object> paginationFilterMap){
+        return dashboardsDao.getDashboardReport(filter, paginationFilterMap);
     }
 
     /**
@@ -720,6 +730,45 @@ public class DashboardsService {
         return dashboardsDao.getActualVsBilledWeightByMonth(filter, isTopTenAccessorial);
     }
 
+    public Map<String, Object> getNewUserFilterDetails(DashSavedFilterDto userFilter, boolean isParcelDashlettes, DashboardsFilterCriteria filter) throws JSONException {
+        List<Long> carrList = new ArrayList<Long>();
+        List<Long> servicesList = new ArrayList<Long>();
+        List<UserFilterUtilityDataDto> carriers = getCarrierByCustomer(String.valueOf(userFilter.getCustomerIds()), isParcelDashlettes);
+        StringJoiner carrierCSV = new StringJoiner(",");
+        for(UserFilterUtilityDataDto car : carriers){
+            if(car != null){
+                carrList.add(car.getCarrierId());
+                carrierCSV.add(car.getCarrierId().toString());
+            }
+        }
+        filter.setCarriers(carrierCSV.toString());
+        userFilter.setCarrierIds(carrierCSV.toString());
+
+        List<UserFilterUtilityDataDto> modes = getFilterModes(filter);
+        StringJoiner modeCSV = new StringJoiner(",");
+        for(UserFilterUtilityDataDto mode : modes){
+            if(mode != null){
+                modeCSV.add(mode.getId().toString());
+            }
+        }
+        filter.setModes(modeCSV.toString());
+        userFilter.setModes(modeCSV.toString());
+
+        List<UserFilterUtilityDataDto> services = getFilterServices(filter);
+        StringJoiner servicesCSV = new StringJoiner(",");
+        for(UserFilterUtilityDataDto service : services){
+            if(service != null){
+                servicesList.add(service.getId());
+                servicesCSV.add(service.getId().toString());
+            }
+        }
+        filter.setServices(servicesCSV.toString());
+        userFilter.setServices(servicesCSV.toString());
+
+        return DashboardUtil.prepareFilterDetails(carriers, services,
+                modes, carrList, servicesList, userFilter, getModeWiseCarrier(carrierCSV.toString()), isParcelDashlettes);
+    }
+
     public Map<String, Object> getUserFilterDetails(Long filterId, boolean isParcelDashlettes) throws JSONException {
         DashSavedFilterDto userFilter = getFilterById(filterId);
         DashboardsFilterCriteria filter = new DashboardsFilterCriteria();
@@ -745,11 +794,11 @@ public class DashboardsService {
     }
 
     public Map<String, Object> getUserFilterDetails(DashSavedFilterDto userFilter, boolean isParcelDashlettes, DashboardsFilterCriteria filter) throws JSONException {
-        Map<String, Object> userFilterDetailsMap = new HashMap<String, Object>();;
+        Map<String, Object> userFilterDetailsMap = new HashMap<String, Object>();
 
         if(userFilter != null){
             List<Long> carrList = new ArrayList<Long>();
-            List<String> servicesList = new ArrayList<String>();
+            List<Long> servicesList = new ArrayList<Long>();
 
             String customerIds = userFilter.getCustomerIds();
             String carrierIds = userFilter.getCarrierIds();
@@ -766,20 +815,13 @@ public class DashboardsService {
             if(services != null){
                 for(String service : services.split(",")){
                     if(service != null && !service.isEmpty()){
-                        servicesList.add(service);
+                        servicesList.add(Long.parseLong(service));
                     }
                 }
             }
 
-            JSONArray modesArray = new JSONArray();
-            if (carrierIds != null && carrList.size() > 0) {
-                Map<String, String> modeWiseCarriers = getModeWiseCarrier(carrierIds);
-                modesArray = JSONUtil.prepareFilterModesJson(getFilterModes(filter), modeWiseCarriers, isParcelDashlettes);
-            }
-            userFilterDetailsMap.put("carrDetails", JSONUtil.prepareFilterCarrierJson(getCarrierByCustomer(customerIds, isParcelDashlettes), carrList));
-            userFilterDetailsMap.put("modesDetails", modesArray);
-            userFilterDetailsMap.put("servicesDetails", JSONUtil.prepareFilterServiceJson(getFilterServices(filter), servicesList));
-            userFilterDetailsMap.put("filterDetails", userFilter);
+            userFilterDetailsMap = DashboardUtil.prepareFilterDetails(getCarrierByCustomer(customerIds, isParcelDashlettes), getFilterServices(filter),
+                    getFilterModes(filter), carrList, servicesList, userFilter, getModeWiseCarrier(carrierIds), isParcelDashlettes);
         }
         return userFilterDetailsMap;
     }
@@ -831,22 +873,23 @@ public class DashboardsService {
     }
 
     public Map<String, String> getModeWiseCarrier(String carrierIds){
-        Map<String, String> modeWiseCarrMap = null;
-        List<UserFilterUtilityDataDto> carrierDataList = dashboardsDao.getCarrierDetailsByIds(carrierIds);
-        if(carrierDataList != null && !carrierDataList.isEmpty()){
-            modeWiseCarrMap = new HashMap<String, String>();
-            StringJoiner carrierCsv = new StringJoiner(",");
-            for(UserFilterUtilityDataDto carrierData : carrierDataList){
-                if(carrierData != null){
-                    if(Boolean.valueOf(carrierData.getLtl().toString())){
-                        carrierCsv.add(carrierData.getId().toString());
-                    }else{
-                        modeWiseCarrMap.put("freightCarrier", "freightCarrier");
+        Map<String, String> modeWiseCarrMap = new HashMap<String, String>();
+        if(carrierIds != null && !carrierIds.isEmpty()){
+            List<UserFilterUtilityDataDto> carrierDataList = dashboardsDao.getCarrierDetailsByIds(carrierIds);
+            if(carrierDataList != null && !carrierDataList.isEmpty()){
+                StringJoiner carrierCsv = new StringJoiner(",");
+                for(UserFilterUtilityDataDto carrierData : carrierDataList){
+                    if(carrierData != null){
+                        if(!Boolean.valueOf(carrierData.getLtl().toString())){
+                            carrierCsv.add(carrierData.getId().toString());
+                        }else{
+                            modeWiseCarrMap.put("freightCarrier", "freightCarrier");
+                        }
                     }
                 }
-            }
-            if (carrierCsv.length() > 0) {
-                modeWiseCarrMap.put("parcelCarrier", carrierIds.toString());
+                if (carrierCsv.length() > 0) {
+                    modeWiseCarrMap.put("parcelCarrier", carrierIds.toString());
+                }
             }
         }
         return modeWiseCarrMap;
@@ -946,7 +989,7 @@ public class DashboardsService {
      */
     public JSONObject getDashboardReportCustomColumnNames(DashboardsFilterCriteria filter) throws JSONException {
         JSONObject colJson = new JSONObject();
-        colJson.put("shipmentColumns", getCustomColumnDetails(filter, GlobalConstants.DASHBOARDS_SHIPMENT_DETAIL_INCLUDED_COLS, 100L));
+        colJson.put("shipmentColumns", getCustomColumnDetails(filter, GlobalConstants.DASHBOARDS_LINE_ITEM_INCLUDED_COLS, 100L));
         colJson.put("lineItemColumns", getCustomColumnDetails(filter, GlobalConstants.DASHBOARDS_LINE_ITEM_INCLUDED_COLS, 197L));
         return colJson;
     }
@@ -965,6 +1008,21 @@ public class DashboardsService {
             customDefinedColsByCustomer = getCustomDefinedLabelsByCustomer(filter, reportId);
         }
 
+        List<String> reqColList = new ArrayList<String>();
+        for(String colName : originalColumnNames.split(",")){
+            reqColList.add(colName);
+        }
+
+        Map<String, String> allColumnNames = getReportColumnNames(filter);
+        Map<String, String> reqColumnNames = new HashMap<String, String>();
+        if(allColumnNames != null){
+            for(Map.Entry<String, String> colEntry : allColumnNames.entrySet()){
+                if(reqColList.contains(colEntry.getValue())){
+                    reqColumnNames.put(colEntry.getKey(), colEntry.getValue());
+                }
+            }
+        }
+
         Map<String, String> customFieldsMap = new HashMap<String, String>();
         customFieldsMap.put("CUSTOM_DEFINED_1", "Custom Defined 1");
         customFieldsMap.put("CUSTOM_DEFINED_2", "Custom Defined 2");
@@ -976,25 +1034,26 @@ public class DashboardsService {
         customFieldsMap.put("CUSTOM_DEFINED_8", "Custom Defined 8");
         customFieldsMap.put("CUSTOM_DEFINED_9", "Custom Defined 9");
         customFieldsMap.put("CUSTOM_DEFINED_10", "Custom Defined 10");
-        List<String> avedColumns = getColumnConfigByUser(filter.getUserId(), reportId);
 
-        JSONArray columnsDetailsJson = new JSONArray();
         for (Map.Entry<String, String> entry : customFieldsMap.entrySet()) {
             if (customDefinedColsByCustomer != null && customDefinedColsByCustomer.size() > 0 && customDefinedColsByCustomer.containsKey(entry.getKey())) {
-                originalColumnNames = originalColumnNames + "," + customDefinedColsByCustomer.get(entry.getKey());
+                reqColumnNames.put(entry.getKey(), customDefinedColsByCustomer.get(entry.getKey()));
             } else {
-                originalColumnNames = originalColumnNames + "," + entry.getValue();
+                reqColumnNames.put(entry.getKey(), entry.getValue());
             }
         }
-        if (avedColumns == null || avedColumns.size() == 0) {
-            for (String columnName : originalColumnNames.split(",")) {
-                avedColumns.add(columnName);
-            }
+
+        List<String> savedColumns = getColumnConfigByUser(filter.getUserId(), reportId);
+        if(null == savedColumns || savedColumns.size() == 0){
+            savedColumns = new ArrayList<String>(reqColList);
         }
-        for (String columnName : originalColumnNames.split(",")) {
+
+        JSONArray columnsDetailsJson = new JSONArray();
+        for(Map.Entry<String, String> colEntry : reqColumnNames.entrySet()){
             JSONObject columnData = new JSONObject();
-            columnData.put("data", columnName);
-            columnData.put("checked", avedColumns.contains(columnName));
+            columnData.put("columnName", colEntry.getValue());
+            columnData.put("selectClause", colEntry.getKey());
+            columnData.put("checked", savedColumns.contains(colEntry.getValue()));
             columnsDetailsJson.put(columnData);
         }
         return columnsDetailsJson;
@@ -1063,5 +1122,14 @@ public class DashboardsService {
      */
     public List<DashSavedFilterDto> getUserFilterByName(long userId, String filterName){
         return dashboardsDao.getUserFilterByName(userId, filterName);
+    }
+
+    /**
+     * Get package distribution count details.
+     * @param filter
+     * @return
+     */
+    public List<ShipmentDto> getPackageDistributionCount(DashboardsFilterCriteria filter){
+        return dashboardsDao.getPackageDistributionCount(filter);
     }
 }

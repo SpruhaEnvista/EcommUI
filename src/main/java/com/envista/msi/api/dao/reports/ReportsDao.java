@@ -1,5 +1,6 @@
 package com.envista.msi.api.dao.reports;
 
+import com.envista.msi.api.dao.type.GenericObject;
 import com.envista.msi.api.domain.PersistentContext;
 import com.envista.msi.api.domain.util.QueryParameter;
 import com.envista.msi.api.domain.util.StoredProcedureParameter;
@@ -14,7 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import javax.persistence.ParameterMode;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -462,6 +465,14 @@ public class ReportsDao {
                 .and("shipperIds",shipperIds)
                 .and("userId",userId);
         return persistentContext.findEntities("ReportFTPServer.getFTPServer",queryParameter);
+
+    }/**
+     * @param rptId
+     * @return List<ReportFTPServerDto>
+     */
+    public List<ReportFTPServerDto> getSaveRptFTPServer(Long rptId){
+        return persistentContext.findEntities("ReportFTPServer.getSaveRptFTPServer", StoredProcedureParameter.with("p_rpt_id",rptId==null?0:rptId));
+
     }
     /**
      * @param rptId
@@ -511,6 +522,22 @@ public class ReportsDao {
         return persistentContext.findEntity("ReportInclCol.insertRecord",queryParameter);
 
     }
+    @Transactional
+    public void saveSchedIncColDetails(List<GenericObject> inclColDtoList) throws SQLException {
+        QueryParameter queryParameter = StoredProcedureParameter.withPosition(1, ParameterMode.IN, GenericObject[].class, inclColDtoList)
+                .andPosition(2, ParameterMode.REF_CURSOR, void.class, null);
+
+         persistentContext.executeStoredProcedure("shp_rpt_savesched_incl_proc",queryParameter);
+
+    }
+    @Transactional
+    public void saveSchedAcctDetails(List<GenericObject> actDtoList) throws SQLException {
+        QueryParameter queryParameter = StoredProcedureParameter.withPosition(1, ParameterMode.IN, GenericObject[].class, actDtoList)
+                .andPosition(2, ParameterMode.REF_CURSOR, void.class, null);
+
+        persistentContext.executeStoredProcedure("shp_rpt_savesched_actlist_proc",queryParameter);
+
+    }
 
     @Transactional
     public ReportsSortDto saveSchedSortColDetails(ReportsSortDto sortColDto) {
@@ -528,6 +555,16 @@ public class ReportsDao {
     }
     @Transactional
     public SavedSchedReportDto updateSchedReport(SavedSchedReportDto savedSchedReportDto) {
+
+        if(savedSchedReportDto.getDate1()!=null && !savedSchedReportDto.getDate1().isEmpty()){
+            savedSchedReportDto.setDate1(convertDateFullYearString(savedSchedReportDto.getDate1()));
+        }
+        if(savedSchedReportDto.getDate2()!=null && !savedSchedReportDto.getDate2().isEmpty()){
+            savedSchedReportDto.setDate2(convertDateFullYearString(savedSchedReportDto.getDate2()));
+        }
+        if(savedSchedReportDto.getScNextSubmitDate()!=null && !savedSchedReportDto.getScNextSubmitDate().isEmpty()){
+            savedSchedReportDto.setScNextSubmitDate(convertDateFullYearString(savedSchedReportDto.getScNextSubmitDate()));
+        }
 
         QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", savedSchedReportDto.getSavedSchedRptId())
                 .and("rptId", savedSchedReportDto.getRptId()==null?0:savedSchedReportDto.getRptId())
@@ -548,17 +585,17 @@ public class ReportsDao {
                 .and("scMonthlyNoOfMonths",savedSchedReportDto.getScMonthlyNoOfMonths()==null?0:savedSchedReportDto.getScMonthlyNoOfMonths())
                 .and("scMonthlyPeriodicFreq",savedSchedReportDto.getScMonthlyPeriodicFrequency())
                 .and("svReportStatus",savedSchedReportDto.getSvReportStatus())
-                .and("scNextSubmitDate",null)
+                .and("scNextSubmitDate",savedSchedReportDto.getScNextSubmitDate())
                 .and("carrierIds",savedSchedReportDto.getCarrierIds())
                 .and("controlPayrunNumber",savedSchedReportDto.getControlPayrunNumber())
                 .and("consolidate",savedSchedReportDto.getConsolidate()==null?false:savedSchedReportDto.getConsolidate())
-                .and("createUser",savedSchedReportDto.getCreateUser())
+                .and("createUser",savedSchedReportDto.getLastUpdateUser())
                 .and("criteria",savedSchedReportDto.getCriteria())
                 .and("dateRangeTodayMinus1",savedSchedReportDto.getDateRangeTodayMinus1()==null?0:savedSchedReportDto.getDateRangeTodayMinus1())
                 .and("dateRangeTodayMinus2",savedSchedReportDto.getDateRangeTodayMinus2()==null?0:savedSchedReportDto.getDateRangeTodayMinus2())
-                .and("ftpAccountsId",savedSchedReportDto.getFtpAccountsId())
+                .and("ftpAccountsId",(savedSchedReportDto.getFtpAccountsId() == null || savedSchedReportDto.getFtpAccountsId().toString().isEmpty()) ? 0 :savedSchedReportDto.getFtpAccountsId())
                 .and("isSuppressInvoices",savedSchedReportDto.getSuppressInvoices()==null?false:savedSchedReportDto.getSuppressInvoices())
-                .and("submittedFromSystem",savedSchedReportDto.getSubmittedFromSystem())
+                .and("submittedFromSystem",submittedFromSystem)
                 .and("isPacket",savedSchedReportDto.getPacket()==null?false:savedSchedReportDto.getPacket())
                 .and("flagsJson",savedSchedReportDto.getFlagsJson())
                 .and("locale",savedSchedReportDto.getLocale())

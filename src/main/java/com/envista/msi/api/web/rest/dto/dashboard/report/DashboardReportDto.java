@@ -48,6 +48,7 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashboardReportParams.PAGE_OFFSET_PARAM, type = Integer.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashboardReportParams.PAGE_SIZE_PARAM, type = Integer.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashboardReportParams.REPORT_TOTAL_ROW_COUNT_PARAM, type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashboardReportParams.SEARCH_FILTER_CONDITION_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.DashboardReportParams.REPORT_DATA_PARAM, type = Void.class)
                 }),
         @NamedStoredProcedureQuery(
@@ -70,6 +71,7 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashboardReportParams.PAGE_OFFSET_PARAM, type = Integer.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashboardReportParams.PAGE_SIZE_PARAM, type = Integer.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashboardReportParams.REPORT_TOTAL_ROW_COUNT_PARAM, type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashboardReportParams.SEARCH_FILTER_CONDITION_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.DashboardReportParams.REPORT_DATA_PARAM, type = Void.class)
                 }
         )
