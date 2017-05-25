@@ -2,56 +2,54 @@ package com.envista.msi.api.web.rest.dto;
 
 import java.io.Serializable;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityResult;
-import javax.persistence.FieldResult;
-import javax.persistence.Id;
-import javax.persistence.NamedStoredProcedureQueries;
-import javax.persistence.NamedStoredProcedureQuery;
-import javax.persistence.ParameterMode;
-import javax.persistence.SqlResultSetMapping;
-import javax.persistence.StoredProcedureParameter;
+import javax.persistence.*;
 
+import com.envista.msi.api.web.rest.dto.reports.SavedSchedReportDto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-@SqlResultSetMapping(
-	    name = "UserProfileTbMapper",
-	    entities = {
-	        @EntityResult(
-	            entityClass = UserProfileDto.class,
-	            fields = {
-	                @FieldResult( 
-	                    name = "userId", 
-	                    column = "user_id"
-	                ),
-	                @FieldResult( 
-	                    name = "email", 
-	                    column = "email"
-	                ),
-	                @FieldResult( 
-	                    name = "isAccounts", 
-	                    column = "IS_ACCOUNTS"
-	                ),
-	                @FieldResult( 
-		                    name = "fullname", 
-		                    column = "fullname"
-		                ),
-	                @FieldResult( 
-		                    name = "userName", 
-		                    column = "USER_NAME"
-		                ),
-	                @FieldResult( 
-		                    name = "userinfo", 
-		                    column = "userinfo"
-		                ),
-	                @FieldResult( 
-		                    name = "passwd", 
-		                    column = "passwd"
-		                )
-	            }
-	        )}
+@SqlResultSetMappings({
+		@SqlResultSetMapping(
+				name = "UserProfileTbMapper",
+				entities = {
+						@EntityResult(
+								entityClass = UserProfileDto.class,
+								fields = {
+										@FieldResult(
+												name = "userId",
+												column = "user_id"
+										),
+										@FieldResult(
+												name = "email",
+												column = "email"
+										),
+										@FieldResult(
+												name = "isAccounts",
+												column = "IS_ACCOUNTS"
+										),
+										@FieldResult(
+												name = "fullname",
+												column = "fullname"
+										),
+										@FieldResult(
+												name = "userName",
+												column = "USER_NAME"
+										),
+										@FieldResult(
+												name = "userinfo",
+												column = "userinfo"
+										),
+										@FieldResult(
+												name = "passwd",
+												column = "passwd"
+										),
+										@FieldResult(
+												name = "phone",
+												column = "phone"
+										)
+								}
+						)}
 		)
+})
 @NamedStoredProcedureQueries({
 	@NamedStoredProcedureQuery(name = "UserProfileTb.getUserByProcUserEntity", procedureName = "shp_avtr_user_by_name_proc",
 	resultClasses = UserProfileDto.class,
@@ -65,6 +63,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 			@StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "RetUser", type = void.class),
 			@StoredProcedureParameter(mode = ParameterMode.IN, name = "userNameInParam", type = String.class)
 		  }
+		),
+	@NamedStoredProcedureQuery(name = "UserProfileTb.validatePassword", procedureName = "shp_avtr_user_validatepwd_proc",
+			resultClasses = UserProfileDto.class,
+				parameters = {
+						@StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "RetUser", type = void.class),
+						@StoredProcedureParameter(mode = ParameterMode.IN, name = "inParamPassword", type = String.class),
+						@StoredProcedureParameter(mode = ParameterMode.IN, name = "userId", type = Long.class)
+				}
 		)
 })
 @Entity
@@ -87,6 +93,9 @@ public class UserProfileDto implements Serializable {
 
 	@Column(length = 30)
 	private String userinfo;
+
+	@Column(name = "PHONE")
+	private String phone;
 
 	@JsonIgnore
 	private String passwd;
@@ -170,6 +179,14 @@ public class UserProfileDto implements Serializable {
 
 	public void setDefaultCustomer(String defaultCustomer) {
 		this.defaultCustomer = defaultCustomer;
+	}
+
+	public String getPhone() {
+		return phone;
+	}
+
+	public void setPhone(String phone) {
+		this.phone = phone;
 	}
 
 	@Override

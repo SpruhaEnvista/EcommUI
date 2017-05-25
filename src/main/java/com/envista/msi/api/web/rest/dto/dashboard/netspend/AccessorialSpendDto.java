@@ -64,6 +64,23 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.AccessorialSpendParams.TOP_ACCESSORIAL_SPEND_PARAM, type = Void.class)
                 }),
+        @NamedStoredProcedureQuery(name = AccessorialSpendDto.Config.StoredProcedureQueryName.TOP_ACCESSORIAL_SPEND_BY_ACCESSORIAL,
+                procedureName = AccessorialSpendDto.Config.StoredProcedureName.TOP_ACCESSORIAL_SPEND_BY_ACCESSORIAL,
+                resultSetMappings = AccessorialSpendDto.Config.ResultMappings.TOP_ACCESSORIAL_SPEND_BY_ACCESSORIAL_MAPPING,
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.DATE_TYPE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.CONVERTED_CURRENCY_CODE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.CARRIER_IDS_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.MODES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.SERVICES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.LANES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.FROM_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.TO_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.AccessorialSpendParams.TOP_ACCESSORIAL_SPEND_PARAM, type = Void.class)
+                }),
         @NamedStoredProcedureQuery(name = AccessorialSpendDto.Config.StoredProcedureQueryName.ACCESSORIAL_SPEND,
                 procedureName = AccessorialSpendDto.Config.StoredProcedureName.ACCESSORIAL_SPEND,
                 resultSetMappings = AccessorialSpendDto.Config.ResultMappings.ACCESSORIAL_SPEND_MAPPING,
@@ -143,6 +160,15 @@ import java.util.Date;
                         columns = {
                                 @ColumnResult(name = "BILLING_DATE", type = Date.class),
                                 @ColumnResult(name = "AMOUNT", type = Double.class)
+                        }
+                )
+        }),
+        @SqlResultSetMapping(name = AccessorialSpendDto.Config.ResultMappings.TOP_ACCESSORIAL_SPEND_BY_ACCESSORIAL_MAPPING, classes = {
+                @ConstructorResult(
+                        targetClass = AccessorialSpendDto.class,
+                        columns = {
+                                @ColumnResult(name = "ACCESSORIAL_NAME", type = String.class),
+                                @ColumnResult(name = "SPEND", type = Double.class)
                         }
                 )
         }),
@@ -241,6 +267,11 @@ public class AccessorialSpendDto implements Serializable{
         this.accessorialDescription = accessorialDescription;
     }
 
+    public AccessorialSpendDto(String accessorialName, Double spend) {
+        this.accessorialName = accessorialName;
+        this.spend = spend;
+    }
+
     public Long getId() {
         return id;
     }
@@ -329,6 +360,7 @@ public class AccessorialSpendDto implements Serializable{
             static final String TOP_ACCESSORIAL_SPEND_MAPPING = "AccessorialSpendDto.TopAccessorialSpendMapping";
             static final String TOP_ACCESSORIAL_SPEND_BY_CARRIER_MAPPING = "AccessorialSpendDto.TopAccessorialSpendByCarrierMapping";
             static final String TOP_ACCESSORIAL_SPEND_BY_MONTH_MAPPING = "AccessorialSpendDto.TopAccessorialSpendByMonthMapping";
+            static final String TOP_ACCESSORIAL_SPEND_BY_ACCESSORIAL_MAPPING = "AccessorialSpendDto.TopAccessorialSpendByAccessorialMapping";
         }
 
         static class StoredProcedureName{
@@ -338,6 +370,7 @@ public class AccessorialSpendDto implements Serializable{
             static final String TOP_ACCESSORIAL_SPEND = "SHP_DB_TOP_ACC_SPEND_PROC";
             static final String TOP_ACCESSORIAL_SPEND_BY_CARRIER = "SHP_DB_TOP_ACC_SPEND_CARR_PROC";
             static final String TOP_ACCESSORIAL_SPEND_BY_MONTH = "SHP_DB_TOP_ACC_SPEND_MNTH_PROC";
+            static final String TOP_ACCESSORIAL_SPEND_BY_ACCESSORIAL = "SHP_DB_TOP_ACC_SPEND_ACC_PROC";
         }
 
         public static class StoredProcedureQueryName{
@@ -347,6 +380,7 @@ public class AccessorialSpendDto implements Serializable{
             public static final String TOP_ACCESSORIAL_SPEND = "AccessorialSpendDto.getTopAccessorialSpend";
             public static final String TOP_ACCESSORIAL_SPEND_BY_CARRIER = "AccessorialSpendDto.getTopAccessorialSpendByCarrier";
             public static final String TOP_ACCESSORIAL_SPEND_BY_MONTH = "AccessorialSpendDto.getTopAccessorialSpendByMonth";
+            public static final String TOP_ACCESSORIAL_SPEND_BY_ACCESSORIAL = "AccessorialSpendDto.getTopAccessorialSpendByAccessorial";
         }
     }
 }

@@ -39,9 +39,10 @@ public class ReportsDao {
      * @return list<ReportResultsDto>
      */
     @Transactional( readOnly = true )
-    public List<ReportResultsDto> getReportResults(Long userId) {
-        return persistentContext.findEntitiesAndMapFields("ReportResults.getReportResults",
-                StoredProcedureParameter.with("userId", userId));
+    public List<ReportResultsDto> getReportResults(Long userId,String orderBy, String ascDesc) {
+        QueryParameter queryParameter = StoredProcedureParameter.with("userId", userId)
+                .and("orderBy", orderBy).and("ascDesc", ascDesc);
+        return persistentContext.findEntitiesAndMapFields("ReportResults.getReportResults",queryParameter);
     }
     /**
      * Update Expiry Date.
@@ -672,6 +673,12 @@ public class ReportsDao {
         QueryParameter queryParameter = StoredProcedureParameter.with("rptFolderId",rptFolderId==null?0:rptFolderId)
                 .and("userId", userId==null?0:userId);
         return persistentContext.findEntityAndMapFields("ReportFolder.deleteRptFolder", queryParameter);
+    }
+    @Transactional
+    public List<ReportFolderDto> getSubFolders(Long rptFolderId, Long userId) {
+        QueryParameter queryParameter = StoredProcedureParameter.with("rptFolderId",rptFolderId==null?0:rptFolderId)
+                .and("userId", userId==null?0:userId);
+        return persistentContext.findEntities("ReportFolder.getReportSubFolders", queryParameter);
     }
     @Transactional
     public List<SearchUserByCustomerDto> getReportUserCustomers(Long userId){

@@ -47,8 +47,17 @@ public class DashboardsDao {
     private PersistentContext persistentContext;
 
     public DashboardAppliedFilterDto getUserAppliedFilter(Long userId) {
-        return persistentContext.findEntity("DashAppliedFilterTb.getUserAppliedFilter",
-                StoredProcedureParameter.with("p_user_id", userId));
+        DashboardAppliedFilterDto appliedFilter = null;
+        try{
+            appliedFilter = persistentContext.findEntity("DashAppliedFilterTb.getUserAppliedFilter",
+                    StoredProcedureParameter.with("p_user_id", userId));
+            if(null == appliedFilter){
+                throw new NoAppliedFilterFoundException("Applied Filter not Found");
+            }
+        }catch (Exception e){
+            throw new NoAppliedFilterFoundException("Applied Filter not Found", e);
+        }
+        return appliedFilter;
     }
 
     /**
@@ -252,6 +261,19 @@ public class DashboardsDao {
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
         return persistentContext.findEntities(AccessorialSpendDto.Config.StoredProcedureQueryName.TOP_ACCESSORIAL_SPEND_BY_MONTH, queryParameter);
+    }
+
+    public List<AccessorialSpendDto> getTopAccessorialSpendByAccessorial(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {DashboardStoredProcParam.AccessorialSpendParams.DATE_TYPE_PARAM, DashboardStoredProcParam.AccessorialSpendParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardStoredProcParam.AccessorialSpendParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardStoredProcParam.AccessorialSpendParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardStoredProcParam.AccessorialSpendParams.CARRIER_IDS_PARAM, DashboardStoredProcParam.AccessorialSpendParams.MODES_PARAM,
+                DashboardStoredProcParam.AccessorialSpendParams.SERVICES_PARAM, DashboardStoredProcParam.AccessorialSpendParams.LANES_PARAM,
+                DashboardStoredProcParam.AccessorialSpendParams.FROM_DATE_PARAM, DashboardStoredProcParam.AccessorialSpendParams.TO_DATE_PARAM,
+                DashboardStoredProcParam.AccessorialSpendParams.TOP_TEN_ACCESSORIAL_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(AccessorialSpendDto.Config.StoredProcedureQueryName.TOP_ACCESSORIAL_SPEND_BY_ACCESSORIAL, queryParameter);
     }
 
     /**
@@ -1262,24 +1284,24 @@ public class DashboardsDao {
         return persistentContext.findEntities(UserFilterUtilityDataDto.Config.StoredProcedureQueryName.CARRIER_BY_CUSTOMER, queryParameter);
     }
 
-    public List<UserFilterUtilityDataDto> getFilterModes(DashboardsFilterCriteria filter){
+    public List<UserFilterUtilityDataDto> getFilterModes(DashboardsFilterCriteria filter, boolean isParcelDashlettes){
         String[] paramNames = {
                 DashboardStoredProcParam.NetSpendParams.DATE_TYPE_PARAM, DashboardStoredProcParam.NetSpendParams.CUSTOMER_IDS_CSV_PARAM,
-                DashboardStoredProcParam.NetSpendParams.CARRIER_IDS_PARAM, DashboardStoredProcParam.NetSpendParams.FROM_DATE_PARAM,
-                DashboardStoredProcParam.NetSpendParams.TO_DATE_PARAM
+                DashboardStoredProcParam.NetSpendParams.CARRIER_IDS_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        queryParameter.and(DashboardStoredProcParam.UserFilterUtilityDataParam.IS_PARCEL_DASHLETTES_PARAM, isParcelDashlettes ? 1 : 0);
         return persistentContext.findEntities(UserFilterUtilityDataDto.Config.StoredProcedureQueryName.MODES_BY_CARRIER, queryParameter);
     }
 
-    public List<UserFilterUtilityDataDto> getFilterServices(DashboardsFilterCriteria filter){
+    public List<UserFilterUtilityDataDto> getFilterServices(DashboardsFilterCriteria filter, boolean isParcelDashlettes){
         filter.setTopTenAccessorial(false);
         String[] paramNames = {
                 DashboardStoredProcParam.NetSpendParams.DATE_TYPE_PARAM, DashboardStoredProcParam.NetSpendParams.CUSTOMER_IDS_CSV_PARAM,
-                DashboardStoredProcParam.NetSpendParams.CARRIER_IDS_PARAM, DashboardStoredProcParam.NetSpendParams.MODES_PARAM,
-                DashboardStoredProcParam.NetSpendParams.FROM_DATE_PARAM, DashboardStoredProcParam.NetSpendParams.TO_DATE_PARAM
+                DashboardStoredProcParam.NetSpendParams.CARRIER_IDS_PARAM, DashboardStoredProcParam.NetSpendParams.MODES_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        queryParameter.and(DashboardStoredProcParam.UserFilterUtilityDataParam.IS_PARCEL_DASHLETTES_PARAM, isParcelDashlettes ? 1 : 0);
         return persistentContext.findEntities(UserFilterUtilityDataDto.Config.StoredProcedureQueryName.SERVICE_BY_GROUP, queryParameter);
     }
 

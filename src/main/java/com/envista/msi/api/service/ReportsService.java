@@ -76,8 +76,8 @@ public class ReportsService {
     @Value("${from.emailid.0}")
     private String fromEmailId;
 
-    public List<ReportResultsDto> getReportResults(long userId) {
-        return  reportsDao.getReportResults(userId);
+    public List<ReportResultsDto> getReportResults(Long userId,String orderBy, String ascDesc) {
+        return  reportsDao.getReportResults(userId,orderBy,ascDesc);
     }
     public ReportResultsDto updateExpiryDate(Long generatedRptId,String expiryDate) {
         return  reportsDao.updateExpiryDate(generatedRptId,expiryDate);
@@ -774,8 +774,29 @@ public class ReportsService {
     }
 
     public ReportFolderDto deleteFolder(Long rptFolderId, Long userId) {
+
+        List<ReportFolderDto> list = reportsDao.getSubFolders(rptFolderId,userId);
+
+        for(int i =0;i<list.size();i++){
+            ReportFolderDto folderDto = list.get(i);
+            if(folderDto.getRptFolderId()!=null && folderDto.getRptFolderId()>0){
+                List<ReportFolderDto> subFolderList = reportsDao.getSubFolders(folderDto.getRptFolderId(),userId);
+                if(subFolderList!=null && subFolderList.size()>0){
+                    deleteFolder(folderDto.getRptFolderId(), userId);
+                }else{
+                    reportsDao.deleteFolder(folderDto.getRptFolderId(),userId);
+                }
+            }
+        }
+
         return reportsDao.deleteFolder(rptFolderId,userId);
     }
+
+    public List<ReportFolderDto> getSubFolders(Long rptFolderId, Long userId) {
+
+        return reportsDao.getSubFolders(rptFolderId,userId);
+    }
+
     public JSONArray getReportUserCustomers(Long userId) throws  Exception{
         JSONArray customerJsonArr=new JSONArray();
         List<SearchUserByCustomerDto> customerDtos=reportsDao.getReportUserCustomers(userId);
