@@ -460,17 +460,20 @@ public class ReportsDao {
      *   @param shipperIds
      * @return List<ReportFolderHierarchyDto>
      */
-    public List<ReportFTPServerDto> getReportFTPServer(String customerIds,String shipperGroupIds ,String shipperIds){
+    public List<ReportFTPServerDto> getReportFTPServer(String customerIds,String shipperGroupIds ,String shipperIds,Long userId){
         QueryParameter queryParameter = StoredProcedureParameter.with("customerIds",customerIds)
                 .and("shipperGroupIds", shipperGroupIds)
-                .and("shipperIds",shipperIds);
+                .and("shipperIds",shipperIds)
+                .and("userId",userId);
         return persistentContext.findEntities("ReportFTPServer.getFTPServer",queryParameter);
+
     }/**
      * @param rptId
      * @return List<ReportFTPServerDto>
      */
     public List<ReportFTPServerDto> getSaveRptFTPServer(Long rptId){
         return persistentContext.findEntities("ReportFTPServer.getSaveRptFTPServer", StoredProcedureParameter.with("p_rpt_id",rptId==null?0:rptId));
+
     }
     /**
      * @param rptId
