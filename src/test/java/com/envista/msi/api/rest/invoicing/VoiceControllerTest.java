@@ -16,10 +16,10 @@ public class VoiceControllerTest  extends WebappTestEnvironment {
 
     private static final String SEARCH_API_BASE_PATH_VALUE = "/api/voice";
 
-    @Test
+    /*@Test
     public void getVoices() throws Exception {
         mockRestMvc().perform(get(SEARCH_API_BASE_PATH_VALUE + "/getVoices?access_token=c121c5be-baf3-41fa-9d15-399030bcd4e5")
                 ).andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE));
-    }
+    }*/
 }
