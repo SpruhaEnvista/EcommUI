@@ -173,6 +173,16 @@ public class DashboardsService {
     }
 
     /**
+     * Get top accessorial spend for all accessorial.
+     * @param filter
+     * @param isTopTenAccessorial
+     * @return
+     */
+    public List<AccessorialSpendDto> getTopAccessorialSpendByAccessorial(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        return dashboardsDao.getTopAccessorialSpendByAccessorial(filter, isTopTenAccessorial);
+    }
+
+    /**
      *
      * @param filter
      * @param isTopTenAccessorial
@@ -732,6 +742,7 @@ public class DashboardsService {
 
     public Map<String, Object> getNewUserFilterDetails(DashSavedFilterDto userFilter, boolean isParcelDashlettes, DashboardsFilterCriteria filter) throws JSONException {
         List<Long> carrList = new ArrayList<Long>();
+        List<Long> modeList = new ArrayList<Long>();
         List<Long> servicesList = new ArrayList<Long>();
         List<UserFilterUtilityDataDto> carriers = getCarrierByCustomer(String.valueOf(userFilter.getCustomerIds()), isParcelDashlettes);
         StringJoiner carrierCSV = new StringJoiner(",");
@@ -771,7 +782,7 @@ public class DashboardsService {
 
 
         return DashboardUtil.prepareFilterDetails(carriers, services,
-                modes, carrList, servicesList, userFilter, getModeWiseCarrier(carrierCSV.toString()), isParcelDashlettes);
+                modes, carrList, modeList, servicesList, userFilter, getModeWiseCarrier(carrierCSV.toString()), isParcelDashlettes, true);
     }
 
     public Map<String, Object> getUserFilterDetails(Long filterId, boolean isParcelDashlettes) throws JSONException {
@@ -791,15 +802,25 @@ public class DashboardsService {
         if(userFilter != null){
             List<Long> carrList = new ArrayList<Long>();
             List<Long> servicesList = new ArrayList<Long>();
+            List<Long> modeList = new ArrayList<Long>();
 
             String customerIds = userFilter.getCustomerIds();
             String carrierIds = userFilter.getCarrierIds();
             String services = userFilter.getServices();
+            String modes = userFilter.getModes();
 
             if(carrierIds != null){
                 for(String carrId : carrierIds.split(",")){
                     if(carrId != null && !carrId.isEmpty()){
                         carrList.add(Long.parseLong(carrId));
+                    }
+                }
+            }
+
+            if(modes != null){
+                for(String mode : modes.split(",")){
+                    if(mode != null && !mode.isEmpty()){
+                        modeList.add(Long.parseLong(mode));
                     }
                 }
             }
@@ -813,7 +834,7 @@ public class DashboardsService {
             }
 
             userFilterDetailsMap = DashboardUtil.prepareFilterDetails(getCarrierByCustomer(customerIds, isParcelDashlettes), getFilterServices(filter, isParcelDashlettes),
-                    getFilterModes(filter, isParcelDashlettes), carrList, servicesList, userFilter, getModeWiseCarrier(carrierIds), isParcelDashlettes);
+                    getFilterModes(filter, isParcelDashlettes), carrList, modeList, servicesList, userFilter, getModeWiseCarrier(carrierIds), isParcelDashlettes, false);
         }
         return userFilterDetailsMap;
     }

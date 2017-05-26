@@ -702,45 +702,17 @@ public class ReportsService {
 
     public List<ReportFolderDto> getReportFolder(Long userId){ return  reportsDao.getReportFolder(userId); }
 
-    public JSONObject getReportFTPServer(String customerIds,String shipperGroupIds ,String shipperIds,Long rptId) throws  Exception{
-        List<ReportFTPServerDto> ftpServerDtos=reportsDao.getReportFTPServer( customerIds, shipperGroupIds , shipperIds);
-        List<ReportFTPServerDto> ftpAccountDtos=reportsDao.getSaveRptFTPServer(rptId);
+    public JSONObject getReportFTPServer(String customerIds,String shipperGroupIds ,String shipperIds,Long userId) throws  Exception{
+        List<ReportFTPServerDto> ftpServerDtos=reportsDao.getReportFTPServer( customerIds, shipperGroupIds , shipperIds,userId);
         JSONObject jsonObjectReturn=new JSONObject();
         JSONArray jsonArray = new JSONArray();
-        boolean isSavedFTPAccountPresent=false;
-        if(ftpServerDtos!=null){
+        if(ftpServerDtos!=null && ftpServerDtos.size()>0){
             for (ReportFTPServerDto ftpServerDto:ftpServerDtos) {
                 if (ftpServerDto != null) {
                     JSONObject jsonObject = new JSONObject();
-                    if (ftpAccountDtos != null) {
-                        for (ReportFTPServerDto savedServer : ftpAccountDtos) {
-                            if (savedServer != null) {
-                                if (ftpServerDto.getFtpAccountId()!=null && savedServer.getFtpAccountId()!=null && ftpServerDto.getFtpAccountId()==savedServer.getFtpAccountId())
-                                    isSavedFTPAccountPresent = true;
-                            }
-                        }
-                    }
                     jsonObject.put("FTPSERVERNAME", ftpServerDto.getFtpAccountName());
                     jsonObject.put("FTPSERVERID", ftpServerDto.getFtpAccountId());
                     jsonArray.put(jsonObject);
-                }
-
-            }
-        }
-        if (!isSavedFTPAccountPresent ) {
-            if (ftpAccountDtos != null) {
-                for (ReportFTPServerDto savedServer : ftpAccountDtos) {
-                    if (savedServer != null) {
-                        if (savedServer.getFtpAccountId()!=null) {
-                            JSONObject jsonObject = new JSONObject();
-                            if (!savedServer.getIsActive())
-                                jsonObject.put("FTPSERVERNAME", savedServer.getFtpAccountName() + "-Inactive");
-                            else
-                                jsonObject.put("FTPSERVERNAME", savedServer.getFtpAccountName() + "-Invalid");
-                            jsonObject.put("FTPSERVERID", savedServer.getFtpAccountId());
-                            jsonArray.put(jsonObject);
-                        }
-                    }
                 }
             }
         }
@@ -802,8 +774,29 @@ public class ReportsService {
     }
 
     public ReportFolderDto deleteFolder(Long rptFolderId, Long userId) {
+
+        List<ReportFolderDto> list = reportsDao.getSubFolders(rptFolderId,userId);
+
+        for(int i =0;i<list.size();i++){
+            ReportFolderDto folderDto = list.get(i);
+            if(folderDto.getRptFolderId()!=null && folderDto.getRptFolderId()>0){
+                List<ReportFolderDto> subFolderList = reportsDao.getSubFolders(folderDto.getRptFolderId(),userId);
+                if(subFolderList!=null && subFolderList.size()>0){
+                    deleteFolder(folderDto.getRptFolderId(), userId);
+                }else{
+                    reportsDao.deleteFolder(folderDto.getRptFolderId(),userId);
+                }
+            }
+        }
+
         return reportsDao.deleteFolder(rptFolderId,userId);
     }
+
+    public List<ReportFolderDto> getSubFolders(Long rptFolderId, Long userId) {
+
+        return reportsDao.getSubFolders(rptFolderId,userId);
+    }
+
     public JSONArray getReportUserCustomers(Long userId) throws  Exception{
         JSONArray customerJsonArr=new JSONArray();
         List<SearchUserByCustomerDto> customerDtos=reportsDao.getReportUserCustomers(userId);

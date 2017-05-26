@@ -2110,10 +2110,10 @@ public class JSONUtil {
 	}
 
 	public static JSONObject prepareFilterCarrierJson(List<UserFilterUtilityDataDto> carrierList) throws JSONException {
-		return prepareFilterCarrierJson(carrierList, null);
+		return prepareFilterCarrierJson(carrierList, null, true);
 	}
 
-	public static JSONObject prepareFilterCarrierJson(List<UserFilterUtilityDataDto> carrierList, List<Long> selectedCarrList) throws JSONException {
+	public static JSONObject prepareFilterCarrierJson(List<UserFilterUtilityDataDto> carrierList, List<Long> selectedCarrList, boolean isNew) throws JSONException {
 		JSONObject carrJson = new JSONObject();
 		JSONArray parcelCarJsonArr = new JSONArray();
 		JSONArray freightCarrJsonArr = new JSONArray();
@@ -2123,7 +2123,7 @@ public class JSONUtil {
 					JSONObject carrObj = new JSONObject();
 					carrObj.put("id", userFilterCarr.getCarrierId());
 					carrObj.put("name", userFilterCarr.getCarrierName());
-					carrObj.put("checked", null == selectedCarrList || selectedCarrList.isEmpty() ? true : selectedCarrList != null && selectedCarrList.contains(userFilterCarr.getCarrierId()));
+					carrObj.put("checked", isNew ? true : selectedCarrList != null && selectedCarrList.contains(userFilterCarr.getCarrierId()));
 
 					if("parcel".equalsIgnoreCase(userFilterCarr.getCarrierType())){
 						parcelCarJsonArr.put(carrObj);
@@ -2139,6 +2139,10 @@ public class JSONUtil {
 	}
 
 	public static JSONArray prepareFilterModesJson(List<UserFilterUtilityDataDto> modes, Map<String, String> modeWiseCarriers, boolean isParcelDashlettes) throws JSONException {
+		return prepareFilterModesJson(modes, null, modeWiseCarriers, isParcelDashlettes, true);
+	}
+
+	public static JSONArray prepareFilterModesJson(List<UserFilterUtilityDataDto> modes, List<Long> savedModes, Map<String, String> modeWiseCarriers, boolean isParcelDashlettes, boolean isNew) throws JSONException {
 		JSONArray modesDetailsArray = new JSONArray();
 		if (modes != null && !modes.isEmpty()) {
 			List<String> modesList = new ArrayList<String>();
@@ -2150,7 +2154,7 @@ public class JSONUtil {
 							JSONObject jsonObject = new JSONObject();
 							jsonObject.put("id", userFilterMode.getId());
 							jsonObject.put("name", userFilterMode.getName());
-							jsonObject.put("checked", true);
+							jsonObject.put("checked", isNew ? true : savedModes != null && savedModes.contains(userFilterMode.getId()));
 							modesDetailsArray.put(jsonObject);
 						}
 					}
@@ -2160,7 +2164,7 @@ public class JSONUtil {
 				JSONObject jsonObject = new JSONObject();
 				jsonObject.put("id", WebConstants.SMALL_PACKAGE_CODE_VALUE_ID);
 				jsonObject.put("name", WebConstants.SMALL_PACKAGE_CARRIER_MODES);
-				jsonObject.put("checked", true);
+				jsonObject.put("checked", isNew ? true : savedModes != null && savedModes.contains(Long.valueOf(WebConstants.SMALL_PACKAGE_CODE_VALUE_ID)));
 				modesDetailsArray.put(jsonObject);
 			}
 		}
@@ -2168,10 +2172,10 @@ public class JSONUtil {
 	}
 
 	public static JSONArray prepareFilterServiceJson(List<UserFilterUtilityDataDto> serviceDataList) throws JSONException {
-		return prepareFilterServiceJson(serviceDataList, null);
+		return prepareFilterServiceJson(serviceDataList, null, true);
 	}
 
-	public static JSONArray prepareFilterServiceJson(List<UserFilterUtilityDataDto> serviceDataList, List<Long> selectedServices) throws JSONException {
+	public static JSONArray prepareFilterServiceJson(List<UserFilterUtilityDataDto> serviceDataList, List<Long> selectedServices, boolean isNew) throws JSONException {
 		JSONArray serviceDetailsArray = new JSONArray();
 		if (serviceDataList != null && !serviceDataList.isEmpty()) {
 			ArrayList<Long> serviceList = new ArrayList<Long>();
@@ -2182,7 +2186,7 @@ public class JSONUtil {
 					jsonObject.put("name", serviceData.getName());
 					jsonObject.put("mode", serviceData.getType());
 					jsonObject.put("type", "category");
-					jsonObject.put("checked", null == selectedServices || selectedServices.isEmpty() ? true : selectedServices.contains(serviceData.getId()));
+					jsonObject.put("checked", isNew ? true : selectedServices!= null && selectedServices.contains(serviceData.getId()));
 					jsonObject.put("uniqueType", "services");
 					jsonObject.put("isActive", serviceData.getActive());
 					jsonObject.put("isFreight", !"Small Package".equalsIgnoreCase(serviceData.getType()));
@@ -2396,12 +2400,12 @@ public class JSONUtil {
 		String str="";
 		if (count>0) {
 			for (int i = 0; i < count; i++)
-				str=str+"-";
+				str=str+"  ";
 		}
 		for (ReportFolderDto dtoHierarchy:folderHierarchyDto.getCollection()){
 			JSONObject jsonObject=new JSONObject();
-			jsonObject.put("folderId",str+" "+dtoHierarchy.getRptFolderId());
-			jsonObject.put("folderName",dtoHierarchy.getRptFolderName());
+			jsonObject.put("folderId",dtoHierarchy.getRptFolderId());
+			jsonObject.put("folderName",str+dtoHierarchy.getRptFolderName());
 			jsonObject.put("parentId",dtoHierarchy.getParentId());
 			if(dtoHierarchy.getCollection()!=null && dtoHierarchy.getCollection().size()>0)
                 jsonObject.put("child",getFolderHierarchyJson(dtoHierarchy,count+1));

@@ -12,6 +12,7 @@ import com.envista.msi.api.web.rest.util.WebConstants;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.cglib.core.internal.LoadingCache;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -101,6 +102,8 @@ public class ReportsController {
     }
     @RequestMapping(value = "/savedschedreports", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<List<SavedSchedReportsDto>> getSavedSchedReports(@RequestParam String userId,@RequestParam(required = false) String folderId){
+        if(folderId!=null)
+            folderId = folderId.replaceAll("-","");
         List<SavedSchedReportsDto> resultsList = reportsService.getSavedSchedReports(Long.parseLong(userId), (folderId == null ? 0 : Long.parseLong(folderId.trim())));
         return new ResponseEntity<List<SavedSchedReportsDto>>(resultsList, HttpStatus.OK);
     }
@@ -465,7 +468,7 @@ public class ReportsController {
                     }
                 }
             }
-            JSONObject asJson = reportsService.getReportFTPServer(customers,shipperGroups,shipers,ftpServerDto.getRptId());
+            JSONObject asJson = reportsService.getReportFTPServer(customers,shipperGroups,shipers,ftpServerDto.getUserId());
             ftpServerJson = asJson != null ? asJson : new JSONObject();
             return new ResponseEntity<JSONObject>(ftpServerJson, HttpStatus.OK);
         } catch (Exception e) {

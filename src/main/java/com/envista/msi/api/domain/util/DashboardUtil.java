@@ -212,7 +212,40 @@ public class DashboardUtil {
         appliedFilter.setModes(savedFilter.getModes());
         appliedFilter.setServices(savedFilter.getServices());
         appliedFilter.setWeightUnit(savedFilter.getWeightUnit());
+        String lanesInfo = prepareLanesInfo(savedFilter);
+        if(lanesInfo != null && !lanesInfo.isEmpty()){
+            appliedFilter.setLanes(lanesInfo);
+        }
         return appliedFilter;
+    }
+
+    public static String prepareLanesInfo(DashSavedFilterDto savedFilter){
+        StringBuilder lanesInfo = new StringBuilder();
+        if(savedFilter != null){
+            populateLanesInfo(lanesInfo, "a.shipper_country", savedFilter.getShipperCountries());
+            populateLanesInfo(lanesInfo, "a.shipper_state", savedFilter.getShipperStates());
+            populateLanesInfo(lanesInfo, "a.shipper_city", savedFilter.getShipperCities());
+            populateLanesInfo(lanesInfo, "a.receiver_country", savedFilter.getReceiverCountries());
+            populateLanesInfo(lanesInfo, "a.receiver_state", savedFilter.getReceiverStates());
+            populateLanesInfo(lanesInfo, "a.receiver_city", savedFilter.getReceiverCities());
+        }
+        return lanesInfo.toString();
+    }
+
+    private static void populateLanesInfo(StringBuilder lanesInfo, String fieldName, String fieldValuesCSV){
+        if(fieldValuesCSV != null && !fieldValuesCSV.isEmpty()){
+            StringJoiner stringJoiner = new StringJoiner(",");
+            for(String value : fieldValuesCSV.split(",")){
+                if(value != null && !value.isEmpty()){
+                    stringJoiner.add("'" + value + "'");
+                }
+            }
+            if(lanesInfo.toString().isEmpty()){
+                lanesInfo.append(" "+ fieldName + " IN (" + stringJoiner.toString() + ") ");
+            }else{
+                lanesInfo.append(" AND " + fieldName + " IN (" + stringJoiner.toString() + ") ");
+            }
+        }
     }
 
     /**
@@ -228,7 +261,7 @@ public class DashboardUtil {
         int size = filter.split(Pattern.quote(delimiter)).length;
         StringBuilder finalCondition = new StringBuilder("(");
         for(String params : filter.split(Pattern.quote(delimiter))){
-            finalCondition.append("LOWER(" + params.split(":")[0] + ")" + " LIKE " + "'" + params.split(":")[1] + "'");
+            finalCondition.append(" " + params.split(":")[0] + " LIKE " + "'" + params.split(":")[1] + "'");
             if(i != size - 1){
                 finalCondition.append(" " + sqlCondition + " ");
             }
@@ -252,16 +285,16 @@ public class DashboardUtil {
      * @throws JSONException
      */
     public static Map<String, Object> prepareFilterDetails(List<UserFilterUtilityDataDto> carriers, List<UserFilterUtilityDataDto> services, List<UserFilterUtilityDataDto> modes,
-                                                    List<Long> savedCarrList, List<Long> savedServices, DashSavedFilterDto savedFilter, Map<String, String> modeWiseCarriers,
-                                                    boolean isParcelDashlettes) throws JSONException {
+                                                    List<Long> savedCarrList, List<Long> savedModes, List<Long> savedServices, DashSavedFilterDto savedFilter, Map<String, String> modeWiseCarriers,
+                                                    boolean isParcelDashlettes, boolean isNew) throws JSONException {
         Map<String, Object> userFilterDetailsMap = new HashMap<String, Object>();
         JSONArray modesArray = new JSONArray();
         if (savedCarrList.size() > 0) {
-            modesArray = JSONUtil.prepareFilterModesJson(modes, modeWiseCarriers, isParcelDashlettes);
+            modesArray = JSONUtil.prepareFilterModesJson(modes, savedModes, modeWiseCarriers, isParcelDashlettes, isNew);
         }
-        userFilterDetailsMap.put("carrDetails", JSONUtil.prepareFilterCarrierJson(carriers, savedCarrList));
+        userFilterDetailsMap.put("carrDetails", JSONUtil.prepareFilterCarrierJson(carriers, savedCarrList, isNew));
         userFilterDetailsMap.put("modesDetails", modesArray);
-        userFilterDetailsMap.put("servicesDetails", JSONUtil.prepareFilterServiceJson(services, savedServices));
+        userFilterDetailsMap.put("servicesDetails", JSONUtil.prepareFilterServiceJson(services, savedServices, isNew));
         userFilterDetailsMap.put("filterDetails", savedFilter);
         return userFilterDetailsMap;
     }
