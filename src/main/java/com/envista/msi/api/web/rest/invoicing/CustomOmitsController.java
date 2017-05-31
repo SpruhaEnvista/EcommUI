@@ -129,6 +129,7 @@ public class CustomOmitsController {
 
         CustomOmitsDto dto = new CustomOmitsDto();
 
+        dto.setCustomOmitsId(0L);
         dto.setCustomerIds(customerIds);
         dto.setTrackingNumber(trackingNumber);
         dto.setCreditTypeId(creditTypeId);
@@ -202,5 +203,28 @@ public class CustomOmitsController {
         List<CodeValueDto> dtos = codeValueService.GetCodeValues(codeGroupName, property1, codeValue, actionType);
 
         return new ResponseEntity<List<CodeValueDto>>(dtos, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/getSearchCount", params = {"trackingNumber", "customerIds", "carrierId", "customOmitId"}, method = RequestMethod.GET)
+    public ResponseEntity<Integer> getSearchCount(@RequestParam String trackingNumber, @RequestParam String customerIds, @RequestParam long carrierId, @RequestParam long customOmitId) throws Exception {
+
+        LOG.info("***findBySearchCriteria method started****" + trackingNumber);
+        PaginationBean CustomOmitsPaginationData = new PaginationBean();
+
+        if (customerIds != null && StringUtils.containsIgnoreCase(customerIds, "CU")) {
+            customerIds = StringUtils.remove(customerIds, "CU");
+        }
+
+        CustomOmitsDto dto = new CustomOmitsDto();
+
+        dto.setCustomOmitsId(customOmitId);
+        dto.setCustomerIds(customerIds);
+        dto.setTrackingNumber(trackingNumber);
+        dto.setCreditTypeId(0L);
+        dto.setCarrierId(carrierId);
+        dto.setUserId(0L);
+        int count = service.getSeachCount(dto);
+
+        return new ResponseEntity<Integer>(count, HttpStatus.OK);
     }
 }

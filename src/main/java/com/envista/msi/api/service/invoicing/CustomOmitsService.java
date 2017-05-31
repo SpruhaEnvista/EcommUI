@@ -91,4 +91,9 @@ public class CustomOmitsService {
 
         return dao.getAllCarriers();
     }
+
+    public int getSeachCount(CustomOmitsDto dto) {
+
+        return dao.getSearchCount(dto);
+    }
 }
