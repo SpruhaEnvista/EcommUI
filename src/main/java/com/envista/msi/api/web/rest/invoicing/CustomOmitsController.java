@@ -203,4 +203,26 @@ public class CustomOmitsController {
 
         return new ResponseEntity<List<CodeValueDto>>(dtos, HttpStatus.OK);
     }
+
+    @RequestMapping(value = "/getSearchCount", params = {"trackingNumber", "customerIds", "carrierId"}, method = RequestMethod.GET)
+    public ResponseEntity<Integer> getSearchCount(@RequestParam String trackingNumber, @RequestParam String customerIds, long carrierId) throws Exception {
+
+        LOG.info("***findBySearchCriteria method started****" + trackingNumber);
+        PaginationBean CustomOmitsPaginationData = new PaginationBean();
+
+        if (customerIds != null && StringUtils.containsIgnoreCase(customerIds, "CU")) {
+            customerIds = StringUtils.remove(customerIds, "CU");
+        }
+
+        CustomOmitsDto dto = new CustomOmitsDto();
+
+        dto.setCustomerIds(customerIds);
+        dto.setTrackingNumber(trackingNumber);
+        dto.setCreditTypeId(0L);
+        dto.setCarrierId(carrierId);
+        dto.setUserId(0L);
+        int count = service.getSeachCount(dto);
+
+        return new ResponseEntity<Integer>(count, HttpStatus.OK);
+    }
 }
