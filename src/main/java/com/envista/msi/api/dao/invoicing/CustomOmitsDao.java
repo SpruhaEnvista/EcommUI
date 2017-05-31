@@ -89,7 +89,7 @@ public class CustomOmitsDao {
         QueryParameter queryParameter = StoredProcedureParameter.with("P_TRACKING_NUMBER", dto.getTrackingNumber())
                 .and("P_CREDIT_TYPE_ID", dto.getCreditTypeId()).and("P_CUSTOMER_IDS", dto.getCustomerIds())
                 .and("P_COMMENTS", dto.getComments()).and("P_CARRIER_ID", dto.getCarrierId()).and("P_USER_ID", dto.getUserId())
-                .and("P_OFFSET", offset).and("P_PAGE_SIZE", limit).and("P_ACTION_TYPE", "search");
+                .and("P_OFFSET", offset).and("P_PAGE_SIZE", limit).and("P_CUTOM_OMIT_ID", 0L).and("P_ACTION_TYPE", "search");
 
         return persistentContext.findEntities("CustomOmitsDto.findBySearchCriteria", queryParameter);
     }
@@ -126,7 +126,7 @@ public class CustomOmitsDao {
         QueryParameter queryParameter = StoredProcedureParameter.with("P_TRACKING_NUMBER", dto.getTrackingNumber())
                 .and("P_CREDIT_TYPE_ID", dto.getCreditTypeId()).and("P_CUSTOMER_IDS", dto.getCustomerIds())
                 .and("P_COMMENTS", dto.getComments()).and("P_CARRIER_ID", dto.getCarrierId()).and("P_USER_ID", dto.getUserId())
-                .and("P_OFFSET", 0).and("P_PAGE_SIZE", 0).and("P_ACTION_TYPE", "count");
+                .and("P_OFFSET", 0).and("P_PAGE_SIZE", 0).and("P_CUTOM_OMIT_ID", 0L).and("P_ACTION_TYPE", "count");
 
         List<CustomOmitsDto> dtos = persistentContext.findEntities("CustomOmitsDto.searchCount", queryParameter);
 
