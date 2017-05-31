@@ -91,7 +91,7 @@ public class DashBoardController {
     @RequestMapping(value = "/closeWeek",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
     public ResponseEntity<Integer> closeCurrentWeek(@RequestBody JSONObject myJSON) throws JSONException{
         log.info("***closeCurrentWeek method started****");
-        int updatedRows = service.closeCurrentWeekCredits( "123445,566,888889,899009" , myJSON.getString("action") );
+        int updatedRows = service.closeCurrentWeekCredits(myJSON.getString("ebillManifestIds"), myJSON.getString("action"));
 
         return new ResponseEntity<Integer>(updatedRows, HttpStatus.OK);
     }
