@@ -129,6 +129,7 @@ public class CustomOmitsController {
 
         CustomOmitsDto dto = new CustomOmitsDto();
 
+        dto.setCustomOmitsId(0L);
         dto.setCustomerIds(customerIds);
         dto.setTrackingNumber(trackingNumber);
         dto.setCreditTypeId(creditTypeId);
@@ -204,8 +205,8 @@ public class CustomOmitsController {
         return new ResponseEntity<List<CodeValueDto>>(dtos, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/getSearchCount", params = {"trackingNumber", "customerIds", "carrierId"}, method = RequestMethod.GET)
-    public ResponseEntity<Integer> getSearchCount(@RequestParam String trackingNumber, @RequestParam String customerIds, long carrierId) throws Exception {
+    @RequestMapping(value = "/getSearchCount", params = {"trackingNumber", "customerIds", "carrierId", "customOmitId"}, method = RequestMethod.GET)
+    public ResponseEntity<Integer> getSearchCount(@RequestParam String trackingNumber, @RequestParam String customerIds, @RequestParam long carrierId, @RequestParam long customOmitId) throws Exception {
 
         LOG.info("***findBySearchCriteria method started****" + trackingNumber);
         PaginationBean CustomOmitsPaginationData = new PaginationBean();
@@ -216,6 +217,7 @@ public class CustomOmitsController {
 
         CustomOmitsDto dto = new CustomOmitsDto();
 
+        dto.setCustomOmitsId(customOmitId);
         dto.setCustomerIds(customerIds);
         dto.setTrackingNumber(trackingNumber);
         dto.setCreditTypeId(0L);
