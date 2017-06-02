@@ -4,6 +4,8 @@ import com.envista.msi.api.domain.PersistentContext;
 import com.envista.msi.api.domain.util.QueryParameter;
 import com.envista.msi.api.domain.util.StoredProcedureParameter;
 import com.envista.msi.api.web.rest.dto.invoicing.DashBoardDto;
+import com.envista.msi.api.web.rest.dto.invoicing.WeekEndDto;
+import com.envista.msi.api.web.rest.dto.invoicing.WeekStatusDto;
 import org.springframework.stereotype.Repository;
 
 import javax.inject.Inject;
@@ -45,4 +47,36 @@ public class DashBoardDao {
 
         return 0;
     }
+
+    public int scrubCredits(Long weekEndId) {
+
+        QueryParameter queryParameter = StoredProcedureParameter.with("P_WEEK_END_ID", weekEndId);
+        persistentContext.findEntities("DashBoardDto.weeklyScrub", queryParameter);
+
+        return 0;
+    }
+
+    public void insertFileInfo(String fileName, Long weekEndId) {
+
+        QueryParameter queryParameter = StoredProcedureParameter.with("P_FILE_NAME", fileName).and("P_WEEK_END_ID", weekEndId);
+
+
+        persistentContext.findEntities("DashBoardDto.insertFileInfo", queryParameter);
+
+
+    }
+
+    public WeekStatusDto getWeekStatusInfo(String fromDate, String toDate) {
+
+        QueryParameter queryParameter = StoredProcedureParameter.with("P_FROM_DATE", fromDate)
+                .and("P_TO_DATE", toDate).and("P_ACTION_TYPE", null);
+
+        List<WeekStatusDto> dtos = persistentContext.findEntities("WeekStatusDto.getWeekStatusInfo", queryParameter);
+        WeekStatusDto dto = null;
+        if (null != dtos && dtos.size() > 0) {
+            dto = dtos.get(0);
+        }
+        return dto;
+    }
+
 }

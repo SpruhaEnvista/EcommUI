@@ -6,6 +6,7 @@ import com.envista.msi.api.service.invoicing.WeekEndService;
 import com.envista.msi.api.web.rest.dto.invoicing.CreditResponseDto;
 import com.envista.msi.api.web.rest.dto.invoicing.DashBoardDto;
 import com.envista.msi.api.web.rest.dto.invoicing.WeekEndDto;
+import com.envista.msi.api.web.rest.dto.invoicing.WeekStatusDto;
 import com.envista.msi.api.web.rest.util.FileOperations;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -103,12 +104,13 @@ public class DashBoardController {
     }
 
     @RequestMapping(value = "/uploadCreditRespInfo", method = RequestMethod.POST)
-    public ResponseEntity<String> UploadCreditResp(@RequestParam("files") MultipartFile[] file, HttpServletRequest request) throws IOException {
+    public ResponseEntity<String> UploadCreditResp(@RequestParam("files") MultipartFile[] file, @RequestParam("weekEndId") Long weekEndId, HttpServletRequest request) throws IOException {
         log.info("***UploadCreditResp method started***");
         try {
             MultipartHttpServletRequest mRequest;
             mRequest = (MultipartHttpServletRequest) request;
             List<MultipartFile> files = mRequest.getFiles("file");
+            service.insertFileInfo(files.get(0).getOriginalFilename(), weekEndId);
             List<CreditResponseDto> dtos = fileOperations.customOmitFileUploadOperation(files.get(0));
             creditResponseService.insert(dtos);
         } catch (Exception e) {
@@ -150,10 +152,23 @@ public class DashBoardController {
     public ResponseEntity<Integer> ScrubCredits(@RequestParam Long weekEndId) throws JSONException {
         log.info("***ScrubCredits method started****");
 
-        int count = 0;
+        int count = service.scrubCredits(weekEndId);
 
 
         return new ResponseEntity<Integer>(count, HttpStatus.OK);
+    }
+
+    /**
+     * HTTP GET - Get week status Info
+     */
+    @RequestMapping(value = "/getWeekStatus", params = {"fromDate", "toDate"}, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+    public ResponseEntity<WeekStatusDto> getWeekStatusInfo(@RequestParam String fromDate, @RequestParam String toDate) throws JSONException {
+        log.info("***getWeekStatusInfo method started****");
+
+        WeekStatusDto dto = service.getWeekStatusInfo(fromDate, toDate);
+
+        log.info("***getWeekStatusInfo json***==== " + dto);
+        return new ResponseEntity<WeekStatusDto>(dto, HttpStatus.OK);
     }
 
 }
