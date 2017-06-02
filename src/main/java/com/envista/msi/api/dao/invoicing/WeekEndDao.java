@@ -34,4 +34,15 @@ public class WeekEndDao {
         }
         return weekEndDto;
     }
+
+    public WeekEndDto getCurrentWeekEndDate() {
+
+        QueryParameter queryParameter = StoredProcedureParameter.with("P_WEEK_END_DATE", null).and("P_ACTION_TYPE", "getCurrentWeekEnd");
+        List<WeekEndDto> dtos = persistentContext.findEntities("WeekEndDto.getAll", queryParameter);
+        WeekEndDto weekEndDto = null;
+        if (null != dtos && dtos.size() > 0) {
+            weekEndDto = dtos.get(0);
+        }
+        return weekEndDto;
+    }
 }

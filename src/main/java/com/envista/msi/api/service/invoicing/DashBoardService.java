@@ -28,8 +28,8 @@ public class DashBoardService {
         return dao.getPendingCredits(fromDate, toDate, actionType);
     }
 
-    public int closeCurrentWeekCredits(String ebillManifestIds, String action) {
+    public int closeCurrentWeekCredits(String ebillManifestIds, String action, Long weekEndId) {
 
-        return dao.closeCurrentWeekCredits(ebillManifestIds, action);
+        return dao.closeCurrentWeekCredits(ebillManifestIds, action, weekEndId);
     }
 }

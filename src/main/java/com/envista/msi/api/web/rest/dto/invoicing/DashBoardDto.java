@@ -26,6 +26,7 @@ import java.io.Serializable;
         @NamedStoredProcedureQuery(name = "DashBoardDto.closeCurrentWeek", procedureName = "SHP_INV_CLOSE_CUR_WEEK_PRO",
 
                 parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_WEEK_END_ID", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_EBILL_MANIFEST_IDS", type = String.class)
                        /* @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_DAS_INFO", type = Void.class)*/

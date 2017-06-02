@@ -2,8 +2,10 @@ package com.envista.msi.api.web.rest.invoicing;
 
 import com.envista.msi.api.service.invoicing.CreditResponseService;
 import com.envista.msi.api.service.invoicing.DashBoardService;
+import com.envista.msi.api.service.invoicing.WeekEndService;
 import com.envista.msi.api.web.rest.dto.invoicing.CreditResponseDto;
 import com.envista.msi.api.web.rest.dto.invoicing.DashBoardDto;
+import com.envista.msi.api.web.rest.dto.invoicing.WeekEndDto;
 import com.envista.msi.api.web.rest.util.FileOperations;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,6 +41,10 @@ public class DashBoardController {
 
     @Autowired
     FileOperations fileOperations;
+
+
+    @Inject
+    private WeekEndService weekEndService;
 
     /**
      * HTTP GET - Get all Voices
@@ -81,7 +87,7 @@ public class DashBoardController {
             jsonObject.put("pendingEbillIds", "");
         }
 
-        log.info("***getPendingCredits count***==== " + jsonObject);
+        log.info("***ge tPendingCredits count***==== " + jsonObject);
         return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.OK);
     }
 
@@ -91,7 +97,7 @@ public class DashBoardController {
     @RequestMapping(value = "/closeWeek",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
     public ResponseEntity<Integer> closeCurrentWeek(@RequestBody JSONObject myJSON) throws JSONException{
         log.info("***closeCurrentWeek method started****");
-        int updatedRows = service.closeCurrentWeekCredits(myJSON.getString("ebillManifestIds"), myJSON.getString("action"));
+        int updatedRows = service.closeCurrentWeekCredits(myJSON.getString("ebillManifestIds"), myJSON.getString("action"), myJSON.getLong("weekEndId"));
 
         return new ResponseEntity<Integer>(updatedRows, HttpStatus.OK);
     }
@@ -123,4 +129,31 @@ public class DashBoardController {
         }
         return new ResponseEntity<String>("file(s) uploaded Successfully", HttpStatus.OK);
     }
+
+    /**
+     * HTTP GET - Get Current Week End Info
+     */
+    @RequestMapping(value = "/getCurrentWeekEnd", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+    public ResponseEntity<WeekEndDto> getCurrentWeekEnd() throws JSONException {
+        log.info("***getCurrentWeekEnd method started****");
+
+        WeekEndDto dto = weekEndService.getCurrentWeekEndDate();
+
+        log.info("***getCurrentWeekEnd json***==== " + dto);
+        return new ResponseEntity<WeekEndDto>(dto, HttpStatus.OK);
+    }
+
+    /**
+     * HTTP GET - Get Current Week End Info
+     */
+    @RequestMapping(value = "/scrubCredits", params = {"weekEndId"}, method = RequestMethod.PUT)
+    public ResponseEntity<Integer> ScrubCredits(@RequestParam Long weekEndId) throws JSONException {
+        log.info("***ScrubCredits method started****");
+
+        int count = 0;
+
+
+        return new ResponseEntity<Integer>(count, HttpStatus.OK);
+    }
+
 }

@@ -35,9 +35,9 @@ public class DashBoardDao {
 
     }
 
-    public int closeCurrentWeekCredits(String ebillManifestIds, String action) {
+    public int closeCurrentWeekCredits(String ebillManifestIds, String action, Long weekEndId) {
 
-        QueryParameter queryParameter = StoredProcedureParameter.with("P_ACTION", action)
+        QueryParameter queryParameter = StoredProcedureParameter.with("P_WEEK_END_ID", weekEndId).and("P_ACTION", action)
                 .and("P_EBILL_MANIFEST_IDS", ebillManifestIds);
 
         persistentContext.findEntities("DashBoardDto.closeCurrentWeek", queryParameter);
