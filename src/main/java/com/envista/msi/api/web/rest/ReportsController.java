@@ -12,6 +12,7 @@ import com.envista.msi.api.web.rest.util.WebConstants;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.cglib.core.internal.LoadingCache;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -467,7 +468,7 @@ public class ReportsController {
                     }
                 }
             }
-            JSONObject asJson = reportsService.getReportFTPServer(customers,shipperGroups,shipers,ftpServerDto.getRptId());
+            JSONObject asJson = reportsService.getReportFTPServer(customers,shipperGroups,shipers,ftpServerDto.getUserId());
             ftpServerJson = asJson != null ? asJson : new JSONObject();
             return new ResponseEntity<JSONObject>(ftpServerJson, HttpStatus.OK);
         } catch (Exception e) {
