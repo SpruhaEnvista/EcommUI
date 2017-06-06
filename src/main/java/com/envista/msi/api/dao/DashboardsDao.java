@@ -883,7 +883,8 @@ public class DashboardsDao {
                 DashboardStoredProcParam.AverageSpendShipmentByCarrierParam.LANES_PARAM, DashboardStoredProcParam.AverageSpendShipmentByCarrierParam.FROM_DATE_PARAM,
                 DashboardStoredProcParam.AverageSpendShipmentByCarrierParam.TO_DATE_PARAM, DashboardStoredProcParam.AverageSpendShipmentByCarrierParam.CARRIER_IDS_PARAM,
                 DashboardStoredProcParam.AverageSpendShipmentByCarrierParam.CUSTOMER_IDS_CSV_PARAM, DashboardStoredProcParam.AverageSpendShipmentByCarrierParam.ORIGINAL_FROM_DATE_PARAM,
-                DashboardStoredProcParam.AverageSpendShipmentByCarrierParam.ORIGINAL_TO_DATE_PARAM, DashboardStoredProcParam.AverageSpendShipmentByCarrierParam.TOP_TEN_ACCESSORIAL_PARAM
+                DashboardStoredProcParam.AverageSpendShipmentByCarrierParam.ORIGINAL_TO_DATE_PARAM, DashboardStoredProcParam.AverageSpendShipmentByCarrierParam.TOP_TEN_ACCESSORIAL_PARAM,
+                DashboardStoredProcParam.AverageSpendShipmentByCarrierParam.MODE_NAMES_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
         return persistentContext.findEntities(AverageSpendPerShipmentDto.Config.StoredProcedureQueryName.AVG_SPEND_PER_SHIPMENT_BY_CARRIER, queryParameter);
@@ -902,7 +903,8 @@ public class DashboardsDao {
                 DashboardStoredProcParam.AverageSpendShipmentByMonthParam.SERVICES_PARAM, DashboardStoredProcParam.AverageSpendShipmentByMonthParam.ACCESSORIAL_NAME_PARAM,
                 DashboardStoredProcParam.AverageSpendShipmentByMonthParam.LANES_PARAM, DashboardStoredProcParam.AverageSpendShipmentByMonthParam.FROM_DATE_PARAM,
                 DashboardStoredProcParam.AverageSpendShipmentByMonthParam.TO_DATE_PARAM, DashboardStoredProcParam.AverageSpendShipmentByMonthParam.CARRIER_IDS_PARAM,
-                DashboardStoredProcParam.AverageSpendShipmentByMonthParam.CUSTOMER_IDS_CSV_PARAM, DashboardStoredProcParam.AverageSpendShipmentByMonthParam.TOP_TEN_ACCESSORIAL_PARAM
+                DashboardStoredProcParam.AverageSpendShipmentByMonthParam.CUSTOMER_IDS_CSV_PARAM, DashboardStoredProcParam.AverageSpendShipmentByMonthParam.TOP_TEN_ACCESSORIAL_PARAM,
+                DashboardStoredProcParam.AverageSpendShipmentByCarrierParam.MODE_NAMES_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
         return persistentContext.findEntities(AverageSpendPerShipmentDto.Config.StoredProcedureQueryName.AVG_SPEND_PER_SHIPMENT_BY_MONTH, queryParameter);
@@ -923,7 +925,7 @@ public class DashboardsDao {
                 DashboardStoredProcParam.AverageWeightShipmentByCarrierParam.TO_DATE_PARAM, DashboardStoredProcParam.AverageWeightShipmentByCarrierParam.ORIGINAL_FROM_DATE_PARAM,
                 DashboardStoredProcParam.AverageWeightShipmentByCarrierParam.ORIGINAL_TO_DATE_PARAM, DashboardStoredProcParam.AverageWeightShipmentByCarrierParam.CONVERTED_WEIGHT_UNIT_PARAM,
                 DashboardStoredProcParam.AverageWeightShipmentByCarrierParam.CARRIER_IDS_PARAM, DashboardStoredProcParam.AverageWeightShipmentByCarrierParam.CUSTOMER_IDS_CSV_PARAM,
-                DashboardStoredProcParam.AverageWeightShipmentByCarrierParam.TOP_TEN_ACCESSORIAL_PARAM
+                DashboardStoredProcParam.AverageWeightShipmentByCarrierParam.TOP_TEN_ACCESSORIAL_PARAM, DashboardStoredProcParam.AverageWeightShipmentByCarrierParam.MODE_NAMES_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
         return persistentContext.findEntities(AverageWeightModeShipmtDto.Config.StoredProcedureQueryName.AVG_WEIGHT_MODE_SHIPMENT_BY_CARRIER, queryParameter);
@@ -943,7 +945,7 @@ public class DashboardsDao {
                 DashboardStoredProcParam.AverageWeightShipmentByMonthParam.LANES_PARAM, DashboardStoredProcParam.AverageWeightShipmentByMonthParam.FROM_DATE_PARAM,
                 DashboardStoredProcParam.AverageWeightShipmentByMonthParam.TO_DATE_PARAM, DashboardStoredProcParam.AverageWeightShipmentByMonthParam.CONVERTED_WEIGHT_UNIT_PARAM,
                 DashboardStoredProcParam.AverageWeightShipmentByMonthParam.CARRIER_IDS_PARAM, DashboardStoredProcParam.AverageWeightShipmentByMonthParam.CUSTOMER_IDS_CSV_PARAM,
-                DashboardStoredProcParam.AverageWeightShipmentByMonthParam.TOP_TEN_ACCESSORIAL_PARAM
+                DashboardStoredProcParam.AverageWeightShipmentByMonthParam.TOP_TEN_ACCESSORIAL_PARAM, DashboardStoredProcParam.AverageWeightShipmentByMonthParam.MODE_NAMES_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
         return persistentContext.findEntities(AverageWeightModeShipmtDto.Config.StoredProcedureQueryName.AVG_WEIGHT_MODE_SHIPMENT_BY_MONTH, queryParameter);

@@ -803,7 +803,7 @@ public class DashboardsController extends DashboardBaseController {
         DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
         if(filter != null){
             if (service != null && !service.isEmpty()){
-                filter.setService(service);
+                filter.setServices(service);
             }
             if(invoiceDate != null && !invoiceDate.isEmpty()){
                 DashboardUtil.setDatesFromMonth(filter, invoiceDate);
@@ -819,7 +819,7 @@ public class DashboardsController extends DashboardBaseController {
         DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
         if(filter != null){
             if (service != null && !service.isEmpty()){
-                filter.setService(service);
+                filter.setServices(service);
             }
             if(invoiceDate != null && !invoiceDate.isEmpty()){
                 DashboardUtil.setDatesFromMonth(filter, invoiceDate);
@@ -849,7 +849,7 @@ public class DashboardsController extends DashboardBaseController {
                 filter.setCarriers(carrierId);
             }
             if(service != null && !service.isEmpty()){
-                filter.setService(service);
+                filter.setServices(service);
             }
         }
         JSONObject recovServJson = loadRecoveryServicesJsonData(RecoveryServiceConstants.RECOVERY_SERVICE_BY_MONTH, filter);
@@ -895,12 +895,12 @@ public class DashboardsController extends DashboardBaseController {
     }
 
     @RequestMapping(value = "/avgSpendPerShipmentByCarrier", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getAverageSpendPerShipmentByCarrier(@RequestParam String service, @RequestParam String invoiceDate) throws Exception {
+    public ResponseEntity<String> getAverageSpendPerShipmentByCarrier(@RequestParam String modeName, @RequestParam String invoiceDate) throws Exception {
         UserProfileDto user = getUserProfile();
         DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
         if(filter !=  null){
-            if(service != null && !service.isEmpty()){
-                filter.setService(service);
+            if(modeName != null && !modeName.isEmpty()){
+                filter.setModeNames(modeName);
             }
             if(invoiceDate != null && !invoiceDate.isEmpty()){
                 DashboardUtil.setDatesFromMonth(filter, invoiceDate);
@@ -911,12 +911,12 @@ public class DashboardsController extends DashboardBaseController {
     }
 
     @RequestMapping(value = "/avgSpendPerShipmentByMonth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getAverageSpendPerShipmentByMonth(@RequestParam String invoiceDate,@RequestParam String carrierId,@RequestParam String service) throws Exception {
+    public ResponseEntity<String> getAverageSpendPerShipmentByMonth(@RequestParam String invoiceDate,@RequestParam String carrierId,@RequestParam String modeName) throws Exception {
         UserProfileDto user = getUserProfile();
         DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
         if(filter !=  null){
-            if(service != null && !service.isEmpty()){
-                filter.setService(service);
+            if(modeName != null && !modeName.isEmpty()){
+                filter.setModeNames(modeName);
             }
             if(invoiceDate != null && !invoiceDate.isEmpty()){
                 DashboardUtil.setDatesFromMonth(filter, invoiceDate);
@@ -930,12 +930,12 @@ public class DashboardsController extends DashboardBaseController {
     }
 
     @RequestMapping(value = "/avgWeightModeByCarrier", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getAverageWeightModeByCarrier(@RequestParam String service, @RequestParam String invoiceDate) throws Exception {
+    public ResponseEntity<String> getAverageWeightModeByCarrier(@RequestParam String modeName, @RequestParam String invoiceDate) throws Exception {
         UserProfileDto user = getUserProfile();
         DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
         if(filter !=  null){
-            if(service != null && !service.isEmpty()){
-                filter.setService(service);
+            if(modeName != null && !modeName.isEmpty()){
+                filter.setModeNames(modeName);
             }
             if(invoiceDate != null && !invoiceDate.isEmpty()){
                 DashboardUtil.setDatesFromMonth(filter, invoiceDate);
@@ -946,12 +946,12 @@ public class DashboardsController extends DashboardBaseController {
     }
 
     @RequestMapping(value = "/avgWeightModeByMonth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getAverageWeightModeByMonth(@RequestParam String service,@RequestParam String invoiceDate,@RequestParam String carrierId) throws Exception {
+    public ResponseEntity<String> getAverageWeightModeByMonth(@RequestParam String modeName,@RequestParam String invoiceDate,@RequestParam String carrierId) throws Exception {
         UserProfileDto user = getUserProfile();
         DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
         if(filter !=  null){
-            if(service != null && !service.isEmpty()){
-                filter.setService(service);
+            if(modeName != null && !modeName.isEmpty()){
+                filter.setModeNames(modeName);
             }
             if(invoiceDate != null && !invoiceDate.isEmpty()){
                 DashboardUtil.setDatesFromMonth(filter, invoiceDate);
