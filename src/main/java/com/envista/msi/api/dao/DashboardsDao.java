@@ -612,7 +612,8 @@ public class DashboardsDao {
                 DashboardStoredProcParam.RecoveryAdjustmentParams.CARRIER_IDS_PARAM, DashboardStoredProcParam.RecoveryAdjustmentParams.MODES_PARAM,
                 DashboardStoredProcParam.RecoveryAdjustmentParams.SERVICES_PARAM, DashboardStoredProcParam.RecoveryAdjustmentParams.LANES_PARAM,
                 DashboardStoredProcParam.RecoveryAdjustmentParams.FROM_DATE_PARAM, DashboardStoredProcParam.RecoveryAdjustmentParams.TO_DATE_PARAM,
-                DashboardStoredProcParam.RecoveryAdjustmentParams.ACCESSORIAL_NAME_PARAM, DashboardStoredProcParam.RecoveryAdjustmentParams.TOP_TEN_ACCESSORIAL_PARAM
+                DashboardStoredProcParam.RecoveryAdjustmentParams.ACCESSORIAL_NAME_PARAM, DashboardStoredProcParam.RecoveryAdjustmentParams.TOP_TEN_ACCESSORIAL_PARAM,
+                DashboardStoredProcParam.RecoveryAdjustmentParams.SERVICE_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
         return persistentContext.findEntities(RecoveryAdjustmentDto.Config.StoredProcedureQueryName.RECOVERY_ADJUSTMENT_BY_CARRIER, queryParameter);
@@ -625,7 +626,8 @@ public class DashboardsDao {
                 DashboardStoredProcParam.RecoveryAdjustmentParams.CARRIER_IDS_PARAM, DashboardStoredProcParam.RecoveryAdjustmentParams.MODES_PARAM,
                 DashboardStoredProcParam.RecoveryAdjustmentParams.SERVICES_PARAM, DashboardStoredProcParam.RecoveryAdjustmentParams.LANES_PARAM,
                 DashboardStoredProcParam.RecoveryAdjustmentParams.FROM_DATE_PARAM, DashboardStoredProcParam.RecoveryAdjustmentParams.TO_DATE_PARAM,
-                DashboardStoredProcParam.RecoveryAdjustmentParams.ACCESSORIAL_NAME_PARAM, DashboardStoredProcParam.RecoveryAdjustmentParams.TOP_TEN_ACCESSORIAL_PARAM
+                DashboardStoredProcParam.RecoveryAdjustmentParams.ACCESSORIAL_NAME_PARAM, DashboardStoredProcParam.RecoveryAdjustmentParams.TOP_TEN_ACCESSORIAL_PARAM,
+                DashboardStoredProcParam.RecoveryAdjustmentParams.SERVICE_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
         return persistentContext.findEntities(RecoveryAdjustmentDto.Config.StoredProcedureQueryName.RECOVERY_ADJUSTMENT_BY_MONTH, queryParameter);

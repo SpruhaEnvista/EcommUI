@@ -803,7 +803,7 @@ public class DashboardsController extends DashboardBaseController {
         DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
         if(filter != null){
             if (service != null && !service.isEmpty()){
-                filter.setServices(service);
+                filter.setService(service);
             }
             if(invoiceDate != null && !invoiceDate.isEmpty()){
                 DashboardUtil.setDatesFromMonth(filter, invoiceDate);
@@ -819,7 +819,7 @@ public class DashboardsController extends DashboardBaseController {
         DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
         if(filter != null){
             if (service != null && !service.isEmpty()){
-                filter.setServices(service);
+                filter.setService(service);
             }
             if(invoiceDate != null && !invoiceDate.isEmpty()){
                 DashboardUtil.setDatesFromMonth(filter, invoiceDate);
@@ -849,7 +849,7 @@ public class DashboardsController extends DashboardBaseController {
                 filter.setCarriers(carrierId);
             }
             if(service != null && !service.isEmpty()){
-                filter.setServices(service);
+                filter.setService(service);
             }
         }
         JSONObject recovServJson = loadRecoveryServicesJsonData(RecoveryServiceConstants.RECOVERY_SERVICE_BY_MONTH, filter);
