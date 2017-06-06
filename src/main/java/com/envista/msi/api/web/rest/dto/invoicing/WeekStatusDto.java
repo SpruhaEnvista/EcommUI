@@ -22,13 +22,13 @@ public class WeekStatusDto {
     @Column(name = "ROW_NUM")
     private Long id;
 
-    @Column(name = "close_button")
+    @Column(name = "CLOSE_BUTTON")
     private String closeButton;
 
-    @Column(name = "scrub_button")
+    @Column(name = "SCRUB_BUTTON")
     private String scrubButton;
 
-    @Column(name = "file_upload")
+    @Column(name = "FILE_UPLOAD")
     private String fileUpload;
 
     public WeekStatusDto() {
