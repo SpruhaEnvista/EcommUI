@@ -307,9 +307,11 @@ public class DashboardUtil {
      */
     public static boolean isContainsCustomer(String customerId, List<ReportCustomerCarrierDto> customers){
         if(customers != null && customerId != null){
-            for(ReportCustomerCarrierDto customer : customers){
-                if(customer != null && customer.getCustomerId() != null && customerId.equals(customer.getCustomerId().toString())){
-                    return true;
+            for(String custId : customerId.split(",")){
+                for(ReportCustomerCarrierDto customer : customers){
+                    if(customer != null && custId != null && customer.getCustomerId() != null && custId.equals(customer.getCustomerId().toString())){
+                        return true;
+                    }
                 }
             }
         }
