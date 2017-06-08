@@ -1,6 +1,7 @@
 package com.envista.msi.api.web.rest.util;
 
 import org.apache.commons.lang.StringUtils;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -101,31 +102,72 @@ public final class InvoicingUtilities {
 
     }
 
-    public static JSONObject getBuissnessPartnersList() throws JSONException {
+    public static JSONArray getBuissnessPartnersList() throws JSONException {
+        JSONArray jsonArray = new JSONArray();
 
         JSONObject object = new JSONObject();
-        object.put("0", "MSI");
-        object.put("1", "Lojistic");
-        object.put("2", "Trans Audit");
-        object.put("3", "PC Synergy");
-        object.put("4", "RAF Logistics");
-        object.put("5", "First One Management");
-        object.put("6", "Compete Consulting");
-        object.put("7", "iDrive");
-        object.put("8", "Kenco Logistic Services");
 
-        return object;
+        object.put("id", 0);
+        object.put("name", "MSI");
+        jsonArray.put(object);
+
+        object = new JSONObject();
+        object.put("id", 1);
+        object.put("name", "Lojistic");
+        jsonArray.put(object);
+
+        object = new JSONObject();
+        object.put("id", 2);
+        object.put("name", "Trans Audit");
+        jsonArray.put(object);
+
+        object = new JSONObject();
+        object.put("id", 3);
+        object.put("name", "PC Synergy");
+        jsonArray.put(object);
+
+        object = new JSONObject();
+        object.put("id", 4);
+        object.put("name", "RAF Logistics");
+        jsonArray.put(object);
+
+        object = new JSONObject();
+        object.put("id", 5);
+        object.put("name", "First One Management");
+        jsonArray.put(object);
+
+        object = new JSONObject();
+        object.put("id", 6);
+        object.put("name", "Compete Consulting");
+        jsonArray.put(object);
+
+        object = new JSONObject();
+        object.put("id", 7);
+        object.put("name", "iDrive");
+        jsonArray.put(object);
+
+        object = new JSONObject();
+        object.put("id", 8);
+        object.put("name", "Kenco Logistic Services");
+        jsonArray.put(object);
+
+
+        return jsonArray;
 
     }
 
-    public static JSONObject getFlagValueList() throws JSONException {
-
+    public static JSONArray getFlagValueList() throws JSONException {
+        JSONArray jsonArray = new JSONArray();
         JSONObject object = new JSONObject();
-        object.put("Y", "Y");
-        object.put("N", "N");
+        object.put("flag", "Y");
+        jsonArray.put(object);
+
+        object = new JSONObject();
+        object.put("flag", "N");
+        jsonArray.put(object);
 
 
-        return object;
+        return jsonArray;
 
     }
 
