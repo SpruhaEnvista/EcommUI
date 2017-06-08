@@ -8,6 +8,7 @@ import com.envista.msi.api.web.rest.dto.invoicing.CreditsPRDto;
 import com.envista.msi.api.web.rest.dto.invoicing.CreditsPRSearchBean;
 import com.envista.msi.api.web.rest.dto.invoicing.WeekEndDto;
 import com.envista.msi.api.web.rest.util.DateUtil;
+import com.envista.msi.api.web.rest.util.InvoicingUtilities;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
@@ -123,6 +124,10 @@ public class CreditsPRController {
 
         List<WeekEndDto> weekEndDtos = weekEndService.getAll();
         jsonObject.put("weekEndIfo", weekEndDtos);
+
+        jsonObject.put("bpList", InvoicingUtilities.getBuissnessPartnersList());
+
+        jsonObject.put("flagList", InvoicingUtilities.getFlagValueList());
 
         WeekEndDto weekEndDto = null;
         if (weekEndDate != null && !StringUtils.equalsIgnoreCase(weekEndDate, "null"))

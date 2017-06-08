@@ -1,6 +1,8 @@
 package com.envista.msi.api.web.rest.util;
 
 import org.apache.commons.lang.StringUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,6 +98,34 @@ public final class InvoicingUtilities {
     public static Timestamp getCurrentTimeStamp() {
 
         return new java.sql.Timestamp(new java.util.Date().getTime());
+
+    }
+
+    public static JSONObject getBuissnessPartnersList() throws JSONException {
+
+        JSONObject object = new JSONObject();
+        object.put("0", "MSI");
+        object.put("1", "Lojistic");
+        object.put("2", "Trans Audit");
+        object.put("3", "PC Synergy");
+        object.put("4", "RAF Logistics");
+        object.put("5", "First One Management");
+        object.put("6", "Compete Consulting");
+        object.put("7", "iDrive");
+        object.put("8", "Kenco Logistic Services");
+
+        return object;
+
+    }
+
+    public static JSONObject getFlagValueList() throws JSONException {
+
+        JSONObject object = new JSONObject();
+        object.put("Y", "Y");
+        object.put("N", "N");
+
+
+        return object;
 
     }
 
