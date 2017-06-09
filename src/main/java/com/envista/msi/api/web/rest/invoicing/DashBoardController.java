@@ -3,10 +3,7 @@ package com.envista.msi.api.web.rest.invoicing;
 import com.envista.msi.api.service.invoicing.CreditResponseService;
 import com.envista.msi.api.service.invoicing.DashBoardService;
 import com.envista.msi.api.service.invoicing.WeekEndService;
-import com.envista.msi.api.web.rest.dto.invoicing.CreditResponseDto;
-import com.envista.msi.api.web.rest.dto.invoicing.DashBoardDto;
-import com.envista.msi.api.web.rest.dto.invoicing.WeekEndDto;
-import com.envista.msi.api.web.rest.dto.invoicing.WeekStatusDto;
+import com.envista.msi.api.web.rest.dto.invoicing.*;
 import com.envista.msi.api.web.rest.util.FileOperations;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -110,8 +107,8 @@ public class DashBoardController {
             MultipartHttpServletRequest mRequest;
             mRequest = (MultipartHttpServletRequest) request;
             List<MultipartFile> files = mRequest.getFiles("file");
-            service.insertFileInfo(files.get(0).getOriginalFilename(), weekEndId);
-            List<CreditResponseDto> dtos = fileOperations.customOmitFileUploadOperation(files.get(0));
+            FileInfoDto fileInfoDto = service.insertFileInfo(files.get(0).getOriginalFilename(), weekEndId);
+            List<CreditResponseDto> dtos = fileOperations.customOmitFileUploadOperation(files.get(0), fileInfoDto != null ? fileInfoDto.getId() : 0L);
             creditResponseService.insert(dtos);
         } catch (Exception e) {
             e.printStackTrace();
@@ -124,7 +121,7 @@ public class DashBoardController {
         log.info("***UploadCreditResp method started***");
         try {
 
-            List<CreditResponseDto> dtos = fileOperations.customOmitFileUploadOperation(null);
+            List<CreditResponseDto> dtos = fileOperations.customOmitFileUploadOperation(null, 0L);
             creditResponseService.insert(dtos);
         } catch (Exception e) {
             e.printStackTrace();

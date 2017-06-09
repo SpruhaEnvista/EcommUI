@@ -2,6 +2,7 @@ package com.envista.msi.api.service.invoicing;
 
 import com.envista.msi.api.dao.invoicing.DashBoardDao;
 import com.envista.msi.api.web.rest.dto.invoicing.DashBoardDto;
+import com.envista.msi.api.web.rest.dto.invoicing.FileInfoDto;
 import com.envista.msi.api.web.rest.dto.invoicing.WeekStatusDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,9 +40,9 @@ public class DashBoardService {
         return dao.scrubCredits(weekEndId);
     }
 
-    public void insertFileInfo(String fileName, Long weekEndId) {
+    public FileInfoDto insertFileInfo(String fileName, Long weekEndId) {
 
-        dao.insertFileInfo(fileName, weekEndId);
+        return dao.insertFileInfo(fileName, weekEndId);
     }
 
     public WeekStatusDto getWeekStatusInfo(String fromDate, String toDate) {

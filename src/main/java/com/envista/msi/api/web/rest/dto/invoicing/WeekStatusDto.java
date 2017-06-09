@@ -31,6 +31,15 @@ public class WeekStatusDto {
     @Column(name = "FILE_UPLOAD")
     private String fileUpload;
 
+    @Column(name = "FILE_NAME")
+    private String fileName;
+
+    @Column(name = "FILE_UPLOAD_DATE")
+    private String fileUploadedDate;
+
+    @Column(name = "SCRUB_CREDITS_DATE")
+    private String scrubCreditsDate;
+
     public WeekStatusDto() {
     }
 
@@ -64,5 +73,29 @@ public class WeekStatusDto {
 
     public void setFileUpload(String fileUpload) {
         this.fileUpload = fileUpload;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public String getFileUploadedDate() {
+        return fileUploadedDate;
+    }
+
+    public void setFileUploadedDate(String fileUploadedDate) {
+        this.fileUploadedDate = fileUploadedDate;
+    }
+
+    public String getScrubCreditsDate() {
+        return scrubCreditsDate;
+    }
+
+    public void setScrubCreditsDate(String scrubCreditsDate) {
+        this.scrubCreditsDate = scrubCreditsDate;
     }
 }

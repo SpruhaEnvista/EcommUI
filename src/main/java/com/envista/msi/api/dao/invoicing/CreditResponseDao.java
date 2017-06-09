@@ -25,7 +25,7 @@ public class CreditResponseDao {
         for (CreditResponseDto dto : dtos) {
             QueryParameter queryParameter = StoredProcedureParameter.with("P_CREDIT_RESP_ID", 0L)
                     .and("P_CUSTOMER_CODE", dto.getCustomerCode()).and("P_TRACKING_NUMBER", dto.getTrackingNumber())
-                    .and("P_NOTES", dto.getNotes()).and("P_STATUS", dto.getStatus())
+                    .and("P_NOTES", dto.getNotes()).and("P_STATUS", dto.getStatus()).and("P_FILE_INFO_ID", dto.getFileInfoId())
                     .and("P_ACTION_TYPE", "insert");
 
             persistentContext.findEntities("CreditResponseDto.insertOrUpdate", queryParameter);
