@@ -40,6 +40,9 @@ public class WeekStatusDto {
     @Column(name = "SCRUB_CREDITS_DATE")
     private String scrubCreditsDate;
 
+    @Column(name = "CLOSED_DATE")
+    private String closedDate;
+
     public WeekStatusDto() {
     }
 
@@ -97,5 +100,13 @@ public class WeekStatusDto {
 
     public void setScrubCreditsDate(String scrubCreditsDate) {
         this.scrubCreditsDate = scrubCreditsDate;
+    }
+
+    public String getClosedDate() {
+        return closedDate;
+    }
+
+    public void setClosedDate(String closedDate) {
+        this.closedDate = closedDate;
     }
 }
