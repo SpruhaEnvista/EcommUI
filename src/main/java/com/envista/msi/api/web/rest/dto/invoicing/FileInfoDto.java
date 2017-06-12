@@ -20,9 +20,6 @@ public class FileInfoDto {
     @Column(name = "WEEK_END_ID")
     private String weekEndId;
 
-    @Column(name = "IS_SCRUB_CREDITS")
-    private int isScrubCredits;
-
     @Column(name = "CREATE_DATE")
     private String createDate;
 
@@ -54,14 +51,6 @@ public class FileInfoDto {
 
     public void setWeekEndId(String weekEndId) {
         this.weekEndId = weekEndId;
-    }
-
-    public int getIsScrubCredits() {
-        return isScrubCredits;
-    }
-
-    public void setIsScrubCredits(int isScrubCredits) {
-        this.isScrubCredits = isScrubCredits;
     }
 
     public String getCreateDate() {
