@@ -225,9 +225,52 @@ public final class InvoicingUtilities {
     public static JSONArray prepareVoiceArray(List<VoiceDto> dtos) throws JSONException {
 
         JSONArray jsonArray = new JSONArray();
-        jsonArray.put(getUVActions());
+
+
+        JSONObject object = new JSONObject();
+
+        object.put("id", "IgnoreandOmit");
+        object.put("name", "Ignore and Omit");
+        jsonArray.put(object);
+
+        object = new JSONObject();
+        object.put("id", "IgnoreandClaim");
+        object.put("name", "Ignore and Claim");
+        jsonArray.put(object);
+
+        object = new JSONObject();
+        object.put("id", "AddAsLikelyNotOurVoiceOmitbutReview");
+        object.put("name", "Add As Likely Not Our Voice (Omit but Review)");
+        jsonArray.put(object);
+
+        object = new JSONObject();
+        object.put("id", "AddAsLikelyOurVoiceClaimbutReview");
+        object.put("name", "Add As Likely Our Voice (Claim but Review)");
+        jsonArray.put(object);
+
+        object = new JSONObject();
+        object.put("id", "AddAsNotOurVoiceOmit)");
+        object.put("name", "Add As Not Our Voice (Omit)");
+        jsonArray.put(object);
+
+        object = new JSONObject();
+        object.put("id", "AddAsCompetitorNotOurVoice");
+        object.put("name", "Add As Competitor (Not Our Voice)");
+        jsonArray.put(object);
+
+        object = new JSONObject();
+        object.put("id", "AddAsOurVoiceClaim");
+        object.put("name", "Add As Our Voice (Claim)");
+        jsonArray.put(object);
+
+        object = new JSONObject();
+        object.put("id", "-1");
+        object.put("name", "-----------Select Voice-----------");
+        jsonArray.put(object);
+
+
         for (VoiceDto dto : dtos) {
-            JSONObject object = new JSONObject();
+            object = new JSONObject();
 
             object.put("id", dto.getVoiceId());
             object.put("name", dto.getVoiceName());
