@@ -90,7 +90,10 @@ public class DashBoardController {
     }
 
     /**
-     * HTTP GET - Get all Voices
+     * This method close the current week and inserts new week
+     * @param myJSON
+     * @return Integer
+     * @throws JSONException
      */
     @RequestMapping(value = "/closeWeek",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
     public ResponseEntity<Integer> closeCurrentWeek(@RequestBody JSONObject myJSON) throws JSONException{

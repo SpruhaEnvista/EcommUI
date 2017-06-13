@@ -1,5 +1,6 @@
 package com.envista.msi.api.web.rest.util;
 
+import com.envista.msi.api.web.rest.dto.invoicing.VoiceDto;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -9,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.List;
 
 /**
  * Created by KRISHNAREDDYM on 5/1/2017.
@@ -169,6 +171,70 @@ public final class InvoicingUtilities {
 
         return jsonArray;
 
+    }
+
+    public static JSONArray getUVActions() throws JSONException {
+        JSONArray jsonArray = new JSONArray();
+
+        JSONObject object = new JSONObject();
+
+        object.put("id", "IgnoreandOmit");
+        object.put("name", "Ignore and Omit");
+        jsonArray.put(object);
+
+        object = new JSONObject();
+        object.put("id", "IgnoreandClaim");
+        object.put("name", "Ignore and Claim");
+        jsonArray.put(object);
+
+        object = new JSONObject();
+        object.put("id", "AddAsLikelyNotOurVoiceOmitbutReview");
+        object.put("name", "Add As Likely Not Our Voice (Omit but Review)");
+        jsonArray.put(object);
+
+        object = new JSONObject();
+        object.put("id", "AddAsLikelyOurVoiceClaimbutReview");
+        object.put("name", "Add As Likely Our Voice (Claim but Review)");
+        jsonArray.put(object);
+
+        object = new JSONObject();
+        object.put("id", "AddAsNotOurVoiceOmit)");
+        object.put("name", "Add As Not Our Voice (Omit)");
+        jsonArray.put(object);
+
+        object = new JSONObject();
+        object.put("id", "AddAsCompetitorNotOurVoice");
+        object.put("name", "Add As Competitor (Not Our Voice)");
+        jsonArray.put(object);
+
+        object = new JSONObject();
+        object.put("id", "AddAsOurVoiceClaim");
+        object.put("name", "Add As Our Voice (Claim)");
+        jsonArray.put(object);
+
+        object = new JSONObject();
+        object.put("id", "-1");
+        object.put("name", "-----------Select Voice-----------");
+        jsonArray.put(object);
+
+
+        return jsonArray;
+
+    }
+
+    public static JSONArray prepareVoiceArray(List<VoiceDto> dtos) throws JSONException {
+
+        JSONArray jsonArray = new JSONArray();
+        jsonArray.put(getUVActions());
+        for (VoiceDto dto : dtos) {
+            JSONObject object = new JSONObject();
+
+            object.put("id", dto.getVoiceId());
+            object.put("name", dto.getVoiceName());
+            jsonArray.put(object);
+        }
+
+        return jsonArray;
     }
 
 }
