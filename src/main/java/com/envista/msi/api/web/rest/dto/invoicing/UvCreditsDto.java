@@ -40,6 +40,18 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_EBILL_MANIFEST_IDS", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_CREDITS_PR_INFO", type = Void.class)
+                }),
+        @NamedStoredProcedureQuery(name = "UvCreditsDto.update", procedureName = "SHP_INV_UPDATE_UV_PRO",
+                /*resultSetMappings = "prUpdateCount123",*/
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_NAME", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_EBILL_MANIFEST_IDS", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_INTERNAL_INV_COMMENTS", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_VOICE_ID", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_NEW_VOICE_NAME", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_VOICE_COMMENTS", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class)
+                        //@StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_UPDATE_UV_INFO", type = Void.class)
                 })
 })
 @SqlResultSetMappings({

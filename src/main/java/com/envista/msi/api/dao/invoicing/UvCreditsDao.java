@@ -6,6 +6,7 @@ import com.envista.msi.api.domain.util.StoredProcedureParameter;
 import com.envista.msi.api.web.rest.dto.invoicing.CreditsPRDto;
 import com.envista.msi.api.web.rest.dto.invoicing.CreditsPRSearchBean;
 import com.envista.msi.api.web.rest.dto.invoicing.UvCreditsDto;
+import com.envista.msi.api.web.rest.dto.invoicing.UvVoiceUpdateBean;
 import org.springframework.stereotype.Repository;
 
 import javax.inject.Inject;
@@ -37,6 +38,18 @@ public class UvCreditsDao {
                 .and("P_INV_COMMENTS", bean.getInvComments());
 
         return persistentContext.findEntities("UvCreditsDto.getSearchInfo", queryParameter);
+    }
+
+    public int update(UvVoiceUpdateBean bean) {
+
+        QueryParameter queryParameter = StoredProcedureParameter.with("P_ACTION_NAME", bean.getActionName())
+                .and("P_EBILL_MANIFEST_IDS", bean.getEbillManifestIds()).and("P_INTERNAL_INV_COMMENTS", bean.getInternalInvComments())
+                .and("P_VOICE_ID", bean.getVoiceId()).and("P_NEW_VOICE_NAME", bean.getVoiceName())
+                .and("P_VOICE_COMMENTS", bean.getVoiceComments()).and("P_ACTION_TYPE", bean.getActionType());
+
+        persistentContext.findEntities("UvCreditsDto.update", queryParameter);
+
+        return 0;
     }
 
 }

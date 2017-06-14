@@ -6,6 +6,7 @@ import com.envista.msi.api.service.invoicing.VoiceService;
 import com.envista.msi.api.web.rest.dto.invoicing.CreditsPRDto;
 import com.envista.msi.api.web.rest.dto.invoicing.CreditsPRSearchBean;
 import com.envista.msi.api.web.rest.dto.invoicing.UvCreditsDto;
+import com.envista.msi.api.web.rest.dto.invoicing.UvVoiceUpdateBean;
 import com.envista.msi.api.web.rest.util.DateUtil;
 import com.envista.msi.api.web.rest.util.InvoicingUtilities;
 import org.apache.commons.lang.StringUtils;
@@ -123,8 +124,9 @@ public class UvCreditsController {
     public ResponseEntity<Integer> updateUnknownVoices(@RequestBody JSONObject myJSON) throws JSONException {
         log.info("***updateUnknownVoices method started****");
 
-
-        return new ResponseEntity<Integer>(0, HttpStatus.OK);
+        List<UvVoiceUpdateBean> beans = InvoicingUtilities.prepareUvUpdateBean(myJSON);
+        int updateCount = service.update(beans);
+        return new ResponseEntity<Integer>(updateCount, HttpStatus.OK);
     }
 
     /**

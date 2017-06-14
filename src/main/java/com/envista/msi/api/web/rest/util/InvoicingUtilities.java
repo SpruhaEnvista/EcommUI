@@ -1,7 +1,9 @@
 package com.envista.msi.api.web.rest.util;
 
+import com.envista.msi.api.web.rest.dto.invoicing.UvVoiceUpdateBean;
 import com.envista.msi.api.web.rest.dto.invoicing.VoiceDto;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -10,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -278,6 +281,29 @@ public final class InvoicingUtilities {
         }
 
         return jsonArray;
+    }
+
+    public static List<UvVoiceUpdateBean> prepareUvUpdateBean(JSONObject json) throws JSONException {
+        List<UvVoiceUpdateBean> beans = new ArrayList<UvVoiceUpdateBean>();
+        JSONArray jsonArray = json.getJSONArray("myJSON");
+        for (int i = 0; i < jsonArray.length(); i++) {
+            UvVoiceUpdateBean bean = new UvVoiceUpdateBean();
+            JSONObject object = jsonArray.getJSONObject(i);
+            bean.setActionName(object.getString("action"));
+            bean.setEbillManifestIds(object.getString("ids"));
+            bean.setVoiceName(object.getString("name"));
+            bean.setVoiceComments(object.getString("voiceComments"));
+            bean.setInternalInvComments(object.getString("invoiceComments"));
+            if (NumberUtils.isNumber(bean.getActionName())) {
+                bean.setVoiceId(Long.valueOf(bean.getActionName()));
+                bean.setActionName(null);
+            } else
+                bean.setVoiceId(0L);
+
+            beans.add(bean);
+        }
+
+        return beans;
     }
 
 }
