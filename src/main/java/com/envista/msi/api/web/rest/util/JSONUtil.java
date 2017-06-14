@@ -532,7 +532,7 @@ public class JSONUtil {
 			String mode = perWeightShipmentDto.getModes();
 			Double spend = Math.rint(perWeightShipmentDto.getNetWeight());
 
-			if (spend != 0) {
+			if (spend != null && spend != 0) {
 				if (!modeFlagList.contains(mode)) {
 					modeFlagList.add(mode);
 				}
@@ -562,10 +562,12 @@ public class JSONUtil {
 			jsonObject.put("name", date);
 			jsonObject.put("counter", counter);
 
+			double totalSpend = 0;
 			while (modeFlagIterator.hasNext()) {
 				String modeFlag = modeFlagIterator.next();
 				double spend = modeFlagMap.get(modeFlag);
-				jsonObject.put(modeFlag, spend);
+				totalSpend += spend;
+				jsonObject.put(modeFlag, totalSpend);
 			}
 			valuesArray.put(jsonObject);
 			counter++;
