@@ -1,14 +1,15 @@
 package com.envista.msi.api.web.rest;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import com.envista.msi.api.web.rest.dto.UserDetailsDto;
+import com.envista.msi.api.web.rest.dto.i18n.InternationalizationDto;
+import com.envista.msi.api.web.rest.response.CommonResponse;
 import com.envista.msi.api.web.rest.util.WebConstants;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -129,5 +130,29 @@ public class AccountController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respMap);
 		}
 		return ResponseEntity.status(HttpStatus.OK).body(respMap);
+	}
+
+	@RequestMapping(value = "/user/labelsByLocale", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+	public ResponseEntity<CommonResponse> getI18nLabelsByLocale(@RequestParam String locale){
+		CommonResponse response = new CommonResponse();
+		try{
+			response.setStatusCode(HttpStatus.OK.value());
+			List<InternationalizationDto> keyValueList = userService.getI18nLabelsByLocale(locale);
+
+			if(keyValueList != null && !keyValueList.isEmpty()){
+				JSONObject keyValueJson = new JSONObject();
+				for(InternationalizationDto keyVal : keyValueList){
+					if(keyVal != null && keyVal.getKey() != null){
+						keyValueJson.put(keyVal.getKey(), keyVal.getValue());
+					}
+				}
+				response.setData(keyValueJson);
+			}
+		}catch(Exception e){
+			response.setStatusCode(HttpStatus.EXPECTATION_FAILED.value());
+			response.setMessage("Failed to load Labels by locale");
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+		}
+		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 }
