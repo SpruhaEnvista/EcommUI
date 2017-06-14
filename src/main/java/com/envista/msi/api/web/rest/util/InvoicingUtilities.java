@@ -252,7 +252,7 @@ public final class InvoicingUtilities {
         jsonArray.put(object);
 
         object = new JSONObject();
-        object.put("id", "AddAsNotOurVoiceOmit)");
+        object.put("id", "AddAsNotOurVoiceOmit");
         object.put("name", "Add As Not Our Voice (Omit)");
         jsonArray.put(object);
 
