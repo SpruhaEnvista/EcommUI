@@ -19,6 +19,10 @@ public class UvVoiceUpdateBean {
 
     private String actionType;
 
+    private Long ebillManifestId;
+
+    private String omitFlag;
+
 
     public String getActionName() {
         return actionName;
@@ -74,5 +78,21 @@ public class UvVoiceUpdateBean {
 
     public void setActionType(String actionType) {
         this.actionType = actionType;
+    }
+
+    public Long getEbillManifestId() {
+        return ebillManifestId;
+    }
+
+    public void setEbillManifestId(Long ebillManifestId) {
+        this.ebillManifestId = ebillManifestId;
+    }
+
+    public String getOmitFlag() {
+        return omitFlag;
+    }
+
+    public void setOmitFlag(String omitFlag) {
+        this.omitFlag = omitFlag;
     }
 }

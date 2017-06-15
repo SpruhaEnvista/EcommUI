@@ -289,18 +289,30 @@ public final class InvoicingUtilities {
         for (int i = 0; i < jsonArray.length(); i++) {
             UvVoiceUpdateBean bean = new UvVoiceUpdateBean();
             JSONObject object = jsonArray.getJSONObject(i);
-            bean.setActionName(object.getString("action"));
-            bean.setEbillManifestIds(object.getString("ids"));
-            bean.setVoiceName(object.getString("name"));
-            bean.setVoiceComments(object.getString("voiceComments"));
-            bean.setInternalInvComments(object.getString("invoiceComments"));
-            if (NumberUtils.isNumber(bean.getActionName())) {
-                bean.setVoiceId(Long.valueOf(bean.getActionName()));
-                bean.setActionName(null);
-            } else
-                bean.setVoiceId(0L);
 
-            beans.add(bean);
+
+            String[] idsArray = StringUtils.split(object.getString("ids"), "~");
+            String[] omitFlagArray = StringUtils.split(object.getString("omitFlags"), "~");
+            String[] invCommentsArray = StringUtils.split(object.getString("invoiceComments"), "~");
+
+            for (int arr = 0; arr < idsArray.length; arr++) {
+                bean = new UvVoiceUpdateBean();
+                bean.setEbillManifestId(new Long(idsArray[arr]));
+                bean.setOmitFlag(omitFlagArray[arr]);
+                bean.setInternalInvComments(invCommentsArray[arr]);
+                bean.setActionName(object.getString("action"));
+                bean.setVoiceName(object.getString("name"));
+                bean.setVoiceComments(object.getString("voiceComments"));
+
+                if (NumberUtils.isNumber(bean.getActionName())) {
+                    bean.setVoiceId(Long.valueOf(bean.getActionName()));
+                    bean.setActionName(null);
+                } else
+                    bean.setVoiceId(0L);
+
+                beans.add(bean);
+
+            }
         }
 
         return beans;

@@ -1,5 +1,6 @@
 package com.envista.msi.api.web.rest.invoicing;
 
+import com.envista.msi.api.service.invoicing.CodeValueService;
 import com.envista.msi.api.service.invoicing.CreditsPRService;
 import com.envista.msi.api.service.invoicing.UvCreditsService;
 import com.envista.msi.api.service.invoicing.VoiceService;
@@ -37,6 +38,9 @@ public class UvCreditsController {
 
     @Inject
     private VoiceService voiceService;
+
+    @Inject
+    private CodeValueService codeValueService;
 
     /**\
      * This method return all unknown voices with given search criteria
@@ -142,5 +146,14 @@ public class UvCreditsController {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("actionsAndVoicesList", InvoicingUtilities.prepareVoiceArray(voiceService.getUVVoices()));
         return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/getOmitFlag", params = {"voiceId"}, produces = MediaType.TEXT_PLAIN_VALUE, method = RequestMethod.GET)
+    public ResponseEntity<String> getOmitFlagByVoiceId(@RequestParam Long voiceId) throws JSONException {
+        log.info("***getOmitFlagByVoiceId method started****");
+
+        String omitFlag = codeValueService.getOmitFlagByVoiceId(voiceId);
+
+        return new ResponseEntity<String>(omitFlag, HttpStatus.OK);
     }
 }
