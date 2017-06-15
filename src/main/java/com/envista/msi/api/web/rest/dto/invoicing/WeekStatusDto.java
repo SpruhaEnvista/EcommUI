@@ -43,6 +43,9 @@ public class WeekStatusDto {
     @Column(name = "CLOSED_DATE")
     private String closedDate;
 
+    @Column(name = "STATUS_ID")
+    private Long statusId;
+
     public WeekStatusDto() {
     }
 
@@ -108,5 +111,13 @@ public class WeekStatusDto {
 
     public void setClosedDate(String closedDate) {
         this.closedDate = closedDate;
+    }
+
+    public Long getStatusId() {
+        return statusId;
+    }
+
+    public void setStatusId(Long statusId) {
+        this.statusId = statusId;
     }
 }
