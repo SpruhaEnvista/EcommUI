@@ -43,9 +43,9 @@ public class UvCreditsDao {
     public int update(UvVoiceUpdateBean bean) {
 
         QueryParameter queryParameter = StoredProcedureParameter.with("P_ACTION_NAME", bean.getActionName())
-                .and("P_EBILL_MANIFEST_ID", bean.getEbillManifestIds()).and("P_INTERNAL_INV_COMMENTS", bean.getInternalInvComments())
+                .and("P_EBILL_MANIFEST_ID", bean.getEbillManifestId()).and("P_INTERNAL_INV_COMMENTS", bean.getInternalInvComments())
                 .and("P_VOICE_ID", bean.getVoiceId()).and("P_NEW_VOICE_NAME", bean.getVoiceName())
-                .and("P_VOICE_COMMENTS", bean.getVoiceComments()).and("P_OMIT_FLAG", bean.getVoiceComments())
+                .and("P_VOICE_COMMENTS", bean.getVoiceComments()).and("P_OMIT_FLAG", bean.getOmitFlag())
                 .and("P_ACTION_TYPE", bean.getActionType());
 
         persistentContext.findEntities("UvCreditsDto.update", queryParameter);
