@@ -40,6 +40,19 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_EBILL_MANIFEST_IDS", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_CREDITS_PR_INFO", type = Void.class)
+                }),
+        @NamedStoredProcedureQuery(name = "UvCreditsDto.update", procedureName = "SHP_INV_UPDATE_UV_PRO",
+                /*resultSetMappings = "prUpdateCount123",*/
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_NAME", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_EBILL_MANIFEST_ID", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_INTERNAL_INV_COMMENTS", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_VOICE_ID", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_NEW_VOICE_NAME", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_VOICE_COMMENTS", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_OMIT_FLAG", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class)
+                        //@StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_UPDATE_UV_INFO", type = Void.class)
                 })
 })
 @SqlResultSetMappings({
@@ -81,6 +94,12 @@ public class UvCreditsDto implements Serializable {
 
     @Column(name = "REQUESTOR_NAME")
     private String requestorName;
+
+    @Column(name = "OMIT_FLAG_TEMP")
+    private String omitFlagTemp;
+
+    @Column(name = "INV_COMMENTS_TEMP")
+    private String invCommentsTemp;
 
     public UvCreditsDto() {
     }
@@ -155,5 +174,21 @@ public class UvCreditsDto implements Serializable {
 
     public void setRequestorName(String requestorName) {
         this.requestorName = requestorName;
+    }
+
+    public String getOmitFlagTemp() {
+        return omitFlagTemp;
+    }
+
+    public void setOmitFlagTemp(String omitFlagTemp) {
+        this.omitFlagTemp = omitFlagTemp;
+    }
+
+    public String getInvCommentsTemp() {
+        return invCommentsTemp;
+    }
+
+    public void setInvCommentsTemp(String invCommentsTemp) {
+        this.invCommentsTemp = invCommentsTemp;
     }
 }

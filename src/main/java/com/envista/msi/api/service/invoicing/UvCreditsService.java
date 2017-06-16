@@ -4,6 +4,7 @@ import com.envista.msi.api.dao.invoicing.UvCreditsDao;
 import com.envista.msi.api.web.rest.dto.invoicing.CreditsPRDto;
 import com.envista.msi.api.web.rest.dto.invoicing.CreditsPRSearchBean;
 import com.envista.msi.api.web.rest.dto.invoicing.UvCreditsDto;
+import com.envista.msi.api.web.rest.dto.invoicing.UvVoiceUpdateBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,15 @@ public class UvCreditsService {
     public List<UvCreditsDto> search(CreditsPRSearchBean bean) {
 
         return dao.search(bean);
+    }
+
+    public int update(List<UvVoiceUpdateBean> beans) {
+        int count = 0;
+        for (UvVoiceUpdateBean bean : beans) {
+            dao.update(bean);
+            count++;
+        }
+        return count;
     }
 
 }
