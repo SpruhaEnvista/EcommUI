@@ -32,7 +32,7 @@ public class FileOperations {
 
         List<CreditResponseDto> dtos = new ArrayList<CreditResponseDto>();
         FileOutputStream outputStream = null;
-        String filePath = "D:/Invoicing/Custom_Omit_uploads";
+        String filePath = InvConstants.filePath;
         File dir = new File(filePath);
         int count = 0;
         if (!dir.exists())

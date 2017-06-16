@@ -95,6 +95,12 @@ public class UvCreditsDto implements Serializable {
     @Column(name = "REQUESTOR_NAME")
     private String requestorName;
 
+    @Column(name = "OMIT_FLAG_TEMP")
+    private String omitFlagTemp;
+
+    @Column(name = "INV_COMMENTS_TEMP")
+    private String invCommentsTemp;
+
     public UvCreditsDto() {
     }
 
@@ -168,5 +174,21 @@ public class UvCreditsDto implements Serializable {
 
     public void setRequestorName(String requestorName) {
         this.requestorName = requestorName;
+    }
+
+    public String getOmitFlagTemp() {
+        return omitFlagTemp;
+    }
+
+    public void setOmitFlagTemp(String omitFlagTemp) {
+        this.omitFlagTemp = omitFlagTemp;
+    }
+
+    public String getInvCommentsTemp() {
+        return invCommentsTemp;
+    }
+
+    public void setInvCommentsTemp(String invCommentsTemp) {
+        this.invCommentsTemp = invCommentsTemp;
     }
 }
