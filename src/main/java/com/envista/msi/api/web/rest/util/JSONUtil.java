@@ -532,7 +532,7 @@ public class JSONUtil {
 			String mode = perWeightShipmentDto.getModes();
 			Double spend = Math.rint(perWeightShipmentDto.getNetWeight());
 
-			if (spend != 0) {
+			if (spend != null && spend != 0) {
 				if (!modeFlagList.contains(mode)) {
 					modeFlagList.add(mode);
 				}
@@ -562,10 +562,12 @@ public class JSONUtil {
 			jsonObject.put("name", date);
 			jsonObject.put("counter", counter);
 
+			double totalSpend = 0;
 			while (modeFlagIterator.hasNext()) {
 				String modeFlag = modeFlagIterator.next();
 				double spend = modeFlagMap.get(modeFlag);
-				jsonObject.put(modeFlag, spend);
+				totalSpend += spend;
+				jsonObject.put(modeFlag, totalSpend);
 			}
 			valuesArray.put(jsonObject);
 			counter++;
@@ -1318,14 +1320,14 @@ public class JSONUtil {
 					jsonObject.put("counter", counter);
 
 					if (yearsBasedMap.get(year).containsKey(categoriesList.get(0))) {
-						jsonObject.put(categoriesList.get(0), commaSeperatedDecimalFormat.format(yearsBasedMap.get(year).get(categoriesList.get(0))));
+						jsonObject.put(categoriesList.get(0), yearsBasedMap.get(year).get(categoriesList.get(0)));
 						isNoData = false;
 					} else {
 						jsonObject.put(categoriesList.get(0), "0");
 					}
 
 					if (yearsBasedMap.get(year).containsKey(categoriesList.get(1))) {
-						jsonObject.put(categoriesList.get(1), commaSeperatedDecimalFormat.format(yearsBasedMap.get(year).get(categoriesList.get(1))));
+						jsonObject.put(categoriesList.get(1), yearsBasedMap.get(year).get(categoriesList.get(1)));
 						isNoData = false;
 					} else {
 						jsonObject.put(categoriesList.get(1), "0");
@@ -1430,13 +1432,13 @@ public class JSONUtil {
 				eachCategoryObj.put("name", category);
 				if (categoriesBasedMap.containsKey(category)) {
 					if (categoriesBasedMap.get(category).containsKey(yearsList.get(0))) {
-						eachCategoryObj.put(key1, commaSeperatedDecimalFormat.format(categoriesBasedMap.get(category).get(yearsList.get(0))));
+						eachCategoryObj.put(key1, categoriesBasedMap.get(category).get(yearsList.get(0)));
 					} else {
 						eachCategoryObj.put(key1, "0");
 					}
 
 					if (categoriesBasedMap.get(category).containsKey(yearsList.get(1))) {
-						eachCategoryObj.put(key2, commaSeperatedDecimalFormat.format(categoriesBasedMap.get(category).get(yearsList.get(1))));
+						eachCategoryObj.put(key2, categoriesBasedMap.get(category).get(yearsList.get(1)));
 					} else {
 						eachCategoryObj.put(key2, "0");
 					}
