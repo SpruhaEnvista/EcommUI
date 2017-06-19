@@ -38,6 +38,22 @@ public class DashBoardDao {
 
     }
 
+    public int getPendingCreditsCount(String fromDate, String toDate, String actionType) {
+
+        QueryParameter queryParameter = StoredProcedureParameter.with("P_FROM_DATE", fromDate)
+                .and("P_TO_DATE", toDate).and("P_ACTION_TYPE", actionType);
+
+        List<DashBoardDto> dtos = persistentContext.findEntities("DashBoardDto.getPendingCreditsCount", queryParameter);
+
+        int count = 0;
+
+        if (null != dtos && dtos.size() > 0) {
+            count = dtos.get(0).getPendingCreditsCount();
+        }
+
+        return count;
+    }
+
     public int closeCurrentWeekCredits(String ebillManifestIds, String action, Long weekEndId) {
 
         QueryParameter queryParameter = StoredProcedureParameter.with("P_WEEK_END_ID", weekEndId).and("P_ACTION", action)
