@@ -243,27 +243,27 @@ public final class InvoicingUtilities {
 
         object = new JSONObject();
         object.put("id", "AddAsLikelyNotOurVoiceOmitbutReview");
-        object.put("name", "Add As Likely Not Our Voice (Omit but Review)");
+        object.put("name", "Add As Likely Not Our Voice [Omit but Review]");
         jsonArray.put(object);
 
         object = new JSONObject();
         object.put("id", "AddAsLikelyOurVoiceClaimbutReview");
-        object.put("name", "Add As Likely Our Voice (Claim but Review)");
+        object.put("name", "Add As Likely Our Voice [Claim but Review]");
         jsonArray.put(object);
 
         object = new JSONObject();
         object.put("id", "AddAsNotOurVoiceOmit");
-        object.put("name", "Add As Not Our Voice (Omit)");
+        object.put("name", "Add As Not Our Voice [Omit]");
         jsonArray.put(object);
 
         object = new JSONObject();
         object.put("id", "AddAsCompetitorNotOurVoice");
-        object.put("name", "Add As Competitor (Not Our Voice)");
+        object.put("name", "Add As Competitor [Not Our Voice]");
         jsonArray.put(object);
 
         object = new JSONObject();
         object.put("id", "AddAsOurVoiceClaim");
-        object.put("name", "Add As Our Voice (Claim)");
+        object.put("name", "Add As Our Voice [Claim]");
         jsonArray.put(object);
 
         object = new JSONObject();

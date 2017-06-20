@@ -16,7 +16,7 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_DAS_INFO", type = Void.class)
                 }),
         @NamedStoredProcedureQuery(name = "DashBoardDto.getPendingCreditsCount", procedureName = "SHP_INV_GET_DASHBOARD_INFO_PRO",
-                resultSetMappings = "pendingCreditsEbillIds",
+                resultSetMappings = "pendingCreditsCount",
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_FROM_DATE", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_TO_DATE", type = String.class),

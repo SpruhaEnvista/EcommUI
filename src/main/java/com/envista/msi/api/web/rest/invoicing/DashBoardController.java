@@ -66,11 +66,11 @@ public class DashBoardController {
 
         JSONObject jsonObject = new JSONObject();
 
-        List<DashBoardDto> dtos = service.getPendingCredits(fromDate, toDate, actionType);
-
-        if (dtos != null) {
+        int count = service.getPendingCreditsCount(fromDate, toDate, actionType);
+        jsonObject.put("pendingCreditsCount", count);
+       /* if (dtos != null) {
             jsonObject.put("pendingCreditsCount", dtos.size());
-/*            StringBuilder builder = new StringBuilder();
+*//*            StringBuilder builder = new StringBuilder();
             int count = 0;
             for (DashBoardDto dto : dtos) {
                 if (count != 0)
@@ -78,12 +78,12 @@ public class DashBoardController {
 
                 builder.append(dto.getEbillManifestId());
                 count++;
-            }*/
+            }*//*
             jsonObject.put("pendingEbillIds", "");
         } else {
             jsonObject.put("pendingCreditsCount", 0);
             jsonObject.put("pendingEbillIds", "");
-        }
+        }*/
 
         log.info("***ge tPendingCredits count***==== " + jsonObject);
         return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.OK);

@@ -49,4 +49,9 @@ public class DashBoardService {
 
         return dao.getWeekStatusInfo(fromDate, toDate);
     }
+
+    public int getPendingCreditsCount(String fromDate, String toDate, String actionType) {
+
+        return dao.getPendingCreditsCount(fromDate, toDate, actionType);
+    }
 }
