@@ -302,7 +302,10 @@ public final class InvoicingUtilities {
                 bean.setInternalInvComments(invCommentsArray[arr]);
                 bean.setActionName(object.getString("action"));
                 bean.setVoiceName(object.getString("name"));
-                bean.setVoiceComments(object.getString("voiceComments"));
+                if (arr == 0)
+                    bean.setVoiceComments(object.getString("voiceComments"));
+                else
+                    bean.setVoiceComments(null);
 
                 if (NumberUtils.isNumber(bean.getActionName())) {
                     bean.setVoiceId(Long.valueOf(bean.getActionName()));
