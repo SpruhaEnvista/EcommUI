@@ -132,7 +132,7 @@ public class AccountController {
 		return ResponseEntity.status(HttpStatus.OK).body(respMap);
 	}
 
-	@RequestMapping(value = "/user/labelsByLocale", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+	@RequestMapping(value = "/public/user/labelsByLocale", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
 	public ResponseEntity<CommonResponse> getI18nLabelsByLocale(@RequestParam String locale){
 		CommonResponse response = new CommonResponse();
 		try{
