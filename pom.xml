@@ -606,6 +606,7 @@
 											<entry key="spring.datasource.name" value="uatuser" />
 											<entry key="spring.oauth2.sso.server.host" value="msiuat02" />
 											<entry key="spring.oauth2.sso.server.port" value="8888" />
+											<entry key="FILESERVER" value="\\\\msirsuat\\e\\export\\" />
 										</propertyfile>
 									</tasks>
 								</configuration>
@@ -686,6 +687,76 @@
 						<version>2.1</version>
 						<configuration>
 							<url>http://172.16.6.38:80/manager/text</url>
+							<server>TomcatServer</server>
+							<path>${finalName}</path>
+							<username>admin</username>
+							<password>avataradmin</password>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+			<properties>
+				<!-- log configuration -->
+				<logback.loglevel>ERROR</logback.loglevel>
+			</properties>
+			<dependencies>
+				<dependency>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-tomcat</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>javax</groupId>
+					<artifactId>javaee-web-api</artifactId>
+					<version>7.0</version>
+					<scope>provided</scope>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
+			<id>linux</id>
+			<build>
+				<finalName>msiapi</finalName>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-war-plugin</artifactId>
+						<configuration>
+							<packagingExcludes>WEB-INF/lib/tomcat-*.jar</packagingExcludes>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.7</version>
+						<executions>
+							<execution>
+								<id>compile-test1</id>
+								<phase>compile</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<propertyfile file="target\classes\config\application.properties">
+											<entry key="spring.datasource.url" value="jdbc:oracle:thin:@172.16.4.30:1521:uatdb" />
+											<entry key="spring.datasource.username" value="uatuser" />
+											<entry key="spring.datasource.password" value="rtyu234y" />
+											<entry key="spring.datasource.name" value="uatuser" />
+											<entry key="spring.oauth2.sso.server.host" value="10.100.11.62" />
+											<entry key="spring.oauth2.sso.server.port" value="80" />
+											<entry key="FILESERVER" value="//mnt//win//" />
+										</propertyfile>
+									</tasks>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.tomcat.maven</groupId>
+						<artifactId>tomcat7-maven-plugin</artifactId>
+						<version>2.1</version>
+						<configuration>
+							<url>http://10.100.11.62/manager/text</url>
 							<server>TomcatServer</server>
 							<path>${finalName}</path>
 							<username>admin</username>
