@@ -32,6 +32,39 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CONTROL_NUMS", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ADJ_REASONS", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_INV_COMMENTS", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_OFFSET", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PAGE_SIZE", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_CREDITS_PR_INFO", type = Void.class)
+                }),
+        @NamedStoredProcedureQuery(name = "CreditsPRDto.getSearCount", procedureName = "SHP_INV_CREDITS_PR_SEARCH_PRO",
+                resultSetMappings = "getTotalCount",
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_BUSINESS_PARTNER_ID", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CUSTOMER_IDS", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_SAVED_FILTER", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_INV_STATUS_ID", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_INV_CATAGORY_ID", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_INV_WEEK_END_ID", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_INVOICE_MODE_ID", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CARRIER_ID", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CREDIT_CLASS_ID", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_OMIT_FLAG", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_REVIEW_FLAG", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CREATE_DATE", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_INVOICE_DATE", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CLOSE_DATE", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_INVOICE_NUMBERS", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_TRACKING_NUMBERS", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_INTERNAL_KEY_IDS", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_INVOICE_METHOD_ID", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PAYRUN_NOS", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CONTROL_NUMS", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ADJ_REASONS", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_INV_COMMENTS", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_OFFSET", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PAGE_SIZE", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_CREDITS_PR_INFO", type = Void.class)
                 }),
         @NamedStoredProcedureQuery(name = "CreditsPRDto.updateIdsStatus", procedureName = "SHP_INV_UPDATE_PR_STATUS_PRO",
@@ -48,6 +81,13 @@ import java.io.Serializable;
                         targetClass = CustomOmitsDto.class,
                         columns = {
                                 @ColumnResult(name = "UPDATE_COUNT", type = int.class)
+                        })
+        }),
+        @SqlResultSetMapping(name = "getTotalCount", classes = {
+                @ConstructorResult(
+                        targetClass = TotalCountDto.class,
+                        columns = {
+                                @ColumnResult(name = "TOTAL_COUNT", type = int.class)
                         })
         })
 })
@@ -106,12 +146,14 @@ public class CreditsPRDto implements Serializable {
     @Column(name = "UPDATE_COUNT")
     private int updateCount;
 
+
     public CreditsPRDto() {
     }
 
     public CreditsPRDto(int updateCount) {
         this.updateCount = updateCount;
     }
+
 
     public Long getId() {
         return id;

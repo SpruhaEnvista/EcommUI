@@ -393,7 +393,7 @@ public class ReportsService {
             String filePath = getFileServerAbsolutePath(reportsFilesDto.getFilePath());
                 File file = new File(filePath);
                 if(!file.exists()){
-                    filePath = getFileServerAbsolutePath(reportsFilesDto.getFilePath());
+                    filePath = reportsFilesDto.getFilePath();
                     file = new File(filePath);
                     if(!file.exists()) {
                         throw new FileNotFoundException(file.getName() + "File not exist ");
@@ -406,9 +406,8 @@ public class ReportsService {
 
     public String getFileServerAbsolutePath(String physicalFileName) throws FileNotFoundException {
 
-        String drive = physicalFileName.substring(0, physicalFileName.indexOf('\\'));
-        String relativeFileLocation = physicalFileName.substring(physicalFileName.indexOf('\\'));
-        physicalFileName = "\\\\" + fileServer + "\\" + drive.toLowerCase().replace(":", "$") + relativeFileLocation;
+        String drive = physicalFileName.substring(physicalFileName.lastIndexOf('\\')+1, physicalFileName.length());
+        physicalFileName = fileServer + drive;
         if (!(new File(physicalFileName)).exists()) {
             physicalFileName = physicalFileName.replace("$", "");
         }

@@ -96,4 +96,9 @@ public class VoiceService {
             }
         }.preparePaginationData(paginationFilterMap, offset, limit);
     }
+
+    public List<VoiceDto> getUVVoices() {
+
+        return dao.getUVVoices();
+    }
 }

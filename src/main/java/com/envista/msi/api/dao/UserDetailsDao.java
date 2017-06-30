@@ -7,6 +7,7 @@ import javax.inject.Inject;
 
 import com.envista.msi.api.domain.util.QueryParameter;
 import com.envista.msi.api.web.rest.dto.UserDetailsDto;
+import com.envista.msi.api.web.rest.dto.i18n.InternationalizationDto;
 import org.springframework.stereotype.Repository;
 
 import com.envista.msi.api.domain.PersistentContext;
@@ -43,5 +44,9 @@ public class UserDetailsDao {
                 .and("userId", userId==null?0:userId);
         return persistentContext.findEntityAndMapFields("UserProfileTb.updateUserProfile", queryParameter);
 
+    }
+
+    public List<InternationalizationDto> getI18nLabelsByLocale(String locale){
+        return persistentContext.findEntities(InternationalizationDto.Config.StoredProcedureQueryName.I18N_LABELS_BY_LOCALE, StoredProcedureParameter.with("p_locale", locale));
     }
 }

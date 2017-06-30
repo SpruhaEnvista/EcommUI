@@ -24,15 +24,15 @@ public class FileOperations {
 
         FileOperations fileOperations = new FileOperations();
 
-        fileOperations.customOmitFileUploadOperation(null);
+        fileOperations.customOmitFileUploadOperation(null, 0L);
     }
 
-    public List<CreditResponseDto> customOmitFileUploadOperation(MultipartFile file) throws IOException {
+    public List<CreditResponseDto> customOmitFileUploadOperation(MultipartFile file, Long fileInfoId) throws IOException {
         LOG.info("***customOmitFileUploadOperation method started***");
 
         List<CreditResponseDto> dtos = new ArrayList<CreditResponseDto>();
         FileOutputStream outputStream = null;
-        String filePath = "D:/Invoicing/Custom_Omit_uploads";
+        String filePath = InvConstants.filePath;
         File dir = new File(filePath);
         int count = 0;
         if (!dir.exists())
@@ -59,6 +59,7 @@ public class FileOperations {
                         String[] lineArray = line.split(cvsSplitBy);
 
                         CreditResponseDto dto = new CreditResponseDto();
+                        dto.setFileInfoId(fileInfoId);
                         dto.setCustomerCode(lineArray[1]);
                         dto.setTrackingNumber(lineArray[3]);
                         dto.setNotes(lineArray[10]);

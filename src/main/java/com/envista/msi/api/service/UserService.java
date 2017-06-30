@@ -7,6 +7,7 @@ import com.envista.msi.api.domain.util.ReportsUtil;
 import com.envista.msi.api.domain.util.StringEncrypter;
 import com.envista.msi.api.web.rest.dto.UserDetailsDto;
 import com.envista.msi.api.web.rest.dto.UserProfileDto;
+import com.envista.msi.api.web.rest.dto.i18n.InternationalizationDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -109,5 +110,14 @@ public class UserService {
 
 	public UserDetailsDto updateUserProfile(String fullname,String email,String phone, Long userId) {
 		return userDetailsDao.updateUserProfile(fullname,email,phone,userId);
+	}
+
+	/**
+	 * Get labels(kay,value) pair for i18n for given locale.
+	 * @param locale
+	 * @return
+	 */
+	public List<InternationalizationDto> getI18nLabelsByLocale(String locale){
+		return userDetailsDao.getI18nLabelsByLocale(locale);
 	}
 }
