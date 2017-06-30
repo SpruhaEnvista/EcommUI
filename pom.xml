@@ -741,8 +741,9 @@
 											<entry key="spring.datasource.url" value="jdbc:oracle:thin:@172.16.4.10:1521:DB01"/>
 											<entry key="spring.datasource.username" value="ship" />
 											<entry key="spring.datasource.password" value="ship" />
-											<entry key="spring.datasource.name" value="ship" />
-											<entry key="spring.oauth2.sso.server.host" value="msiuat02" />
+											<entry key="spring.oauth2.sso.server.host" value="10.100.11.62" />
+											<entry key="spring.oauth2.sso.server.port" value="80" />
+											<entry key="FILESERVER" value="//mnt//win//" />
 										</propertyfile>
 									</tasks>
 								</configuration>
