@@ -894,8 +894,8 @@ public class DashboardsService {
             if(carrierDataList != null && !carrierDataList.isEmpty()){
                 StringJoiner carrierCsv = new StringJoiner(",");
                 for(UserFilterUtilityDataDto carrierData : carrierDataList){
-                    if(carrierData != null){
-                        if(!Boolean.valueOf(carrierData.getLtl().toString())){
+                    if(carrierData != null && carrierData.getLtl() != null){
+                        if(carrierData.getLtl() == 0){
                             carrierCsv.add(carrierData.getId().toString());
                         }else{
                             modeWiseCarrMap.put("freightCarrier", "freightCarrier");
