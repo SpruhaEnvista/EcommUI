@@ -2221,17 +2221,17 @@ public class JSONUtil {
     public static JSONObject prepareShipmentCountByZoneJson(List<ShipmentDto> shipmentList, Set<MapCoordinatesDto> mapCoordinates) throws JSONException {
         JSONObject finalJson = new JSONObject();
         if (shipmentList != null && !shipmentList.isEmpty()) {
-            Map<String, Map<Long, Integer>> nodeValuesMap = new HashMap<String, Map<Long, Integer>>();
+            Map<String, Map<String, Integer>> nodeValuesMap = new HashMap<String, Map<String, Integer>>();
             for (ShipmentDto shipment : shipmentList) {
                 if (shipment != null) {
                     String shipperState = shipment.getShipperState() != null ? shipment.getShipperState() : "";
                     String shipperCountry = shipment.getShipperCountry() != null ? shipment.getShipperCountry() : "";
-                    Long zone = Long.parseLong(shipment.getZone().toString());
+                    String zone = shipment.getZone();
                     Integer shipmentCount = shipment.getShipmentCount();
 
                     String mapKey = shipperState + "#@#" + shipperCountry;
                     if (!nodeValuesMap.containsKey(mapKey)) {
-                        HashMap<Long, Integer> tempMap = new HashMap<>();
+                        HashMap<String, Integer> tempMap = new HashMap<>();
                         tempMap.put(zone, shipmentCount);
 
                         nodeValuesMap.put(mapKey, tempMap);
@@ -2252,13 +2252,13 @@ public class JSONUtil {
                 nodeInfoObj.put("id", state);
                 nodeInfoObj.put("name", state);
 
-                Iterator<Long> zonesIterator = nodeValuesMap.get(stateAndCountry).keySet().iterator();
+                Iterator<String> zonesIterator = nodeValuesMap.get(stateAndCountry).keySet().iterator();
                 JSONArray zonesArray = new JSONArray();
                 int i = 0;
                 while (zonesIterator.hasNext()) {
                     JSONObject zoneInfo = new JSONObject();
 
-                    Long zone = zonesIterator.next();
+                    String zone = zonesIterator.next();
                     Integer shipmentCount = nodeValuesMap.get(stateAndCountry).get(zone);
 
                     zoneInfo.put("id", zone);

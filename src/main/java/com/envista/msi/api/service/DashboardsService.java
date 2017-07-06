@@ -1132,6 +1132,7 @@ public class DashboardsService {
             JSONObject columnData = new JSONObject();
             columnData.put("columnName", colEntry.getValue());
             columnData.put("selectClause", colEntry.getKey());
+            columnData.put("labelsColumnName",colEntry.getValue().replaceAll("\\s+","").toLowerCase() );
             columnData.put("checked", savedColumns.contains(colEntry.getValue()));
             columnsDetailsJson.put(columnData);
         }
