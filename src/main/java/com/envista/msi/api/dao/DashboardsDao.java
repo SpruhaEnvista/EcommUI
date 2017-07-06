@@ -1,5 +1,6 @@
 package com.envista.msi.api.dao;
 
+import com.envista.msi.api.dao.type.GenericObject;
 import com.envista.msi.api.domain.PersistentContext;
 import com.envista.msi.api.domain.util.DashboardStoredProcParam;
 import com.envista.msi.api.domain.util.DashboardUtil;
@@ -34,6 +35,7 @@ import org.springframework.util.StringUtils;
 import javax.inject.Inject;
 import javax.persistence.ParameterMode;
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.util.*;
 
 /**
@@ -718,6 +720,13 @@ public class DashboardsDao {
                         .and("p_latitude", mapCoordinatesDto.getLatitude())
                         .and("p_longitude", mapCoordinatesDto.getLongitude()));
     }
+
+    public void insertMapCoordinatesBatch(List<GenericObject> mapCoordinatesList) throws SQLException {
+        QueryParameter queryParameter = StoredProcedureParameter.withPosition(1, ParameterMode.IN, GenericObject[].class, mapCoordinatesList);
+        persistentContext.executeStoredProcedure("SHP_PAR_INS_LAT_LONG_BULK_PROC",queryParameter);
+
+    }
+
 
     public List<ShipmentRegionDto> getShipmentRegionByCarrier(DashboardsFilterCriteria filterCriteria) {
         QueryParameter queryParameter = StoredProcedureParameter.with(DashboardStoredProcParam.ShipmentRegionParams.DATE_TYPE_PARAM, filterCriteria.getDateType())
