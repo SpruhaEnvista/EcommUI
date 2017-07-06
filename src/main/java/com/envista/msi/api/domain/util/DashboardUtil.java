@@ -285,8 +285,8 @@ public class DashboardUtil {
      * @throws JSONException
      */
     public static Map<String, Object> prepareFilterDetails(List<UserFilterUtilityDataDto> carriers, List<UserFilterUtilityDataDto> services, List<UserFilterUtilityDataDto> modes,
-                                                    List<Long> savedCarrList, List<Long> savedModes, List<Long> savedServices, DashSavedFilterDto savedFilter, Map<String, String> modeWiseCarriers,
-                                                    boolean isParcelDashlettes, boolean isNew) throws JSONException {
+                                                           List<Long> savedCarrList, List<Long> savedModes, List<Long> savedServices, DashSavedFilterDto savedFilter, Map<String, String> modeWiseCarriers,
+                                                           boolean isParcelDashlettes, boolean isNew) throws JSONException {
         Map<String, Object> userFilterDetailsMap = new HashMap<String, Object>();
         JSONArray modesArray = new JSONArray();
         if (savedCarrList.size() > 0) {

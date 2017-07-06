@@ -2573,7 +2573,13 @@ public class DashboardsController extends DashboardBaseController {
         JSONObject pkgDistrJson = new JSONObject();
         UserProfileDto user = getUserProfile();
         DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+
+        long starttime = System.currentTimeMillis();
+        System.out.println("CAlling query");
         List<ShipmentDto> pkgDistrData = dashboardsService.getPackageDistributionCount(filter);
+        long endTime = System.currentTimeMillis();
+
+        System.out.println("Query execution time in seconds:"+ (endTime - starttime) / 1000 );
         if(pkgDistrData != null && !pkgDistrData.isEmpty()){
             Set<String> addresses = new HashSet<String>();
             for(ShipmentDto pkgDistr : pkgDistrData){
@@ -2584,7 +2590,12 @@ public class DashboardsController extends DashboardBaseController {
                     addresses.add(receiverCity + "," + receiverState + "," + receiverCountry);
                 }
             }
+            System.out.println("CAlling co-ordinates address len:"+addresses.size());
+            starttime = System.currentTimeMillis();
             Set<MapCoordinatesDto> mapCoordinates = dashboardsService.getMapCoordinates(addresses);
+            endTime = System.currentTimeMillis();
+
+            System.out.println("coordinates execution time in seconds:"+ (endTime - starttime) / 1000 );
             pkgDistrJson = JSONUtil.preparePackageDistributionCountJson(pkgDistrData, mapCoordinates);
         }
         respMap.put("status", HttpStatus.OK.value());

@@ -1,6 +1,7 @@
 package com.envista.msi.api.service;
 
 import com.envista.msi.api.dao.DashboardsDao;
+import com.envista.msi.api.dao.type.GenericObject;
 import com.envista.msi.api.domain.util.DashboardUtil;
 import com.envista.msi.api.geocode.AddressConverter;
 import com.envista.msi.api.geocode.GoogleResponse;
@@ -38,6 +39,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import java.sql.SQLException;
 import java.util.*;
 
 /**
@@ -585,7 +587,7 @@ public class DashboardsService {
             }
         }
         return customFieldsMap;
-     }
+    }
 
     /**
      * Get Dashboard report column names.
@@ -930,7 +932,14 @@ public class DashboardsService {
     }
 
     public Set<MapCoordinatesDto> getMapCoordinates(Set<String> addresses){
+        long starttime = System.currentTimeMillis();
         Set<MapCoordinatesDto>  mapCoordinates = new HashSet<MapCoordinatesDto>(getLocationGeoCoordinates(addresses.toArray(new String[addresses.size()])));
+
+        long endTime = System.currentTimeMillis();
+
+        System.out.println("coordinates execution time from local table in seconds:"+ (endTime - starttime) / 1000 );
+
+        Set<MapCoordinatesDto>  mapCoordinatesFromGoogle = new HashSet<MapCoordinatesDto>();
         Set<String> tempAddresses = new HashSet<String>();
         if(mapCoordinates != null && !mapCoordinates.isEmpty()){
             for(MapCoordinatesDto mapCoordinate : mapCoordinates) {
@@ -943,30 +952,73 @@ public class DashboardsService {
         Set<String> addressesToGetFromGoogle = new HashSet<String>(addresses);
         addressesToGetFromGoogle.removeAll(tempAddresses);
 
+        System.out.println("Hitting google for address:"+ addressesToGetFromGoogle.size());
+        starttime = System.currentTimeMillis();
+
+        int counter = 1;
+
         for(String addr : addressesToGetFromGoogle){
             try{
                 if(addr != null){
+                    System.out.println("Hitting google:"+counter);
                     GoogleResponse res = new AddressConverter().convertToLatLong(addr, addr.split(",")[2]);
                     if (res.getStatus().equals("OK")) {
+                        System.out.println("Respone got from google:"+counter);
+                        counter++;
                         for (Result result : res.getResults()) {
                             MapCoordinatesDto mapCoordinatesDto = new MapCoordinatesDto();
                             mapCoordinatesDto.setAddress(addr);
                             mapCoordinatesDto.setLatitude( Double.parseDouble(result.getGeometry().getLocation().getLat()) );
                             mapCoordinatesDto.setLongitude( Double.parseDouble(result.getGeometry().getLocation().getLng()) );
-                            insertMapCoordinates(mapCoordinatesDto);
+                            //insertMapCoordinates(mapCoordinatesDto);
                             mapCoordinates.add(mapCoordinatesDto);
+                            mapCoordinatesFromGoogle.add(mapCoordinatesDto);
                             break; // we will consider only first result from google
                         }
                     } else {
+                        System.out.println("False Response:" + res.getStatus() );
                         // throw only when over limit or google server error else returns 0
                         if (res.getStatus().equalsIgnoreCase("OVER_QUERY_LIMIT") || res.getStatus().equalsIgnoreCase("UNKNOWN_ERROR"))
-                            throw new Exception(res.getStatus());
+                            break;
                     }
                 }
             }catch (Exception e){
                 //Nothing. Continue to get geo co-ordinates from Google.
             }
         }
+
+        endTime = System.currentTimeMillis();
+
+        System.out.println("Google code execution in seconds:"+ (endTime - starttime) / 1000 );
+
+        // Insert List of coordinates
+
+        starttime = System.currentTimeMillis();
+
+
+        if ( mapCoordinatesFromGoogle.size() > 0 ) {
+            System.out.println("Inserting co-rodinates:"+mapCoordinates.size());
+            ArrayList<GenericObject> coordinatesList = new ArrayList<GenericObject>();
+            for (MapCoordinatesDto mapCoordinatesDto : mapCoordinatesFromGoogle) {
+                System.out.println("Address:"+mapCoordinatesDto.getAddress());
+                GenericObject genericObject = new GenericObject();
+                genericObject.setParam1(mapCoordinatesDto.getAddress());
+                genericObject.setParam2(String.valueOf(mapCoordinatesDto.getLatitude()));
+                genericObject.setParam3(String.valueOf(mapCoordinatesDto.getLongitude()));
+                coordinatesList.add(genericObject);
+            }
+
+            try {
+                dashboardsDao.insertMapCoordinatesBatch(coordinatesList);
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }
+
+        }
+
+        endTime = System.currentTimeMillis();
+
+        System.out.println("coordinates insertion time in seconds:"+ (endTime - starttime) / 1000 );
         return mapCoordinates;
     }
 
