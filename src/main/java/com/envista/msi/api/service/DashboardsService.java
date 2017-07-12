@@ -976,7 +976,7 @@ public class DashboardsService {
      */
     public JSONObject getDashboardReportCustomColumnNames(DashboardsFilterCriteria filter) throws JSONException {
         JSONObject colJson = new JSONObject();
-        colJson.put("shipmentColumns", getCustomColumnDetails(filter, GlobalConstants.DASHBOARDS_LINE_ITEM_INCLUDED_COLS, 100L));
+        colJson.put("shipmentColumns", getCustomColumnDetails(filter, GlobalConstants.DASHBOARDS_SHIPMENT_DETAIL_INCLUDED_COLS, 100L));
         colJson.put("lineItemColumns", getCustomColumnDetails(filter, GlobalConstants.DASHBOARDS_LINE_ITEM_INCLUDED_COLS, 197L));
         return colJson;
     }
