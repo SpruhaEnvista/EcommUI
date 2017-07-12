@@ -231,17 +231,18 @@ public class StoredProcedureContext extends EntityManagerImpl implements Persist
 			}
 
 			st.execute();
-			rs = (ResultSet) st.getObject(outPos);
-			ResultSetMetaData rsmd = rs.getMetaData();
-			int columnCount = rsmd.getColumnCount();
-			while (rs.next()) {
-				List record = new ArrayList();
-				;
-				for (int i = 1; i <= columnCount; i++) {
-					record.add(rs.getObject(i));
+			if(outCount > 0) {
+				rs = (ResultSet) st.getObject(outPos);
+				ResultSetMetaData rsmd = rs.getMetaData();
+				int columnCount = rsmd.getColumnCount();
+				while (rs.next()) {
+					List record = new ArrayList();
+					for (int i = 1; i <= columnCount; i++) {
+						record.add(rs.getObject(i));
+					}
+					if (record != null && !record.isEmpty())
+						returnList.add(record);
 				}
-				if (record != null && !record.isEmpty())
-					returnList.add(record);
 			}
 		} catch (Exception e) {
 			throw new SQLException(e);
