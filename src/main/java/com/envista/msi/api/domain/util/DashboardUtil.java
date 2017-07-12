@@ -285,8 +285,8 @@ public class DashboardUtil {
      * @throws JSONException
      */
     public static Map<String, Object> prepareFilterDetails(List<UserFilterUtilityDataDto> carriers, List<UserFilterUtilityDataDto> services, List<UserFilterUtilityDataDto> modes,
-                                                    List<Long> savedCarrList, List<Long> savedModes, List<Long> savedServices, DashSavedFilterDto savedFilter, Map<String, String> modeWiseCarriers,
-                                                    boolean isParcelDashlettes, boolean isNew) throws JSONException {
+                                                           List<Long> savedCarrList, List<Long> savedModes, List<Long> savedServices, DashSavedFilterDto savedFilter, Map<String, String> modeWiseCarriers,
+                                                           boolean isParcelDashlettes, boolean isNew) throws JSONException {
         Map<String, Object> userFilterDetailsMap = new HashMap<String, Object>();
         JSONArray modesArray = new JSONArray();
         if (savedCarrList.size() > 0) {
@@ -307,9 +307,11 @@ public class DashboardUtil {
      */
     public static boolean isContainsCustomer(String customerId, List<ReportCustomerCarrierDto> customers){
         if(customers != null && customerId != null){
-            for(ReportCustomerCarrierDto customer : customers){
-                if(customer != null && customer.getCustomerId() != null && customerId.equals(customer.getCustomerId().toString())){
-                    return true;
+            for(String custId : customerId.split(",")){
+                for(ReportCustomerCarrierDto customer : customers){
+                    if(customer != null && custId != null && customer.getCustomerId() != null && custId.equals(customer.getCustomerId().toString())){
+                        return true;
+                    }
                 }
             }
         }

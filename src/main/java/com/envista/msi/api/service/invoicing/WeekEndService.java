@@ -31,4 +31,9 @@ public class WeekEndService {
 
         return dao.findByWeekEndDate(weekEndDate);
     }
+
+    public WeekEndDto getCurrentWeekEndDate() {
+
+        return dao.getCurrentWeekEndDate();
+    }
 }

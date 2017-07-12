@@ -16,7 +16,7 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_DAS_INFO", type = Void.class)
                 }),
         @NamedStoredProcedureQuery(name = "DashBoardDto.getPendingCreditsCount", procedureName = "SHP_INV_GET_DASHBOARD_INFO_PRO",
-                resultSetMappings = "pendingCreditsEbillIds",
+                resultSetMappings = "pendingCreditsCount",
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_FROM_DATE", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_TO_DATE", type = String.class),
@@ -26,9 +26,23 @@ import java.io.Serializable;
         @NamedStoredProcedureQuery(name = "DashBoardDto.closeCurrentWeek", procedureName = "SHP_INV_CLOSE_CUR_WEEK_PRO",
 
                 parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_WEEK_END_ID", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_EBILL_MANIFEST_IDS", type = String.class)
                        /* @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_DAS_INFO", type = Void.class)*/
+                }),
+        @NamedStoredProcedureQuery(name = "DashBoardDto.weeklyScrub", procedureName = "SHP_INV_UPS_WEEKLY_SCRUB_PRO",
+
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_WEEK_END_ID", type = Long.class)
+                       /* @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_DAS_INFO", type = Void.class)*/
+                }),
+        @NamedStoredProcedureQuery(name = "DashBoardDto.insertFileInfo", procedureName = "SHP_INV_INSERT_FILE_INFO_PRO",
+                resultClasses = FileInfoDto.class,
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_FILE_NAME", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_WEEK_END_ID", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_FILE_INFO", type = Void.class)
                 })
 })
 @SqlResultSetMappings({

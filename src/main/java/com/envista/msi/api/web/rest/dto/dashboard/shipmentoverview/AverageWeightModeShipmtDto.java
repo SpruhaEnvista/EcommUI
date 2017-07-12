@@ -44,6 +44,7 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageWeightShipmentByCarrierParam.CARRIER_IDS_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageWeightShipmentByCarrierParam.CUSTOMER_IDS_CSV_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageWeightShipmentByCarrierParam.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageWeightShipmentByCarrierParam.MODE_NAMES_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.AverageWeightShipmentByCarrierParam.AVG_WGT_SHIPMT_BY_CARR_PARAM, type = Void.class)
                 }),
         @NamedStoredProcedureQuery(name = AverageWeightModeShipmtDto.Config.StoredProcedureQueryName.AVG_WEIGHT_MODE_SHIPMENT_BY_MONTH,
@@ -61,6 +62,7 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageWeightShipmentByMonthParam.CARRIER_IDS_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageWeightShipmentByMonthParam.CUSTOMER_IDS_CSV_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageWeightShipmentByMonthParam.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageWeightShipmentByCarrierParam.MODE_NAMES_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.AverageWeightShipmentByMonthParam.AVG_WGT_SHIPMT_BY_MNTH_PARAM, type = Void.class)
                 })
 })

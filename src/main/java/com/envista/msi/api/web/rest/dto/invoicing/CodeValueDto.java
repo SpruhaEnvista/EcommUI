@@ -23,6 +23,12 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CARRIER_ID", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CODE_GROUP_ID", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_CODES_INFO", type = Void.class)
+                }),
+        @NamedStoredProcedureQuery(name = "CodeValueDto.getOmitFlagByVoiceId", procedureName = "SHP_INV_GET_OMIT_VA_BY_VID_PRO",
+                resultClasses = CodeValueDto.class,
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_VOICE_ID", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_OMIT_INFO", type = Void.class)
                 })
 })
 

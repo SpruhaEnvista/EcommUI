@@ -15,6 +15,7 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_TRACKING_NUMBER", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_NOTES", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_STATUS", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_FILE_INFO_ID", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class)
                         /*@StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_CREDIT_RES_INFO", type = Void.class)*/
                 })
@@ -40,6 +41,10 @@ public class CreditResponseDto implements Serializable {
 
     @Column(name = "INSERT_COUNT")
     private int insertCount;
+
+
+    @Column(name = "FILE_INFO_ID")
+    private Long fileInfoId;
 
     public CreditResponseDto() {
     }
@@ -94,5 +99,13 @@ public class CreditResponseDto implements Serializable {
 
     public void setInsertCount(int insertCount) {
         this.insertCount = insertCount;
+    }
+
+    public Long getFileInfoId() {
+        return fileInfoId;
+    }
+
+    public void setFileInfoId(Long fileInfoId) {
+        this.fileInfoId = fileInfoId;
     }
 }

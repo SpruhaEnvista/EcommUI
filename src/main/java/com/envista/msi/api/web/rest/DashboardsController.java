@@ -30,6 +30,8 @@ import com.envista.msi.api.web.rest.util.pagination.PaginationBean;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -187,6 +189,8 @@ public class DashboardsController extends DashboardBaseController {
         ACTUAL_VS_BILLED_WEIGHT_BY_CARRIER,
         ACTUAL_VS_BILLED_WEIGHT_BY_MONTH;
     }
+
+    private final Logger log = LoggerFactory.getLogger(DashboardsController.class);
 
     @RequestMapping(value = "/appliedFilter", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DashboardAppliedFilterDto> getAppliedFilterDetails(@RequestParam(value = "userId" , required = true) String userId  ){
@@ -895,12 +899,12 @@ public class DashboardsController extends DashboardBaseController {
     }
 
     @RequestMapping(value = "/avgSpendPerShipmentByCarrier", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getAverageSpendPerShipmentByCarrier(@RequestParam String service, @RequestParam String invoiceDate) throws Exception {
+    public ResponseEntity<String> getAverageSpendPerShipmentByCarrier(@RequestParam String modeName, @RequestParam String invoiceDate) throws Exception {
         UserProfileDto user = getUserProfile();
         DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
         if(filter !=  null){
-            if(service != null && !service.isEmpty()){
-                filter.setService(service);
+            if(modeName != null && !modeName.isEmpty()){
+                filter.setModeNames(modeName);
             }
             if(invoiceDate != null && !invoiceDate.isEmpty()){
                 DashboardUtil.setDatesFromMonth(filter, invoiceDate);
@@ -911,12 +915,12 @@ public class DashboardsController extends DashboardBaseController {
     }
 
     @RequestMapping(value = "/avgSpendPerShipmentByMonth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getAverageSpendPerShipmentByMonth(@RequestParam String invoiceDate,@RequestParam String carrierId,@RequestParam String service) throws Exception {
+    public ResponseEntity<String> getAverageSpendPerShipmentByMonth(@RequestParam String invoiceDate,@RequestParam String carrierId,@RequestParam String modeName) throws Exception {
         UserProfileDto user = getUserProfile();
         DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
         if(filter !=  null){
-            if(service != null && !service.isEmpty()){
-                filter.setService(service);
+            if(modeName != null && !modeName.isEmpty()){
+                filter.setModeNames(modeName);
             }
             if(invoiceDate != null && !invoiceDate.isEmpty()){
                 DashboardUtil.setDatesFromMonth(filter, invoiceDate);
@@ -930,12 +934,12 @@ public class DashboardsController extends DashboardBaseController {
     }
 
     @RequestMapping(value = "/avgWeightModeByCarrier", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getAverageWeightModeByCarrier(@RequestParam String service, @RequestParam String invoiceDate) throws Exception {
+    public ResponseEntity<String> getAverageWeightModeByCarrier(@RequestParam String modeName, @RequestParam String invoiceDate) throws Exception {
         UserProfileDto user = getUserProfile();
         DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
         if(filter !=  null){
-            if(service != null && !service.isEmpty()){
-                filter.setService(service);
+            if(modeName != null && !modeName.isEmpty()){
+                filter.setModeNames(modeName);
             }
             if(invoiceDate != null && !invoiceDate.isEmpty()){
                 DashboardUtil.setDatesFromMonth(filter, invoiceDate);
@@ -946,12 +950,12 @@ public class DashboardsController extends DashboardBaseController {
     }
 
     @RequestMapping(value = "/avgWeightModeByMonth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getAverageWeightModeByMonth(@RequestParam String service,@RequestParam String invoiceDate,@RequestParam String carrierId) throws Exception {
+    public ResponseEntity<String> getAverageWeightModeByMonth(@RequestParam String modeName,@RequestParam String invoiceDate,@RequestParam String carrierId) throws Exception {
         UserProfileDto user = getUserProfile();
         DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
         if(filter !=  null){
-            if(service != null && !service.isEmpty()){
-                filter.setService(service);
+            if(modeName != null && !modeName.isEmpty()){
+                filter.setModeNames(modeName);
             }
             if(invoiceDate != null && !invoiceDate.isEmpty()){
                 DashboardUtil.setDatesFromMonth(filter, invoiceDate);
@@ -2573,7 +2577,15 @@ public class DashboardsController extends DashboardBaseController {
         JSONObject pkgDistrJson = new JSONObject();
         UserProfileDto user = getUserProfile();
         DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+
+        long starttime = System.currentTimeMillis();
+        log.info("CAlling query");
+        log.error("CAlling query");
         List<ShipmentDto> pkgDistrData = dashboardsService.getPackageDistributionCount(filter);
+        long endTime = System.currentTimeMillis();
+
+        log.info("Query execution time in seconds:"+ (endTime - starttime) / 1000 );
+        log.error("Query execution time in seconds:"+ (endTime - starttime) / 1000 );
         if(pkgDistrData != null && !pkgDistrData.isEmpty()){
             Set<String> addresses = new HashSet<String>();
             for(ShipmentDto pkgDistr : pkgDistrData){
@@ -2584,7 +2596,14 @@ public class DashboardsController extends DashboardBaseController {
                     addresses.add(receiverCity + "," + receiverState + "," + receiverCountry);
                 }
             }
+            log.info("CAlling co-ordinates address len:"+addresses.size());
+            log.error("CAlling co-ordinates address len:"+addresses.size());
+            starttime = System.currentTimeMillis();
             Set<MapCoordinatesDto> mapCoordinates = dashboardsService.getMapCoordinates(addresses);
+            endTime = System.currentTimeMillis();
+
+            log.info("coordinates execution time in seconds:"+ (endTime - starttime) / 1000 );
+            log.error("coordinates execution time in seconds:"+ (endTime - starttime) / 1000 );
             pkgDistrJson = JSONUtil.preparePackageDistributionCountJson(pkgDistrData, mapCoordinates);
         }
         respMap.put("status", HttpStatus.OK.value());
