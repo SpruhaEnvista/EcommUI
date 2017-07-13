@@ -50,8 +50,8 @@ public class ParcelRTRService extends BaseService{
      * @param toDate
      * @return
      */
-    public Map<String, List<ParcelAuditDetailsDto>> loadUpsParcelAuditDetails(String fromDate, String toDate, String customerId){
-        return prepareTrackingNumberWiseAuditDetails(parcelRTRDao.loadUpsParcelAuditDetails(fromDate, toDate, customerId));
+    public Map<String, List<ParcelAuditDetailsDto>> loadUpsParcelAuditDetails(String customerId, String fromDate, String toDate){
+        return prepareTrackingNumberWiseAuditDetails(parcelRTRDao.loadUpsParcelAuditDetails(customerId, fromDate, toDate));
     }
 
     /**
@@ -60,8 +60,8 @@ public class ParcelRTRService extends BaseService{
      * @param toDate
      * @return
      */
-    public Map<String, List<ParcelAuditDetailsDto>> loadNonUpsParcelAuditDetails(String fromDate, String toDate, String customerId){
-        return prepareTrackingNumberWiseAuditDetails(parcelRTRDao.loadNonUpsParcelAuditDetails(fromDate, toDate, customerId));
+    public Map<String, List<ParcelAuditDetailsDto>> loadNonUpsParcelAuditDetails(String customerId, String fromDate, String toDate){
+        return prepareTrackingNumberWiseAuditDetails(parcelRTRDao.loadNonUpsParcelAuditDetails(customerId, fromDate, toDate));
     }
 
     public void parcelRTRRating(String fromDate, String toDate, String customerId){
@@ -71,8 +71,8 @@ public class ParcelRTRService extends BaseService{
         String strPrefix = messageSource.getMessage("RTRPrefix", null, null);
         String url = strProtocol + "://" + strHostName + "/" + strPrefix;
 
-        doParcelRating(loadUpsParcelAuditDetails(fromDate, toDate, customerId), url, licenseKey, RateTo.UPS);
-        doParcelRating(loadNonUpsParcelAuditDetails(fromDate, toDate, customerId), url, licenseKey, RateTo.FEDEX);
+        doParcelRating(loadUpsParcelAuditDetails(customerId, fromDate, toDate), url, licenseKey, RateTo.UPS);
+        doParcelRating(loadNonUpsParcelAuditDetails(customerId, fromDate, toDate), url, licenseKey, RateTo.FEDEX);
     }
 
     private void doParcelRating(Map<String, List<ParcelAuditDetailsDto>> parcelAuditDetailsMap, String url, String licenseKey, RateTo rateTo){
