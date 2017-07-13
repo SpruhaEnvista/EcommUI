@@ -38,9 +38,9 @@ public class ParcelRTRDao {
         return loadUpsParcelAuditDetails(null, fromDate, toDate);
     }
 
-    public List<ParcelAuditDetailsDto> loadNonUpsParcelAuditDetails(String customerIds, String fromDate, String toDate){
+    public List<ParcelAuditDetailsDto> loadNonUpsParcelAuditDetails(String customerIds, String fromDate, String toDate, String carrierIds){
         QueryParameter queryParameter = QueryParameter.with("p_from_date", fromDate)
-                .and("p_to_date", toDate);
+                .and("p_to_date", toDate).and("p_carrier_ids", carrierIds);
 
         if(customerIds != null && !customerIds.isEmpty()){
             queryParameter.and("p_customer_CSV", customerIds);
@@ -50,8 +50,8 @@ public class ParcelRTRDao {
         return persistentContext.findEntitiesAndMapFields(ParcelAuditDetailsDto.Config.StoredProcedureQueryName.AUDIT_NOT_UPS_PARCEL_DETAILS, queryParameter);
     }
 
-    public List<ParcelAuditDetailsDto> loadNonUpsParcelAuditDetails(String fromDate, String toDate){
-        return loadNonUpsParcelAuditDetails(null, fromDate, toDate);
+    public List<ParcelAuditDetailsDto> loadNonUpsParcelAuditDetails(String fromDate, String toDate, String carrierIds){
+        return loadNonUpsParcelAuditDetails(null, fromDate, toDate, carrierIds);
     }
 
     public void updateRTRInvoiceAmount(Long id, String userName, BigDecimal rtrAmount, String rtrStatus, Long carrierId){

@@ -24,6 +24,7 @@ import java.util.Date;
                 resultClasses = {ParcelAuditDetailsDto.class},
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_customer_CSV", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_carrier_ids", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_from_date", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_to_date", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_audit_parcel_details", type = Void.class)

@@ -165,7 +165,7 @@ public class ParcelRateRequestBuilder {
         return parcelRateRequest;
     }
 
-    public static ParcelRateRequest buildParcelRateRequestForFedEx(List<ParcelAuditDetailsDto> parcelAuditDetailsList, String licenseKey){
+    public static ParcelRateRequest buildParcelRateRequestForNonUpsCarrier(List<ParcelAuditDetailsDto> parcelAuditDetailsList, String licenseKey){
         ParcelRateRequest parcelRateRequest = new ParcelRateRequest();
         if(parcelAuditDetailsList != null && !parcelAuditDetailsList.isEmpty()){
             for(ParcelAuditDetailsDto auditDetails : parcelAuditDetailsList) {
@@ -175,7 +175,6 @@ public class ParcelRateRequestBuilder {
                         if(dwFieldInfo != null && dwFieldInfo.length > 0){
                             auditDetails.setChargeClassificationCode(dwFieldInfo[1].trim());
                             auditDetails.setChargeDescriptionCode(dwFieldInfo[2].trim());
-                            auditDetails.setServiceLevel(dwFieldInfo[3].trim());
                         }
                     }catch (Exception e){}
                 }
