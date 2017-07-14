@@ -1,14 +1,12 @@
 package com.envista.msi.api.web.rest;
 
 import com.envista.msi.api.service.rtr.ParcelRTRService;
+import com.envista.msi.api.web.rest.response.CommonResponse;
 import com.envista.msi.api.web.rest.response.ErrorResponse;
 import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
 
@@ -24,12 +22,16 @@ public class ParcelRTRController {
     private ParcelRTRService parcelRTRService;
 
     @RequestMapping(value = "/auditParcel", method = {RequestMethod.GET})
-    public void auditParcelInvoice(String fromDate, String toDate, String customerId){
+    public ResponseEntity<CommonResponse> auditParcelInvoice(@RequestParam String fromDate, @RequestParam String toDate, @RequestParam(required = false) String customerId){
+        CommonResponse response = new CommonResponse();
         try{
-            parcelRTRService.parcelRTRRating(fromDate, toDate, customerId);
+            parcelRTRService.parcelRTRRating(customerId, fromDate, toDate);
         }catch (InvalidDataAccessResourceUsageException e){
-            //Need to check this case later. Keeping for testing.
+            //Need to check this case later. This is causing because of transaction management.
         }
+        response.setStatusCode(HttpStatus.OK.value());
+        response.setMessage("Parcel Audit completed successfully");
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @ExceptionHandler({Exception.class})

@@ -12,10 +12,13 @@ import java.util.List;
  * Created by Sujit kumar on 21/06/2017.
  */
 public class ParcelRateRequestBuilder {
+    /**
+     * Rate request event date formant.
+     */
     private static final String RATE_REQUEST_EVENT_DATE_FORMAT = "MM/dd/yyyy hh:mm";
 
     /**
-     * Returns ParcelRateRequest from given parcel invoice details.
+     * To build Parcel Audit request object for UPS carrier from given parcelAuditDetailsList.
      * @param parcelAuditDetailsList
      * @param licenseKey
      * @return
@@ -42,7 +45,8 @@ public class ParcelRateRequestBuilder {
                 List<ParcelRateRequest.ServiceFlag> serviceFlagList = new ArrayList<>();
                 for(ParcelAuditDetailsDto auditDetails : parcelAuditDetailsList){
                     if(auditDetails != null){
-                        if(auditDetails.getChargeClassificationCode() != null && "ACC".equals(auditDetails.getChargeClassificationCode())){
+                        if(auditDetails.getChargeClassificationCode() != null
+                                && ParcelAuditConstant.ChargeClassificationCode.ACC.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())){
                             ParcelRateRequest.ServiceFlag serviceFlag = new ParcelRateRequest.ServiceFlag();
                             serviceFlag.setCode(auditDetails.getChargeDescriptionCode());
                             serviceFlagList.add(serviceFlag);
@@ -77,7 +81,8 @@ public class ParcelRateRequestBuilder {
                 List<ParcelRateRequest.Item> items = new ArrayList<>();
                 for(ParcelAuditDetailsDto auditDetails : parcelAuditDetailsList) {
                     if (auditDetails != null) {
-                        if (auditDetails.getChargeClassificationCode() != null && "FRT".equalsIgnoreCase(auditDetails.getChargeClassificationCode())) {
+                        if (auditDetails.getChargeClassificationCode() != null
+                                && ParcelAuditConstant.ChargeClassificationCode.FRT.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())) {
                             String weight = (null == auditDetails.getPackageWeight() || auditDetails.getPackageWeight().isEmpty() ? "" : auditDetails.getPackageWeight());
                             String weightUnit = (null == auditDetails.getWeightUnit() || auditDetails.getWeightUnit().isEmpty() || "L".equalsIgnoreCase(auditDetails.getWeightUnit()) ? "LBS" : auditDetails.getWeightUnit());
                             String quantity = (null == auditDetails.getItemQuantity() || auditDetails.getItemQuantity().isEmpty() ? "1" : auditDetails.getItemQuantity());
@@ -165,6 +170,12 @@ public class ParcelRateRequestBuilder {
         return parcelRateRequest;
     }
 
+    /**
+     * To build Parcel Audit request object for non-UPS carriers from given parcelAuditDetailsList.
+     * @param parcelAuditDetailsList
+     * @param licenseKey
+     * @return
+     */
     public static ParcelRateRequest buildParcelRateRequestForNonUpsCarrier(List<ParcelAuditDetailsDto> parcelAuditDetailsList, String licenseKey){
         ParcelRateRequest parcelRateRequest = new ParcelRateRequest();
         if(parcelAuditDetailsList != null && !parcelAuditDetailsList.isEmpty()){
@@ -200,7 +211,8 @@ public class ParcelRateRequestBuilder {
                 List<ParcelRateRequest.ServiceFlag> serviceFlagList = new ArrayList<>();
                 for(ParcelAuditDetailsDto auditDetails : parcelAuditDetailsList){
                     if(auditDetails != null){
-                        if(auditDetails.getChargeClassificationCode() != null && "ACS".equals(auditDetails.getChargeClassificationCode()) && !Arrays.asList("FSC", "DSC").contains(auditDetails.getChargeDescriptionCode())){
+                        if(auditDetails.getChargeClassificationCode() != null && ParcelAuditConstant.ChargeClassificationCode.ACS.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())
+                                && !Arrays.asList(ParcelAuditConstant.ChargeDescriptionCode.FSC.name(), ParcelAuditConstant.ChargeDescriptionCode.DSC.name()).contains(auditDetails.getChargeDescriptionCode())){
                             ParcelRateRequest.ServiceFlag serviceFlag = new ParcelRateRequest.ServiceFlag();
                             serviceFlag.setCode(auditDetails.getChargeDescriptionCode());
                             serviceFlagList.add(serviceFlag);
@@ -234,7 +246,8 @@ public class ParcelRateRequestBuilder {
                 List<ParcelRateRequest.Item> items = new ArrayList<>();
                 for(ParcelAuditDetailsDto auditDetails : parcelAuditDetailsList) {
                     if (auditDetails != null) {
-                        if (auditDetails.getChargeClassificationCode() != null && "FRT".equalsIgnoreCase(auditDetails.getChargeClassificationCode())) {
+                        if (auditDetails.getChargeClassificationCode() != null
+                                && ParcelAuditConstant.ChargeClassificationCode.FRT.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())) {
                             String weight = (null == auditDetails.getPackageWeight() || auditDetails.getPackageWeight().isEmpty() ? "" : auditDetails.getPackageWeight());
                             String weightUnit = (null == auditDetails.getWeightUnit() || auditDetails.getWeightUnit().isEmpty() || "L".equalsIgnoreCase(auditDetails.getWeightUnit()) ? "LBS" : auditDetails.getWeightUnit());
                             String quantity = (null == auditDetails.getItemQuantity() || auditDetails.getItemQuantity().isEmpty() ? "1" : auditDetails.getItemQuantity());
@@ -322,10 +335,16 @@ public class ParcelRateRequestBuilder {
         return parcelRateRequest;
     }
 
+    /**
+     * To find service-level for Freight type shipment.
+     * @param parcelAuditDetails
+     * @return
+     */
     private static String findServiceLevel(List<ParcelAuditDetailsDto> parcelAuditDetails) {
         if(parcelAuditDetails != null && !parcelAuditDetails.isEmpty()){
             for(ParcelAuditDetailsDto auditDetails : parcelAuditDetails){
-                if(auditDetails != null && auditDetails.getChargeClassificationCode() != null && "FRT".equals(auditDetails.getChargeClassificationCode())){
+                if(auditDetails != null && auditDetails.getChargeClassificationCode() != null
+                        && ParcelAuditConstant.ChargeClassificationCode.FRT.name().equals(auditDetails.getChargeClassificationCode())){
                     return auditDetails.getServiceLevel();
                 }
             }
