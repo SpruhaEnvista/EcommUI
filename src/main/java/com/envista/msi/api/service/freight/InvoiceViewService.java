@@ -3,6 +3,8 @@ package com.envista.msi.api.service.freight;
 import com.envista.msi.api.dao.freight.InvoiceViewDao;
 import com.envista.msi.api.web.rest.dto.freight.InvoiceSummaryAppChrgsDto;
 import com.envista.msi.api.web.rest.dto.freight.InvoiceSummaryInvDtlsDto;
+import com.envista.msi.api.web.rest.dto.freight.InvoiceViewAddressDtlsDto;
+import com.envista.msi.api.web.rest.dto.freight.InvoiceViewInvDtlsDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,5 +27,13 @@ public class InvoiceViewService {
 
     public InvoiceSummaryInvDtlsDto getInvoiceDetailsSummList(Long invoiceId){
         return invoiceViewDao.getInvoiceDetailsForInvSumm(invoiceId);
+    }
+
+    public InvoiceViewAddressDtlsDto getInvoiceAddressDetails(Long invoiceId, String addrDtl){
+        return invoiceViewDao.getAddressDetailsForInvoice(invoiceId,addrDtl);
+    }
+
+    public InvoiceViewInvDtlsDto getInvoiceDetailsForInvoiceView(Long invoiceId){
+        return invoiceViewDao.getInvoiceDetailsForInvoiceView(invoiceId);
     }
 }

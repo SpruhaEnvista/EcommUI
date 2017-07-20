@@ -5,6 +5,8 @@ import com.envista.msi.api.domain.util.QueryParameter;
 import com.envista.msi.api.domain.util.StoredProcedureParameter;
 import com.envista.msi.api.web.rest.dto.freight.InvoiceSummaryAppChrgsDto;
 import com.envista.msi.api.web.rest.dto.freight.InvoiceSummaryInvDtlsDto;
+import com.envista.msi.api.web.rest.dto.freight.InvoiceViewAddressDtlsDto;
+import com.envista.msi.api.web.rest.dto.freight.InvoiceViewInvDtlsDto;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,5 +38,19 @@ public class InvoiceViewDao {
     public InvoiceSummaryInvDtlsDto getInvoiceDetailsForInvSumm(Long invoiceId){
         QueryParameter queryParameter = StoredProcedureParameter.with("invoiceId",invoiceId);
         return persistentContext.findEntityAndMapFields("InvSummInvDtls.invoiceDetails",queryParameter);
+    }
+
+    @Transactional( readOnly = true )
+    public InvoiceViewAddressDtlsDto getAddressDetailsForInvoice(Long invoiceId, String addrDtl){
+
+        QueryParameter queryParameter = StoredProcedureParameter.with("invoiceId",invoiceId)
+                                                                .and("addrType",addrDtl);
+        return persistentContext.findEntityAndMapFields("InvViewAddrDtls.invoiceAddrDetails",queryParameter);
+    }
+
+    @Transactional( readOnly = true )
+    public InvoiceViewInvDtlsDto getInvoiceDetailsForInvoiceView(Long invoiceId){
+        QueryParameter queryParameter = StoredProcedureParameter.with("invoiceId",invoiceId);
+        return persistentContext.findEntityAndMapFields("InvViewInvDtls.invoiceDetails",queryParameter);
     }
 }
