@@ -1,5 +1,6 @@
 package com.envista.msi.api.config;
 
+
 import java.security.MessageDigest;
 
 import org.slf4j.Logger;
@@ -23,11 +24,15 @@ public class MSIPasswordEncoder implements PasswordEncoder {
 	 */
 	@Override
 	public String encode(CharSequence rawPassword) {
-		String hashed = null;
+		//System.out.println("MSIPasswordEncoder: encode rawPassword - " + rawPassword);
 		if (rawPassword != null) {
-			hashed = rawPassword.toString();
+			try {
+				return encrypt(rawPassword.toString());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
-		return hashed;
+		return null;
 	}
 
 	/*
@@ -39,11 +44,15 @@ public class MSIPasswordEncoder implements PasswordEncoder {
 	 */
 	@Override
 	public boolean matches(CharSequence rawPassword, String encodedPassword) {
+		//System.out.println("MSIPasswordEncoder matches: rawPassword - " + rawPassword);
+		//System.out.println("MSIPasswordEncoder matches: encodedPassword - " + encodedPassword);
 		if (encodedPassword == null || encodedPassword.length() == 0) {
 			log.warn("Empty encoded password");
 			return false;
 		}
-		return true;
+		
+		//System.out.println("\n\n - " + checkpw(rawPassword, encodedPassword));
+		return checkpw(rawPassword, encodedPassword);
 	}
 
 	/**
@@ -56,7 +65,13 @@ public class MSIPasswordEncoder implements PasswordEncoder {
 			log.warn("Empty raw password");
 			return false;
 		}
-		return hashed.equals(plaintext.toString());
+		try {
+			return hashed.equals(encrypt(plaintext.toString()));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
 	}
 
 	/**
@@ -68,6 +83,7 @@ public class MSIPasswordEncoder implements PasswordEncoder {
 		MessageDigest md = MessageDigest.getInstance("MD5");
 		md.update(plaintext.getBytes("UTF-8"));
 		byte raw[] = md.digest();
+		//System.out.println(plaintext + " encrypt(String plaintext) - " + (new sun.misc.BASE64Encoder()).encode(raw));
 		return (new sun.misc.BASE64Encoder()).encode(raw);
 	}
 	

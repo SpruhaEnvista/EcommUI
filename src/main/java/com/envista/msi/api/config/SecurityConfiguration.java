@@ -17,10 +17,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-//import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.data.repository.query.SecurityEvaluationContextExtension;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-
 import com.envista.msi.api.web.filter.CustomUsernamePasswordAuthenticationFilter;
 
 @Configuration
@@ -54,6 +52,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .antMatchers("/swagger-ui/index.html")
             .antMatchers("/api/register")
             .antMatchers("/api/activate")
+            .antMatchers("/api/public/**")
             .antMatchers("/api/account/reset_password/init")
             .antMatchers("/api/account/reset_password/finish")
             .antMatchers("/test/**")
@@ -89,8 +88,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     public Filter authFilter() throws Exception { 
         CustomUsernamePasswordAuthenticationFilter filter = new CustomUsernamePasswordAuthenticationFilter(new AntPathRequestMatcher("/api/authentication")); 
         filter.setPostOnly(true); 
-       // filter.setAuthenticationSuccessHandler(ajaxAuthenticationSuccessHandler); 
-       // filter.setAuthenticationFailureHandler(ajaxAuthenticationFailureHandler); 
         filter.setAuthenticationManager(super.authenticationManager()); 
         return filter; 
     }

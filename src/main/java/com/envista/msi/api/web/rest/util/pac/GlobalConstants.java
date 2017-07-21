@@ -31,4 +31,7 @@ public class GlobalConstants {
 
 	public final static String EMPTYSPACE = new String();
 
+	public static final String DASHBOARDS_LINE_ITEM_INCLUDED_COLS = "Scac Code,Carrier Name,Invoice Number,PRO #,BOL #,Bill Option,Invoice Date,Ship Date,Delivery Date,Mode,Invoice Method,Invoice GL Code,PO #,Reference 1,Reference 2,Shipper Name,Shipper Address,Shipper City,Shipper State,Shipper Postal Code,Shipper Country,Receiver Name,Receiver Address,Receiver City,Receiver State,Receiver Postal Code,Receiver Country,Line Item #,Qty,UOM,Weight,Description,Freight Class,Rate,Rating Method,Invoice Amount,Total Due Amount,Line GL Code,Line Charges,Approved Line Charges,Adjustment,Adjustment Reason,Audit Charge Code,Service Level ";
+	public static final String DASHBOARDS_SHIPMENT_DETAIL_INCLUDED_COLS = "Carrier Name,Invoice #,PRO #,BOL #,Bill Option,Invoice Date,Ship Date,Delivery Date,Invoice Mode,Invoice Method,GL Code,PO #,Reference1,Reference2,Scac Code,Shipper Name,Shipper Address 1,Shipper City,Shipper State,Shipper Postal Code,Shipper Country,Receiver Name,Receiver Address 1,Receiver City,Receiver State,Receiver Postal Code,Receiver Country,Total Weight,Total Charges,Line Haul,Fuel Surcharge,Discount,Accessorials,Adjustments,Total Due Amount,Invoice Status,Check #,Check Date,Check Amount,Adjustment Reason,Shipper Region,Receiver Region,Cwt Weight,Service Level";
+
 }

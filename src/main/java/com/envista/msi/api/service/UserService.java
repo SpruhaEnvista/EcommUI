@@ -1,16 +1,22 @@
 package com.envista.msi.api.service;
 
-import java.util.Optional;
-
-import javax.inject.Inject;
-
+import com.envista.msi.api.dao.DaoException;
+import com.envista.msi.api.dao.UserDetailsDao;
+import com.envista.msi.api.dao.UserProfileDao;
+import com.envista.msi.api.domain.util.ReportsUtil;
+import com.envista.msi.api.domain.util.StringEncrypter;
+import com.envista.msi.api.security.SecurityUtils;
+import com.envista.msi.api.web.rest.dto.UserDetailsDto;
+import com.envista.msi.api.web.rest.dto.UserProfileDto;
+import com.envista.msi.api.web.rest.dto.i18n.InternationalizationDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.envista.msi.api.dao.UserProfileDao;
-import com.envista.msi.api.web.rest.dto.UserProfileDto;
+import javax.inject.Inject;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Service class for managing users.
@@ -30,6 +36,9 @@ public class UserService {
 	
 	@Inject
 	private UserProfileDao userProfileDao;
+
+	@Inject
+	private UserDetailsDao userDetailsDao;
 
 	/**
 	 * @param userName
@@ -61,6 +70,60 @@ public class UserService {
 
 */
 	public UserProfileDto getUserProfileByUserName(String userName) throws Exception {
-		return getUserWithAuthoritiesByUserName(userName).orElse(new UserProfileDto());
+		/*if(SecurityUtils.getUserCache().containsKey(userName)){
+			return (UserProfileDto) SecurityUtils.getUserCache().get(userName);
+		}else{
+			UserProfileDto user = null;
+			user = getUserWithAuthoritiesByUserName(userName).orElse(null);
+			if(null != user){
+				SecurityUtils.getUserCache().put(userName, user);
+			}
+			return user;
+		}*/
+
+		return getUserWithAuthoritiesByUserName(userName).orElse(null);
+	}
+
+	public UserProfileDto getLoggedInUser() throws Exception {
+		return getUserProfileByUserName(SecurityUtils.getCurrentUserLogin());
+	}
+
+	public UserProfileDto validatePassword(String password, Long userId) throws Exception {
+
+		StringEncrypter stringEncrypter = StringEncrypter.getInstance() ;
+		String enCryptedPwd = ReportsUtil.encrypt(password);
+		List<UserProfileDto> userDetails = userProfileDao.validatePassword(enCryptedPwd,userId);
+		UserProfileDto userProfileDto = null;
+
+		if(userDetails!= null && userDetails.size()>0){
+			userProfileDto = userDetails.get(0);
+			if (userProfileDto ==null || (userProfileDto != null && userProfileDto.getUserId()==0)) {
+				throw new DaoException("Invalid Current Password");
+			}
+		}else{
+			throw new DaoException("Invalid Current Password");
+		}
+
+		return userProfileDto;
+	}
+	public UserDetailsDto changePassword(String currentPassword, String newPassword,Long userId) throws Exception {
+		StringEncrypter stringEncrypter = StringEncrypter.getInstance() ;
+		String enCryptedPwd = ReportsUtil.encrypt(currentPassword);
+		String enCryptedNewPwd = ReportsUtil.encrypt(newPassword);
+		UserDetailsDto userDetails = userDetailsDao.changePassword(enCryptedPwd,enCryptedNewPwd,userId);
+		return userDetails;
+	}
+
+	public UserDetailsDto updateUserProfile(String fullname,String email,String phone, Long userId) {
+		return userDetailsDao.updateUserProfile(fullname,email,phone,userId);
+	}
+
+	/**
+	 * Get labels(kay,value) pair for i18n for given locale.
+	 * @param locale
+	 * @return
+	 */
+	public List<InternationalizationDto> getI18nLabelsByLocale(String locale){
+		return userDetailsDao.getI18nLabelsByLocale(locale);
 	}
 }

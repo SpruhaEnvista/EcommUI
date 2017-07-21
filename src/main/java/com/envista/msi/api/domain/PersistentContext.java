@@ -4,6 +4,7 @@
 package com.envista.msi.api.domain;
 
 import java.io.Serializable;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -33,21 +34,21 @@ public interface PersistentContext extends EntityManager {
 	public <T> List<T> findAll();
 
 	/**
-	 * @param storedProcedureName
+	 * @param StoredProcedureQueryName
 	 * @param parameters
 	 * @return
 	 */
 	public <T> T findEntity(String StoredProcedureQueryName, QueryParameter parameters);
 
 	/**
-	 * @param storedProcedureName
+	 * @param StoredProcedureQueryName
 	 * @param parameters
 	 * @return
 	 */
 	public <T> List<T> findEntities(String StoredProcedureQueryName, QueryParameter parameters);
 
 	/**
-	 * @param storedProcedureName
+	 * @param StoredProcedureQueryName
 	 * @param parameters
 	 * @param maxCount
 	 * @return
@@ -55,14 +56,14 @@ public interface PersistentContext extends EntityManager {
 	public <T> List<T> findEntities(String StoredProcedureQueryName, QueryParameter parameters, int maxCount);
 
 	/**
-	 * @param storedProcedureName
+	 * @param StoredProcedureQueryName
 	 * @param parameters
 	 * @return
 	 */
 	public <T> T findEntityAndMapFields(String StoredProcedureQueryName, QueryParameter parameters);
 
 	/**
-	 * @param storedProcedureName
+	 * @param StoredProcedureQueryName
 	 * @param parameters
 	 * @return
 	 */
@@ -75,6 +76,9 @@ public interface PersistentContext extends EntityManager {
 	 * @return
 	 */
 	public <T> List<T> findEntitiesAndMapFields(String StoredProcedureQueryName, QueryParameter parameters, int maxCount);
+
+	public <T> List<T> executeStoredProcedure(String storedProcedureName, QueryParameter parameters)
+			throws SQLException;
 
 	/**
 	 * @return hibernate session

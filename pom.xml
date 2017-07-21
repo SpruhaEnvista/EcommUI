@@ -199,6 +199,10 @@
 			<artifactId>spring-boot-starter-logging</artifactId>
 		</dependency>
 		<dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
@@ -236,6 +240,61 @@
 			<groupId>org.springframework.security.oauth</groupId>
 			<artifactId>spring-security-oauth2</artifactId>
 			<version>${spring-security-oauth2.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-core-asl</artifactId>
+			<version>1.8.5</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-jaxrs</artifactId>
+			<version>1.8.5</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-mapper-asl</artifactId>
+			<version>1.8.5</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-xc</artifactId>
+			<version>1.8.5</version>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-core-asl</artifactId>
+			<version>1.8.5</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-jaxrs</artifactId>
+			<version>1.8.5</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-mapper-asl</artifactId>
+			<version>1.8.5</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-xc</artifactId>
+			<version>1.8.5</version>
+		</dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+        </dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.5.1</version>
 		</dependency>
 	</dependencies>
     <repositories>
@@ -297,7 +356,7 @@
                             </pluginExecutions>
                         </lifecycleMappingMetadata>
                     </configuration>
-                </plugin>            
+                </plugin>
             <plugin>
                 <groupId>com.github.ekryd.sortpom</groupId>
                 <artifactId>sortpom-maven-plugin</artifactId>
@@ -353,7 +412,7 @@
                     <runOrder>alphabetical</runOrder>
                 </configuration>
             </plugin>
-            
+
             <plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
@@ -361,7 +420,7 @@
 					<target>${java.version}</target>
 				</configuration>
 			</plugin>
-            
+
             <plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
@@ -406,7 +465,7 @@
                 <dependencies>
                     <dependency>
                         <groupId>org.mapstruct</groupId>
-                        <artifactId>mapstruct-processor</artifactId> 
+                        <artifactId>mapstruct-processor</artifactId>
                         <version>${mapstruct.version}</version>
                     </dependency>
                 </dependencies>
@@ -420,7 +479,7 @@
                         <mapstruct.defaultComponentModel>spring</mapstruct.defaultComponentModel>
                     </options>
                 </configuration>
-            </plugin> 
+            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>sonar-maven-plugin</artifactId>
@@ -467,7 +526,7 @@
                     </arguments>
                 </configuration>
             </plugin>
-           
+
             </plugins>
         </pluginManagement>
     </build>
@@ -516,47 +575,10 @@
 			</dependencies>
 		</profile>
 		<profile>
-			<id>prod</id>
+			<id>uat</id>
 			<build>
-				<finalName>myShipINFO_Reskin</finalName>
+				<finalName>msiapi</finalName>
 				<plugins>
-					<plugin>
-						<artifactId>maven-clean-plugin</artifactId>
-						<version>2.5</version>
-						<configuration>
-							<filesets>
-								<fileset>
-									<directory>target/www/</directory>
-								</fileset>
-							</filesets>
-						</configuration>
-					</plugin>
-					<plugin>
-						<groupId>org.bsc.maven</groupId>
-						<artifactId>maven-processor-plugin</artifactId>
-						<version>2.2.4</version>
-						<executions>
-							<execution>
-								<id>process</id>
-								<goals>
-									<goal>process</goal>
-								</goals>
-								<phase>generate-sources</phase>
-								<configuration>
-									<processors>
-										<processor>org.hibernate.jpamodelgen.JPAMetaModelEntityProcessor</processor>
-									</processors>
-								</configuration>
-							</execution>
-						</executions>
-						<dependencies>
-							<dependency>
-								<groupId>org.hibernate</groupId>
-								<artifactId>hibernate-jpamodelgen</artifactId>
-								<!-- <version>${hibernate.version}</version> -->
-							</dependency>
-						</dependencies>
-					</plugin>
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-war-plugin</artifactId>
@@ -582,6 +604,9 @@
 											<entry key="spring.datasource.username" value="uatuser" />
 											<entry key="spring.datasource.password" value="rtyu234y" />
 											<entry key="spring.datasource.name" value="uatuser" />
+											<entry key="spring.oauth2.sso.server.host" value="msiuat02" />
+											<entry key="spring.oauth2.sso.server.port" value="8888" />
+											<entry key="FILESERVER" value="\\\\msirsuat\\e\\export\\" />
 										</propertyfile>
 									</tasks>
 								</configuration>
@@ -589,14 +614,222 @@
 						</executions>
 					</plugin>
 					<plugin>
-						<groupId>org.wildfly.plugins</groupId>
-						<artifactId>wildfly-maven-plugin</artifactId>
-						<version>1.0.1.Final</version>
-						<configuration>							   
-							<hostname>172.16.6.39</hostname>							   
-							<port>9909</port>							   
-							<username>admin</username>							   
-							<password>admin@123</password>
+						<groupId>org.apache.tomcat.maven</groupId>
+						<artifactId>tomcat7-maven-plugin</artifactId>
+						<version>2.1</version>
+						<configuration>
+							<url>http://172.16.6.38:8888/manager/text</url>
+							<server>TomcatServerUAT</server>
+							<path>${finalName}</path>
+							<username>admin</username>
+							<password>avataradmin</password>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+			<properties>
+				<!-- log configuration -->
+				<logback.loglevel>ERROR</logback.loglevel>
+			</properties>
+			<dependencies>
+				<dependency>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-tomcat</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>javax</groupId>
+					<artifactId>javaee-web-api</artifactId>
+					<version>7.0</version>
+					<scope>provided</scope>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
+			<id>avatarcompete</id>
+			<build>
+				<finalName>msiapi</finalName>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-war-plugin</artifactId>
+						<configuration>
+							<packagingExcludes>WEB-INF/lib/tomcat-*.jar</packagingExcludes>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.7</version>
+						<executions>
+							<execution>
+								<id>compile-test1</id>
+								<phase>compile</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<propertyfile file="target\classes\config\application.properties">
+											<entry key="spring.datasource.url" value="jdbc:oracle:thin:@172.16.4.10:1521:DB02" />
+											<entry key="spring.datasource.username" value="compete" />
+											<entry key="spring.datasource.password" value="compete" />
+											<entry key="spring.datasource.name" value="compete" />
+											<entry key="spring.oauth2.sso.server.host" value="msiuat02" />
+										</propertyfile>
+									</tasks>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.tomcat.maven</groupId>
+						<artifactId>tomcat7-maven-plugin</artifactId>
+						<version>2.1</version>
+						<configuration>
+							<url>http://172.16.6.38:80/manager/text</url>
+							<server>TomcatServer</server>
+							<path>${finalName}</path>
+							<username>admin</username>
+							<password>avataradmin</password>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+			<properties>
+				<!-- log configuration -->
+				<logback.loglevel>ERROR</logback.loglevel>
+			</properties>
+			<dependencies>
+				<dependency>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-tomcat</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>javax</groupId>
+					<artifactId>javaee-web-api</artifactId>
+					<version>7.0</version>
+					<scope>provided</scope>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
+			<id>prod</id>
+			<build>
+				<finalName>msiapi</finalName>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-war-plugin</artifactId>
+						<configuration>
+							<packagingExcludes>WEB-INF/lib/tomcat-*.jar</packagingExcludes>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.7</version>
+						<executions>
+							<execution>
+								<id>compile-test1</id>
+								<phase>compile</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<propertyfile file="target\classes\config\application.properties">
+											<entry key="spring.datasource.url" value="jdbc:oracle:thin:@172.16.4.10:1521:DB01"/>
+											<entry key="spring.datasource.username" value="ship" />
+											<entry key="spring.datasource.password" value="ship" />
+											<entry key="spring.oauth2.sso.server.host" value="10.100.11.62" />
+											<entry key="spring.oauth2.sso.server.port" value="80" />
+											<entry key="FILESERVER" value="//mnt//win//" />
+										</propertyfile>
+									</tasks>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.tomcat.maven</groupId>
+						<artifactId>tomcat7-maven-plugin</artifactId>
+						<version>2.1</version>
+						<configuration>
+							<url>http://10.100.11.62:80/manager/text</url>
+							<server>TomcatServer</server>
+							<path>${finalName}</path>
+							<username>admin</username>
+							<password>avataradmin</password>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+			<properties>
+				<!-- log configuration -->
+				<logback.loglevel>ERROR</logback.loglevel>
+			</properties>
+			<dependencies>
+				<dependency>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-tomcat</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>javax</groupId>
+					<artifactId>javaee-web-api</artifactId>
+					<version>7.0</version>
+					<scope>provided</scope>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
+			<id>linux</id>
+			<build>
+				<finalName>msiapi</finalName>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-war-plugin</artifactId>
+						<configuration>
+							<packagingExcludes>WEB-INF/lib/tomcat-*.jar</packagingExcludes>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.7</version>
+						<executions>
+							<execution>
+								<id>compile-test1</id>
+								<phase>compile</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<propertyfile file="target\classes\config\application.properties">
+											<entry key="spring.datasource.url" value="jdbc:oracle:thin:@172.16.4.30:1521:uatdb" />
+											<entry key="spring.datasource.username" value="uatuser" />
+											<entry key="spring.datasource.password" value="rtyu234y" />
+											<entry key="spring.datasource.name" value="uatuser" />
+											<entry key="spring.oauth2.sso.server.host" value="10.100.11.62" />
+											<entry key="spring.oauth2.sso.server.port" value="80" />
+											<entry key="FILESERVER" value="//mnt//win//" />
+										</propertyfile>
+									</tasks>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.tomcat.maven</groupId>
+						<artifactId>tomcat7-maven-plugin</artifactId>
+						<version>2.1</version>
+						<configuration>
+							<url>http://10.100.11.62:80/manager/text</url>
+							<server>TomcatServer</server>
+							<path>${finalName}</path>
+							<username>admin</username>
+							<password>avataradmin</password>
 						</configuration>
 					</plugin>
 				</plugins>
