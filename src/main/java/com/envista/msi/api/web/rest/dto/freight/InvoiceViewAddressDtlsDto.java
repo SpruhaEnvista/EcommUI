@@ -20,31 +20,31 @@ public class InvoiceViewAddressDtlsDto implements Serializable{
 
     @Id
     @Column(name = "rownum")
-    public Long rowNum;
+    private Long rowNum;
 
     @Column(name = "name1")
-    public String name;
+    private String name;
 
     @Column(name = "company")
-    public String company;
+    private String company;
 
     @Column(name = "address1")
-    public String address1;
+    private String address1;
 
     @Column(name = "address2")
-    public String address2;
+    private String address2;
 
     @Column(name = "city")
-    public String city;
+    private String city;
 
     @Column(name = "state")
-    public String state;
+    private String state;
 
     @Column(name = "zipcode")
-    public String zipcode;
+    private String zipcode;
 
     @Column(name = "country")
-    public String country;
+    private String country;
 
     public Long getRowNum() {
         return rowNum;
