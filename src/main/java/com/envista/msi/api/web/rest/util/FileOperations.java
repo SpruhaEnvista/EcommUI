@@ -38,7 +38,6 @@ public class FileOperations {
     private String fileServer;
     private static final String MIME_TYPE = "application/text";
 
-    //String fileNameForXLS="";
     String fileNameForXLSX="";
 
     public static void main(String[] args) throws IOException {
@@ -120,51 +119,11 @@ public class FileOperations {
     public void exportVoices(String exportType, List<VoiceDto> voiceDtos,HttpServletResponse response) throws IOException {
         LOG.info("***exportVoices method started****");
 
-        //FileWriter writer = null;
         FileOutputStream out = null;
-        //final String COMMA_SEPARATOR=",";
         String filePath = getFileServerAbsolutePath("Invoicing");
-        //String CSVFileName="";
         File dir=new File(filePath);
         if (!dir.exists())
             dir.mkdirs();
-
-        /*if(exportType.equalsIgnoreCase("CSV")){
-            LOG.info("***CSV type export****");
-            try {
-                CSVFileName=filePath+"/VoicesCSV_"+new SimpleDateFormat("yyyyMMddhhmmss").format(InvoicingUtilities.getCurrentTimeStamp())+".csv";
-                writer = new FileWriter(CSVFileName,false);
-                writer.append("VOICE ID");
-                writer.append(COMMA_SEPARATOR);
-                writer.append("VOICE NAME");
-                writer.append(COMMA_SEPARATOR);
-                writer.append("VOICE TYPE");
-                writer.append(COMMA_SEPARATOR);
-                writer.append("PARENT VOICE NAME");
-                writer.append(COMMA_SEPARATOR);
-                writer.append("COMMENTS");
-                writer.append('\n');
-                for(VoiceDto voiceDto:voiceDtos){
-                    writer.append(voiceDto.getVoiceId() != null?voiceDto.getVoiceId().toString().trim():"");
-                    writer.append(COMMA_SEPARATOR);
-                    writer.append(voiceDto.getVoiceName() != null?voiceDto.getVoiceName().toString():"");
-                    writer.append(COMMA_SEPARATOR);
-                    writer.append(voiceDto.getVoiceType() !=null?voiceDto.getVoiceType().toString():"");
-                    writer.append(COMMA_SEPARATOR);
-                    writer.append(voiceDto.getParentVoiceName() != null?voiceDto.getParentVoiceName().toString().trim():""+",");
-                    writer.append(COMMA_SEPARATOR);
-                    writer.append( voiceDto.getComments() != null?voiceDto.getComments().toString().trim():"");
-                    writer.append('\n');
-                }
-            }catch(Exception e){
-                LOG.error("***Exception Occurred in the exportVoices CSV export ***");
-                e.printStackTrace();
-            }finally{
-                writer.flush();
-                writer.close();
-            }
-        }*/
-
 
         if(exportType.equalsIgnoreCase("XLS") || exportType.equalsIgnoreCase("XLSX")){
             LOG.info("***EXCEL type export****");
@@ -199,13 +158,8 @@ public class FileOperations {
             excelFileWriteAsPerColumnTypes(keyset,rownum,sheet,data,cellStyle);
 
             try{
-                //fileNameForXLS=filePath+"/VoicesXLS_"+new SimpleDateFormat("yyyyMMddhhmmss").format(InvoicingUtilities.getCurrentTimeStamp())+".xls";
                 fileNameForXLSX=filePath+"/VoicesXLSX_"+new SimpleDateFormat("yyyyMMddhhmmss").format(InvoicingUtilities.getCurrentTimeStamp())+".xlsx";
 
-                /*if(exportType.equalsIgnoreCase("XLS")){
-                    out = new FileOutputStream(new File(fileNameForXLS),false);
-                    LOG.info("***" +fileNameForXLS+" File Created *** ");
-                }else */
                 if(exportType.equalsIgnoreCase("XLSX")){
                     out = new FileOutputStream(new File(fileNameForXLSX),false);
                     LOG.info("***" +fileNameForXLSX+" File Created *** ");
@@ -273,13 +227,8 @@ public class FileOperations {
             excelFileWriteAsPerColumnTypes(keyset,rownum,sheet,data,cellStyle);
 
             try{
-                //fileNameForXLS=filePath+"/CustomOmitsXLS_"+new SimpleDateFormat("yyyyMMddhhmmss").format(InvoicingUtilities.getCurrentTimeStamp())+".xls";
                 fileNameForXLSX=filePath+"/CustomOmitsXLSX_"+new SimpleDateFormat("yyyyMMddhhmmss").format(InvoicingUtilities.getCurrentTimeStamp())+".xlsx";
 
-                /*if(exportType.equalsIgnoreCase("XLS")){
-                    out = new FileOutputStream(new File(fileNameForXLS),false);
-                    LOG.info("***" +fileNameForXLS+" File Created ***");
-                }else*/
                 if(exportType.equalsIgnoreCase("XLSX")){
                     out = new FileOutputStream(new File(fileNameForXLSX),false);
                     LOG.info("***" +fileNameForXLSX+" File Created *** ");
@@ -354,13 +303,8 @@ public class FileOperations {
             excelFileWriteAsPerColumnTypes(keyset,rownum,sheet,data,cellStyle);
 
             try{
-                //fileNameForXLS=filePath+"/PendingCreditsXLS_"+new SimpleDateFormat("yyyyMMddhhmmss").format(InvoicingUtilities.getCurrentTimeStamp())+".xls";
                 fileNameForXLSX=filePath+"/PendingCreditsXLSX_"+new SimpleDateFormat("yyyyMMddhhmmss").format(InvoicingUtilities.getCurrentTimeStamp())+".xlsx";
 
-                /*if(exportType.equalsIgnoreCase("XLS")){
-                    out = new FileOutputStream(new File(fileNameForXLS),false);
-                    LOG.info("***" +fileNameForXLS+" File Created ***");
-                }else*/
                 if(exportType.equalsIgnoreCase("XLSX")){
                     out = new FileOutputStream(new File(fileNameForXLSX),false);
                     LOG.info("***" +fileNameForXLSX+" File Created ***");
