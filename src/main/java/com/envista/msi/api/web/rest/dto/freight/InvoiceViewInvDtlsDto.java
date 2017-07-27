@@ -20,61 +20,61 @@ public class InvoiceViewInvDtlsDto  implements Serializable{
 
     @Id
     @Column(name = "rownum")
-    public Long rowNum;
+    private Long rowNum;
 
     @Column(name = "scac")
-    public String scacCode;
+    private String scacCode;
 
     @Column(name = "name1")
-    public String carrierName;
+    private String carrierName;
 
     @Column(name = "modes")
-    public String modes;
+    private String modes;
 
     @Column(name = "remit")
-    public String remitAddress;
+    private String remitAddress;
 
     @Column(name = "account_number")
-    public String accountNumber;
+    private String accountNumber;
 
     @Column(name = "interline_carrier")
-    public String interlineCarrier;
+    private String interlineCarrier;
 
     @Column(name = "due_date")
-    public String dueDate;
+    private String dueDate;
 
     @Column(name = "delivery_date")
-    public String deliveryDate;
+    private String deliveryDate;
 
     @Column(name = "intl_delivery_date")
-    public String interlineDeliveryDate;
+    private String interlineDeliveryDate;
 
     @Column(name="ship_date")
-    public String shipDate;
+    private String shipDate;
 
     @Column(name = "received_date")
-    public String receivedDate;
+    private String receivedDate;
 
     @Column(name = "check_date")
-    public String checkDate;
+    private String checkDate;
 
     @Column(name = "inv_number")
-    public String invoiceNumber;
+    private String invoiceNumber;
 
     @Column(name = "bol_number")
-    public String bolNumber;
+    private String bolNumber;
 
     @Column(name = "po_number")
-    public String poNumber;
+    private String poNumber;
 
     @Column(name = "pro_number")
-    public String proNumber;
+    private String proNumber;
 
     @Column(name = "ref1")
-    public String reference1;
+    private String reference1;
 
     @Column(name = "ref2")
-    public String reference2;
+    private String reference2;
 
     public Long getRowNum() {
         return rowNum;
