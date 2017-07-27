@@ -1,7 +1,5 @@
 package com.envista.msi.api.web.rest.dto;
 
-import org.codehaus.jackson.annotate.JsonProperty;
-
 import java.util.List;
 
 /**
@@ -79,8 +77,16 @@ public class CarrierGroupDto {
         if(obj instanceof CarrierGroupDto){
             CarrierGroupDto carrierGroupDto = (CarrierGroupDto) obj;
             return carrierGroupDto.carrierGroupId != null && this.carrierGroupId != null
-                    && carrierGroupDto.carrierGroupId == this.carrierGroupId;
+                    && carrierGroupDto.carrierGroupId.compareTo(this.carrierGroupId) == 0;
         }
-        return false;
+        return super.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        if(this.getCarrierGroupId() != null){
+            return this.getCarrierGroupId().intValue();
+        }
+        return super.hashCode();
     }
 }
