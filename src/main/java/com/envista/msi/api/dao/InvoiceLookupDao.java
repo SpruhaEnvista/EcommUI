@@ -8,11 +8,13 @@ import com.envista.msi.api.web.rest.dto.CarrierDto;
 import com.envista.msi.api.web.rest.dto.CustomerDto;
 import com.envista.msi.api.web.rest.dto.InvoiceSearchDtlsCount;
 import com.envista.msi.api.web.rest.dto.InvoiceSearchDtlsDto;
+import com.envista.msi.api.web.rest.dto.freight.DynamicColumnsDto;
 import com.envista.msi.api.web.rest.dto.freight.invoice.InvoiceCodeValuesDto;
 import com.envista.msi.api.web.rest.dto.freight.invoice.InvoiceLookupParamsDto;
 import org.springframework.stereotype.Repository;
 
 import javax.inject.Inject;
+import javax.persistence.ParameterMode;
 import java.util.List;
 
 /**
@@ -65,7 +67,8 @@ public class InvoiceLookupDao {
                 .and(FreightStoreProcParam.InvoiceLookupParam.IS_LOOKUP_PARAM, 1)
                 .and(FreightStoreProcParam.InvoiceLookupParam.IS_COUNT_PARAM, 0)
                 .and(FreightStoreProcParam.InvoiceLookupParam.OFFSET_PARAM, invoiceLookupParams.getOffset())
-                .and(FreightStoreProcParam.InvoiceLookupParam.LIMIT_PARAM, invoiceLookupParams.getLimit());
+                .and(FreightStoreProcParam.InvoiceLookupParam.LIMIT_PARAM, invoiceLookupParams.getLimit())
+                .and(FreightStoreProcParam.InvoiceLookupParam.USER_ID_PARAM, invoiceLookupParams.getUserId());
         return persistentContext.findEntities("InvoiceSearchDtlsDto.getInvoiceDetails", queryParameter);
     }
 
@@ -97,12 +100,13 @@ public class InvoiceLookupDao {
                 .and(FreightStoreProcParam.InvoiceLookupParam.IS_LOOKUP_PARAM, 1)
                 .and(FreightStoreProcParam.InvoiceLookupParam.IS_COUNT_PARAM, 1)
                 .and(FreightStoreProcParam.InvoiceLookupParam.OFFSET_PARAM, invoiceLookupParams.getOffset())
-                .and(FreightStoreProcParam.InvoiceLookupParam.LIMIT_PARAM, invoiceLookupParams.getLimit());
+                .and(FreightStoreProcParam.InvoiceLookupParam.LIMIT_PARAM, invoiceLookupParams.getLimit())
+                .and(FreightStoreProcParam.InvoiceLookupParam.USER_ID_PARAM, invoiceLookupParams.getUserId());
         InvoiceSearchDtlsCount invoiceSearchCount = persistentContext.findEntityAndMapFields("InvoiceSearchDtlsDto.getInvoiceDetailsCount", queryParameter);
         return invoiceSearchCount.getRecordCount();
     }
 
-    public List<InvoiceCodeValuesDto> getCodeValuesDetails(String codeGroupId, String property3, String orderBy){
+    public List<InvoiceCodeValuesDto> getCodeValuesDetails(String codeGroupId, String property3, boolean allActiveAndInactive, String orderBy){
         QueryParameter queryParameter = StoredProcedureParameter.with(FreightStoreProcParam.CodeValuesParam.CODE_VALUE_ID_PARAM, null)
                 .and(FreightStoreProcParam.CodeValuesParam.CODE_GROUP_ID_PARAM, codeGroupId)
                 .and(FreightStoreProcParam.CodeValuesParam.PROPERTY_1_PARAM, null)
@@ -115,8 +119,30 @@ public class InvoiceLookupDao {
                 .and(FreightStoreProcParam.CodeValuesParam.PROPERTY_8_PARAM, null)
                 .and(FreightStoreProcParam.CodeValuesParam.PROPERTY_9_PARAM, null)
                 .and(FreightStoreProcParam.CodeValuesParam.ORDER_BY_PARAM, orderBy)
-                .and(FreightStoreProcParam.CodeValuesParam.SELECT_ACTIVE_INACTIVE_PARAM, 0);
+                .and(FreightStoreProcParam.CodeValuesParam.SELECT_ACTIVE_INACTIVE_PARAM, allActiveAndInactive ? 1 : 0);
 
         return persistentContext.findEntities("InvoiceCodeValuesDto.getCodeValuesByDynamicParamValues", queryParameter);
+    }
+
+    public List<InvoiceCodeValuesDto> getInvoiceLookupCustomColumns(){
+        return getInvoiceLookupCustomColumns(null);
+    }
+
+    public List<InvoiceCodeValuesDto> getInvoiceLookupCustomColumns(Long userId){
+        QueryParameter queryParameter = StoredProcedureParameter.with("P_USER_ID", null == userId ? userId : userId.toString());
+        return persistentContext.findEntities("InvoiceCodeValuesDto.getFreightInvoiceLookupColumns", queryParameter);
+    }
+
+    public void saveOrUpdateDynamicColumns(DynamicColumnsDto dynamicColumns){
+        try{
+            QueryParameter queryParameter = StoredProcedureParameter.withPosition(1, ParameterMode.IN, Long.class, dynamicColumns.getUserId())
+                    .andPosition(2, ParameterMode.IN, String.class, dynamicColumns.getUserName())
+                    .andPosition(3, ParameterMode.IN, String.class, dynamicColumns.getFilterId())
+                    .andPosition(4, ParameterMode.IN, String.class, dynamicColumns.getIncludedColumns())
+                    .andPosition(5, ParameterMode.IN, String.class, dynamicColumns.getExcludedColumns());
+            persistentContext.executeStoredProcedure("SHP_FRT_SAVE_USER_DYN_COLS_PRO", queryParameter);
+        }catch (Exception e){
+            throw new DaoException(e.getMessage(), e);
+        }
     }
 }

@@ -5,13 +5,16 @@ import java.io.Serializable;
 /**
  * Created by Sujit kumar on 20/07/2017.
  */
+
 public class UserDefinedColumnsDto implements Serializable {
+    private Long columnId;
     private String columnName;
     private String labelsColumnName;
     private String originalColumnName;
     private String tableFieldName;
     private String jsonKey;
     private boolean checked;
+    private boolean isDefaultColumn;
 
     public UserDefinedColumnsDto() {
     }
@@ -38,6 +41,14 @@ public class UserDefinedColumnsDto implements Serializable {
         this.tableFieldName = tableFieldName;
         this.jsonKey = jsonKey;
         this.checked = checked;
+    }
+
+    public Long getColumnId() {
+        return columnId;
+    }
+
+    public void setColumnId(Long columnId) {
+        this.columnId = columnId;
     }
 
     public String getColumnName() {
@@ -86,5 +97,13 @@ public class UserDefinedColumnsDto implements Serializable {
 
     public void setChecked(boolean checked) {
         this.checked = checked;
+    }
+
+    public boolean isDefaultColumn() {
+        return isDefaultColumn;
+    }
+
+    public void setDefaultColumn(boolean defaultColumn) {
+        isDefaultColumn = defaultColumn;
     }
 }

@@ -1,6 +1,7 @@
 package com.envista.msi.api.web.rest.dto;
 
 import com.envista.msi.api.domain.util.FreightStoreProcParam;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -42,6 +43,7 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = FreightStoreProcParam.InvoiceLookupParam.IS_COUNT_PARAM, type = Integer.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = FreightStoreProcParam.InvoiceLookupParam.OFFSET_PARAM, type = Integer.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = FreightStoreProcParam.InvoiceLookupParam.LIMIT_PARAM, type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = FreightStoreProcParam.InvoiceLookupParam.USER_ID_PARAM, type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = FreightStoreProcParam.InvoiceLookupParam.INVOICE_DETAILS_PARAM, type = void.class)
                 }
         ),
@@ -76,6 +78,7 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = FreightStoreProcParam.InvoiceLookupParam.IS_COUNT_PARAM, type = Integer.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = FreightStoreProcParam.InvoiceLookupParam.OFFSET_PARAM, type = Integer.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = FreightStoreProcParam.InvoiceLookupParam.LIMIT_PARAM, type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = FreightStoreProcParam.InvoiceLookupParam.USER_ID_PARAM, type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = FreightStoreProcParam.InvoiceLookupParam.INVOICE_DETAILS_PARAM, type = void.class)
                 }
         )
@@ -93,6 +96,7 @@ import java.util.Date;
                 })
 })
 @Entity
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class InvoiceSearchDtlsDto implements Serializable {
 
     @Id
@@ -361,7 +365,7 @@ public class InvoiceSearchDtlsDto implements Serializable {
     private String currencyCode;
 
     @Column(name = "AUDIT_ADJUSTMENT_REASON")
-    private String auditAdjustmentReson;
+    private String auditAdjustmentReason;
 
     @Column(name = "INVOICE_MODE")
     private String invoiceMode;
@@ -377,6 +381,18 @@ public class InvoiceSearchDtlsDto implements Serializable {
 
     @Column(name = "INVOICE_METHOD")
     private String invoiceMethod;
+
+    @Column(name = "EX_RATE")
+    private Double exchangeRate;
+
+    @Column(name = "CONVERTED_APPROVED_CHARGES")
+    private Double convertedApprovedCharges;
+
+    @Column(name = "CONVERTED_TOTAL_CHARGES")
+    private Double convertedTotalCharges;
+
+    @Column(name = "CONVERTED_CURRENCY_CODE")
+    private String convertedCurrencyCode;
 
     public Long getId() {
         return Id;
@@ -1058,12 +1074,12 @@ public class InvoiceSearchDtlsDto implements Serializable {
         this.currencyCode = currencyCode;
     }
 
-    public String getAuditAdjustmentReson() {
-        return auditAdjustmentReson;
+    public String getAuditAdjustmentReason() {
+        return auditAdjustmentReason;
     }
 
     public void setAuditAdjustmentReson(String auditAdjustmentReson) {
-        this.auditAdjustmentReson = auditAdjustmentReson;
+        this.auditAdjustmentReason = auditAdjustmentReson;
     }
 
     public String getInvoiceMode() {
@@ -1104,5 +1120,41 @@ public class InvoiceSearchDtlsDto implements Serializable {
 
     public void setInvoiceMethod(String invoiceMethod) {
         this.invoiceMethod = invoiceMethod;
+    }
+
+    public void setAuditAdjustmentReason(String auditAdjustmentReason) {
+        this.auditAdjustmentReason = auditAdjustmentReason;
+    }
+
+    public Double getExchangeRate() {
+        return exchangeRate;
+    }
+
+    public void setExchangeRate(Double exchangeRate) {
+        this.exchangeRate = exchangeRate;
+    }
+
+    public Double getConvertedApprovedCharges() {
+        return convertedApprovedCharges;
+    }
+
+    public void setConvertedApprovedCharges(Double convertedApprovedCharges) {
+        this.convertedApprovedCharges = convertedApprovedCharges;
+    }
+
+    public Double getConvertedTotalCharges() {
+        return convertedTotalCharges;
+    }
+
+    public void setConvertedTotalCharges(Double convertedTotalCharges) {
+        this.convertedTotalCharges = convertedTotalCharges;
+    }
+
+    public String getConvertedCurrencyCode() {
+        return convertedCurrencyCode;
+    }
+
+    public void setConvertedCurrencyCode(String convertedCurrencyCode) {
+        this.convertedCurrencyCode = convertedCurrencyCode;
     }
 }
