@@ -33,6 +33,7 @@ public class InvoiceLookupParamsDto implements Serializable {
     private Integer offset = 0;
     private Integer limit = 0;
     private String filter;
+    private Long userId;
 
     public String getCustomerId() {
         return customerId;
@@ -248,5 +249,13 @@ public class InvoiceLookupParamsDto implements Serializable {
 
     public void setCurrencyCode(String currencyCode) {
         this.currencyCode = currencyCode;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 }

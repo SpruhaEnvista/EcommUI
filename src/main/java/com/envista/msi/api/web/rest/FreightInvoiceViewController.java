@@ -4,6 +4,7 @@ import com.envista.msi.api.service.freight.InvoiceViewService;
 import com.envista.msi.api.web.rest.dto.freight.InvoiceSummaryAppChrgsDto;
 import com.envista.msi.api.web.rest.dto.freight.InvoiceSummaryInvDtlsDto;
 import com.envista.msi.api.web.rest.dto.freight.InvoiceViewAddressDtlsDto;
+import com.envista.msi.api.web.rest.dto.freight.InvoiceViewAuditDtlsDto;
 import com.envista.msi.api.web.rest.dto.freight.InvoiceViewInvDtlsDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -60,6 +61,15 @@ public class FreightInvoiceViewController {
             invDtls = invoiceViewService.getInvoiceDetailsForInvoiceView(invoiceId);
         }
         return new ResponseEntity<InvoiceViewInvDtlsDto>(invDtls, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/audit/invdetails", method = {RequestMethod.GET, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<List<InvoiceViewAuditDtlsDto>> getInvoiceViewAuditDetails(@RequestParam Long invoiceId) {
+        List<InvoiceViewAuditDtlsDto> auditDtls = null;
+        if(invoiceId != null && invoiceId > 0 ){
+            auditDtls = invoiceViewService.getInvoiceViewAuditDetails(invoiceId);
+        }
+        return new ResponseEntity<List<InvoiceViewAuditDtlsDto>>(auditDtls, HttpStatus.OK);
     }
 
 }
