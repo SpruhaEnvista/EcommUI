@@ -36,6 +36,7 @@ public class UvCreditsService {
             dao.update(bean);
             count++;
         }
+        dao.updateDashBoardSummary();
         return count;
     }
 

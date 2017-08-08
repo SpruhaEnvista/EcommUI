@@ -53,4 +53,13 @@ public class UvCreditsDao {
         return 0;
     }
 
+    public void updateDashBoardSummary() {
+
+        QueryParameter queryParameter = StoredProcedureParameter.with("P_WEEK_END_ID", 0);
+
+        persistentContext.findEntities("UvCreditsDto.updateDashBoardSummary", queryParameter);
+
+
+    }
+
 }
