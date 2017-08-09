@@ -55,4 +55,29 @@ public class CommonUtil {
         }
         return respStr.toString();
     }
+
+    public static String hitUrl(String urlString){
+        BufferedReader in = null;
+        StringBuffer respStr = new StringBuffer();
+        try {
+            URL url = new URL(urlString);
+
+            URLConnection connection = null;
+            connection = url.openConnection();
+            connection.setRequestProperty("Content-Type", "text/html");
+            connection.setDoOutput(true);
+
+            in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+
+            String resp = "";
+            while ((resp = in.readLine()) != null) {
+                respStr.append(resp);
+            }
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return respStr.toString();
+    }
 }

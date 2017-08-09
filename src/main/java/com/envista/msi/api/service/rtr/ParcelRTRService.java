@@ -85,14 +85,10 @@ public class ParcelRTRService{
      * @param toDate
      */
     public void parcelRTRRating(String customerId, String fromDate, String toDate){
-        /*String licenseKey = messageSource.getMessage("RateRequest-LicenseKey", null, null);
+        String licenseKey = messageSource.getMessage("RateRequest-LicenseKey", null, null);
         String strProtocol = messageSource.getMessage("RTRprotocol", null, null);
         String strHostName = messageSource.getMessage("RTRHostName", null, null);
-        String strPrefix = messageSource.getMessage("RTRPrefix", null, null);*/
-        String licenseKey = "FRT23A9DB63C39VM2A0C";
-        String strProtocol = "https";
-        String strHostName = "rtr.envistacorp.com";
-        String strPrefix = "ws/freight/rate";
+        String strPrefix = messageSource.getMessage("RTRPrefix", null, null);
         String url = strProtocol + "://" + strHostName + "/" + strPrefix;
 
         doParcelRating(loadUpsParcelAuditDetails(customerId, fromDate, toDate), url, licenseKey, RateTo.UPS);

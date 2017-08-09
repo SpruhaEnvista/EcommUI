@@ -13,8 +13,8 @@ public class ParcelAuditTest extends WebappTestEnvironment {
     private static final String AUDIT_API_BASE_PATH_VALUE = "/api/parcel/rtr";
 
     @Test
-    public void testUserProfileTbUsingProc() throws Exception {
-        mockRestMvc().perform(get(AUDIT_API_BASE_PATH_VALUE)
+    public void testParcelAudit() throws Exception {
+        mockRestMvc().perform(get(AUDIT_API_BASE_PATH_VALUE + "/auditParcel")
                 .param("fromDate", "30-MAY-2017").param("toDate", "31-MAY-2017").param("customerId", "18125")).andExpect(status().isOk());
     }
 }
