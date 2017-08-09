@@ -112,7 +112,7 @@ public final class InvoicingUtilities {
 
         JSONObject object = new JSONObject();
 
-        object.put("id", 0);
+        object.put("id", 10); //MSI business Partner id changed from 0 to 10,because of angularJS is treating 0 as empty in some cases
         object.put("name", "MSI");
         jsonArray.put(object);
 
