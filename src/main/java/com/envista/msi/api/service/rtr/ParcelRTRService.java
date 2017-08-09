@@ -102,6 +102,7 @@ public class ParcelRTRService{
                     try{
                         callRTRAndPopulateRates(url, licenseKey, parcelAuditEntry.getValue(), rateTo);
                     }catch (Exception e){
+                        e.printStackTrace();
                         //Do nothing
                     }
                 }
@@ -241,13 +242,19 @@ public class ParcelRTRService{
                 ParcelRateResponse.Charge charge = null;
                 if(ParcelAuditConstant.ChargeClassificationCode.FRT.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())){
                     charge = ParcelRateResponseParser.findChargeByType(ParcelRateResponse.ChargeType.ITEM.name(), priceSheet);
-                    parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, charge.getRate(), RTRStatus.CONTESTED.value, auditDetails.getCarrierId());
+                    if(charge != null){
+                        parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, charge.getRate(), RTRStatus.CONTESTED.value, auditDetails.getCarrierId());
+                    }
                 }else if(ParcelAuditConstant.ChargeClassificationCode.FSC.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())){
                     charge = ParcelRateResponseParser.findChargeByType(ParcelRateResponse.ChargeType.ACCESSORIAL_FUEL.name(), priceSheet);
-                    parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, charge.getAmount(), RTRStatus.CONTESTED.value, auditDetails.getCarrierId());
+                    if(charge != null){
+                        parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, charge.getAmount(), RTRStatus.CONTESTED.value, auditDetails.getCarrierId());
+                    }
                 }else{
                     charge = ParcelRateResponseParser.findChargeByEDICodeInResponse(auditDetails.getChargeClassificationCode(), priceSheet);
-                    parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, charge.getAmount(), RTRStatus.CONTESTED.value, auditDetails.getCarrierId());
+                    if(charge != null){
+                        parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, charge.getAmount(), RTRStatus.CONTESTED.value, auditDetails.getCarrierId());
+                    }
                 }
 
                 if(null == charge){
