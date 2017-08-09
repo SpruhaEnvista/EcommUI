@@ -2578,14 +2578,8 @@ public class DashboardsController extends DashboardBaseController {
         UserProfileDto user = getUserProfile();
         DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
 
-        long starttime = System.currentTimeMillis();
-        log.info("CAlling query");
-        log.error("CAlling query");
         List<ShipmentDto> pkgDistrData = dashboardsService.getPackageDistributionCount(filter);
-        long endTime = System.currentTimeMillis();
 
-        log.info("Query execution time in seconds:"+ (endTime - starttime) / 1000 );
-        log.error("Query execution time in seconds:"+ (endTime - starttime) / 1000 );
         if(pkgDistrData != null && !pkgDistrData.isEmpty()){
             Set<String> addresses = new HashSet<String>();
             for(ShipmentDto pkgDistr : pkgDistrData){
@@ -2596,14 +2590,8 @@ public class DashboardsController extends DashboardBaseController {
                     addresses.add(receiverCity + "," + receiverState + "," + receiverCountry);
                 }
             }
-            log.info("CAlling co-ordinates address len:"+addresses.size());
-            log.error("CAlling co-ordinates address len:"+addresses.size());
-            starttime = System.currentTimeMillis();
             Set<MapCoordinatesDto> mapCoordinates = dashboardsService.getMapCoordinates(addresses);
-            endTime = System.currentTimeMillis();
 
-            log.info("coordinates execution time in seconds:"+ (endTime - starttime) / 1000 );
-            log.error("coordinates execution time in seconds:"+ (endTime - starttime) / 1000 );
             pkgDistrJson = JSONUtil.preparePackageDistributionCountJson(pkgDistrData, mapCoordinates);
         }
         respMap.put("status", HttpStatus.OK.value());
