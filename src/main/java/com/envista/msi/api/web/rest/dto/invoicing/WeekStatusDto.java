@@ -46,6 +46,9 @@ public class WeekStatusDto {
     @Column(name = "STATUS_ID")
     private Long statusId;
 
+    @Column(name = "WEEK_STATUS")
+    private String weekStatus;
+
     public WeekStatusDto() {
     }
 
@@ -119,5 +122,13 @@ public class WeekStatusDto {
 
     public void setStatusId(Long statusId) {
         this.statusId = statusId;
+    }
+
+    public String getWeekStatus() {
+        return weekStatus;
+    }
+
+    public void setWeekStatus(String weekStatus) {
+        this.weekStatus = weekStatus;
     }
 }
