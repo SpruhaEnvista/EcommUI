@@ -3,18 +3,17 @@ package com.envista.msi.api.service;
 import com.envista.msi.api.dao.InvoiceLookupDao;
 import com.envista.msi.api.web.rest.dto.CarrierDto;
 import com.envista.msi.api.web.rest.dto.CarrierGroupDto;
-import com.envista.msi.api.web.rest.dto.CustomerDto;
 import com.envista.msi.api.web.rest.dto.InvoiceSearchDtlsDto;
+import com.envista.msi.api.web.rest.dto.freight.DynamicColumnsDto;
 import com.envista.msi.api.web.rest.dto.freight.invoice.InvoiceCodeValuesDto;
 import com.envista.msi.api.web.rest.dto.freight.invoice.InvoiceLookupParamsDto;
 import com.envista.msi.api.web.rest.dto.freight.invoice.UserDefinedColumnsDto;
 import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
 import com.envista.msi.api.web.rest.util.JSONUtil;
+import com.envista.msi.api.web.rest.util.pac.GlobalConstants;
 import com.envista.msi.api.web.rest.util.pagination.EnspirePagination;
 import com.envista.msi.api.web.rest.util.pagination.PaginationBean;
 import org.json.JSONArray;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,8 +26,6 @@ import java.util.*;
 @Service
 @Transactional
 public class InvoiceLookupService {
-
-    private final Logger log = LoggerFactory.getLogger(InvoiceLookupService.class);
 
     @Inject
     private InvoiceLookupDao invoiceLookupDao;
@@ -45,7 +42,7 @@ public class InvoiceLookupService {
 
     public Map<String, Object> loadSearchInvoiceDefaults() throws Exception {
         Map<String, Object> dataMap = new HashMap<>();
-        dataMap.put("columnConfigs", getUserDefinedColumnNames());
+        dataMap.put("columnConfigs", getUserDefinedColumnDetails());
 
         List<ReportCustomerCarrierDto> customers = dashboardsService.getDashboardCustomers(userService.getLoggedInUser().getUserId());
         JSONArray customerJson = null;
@@ -58,36 +55,63 @@ public class InvoiceLookupService {
         dataMap.put("serviceCode", getCodeValuesDetails("161", "sequence"));
         dataMap.put("currencyCode", getCodeValuesDetails("468", "sequence"));
         dataMap.put("invoiceMethod", getCodeValuesDetails("621", "sequence"));
+        dataMap.put("dateTypeList", getCodeValuesDetails("701", true,"code_value"));
         return dataMap;
     }
 
+    public Map<String, Object> getUserDefinedColumnDetails() throws Exception {
+        Map<String, Object> columnMap = new HashMap<>();
+        List<InvoiceCodeValuesDto> allColumns = getInvoiceLookupCustomColumns();
+        List<InvoiceCodeValuesDto> userSavedColumns = getInvoiceLookupCustomColumns(userService.getLoggedInUser().getUserId());
+        boolean hasUserSavedCols = (null != userSavedColumns && !userSavedColumns.isEmpty() && userSavedColumns.get(0) != null && userSavedColumns.get(0).getId() != null && userSavedColumns.get(0).getId() > 0);
+        List<String> defaultColumnsList = hasUserSavedCols ? null : new ArrayList<>(Arrays.asList(GlobalConstants.FREIGHT_INVOICE_LOOKUP_DEFAULT_COLUMNS.split(",")));
+        columnMap.put("columns", getUserDefinedColumnNames(allColumns, userSavedColumns, defaultColumnsList));
+        columnMap.put("savedColumns", hasUserSavedCols);
+        return columnMap;
+    }
+
     /**
-     * Hardcoded for demo purpose.
+     * To get All columns invoice column with user saved columns as well.
      * @return
      * @throws Exception
      */
-    private List<UserDefinedColumnsDto> getUserDefinedColumnNames() throws Exception {
+    private List<UserDefinedColumnsDto> getUserDefinedColumnNames(List<InvoiceCodeValuesDto> allColumns, List<InvoiceCodeValuesDto> userSavedColumns, List<String> defaultColumnsList) throws Exception {
         List<UserDefinedColumnsDto> userDefinedColumns = new ArrayList<>();
-        userDefinedColumns.add(new UserDefinedColumnsDto("Customer Name", "Customer Name", "CUSTOMER NAME", "CUSTOMER_NAME", "customerName", true));
-        userDefinedColumns.add(new UserDefinedColumnsDto("Carrier Name", "Carrier Name", "CARRIER NAME", "CARRIER_NAME", "carrierName", true));
-        userDefinedColumns.add(new UserDefinedColumnsDto("Ship Date", "Ship Date", "SHIP DATE", "SHIP_DATE", "shipDate", true));
-        userDefinedColumns.add(new UserDefinedColumnsDto("Run Number", "Run Number", "RUN NUMBER", "RUM_NO", "runNumber", true));
-        userDefinedColumns.add(new UserDefinedColumnsDto("Invoice Status", "Status", "INVOICE STATUS", "INVOICE_STATUS", "invoiceStatus", true));
-        userDefinedColumns.add(new UserDefinedColumnsDto("Load Date", "Load Date", "LOAD DATE", "LOAD_DATE", "loadMatchDate", true));
-        userDefinedColumns.add(new UserDefinedColumnsDto("Invoice Date", "Invoice Date", "INVOICE DATE", "INVOICE_DATE", "invoiceDate", true));
-        userDefinedColumns.add(new UserDefinedColumnsDto("Approved Charges", "Approved Charges", "APPROVED CHARGES", "APPROVED_AMOUNT", "approvedAmount", true));
-        userDefinedColumns.add(new UserDefinedColumnsDto("Total Charges", "Total Charges", "TOTAL CHARGES", "TOTAL_CHARGES", "totalCharges", true));
-        userDefinedColumns.add(new UserDefinedColumnsDto("Bol Number", "BOL #", "BOL NUMBER", "BOL_NUMBER", "bolNumber", true));
-        userDefinedColumns.add(new UserDefinedColumnsDto("Pro Number", "PRO #", "PRO NUMBER", "PRO_NUMBER", "proNumber", true));
-        userDefinedColumns.add(new UserDefinedColumnsDto("Invoice Number", "Invoice #", "INVOICE NUMBER", "INVOICE_NUMBER", "invoiceNumber", true));
-
+        Map<String, String> columnJsonKeyMap = new HashMap<>();
+        for(String columnJsonKeys : GlobalConstants.FREIGHT_INVOICE_LOOKUP_COLUMN_WITH_JSON_KEY.split(",")){
+            String[] keyVal = null;
+            try{
+                keyVal = columnJsonKeys.split("@#@");
+                columnJsonKeyMap.put(keyVal[0].trim(), keyVal[1].trim());
+            }catch (IndexOutOfBoundsException e){
+                columnJsonKeyMap.put(keyVal[0], "");
+            }catch (Exception e){
+                //Nothing.
+            }
+        }
+        if(allColumns != null && !allColumns.isEmpty()){
+            boolean hasUserSavedCols = (null != userSavedColumns && !userSavedColumns.isEmpty() && userSavedColumns.get(0) != null && userSavedColumns.get(0).getId() != null && userSavedColumns.get(0).getId() > 0);
+            for(InvoiceCodeValuesDto codeValue : allColumns){
+                UserDefinedColumnsDto userDefinedColumn = new UserDefinedColumnsDto();
+                userDefinedColumn.setColumnId(codeValue.getId());
+                userDefinedColumn.setColumnName(codeValue.getCodeValue());
+                userDefinedColumn.setLabelsColumnName(null == codeValue.getCodeValue() ? "" : codeValue.getCodeValue().replaceAll("\\s+","").toLowerCase());
+                userDefinedColumn.setOriginalColumnName(null == codeValue.getCodeValue() ? "" : codeValue.getCodeValue().toUpperCase());
+                userDefinedColumn.setChecked(null == userSavedColumns || userSavedColumns.isEmpty() ? false : userSavedColumns.contains(codeValue));
+                userDefinedColumn.setTableFieldName(codeValue.getProperty1());
+                userDefinedColumn.setJsonKey(columnJsonKeyMap.containsKey(codeValue.getCodeValue()) ? columnJsonKeyMap.get(codeValue.getCodeValue()) : "");
+                userDefinedColumn.setDefaultColumn(hasUserSavedCols ? false : null == defaultColumnsList || defaultColumnsList.isEmpty() ? false : defaultColumnsList.contains(codeValue.getCodeValue()));
+                userDefinedColumns.add(userDefinedColumn);
+            }
+        }
         return userDefinedColumns;
     }
 
-    public List<CustomerDto> getCustomerListByUserId(Long userId){
-       return invoiceLookupDao.getCustomerDetailsUsingProcAndFieldMap(userId);
-    }
-
+    /**
+     * Get carriers details with the group it belongs to for the given customer.
+     * @param customerId
+     * @return
+     */
     public List<CarrierGroupDto> getCarrierListByCustomerId(String customerId){
         List<CarrierDto> carrierList = invoiceLookupDao.getCarrierListForCustomer(customerId);
         List<CarrierGroupDto> carrierGroupList = null;
@@ -106,7 +130,7 @@ public class InvoiceLookupService {
             }
 
             for(Map.Entry<Long, List<CarrierDto>> carrEntry : carriersMap.entrySet()){
-                if(carrEntry != null && !containsCarrierGroup(carrierGroupList, carrEntry.getKey())){
+                if(carrEntry != null && !carrierGroupList.contains(new CarrierGroupDto(carrEntry.getKey()))){
                     List<CarrierDto> carriers = carrEntry.getValue();
                     StringJoiner carrierCsv = new StringJoiner(",");
                     for(CarrierDto carr : carriers){
@@ -122,18 +146,12 @@ public class InvoiceLookupService {
         return carrierGroupList;
     }
 
-    private boolean containsCarrierGroup(List<CarrierGroupDto> carrierGroupList, Long carrierGroupId){
-        if(carrierGroupList != null && !carrierGroupList.isEmpty()){
-            for(CarrierGroupDto carrierGroup : carrierGroupList){
-                if(carrierGroup != null && carrierGroup.getCarrierGroupId() != null
-                        && carrierGroup.getCarrierGroupId().equals(carrierGroupId)){
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
+    /**
+     * Get Invoice details with pagination enabled.
+     * @param invoiceLookupParams
+     * @return
+     * @throws Exception
+     */
     public PaginationBean loadInvoiceDetails(InvoiceLookupParamsDto invoiceLookupParams) throws Exception {
         Map<String, Object> paginationFilterMap = new HashMap<String, Object>();
         paginationFilterMap.put("invoiceLookupParams", invoiceLookupParams);
@@ -158,11 +176,31 @@ public class InvoiceLookupService {
         return invoiceLookupDao.loadInvoiceDetails((InvoiceLookupParamsDto) paginationFilterMap.get("invoiceLookupParams"));
     }
 
+    public List<InvoiceCodeValuesDto> getCodeValuesDetails(String codeGroupId, String property3, boolean allActiveAndInactive, String orderBy){
+        return invoiceLookupDao.getCodeValuesDetails(codeGroupId, property3, allActiveAndInactive, orderBy);
+    }
+
     public List<InvoiceCodeValuesDto> getCodeValuesDetails(String codeGroupId, String property3, String orderBy){
-        return invoiceLookupDao.getCodeValuesDetails(codeGroupId, property3, orderBy);
+        return invoiceLookupDao.getCodeValuesDetails(codeGroupId, property3, false, orderBy);
     }
 
     public List<InvoiceCodeValuesDto> getCodeValuesDetails(String codeGroupId, String orderBy){
-        return invoiceLookupDao.getCodeValuesDetails(codeGroupId, null, orderBy);
+        return invoiceLookupDao.getCodeValuesDetails(codeGroupId, null, false, orderBy);
+    }
+
+    public List<InvoiceCodeValuesDto> getCodeValuesDetails(String codeGroupId, boolean allActiveAndInactive, String orderBy){
+        return invoiceLookupDao.getCodeValuesDetails(codeGroupId, null, allActiveAndInactive, orderBy);
+    }
+
+    public List<InvoiceCodeValuesDto> getInvoiceLookupCustomColumns(Long userId){
+        return invoiceLookupDao.getInvoiceLookupCustomColumns(userId);
+    }
+
+    public List<InvoiceCodeValuesDto> getInvoiceLookupCustomColumns(){
+        return invoiceLookupDao.getInvoiceLookupCustomColumns();
+    }
+
+    public void saveOrUpdateDynamicColumns(DynamicColumnsDto dynamicColumns){
+        invoiceLookupDao.saveOrUpdateDynamicColumns(dynamicColumns);
     }
 }

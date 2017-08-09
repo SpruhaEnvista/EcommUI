@@ -33,6 +33,7 @@ public class FreightStoreProcParam {
         public static final String IS_COUNT_PARAM = "p_is_count";
         public static final String OFFSET_PARAM = "p_offset";
         public static final String LIMIT_PARAM = "p_limit";
+        public static final String USER_ID_PARAM = "p_user_id";
         public static final String INVOICE_DETAILS_PARAM = "p_invoice_details";
     }
 
@@ -51,5 +52,13 @@ public class FreightStoreProcParam {
         public static final String ORDER_BY_PARAM = "P_ORDER_BY";
         public static final String SELECT_ACTIVE_INACTIVE_PARAM = "P_SELECT_ACTIVE_INACTIVE";
         public static final String CODE_VALUES_INFO_PARAM = "P_CODE_VALUES_INFO";
+    }
+
+    public static class DynamicColumnsParam{
+        public static final String USER_ID_PARAM = "P_USER_ID";
+        public static final String USER_NAME_PARAM = "p_USER_NAME";
+        public static final String FILTER_ID_PARAM = "P_FILTER_ID";
+        public static final String INCLUDE_COLUMNS_PARAM = "P_INCLUDE_COLUMNS";
+        public static final String EXCLUDE_COLUMNS_PARAM = "P_EXCLUDE_COLUMNS";
     }
 }

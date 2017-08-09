@@ -20,37 +20,37 @@ public class InvoiceSummaryInvDtlsDto implements Serializable {
 
     @Id
     @Column(name = "rownum")
-    public Long rowNum;
+    private Long rowNum;
 
     @Column(name = "gl_accounts_code")
-    public String glAccountsCode;
+    private String glAccountsCode;
 
     @Column(name = "run_no")
-    public String runNumber;
+    private String runNumber;
 
     @Column(name = "payment_type")
-    public String paymentType;
+    private String paymentType;
 
     @Column(name="check_no")
-    public String checkNo;
+    private String checkNo;
 
     @Column(name = "taxable_total")
-    public BigDecimal taxableTotal;
+    private BigDecimal taxableTotal;
 
     @Column(name = "non_taxable_total")
-    public BigDecimal nonTaxableTotal;
+    private BigDecimal nonTaxableTotal;
 
     @Column(name = "tax_total")
-    public BigDecimal taxTotal;
+    private BigDecimal taxTotal;
 
     @Column(name = "total_due_amount")
-    public BigDecimal totalDueAmount;
+    private BigDecimal totalDueAmount;
 
     @Column(name = "currency")
-    public String currency;
+    private String currency;
 
     @Column(name = "remit_comments")
-    public String remitComments;
+    private String remitComments;
 
     public Long getRowNum() {
         return rowNum;

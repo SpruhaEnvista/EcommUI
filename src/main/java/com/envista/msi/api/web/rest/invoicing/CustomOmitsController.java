@@ -9,6 +9,7 @@ import com.envista.msi.api.web.rest.dto.invoicing.CodeValueDto;
 import com.envista.msi.api.web.rest.dto.invoicing.CustomOmitsDto;
 import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
 import com.envista.msi.api.web.rest.util.DateUtil;
+import com.envista.msi.api.web.rest.util.FileOperations;
 import com.envista.msi.api.web.rest.util.JSONUtil;
 import com.envista.msi.api.web.rest.util.pagination.PaginationBean;
 import org.apache.commons.lang.StringUtils;
@@ -23,6 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 import java.util.List;
 
@@ -46,6 +48,9 @@ public class CustomOmitsController {
 
     @Autowired
     ReportsService reportsService;
+
+    @Autowired
+    private FileOperations fileOperations;
 
     /**
      * HTTP GET - Get all
@@ -226,5 +231,34 @@ public class CustomOmitsController {
         int count = service.getSeachCount(dto);
 
         return new ResponseEntity<Integer>(count, HttpStatus.OK);
+    }
+
+
+    @RequestMapping(value = "/findBySearchCriteriaAndExport", params = {"trackingNumber", "customerIds", "creditTypeId", "comments", "carrierId", "userId","totalRecordsCount"}, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+    public @ResponseBody void findBySearchCriteriaAndExport(@RequestParam String trackingNumber, @RequestParam String customerIds, @RequestParam long creditTypeId, @RequestParam String comments, long carrierId, long userId,
+                                                               @RequestParam(required = false, defaultValue = "10") Integer totalRecordsCount,HttpServletResponse response) throws Exception{
+
+        LOG.info("***findBySearchCriteriaAndExport method started****" + trackingNumber);
+        PaginationBean CustomOmitsPaginationData = new PaginationBean();
+
+        if (customerIds != null && StringUtils.containsIgnoreCase(customerIds, "CU")) {
+            customerIds = StringUtils.remove(customerIds, "CU");
+        }
+
+        CustomOmitsDto dto = new CustomOmitsDto();
+
+        dto.setCustomOmitsId(0L);
+        dto.setCustomerIds(customerIds);
+        dto.setTrackingNumber(trackingNumber);
+        dto.setCreditTypeId(creditTypeId);
+        dto.setComments(comments);
+        dto.setCarrierId(carrierId);
+        dto.setUserId(userId);
+        CustomOmitsPaginationData = service.findBySearchCriteria(dto, 0, totalRecordsCount);
+
+        LOG.info("***findBySearchCriteriaAndExports method****" + CustomOmitsPaginationData);
+
+        fileOperations.exportCustomOmits("XLSX",(List<CustomOmitsDto>)CustomOmitsPaginationData.getData(),response);
+
     }
 }

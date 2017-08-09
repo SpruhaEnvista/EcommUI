@@ -1,5 +1,7 @@
 package com.envista.msi.api.web.rest.dto.freight.invoice;
 
+import com.envista.msi.api.domain.util.FreightStoreProcParam;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
@@ -11,21 +13,40 @@ import java.io.Serializable;
         @NamedStoredProcedureQuery(name = "InvoiceCodeValuesDto.getCodeValuesByDynamicParamValues", procedureName = "SHP_FRT_GET_CODE_VALUES_PROC",
                 resultClasses = InvoiceCodeValuesDto.class,
                 parameters = {
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_NSP_CODE_VALUE_ID", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CODE_GROUP_ID", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PROPERTY_1", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PROPERTY_2", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PROPERTY_3", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PROPERTY_4", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PROPERTY_5", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PROPERTY_6", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PROPERTY_7", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PROPERTY_8", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PROPERTY_9", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ORDER_BY", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_SELECT_ACTIVE_INACTIVE", type = Integer.class),
-                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_CODE_VALUES_INFO", type = Void.class)
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = FreightStoreProcParam.CodeValuesParam.CODE_VALUE_ID_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = FreightStoreProcParam.CodeValuesParam.CODE_GROUP_ID_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = FreightStoreProcParam.CodeValuesParam.PROPERTY_1_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = FreightStoreProcParam.CodeValuesParam.PROPERTY_2_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = FreightStoreProcParam.CodeValuesParam.PROPERTY_3_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = FreightStoreProcParam.CodeValuesParam.PROPERTY_4_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = FreightStoreProcParam.CodeValuesParam.PROPERTY_5_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = FreightStoreProcParam.CodeValuesParam.PROPERTY_6_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = FreightStoreProcParam.CodeValuesParam.PROPERTY_7_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = FreightStoreProcParam.CodeValuesParam.PROPERTY_8_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = FreightStoreProcParam.CodeValuesParam.PROPERTY_9_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = FreightStoreProcParam.CodeValuesParam.ORDER_BY_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = FreightStoreProcParam.CodeValuesParam.SELECT_ACTIVE_INACTIVE_PARAM, type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = FreightStoreProcParam.CodeValuesParam.CODE_VALUES_INFO_PARAM, type = Void.class)
+                }),
+        @NamedStoredProcedureQuery(name = "InvoiceCodeValuesDto.getFreightInvoiceLookupColumns", procedureName = "SHP_FRT_INV_USER_DEF_COLS_PROC",
+                resultSetMappings = {"InvoiceCodeValuesDto.getFreightInvoiceLookupColumnsMapping"},
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_USER_ID", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_USER_DEF_COLS", type = Void.class)
                 })
+})
+
+@SqlResultSetMappings({
+        @SqlResultSetMapping(name = "InvoiceCodeValuesDto.getFreightInvoiceLookupColumnsMapping", classes = {
+                @ConstructorResult(targetClass = InvoiceCodeValuesDto.class,
+                        columns = {
+                                @ColumnResult(name = "NSP_CODE_VALUE_ID", type = Long.class),
+                                @ColumnResult(name = "CODE_VALUE", type = String.class),
+                                @ColumnResult(name = "PROPERTY_1", type = String.class),
+                                @ColumnResult(name = "PROPERTY_2", type = String.class),
+                                @ColumnResult(name = "PROPERTY_3", type = String.class)
+                        })
+        })
 })
 
 @Entity
@@ -67,6 +88,17 @@ public class InvoiceCodeValuesDto implements Serializable {
     @Column(name = "PROPERTY_9")
     private String property9;
 
+    public InvoiceCodeValuesDto() {
+    }
+
+    public InvoiceCodeValuesDto(Long id, String codeValue, String property1, String property2, String property3) {
+        this.id = id;
+        this.codeValue = codeValue;
+        this.property1 = property1;
+        this.property2 = property2;
+        this.property3 = property3;
+    }
+
     public Long getId() {
         return id;
     }
@@ -90,22 +122,6 @@ public class InvoiceCodeValuesDto implements Serializable {
     public void setCodeGroupId(Long codeGroupId) {
         this.codeGroupId = codeGroupId;
     }
-
-    /*public String getProtect() {
-        return protect;
-    }
-
-    public void setProtect(String protect) {
-        this.protect = protect;
-    }
-
-    public String getDefaultValue() {
-        return defaultValue;
-    }
-
-    public void setDefaultValue(String defaultValue) {
-        this.defaultValue = defaultValue;
-    }*/
 
     public String getProperty1() {
         return property1;
@@ -179,35 +195,20 @@ public class InvoiceCodeValuesDto implements Serializable {
         this.property9 = property9;
     }
 
-    /*public Long getSequence() {
-        return sequence;
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof InvoiceCodeValuesDto){
+            InvoiceCodeValuesDto codeValue = ((InvoiceCodeValuesDto) obj);
+            return (codeValue.getId() != null && this.getId() != null && codeValue.getId().compareTo(this.getId()) == 0);
+        }
+        return super.equals(obj);
     }
 
-    public void setSequence(Long sequence) {
-        this.sequence = sequence;
+    @Override
+    public int hashCode() {
+        if(this.getId() != null){
+            return this.getId().intValue();
+        }
+        return super.hashCode();
     }
-
-    public String getProductId() {
-        return productId;
-    }
-
-    public void setProductId(String productId) {
-        this.productId = productId;
-    }
-
-    public String getTaxable() {
-        return taxable;
-    }
-
-    public void setTaxable(String taxable) {
-        this.taxable = taxable;
-    }
-
-    public String getActive() {
-        return active;
-    }
-
-    public void setActive(String active) {
-        this.active = active;
-    }*/
 }
