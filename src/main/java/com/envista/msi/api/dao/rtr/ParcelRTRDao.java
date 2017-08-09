@@ -5,6 +5,7 @@ import com.envista.msi.api.domain.PersistentContext;
 import com.envista.msi.api.domain.util.QueryParameter;
 import com.envista.msi.api.domain.util.StoredProcedureParameter;
 import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditDetailsDto;
+import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditRequestResponseLog;
 import org.springframework.stereotype.Repository;
 
 import javax.inject.Inject;
@@ -78,6 +79,21 @@ public class ParcelRTRDao {
         }catch (Exception e){
             e.printStackTrace();
             throw new DaoException("Error while updating invoice amount", e);
+        }
+    }
+
+    public void saveParcelAuditRequestAndResponseLog(ParcelAuditRequestResponseLog requestResponseLog){
+        try{
+            QueryParameter queryParameter = StoredProcedureParameter.withPosition(1, ParameterMode.IN, String.class, requestResponseLog.getRequestXml())
+                    .andPosition(2, ParameterMode.IN, String.class, requestResponseLog.getRequestXml1())
+                    .andPosition(3, ParameterMode.IN, String.class, requestResponseLog.getResponseXml())
+                    .andPosition(4, ParameterMode.IN, String.class, requestResponseLog.getResponseXml1())
+                    .andPosition(5, ParameterMode.IN, String.class, requestResponseLog.getResponseXml2())
+                    .andPosition(6, ParameterMode.IN, String.class, requestResponseLog.getCreateUser());
+            persistentContext.executeStoredProcedure("SHP_FRT_SAVE_XML_RATING_PROC", queryParameter);
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new DaoException("Error while saving request and response xml", e);
         }
     }
 }
