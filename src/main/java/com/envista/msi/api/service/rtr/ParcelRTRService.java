@@ -2,6 +2,7 @@ package com.envista.msi.api.service.rtr;
 
 import com.envista.msi.api.dao.rtr.ParcelRTRDao;
 import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditDetailsDto;
+import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditRequestResponseLog;
 import com.envista.msi.api.web.rest.util.CommonUtil;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant.RTRStatus;
@@ -37,8 +38,8 @@ public class ParcelRTRService{
      * @param toDate
      * @return
      */
-    public Map<String, List<ParcelAuditDetailsDto>> loadUpsParcelAuditDetails(String customerId, String fromDate, String toDate){
-        return prepareTrackingNumberWiseAuditDetails(parcelRTRDao.loadUpsParcelAuditDetails(customerId, fromDate, toDate));
+    public Map<String, List<ParcelAuditDetailsDto>> loadUpsParcelAuditDetails(String customerId, String fromDate, String toDate, String trackingNumbers){
+        return prepareTrackingNumberWiseAuditDetails(parcelRTRDao.loadUpsParcelAuditDetails(customerId, fromDate, toDate, trackingNumbers));
     }
 
     /**
@@ -47,8 +48,8 @@ public class ParcelRTRService{
      * @param toDate
      * @return
      */
-    public Map<String, List<ParcelAuditDetailsDto>> loadNonUpsParcelAuditDetails(String customerId, String fromDate, String toDate){
-        return prepareTrackingNumberWiseAuditDetails(parcelRTRDao.loadNonUpsParcelAuditDetails(customerId, fromDate, toDate, ParcelAuditConstant.NON_UPS_CARRIER_IDS));
+    public Map<String, List<ParcelAuditDetailsDto>> loadNonUpsParcelAuditDetails(String customerId, String fromDate, String toDate, String trackingNumbers){
+        return prepareTrackingNumberWiseAuditDetails(parcelRTRDao.loadNonUpsParcelAuditDetails(customerId, fromDate, toDate, ParcelAuditConstant.NON_UPS_CARRIER_IDS, trackingNumbers));
     }
 
     /**
@@ -84,15 +85,15 @@ public class ParcelRTRService{
      * @param fromDate
      * @param toDate
      */
-    public void parcelRTRRating(String customerId, String fromDate, String toDate){
+    public void parcelRTRRating(String customerId, String fromDate, String toDate, String trackingNumbers){
         String licenseKey = messageSource.getMessage("RateRequest-LicenseKey", null, null);
         String strProtocol = messageSource.getMessage("RTRprotocol", null, null);
         String strHostName = messageSource.getMessage("RTRHostName", null, null);
         String strPrefix = messageSource.getMessage("RTRPrefix", null, null);
         String url = strProtocol + "://" + strHostName + "/" + strPrefix;
 
-        doParcelRating(loadUpsParcelAuditDetails(customerId, fromDate, toDate), url, licenseKey, RateTo.UPS);
-        doParcelRating(loadNonUpsParcelAuditDetails(customerId, fromDate, toDate), url, licenseKey, RateTo.NON_UPS);
+        doParcelRating(loadUpsParcelAuditDetails(customerId, fromDate, toDate, trackingNumbers), url, licenseKey, RateTo.UPS);
+        doParcelRating(loadNonUpsParcelAuditDetails(customerId, fromDate, toDate, trackingNumbers), url, licenseKey, RateTo.NON_UPS);
     }
 
     private void doParcelRating(Map<String, List<ParcelAuditDetailsDto>> parcelAuditDetailsMap, String url, String licenseKey, RateTo rateTo){
@@ -112,16 +113,48 @@ public class ParcelRTRService{
 
     private void callRTRAndPopulateRates(String url, String licenseKey, List<ParcelAuditDetailsDto> parcelAuditDetails, RateTo rateTo) throws Exception {
         String requestPayload = "";
+        String response = "";
+        String trackingNumber = parcelAuditDetails.get(0).getTrackingNumber();
         switch (rateTo){
             case UPS:
                 requestPayload = ParcelRateRequestBuilder.buildParcelRateRequestForUps(parcelAuditDetails, licenseKey).toXmlString();
-                updateRateForUps(ParcelRateResponseParser.parse(CommonUtil.connectAndGetResponseAsString(url, requestPayload)), parcelAuditDetails);
+                response = CommonUtil.connectAndGetResponseAsString(url, requestPayload);
+                saveRequestResponse(requestPayload, response, trackingNumber);
+                updateRateForUps(ParcelRateResponseParser.parse(response), parcelAuditDetails);
                 break;
             case NON_UPS:
                 requestPayload = ParcelRateRequestBuilder.buildParcelRateRequestForNonUpsCarrier(parcelAuditDetails, licenseKey).toXmlString();
-                updateRateForNonUpsCarrier(ParcelRateResponseParser.parse(CommonUtil.connectAndGetResponseAsString(url, requestPayload)), parcelAuditDetails);
+                response = CommonUtil.connectAndGetResponseAsString(url, requestPayload);
+                saveRequestResponse(requestPayload, response, trackingNumber);
+                updateRateForNonUpsCarrier(ParcelRateResponseParser.parse(response), parcelAuditDetails);
                 break;
         }
+    }
+
+    private void saveRequestResponse(String requestPayload, String response, String trackingNumber) {
+        ParcelAuditRequestResponseLog requestResponseLog = new ParcelAuditRequestResponseLog();
+        requestResponseLog.setCreateUser("Avatar");
+        if(requestPayload != null && !requestPayload.isEmpty()){
+            int requestLength = requestPayload.length();
+            if (requestLength <= 4000) {
+                requestResponseLog.setRequestXml(requestPayload);
+            } else {
+                requestResponseLog.setRequestXml(requestPayload.substring(0, 3999));
+                requestResponseLog.setRequestXml1(requestPayload.substring(4000, requestLength));
+            }
+        }
+
+        if(response != null && !response.isEmpty()){
+            int respLength = response.length();
+            if (respLength <= 4000) {
+                requestResponseLog.setResponseXml(response);
+            } else {
+                requestResponseLog.setResponseXml(response.substring(0, 3999));
+                requestResponseLog.setResponseXml1(response.substring(4000, 7999));
+            }
+        }
+        requestResponseLog.setResponseXml2(trackingNumber);
+        parcelRTRDao.saveParcelAuditRequestAndResponseLog(requestResponseLog);
     }
 
     private void updateRateForNonUpsCarrier(ParcelRateResponse parcelRateResponse, List<ParcelAuditDetailsDto> parcelAuditDetails) throws Exception {

@@ -22,10 +22,11 @@ public class ParcelRTRController {
     private ParcelRTRService parcelRTRService;
 
     @RequestMapping(value = "/auditParcel", method = {RequestMethod.GET})
-    public ResponseEntity<CommonResponse> auditParcelInvoice(@RequestParam String fromDate, @RequestParam String toDate, @RequestParam(required = false) String customerId){
+    public ResponseEntity<CommonResponse> auditParcelInvoice(@RequestParam(required = false) String fromDate, @RequestParam(required = false) String toDate,
+                                                             @RequestParam(required = false) String customerId, @RequestParam(required = false) String trackingNumbers) {
         CommonResponse response = new CommonResponse();
         try{
-            parcelRTRService.parcelRTRRating(customerId, fromDate, toDate);
+            parcelRTRService.parcelRTRRating(customerId, fromDate, toDate, trackingNumbers);
         }catch (InvalidDataAccessResourceUsageException e){
             //Need to check this case later. This is causing because of transaction management.
         }
