@@ -23,9 +23,10 @@ public class ParcelRTRDao {
     @Inject
     private PersistentContext persistentContext;
 
-    public List<ParcelAuditDetailsDto> loadUpsParcelAuditDetails(String customerIds, String fromDate, String toDate){
+    public List<ParcelAuditDetailsDto> loadUpsParcelAuditDetails(String customerIds, String fromDate, String toDate, String trackingNumbers){
         QueryParameter queryParameter = QueryParameter.with("p_from_date", fromDate)
-                .and("p_to_date", toDate);
+                .and("p_to_date", toDate)
+                .and("p_tracking_numbers", trackingNumbers);
 
         if(customerIds != null && !customerIds.isEmpty()){
             queryParameter.and("p_customer_CSV", customerIds);
@@ -35,13 +36,14 @@ public class ParcelRTRDao {
         return persistentContext.findEntitiesAndMapFields(ParcelAuditDetailsDto.Config.StoredProcedureQueryName.AUDIT_UPS_PARCEL_DETAILS, queryParameter);
     }
 
-    public List<ParcelAuditDetailsDto> loadUpsParcelAuditDetails(String fromDate, String toDate){
-        return loadUpsParcelAuditDetails(null, fromDate, toDate);
+    public List<ParcelAuditDetailsDto> loadUpsParcelAuditDetails(String fromDate, String toDate, String trackingNumber){
+        return loadUpsParcelAuditDetails(null, fromDate, toDate, trackingNumber);
     }
 
-    public List<ParcelAuditDetailsDto> loadNonUpsParcelAuditDetails(String customerIds, String fromDate, String toDate, String carrierIds){
+    public List<ParcelAuditDetailsDto> loadNonUpsParcelAuditDetails(String customerIds, String fromDate, String toDate, String carrierIds, String trackingNumbers){
         QueryParameter queryParameter = QueryParameter.with("p_from_date", fromDate)
-                .and("p_to_date", toDate).and("p_carrier_ids", carrierIds);
+                .and("p_to_date", toDate).and("p_carrier_ids", carrierIds)
+                .and("p_tracking_numbers", trackingNumbers);
 
         if(customerIds != null && !customerIds.isEmpty()){
             queryParameter.and("p_customer_CSV", customerIds);
@@ -51,8 +53,8 @@ public class ParcelRTRDao {
         return persistentContext.findEntitiesAndMapFields(ParcelAuditDetailsDto.Config.StoredProcedureQueryName.AUDIT_NOT_UPS_PARCEL_DETAILS, queryParameter);
     }
 
-    public List<ParcelAuditDetailsDto> loadNonUpsParcelAuditDetails(String fromDate, String toDate, String carrierIds){
-        return loadNonUpsParcelAuditDetails(null, fromDate, toDate, carrierIds);
+    public List<ParcelAuditDetailsDto> loadNonUpsParcelAuditDetails(String fromDate, String toDate, String carrierIds, String trackingNumbers){
+        return loadNonUpsParcelAuditDetails(null, fromDate, toDate, carrierIds, trackingNumbers);
     }
 
     public void updateRTRInvoiceAmount(Long id, String userName, BigDecimal rtrAmount, String rtrStatus, Long carrierId){
