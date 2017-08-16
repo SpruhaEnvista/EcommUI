@@ -294,6 +294,7 @@ public final class InvoicingUtilities {
             String[] idsArray = StringUtils.split(object.getString("ids"), "~");
             String[] omitFlagArray = StringUtils.split(object.getString("omitFlags"), "~");
             String[] invCommentsArray = StringUtils.split(object.getString("invoiceComments"), "~");
+            String userName = object.getString("userName");
 
             for (int arr = 0; arr < idsArray.length; arr++) {
                 bean = new UvVoiceUpdateBean();
@@ -302,6 +303,7 @@ public final class InvoicingUtilities {
                 bean.setInternalInvComments(invCommentsArray[arr]);
                 bean.setActionName(object.getString("action"));
                 bean.setVoiceName(object.getString("name"));
+                bean.setUserName(userName);
                 if (arr == 0)
                     bean.setVoiceComments(object.getString("voiceComments"));
                 else

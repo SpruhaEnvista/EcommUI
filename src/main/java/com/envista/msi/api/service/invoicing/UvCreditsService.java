@@ -30,10 +30,10 @@ public class UvCreditsService {
         return dao.search(bean);
     }
 
-    public int update(List<UvVoiceUpdateBean> beans, String userName) {
+    public int update(List<UvVoiceUpdateBean> beans) {
         int count = 0;
         for (UvVoiceUpdateBean bean : beans) {
-            dao.update(bean, userName);
+            dao.update(bean);
             count++;
         }
         dao.updateDashBoardSummary();

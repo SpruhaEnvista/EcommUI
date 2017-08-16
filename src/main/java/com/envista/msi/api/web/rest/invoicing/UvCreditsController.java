@@ -125,11 +125,11 @@ public class UvCreditsController {
      * @throws JSONException
      */
     @RequestMapping(value = "/updateUnknownVoices", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
-    public ResponseEntity<Integer> updateUnknownVoices(@RequestBody JSONObject myJSON, @RequestParam("userName") String userName) throws JSONException {
+    public ResponseEntity<Integer> updateUnknownVoices(@RequestBody JSONObject myJSON) throws JSONException {
         log.info("***updateUnknownVoices method started****");
 
         List<UvVoiceUpdateBean> beans = InvoicingUtilities.prepareUvUpdateBean(myJSON);
-        int updateCount = service.update(beans, userName);
+        int updateCount = service.update(beans);
         return new ResponseEntity<Integer>(updateCount, HttpStatus.OK);
     }
 
