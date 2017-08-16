@@ -98,19 +98,19 @@ public class DashBoardController {
     @RequestMapping(value = "/closeWeek",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
     public ResponseEntity<Integer> closeCurrentWeek(@RequestBody JSONObject myJSON) throws JSONException{
         log.info("***closeCurrentWeek method started****");
-        int updatedRows = service.closeCurrentWeekCredits(myJSON.getString("ebillManifestIds"), myJSON.getString("action"), myJSON.getLong("weekEndId"));
+        int updatedRows = service.closeCurrentWeekCredits(myJSON.getString("userName"), myJSON.getString("action"), myJSON.getLong("weekEndId"));
 
         return new ResponseEntity<Integer>(updatedRows, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/uploadCreditRespInfo", method = RequestMethod.POST)
-    public ResponseEntity<String> UploadCreditResp(@RequestParam("files") MultipartFile[] file, @RequestParam("weekEndId") Long weekEndId, HttpServletRequest request) throws IOException {
+    public ResponseEntity<String> UploadCreditResp(@RequestParam("files") MultipartFile[] file, @RequestParam("weekEndId") Long weekEndId, @RequestParam("userName") String userName, HttpServletRequest request) throws IOException {
         log.info("***UploadCreditResp method started***");
         try {
             MultipartHttpServletRequest mRequest;
             mRequest = (MultipartHttpServletRequest) request;
             List<MultipartFile> files = mRequest.getFiles("file");
-            FileInfoDto fileInfoDto = service.insertFileInfo(files.get(0).getOriginalFilename(), weekEndId);
+            FileInfoDto fileInfoDto = service.insertFileInfo(files.get(0).getOriginalFilename(), weekEndId, userName);
             List<CreditResponseDto> dtos = fileOperations.customOmitFileUploadOperation(files.get(0), fileInfoDto != null ? fileInfoDto.getId() : 0L);
             creditResponseService.insert(dtos);
         } catch (Exception e) {
@@ -148,11 +148,11 @@ public class DashBoardController {
     /**
      * HTTP GET - Get Current Week End Info
      */
-    @RequestMapping(value = "/scrubCredits", params = {"weekEndId"}, method = RequestMethod.PUT)
-    public ResponseEntity<Integer> ScrubCredits(@RequestParam Long weekEndId) throws JSONException {
+    @RequestMapping(value = "/scrubCredits", params = {"weekEndId,userName"}, method = RequestMethod.PUT)
+    public ResponseEntity<Integer> ScrubCredits(@RequestParam Long weekEndId, String userName) throws JSONException {
         log.info("***ScrubCredits method started****");
 
-        int count = service.scrubCredits(weekEndId);
+        int count = service.scrubCredits(weekEndId, userName);
 
 
         return new ResponseEntity<Integer>(count, HttpStatus.OK);

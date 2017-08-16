@@ -51,6 +51,7 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_NEW_VOICE_NAME", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_VOICE_COMMENTS", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_OMIT_FLAG", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_USER_NAME", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class)
                         //@StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_UPDATE_UV_INFO", type = Void.class)
                 }),
