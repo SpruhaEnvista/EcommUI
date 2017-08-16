@@ -79,6 +79,10 @@ public class ReportsService {
     public List<ReportResultsDto> getReportResults(Long userId,String orderBy, String ascDesc) {
         return  reportsDao.getReportResults(userId,orderBy,ascDesc);
     }
+    public ReportResultsDto getGerPermissions(Long userId) {
+        return  reportsDao.getGerPermissions(userId);
+    }
+
     public ReportResultsDto updateExpiryDate(Long generatedRptId,String expiryDate) {
         return  reportsDao.updateExpiryDate(generatedRptId,expiryDate);
     }

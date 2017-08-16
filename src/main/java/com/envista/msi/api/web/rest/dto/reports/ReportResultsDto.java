@@ -33,6 +33,12 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "userId", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "userName", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "deleteReturn", type = Void.class)
+                }),
+        @NamedStoredProcedureQuery(name = "ReportResults.userPermissionsForRepors", procedureName = "SHP_RPT_GET_USER_PERMIS_PROC",
+                resultSetMappings = "UserPermissions",
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "userId", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "userPermission", type = Void.class)
                 })
 })
 @SqlResultSetMappings({
@@ -58,6 +64,15 @@ import java.util.Date;
                                 @ColumnResult(name = "type", type = Integer.class),
                                 @ColumnResult(name = "completion_date", type = Date.class),
                                 @ColumnResult(name = "expires_date", type = Date.class)
+                        }
+                )
+        }),
+        @SqlResultSetMapping(name = "UserPermissions", classes = {
+                @ConstructorResult(
+                        targetClass = ReportResultsDto.class,
+                        columns = {
+                                @ColumnResult(name = "user_allowed", type = Boolean.class),
+                                @ColumnResult(name = "user_allowed_forpush", type = Boolean.class)
                         }
                 )
         })
@@ -99,6 +114,12 @@ public class ReportResultsDto implements Serializable {
 
     @Column(name="updateCount")
     private Long updateCount;
+
+    @Column(name="user_allowed")
+    private Boolean userAllowed;
+
+    @Column(name="user_allowed_forpush")
+    private Boolean userAllowedForPush;
 
     public Long getGeneratedRptId() {
         return generatedRptId;
@@ -168,6 +189,22 @@ public class ReportResultsDto implements Serializable {
 
     public void setType(int type) { this.type = type;   }
 
+    public Boolean getUserAllowed() {
+        return userAllowed;
+    }
+
+    public void setUserAllowed(Boolean userAllowed) {
+        this.userAllowed = userAllowed;
+    }
+
+    public Boolean getUserAllowedForPush() {
+        return userAllowedForPush;
+    }
+
+    public void setUserAllowedForPush(Boolean userAllowedForPush) {
+        this.userAllowedForPush = userAllowedForPush;
+    }
+
     public ReportResultsDto(){}
 
     public ReportResultsDto(Long updateCount) {
@@ -186,6 +223,11 @@ public class ReportResultsDto implements Serializable {
         this.type = type;
         this.completedDate = completedDate;
         this.expiryDate = expiryDate;
+    }
+
+    public ReportResultsDto(Boolean userAllowed, Boolean userAllowedForPush) {
+        this.userAllowed = userAllowed;
+        this.userAllowedForPush = userAllowedForPush;
     }
 }
 

@@ -60,6 +60,12 @@ public class ReportsController {
         return user;
     }
 
+    @RequestMapping(value = "/results/userPermissions/{userId}", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<ReportResultsDto> getReportResults(@PathVariable String userId){
+        ReportResultsDto resultsList = reportsService.getGerPermissions(Long.parseLong(userId));
+        return new ResponseEntity<ReportResultsDto>(resultsList, HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/results/reportslist/{userId}", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<List<ReportResultsDto>> getReportResults(@PathVariable String userId,@RequestParam String sort){
         String ascDesc=null;
