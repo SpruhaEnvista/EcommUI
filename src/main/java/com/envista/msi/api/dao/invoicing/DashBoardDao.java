@@ -5,7 +5,6 @@ import com.envista.msi.api.domain.util.QueryParameter;
 import com.envista.msi.api.domain.util.StoredProcedureParameter;
 import com.envista.msi.api.web.rest.dto.invoicing.DashBoardDto;
 import com.envista.msi.api.web.rest.dto.invoicing.FileInfoDto;
-import com.envista.msi.api.web.rest.dto.invoicing.WeekEndDto;
 import com.envista.msi.api.web.rest.dto.invoicing.WeekStatusDto;
 import org.springframework.stereotype.Repository;
 
@@ -75,7 +74,7 @@ public class DashBoardDao {
 
     public FileInfoDto insertFileInfo(String fileName, Long weekEndId, String userName) {
 
-        QueryParameter queryParameter = StoredProcedureParameter.with("P_FILE_NAME", fileName).and("P_WEEK_END_ID", weekEndId).and("P_WEEK_END_ID", userName);
+        QueryParameter queryParameter = StoredProcedureParameter.with("P_FILE_NAME", fileName).and("P_WEEK_END_ID", weekEndId).and("P_USER_NAME", userName);
 
         List<FileInfoDto> dtos = persistentContext.findEntities("DashBoardDto.insertFileInfo", queryParameter);
         FileInfoDto dto = null;
