@@ -148,8 +148,8 @@ public class DashBoardController {
     /**
      * HTTP GET - Get Current Week End Info
      */
-    @RequestMapping(value = "/scrubCredits", params = {"weekEndId,userName"}, method = RequestMethod.PUT)
-    public ResponseEntity<Integer> ScrubCredits(@RequestParam Long weekEndId, String userName) throws JSONException {
+    @RequestMapping(value = "/scrubCredits", params = {"weekEndId","userName"}, method = RequestMethod.PUT)
+    public ResponseEntity<Integer> ScrubCredits(@RequestParam Long weekEndId,@RequestParam String userName) throws JSONException {
         log.info("***ScrubCredits method started****");
 
         int count = service.scrubCredits(weekEndId, userName);
