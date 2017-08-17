@@ -34,9 +34,9 @@ public class CreditsPRService {
         return dao.search(bean,offset,limit);
     }*/
 
-    public int update(String ebillManifestIds, String actionType) {
+    public int update(String ebillManifestIds, String actionType, String userName) {
 
-        return dao.update(ebillManifestIds, actionType);
+        return dao.update(ebillManifestIds, actionType, userName);
     }
 
 

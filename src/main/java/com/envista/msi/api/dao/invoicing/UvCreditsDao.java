@@ -46,11 +46,20 @@ public class UvCreditsDao {
                 .and("P_EBILL_MANIFEST_ID", bean.getEbillManifestId()).and("P_INTERNAL_INV_COMMENTS", bean.getInternalInvComments())
                 .and("P_VOICE_ID", bean.getVoiceId()).and("P_NEW_VOICE_NAME", bean.getVoiceName())
                 .and("P_VOICE_COMMENTS", bean.getVoiceComments()).and("P_OMIT_FLAG", bean.getOmitFlag())
-                .and("P_ACTION_TYPE", bean.getActionType());
+                .and("P_USER_NAME", bean.getUserName()).and("P_ACTION_TYPE", bean.getActionType());
 
         persistentContext.findEntities("UvCreditsDto.update", queryParameter);
 
         return 0;
+    }
+
+    public void updateDashBoardSummary() {
+
+        QueryParameter queryParameter = StoredProcedureParameter.with("P_WEEK_END_ID", 0);
+
+        persistentContext.findEntities("UvCreditsDto.updateDashBoardSummary", queryParameter);
+
+
     }
 
 }
