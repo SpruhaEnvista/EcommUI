@@ -60,8 +60,8 @@ public class ReportsController {
         return user;
     }
 
-    @RequestMapping(value = "/results/userPermissions/{userId}", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<ReportResultsDto> getReportResults(@PathVariable String userId){
+    @RequestMapping(value = "/results/userPermissions", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<ReportResultsDto> getReportResults(@RequestParam String userId){
         ReportResultsDto resultsList = reportsService.getGerPermissions(Long.parseLong(userId));
         return new ResponseEntity<ReportResultsDto>(resultsList, HttpStatus.OK);
     }
