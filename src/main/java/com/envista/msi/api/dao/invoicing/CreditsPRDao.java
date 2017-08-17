@@ -64,9 +64,10 @@ public class CreditsPRDao {
         return count;
     }
 
-    public int update(String ebillManifestIds, String actionType) {
+    public int update(String ebillManifestIds, String actionType, String userName) {
 
-        QueryParameter queryParameter = StoredProcedureParameter.with("P_EBILL_MANIFEST_IDS", ebillManifestIds).and("P_ACTION_TYPE", actionType);
+        QueryParameter queryParameter = StoredProcedureParameter.with("P_EBILL_MANIFEST_IDS", ebillManifestIds).and("P_USER_NAME", userName)
+                .and("P_ACTION_TYPE", actionType);
 
         List<CreditsPRDto> dtos = persistentContext.findEntities("CreditsPRDto.updateIdsStatus", queryParameter);
 

@@ -30,19 +30,19 @@ public class DashBoardService {
         return dao.getPendingCredits(fromDate, toDate, actionType);
     }
 
-    public int closeCurrentWeekCredits(String ebillManifestIds, String action, Long weekEndId) {
+    public int closeCurrentWeekCredits(String userName, String action, Long weekEndId) {
 
-        return dao.closeCurrentWeekCredits(ebillManifestIds, action, weekEndId);
+        return dao.closeCurrentWeekCredits(userName, action, weekEndId);
     }
 
-    public int scrubCredits(Long weekEndId) {
+    public int scrubCredits(Long weekEndId, String userName) {
 
-        return dao.scrubCredits(weekEndId);
+        return dao.scrubCredits(weekEndId, userName);
     }
 
-    public FileInfoDto insertFileInfo(String fileName, Long weekEndId) {
+    public FileInfoDto insertFileInfo(String fileName, Long weekEndId, String userName) {
 
-        return dao.insertFileInfo(fileName, weekEndId);
+        return dao.insertFileInfo(fileName, weekEndId, userName);
     }
 
     public WeekStatusDto getWeekStatusInfo(String fromDate, String toDate) {

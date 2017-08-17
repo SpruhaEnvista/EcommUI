@@ -23,6 +23,8 @@ public class UvVoiceUpdateBean {
 
     private String omitFlag;
 
+    private String userName;
+
 
     public String getActionName() {
         return actionName;
@@ -94,5 +96,13 @@ public class UvVoiceUpdateBean {
 
     public void setOmitFlag(String omitFlag) {
         this.omitFlag = omitFlag;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 }
