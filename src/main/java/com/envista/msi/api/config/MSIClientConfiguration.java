@@ -5,8 +5,11 @@ import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.ReloadableResourceBundleMessageSource;
+import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -177,5 +180,12 @@ public class MSIClientConfiguration {
 					.authorities("ROLE_USER", "ROLE_CLIENT", "ROLE_TRUSTED_CLIENT").scopes("play", "trust")
 					.redirectUris("https://www.myshipinfo.com/oauth_tool/callback").autoApprove(true);
 		}
+	}
+
+	@Bean(value = "rtrRateResource")
+	public ReloadableResourceBundleMessageSource loadRtrRateResourceBundle() {
+		ReloadableResourceBundleMessageSource source = new ReloadableResourceBundleMessageSource();
+		source.setBasenames("WEB-INF/classes/rtr/rtrraterequest");
+		return source;
 	}
 }

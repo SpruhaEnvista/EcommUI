@@ -2220,23 +2220,37 @@ public class JSONUtil {
 
     public static JSONObject prepareShipmentCountByZoneJson(List<ShipmentDto> shipmentList, Set<MapCoordinatesDto> mapCoordinates) throws JSONException {
         JSONObject finalJson = new JSONObject();
+        Map<String, String>  zoneWithColors = new HashMap<>();
         if (shipmentList != null && !shipmentList.isEmpty()) {
-            Map<String, Map<Long, Integer>> nodeValuesMap = new HashMap<String, Map<Long, Integer>>();
+            Map<String, Map<String, Integer>> nodeValuesMap = new HashMap<String, Map<String, Integer>>();
+
+            int counter = 0;
             for (ShipmentDto shipment : shipmentList) {
                 if (shipment != null) {
                     String shipperState = shipment.getShipperState() != null ? shipment.getShipperState() : "";
                     String shipperCountry = shipment.getShipperCountry() != null ? shipment.getShipperCountry() : "";
-                    Long zone = Long.parseLong(shipment.getZone().toString());
+                    String zone = shipment.getZone();
+
+                    if ( !zoneWithColors.containsKey(zone) ) {
+                        zoneWithColors.put(zone, colorsList.get(counter));
+                        counter++;
+                    }
+
                     Integer shipmentCount = shipment.getShipmentCount();
 
-                    String mapKey = shipperState + "#@#" + shipperCountry;
-                    if (!nodeValuesMap.containsKey(mapKey)) {
-                        HashMap<Long, Integer> tempMap = new HashMap<>();
+                    if ( !nodeValuesMap.containsKey(shipperState)) {
+                        HashMap<String, Integer> tempMap = new HashMap<>();
                         tempMap.put(zone, shipmentCount);
 
-                        nodeValuesMap.put(mapKey, tempMap);
+                        nodeValuesMap.put( shipperState, tempMap);
                     } else {
-                        nodeValuesMap.get(mapKey).put(zone, shipmentCount);
+                        Map<String,Integer> zonesMap = nodeValuesMap.get(shipperState);
+
+                        if ( !zonesMap.containsKey(zone)) {
+                            zonesMap.put(zone, shipmentCount);
+                        } else {
+                            zonesMap.put(zone, zonesMap.get(zone)+shipmentCount);
+                        }
                     }
                 }
             }
@@ -2245,57 +2259,63 @@ public class JSONUtil {
             Iterator<String> nodeValuesIterator = nodeValuesMap.keySet().iterator();
             while (nodeValuesIterator.hasNext()) {
                 JSONObject nodeInfoObj = new JSONObject();
-                String stateAndCountry = nodeValuesIterator.next();
-                String state = stateAndCountry.split("#@#")[0];
-                String country = stateAndCountry.split("#@#")[1];
-                String addressKey = "," + state + "," + country;
+                String state = nodeValuesIterator.next();
                 nodeInfoObj.put("id", state);
                 nodeInfoObj.put("name", state);
 
-                Iterator<Long> zonesIterator = nodeValuesMap.get(stateAndCountry).keySet().iterator();
+                Iterator<String> zonesIterator = nodeValuesMap.get(state).keySet().iterator();
                 JSONArray zonesArray = new JSONArray();
                 int i = 0;
                 while (zonesIterator.hasNext()) {
                     JSONObject zoneInfo = new JSONObject();
 
-                    Long zone = zonesIterator.next();
-                    Integer shipmentCount = nodeValuesMap.get(stateAndCountry).get(zone);
+                    String zone = zonesIterator.next();
+                    Integer shipmentCount = nodeValuesMap.get(state).get(zone);
 
                     zoneInfo.put("id", zone);
                     zoneInfo.put("name", "Zone " + zone);
                     zoneInfo.put("value", shipmentCount);
                     zoneInfo.put("selected", false);
-                    String colorName = null;
-                    if (zoneInfo.getString("name").equals("Zone 2")) {
-                        colorName = colorsList.get(i++);
-                    } else if (zoneInfo.getString("name").equals("Zone 3")) {
-                        colorName = colorsList.get(i++);
-                    } else if (zoneInfo.getString("name").equals("Zone 4")) {
-                        colorName = colorsList.get(i++);
-                    } else if (zoneInfo.getString("name").equals("Zone 5")) {
-                        colorName = colorsList.get(i++);
-                    } else if (zoneInfo.getString("name").equals("Zone 6")) {
-                        colorName = colorsList.get(i++);
-                    } else if (zoneInfo.getString("name").equals("Zone 7")) {
-                        colorName = colorsList.get(i++);
-                    } else if (zoneInfo.getString("name").equals("Zone 8")) {
-                        colorName = colorsList.get(i++);
-                    }
+                    String colorName = zoneWithColors.get(zone);
+
                     zoneInfo.put("color", colorName);
                     String style = "{ fillColor: \"" + colorName + "\" } }";
                     zoneInfo.put("style", new JSONObject(style));
                     zonesArray.put(zoneInfo);
                 }
-                MapCoordinatesDto mapCoordinate = findMapCoordinate(mapCoordinates, addressKey);
-                JSONArray longLatJsonArray = new JSONArray();
-                longLatJsonArray.put(mapCoordinate != null ? mapCoordinate.getLongitude() : 0);
-                longLatJsonArray.put(mapCoordinate != null ? mapCoordinate.getLatitude() : 0);
 
-                nodeInfoObj.put("coordinates", longLatJsonArray);
-                nodeInfoObj.put("pieChartValues", zonesArray);
+                MapCoordinatesDto mapCoordinate = findCoordinateByState(mapCoordinates, state);
+                if ( mapCoordinate != null && mapCoordinate.getLongitude() != null && mapCoordinate.getLatitude() != null ) {
+                    JSONArray longLatJsonArray = new JSONArray();
+                    longLatJsonArray.put(mapCoordinate != null ? mapCoordinate.getLongitude() : 0);
+                    longLatJsonArray.put(mapCoordinate != null ? mapCoordinate.getLatitude() : 0);
 
-                nodesArray.put(nodeInfoObj);
+                    nodeInfoObj.put("coordinates", longLatJsonArray);
+                    nodeInfoObj.put("pieChartValues", zonesArray);
+
+                    nodesArray.put(nodeInfoObj);
+                }
             }
+
+            Iterator<String> zonesIterator = zoneWithColors.keySet().iterator();
+            JSONArray zonesArray = new JSONArray();
+            while ( zonesIterator.hasNext() ) {
+                String zone = zonesIterator.next();
+                String color = zoneWithColors.get(zone);
+
+                JSONObject zoneObj = new JSONObject();
+
+                zoneObj.put("id", zone);
+                zoneObj.put("name", "Zone " + zone);
+                zoneObj.put("selected", false);
+                zoneObj.put("color", color);
+
+                zonesArray.put(zoneObj);
+            }
+
+            finalJson.put("nodes",nodesArray);
+            finalJson.put("zones",zonesArray);
+
         }
         return finalJson;
     }
@@ -2305,6 +2325,19 @@ public class JSONUtil {
             if(mapCoordinate != null){
                 String key = mapCoordinate.getAddress().substring(mapCoordinate.getAddress().indexOf(",") + 1);
                 if(key.equalsIgnoreCase(addressKey)){
+                    return mapCoordinate;
+                }
+            }
+        }
+        return null;
+    }
+
+    private static MapCoordinatesDto findCoordinateByState(Set<MapCoordinatesDto> mapCoordinates, String addressKey) {
+        for(MapCoordinatesDto mapCoordinate : mapCoordinates){
+            if(mapCoordinate != null){
+                String stateAndCountry = mapCoordinate.getAddress().substring(mapCoordinate.getAddress().indexOf(",")+1 );
+                String state = stateAndCountry.substring(0,stateAndCountry.indexOf(",") );
+                if(addressKey.equalsIgnoreCase(state)){
                     return mapCoordinate;
                 }
             }
@@ -2435,35 +2468,34 @@ public class JSONUtil {
     public static JSONObject preparePackageDistributionCountJson(List<ShipmentDto> pkgDistrList, Set<MapCoordinatesDto> mapCoordinates) throws JSONException {
         JSONArray nodesArray = new JSONArray();
         int counter = 0;
-        long totalPackageCount = 0;
-        Map<String, Integer> countryWiseCountMap = new HashMap<String, Integer>();
+        Double totalPackageCount = 0d;
+        Map<String, Double> countryWiseCountMap = new HashMap<String, Double>();
         for(ShipmentDto pkgDistr : pkgDistrList){
             if(pkgDistr != null) {
                 String  city = pkgDistr.getReceiverCity() != null ? pkgDistr.getReceiverCity() : "";
                 String state = pkgDistr.getReceiverState() != null ? pkgDistr.getReceiverState() : "";
                 String country = pkgDistr.getReceiverCountry() != null ? pkgDistr.getReceiverCountry() : "";
-                Integer packageCount = pkgDistr.getPackageCount();
+                Double packageCount = pkgDistr.getPackageCount().doubleValue();
                 String address = city+","+state+","+country;
-
-                JSONObject  nodeInfoObj = new JSONObject();
-
-                totalPackageCount += packageCount;
-
-                if( !countryWiseCountMap.containsKey(country)) {
-                    countryWiseCountMap.put(country, packageCount);
-                } else {
-                    countryWiseCountMap.put(country, countryWiseCountMap.get(country)+packageCount );
-                }
-
-                nodeInfoObj.put("id",counter++);
-                nodeInfoObj.put("name",city);
-                nodeInfoObj.put("value", packageCount);
 
                 MapCoordinatesDto mapCoordinate = findMapCoordinateByAddress(mapCoordinates, address);
                 if (mapCoordinate != null && mapCoordinate.getLongitude() != null && mapCoordinate.getLatitude() != null) {
                     JSONArray longLatJsonArray = new JSONArray();
                     longLatJsonArray.put(mapCoordinate.getLongitude());
                     longLatJsonArray.put(mapCoordinate.getLatitude());
+                    JSONObject  nodeInfoObj = new JSONObject();
+
+                    totalPackageCount += packageCount;
+
+                    if( !countryWiseCountMap.containsKey(country)) {
+                        countryWiseCountMap.put(country, packageCount);
+                    } else {
+                        countryWiseCountMap.put(country, countryWiseCountMap.get(country)+packageCount );
+                    }
+
+                    nodeInfoObj.put("id",counter++);
+                    nodeInfoObj.put("name",city);
+                    nodeInfoObj.put("value", packageCount);
                     nodeInfoObj.put("coordinates", longLatJsonArray);
                     nodesArray.put(nodeInfoObj);
                 }
@@ -2475,7 +2507,11 @@ public class JSONUtil {
 
         while (countryWiseCountIterator.hasNext()) {
             String country = countryWiseCountIterator.next();
-            Integer packageCount = countryWiseCountMap.get(country);
+
+
+            Double packageCount = countryWiseCountMap.get(country);
+
+
             Double percentage = (packageCount/totalPackageCount)*100d;
             String percentageRange = null;
 

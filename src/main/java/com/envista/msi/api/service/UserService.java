@@ -5,6 +5,7 @@ import com.envista.msi.api.dao.UserDetailsDao;
 import com.envista.msi.api.dao.UserProfileDao;
 import com.envista.msi.api.domain.util.ReportsUtil;
 import com.envista.msi.api.domain.util.StringEncrypter;
+import com.envista.msi.api.security.SecurityUtils;
 import com.envista.msi.api.web.rest.dto.UserDetailsDto;
 import com.envista.msi.api.web.rest.dto.UserProfileDto;
 import com.envista.msi.api.web.rest.dto.i18n.InternationalizationDto;
@@ -82,6 +83,11 @@ public class UserService {
 
 		return getUserWithAuthoritiesByUserName(userName).orElse(null);
 	}
+
+	public UserProfileDto getLoggedInUser() throws Exception {
+		return getUserProfileByUserName(SecurityUtils.getCurrentUserLogin());
+	}
+
 	public UserProfileDto validatePassword(String password, Long userId) throws Exception {
 
 		StringEncrypter stringEncrypter = StringEncrypter.getInstance() ;

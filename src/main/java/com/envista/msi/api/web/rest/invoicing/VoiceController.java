@@ -3,15 +3,18 @@ package com.envista.msi.api.web.rest.invoicing;
 import com.envista.msi.api.service.invoicing.VoiceService;
 import com.envista.msi.api.web.rest.dto.invoicing.VoiceDto;
 import com.envista.msi.api.web.rest.dto.invoicing.VoiceSearchBean;
+import com.envista.msi.api.web.rest.util.FileOperations;
 import com.envista.msi.api.web.rest.util.pagination.PaginationBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -25,6 +28,9 @@ public class VoiceController {
 
     @Inject
     private VoiceService service;
+
+    @Autowired
+    private FileOperations fileOperations;
 
     /**
      * HTTP GET - Get all Voices
@@ -135,4 +141,28 @@ public class VoiceController {
         log.info("***findByVoiceId method started****voice id is : " + voiceId);
         return new ResponseEntity<VoiceDto>(service.findByVoiceId(voiceId), HttpStatus.OK);
     }
+
+    @RequestMapping(value = "/getSearchCriteriaListAndExportVoices", params = {"voiceNames", "voiceType", "voiceFlag", "pVoiceNames", "comments","totalRecordsCount"}, produces = "application/text", method = RequestMethod.GET)
+    public @ResponseBody void getSearchCriteriaListAndExport(@RequestParam String voiceNames, @RequestParam String voiceType, @RequestParam String voiceFlag,
+                                                       @RequestParam String pVoiceNames, @RequestParam String comments, @RequestParam Integer totalRecordsCount,HttpServletResponse response) throws Exception{
+
+       log.info("***getSearchCriteriaListAndExportVoices method started****");
+
+        VoiceSearchBean bean = new VoiceSearchBean();
+        bean.setVoiceName(voiceNames);
+        bean.setVoiceType(voiceType);
+        bean.setVoiceFlag(voiceFlag);
+        bean.setParentVoiceName(pVoiceNames);
+        bean.setComments(comments);
+        bean.setOffset(0);
+        bean.setPageSize(totalRecordsCount);
+
+        PaginationBean voicesPaginationData = new PaginationBean();
+        voicesPaginationData = service.getSearchVoicesPaginationData(bean, 0, totalRecordsCount);
+
+        fileOperations.exportVoices("XLSX",(List<VoiceDto>)voicesPaginationData.getData(),response);
+    }
+
+
+
 }
