@@ -12,7 +12,7 @@ import java.util.Date;
  */
 @NamedStoredProcedureQueries({
         @NamedStoredProcedureQuery(name = "SavedSchedReports.gerSavedSchedReports", procedureName = "shp_rpt_saved_sched_proc",
-                resultSetMappings = "savedSchedReportsList",
+                resultSetMappings = "savedSchedList",
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "reportsList", type = Void.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "userId", type = Long.class),
@@ -62,6 +62,27 @@ import java.util.Date;
                                 @ColumnResult(name = "userscount",type = Integer.class),
                                 @ColumnResult(name = "is_folder",type = Long.class),
                                 @ColumnResult(name = "is_packet",type = Boolean.class)
+                        }
+                )
+        }),
+        @SqlResultSetMapping(name = "savedSchedList", classes = {
+                @ConstructorResult(
+                        targetClass = SavedSchedReportsDto.class,
+                        columns = {
+                                @ColumnResult(name = "saved_sched_rpt_id",type = Long.class),
+                                @ColumnResult(name = "rpt_id",type = Long.class),
+                                @ColumnResult(name = "is_scheduled",type = Boolean.class),
+                                @ColumnResult(name = "report_file_name",type = String.class),
+                                @ColumnResult(name = "sv_report_status",type = String.class),
+                                @ColumnResult(name = "create_user",type = String.class),
+                                @ColumnResult(name = "create_date",type = Date.class),
+                                @ColumnResult(name = "last_update_user",type = String.class),
+                                @ColumnResult(name = "last_update_date",type = Date.class),
+                                @ColumnResult(name = "userscount",type = Integer.class),
+                                @ColumnResult(name = "is_folder",type = Long.class),
+                                @ColumnResult(name = "is_packet",type = Boolean.class),
+                                @ColumnResult(name = "can_edit",type = Boolean.class),
+                                @ColumnResult(name = "is_shared",type = Boolean.class)
                         }
                 )
         })
@@ -119,6 +140,12 @@ public class SavedSchedReportsDto implements Serializable{
     @Column(name="ssUserRptTbCnt")
     private Long reportUsersTbUpdateCount;
 
+    @Column(name = "can_edit")
+    private Boolean canEdit;
+
+    @Column(name = "is_shared")
+    private Boolean shared;
+
     public SavedSchedReportsDto(){}
 
     public SavedSchedReportsDto(Long reportTbUpdatCount,Long reportUsersTbUpdateCount){
@@ -141,6 +168,24 @@ public class SavedSchedReportsDto implements Serializable{
         this.usersCount = usersCount;
         this.isFolder = isFolder;
         this.packet = packet;
+    }
+    public SavedSchedReportsDto(Long savedSchedRptId,Long rptId,Boolean scheduled,String reportFileName,String reportStatus,
+                                String createUser,Date createDate,String lastUpdateUser,Date lastUpdateDate,Integer usersCount,
+                                Long isFolder, Boolean packet,Boolean canEdit, Boolean shared){
+        this.savedSchedRptId = savedSchedRptId;
+        this.rptId = rptId;
+        this.scheduled = scheduled;
+        this.reportFileName = reportFileName;
+        this.reportStatus = reportStatus;
+        this.createUser = createUser;
+        this.createDate = createDate;
+        this.lastUpdateUser = lastUpdateUser;
+        this.lastUpdateDate = lastUpdateDate;
+        this.usersCount = usersCount;
+        this.isFolder = isFolder;
+        this.packet = packet;
+        this.canEdit = canEdit;
+        this.shared = shared;
     }
 
     public Long getReportTbUpdatCount() {
@@ -255,6 +300,22 @@ public class SavedSchedReportsDto implements Serializable{
 
     public void setPacket(Boolean packet) {
         this.packet = packet;
+    }
+
+    public Boolean getCanEdit() {
+        return canEdit;
+    }
+
+    public void setCanEdit(Boolean canEdit) {
+        this.canEdit = canEdit;
+    }
+
+    public Boolean getShared() {
+        return shared;
+    }
+
+    public void setShared(Boolean shared) {
+        this.shared = shared;
     }
 
 }
