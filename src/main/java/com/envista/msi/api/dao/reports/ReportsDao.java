@@ -58,6 +58,11 @@ public class ReportsDao {
         return persistentContext.findEntityAndMapFields("ReportResults.updateExpiryDate",queryParameter);
     }
     @Transactional
+    public ReportResultsDto getGerPermissions(Long userId) {
+        QueryParameter queryParameter = StoredProcedureParameter.with("userId", userId);
+        return persistentContext.findEntityAndMapFields("ReportResults.userPermissionsForRepors",queryParameter);
+    }
+    @Transactional
     public List<ReportResultsUsersListDto> getUsersList(String userName) {
         QueryParameter queryParameter = StoredProcedureParameter.with("userName",userName);
         return persistentContext.findEntitiesAndMapFields("ReportResultsUsersList.getUsersList",queryParameter);
