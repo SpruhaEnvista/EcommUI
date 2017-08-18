@@ -14,7 +14,7 @@ public class ParcelAudit {
         String fromDate = "";
         String toDate = "";
         String customerId = "";
-        String trackingNumbers = "";
+        String limit = "";
 
         try{
             if(args[0] != null && !args[0].trim().equalsIgnoreCase("n")){
@@ -33,14 +33,14 @@ public class ParcelAudit {
         }catch (Exception e){}
         try{
             if(args[3] != null && !args[3].trim().equalsIgnoreCase("n")) {
-                trackingNumbers = args[3].trim();
+                limit = args[3].trim();
             }
         }catch (Exception e){}
 
         System.out.println("Start Parcel Auditing...");
-        String queryString = "fromDate=" +  fromDate + "&toDate=" + toDate + "&customerId=" + customerId + "&trackingNumbers=" + trackingNumbers;
+        String queryString = "fromDate=" +  fromDate + "&toDate=" + toDate + "&customerId=" + customerId + "&limit=" + limit;
         try {
-            String url = AUDIT_API_BASE_PATH_VALUE + "/auditParcel" + "?" + queryString;
+            String url = AUDIT_API_BASE_PATH_VALUE + "/auditParcelInv" + "?" + queryString;
             String resp = CommonUtil.hitUrl(url);
             System.out.println(resp);
         } catch (Exception e) {
