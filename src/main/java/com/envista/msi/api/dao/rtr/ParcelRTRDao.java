@@ -109,10 +109,11 @@ public class ParcelRTRDao {
         return persistentContext.findEntities(ParcelAuditDetailsDto.Config.StoredProcedureQueryName.LOAD_INVOICE_IDS, queryParameter);
     }
 
-    public void updateInvoiceRtrStatus(Long invoiceId, String rtrStatus){
+    public void updateInvoiceRtrStatus(Long invoiceId, String rtrStatus, String userName){
         try {
             QueryParameter queryParameter = StoredProcedureParameter.withPosition(1, ParameterMode.IN, Long.class, invoiceId)
-                    .andPosition(2, ParameterMode.IN, String.class, rtrStatus);
+                    .andPosition(2, ParameterMode.IN, String.class, rtrStatus)
+                    .andPosition(3, ParameterMode.IN, String.class, userName);
             persistentContext.executeStoredProcedure("SHP_UPDATE_INV_RTR_STATUS_PROC", queryParameter);
         }catch (Exception e){
             e.printStackTrace();

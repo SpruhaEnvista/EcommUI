@@ -406,17 +406,18 @@ public class ParcelRTRService{
     }
 
     private void updateInvoiceRtrStatus(Long invoiceId, Map<String, String> shipmentStatusMap) {
+        String userName = "ParcelRTRRating";
         if(shipmentStatusMap != null && !shipmentStatusMap.isEmpty()){
             if(shipmentStatusMap.containsValue(RTRStatus.CONTESTED.name())){
-                parcelRTRDao.updateInvoiceRtrStatus(invoiceId, RTRStatus.CONTESTED.name());
+                parcelRTRDao.updateInvoiceRtrStatus(invoiceId, RTRStatus.CONTESTED.name(), userName);
             }else if(shipmentStatusMap.containsValue(RTRStatus.RATING_EXCEPTION.name())){
-                parcelRTRDao.updateInvoiceRtrStatus(invoiceId, RTRStatus.RATING_EXCEPTION.name());
+                parcelRTRDao.updateInvoiceRtrStatus(invoiceId, RTRStatus.RATING_EXCEPTION.name(), userName);
             }else if(shipmentStatusMap.containsValue(RTRStatus.NO_PRICE_SHEET.name())){
-                parcelRTRDao.updateInvoiceRtrStatus(invoiceId, RTRStatus.NO_PRICE_SHEET.name());
+                parcelRTRDao.updateInvoiceRtrStatus(invoiceId, RTRStatus.NO_PRICE_SHEET.name(), userName);
             }else if(shipmentStatusMap.containsValue(RTRStatus.CLOSED.name())){
-                parcelRTRDao.updateInvoiceRtrStatus(invoiceId, RTRStatus.CLOSED.name());
+                parcelRTRDao.updateInvoiceRtrStatus(invoiceId, RTRStatus.CLOSED.name(), userName);
             }else{
-                parcelRTRDao.updateInvoiceRtrStatus(invoiceId, RTRStatus.READY_FOR_RATE.name());
+                parcelRTRDao.updateInvoiceRtrStatus(invoiceId, RTRStatus.READY_FOR_RATE.name(), userName);
             }
         }
     }
