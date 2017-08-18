@@ -16,6 +16,7 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_from_date", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_to_date", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_tracking_numbers", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_invoice_id", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_audit_parcel_details", type = Void.class)
                 }
         ),
@@ -29,7 +30,34 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_from_date", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_to_date", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_tracking_numbers", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_invoice_id", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_audit_parcel_details", type = Void.class)
+                }
+        ),
+        @NamedStoredProcedureQuery(
+                name = ParcelAuditDetailsDto.Config.StoredProcedureQueryName.LOAD_INVOICE_IDS,
+                procedureName = ParcelAuditDetailsDto.Config.StoredProcedureName.LOAD_INVOICE_IDS,
+                resultSetMappings = {ParcelAuditDetailsDto.Config.SqlResultSetMapping.LOAD_INVOICE_IDS_MAPPING},
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_from_date", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_to_date", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_customer_id", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_limit", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_inv_list", type = Void.class)
+                }
+        )
+})
+
+@SqlResultSetMappings({
+        @SqlResultSetMapping(
+                name = ParcelAuditDetailsDto.Config.SqlResultSetMapping.LOAD_INVOICE_IDS_MAPPING,
+                classes = {
+                        @ConstructorResult(
+                                targetClass = ParcelAuditDetailsDto.class,
+                                columns = {
+                                        @ColumnResult(name = "INVOICE_ID", type = Long.class),
+                                }
+                        )
                 }
         )
 })
@@ -146,6 +174,13 @@ public class ParcelAuditDetailsDto {
 
     @Column(name = "DW_FIELD_INFORMATION")
     private String dwFieldInformation;
+
+    public ParcelAuditDetailsDto() {
+    }
+
+    public ParcelAuditDetailsDto(Long invoiceId) {
+        this.invoiceId = invoiceId;
+    }
 
     public Long getId() {
         return id;
@@ -444,14 +479,20 @@ public class ParcelAuditDetailsDto {
     }
 
     public static class Config{
-        static class StoredProcedureName{
+        public static class StoredProcedureName{
             static final String AUDIT_UPS_PARCEL_DETAILS = "SHP_AUDIT_UPS_PARCEL_PROC";
             static final String AUDIT_NOT_UPS_PARCEL_DETAILS = "SHP_AUDIT_NON_UPS_PRCEL_PROC";
+            static final String LOAD_INVOICE_IDS = "SHP_AUDIT_GET_INVOICE_PROC";
         }
 
         public static class StoredProcedureQueryName{
             public static final String AUDIT_UPS_PARCEL_DETAILS = "ParcelAuditDetailsDto.loadUpsParcelAuditDetails";
             public static final String AUDIT_NOT_UPS_PARCEL_DETAILS = "ParcelAuditDetailsDto.loadNonUpsParcelAuditDetails";
+            public static final String LOAD_INVOICE_IDS = "ParcelAuditDetailsDto.loadInvoiceIds";
+        }
+
+        public static class SqlResultSetMapping{
+            public static final String LOAD_INVOICE_IDS_MAPPING = "ParcelAuditDetailsDto.loadInvoiceIdsMapping";
         }
     }
 }
