@@ -54,7 +54,6 @@ public class ParcelRTRController {
     @RequestMapping(value = "/auditParcelInv", method = {RequestMethod.GET}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<CommonResponse> auditParcelInvoice(@RequestParam(required = false) String fromDate, @RequestParam(required = false) String toDate,
                                                              @RequestParam(required = false) String customerId, @RequestParam(required = false, defaultValue = "0") Integer limit) {
-        System.out.println("Start Time :: " + System.currentTimeMillis());
         String message = "Parcel Audit completed successfully";
         List<ParcelAuditDetailsDto> invoiceList = parcelRTRService.loadInvoiceIds(fromDate, toDate, customerId, limit);
         if(invoiceList != null && !invoiceList.isEmpty()){
@@ -62,7 +61,6 @@ public class ParcelRTRController {
         }else{
             message = "No Invoice found!";
         }
-        System.out.println("End Time :: " + System.currentTimeMillis());
         CommonResponse response = new CommonResponse();
         response.setStatusCode(HttpStatus.OK.value());
         response.setMessage(message);
