@@ -23,10 +23,11 @@ public class ParcelRTRDao {
     @Inject
     private PersistentContext persistentContext;
 
-    public List<ParcelAuditDetailsDto> loadUpsParcelAuditDetails(String customerIds, String fromDate, String toDate, String trackingNumbers){
+    public List<ParcelAuditDetailsDto> loadUpsParcelAuditDetails(String customerIds, String fromDate, String toDate, String trackingNumbers, String invoiceId){
         QueryParameter queryParameter = QueryParameter.with("p_from_date", fromDate)
                 .and("p_to_date", toDate)
-                .and("p_tracking_numbers", trackingNumbers);
+                .and("p_tracking_numbers", trackingNumbers)
+                .and("p_invoice_id", invoiceId);
 
         if(customerIds != null && !customerIds.isEmpty()){
             queryParameter.and("p_customer_CSV", customerIds);
@@ -37,13 +38,14 @@ public class ParcelRTRDao {
     }
 
     public List<ParcelAuditDetailsDto> loadUpsParcelAuditDetails(String fromDate, String toDate, String trackingNumber){
-        return loadUpsParcelAuditDetails(null, fromDate, toDate, trackingNumber);
+        return loadUpsParcelAuditDetails(null, fromDate, toDate, trackingNumber, null);
     }
 
-    public List<ParcelAuditDetailsDto> loadNonUpsParcelAuditDetails(String customerIds, String fromDate, String toDate, String carrierIds, String trackingNumbers){
+    public List<ParcelAuditDetailsDto> loadNonUpsParcelAuditDetails(String customerIds, String fromDate, String toDate, String carrierIds, String trackingNumbers, String invoiceId){
         QueryParameter queryParameter = QueryParameter.with("p_from_date", fromDate)
                 .and("p_to_date", toDate).and("p_carrier_ids", carrierIds)
-                .and("p_tracking_numbers", trackingNumbers);
+                .and("p_tracking_numbers", trackingNumbers)
+                .and("p_invoice_id", invoiceId);
 
         if(customerIds != null && !customerIds.isEmpty()){
             queryParameter.and("p_customer_CSV", customerIds);
@@ -54,7 +56,7 @@ public class ParcelRTRDao {
     }
 
     public List<ParcelAuditDetailsDto> loadNonUpsParcelAuditDetails(String fromDate, String toDate, String carrierIds, String trackingNumbers){
-        return loadNonUpsParcelAuditDetails(null, fromDate, toDate, carrierIds, trackingNumbers);
+        return loadNonUpsParcelAuditDetails(null, fromDate, toDate, carrierIds, trackingNumbers, null);
     }
 
     public void updateRTRInvoiceAmount(Long id, String userName, BigDecimal rtrAmount, String rtrStatus, Long carrierId){
@@ -96,6 +98,25 @@ public class ParcelRTRDao {
         }catch (Exception e){
             e.printStackTrace();
             throw new DaoException("Error while saving request and response xml", e);
+        }
+    }
+
+    public List<ParcelAuditDetailsDto> loadInvoiceIds(String fromDate, String toDate, String customerId, int limit){
+        QueryParameter queryParameter = StoredProcedureParameter.with("p_from_date", fromDate)
+                .and("p_to_date", toDate)
+                .and("p_customer_id", customerId)
+                .and("p_limit", limit);
+        return persistentContext.findEntities(ParcelAuditDetailsDto.Config.StoredProcedureQueryName.LOAD_INVOICE_IDS, queryParameter);
+    }
+
+    public void updateInvoiceRtrStatus(Long invoiceId, String rtrStatus){
+        try {
+            QueryParameter queryParameter = StoredProcedureParameter.withPosition(1, ParameterMode.IN, Long.class, invoiceId)
+                    .andPosition(2, ParameterMode.IN, String.class, rtrStatus);
+            persistentContext.executeStoredProcedure("SHP_UPDATE_INV_RTR_STATUS_PROC", queryParameter);
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new DaoException("Error while saving Invoice rtr status", e);
         }
     }
 }
