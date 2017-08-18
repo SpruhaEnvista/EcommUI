@@ -545,4 +545,12 @@ public class ReportsController {
             return new ResponseEntity<JSONObject>(new JSONObject(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    @RequestMapping(value = "/folder/update", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<ReportFolderDto> updateReportFolder(@RequestBody ReportFolderDto reportFolderDto){
+        ReportFolderDto reportFolder = null;
+        if(reportFolderDto != null && reportFolderDto.getRptFolderName() != null){
+            reportFolder = reportsService.updateReportFolder(reportFolderDto,getUserProfile());
+        }
+        return new ResponseEntity<ReportFolderDto>(reportFolder,HttpStatus.OK);
+    }
 }

@@ -927,4 +927,7 @@ public class ReportsService {
         }
         return null;
     }
+    public ReportFolderDto updateReportFolder(ReportFolderDto reportFolderDto, UserProfileDto userProfileDto){
+        return reportsDao.updateReportFolder(reportFolderDto,userProfileDto);
+    }
 }

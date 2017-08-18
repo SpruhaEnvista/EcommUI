@@ -45,6 +45,16 @@ import java.util.TreeSet;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "rptFolderId", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "userId", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_subfolders_cur", type = Void.class)
+                }),
+        @NamedStoredProcedureQuery(name = "ReportFolder.updateRptFolder", procedureName = "shp_update_rpt_fldr_proc",
+                resultSetMappings = "insertCount",
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "refCur", type = Void.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "rptFolderId", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "parentFolderId", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "newFolderName", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "userId", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "updateUser", type = String.class)
                 })
 })
 @SqlResultSetMappings({
