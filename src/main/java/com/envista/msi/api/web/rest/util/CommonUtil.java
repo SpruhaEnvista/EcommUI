@@ -8,6 +8,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
+import java.text.DecimalFormat;
 
 /**
  * This utility class is specially designed to keep all methods which are commonly used/to be used over different module in Avatar project.
@@ -79,5 +80,30 @@ public class CommonUtil {
             e.printStackTrace();
         }
         return respStr.toString();
+    }
+
+    /**
+     * Convert the given number into 2 decimal format.
+     * This is a convenient way to obtain a DecimalFormat when internationalization is not the main concern.
+     * @param value
+     * @return
+     */
+    public static String toDecimalFormat(Double value){
+        return toDecimalFormat(value, "0.00");
+    }
+
+    /**
+     * Convert number into given decimal format.
+     * This is a convenient way to obtain a DecimalFormat when internationalization is not the main concern.
+     * @param value
+     * @param pattern
+     * @return
+     */
+    public static String toDecimalFormat(Double value, String pattern){
+        if(null == value){
+            return "0.00";
+        }
+        DecimalFormat df = new DecimalFormat(pattern);
+        return df.format(value);
     }
 }
