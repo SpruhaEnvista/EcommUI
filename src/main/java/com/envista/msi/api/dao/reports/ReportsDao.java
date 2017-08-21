@@ -721,4 +721,12 @@ public class ReportsDao {
         return persistentContext.findEntities("SavedSchedReports.gerSavedSchedTemplates",
                 StoredProcedureParameter.with("userId", userId == null?0:userId));
     }
+    @Transactional
+    public ReportFolderDto updateReportFolder(ReportFolderDto reportFolderDto, UserProfileDto userProfileDto){
+        QueryParameter queryParameter = StoredProcedureParameter.with("rptFolderId",reportFolderDto.getRptFolderId()).and("parentFolderId",(reportFolderDto.getParentId()!=null?reportFolderDto.getParentId():0l))
+                .and("newFolderName", reportFolderDto.getRptFolderName())
+                .and("userId", (userProfileDto != null && userProfileDto.getUserId() != null ? userProfileDto.getUserId() : 0l ) )
+                .and("updateUser", (userProfileDto != null && userProfileDto.getUserName() != null ?  userProfileDto.getUserName() : "invalid" ));
+        return persistentContext.findEntityAndMapFields("ReportFolder.updateRptFolder", queryParameter);
+    }
 }
