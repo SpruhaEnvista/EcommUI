@@ -317,7 +317,7 @@ public class ReportsController {
     public ResponseEntity<List<ReportColumnDto>> getReportCriteria(@RequestParam String userId, @RequestParam String rptId, @RequestParam String carrierIds, @RequestParam(required = false) String customerId){
         try {
             List<ReportColumnDto> reportCriteriaCols = reportsService.getReportCriteria(Long.parseLong(userId),Long.parseLong(rptId),carrierIds);
-            if(reportCriteriaCols != null && !reportCriteriaCols.isEmpty()){
+            if(reportCriteriaCols != null && !reportCriteriaCols.isEmpty() && rptId != null && !rptId.isEmpty() && customerId != null && !customerId.isEmpty()){
                 Map<String, String> customColumns = reportsService.getReportCustomColumnNames(customerId, Long.parseLong(rptId));
                 if(customColumns != null && !customColumns.isEmpty()){
                     reportCriteriaCols.forEach( reportCol -> {
@@ -337,7 +337,7 @@ public class ReportsController {
     public ResponseEntity<List<ReportColumnDto>> getIncludeExcludeSortCol(@RequestParam String userId, @RequestParam String rptId, @RequestParam String carrierIds, @RequestParam(required = false) String customerId){
         try {
             List<ReportColumnDto> reportIncludeExclSortCols = reportsService.getIncludeExcludeSortCol(Long.parseLong(userId), Long.parseLong(rptId),carrierIds);
-            if(reportIncludeExclSortCols != null && !reportIncludeExclSortCols.isEmpty()){
+            if(reportIncludeExclSortCols != null && !reportIncludeExclSortCols.isEmpty() && rptId != null && !rptId.isEmpty() && customerId != null && !customerId.isEmpty()){
                 Map<String, String> customColumns = reportsService.getReportCustomColumnNames(customerId, Long.parseLong(rptId));
                 if(customColumns != null && !customColumns.isEmpty()){
                     reportIncludeExclSortCols.forEach( reportCol -> {
