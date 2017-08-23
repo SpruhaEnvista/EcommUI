@@ -376,6 +376,16 @@ public class ReportsDao {
         return persistentContext.findEntity("SavedSchedReports.saveUsers",queryParameter);
 
     }
+    @Transactional
+    public ReportUserGenStatusDto saveUserGenStatus(ReportUserGenStatusDto saveUserGenStatus){
+
+        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", saveUserGenStatus.getSavedSchedRptId()==null?0l:saveUserGenStatus.getSavedSchedRptId())
+                .and("userId",saveUserGenStatus.getUserId()==null?0l:saveUserGenStatus.getUserId())
+                .and("createUser",saveUserGenStatus.getCreateUser()==null?"":saveUserGenStatus.getCreateUser());
+
+        return persistentContext.findEntity("SavedUserGenReports.saveUserGen",queryParameter);
+
+    }
     /**
      * @param rptId
      * @return List<ReportFormatDto>
