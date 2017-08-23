@@ -729,4 +729,10 @@ public class ReportsDao {
                 .and("updateUser", (userProfileDto != null && userProfileDto.getUserName() != null ?  userProfileDto.getUserName() : "invalid" ));
         return persistentContext.findEntityAndMapFields("ReportFolder.updateRptFolder", queryParameter);
     }
+
+    public List<ReportCustomColumnDto> getReportCustomColumnNames(String customerId, Long reportId){
+        QueryParameter queryParameter = StoredProcedureParameter.with("p_customer_id", customerId)
+                .and("p_report_id", reportId);
+        return persistentContext.findEntitiesAndMapFields(ReportCustomColumnDto.Config.CustomColumnNames.STORED_PROCEDURE_QUERY_NAME, queryParameter);
+    }
 }
