@@ -60,7 +60,7 @@ public class CreditsPRController {
             , @RequestParam String createDate, @RequestParam String invoiceDate, @RequestParam String closeDate, @RequestParam String invoiceNumbers
             , @RequestParam String trackingNumbers, @RequestParam String internalKeyIds, @RequestParam Long invoiceMethodId, @RequestParam String payRunNos
             , @RequestParam String controlNums, @RequestParam String adjReasons, @RequestParam String invComments
-            , @RequestParam(required = false, defaultValue = "0") Integer offset, @RequestParam(required = false, defaultValue = "10") Integer limit) throws Exception {
+            , @RequestParam(required = false, defaultValue = "0") Integer offset, @RequestParam(required = false, defaultValue = "10") Integer limit, @RequestParam String sort) throws Exception {
         log.info("***search method started****");
 
         CreditsPRSearchBean bean = new CreditsPRSearchBean();
@@ -93,6 +93,7 @@ public class CreditsPRController {
         bean.setControlNums(controlNums);
         bean.setAdjReasons(adjReasons);
         bean.setInvComments(invComments);
+        bean.setSort(sort);
 
 
         PaginationBean paginationData = service.getSearchPaginationData(bean, offset, limit);
