@@ -94,8 +94,8 @@ public class ReportsService {
         return  reportsDao.getUsersList(userName);
     }
 
-    public List<SavedSchedReportsDto> getSavedSchedReports(Long userId,Long filterId){
-        return reportsDao.getSavedSchedReports(userId,filterId);
+    public List<SavedSchedReportsDto> getSavedSchedReports(Long userId,Long filterId,String orderBy, String ascDesc){
+        return reportsDao.getSavedSchedReports(userId,filterId,orderBy,ascDesc);
     }
     public List<SavedSchedReportsDto> getSavedSchedTemplates(Long userId){
         return reportsDao.getSavedSchedTemplates(userId);

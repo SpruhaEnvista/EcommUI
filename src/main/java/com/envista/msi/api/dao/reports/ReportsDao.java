@@ -111,10 +111,11 @@ public class ReportsDao {
      */
 
     @Transactional( readOnly = true )
-    public List<SavedSchedReportsDto> getSavedSchedReports(Long userId,Long folderId) {
+    public List<SavedSchedReportsDto> getSavedSchedReports(Long userId,Long folderId,String orderBy, String ascDesc) {
         return persistentContext.findEntities("SavedSchedReports.gerSavedSchedReports",
                 StoredProcedureParameter.with("userId", userId == null?0:userId)
-                                        .and("folderId",folderId == null?0: folderId));
+                                        .and("folderId",folderId == null?0: folderId)
+                                        .and("orderBy", orderBy).and("ascDesc", ascDesc));
     }
 
     @Transactional
