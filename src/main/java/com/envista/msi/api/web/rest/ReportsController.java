@@ -107,10 +107,21 @@ public class ReportsController {
         }
     }
     @RequestMapping(value = "/savedschedreports", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<List<SavedSchedReportsDto>> getSavedSchedReports(@RequestParam String userId,@RequestParam(required = false) String folderId){
+    public ResponseEntity<List<SavedSchedReportsDto>> getSavedSchedReports(@RequestParam String userId,@RequestParam(required = false) String folderId,@RequestParam(required = false) String sort){
+
         if(folderId!=null)
             folderId = folderId.replaceAll("-","");
-        List<SavedSchedReportsDto> resultsList = reportsService.getSavedSchedReports(Long.parseLong(userId), (folderId == null ? 0 : Long.parseLong(folderId.trim())));
+        String ascorDesc=null;
+        if(sort!=null && sort.trim().length()>0){
+            if(sort.startsWith("-")){
+                ascorDesc = "desc";
+                sort = sort.replace("-","");
+            }else{
+                ascorDesc = "asc";
+            }
+        }
+
+        List<SavedSchedReportsDto> resultsList = reportsService.getSavedSchedReports(Long.parseLong(userId), (folderId == null ? 0 : Long.parseLong(folderId.trim())),sort,ascorDesc);
         return new ResponseEntity<List<SavedSchedReportsDto>>(resultsList, HttpStatus.OK);
     }
     @RequestMapping(value = "/savedschedtemplates", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
