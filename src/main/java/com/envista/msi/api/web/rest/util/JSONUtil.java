@@ -1829,6 +1829,201 @@ public class JSONUtil {
         return returnJson;
     }
 
+    public static JSONArray prepareExportReportDataJson ( List<DashboardReportDto> reportDataList , JSONArray reportColumnDetails ) throws Exception  {
+        JSONArray  finalJsonArray  = new JSONArray();
+        int counter = 0;
+        for (DashboardReportDto reportData : reportDataList) {
+            JSONArray  eachRowInfoArray  = new JSONArray();
+            for ( int i =0 ; i< reportColumnDetails.length() ; i++ ) {
+
+                JSONObject eachColumnData = new JSONObject();
+                JSONObject columnInfo = reportColumnDetails.getJSONObject(i);
+                String selectClause = columnInfo.getString("selectClause");
+
+                if ( counter == 0 ) {
+                    eachColumnData.put("header", columnInfo.getString("header"));
+                    eachColumnData.put("format", columnInfo.getString("format"));
+                    eachColumnData.put("dataType", columnInfo.getString("dataType"));
+                }
+
+                switch (selectClause.toUpperCase()) {
+                    case "CARRIER_NAME":
+                        eachColumnData.put("value", reportData.getCarrierName());
+                        break;
+                    case "INVOICE_NUMBER":
+                        eachColumnData.put("value", reportData.getInvoiceNumber());
+                        break;
+                    case "PRO_NUMBER":
+                        eachColumnData.put("value", reportData.getProNumber());
+                        break;
+                    case "BOL_NUMBER":
+                        eachColumnData.put("value", reportData.getBolNumber());
+                        break;
+                    case "BILL_OPTION":
+                        eachColumnData.put("value", reportData.getBillOption());
+                        break;
+                    case "BILL_DATE":
+                        eachColumnData.put("value", reportData.getBillDate());
+                        break;
+                    case "SHIP_DATE":
+                        eachColumnData.put("value", reportData.getShipDate());
+                        break;
+                    case "DELIVERY_DATE":
+                        eachColumnData.put("value", reportData.getDeliveryDate());
+                        break;
+                    case "INVOICE_MODE":
+                        eachColumnData.put("value", reportData.getInvoiceNumber());
+                        break;
+                    case "INVOICE_METHOD":
+                        eachColumnData.put("value", reportData.getInvoiceMethod());
+                        break;
+                    case "GL_ACCOUNTS_CODE":
+                        eachColumnData.put("value", reportData.getGlAccountCode());
+                        break;
+                    case "PO_NUMBER":
+                        eachColumnData.put("value", reportData.getPoNumber());
+                        break;
+                    case "REFERENCE1":
+                        eachColumnData.put("value", reportData.getReference1());
+                        break;
+                    case "REFERENCE2":
+                        eachColumnData.put("value", reportData.getReference2());
+                        break;
+                    case "SCAC_CODE":
+                        eachColumnData.put("value", reportData.getScacCode());
+                        break;
+                    case "SHIPPER_NAME":
+                        eachColumnData.put("value", reportData.getShipperName());
+                        break;
+                    case "SHIPPER_ADDRESS_1":
+                        eachColumnData.put("value", reportData.getShipperAddress1());
+                        break;
+                    case "SHIPPER_CITY":
+                        eachColumnData.put("value", reportData.getShipperCity());
+                        break;
+                    case "SHIPPER_STATE":
+                        eachColumnData.put("value", reportData.getShipperState());
+                        break;
+                    case "SHIPPER_ZIPCODE":
+                        eachColumnData.put("value", reportData.getShipperZipCode());
+                        break;
+                    case "SHIPPER_COUNTRY":
+                        eachColumnData.put("value", reportData.getShipperCountry());
+                        break;
+                    case "RECEIVER_NAME":
+                        eachColumnData.put("value", reportData.getReceiverName());
+                        break;
+                    case "RECEIVER_ADDRESS_1":
+                        eachColumnData.put("value", reportData.getReceiverAddress1());
+                        break;
+                    case "RECEIVER_CITY":
+                        eachColumnData.put("value", reportData.getReceiverCity());
+                        break;
+                    case "RECEIVER_STATE":
+                        eachColumnData.put("value", reportData.getReceiverState());
+                        break;
+                    case "RECEIVER_ZIPCODE":
+                        eachColumnData.put("value", reportData.getReceiverZipCode());
+                        break;
+                    case "RECEIVER_COUNTRY":
+                        eachColumnData.put("value", reportData.getReceiverCountry());
+                        break;
+                    case "TOTAL_WEIGHT":
+                        eachColumnData.put("value", reportData.getTotalWeight());
+                        break;
+                    case "TOTAL_CHARGES":
+                        eachColumnData.put("value", reportData.getTotalCharges());
+                        break;
+                    case "LINE_HAUL":
+                        eachColumnData.put("value", reportData.getLineHaul());
+                        break;
+                    case "FUEL_SURCHARGE":
+                        eachColumnData.put("value", reportData.getFuelCharges());
+                        break;
+                    case "DISCOUNT":
+                        eachColumnData.put("value", reportData.getDiscount());
+                        break;
+                    case "ACCESSORIALS":
+                        eachColumnData.put("value", reportData.getAccessorial());
+                        break;
+                    case "ADJUSTMENTS":
+                        eachColumnData.put("value", reportData.getAdjustments());
+                        break;
+                    case "TOTAL_DUE_AMOUNT":
+                        eachColumnData.put("value", reportData.getTotalDueAmount());
+                        break;
+                    case "INVOICE_STATUS":
+                        eachColumnData.put("value", reportData.getInvoiceStatus());
+                        break;
+                    case "CHECK_NO":
+                        eachColumnData.put("value", reportData.getCheckNumber());
+                        break;
+                    case "CHECK_DATE":
+                        eachColumnData.put("value", reportData.getCheckDate());
+                        break;
+                    case "CHECK_AMOUNT":
+                        eachColumnData.put("value", reportData.getCheckAmount());
+                        break;
+                    case "ADJUSTMENT_REASON":
+                        eachColumnData.put("value", reportData.getAdjustmentReason());
+                        break;
+                    case "SHIPPER_REGION":
+                        eachColumnData.put("value", reportData.getShipperRegion());
+                        break;
+                    case "RECEIVER_REGION":
+                        eachColumnData.put("value", reportData.getReceiverRegion());
+                        break;
+                    case "MULTI_WT":
+                        eachColumnData.put("value", reportData.getMultiWeight());
+                        break;
+                    case "SERVICE_LEVEL":
+                        eachColumnData.put("value", reportData.getServiceLevel());
+                        break;
+                    case "DELIVERY_FLAG":
+                        eachColumnData.put("value", reportData.getDeliveryFlag());
+                        break;
+                    case "CUSTOM_DEFINED_1":
+                        eachColumnData.put("value", reportData.getCustomDefined1());
+                        break;
+                    case "CUSTOM_DEFINED_2":
+                        eachColumnData.put("value", reportData.getCustomDefined2());
+                        break;
+                    case "CUSTOM_DEFINED_3":
+                        eachColumnData.put("value", reportData.getCustomDefined3());
+                        break;
+                    case "CUSTOM_DEFINED_4":
+                        eachColumnData.put("value", reportData.getCustomDefined4());
+                        break;
+                    case "CUSTOM_DEFINED_5":
+                        eachColumnData.put("value", reportData.getCustomDefined5());
+                        break;
+                    case "CUSTOM_DEFINED_6":
+                        eachColumnData.put("value", reportData.getCustomDefined6());
+                        break;
+                    case "CUSTOM_DEFINED_7":
+                        eachColumnData.put("value", reportData.getCustomDefined7());
+                        break;
+                    case "CUSTOM_DEFINED_8":
+                        eachColumnData.put("value", reportData.getCustomDefined8());
+                        break;
+                    case "CUSTOM_DEFINED_9":
+                        eachColumnData.put("value", reportData.getCustomDefined9());
+                        break;
+                    case "CUSTOM_DEFINED_10":
+                        eachColumnData.put("value", reportData.getCustomDefined10());
+                        break;
+                }
+                eachRowInfoArray.put(eachColumnData);
+
+            }
+            counter++;
+            finalJsonArray.put(eachRowInfoArray);
+        }
+
+
+        return finalJsonArray;
+    }
+
     public static JSONArray prepareDashboardReportJson(List<DashboardReportDto> reportDataList, Map<String, String> resultColumn) throws JSONException {
         JSONArray returnArray = new JSONArray();
 

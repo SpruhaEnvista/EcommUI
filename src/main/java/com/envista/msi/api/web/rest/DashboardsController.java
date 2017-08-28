@@ -27,6 +27,7 @@ import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
 import com.envista.msi.api.web.rest.util.DateUtil;
 import com.envista.msi.api.web.rest.util.JSONUtil;
 import com.envista.msi.api.web.rest.util.pagination.PaginationBean;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,7 +40,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.el.MethodNotFoundException;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.ByteArrayOutputStream;
 import java.util.*;
 
 /**
@@ -2225,6 +2228,47 @@ public class DashboardsController extends DashboardBaseController {
             reportPaginationData = dashboardsService.getDashboardReportPaginationData(appliedFilter, offset, limit);
         }
         return ResponseEntity.status(HttpStatus.OK).body(reportPaginationData);
+    }
+
+    @RequestMapping(value = "/exportReport", method = {RequestMethod.GET}, produces = "application/text")
+    public @ResponseBody void exportDashboardReport(@RequestParam(required = false) String invoiceDate, @RequestParam(required = false) String dashletteName, @RequestParam(required = false) String carrierId,
+                                                             @RequestParam(required = false) String mode, @RequestParam(required = false) String carscoretype, @RequestParam(required = false) String service,
+                                                             @RequestParam(required = false, defaultValue = "0") Integer offset, @RequestParam(required = false, defaultValue = "1000") Integer limit,
+                                                             @RequestParam(required = false) String filter, HttpServletResponse response) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria appliedFilter = loadAppliedFilters(user.getUserId());
+        if(appliedFilter != null){
+            if(invoiceDate != null && !invoiceDate.isEmpty()){
+                DashboardUtil.setDatesFromMonth(appliedFilter, invoiceDate);
+            }
+            appliedFilter.setDashletteName(dashletteName);
+            if(carrierId != null && !carrierId.isEmpty()){
+                appliedFilter.setCarriers(carrierId);
+            }
+            appliedFilter.setModeNames(mode);
+            appliedFilter.setScoreType(carscoretype);
+            appliedFilter.setService(service);
+            appliedFilter.setOffset(offset);
+            appliedFilter.setPageSize(1000);
+        }
+
+        Workbook workbook = null;
+
+        if(filter != null && !filter.isEmpty()){
+            workbook = dashboardsService.getReportForExport(appliedFilter, offset, 1000, DashboardUtil.prepareSearchFilterCriteria(filter));
+        }else {
+            workbook=  dashboardsService.getReportForExport(appliedFilter, offset, 1000, null);
+        }
+
+        response.setContentType("application/text");
+        response.setHeader("Content-Disposition", "attachment; filename=DashboardExport.xlsx");
+
+        if ( workbook != null) {
+            workbook.write( response.getOutputStream()); // Write workbook to response.
+            workbook.close();
+        }
+
+
     }
 
 
