@@ -94,8 +94,8 @@ public class ReportsService {
         return  reportsDao.getUsersList(userName);
     }
 
-    public List<SavedSchedReportsDto> getSavedSchedReports(Long userId,Long filterId){
-        return reportsDao.getSavedSchedReports(userId,filterId);
+    public List<SavedSchedReportsDto> getSavedSchedReports(Long userId,Long filterId,String orderBy, String ascDesc){
+        return reportsDao.getSavedSchedReports(userId,filterId,orderBy,ascDesc);
     }
     public List<SavedSchedReportsDto> getSavedSchedTemplates(Long userId){
         return reportsDao.getSavedSchedTemplates(userId);
@@ -591,6 +591,15 @@ public class ReportsService {
             for(ReportSavedSchdUsersDto saveSchedUser : removeDuplicateUsers(savedSchedReportDto.getSavedSchedUsersDtoList())){
                 saveSchedUser.setSavedSchedRptId(savedSchedRrtId);
                 ReportSavedSchdUsersDto outUserDto = reportsDao.saveSchedUser(saveSchedUser);
+            }
+        }
+        if(savedSchedReportDto.getSavedSchedUsersDtoList()!=null && savedSchedReportDto.getSavedSchedUsersDtoList().size()>0){
+            for(ReportSavedSchdUsersDto saveUserGen : removeDuplicateUsers(savedSchedReportDto.getSavedSchedUsersDtoList())){
+                ReportUserGenStatusDto saveUserGenStatus = new ReportUserGenStatusDto();
+                saveUserGenStatus.setSavedSchedRptId(savedSchedRrtId);
+                saveUserGenStatus.setUserId(saveUserGen.getUserId());
+                saveUserGenStatus.setCreateUser(saveUserGen.getCreateUser());
+                ReportUserGenStatusDto outUserDto = reportsDao.saveUserGenStatus(saveUserGenStatus);
             }
         }
         if(savedSchedReportDto.getSavedSchedAccountsDtoList()!=null && savedSchedReportDto.getSavedSchedAccountsDtoList().size()>0){
