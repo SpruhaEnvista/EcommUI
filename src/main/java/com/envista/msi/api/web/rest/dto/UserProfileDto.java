@@ -106,6 +106,11 @@ public class UserProfileDto implements Serializable {
 	@Column(name = "db_def_cust")
 	private String defaultCustomer;
 
+	@Column ( name = "is_invoicing_analyst")
+	private Boolean invoicingAnalyst ;
+
+
+
 	public UserProfileDto() {
 	}
 
@@ -189,10 +194,19 @@ public class UserProfileDto implements Serializable {
 		this.phone = phone;
 	}
 
+	public Boolean getInvoicingAnalyst() {
+		return invoicingAnalyst;
+	}
+
+	public void setInvoicingAnalyst(Boolean invoicingAnalyst) {
+		this.invoicingAnalyst = invoicingAnalyst;
+	}
+
 	@Override
 	public String toString() {
 		return "UserProfileTb [userId=" + userId + ", email=" + email + ", fullname=" + fullname + ", isAccounts="
 				+ isAccounts + ", userName=" + userName + ", userinfo=" + userinfo + ", passwd=" + passwd + "]";
 	}
+
 
 }
