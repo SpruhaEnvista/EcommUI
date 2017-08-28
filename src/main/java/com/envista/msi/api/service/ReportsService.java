@@ -924,4 +924,12 @@ public class ReportsService {
     public ReportFolderDto updateReportFolder(ReportFolderDto reportFolderDto, UserProfileDto userProfileDto){
         return reportsDao.updateReportFolder(reportFolderDto,userProfileDto);
     }
+
+    public List<ReportCodeValueDto> getCodeValues(Long codeGroupId, String orderBy){
+        return reportsDao.getCodeValues(codeGroupId, orderBy);
+    }
+
+    public List<String> getReportWeightList(){
+        return Arrays.asList("LBS", "KGS", "LITRES", "GALLONS", "TONS");
+    }
 }

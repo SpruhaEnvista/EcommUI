@@ -4,36 +4,30 @@ import com.envista.msi.api.security.SecurityUtils;
 import com.envista.msi.api.service.ReportsService;
 import com.envista.msi.api.service.UserService;
 import com.envista.msi.api.web.rest.dto.UserProfileDto;
-import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
-import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendRequestDto;
 import com.envista.msi.api.web.rest.dto.reports.*;
+import com.envista.msi.api.web.rest.response.CommonResponse;
 import com.envista.msi.api.web.rest.util.JSONUtil;
 import com.envista.msi.api.web.rest.util.WebConstants;
+import com.envista.msi.api.web.rest.util.pac.GlobalConstants;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.springframework.cglib.core.internal.LoadingCache;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
+import java.util.ArrayList;
 import java.util.HashMap;
-
-import org.springframework.util.FileCopyUtils;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import java.util.List;
+import java.util.Map;
 /**
  * Created by Sreenivas on 2/17/2017.
  */
@@ -563,5 +557,17 @@ public class ReportsController {
             reportFolder = reportsService.updateReportFolder(reportFolderDto,getUserProfile());
         }
         return new ResponseEntity<ReportFolderDto>(reportFolder,HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/reportFormat", method = {RequestMethod.GET, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<CommonResponse> getReportFormatData() {
+        Map<String, Object> respMap = new HashMap<>();
+        respMap.put("currency", reportsService.getCodeValues(GlobalConstants.REPORT_CURRENCY_CODE_GROUP_ID, "upper(code_value)"));
+        respMap.put("language", reportsService.getCodeValues(GlobalConstants.REPORT_LANGUAGE_CODE_GROUP_ID, "sequence"));
+        respMap.put("weight", reportsService.getReportWeightList());
+        CommonResponse response = new CommonResponse();
+        response.setData(respMap);
+        response.setStatusCode(HttpStatus.OK.value());
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }
