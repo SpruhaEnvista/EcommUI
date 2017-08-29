@@ -94,8 +94,8 @@ public class ReportsService {
         return  reportsDao.getUsersList(userName);
     }
 
-    public List<SavedSchedReportsDto> getSavedSchedReports(Long userId,Long filterId){
-        return reportsDao.getSavedSchedReports(userId,filterId);
+    public List<SavedSchedReportsDto> getSavedSchedReports(Long userId,Long filterId,String orderBy, String ascDesc){
+        return reportsDao.getSavedSchedReports(userId,filterId,orderBy,ascDesc);
     }
     public List<SavedSchedReportsDto> getSavedSchedTemplates(Long userId){
         return reportsDao.getSavedSchedTemplates(userId);
@@ -593,6 +593,15 @@ public class ReportsService {
                 ReportSavedSchdUsersDto outUserDto = reportsDao.saveSchedUser(saveSchedUser);
             }
         }
+        if(savedSchedReportDto.getSavedSchedUsersDtoList()!=null && savedSchedReportDto.getSavedSchedUsersDtoList().size()>0){
+            for(ReportSavedSchdUsersDto saveUserGen : removeDuplicateUsers(savedSchedReportDto.getSavedSchedUsersDtoList())){
+                ReportUserGenStatusDto saveUserGenStatus = new ReportUserGenStatusDto();
+                saveUserGenStatus.setSavedSchedRptId(savedSchedRrtId);
+                saveUserGenStatus.setUserId(saveUserGen.getUserId());
+                saveUserGenStatus.setCreateUser(saveUserGen.getCreateUser());
+                ReportUserGenStatusDto outUserDto = reportsDao.saveUserGenStatus(saveUserGenStatus);
+            }
+        }
         if(savedSchedReportDto.getSavedSchedAccountsDtoList()!=null && savedSchedReportDto.getSavedSchedAccountsDtoList().size()>0){
             ArrayList<GenericObject> genericObjectAcctList = new ArrayList<GenericObject>();
             for(ReportsSavedSchdAccountDto accoutsDto : savedSchedReportDto.getSavedSchedAccountsDtoList()){
@@ -777,21 +786,6 @@ public class ReportsService {
     }
 
     public ReportFolderDto deleteFolder(Long rptFolderId, Long userId) {
-
-        List<ReportFolderDto> list = reportsDao.getSubFolders(rptFolderId,userId);
-
-        for(int i =0;i<list.size();i++){
-            ReportFolderDto folderDto = list.get(i);
-            if(folderDto.getRptFolderId()!=null && folderDto.getRptFolderId()>0){
-                List<ReportFolderDto> subFolderList = reportsDao.getSubFolders(folderDto.getRptFolderId(),userId);
-                if(subFolderList!=null && subFolderList.size()>0){
-                    deleteFolder(folderDto.getRptFolderId(), userId);
-                }else{
-                    reportsDao.deleteFolder(folderDto.getRptFolderId(),userId);
-                }
-            }
-        }
-
         return reportsDao.deleteFolder(rptFolderId,userId);
     }
 
