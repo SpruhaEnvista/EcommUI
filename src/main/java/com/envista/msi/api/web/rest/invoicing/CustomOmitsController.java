@@ -234,8 +234,8 @@ public class CustomOmitsController {
     }
 
 
-    @RequestMapping(value = "/findBySearchCriteriaAndExport", params = {"trackingNumber", "customerIds", "creditTypeId", "comments", "carrierId", "userId","totalRecordsCount"}, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
-    public @ResponseBody void findBySearchCriteriaAndExport(@RequestParam String trackingNumber, @RequestParam String customerIds, @RequestParam long creditTypeId, @RequestParam String comments, long carrierId, long userId,
+    @RequestMapping(value = "/findBySearchCriteriaAndExport", params = {"trackingNumber", "customerIds", "creditTypeId", "comments", "carrierId", "userId","exportType","totalRecordsCount"}, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+    public @ResponseBody void findBySearchCriteriaAndExport(@RequestParam String trackingNumber, @RequestParam String customerIds, @RequestParam long creditTypeId, @RequestParam String comments, @RequestParam long carrierId,@RequestParam long userId,@RequestParam String exportType,
                                                                @RequestParam(required = false, defaultValue = "10") Integer totalRecordsCount,HttpServletResponse response) throws Exception{
 
         LOG.info("***findBySearchCriteriaAndExport method started****" + trackingNumber);
@@ -258,7 +258,7 @@ public class CustomOmitsController {
 
         LOG.info("***findBySearchCriteriaAndExports method****" + CustomOmitsPaginationData);
 
-        fileOperations.exportCustomOmits("XLSX",(List<CustomOmitsDto>)CustomOmitsPaginationData.getData(),response);
+        fileOperations.exportCustomOmits(exportType,(List<CustomOmitsDto>)CustomOmitsPaginationData.getData(),response);
 
     }
 }

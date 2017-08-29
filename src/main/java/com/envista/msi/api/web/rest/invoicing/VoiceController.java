@@ -37,13 +37,16 @@ public class VoiceController {
      * */
     @RequestMapping(value = "/getVoices", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
     public ResponseEntity<PaginationBean> getAllVoices(@RequestParam(required = false, defaultValue = "0") Integer offset,
-                                                       @RequestParam(required = false, defaultValue = "10") Integer limit
+                                                       @RequestParam(required = false, defaultValue = "10") Integer limit,
+                                                       @RequestParam(required = false, defaultValue = "null") String sort
                                                        ) throws Exception{
 
         log.info("***getAllVoices method started****");
+        VoiceSearchBean bean = new VoiceSearchBean();
+        bean.setSort(sort);
 
         PaginationBean voicesPaginationData = new PaginationBean();
-        voicesPaginationData = service.getVoicesPaginationData(offset, limit);
+        voicesPaginationData = service.getVoicesPaginationData(offset, limit,bean);
         log.info("***voices json***==== " + voicesPaginationData);
         return ResponseEntity.status(HttpStatus.OK).body(voicesPaginationData);
     }
@@ -52,7 +55,7 @@ public class VoiceController {
     public ResponseEntity<List<VoiceDto>> getAllParentVoiceNames(@PathVariable("voiceId") long voiceId) {
         log.info("***getAllParentVoiceNames method started****voice name is : "+voiceId);
 
-        List<VoiceDto> parentVoiceNamesList = service.getParentVoiceNames(voiceId);
+        List<VoiceDto> parentVoiceNamesList = service.getParentVoiceNames(voiceId,null);
 
         return new ResponseEntity<List<VoiceDto>>(parentVoiceNamesList, HttpStatus.OK);
 
@@ -61,6 +64,7 @@ public class VoiceController {
     @RequestMapping(value = "/getSearchCriteriaList", params = {"voiceNames", "voiceType", "voiceFlag", "pVoiceNames", "comments"}, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
     public ResponseEntity<PaginationBean> getSearchCriteriaList(@RequestParam String voiceNames, @RequestParam String voiceType, @RequestParam String voiceFlag,
                                                                 @RequestParam String pVoiceNames, @RequestParam String comments,
+                                                                @RequestParam(required = false, defaultValue = "null") String sort,
                                                                 @RequestParam(required = false, defaultValue = "0") Integer offset, @RequestParam(required = false, defaultValue = "10") Integer limit
                                                                 ) throws Exception{
 
@@ -74,6 +78,7 @@ public class VoiceController {
         bean.setComments(comments);
         bean.setOffset(offset);
         bean.setPageSize(limit);
+        bean.setSort(sort);
         //List<VoiceDto> voiceTbs = service.getVoicesBySearchCriteria(bean);
 
         PaginationBean voicesPaginationData = new PaginationBean();
@@ -139,12 +144,12 @@ public class VoiceController {
     @RequestMapping(value = "/{voiceId}", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
     public ResponseEntity<VoiceDto> findByVoiceId(@PathVariable("voiceId") Long voiceId) {
         log.info("***findByVoiceId method started****voice id is : " + voiceId);
-        return new ResponseEntity<VoiceDto>(service.findByVoiceId(voiceId), HttpStatus.OK);
+        return new ResponseEntity<VoiceDto>(service.findByVoiceId(voiceId,null), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/getSearchCriteriaListAndExportVoices", params = {"voiceNames", "voiceType", "voiceFlag", "pVoiceNames", "comments","totalRecordsCount"}, produces = "application/text", method = RequestMethod.GET)
+    @RequestMapping(value = "/getSearchCriteriaListAndExportVoices", params = {"voiceNames", "voiceType", "voiceFlag", "pVoiceNames", "comments","exportType","totalRecordsCount"}, produces = "application/text", method = RequestMethod.GET)
     public @ResponseBody void getSearchCriteriaListAndExport(@RequestParam String voiceNames, @RequestParam String voiceType, @RequestParam String voiceFlag,
-                                                       @RequestParam String pVoiceNames, @RequestParam String comments, @RequestParam Integer totalRecordsCount,HttpServletResponse response) throws Exception{
+                                                       @RequestParam String pVoiceNames, @RequestParam String comments,@RequestParam String exportType, @RequestParam Integer totalRecordsCount,HttpServletResponse response) throws Exception{
 
        log.info("***getSearchCriteriaListAndExportVoices method started****");
 
@@ -155,12 +160,13 @@ public class VoiceController {
         bean.setParentVoiceName(pVoiceNames);
         bean.setComments(comments);
         bean.setOffset(0);
+        bean.setSort(null);
         bean.setPageSize(totalRecordsCount);
 
         PaginationBean voicesPaginationData = new PaginationBean();
         voicesPaginationData = service.getSearchVoicesPaginationData(bean, 0, totalRecordsCount);
 
-        fileOperations.exportVoices("XLSX",(List<VoiceDto>)voicesPaginationData.getData(),response);
+        fileOperations.exportVoices(exportType,(List<VoiceDto>)voicesPaginationData.getData(),response);
     }
 
 
