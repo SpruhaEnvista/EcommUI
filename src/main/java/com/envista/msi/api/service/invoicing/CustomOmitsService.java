@@ -27,7 +27,7 @@ public class CustomOmitsService {
     @Inject
     private CustomOmitsDao dao;
 
-    public PaginationBean findByUserIdWithPagination(CustomOmitsDto dto1, int offset, int limit) throws Exception {
+    public PaginationBean findByUserIdWithPagination(CustomOmitsDto dto1, int offset, int limit, String sort) throws Exception {
          Map<String, Object> paginationFilterMap = new HashMap<String, Object>();
 
          return new EnspirePagination() {
@@ -39,7 +39,7 @@ public class CustomOmitsService {
 
              @Override
              protected Object loadPaginationData(Map<String, Object> paginationFilterMap, int offset, int limit, String sortOrder) throws Exception {
-                 List<CustomOmitsDto> dto = dao.findByuserId(dto1, offset, limit);
+                 List<CustomOmitsDto> dto = dao.findByUserId(dto1, offset, limit, sort);
                  return dto;
              }
          }.preparePaginationData(paginationFilterMap, offset, limit);
@@ -70,7 +70,7 @@ public class CustomOmitsService {
         return dao.delete(customOmitIds);
     }
 
-    public PaginationBean findBySearchCriteria(CustomOmitsDto filter, int offset, int limit) throws Exception {
+    public PaginationBean findBySearchCriteria(CustomOmitsDto filter, int offset, int limit, String sort) throws Exception {
         Map<String, Object> paginationFilterMap = new HashMap<String, Object>();
         paginationFilterMap.put("filter", filter);
 
@@ -82,7 +82,7 @@ public class CustomOmitsService {
 
             @Override
             protected Object loadPaginationData(Map<String, Object> paginationFilterMap, int offset, int limit, String sortOrder) throws Exception {
-                return dao.findBySearchCriteria(filter, paginationFilterMap, offset,limit);
+                return dao.findBySearchCriteria(filter, paginationFilterMap, offset, limit, sort);
             }
         }.preparePaginationData(paginationFilterMap, offset, limit);
     }

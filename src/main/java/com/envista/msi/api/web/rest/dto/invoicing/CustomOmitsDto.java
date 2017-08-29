@@ -157,7 +157,6 @@ public class CustomOmitsDto implements Serializable {
     @Column(name = "TOTAL_COUNT")
     private int totalCount;
 
-    private String sort;
 
     public CustomOmitsDto() {
     }
@@ -415,12 +414,4 @@ public class CustomOmitsDto implements Serializable {
         this.totalCount = totalCount;
     }
 
-
-    public String getSort() {
-        return sort;
-    }
-
-    public void setSort(String sort) {
-        this.sort = sort;
-    }
 }

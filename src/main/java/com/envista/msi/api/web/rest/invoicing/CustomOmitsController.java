@@ -85,9 +85,8 @@ public class CustomOmitsController {
 
         CustomOmitsDto dto = new CustomOmitsDto();
         dto.setUserId(userId);
-        dto.setSort(sort);
-        customOmitsPaginationData = service.findByUserIdWithPagination(dto, offset, limit);
-        //List<CustomOmitsDto> dtos = service.findByuserId(userId);
+        customOmitsPaginationData = service.findByUserIdWithPagination(dto, offset, limit, sort);
+        //List<CustomOmitsDto> dtos = service.findByUserId(userId);
         LOG.info("***getByUserId json***====" + customOmitsPaginationData);
         return new ResponseEntity<PaginationBean>(customOmitsPaginationData, HttpStatus.OK);
     }
@@ -145,8 +144,7 @@ public class CustomOmitsController {
         dto.setComments(comments);
         dto.setCarrierId(carrierId);
         dto.setUserId(userId);
-        dto.setSort(sort);
-        CustomOmitsPaginationData = service.findBySearchCriteria(dto, offset, limit);
+        CustomOmitsPaginationData = service.findBySearchCriteria(dto, offset, limit, sort);
 
         //List<CustomOmitsDto> dtos = service.findBySearchCriteria(dto);
 
@@ -259,7 +257,7 @@ public class CustomOmitsController {
         dto.setComments(comments);
         dto.setCarrierId(carrierId);
         dto.setUserId(userId);
-        CustomOmitsPaginationData = service.findBySearchCriteria(dto, 0, totalRecordsCount);
+        CustomOmitsPaginationData = service.findBySearchCriteria(dto, 0, totalRecordsCount, null);
 
         LOG.info("***findBySearchCriteriaAndExports method****" + CustomOmitsPaginationData);
 
