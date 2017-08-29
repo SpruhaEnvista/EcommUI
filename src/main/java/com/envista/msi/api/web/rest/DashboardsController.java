@@ -2232,40 +2232,49 @@ public class DashboardsController extends DashboardBaseController {
 
     @RequestMapping(value = "/exportReport", method = {RequestMethod.GET}, produces = "application/text")
     public @ResponseBody void exportDashboardReport(@RequestParam(required = false) String invoiceDate, @RequestParam(required = false) String dashletteName, @RequestParam(required = false) String carrierId,
-                                                             @RequestParam(required = false) String mode, @RequestParam(required = false) String carscoretype, @RequestParam(required = false) String service,
-                                                             @RequestParam(required = false, defaultValue = "0") Integer offset, @RequestParam(required = false, defaultValue = "1000") Integer limit,
-                                                             @RequestParam(required = false) String filter, HttpServletResponse response) throws Exception {
-        UserProfileDto user = getUserProfile();
-        DashboardsFilterCriteria appliedFilter = loadAppliedFilters(user.getUserId());
-        if(appliedFilter != null){
-            if(invoiceDate != null && !invoiceDate.isEmpty()){
-                DashboardUtil.setDatesFromMonth(appliedFilter, invoiceDate);
+                                                    @RequestParam(required = false) String mode, @RequestParam(required = false) String carscoretype, @RequestParam(required = false) String service,
+                                                    @RequestParam(required = false, defaultValue = "0") Integer offset, @RequestParam(required = false, defaultValue = "1000") Integer limit,
+                                                    @RequestParam(required = false, defaultValue = "1000") Integer totalRecordCount,
+                                                    @RequestParam(required = false) String filter, HttpServletResponse response) throws Exception {
+        if  ( totalRecordCount <=1000  ) {
+
+            UserProfileDto user = getUserProfile();
+            DashboardsFilterCriteria appliedFilter = loadAppliedFilters(user.getUserId());
+            if (appliedFilter != null) {
+                if (invoiceDate != null && !invoiceDate.isEmpty()) {
+                    DashboardUtil.setDatesFromMonth(appliedFilter, invoiceDate);
+                }
+                appliedFilter.setDashletteName(dashletteName);
+                if (carrierId != null && !carrierId.isEmpty()) {
+                    appliedFilter.setCarriers(carrierId);
+                }
+                appliedFilter.setModeNames(mode);
+                appliedFilter.setScoreType(carscoretype);
+                appliedFilter.setService(service);
+                appliedFilter.setOffset(0);
+                appliedFilter.setPageSize(1000);
             }
-            appliedFilter.setDashletteName(dashletteName);
-            if(carrierId != null && !carrierId.isEmpty()){
-                appliedFilter.setCarriers(carrierId);
+
+            Workbook workbook = null;
+
+            if (filter != null && !filter.isEmpty()) {
+                workbook = dashboardsService.getReportForExport(appliedFilter, offset, 1000, DashboardUtil.prepareSearchFilterCriteria(filter));
+            } else {
+                workbook = dashboardsService.getReportForExport(appliedFilter, offset, 1000, null);
             }
-            appliedFilter.setModeNames(mode);
-            appliedFilter.setScoreType(carscoretype);
-            appliedFilter.setService(service);
-            appliedFilter.setOffset(offset);
-            appliedFilter.setPageSize(1000);
-        }
 
-        Workbook workbook = null;
+            String fileName = appliedFilter.getDashletteName().trim().replaceAll("&gt;", ">").replaceAll(" ", "_");
+            fileName = fileName.replaceAll(">", "_").replaceAll("\\|", "_").replaceAll("_+", "_");
 
-        if(filter != null && !filter.isEmpty()){
-            workbook = dashboardsService.getReportForExport(appliedFilter, offset, 1000, DashboardUtil.prepareSearchFilterCriteria(filter));
-        }else {
-            workbook=  dashboardsService.getReportForExport(appliedFilter, offset, 1000, null);
-        }
+            response.setContentType("application/text");
+            response.setHeader("Content-Disposition", "attachment; filename="+fileName+".xlsx");
 
-        response.setContentType("application/text");
-        response.setHeader("Content-Disposition", "attachment; filename=DashboardExport.xlsx");
-
-        if ( workbook != null) {
-            workbook.write( response.getOutputStream()); // Write workbook to response.
-            workbook.close();
+            if (workbook != null) {
+                workbook.write(response.getOutputStream()); // Write workbook to response.
+                workbook.close();
+            }
+        } else {
+            //pushToReportsSection();
         }
 
 
