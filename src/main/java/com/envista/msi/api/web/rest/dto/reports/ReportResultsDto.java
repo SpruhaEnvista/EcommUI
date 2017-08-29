@@ -62,6 +62,8 @@ import java.util.Date;
                                 @ColumnResult(name = "expire_date", type = String.class),
                                 @ColumnResult(name = "running_status", type = String.class),
                                 @ColumnResult(name = "type", type = Integer.class),
+                                @ColumnResult(name = "file_size", type = Long.class),
+                                @ColumnResult(name = "criteria", type = String.class),
                                 @ColumnResult(name = "completion_date", type = Date.class),
                                 @ColumnResult(name = "expires_date", type = Date.class)
                         }
@@ -105,6 +107,12 @@ public class ReportResultsDto implements Serializable {
 
     @Column(name = "type")
     private int type;
+
+    @Column(name = "file_size")
+    private Long fileSize;
+
+    @Column(name = "criteria")
+    private String criteria;
 
     @Column(name = "completion_date")
     private Date completedDate;
@@ -189,6 +197,22 @@ public class ReportResultsDto implements Serializable {
 
     public void setType(int type) { this.type = type;   }
 
+    public Long getFileSize() {
+        return fileSize;
+    }
+
+    public void setFileSize(Long fileSize) {
+        this.fileSize = fileSize;
+    }
+
+    public String getCriteria() {
+        return criteria;
+    }
+
+    public void setCriteria(String criteria) {
+        this.criteria = criteria;
+    }
+
     public Boolean getUserAllowed() {
         return userAllowed;
     }
@@ -212,7 +236,7 @@ public class ReportResultsDto implements Serializable {
         this.updateCount = updateCount;
     }
     public ReportResultsDto(Long generatedRptId, Long savedRptId, String fileName, String fileType,String runDate,
-                            String expireDate,String status,int type,Date completedDate,Date expiryDate) {
+                            String expireDate,String status,int type,Long fileSize,String criteria,Date completedDate,Date expiryDate) {
         this.generatedRptId = generatedRptId;
         this.savedRptId = savedRptId;
         this.fileName = fileName;
@@ -221,6 +245,8 @@ public class ReportResultsDto implements Serializable {
         this.expireDate = expireDate;
         this.status = status;
         this.type = type;
+        this.fileSize = fileSize;
+        this.criteria = criteria;
         this.completedDate = completedDate;
         this.expiryDate = expiryDate;
     }
