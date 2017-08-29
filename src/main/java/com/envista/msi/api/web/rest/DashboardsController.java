@@ -2263,8 +2263,12 @@ public class DashboardsController extends DashboardBaseController {
                 workbook = dashboardsService.getReportForExport(appliedFilter, offset, 1000, null);
             }
 
-            String fileName = appliedFilter.getDashletteName().trim().replaceAll("&gt;", ">").replaceAll(" ", "_");
-            fileName = fileName.replaceAll(">", "_").replaceAll("\\|", "_").replaceAll("_+", "_");
+            String fileName = "Dashboards_Export";
+
+            if (appliedFilter.getDashletteName()!= null) {
+                fileName = appliedFilter.getDashletteName().trim().replaceAll("&gt;", ">").replaceAll(" ", "_");
+                fileName = fileName.replaceAll(">", "_").replaceAll("\\|", "_").replaceAll("_+", "_");
+            }
 
             response.setContentType("application/text");
             response.setHeader("Content-Disposition", "attachment; filename="+fileName+".xlsx");
