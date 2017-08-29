@@ -12,9 +12,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AccountSummaryDt
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AnnualSummaryDto;
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.MonthlySpendByModeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
-import com.envista.msi.api.web.rest.dto.dashboard.common.CommonMonthlyChartDto;
-import com.envista.msi.api.web.rest.dto.dashboard.common.CommonValuesForChartDto;
-import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendCommonDto;
+import com.envista.msi.api.web.rest.dto.dashboard.common.*;
 import com.envista.msi.api.web.rest.dto.dashboard.filter.DashSavedFilterDto;
 import com.envista.msi.api.web.rest.dto.dashboard.filter.UserFilterUtilityDataDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.*;
@@ -86,11 +84,15 @@ public class DashboardsController extends DashboardBaseController {
 
     enum ShipmentOverviewConstant{
         AVG_SPEND_PER_SHIPMT,
-        AVG_WEIGHT_BY_MODE_SHIPMT,
         AVG_SPEND_PER_SHIPMT_BY_CARRIER,
         AVG_SPEND_PER_SHIPMT_BY_MONTH,
+        AVG_SPEND_PER_SHIPMT_BY_PERIOD,
+        AVG_SPEND_PER_SHIPMT_BY_WEEK,
+        AVG_WEIGHT_BY_MODE_SHIPMT,
         AVG_WEIGHT_SHIPMT_BY_CARRIER,
-        AVG_WEIGHT_SHIPMT_BY_MONTH;
+        AVG_WEIGHT_SHIPMT_BY_MONTH,
+        AVG_WEIGHT_SHIPMT_BY_PERIOD,
+        AVG_WEIGHT_SHIPMT_BY_WEEK;
     }
 
     enum InboundSpendConstant{
@@ -2081,6 +2083,12 @@ public class DashboardsController extends DashboardBaseController {
             case AVG_SPEND_PER_SHIPMT_BY_CARRIER:
                 avgShipmentJson = loadAvgSpendPerShipmtByCarrierJson(filter);
                 break;
+            case AVG_WEIGHT_SHIPMT_BY_PERIOD:
+                avgShipmentJson = loadAvgWeightModeByPeriodJson(filter);
+                break;
+            case AVG_WEIGHT_SHIPMT_BY_WEEK:
+                avgShipmentJson = loadAvgWeightModeByWeekJson(filter);
+                break;
             case AVG_SPEND_PER_SHIPMT_BY_MONTH:
                 avgShipmentJson = loadAvgSpendPerShipmtByMonthJson(filter);
                 break;
@@ -2090,12 +2098,97 @@ public class DashboardsController extends DashboardBaseController {
             case AVG_WEIGHT_SHIPMT_BY_MONTH:
                 avgShipmentJson = loadAvgWeightModeByMonthJson(filter);
                 break;
+            case AVG_SPEND_PER_SHIPMT_BY_PERIOD:
+                avgShipmentJson = loadAvgSpendPerShipmtByPeriodJson(filter);
+                break;
+            case AVG_SPEND_PER_SHIPMT_BY_WEEK:
+                avgShipmentJson = loadAvgSpendPerShipmtByWeekJson(filter);
+                break;
             default:
                 throw new MethodNotFoundException("Method param value not matched");
         }
         return avgShipmentJson;
     }
 
+    private JSONObject loadAvgWeightModeByWeekJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject avgWeightJson = null;
+        List<AverageWeightModeShipmtDto> avgWeightList = dashboardsService.getAverageWeightModeByWeek(filter,false);
+        if(avgWeightList != null && avgWeightList.size() > 0){
+            List<CommonWeekChartDto> commonWeekChartList = new ArrayList<CommonWeekChartDto>();
+            for (AverageWeightModeShipmtDto avgWeight : avgWeightList) {
+                if (avgWeight != null) {
+                    CommonWeekChartDto commonWeekChart = new CommonWeekChartDto();
+                    commonWeekChart.setCount(avgWeight.getCount());
+                    commonWeekChart.setBillDate(avgWeight.getBillDate());
+                    commonWeekChart.setWeekNumber(avgWeight.getWeekNumber());
+                    commonWeekChart.setAmount(avgWeight.getAmount());
+                    commonWeekChartList.add(commonWeekChart);
+                }
+            }
+            avgWeightJson = JSONUtil.prepareJsonForAverageChartByWeekly(commonWeekChartList);
+        }
+        return avgWeightJson;
+    }
+
+    private JSONObject loadAvgWeightModeByPeriodJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject avgWeightJson = null;
+        List<AverageWeightModeShipmtDto> avgWeightList = dashboardsService.getAverageWeightModeByPeriod(filter,false);
+        if(avgWeightList != null && avgWeightList.size() > 0){
+            List<CommonPeriodChartDto> commonPeriodChartList = new ArrayList<CommonPeriodChartDto>();
+            for (AverageWeightModeShipmtDto avgWeight : avgWeightList) {
+                if (avgWeight != null) {
+                    CommonPeriodChartDto commonPeriodChart = new CommonPeriodChartDto();
+                    commonPeriodChart.setCount(avgWeight.getCount());
+                    commonPeriodChart.setBillDate(avgWeight.getBillDate());
+                    commonPeriodChart.setAverageAmount(avgWeight.getAverageAmount());
+                    commonPeriodChart.setAmount(avgWeight.getAmount());
+                    commonPeriodChartList.add(commonPeriodChart);
+                }
+            }
+            avgWeightJson = JSONUtil.prepareJsonForAverageChartByPeriod(commonPeriodChartList, filter.getCustomisedDisplayUnit());
+        }
+        return avgWeightJson;
+    }
+
+    private JSONObject loadAvgSpendPerShipmtByWeekJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject avgShipmentJson = null;
+        List<AverageSpendPerShipmentDto> avgShipmentList = dashboardsService.getAverageSpendPerShipmentByWeek(filter, false);
+        if (avgShipmentList != null && !avgShipmentList.isEmpty()) {
+            List<CommonWeekChartDto> commonWeekChartList = new ArrayList<CommonWeekChartDto>();
+            for (AverageSpendPerShipmentDto avgSpend : avgShipmentList) {
+                if (avgSpend != null) {
+                    CommonWeekChartDto commonWeekChart = new CommonWeekChartDto();
+                    commonWeekChart.setCount(avgSpend.getCount());
+                    commonWeekChart.setBillDate(avgSpend.getBillDate());
+                    commonWeekChart.setWeekNumber(avgSpend.getWeekNumber());
+                    commonWeekChart.setAmount(avgSpend.getAmount());
+                    commonWeekChartList.add(commonWeekChart);
+                }
+            }
+            avgShipmentJson = JSONUtil.prepareJsonForAverageChartByWeekly(commonWeekChartList);
+        }
+        return avgShipmentJson;
+    }
+
+    private JSONObject loadAvgSpendPerShipmtByPeriodJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject avgShipmentJson = null;
+        List<AverageSpendPerShipmentDto> avgShipmentList = dashboardsService.getAverageSpendPerShipmentByPeriod(filter, false);
+        if (avgShipmentList != null && !avgShipmentList.isEmpty()) {
+            List<CommonPeriodChartDto> commonPeriodChartList = new ArrayList<CommonPeriodChartDto>();
+            for (AverageSpendPerShipmentDto avgSpend : avgShipmentList) {
+                if (avgSpend != null) {
+                    CommonPeriodChartDto commonPeriodChart = new CommonPeriodChartDto();
+                    commonPeriodChart.setCount(avgSpend.getCount());
+                    commonPeriodChart.setBillDate(avgSpend.getBillDate());
+                    commonPeriodChart.setAverageAmount(avgSpend.getAverageAmount());
+                    commonPeriodChart.setAmount(avgSpend.getAmount());
+                    commonPeriodChartList.add(commonPeriodChart);
+                }
+            }
+            avgShipmentJson = JSONUtil.prepareJsonForAverageChartByPeriod(commonPeriodChartList, filter.getCustomisedDisplayUnit());
+        }
+        return avgShipmentJson;
+    }
 
 
     private JSONObject loadAvgSpendPerShipmtJson(DashboardsFilterCriteria filter) throws JSONException {
@@ -2597,5 +2690,83 @@ public class DashboardsController extends DashboardBaseController {
         respMap.put("status", HttpStatus.OK.value());
         respMap.put("packageDistributionData", pkgDistrJson);
         return ResponseEntity.status(HttpStatus.OK).body(respMap);
+    }
+
+    @RequestMapping(value = "/avgWeightShpmntByPeriod", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE}, consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getAverageWeightPerShipmentByPeriod(@RequestBody AverageWeightRequestParamDto requestParams) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        JSONObject avgWeightModeData = null;
+        if(filter !=  null){
+            if(requestParams.getModeName() != null && !requestParams.getModeName().isEmpty()){
+                filter.setModeNames(requestParams.getModeName());
+            }
+            if(requestParams.getCarrierId() != null && !requestParams.getCarrierId().isEmpty()){
+                filter.setCarriers(requestParams.getCarrierId());
+            }
+            if (requestParams.getFromDate() != null && !requestParams.getFromDate().isEmpty() && requestParams.getToDate() != null && !requestParams.getToDate().isEmpty()) {
+                if(!requestParams.getFromChartEvent()){
+                    filter.setFromDate(DateUtil.format(DateUtil.parse(requestParams.getFromDate(), "yyyy-MM-dd"), "dd-MMM-yyyy"));
+                    filter.setToDate(DateUtil.format(DateUtil.parse(requestParams.getToDate(), "yyyy-MM-dd"), "dd-MMM-yyyy"));
+                }else{
+                    filter.setFromDate(DateUtil.format(DateUtil.subtractDays(new Date(Long.parseLong(requestParams.getFromDate())), 1), "dd-MMM-yyyy"));
+                    filter.setToDate(DateUtil.format(DateUtil.subtractDays(new Date(Long.parseLong(requestParams.getToDate())), 1), "dd-MMM-yyyy"));
+
+                    if(requestParams.getLastDay() != null && (!requestParams.getToDate().substring(3,6).equals(requestParams.getLastDay().subSequence(3,6)) || Integer.parseInt(requestParams.getToDate().substring(0,2)) > Integer.parseInt(requestParams.getLastDay().substring(0,2)))){
+                        filter.setToDate(DateUtil.format(DateUtil.parse(requestParams.getLastDay(), "yyyy-MM-dd"), "dd-MMM-yyyy"));
+                    }
+                }
+            }else{
+                if(requestParams.getInvoiceDate() != null && !requestParams.getInvoiceDate().isEmpty()){
+                    DashboardUtil.setDatesFromMonth(filter, requestParams.getInvoiceDate());
+                }
+            }
+            filter.setCustomisedDisplayUnit(requestParams.getCustomisedDisplayUnits());
+            if(requestParams.getCustomisedDisplayUnits() != null && requestParams.getCustomisedDisplayUnits().equalsIgnoreCase("week")){
+                avgWeightModeData = loadShipmentOverviewJsonData(ShipmentOverviewConstant.AVG_WEIGHT_SHIPMT_BY_WEEK, filter);
+            }else{
+                avgWeightModeData = loadShipmentOverviewJsonData(ShipmentOverviewConstant.AVG_WEIGHT_SHIPMT_BY_PERIOD, filter);
+            }
+        }
+        return new ResponseEntity<String>(avgWeightModeData != null ? avgWeightModeData.toString() : new JSONObject().toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/avgSpendShpmntByPeriod", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE}, consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getAverageSpendModeByPeriod(@RequestBody AverageSpendRequestParamDto requestParams) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        JSONObject avgWeightModeData = null;
+        if(filter !=  null){
+            if(requestParams.getModeName() != null && !requestParams.getModeName().isEmpty()){
+                filter.setModeNames(requestParams.getModeName());
+            }
+            if(requestParams.getCarrierId() != null && !requestParams.getCarrierId().isEmpty()){
+                filter.setCarriers(requestParams.getCarrierId());
+            }
+            if (requestParams.getFromDate() != null && !requestParams.getFromDate().isEmpty() && requestParams.getToDate() != null && !requestParams.getToDate().isEmpty()) {
+                if(!requestParams.getFromChartEvent()){
+                    filter.setFromDate(DateUtil.format(DateUtil.parse(requestParams.getFromDate(), "yyyy-MM-dd"), "dd-MMM-yyyy"));
+                    filter.setToDate(DateUtil.format(DateUtil.parse(requestParams.getToDate(), "yyyy-MM-dd"), "dd-MMM-yyyy"));
+                }else{
+                    filter.setFromDate(DateUtil.format(DateUtil.subtractDays(new Date(Long.parseLong(requestParams.getFromDate())), 1), "dd-MMM-yyyy"));
+                    filter.setToDate(DateUtil.format(DateUtil.subtractDays(new Date(Long.parseLong(requestParams.getToDate())), 1), "dd-MMM-yyyy"));
+
+                    if(requestParams.getLastDay() != null && (!requestParams.getToDate().substring(3,6).equals(requestParams.getLastDay().subSequence(3,6)) || Integer.parseInt(requestParams.getToDate().substring(0,2)) > Integer.parseInt(requestParams.getLastDay().substring(0,2)))){
+                        filter.setToDate(DateUtil.format(DateUtil.parse(requestParams.getLastDay(), "yyyy-MM-dd"), "dd-MMM-yyyy"));
+                    }
+                }
+            }else{
+                if(requestParams.getInvoiceDate() != null && !requestParams.getInvoiceDate().isEmpty()){
+                    DashboardUtil.setDatesFromMonth(filter, requestParams.getInvoiceDate());
+                }
+            }
+            filter.setCustomisedDisplayUnit(requestParams.getCustomisedDisplayUnits());
+            if(requestParams.getCustomisedDisplayUnits() != null && requestParams.getCustomisedDisplayUnits().equalsIgnoreCase("week")){
+                avgWeightModeData = loadShipmentOverviewJsonData(ShipmentOverviewConstant.AVG_SPEND_PER_SHIPMT_BY_WEEK, filter);
+            }else{
+                avgWeightModeData = loadShipmentOverviewJsonData(ShipmentOverviewConstant.AVG_SPEND_PER_SHIPMT_BY_PERIOD, filter);
+            }
+        }
+        return new ResponseEntity<String>(avgWeightModeData != null ? avgWeightModeData.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 }

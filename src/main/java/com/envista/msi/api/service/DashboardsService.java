@@ -1121,4 +1121,20 @@ public class DashboardsService {
     public List<ShipmentDto> getPackageDistributionCount(DashboardsFilterCriteria filter){
         return dashboardsDao.getPackageDistributionCount(filter);
     }
+
+    public List<AverageWeightModeShipmtDto> getAverageWeightModeByPeriod(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        return dashboardsDao.getAverageWeightModeByPeriod(filter, isTopTenAccessorial);
+    }
+
+    public List<AverageWeightModeShipmtDto> getAverageWeightModeByWeek(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        return dashboardsDao.getAverageWeightModeByWeek(filter, isTopTenAccessorial);
+    }
+
+    public List<AverageSpendPerShipmentDto> getAverageSpendPerShipmentByPeriod(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        return dashboardsDao.getAverageSpendPerShipmentByPeriod(filter, isTopTenAccessorial);
+    }
+
+    public List<AverageSpendPerShipmentDto> getAverageSpendPerShipmentByWeek(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        return dashboardsDao.getAverageSpendPerShipmentByWeek(filter, isTopTenAccessorial);
+    }
 }
