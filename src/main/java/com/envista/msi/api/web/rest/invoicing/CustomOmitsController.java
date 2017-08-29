@@ -77,11 +77,16 @@ public class CustomOmitsController {
      */
     @RequestMapping(value = "/getByUserId/{userId}", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
     public ResponseEntity<PaginationBean> getByUserId(@PathVariable("userId") Long userId,
-                                                            @RequestParam(required = false, defaultValue = "0") Integer offset,
-                                                            @RequestParam(required = false, defaultValue = "10") Integer limit ) throws Exception{
+                                                      @RequestParam(required = false, defaultValue = "0") Integer offset,
+                                                      @RequestParam(required = false, defaultValue = "10") Integer limit,
+                                                      @RequestParam(required = false, defaultValue = "null") String sort) throws Exception {
         LOG.info("***getByUserId method started****");
         PaginationBean customOmitsPaginationData = new PaginationBean();
-        customOmitsPaginationData = service.findByUserIdWithPagination(userId,offset, limit);
+
+        CustomOmitsDto dto = new CustomOmitsDto();
+        dto.setUserId(userId);
+        dto.setSort(sort);
+        customOmitsPaginationData = service.findByUserIdWithPagination(dto, offset, limit);
         //List<CustomOmitsDto> dtos = service.findByuserId(userId);
         LOG.info("***getByUserId json***====" + customOmitsPaginationData);
         return new ResponseEntity<PaginationBean>(customOmitsPaginationData, HttpStatus.OK);
@@ -122,8 +127,7 @@ public class CustomOmitsController {
 
     @RequestMapping(value = "/findSearchCriteria", params = {"trackingNumber", "customerIds", "creditTypeId", "comments", "carrierId", "userId"}, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
     public ResponseEntity<PaginationBean> findBySearchCriteria(@RequestParam String trackingNumber, @RequestParam String customerIds, @RequestParam long creditTypeId, @RequestParam String comments, long carrierId, long userId,
-                                                                    @RequestParam(required = false, defaultValue = "0") Integer offset,@RequestParam(required = false, defaultValue = "10") Integer limit
-                                                                    ) throws Exception{
+                                                               @RequestParam(required = false, defaultValue = "0") Integer offset, @RequestParam(required = false, defaultValue = "10") Integer limit, @RequestParam(required = false, defaultValue = "null") String sort) throws Exception {
 
         LOG.info("***findBySearchCriteria method started****" + trackingNumber);
         PaginationBean CustomOmitsPaginationData = new PaginationBean();
@@ -141,6 +145,7 @@ public class CustomOmitsController {
         dto.setComments(comments);
         dto.setCarrierId(carrierId);
         dto.setUserId(userId);
+        dto.setSort(sort);
         CustomOmitsPaginationData = service.findBySearchCriteria(dto, offset, limit);
 
         //List<CustomOmitsDto> dtos = service.findBySearchCriteria(dto);

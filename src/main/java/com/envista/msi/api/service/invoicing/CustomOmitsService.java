@@ -27,19 +27,19 @@ public class CustomOmitsService {
     @Inject
     private CustomOmitsDao dao;
 
-     public PaginationBean findByUserIdWithPagination(long userId,int offset, int limit) throws Exception {
+    public PaginationBean findByUserIdWithPagination(CustomOmitsDto dto1, int offset, int limit) throws Exception {
          Map<String, Object> paginationFilterMap = new HashMap<String, Object>();
 
          return new EnspirePagination() {
              @Override
              protected int getTotalRowCount(Map<String, Object> paginationFilterMap) {
 
-                 return dao.getCountOfCustomOmits(userId);
+                 return dao.getCountOfCustomOmits(dto1.getUserId());
              }
 
              @Override
              protected Object loadPaginationData(Map<String, Object> paginationFilterMap, int offset, int limit, String sortOrder) throws Exception {
-                 List<CustomOmitsDto> dto = dao.findByuserId(userId,offset,limit);
+                 List<CustomOmitsDto> dto = dao.findByuserId(dto1, offset, limit);
                  return dto;
              }
          }.preparePaginationData(paginationFilterMap, offset, limit);
