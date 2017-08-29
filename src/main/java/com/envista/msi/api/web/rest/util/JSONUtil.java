@@ -562,12 +562,10 @@ public class JSONUtil {
             jsonObject.put("name", date);
             jsonObject.put("counter", counter);
 
-            double totalSpend = 0;
             while (modeFlagIterator.hasNext()) {
                 String modeFlag = modeFlagIterator.next();
                 double spend = modeFlagMap.get(modeFlag);
-                totalSpend += spend;
-                jsonObject.put(modeFlag, totalSpend);
+                jsonObject.put(modeFlag, spend);
             }
             valuesArray.put(jsonObject);
             counter++;

@@ -16,7 +16,9 @@ import java.util.Date;
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "reportsList", type = Void.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "userId", type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "folderId", type = Long.class)
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "folderId", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "orderBy", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "ascDesc", type = String.class)
                 }),
         @NamedStoredProcedureQuery(name="SavedSchedReports.changeOwnerBasedOnSSRptId", procedureName = "shp_rpt_chng_owner_proc",
                 resultSetMappings = "updateOwnerResults",

@@ -111,10 +111,11 @@ public class ReportsDao {
      */
 
     @Transactional( readOnly = true )
-    public List<SavedSchedReportsDto> getSavedSchedReports(Long userId,Long folderId) {
+    public List<SavedSchedReportsDto> getSavedSchedReports(Long userId,Long folderId,String orderBy, String ascDesc) {
         return persistentContext.findEntities("SavedSchedReports.gerSavedSchedReports",
                 StoredProcedureParameter.with("userId", userId == null?0:userId)
-                                        .and("folderId",folderId == null?0: folderId));
+                                        .and("folderId",folderId == null?0: folderId)
+                                        .and("orderBy", orderBy).and("ascDesc", ascDesc));
     }
 
     @Transactional
@@ -374,6 +375,16 @@ public class ReportsDao {
                 .and("canEdit",saveSchedUser.getCanEdit()==null?true:saveSchedUser.getCanEdit());
 
         return persistentContext.findEntity("SavedSchedReports.saveUsers",queryParameter);
+
+    }
+    @Transactional
+    public ReportUserGenStatusDto saveUserGenStatus(ReportUserGenStatusDto saveUserGenStatus){
+
+        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", saveUserGenStatus.getSavedSchedRptId()==null?0l:saveUserGenStatus.getSavedSchedRptId())
+                .and("userId",saveUserGenStatus.getUserId()==null?0l:saveUserGenStatus.getUserId())
+                .and("createUser",saveUserGenStatus.getCreateUser()==null?"":saveUserGenStatus.getCreateUser());
+
+        return persistentContext.findEntity("SavedUserGenReports.saveUserGen",queryParameter);
 
     }
     /**
