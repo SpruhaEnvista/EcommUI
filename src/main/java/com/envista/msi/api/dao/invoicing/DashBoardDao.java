@@ -20,10 +20,10 @@ public class DashBoardDao {
     @Inject
     private PersistentContext persistentContext;
 
-    public List<DashBoardDto> getDashBoardInfo(String fromDate, String toDate, String actionType) {
+    public List<DashBoardDto> getDashBoardInfo(String fromDate, String toDate, String actionType, String sort) {
 
         QueryParameter queryParameter = StoredProcedureParameter.with("P_FROM_DATE", fromDate)
-                .and("P_TO_DATE", toDate).and("P_ACTION_TYPE", actionType);
+                .and("P_TO_DATE", toDate).and("P_SORT_COLUMN", sort).and("P_ACTION_TYPE", actionType);
 
         return persistentContext.findEntities("DashBoardDto.getDashBoardInfo", queryParameter);
     }
@@ -31,7 +31,7 @@ public class DashBoardDao {
     public List<DashBoardDto> getPendingCredits(String fromDate, String toDate, String actionType) {
 
         QueryParameter queryParameter = StoredProcedureParameter.with("P_FROM_DATE", fromDate)
-                .and("P_TO_DATE", toDate).and("P_ACTION_TYPE", actionType);
+                .and("P_TO_DATE", toDate).and("P_SORT_COLUMN", null).and("P_ACTION_TYPE", actionType);
 
         return persistentContext.findEntities("DashBoardDto.getPendingCreditsCount", queryParameter);
 
