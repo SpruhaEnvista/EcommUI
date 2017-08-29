@@ -40,7 +40,7 @@ public class DashBoardDao {
     public int getPendingCreditsCount(String fromDate, String toDate, String actionType) {
 
         QueryParameter queryParameter = StoredProcedureParameter.with("P_FROM_DATE", fromDate)
-                .and("P_TO_DATE", toDate).and("P_ACTION_TYPE", actionType);
+                .and("P_TO_DATE", toDate).and("P_SORT_COLUMN", null).and("P_ACTION_TYPE", actionType);
 
         List<DashBoardDto> dtos = persistentContext.findEntities("DashBoardDto.getPendingCreditsCount", queryParameter);
 
