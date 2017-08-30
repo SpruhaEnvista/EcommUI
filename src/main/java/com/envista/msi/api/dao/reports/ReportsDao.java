@@ -58,6 +58,11 @@ public class ReportsDao {
         return persistentContext.findEntityAndMapFields("ReportResults.updateExpiryDate",queryParameter);
     }
     @Transactional
+    public ReportResultsDto getGerPermissions(Long userId) {
+        QueryParameter queryParameter = StoredProcedureParameter.with("userId", userId);
+        return persistentContext.findEntityAndMapFields("ReportResults.userPermissionsForRepors",queryParameter);
+    }
+    @Transactional
     public List<ReportResultsUsersListDto> getUsersList(String userName) {
         QueryParameter queryParameter = StoredProcedureParameter.with("userName",userName);
         return persistentContext.findEntitiesAndMapFields("ReportResultsUsersList.getUsersList",queryParameter);
@@ -106,10 +111,11 @@ public class ReportsDao {
      */
 
     @Transactional( readOnly = true )
-    public List<SavedSchedReportsDto> getSavedSchedReports(Long userId,Long folderId) {
+    public List<SavedSchedReportsDto> getSavedSchedReports(Long userId,Long folderId,String orderBy, String ascDesc) {
         return persistentContext.findEntities("SavedSchedReports.gerSavedSchedReports",
                 StoredProcedureParameter.with("userId", userId == null?0:userId)
-                                        .and("folderId",folderId == null?0: folderId));
+                                        .and("folderId",folderId == null?0: folderId)
+                                        .and("orderBy", orderBy).and("ascDesc", ascDesc));
     }
 
     @Transactional
@@ -369,6 +375,16 @@ public class ReportsDao {
                 .and("canEdit",saveSchedUser.getCanEdit()==null?true:saveSchedUser.getCanEdit());
 
         return persistentContext.findEntity("SavedSchedReports.saveUsers",queryParameter);
+
+    }
+    @Transactional
+    public ReportUserGenStatusDto saveUserGenStatus(ReportUserGenStatusDto saveUserGenStatus){
+
+        QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", saveUserGenStatus.getSavedSchedRptId()==null?0l:saveUserGenStatus.getSavedSchedRptId())
+                .and("userId",saveUserGenStatus.getUserId()==null?0l:saveUserGenStatus.getUserId())
+                .and("createUser",saveUserGenStatus.getCreateUser()==null?"":saveUserGenStatus.getCreateUser());
+
+        return persistentContext.findEntity("SavedUserGenReports.saveUserGen",queryParameter);
 
     }
     /**
@@ -715,5 +731,19 @@ public class ReportsDao {
     public List<SavedSchedReportsDto> getSavedSchedTemplates(Long userId) {
         return persistentContext.findEntities("SavedSchedReports.gerSavedSchedTemplates",
                 StoredProcedureParameter.with("userId", userId == null?0:userId));
+    }
+    @Transactional
+    public ReportFolderDto updateReportFolder(ReportFolderDto reportFolderDto, UserProfileDto userProfileDto){
+        QueryParameter queryParameter = StoredProcedureParameter.with("rptFolderId",reportFolderDto.getRptFolderId()).and("parentFolderId",(reportFolderDto.getParentId()!=null?reportFolderDto.getParentId():0l))
+                .and("newFolderName", reportFolderDto.getRptFolderName())
+                .and("userId", (userProfileDto != null && userProfileDto.getUserId() != null ? userProfileDto.getUserId() : 0l ) )
+                .and("updateUser", (userProfileDto != null && userProfileDto.getUserName() != null ?  userProfileDto.getUserName() : "invalid" ));
+        return persistentContext.findEntityAndMapFields("ReportFolder.updateRptFolder", queryParameter);
+    }
+
+    public List<ReportCustomColumnDto> getReportCustomColumnNames(String customerId, Long reportId){
+        QueryParameter queryParameter = StoredProcedureParameter.with("p_customer_id", customerId)
+                .and("p_report_id", reportId);
+        return persistentContext.findEntitiesAndMapFields(ReportCustomColumnDto.Config.CustomColumnNames.STORED_PROCEDURE_QUERY_NAME, queryParameter);
     }
 }

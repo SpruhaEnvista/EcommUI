@@ -562,12 +562,10 @@ public class JSONUtil {
             jsonObject.put("name", date);
             jsonObject.put("counter", counter);
 
-            double totalSpend = 0;
             while (modeFlagIterator.hasNext()) {
                 String modeFlag = modeFlagIterator.next();
                 double spend = modeFlagMap.get(modeFlag);
-                totalSpend += spend;
-                jsonObject.put(modeFlag, totalSpend);
+                jsonObject.put(modeFlag, spend);
             }
             valuesArray.put(jsonObject);
             counter++;
@@ -1253,7 +1251,7 @@ public class JSONUtil {
             laneInfoJson.put("rank", shippingLanesDto.getRank());
             laneInfoJson.put("shipperAddress", shippingLanesDto.getShipperAddress());
             laneInfoJson.put("receiverAddress", shippingLanesDto.getReceiverAddress());
-            laneInfoJson.put("laneTotal", shippingLanesDto.getLaneTotal());
+            laneInfoJson.put("laneTotal", CommonUtil.toDecimalFormat(shippingLanesDto.getLaneTotal()));
 
             lanesArray.put(laneInfoJson);
         }
@@ -1271,7 +1269,7 @@ public class JSONUtil {
             laneInfoJson.put("rank", portLanesDto.getRank());
             laneInfoJson.put("pol", portLanesDto.getPol());
             laneInfoJson.put("pod", portLanesDto.getPod());
-            laneInfoJson.put("laneTotal", portLanesDto.getLaneTotal());
+            laneInfoJson.put("laneTotal", CommonUtil.toDecimalFormat(portLanesDto.getLaneTotal()));
 
             lanesArray.put(laneInfoJson);
         }
@@ -1829,6 +1827,201 @@ public class JSONUtil {
         return returnJson;
     }
 
+    public static JSONArray prepareExportReportDataJson ( List<DashboardReportDto> reportDataList , JSONArray reportColumnDetails ) throws Exception  {
+        JSONArray  finalJsonArray  = new JSONArray();
+        int counter = 0;
+        for (DashboardReportDto reportData : reportDataList) {
+            JSONArray  eachRowInfoArray  = new JSONArray();
+            for ( int i =0 ; i< reportColumnDetails.length() ; i++ ) {
+
+                JSONObject eachColumnData = new JSONObject();
+                JSONObject columnInfo = reportColumnDetails.getJSONObject(i);
+                String selectClause = columnInfo.getString("selectClause");
+
+                if ( counter == 0 ) {
+                    eachColumnData.put("header", columnInfo.getString("header"));
+                    eachColumnData.put("format", columnInfo.getString("format"));
+                    eachColumnData.put("dataType", columnInfo.getString("dataType"));
+                }
+
+                switch (selectClause.toUpperCase()) {
+                    case "CARRIER_NAME":
+                        eachColumnData.put("value", reportData.getCarrierName());
+                        break;
+                    case "INVOICE_NUMBER":
+                        eachColumnData.put("value", reportData.getInvoiceNumber());
+                        break;
+                    case "PRO_NUMBER":
+                        eachColumnData.put("value", reportData.getProNumber());
+                        break;
+                    case "BOL_NUMBER":
+                        eachColumnData.put("value", reportData.getBolNumber());
+                        break;
+                    case "BILL_OPTION":
+                        eachColumnData.put("value", reportData.getBillOption());
+                        break;
+                    case "BILL_DATE":
+                        eachColumnData.put("value", reportData.getBillDate());
+                        break;
+                    case "SHIP_DATE":
+                        eachColumnData.put("value", reportData.getShipDate());
+                        break;
+                    case "DELIVERY_DATE":
+                        eachColumnData.put("value", reportData.getDeliveryDate());
+                        break;
+                    case "INVOICE_MODE":
+                        eachColumnData.put("value", reportData.getInvoiceNumber());
+                        break;
+                    case "INVOICE_METHOD":
+                        eachColumnData.put("value", reportData.getInvoiceMethod());
+                        break;
+                    case "GL_ACCOUNTS_CODE":
+                        eachColumnData.put("value", reportData.getGlAccountCode());
+                        break;
+                    case "PO_NUMBER":
+                        eachColumnData.put("value", reportData.getPoNumber());
+                        break;
+                    case "REFERENCE1":
+                        eachColumnData.put("value", reportData.getReference1());
+                        break;
+                    case "REFERENCE2":
+                        eachColumnData.put("value", reportData.getReference2());
+                        break;
+                    case "SCAC_CODE":
+                        eachColumnData.put("value", reportData.getScacCode());
+                        break;
+                    case "SHIPPER_NAME":
+                        eachColumnData.put("value", reportData.getShipperName());
+                        break;
+                    case "SHIPPER_ADDRESS_1":
+                        eachColumnData.put("value", reportData.getShipperAddress1());
+                        break;
+                    case "SHIPPER_CITY":
+                        eachColumnData.put("value", reportData.getShipperCity());
+                        break;
+                    case "SHIPPER_STATE":
+                        eachColumnData.put("value", reportData.getShipperState());
+                        break;
+                    case "SHIPPER_ZIPCODE":
+                        eachColumnData.put("value", reportData.getShipperZipCode());
+                        break;
+                    case "SHIPPER_COUNTRY":
+                        eachColumnData.put("value", reportData.getShipperCountry());
+                        break;
+                    case "RECEIVER_NAME":
+                        eachColumnData.put("value", reportData.getReceiverName());
+                        break;
+                    case "RECEIVER_ADDRESS_1":
+                        eachColumnData.put("value", reportData.getReceiverAddress1());
+                        break;
+                    case "RECEIVER_CITY":
+                        eachColumnData.put("value", reportData.getReceiverCity());
+                        break;
+                    case "RECEIVER_STATE":
+                        eachColumnData.put("value", reportData.getReceiverState());
+                        break;
+                    case "RECEIVER_ZIPCODE":
+                        eachColumnData.put("value", reportData.getReceiverZipCode());
+                        break;
+                    case "RECEIVER_COUNTRY":
+                        eachColumnData.put("value", reportData.getReceiverCountry());
+                        break;
+                    case "TOTAL_WEIGHT":
+                        eachColumnData.put("value", reportData.getTotalWeight());
+                        break;
+                    case "TOTAL_CHARGES":
+                        eachColumnData.put("value", reportData.getTotalCharges());
+                        break;
+                    case "LINE_HAUL":
+                        eachColumnData.put("value", reportData.getLineHaul());
+                        break;
+                    case "FUEL_SURCHARGE":
+                        eachColumnData.put("value", reportData.getFuelCharges());
+                        break;
+                    case "DISCOUNT":
+                        eachColumnData.put("value", reportData.getDiscount());
+                        break;
+                    case "ACCESSORIALS":
+                        eachColumnData.put("value", reportData.getAccessorial());
+                        break;
+                    case "ADJUSTMENTS":
+                        eachColumnData.put("value", reportData.getAdjustments());
+                        break;
+                    case "TOTAL_DUE_AMOUNT":
+                        eachColumnData.put("value", reportData.getTotalDueAmount());
+                        break;
+                    case "INVOICE_STATUS":
+                        eachColumnData.put("value", reportData.getInvoiceStatus());
+                        break;
+                    case "CHECK_NO":
+                        eachColumnData.put("value", reportData.getCheckNumber());
+                        break;
+                    case "CHECK_DATE":
+                        eachColumnData.put("value", reportData.getCheckDate());
+                        break;
+                    case "CHECK_AMOUNT":
+                        eachColumnData.put("value", reportData.getCheckAmount());
+                        break;
+                    case "ADJUSTMENT_REASON":
+                        eachColumnData.put("value", reportData.getAdjustmentReason());
+                        break;
+                    case "SHIPPER_REGION":
+                        eachColumnData.put("value", reportData.getShipperRegion());
+                        break;
+                    case "RECEIVER_REGION":
+                        eachColumnData.put("value", reportData.getReceiverRegion());
+                        break;
+                    case "MULTI_WT":
+                        eachColumnData.put("value", reportData.getMultiWeight());
+                        break;
+                    case "SERVICE_LEVEL":
+                        eachColumnData.put("value", reportData.getServiceLevel());
+                        break;
+                    case "DELIVERY_FLAG":
+                        eachColumnData.put("value", reportData.getDeliveryFlag());
+                        break;
+                    case "CUSTOM_DEFINED_1":
+                        eachColumnData.put("value", reportData.getCustomDefined1());
+                        break;
+                    case "CUSTOM_DEFINED_2":
+                        eachColumnData.put("value", reportData.getCustomDefined2());
+                        break;
+                    case "CUSTOM_DEFINED_3":
+                        eachColumnData.put("value", reportData.getCustomDefined3());
+                        break;
+                    case "CUSTOM_DEFINED_4":
+                        eachColumnData.put("value", reportData.getCustomDefined4());
+                        break;
+                    case "CUSTOM_DEFINED_5":
+                        eachColumnData.put("value", reportData.getCustomDefined5());
+                        break;
+                    case "CUSTOM_DEFINED_6":
+                        eachColumnData.put("value", reportData.getCustomDefined6());
+                        break;
+                    case "CUSTOM_DEFINED_7":
+                        eachColumnData.put("value", reportData.getCustomDefined7());
+                        break;
+                    case "CUSTOM_DEFINED_8":
+                        eachColumnData.put("value", reportData.getCustomDefined8());
+                        break;
+                    case "CUSTOM_DEFINED_9":
+                        eachColumnData.put("value", reportData.getCustomDefined9());
+                        break;
+                    case "CUSTOM_DEFINED_10":
+                        eachColumnData.put("value", reportData.getCustomDefined10());
+                        break;
+                }
+                eachRowInfoArray.put(eachColumnData);
+
+            }
+            counter++;
+            finalJsonArray.put(eachRowInfoArray);
+        }
+
+
+        return finalJsonArray;
+    }
+
     public static JSONArray prepareDashboardReportJson(List<DashboardReportDto> reportDataList, Map<String, String> resultColumn) throws JSONException {
         JSONArray returnArray = new JSONArray();
 
@@ -1842,112 +2035,112 @@ public class JSONUtil {
                             String value = columnEntry.getValue();
                             switch (key) {
                                 case "CARRIER_NAME":
-                                    reportJsonObj.put(value, reportData.getCarrierName());
+                                    reportJsonObj.put("carriername", reportData.getCarrierName());
                                     break;
                                 case "INVOICE_NUMBER":
-                                    reportJsonObj.put(value, reportData.getInvoiceNumber());
+                                    reportJsonObj.put("invoice#", reportData.getInvoiceNumber());
                                     break;
                                 case "PRO_NUMBER":
-                                    reportJsonObj.put(value, reportData.getProNumber());
+                                    reportJsonObj.put("pro#", reportData.getProNumber());
                                     break;
                                 case "BOL_NUMBER":
-                                    reportJsonObj.put(value, reportData.getBolNumber());
+                                    reportJsonObj.put("bol#", reportData.getBolNumber());
                                     break;
                                 case "BILL_OPTION":
-                                    reportJsonObj.put(value, reportData.getBillOption());
+                                    reportJsonObj.put("billoption", reportData.getBillOption());
                                     break;
                                 case "BILL_DATE":
-                                    reportJsonObj.put(value, reportData.getBillDate());
+                                    reportJsonObj.put("invoicedate", reportData.getBillDate());
                                     break;
                                 case "SHIP_DATE":
-                                    reportJsonObj.put(value, reportData.getShipDate());
+                                    reportJsonObj.put("shipdate", reportData.getShipDate());
                                     break;
                                 case "DELIVERY_DATE":
-                                    reportJsonObj.put(value, reportData.getDeliveryDate());
+                                    reportJsonObj.put("deliverydate", reportData.getDeliveryDate());
                                     break;
                                 case "INVOICE_MODE":
                                     reportJsonObj.put(value, reportData.getInvoiceNumber());
                                     break;
                                 case "INVOICE_METHOD":
-                                    reportJsonObj.put(value, reportData.getInvoiceMethod());
+                                    reportJsonObj.put("invoicemethod", reportData.getInvoiceMethod());
                                     break;
                                 case "GL_ACCOUNTS_CODE":
-                                    reportJsonObj.put(value, reportData.getGlAccountCode());
+                                    reportJsonObj.put("glcode", reportData.getGlAccountCode());
                                     break;
                                 case "PO_NUMBER":
-                                    reportJsonObj.put(value, reportData.getPoNumber());
+                                    reportJsonObj.put("po#", reportData.getPoNumber());
                                     break;
                                 case "REFERENCE1":
-                                    reportJsonObj.put(value, reportData.getReference1());
+                                    reportJsonObj.put("reference1", reportData.getReference1());
                                     break;
                                 case "REFERENCE2":
-                                    reportJsonObj.put(value, reportData.getReference2());
+                                    reportJsonObj.put("reference2", reportData.getReference2());
                                     break;
                                 case "SCAC_CODE":
-                                    reportJsonObj.put(value, reportData.getScacCode());
+                                    reportJsonObj.put("scaccode", reportData.getScacCode());
                                     break;
                                 case "SHIPPER_NAME":
-                                    reportJsonObj.put(value, reportData.getShipperName());
+                                    reportJsonObj.put("shippername", reportData.getShipperName());
                                     break;
                                 case "SHIPPER_ADDRESS_1":
-                                    reportJsonObj.put(value, reportData.getShipperAddress1());
+                                    reportJsonObj.put("shipperaddress1", reportData.getShipperAddress1());
                                     break;
                                 case "SHIPPER_CITY":
-                                    reportJsonObj.put(value, reportData.getShipperCity());
+                                    reportJsonObj.put("shippercity", reportData.getShipperCity());
                                     break;
                                 case "SHIPPER_STATE":
-                                    reportJsonObj.put(value, reportData.getShipperState());
+                                    reportJsonObj.put("shipperstate", reportData.getShipperState());
                                     break;
                                 case "SHIPPER_ZIPCODE":
-                                    reportJsonObj.put(value, reportData.getShipperZipCode());
+                                    reportJsonObj.put("shipperpostalcode", reportData.getShipperZipCode());
                                     break;
                                 case "SHIPPER_COUNTRY":
-                                    reportJsonObj.put(value, reportData.getShipperCountry());
+                                    reportJsonObj.put("shippercountry", reportData.getShipperCountry());
                                     break;
                                 case "RECEIVER_NAME":
-                                    reportJsonObj.put(value, reportData.getReceiverName());
+                                    reportJsonObj.put("receivername", reportData.getReceiverName());
                                     break;
                                 case "RECEIVER_ADDRESS_1":
-                                    reportJsonObj.put(value, reportData.getReceiverAddress1());
+                                    reportJsonObj.put("receiveraddress1", reportData.getReceiverAddress1());
                                     break;
                                 case "RECEIVER_CITY":
-                                    reportJsonObj.put(value, reportData.getReceiverCity());
+                                    reportJsonObj.put("receivercity", reportData.getReceiverCity());
                                     break;
                                 case "RECEIVER_STATE":
-                                    reportJsonObj.put(value, reportData.getReceiverState());
+                                    reportJsonObj.put("receiverstate", reportData.getReceiverState());
                                     break;
                                 case "RECEIVER_ZIPCODE":
-                                    reportJsonObj.put(value, reportData.getReceiverZipCode());
+                                    reportJsonObj.put("receiverpostalcode", reportData.getReceiverZipCode());
                                     break;
                                 case "RECEIVER_COUNTRY":
-                                    reportJsonObj.put(value, reportData.getReceiverCountry());
+                                    reportJsonObj.put("receivercountry", reportData.getReceiverCountry());
                                     break;
                                 case "TOTAL_WEIGHT":
-                                    reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getTotalWeight()));
+                                    reportJsonObj.put("totalweight", checkCommaSeparaedDecimalFormat(value, reportData.getTotalWeight()));
                                     break;
                                 case "TOTAL_CHARGES":
-                                    reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getTotalCharges()));
+                                    reportJsonObj.put("totalcharges", checkCommaSeparaedDecimalFormat(value, reportData.getTotalCharges()));
                                     break;
                                 case "LINE_HAUL":
-                                    reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getLineHaul()));
+                                    reportJsonObj.put("linehaul", checkCommaSeparaedDecimalFormat(value, reportData.getLineHaul()));
                                     break;
                                 case "FUEL_SURCHARGE":
-                                    reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getFuelCharges()));
+                                    reportJsonObj.put("fuelsurcharge", checkCommaSeparaedDecimalFormat(value, reportData.getFuelCharges()));
                                     break;
                                 case "DISCOUNT":
-                                    reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getDiscount()));
+                                    reportJsonObj.put("discount", checkCommaSeparaedDecimalFormat(value, reportData.getDiscount()));
                                     break;
                                 case "ACCESSORIALS":
-                                    reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getAccessorial()));
+                                    reportJsonObj.put("accessorials", checkCommaSeparaedDecimalFormat(value, reportData.getAccessorial()));
                                     break;
                                 case "ADJUSTMENTS":
-                                    reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getAdjustments()));
+                                    reportJsonObj.put("adjustments", checkCommaSeparaedDecimalFormat(value, reportData.getAdjustments()));
                                     break;
                                 case "TOTAL_DUE_AMOUNT":
-                                    reportJsonObj.put(value, checkCommaSeparaedDecimalFormat(value, reportData.getTotalDueAmount()));
+                                    reportJsonObj.put("totaldueamount", checkCommaSeparaedDecimalFormat(value, reportData.getTotalDueAmount()));
                                     break;
                                 case "INVOICE_STATUS":
-                                    reportJsonObj.put(value, reportData.getInvoiceStatus());
+                                    reportJsonObj.put("invoicestatus", reportData.getInvoiceStatus());
                                     break;
                                 case "CHECK_NO":
                                     reportJsonObj.put(value, reportData.getCheckNumber());
@@ -1959,52 +2152,52 @@ public class JSONUtil {
                                     reportJsonObj.put(value, reportData.getCheckAmount());
                                     break;
                                 case "ADJUSTMENT_REASON":
-                                    reportJsonObj.put(value, reportData.getAdjustmentReason());
+                                    reportJsonObj.put("adjustmentreason", reportData.getAdjustmentReason());
                                     break;
                                 case "SHIPPER_REGION":
-                                    reportJsonObj.put(value, reportData.getShipperRegion());
+                                    reportJsonObj.put("shipperregion", reportData.getShipperRegion());
                                     break;
                                 case "RECEIVER_REGION":
-                                    reportJsonObj.put(value, reportData.getReceiverRegion());
+                                    reportJsonObj.put("receiverregion", reportData.getReceiverRegion());
                                     break;
                                 case "MULTI_WT":
-                                    reportJsonObj.put(value, reportData.getMultiWeight());
+                                    reportJsonObj.put("cwtweight", reportData.getMultiWeight());
                                     break;
                                 case "SERVICE_LEVEL":
-                                    reportJsonObj.put(value, reportData.getServiceLevel());
+                                    reportJsonObj.put("servicelevel", reportData.getServiceLevel());
                                     break;
                                 case "DELIVERY_FLAG":
                                     reportJsonObj.put(value, reportData.getDeliveryFlag());
                                     break;
                                 case "CUSTOM_DEFINED_1":
-                                    reportJsonObj.put(value, reportData.getCustomDefined1());
+                                    reportJsonObj.put("customdefined1", reportData.getCustomDefined1());
                                     break;
                                 case "CUSTOM_DEFINED_2":
-                                    reportJsonObj.put(value, reportData.getCustomDefined2());
+                                    reportJsonObj.put("customdefined2", reportData.getCustomDefined2());
                                     break;
                                 case "CUSTOM_DEFINED_3":
-                                    reportJsonObj.put(value, reportData.getCustomDefined3());
+                                    reportJsonObj.put("customdefined3", reportData.getCustomDefined3());
                                     break;
                                 case "CUSTOM_DEFINED_4":
-                                    reportJsonObj.put(value, reportData.getCustomDefined4());
+                                    reportJsonObj.put("customdefined4", reportData.getCustomDefined4());
                                     break;
                                 case "CUSTOM_DEFINED_5":
-                                    reportJsonObj.put(value, reportData.getCustomDefined5());
+                                    reportJsonObj.put("customdefined5", reportData.getCustomDefined5());
                                     break;
                                 case "CUSTOM_DEFINED_6":
-                                    reportJsonObj.put(value, reportData.getCustomDefined6());
+                                    reportJsonObj.put("customdefined6", reportData.getCustomDefined6());
                                     break;
                                 case "CUSTOM_DEFINED_7":
-                                    reportJsonObj.put(value, reportData.getCustomDefined7());
+                                    reportJsonObj.put("customdefined7", reportData.getCustomDefined7());
                                     break;
                                 case "CUSTOM_DEFINED_8":
-                                    reportJsonObj.put(value, reportData.getCustomDefined8());
+                                    reportJsonObj.put("customdefined8", reportData.getCustomDefined8());
                                     break;
                                 case "CUSTOM_DEFINED_9":
-                                    reportJsonObj.put(value, reportData.getCustomDefined9());
+                                    reportJsonObj.put("customdefined9", reportData.getCustomDefined9());
                                     break;
                                 case "CUSTOM_DEFINED_10":
-                                    reportJsonObj.put(value, reportData.getCustomDefined10());
+                                    reportJsonObj.put("customdefined10", reportData.getCustomDefined10());
                                     break;
                             }
                         }

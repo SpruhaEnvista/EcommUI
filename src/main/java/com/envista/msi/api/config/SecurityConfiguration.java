@@ -57,7 +57,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .antMatchers("/api/account/reset_password/finish")
             .antMatchers("/test/**")
             .antMatchers("/h2-console/**")
-            .antMatchers("/api/parcel/rtr/auditParcel/**");
+            .antMatchers("/api/parcel/rtr/auditParcel/**")
+            .antMatchers("/api/parcel/rtr/auditParcelInv/**");
     }
 
     @Override
