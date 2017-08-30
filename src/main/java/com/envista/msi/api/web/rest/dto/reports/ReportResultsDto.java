@@ -65,7 +65,8 @@ import java.util.Date;
                                 @ColumnResult(name = "file_size", type = Long.class),
                                 @ColumnResult(name = "criteria", type = String.class),
                                 @ColumnResult(name = "completion_date", type = Date.class),
-                                @ColumnResult(name = "expires_date", type = Date.class)
+                                @ColumnResult(name = "expires_date", type = Date.class),
+                                @ColumnResult(name = "type_desc", type = String.class)
                         }
                 )
         }),
@@ -119,6 +120,9 @@ public class ReportResultsDto implements Serializable {
 
     @Column(name = "expires_date")
     private Date expiryDate;
+
+    @Column(name = "type_desc")
+    private String typeDesc;
 
     @Column(name="updateCount")
     private Long updateCount;
@@ -189,6 +193,14 @@ public class ReportResultsDto implements Serializable {
 
     public void setExpiryDate(Date expiryDate) { this.expiryDate = expiryDate;   }
 
+    public String getTypeDesc() {
+        return typeDesc;
+    }
+
+    public void setTypeDesc(String typeDesc) {
+        this.typeDesc = typeDesc;
+    }
+
     public Long getUpdateCount() {  return updateCount; }
 
     public void setUpdateCount(Long updateCount) { this.updateCount = updateCount; }
@@ -236,7 +248,7 @@ public class ReportResultsDto implements Serializable {
         this.updateCount = updateCount;
     }
     public ReportResultsDto(Long generatedRptId, Long savedRptId, String fileName, String fileType,String runDate,
-                            String expireDate,String status,int type,Long fileSize,String criteria,Date completedDate,Date expiryDate) {
+                            String expireDate,String status,int type,Long fileSize,String criteria,Date completedDate,Date expiryDate,String typeDesc) {
         this.generatedRptId = generatedRptId;
         this.savedRptId = savedRptId;
         this.fileName = fileName;
@@ -249,6 +261,7 @@ public class ReportResultsDto implements Serializable {
         this.criteria = criteria;
         this.completedDate = completedDate;
         this.expiryDate = expiryDate;
+        this.typeDesc = typeDesc;
     }
 
     public ReportResultsDto(Boolean userAllowed, Boolean userAllowedForPush) {
