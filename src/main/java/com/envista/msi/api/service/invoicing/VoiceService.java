@@ -27,9 +27,9 @@ public class VoiceService {
     @Inject
     private VoiceDao dao;
 
-    public List<VoiceDto> getParentVoiceNames(long voiceId) {
+    public List<VoiceDto> getParentVoiceNames(long voiceId,String sort) {
 
-        return dao.getParentVoiceNames(voiceId);
+        return dao.getParentVoiceNames(voiceId,sort);
     }
 
     public VoiceDto createVoice(VoiceDto dto) {
@@ -53,29 +53,29 @@ public class VoiceService {
         return dao.deleteVoice(voiceIds);
     }
 
-    public VoiceDto findByVoiceId(Long voiceId) {
+    public VoiceDto findByVoiceId(Long voiceId,String sort) {
 
-        return dao.findByVoiceId(voiceId);
+        return dao.findByVoiceId(voiceId,sort);
     }
 
     //voices pagination data without filtering
-    public PaginationBean getVoicesPaginationData(int offset, int limit) throws Exception {
+    public PaginationBean getVoicesPaginationData(int offset, int limit,VoiceSearchBean bean) throws Exception {
         Map<String, Object> paginationFilterMap = new HashMap<String, Object>();
 
         return new EnspirePagination() {
             @Override
             protected int getTotalRowCount(Map<String, Object> paginationFilterMap) {
-                return dao.getCountOfVoices(0L);
+                return dao.getCountOfVoices(0L,bean.getSort());
             }
 
             @Override
-            protected Object loadPaginationData(Map<String, Object> paginationFilterMap, int offset, int limit, String sortOrder) throws Exception {
-                return loadAllVoices(paginationFilterMap, offset,limit);
+            protected Object loadPaginationData(Map<String, Object> paginationFilterMap, int offset, int limit, String sort) throws Exception {
+                return loadAllVoices(bean, offset,limit,sort);
             }
-        }.preparePaginationData(paginationFilterMap, offset, limit);
+        }.preparePaginationData(paginationFilterMap, offset, limit,bean.getSort());
     }
-    private List<VoiceDto> loadAllVoices(Map<String, Object> paginationFilterMap, int offset, int limit) throws Exception {
-        List<VoiceDto> dto=dao.getAllVoices(0L,offset, limit);
+    private List<VoiceDto> loadAllVoices(VoiceSearchBean bean, int offset, int limit,String sort) throws Exception {
+        List<VoiceDto> dto=dao.getAllVoices(0L,offset, limit,bean);
         return dto;
     }
 
@@ -91,7 +91,7 @@ public class VoiceService {
             }
 
             @Override
-            protected Object loadPaginationData(Map<String, Object> paginationFilterMap, int offset, int limit, String sortOrder) throws Exception {
+            protected Object loadPaginationData(Map<String, Object> paginationFilterMap, int offset, int limit, String sort) throws Exception {
                 return dao.getVoicesBySearchCriteria(filter, paginationFilterMap, offset,limit);
             }
         }.preparePaginationData(paginationFilterMap, offset, limit);

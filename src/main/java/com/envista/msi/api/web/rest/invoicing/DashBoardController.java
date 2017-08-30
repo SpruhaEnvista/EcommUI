@@ -48,10 +48,11 @@ public class DashBoardController {
      * HTTP GET - Get all Voices
      */
     @RequestMapping(value = "/getDashBoardInfo", params = {"fromDate", "toDate","actionType"}, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
-    public ResponseEntity<List<DashBoardDto>> getDashBoardInfo(@RequestParam String fromDate, @RequestParam String toDate, @RequestParam String actionType) throws JSONException {
+    public ResponseEntity<List<DashBoardDto>> getDashBoardInfo(@RequestParam String fromDate, @RequestParam String toDate, @RequestParam String actionType
+            , @RequestParam(required = false, defaultValue = "null") String sort) throws JSONException {
         log.info("***getDashBoardInfo method started****");
 
-        List<DashBoardDto> dashboardInfoList = service.getDashBoardInfo(fromDate, toDate, actionType);
+        List<DashBoardDto> dashboardInfoList = service.getDashBoardInfo(fromDate, toDate, actionType, sort);
 
         log.info("***getDashBoardInfo json***==== " + dashboardInfoList);
         return new ResponseEntity<List<DashBoardDto>>(dashboardInfoList, HttpStatus.OK);

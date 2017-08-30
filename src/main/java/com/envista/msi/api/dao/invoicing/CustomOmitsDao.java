@@ -20,18 +20,20 @@ public class CustomOmitsDao {
     @Inject
     private PersistentContext persistentContext;
 
-    public List<CustomOmitsDto> findByuserId(long userId,int offset, int limit) {
+    public List<CustomOmitsDto> findByUserId(CustomOmitsDto dto, int offset, int limit, String sort) {
 
-        QueryParameter queryParameter = StoredProcedureParameter.with("P_USER_ID", userId)
+        QueryParameter queryParameter = StoredProcedureParameter.with("P_USER_ID", dto.getUserId())
                 .and("P_OMIT_ID", 0L)
-                .and("P_OFFSET", offset).and("P_PAGE_SIZE", limit).and("P_ACTION_TYPE", "findByuserId");
+                .and("P_OFFSET", offset).and("P_PAGE_SIZE", limit).and("P_SORT_COLUMN", sort)
+                .and("P_ACTION_TYPE", "findByUserId");
 
         return persistentContext.findEntities("CustomOmitsDto.getCutomOmitsList", queryParameter);
     }
 
     public CustomOmitsDto findById(Long customOmitsId) {
         QueryParameter queryParameter = StoredProcedureParameter.with("P_USER_ID", 0L)
-                .and("P_OMIT_ID", customOmitsId).and("P_OFFSET", 0).and("P_PAGE_SIZE", 0).and("P_ACTION_TYPE", "findById");
+                .and("P_OMIT_ID", customOmitsId).and("P_OFFSET", 0).and("P_PAGE_SIZE", 0).and("P_SORT_COLUMN", null)
+                .and("P_ACTION_TYPE", "findById");
 
         List<CustomOmitsDto> dtos = persistentContext.findEntities("CustomOmitsDto.getCutomOmitsList", queryParameter);
         CustomOmitsDto dto = null;
@@ -84,12 +86,13 @@ public class CustomOmitsDao {
         return dbDto;
     }
 
-    public List<CustomOmitsDto> findBySearchCriteria(CustomOmitsDto dto, Map<String, Object> paginationFilterMap,int offset, int limit) {
+    public List<CustomOmitsDto> findBySearchCriteria(CustomOmitsDto dto, Map<String, Object> paginationFilterMap, int offset, int limit, String sort) {
 
         QueryParameter queryParameter = StoredProcedureParameter.with("P_TRACKING_NUMBER", dto.getTrackingNumber())
                 .and("P_CREDIT_TYPE_ID", dto.getCreditTypeId()).and("P_CUSTOMER_IDS", dto.getCustomerIds())
                 .and("P_COMMENTS", dto.getComments()).and("P_CARRIER_ID", dto.getCarrierId()).and("P_USER_ID", dto.getUserId())
-                .and("P_OFFSET", offset).and("P_PAGE_SIZE", limit).and("P_CUTOM_OMIT_ID", 0L).and("P_ACTION_TYPE", "search");
+                .and("P_OFFSET", offset).and("P_PAGE_SIZE", limit).and("P_CUTOM_OMIT_ID", 0L).and("P_SORT_COLUMN", sort)
+                .and("P_ACTION_TYPE", "search");
 
         return persistentContext.findEntities("CustomOmitsDto.findBySearchCriteria", queryParameter);
     }
@@ -111,7 +114,7 @@ public class CustomOmitsDao {
     public int getCountOfCustomOmits(Long userId) {
 
         QueryParameter queryParameter = StoredProcedureParameter.with("P_USER_ID", userId)
-                .and("P_OMIT_ID", 0L).and("P_OFFSET", 0).and("P_PAGE_SIZE", 0).and("P_ACTION_TYPE", "count");
+                .and("P_OMIT_ID", 0L).and("P_OFFSET", 0).and("P_PAGE_SIZE", 0).and("P_SORT_COLUMN", null).and("P_ACTION_TYPE", "count");
 
         List<CustomOmitsDto> dtos = persistentContext.findEntities("CustomOmitsDto.getCount", queryParameter);
         int count=0;
@@ -126,7 +129,8 @@ public class CustomOmitsDao {
         QueryParameter queryParameter = StoredProcedureParameter.with("P_TRACKING_NUMBER", dto.getTrackingNumber())
                 .and("P_CREDIT_TYPE_ID", dto.getCreditTypeId()).and("P_CUSTOMER_IDS", dto.getCustomerIds())
                 .and("P_COMMENTS", dto.getComments()).and("P_CARRIER_ID", dto.getCarrierId()).and("P_USER_ID", dto.getUserId())
-                .and("P_OFFSET", 0).and("P_PAGE_SIZE", 0).and("P_CUTOM_OMIT_ID", dto.getCustomOmitsId()).and("P_ACTION_TYPE", "count");
+                .and("P_OFFSET", 0).and("P_PAGE_SIZE", 0).and("P_CUTOM_OMIT_ID", dto.getCustomOmitsId())
+                .and("P_SORT_COLUMN", null).and("P_ACTION_TYPE", "count");
 
         List<CustomOmitsDto> dtos = persistentContext.findEntities("CustomOmitsDto.searchCount", queryParameter);
 

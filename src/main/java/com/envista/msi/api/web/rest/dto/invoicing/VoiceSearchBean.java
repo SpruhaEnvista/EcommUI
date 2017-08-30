@@ -14,6 +14,7 @@ public class VoiceSearchBean implements Serializable {
     private String voiceFlag;
     private Integer offset;
     private Integer pageSize;
+    private String sort;
 
     public Integer getOffset() {
         return offset;
@@ -49,9 +50,19 @@ public class VoiceSearchBean implements Serializable {
     public String getParentVoiceName() {
         return parentVoiceName;
     }
+
+    public String getSort() {
+        return sort;
+    }
+
+    public void setSort(String sort) {
+        this.sort = sort;
+    }
+
     /**
      * @param parentVoiceName the parentVoiceName to set
      */
+
     public void setParentVoiceName(String parentVoiceName) {
         this.parentVoiceName = parentVoiceName;
     }
