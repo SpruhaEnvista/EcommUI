@@ -17,7 +17,8 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "reportsList", type = Void.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "userId", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "orderBy", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "ascDesc", type = String.class)
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "ascDesc", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "showAll", type = String.class)
                 }),
         @NamedStoredProcedureQuery(name = "ReportResults.updateExpiryDate", procedureName = "shp_rpt_update_expirydate_proc",
                 resultSetMappings = "UpdateCount",

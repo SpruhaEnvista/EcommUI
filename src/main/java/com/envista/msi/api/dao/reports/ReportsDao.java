@@ -39,9 +39,9 @@ public class ReportsDao {
      * @return list<ReportResultsDto>
      */
     @Transactional( readOnly = true )
-    public List<ReportResultsDto> getReportResults(Long userId,String orderBy, String ascDesc) {
+    public List<ReportResultsDto> getReportResults(Long userId,String showAll,String orderBy, String ascDesc) {
         QueryParameter queryParameter = StoredProcedureParameter.with("userId", userId)
-                .and("orderBy", orderBy).and("ascDesc", ascDesc);
+                .and("orderBy", orderBy).and("ascDesc", ascDesc).and("showAll", showAll.toLowerCase());
         return persistentContext.findEntitiesAndMapFields("ReportResults.getReportResults",queryParameter);
     }
     /**
