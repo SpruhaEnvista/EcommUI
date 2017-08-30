@@ -62,8 +62,11 @@ import java.util.Date;
                                 @ColumnResult(name = "expire_date", type = String.class),
                                 @ColumnResult(name = "running_status", type = String.class),
                                 @ColumnResult(name = "type", type = Integer.class),
+                                @ColumnResult(name = "file_size", type = Long.class),
+                                @ColumnResult(name = "criteria", type = String.class),
                                 @ColumnResult(name = "completion_date", type = Date.class),
-                                @ColumnResult(name = "expires_date", type = Date.class)
+                                @ColumnResult(name = "expires_date", type = Date.class),
+                                @ColumnResult(name = "type_desc", type = String.class)
                         }
                 )
         }),
@@ -106,11 +109,20 @@ public class ReportResultsDto implements Serializable {
     @Column(name = "type")
     private int type;
 
+    @Column(name = "file_size")
+    private Long fileSize;
+
+    @Column(name = "criteria")
+    private String criteria;
+
     @Column(name = "completion_date")
     private Date completedDate;
 
     @Column(name = "expires_date")
     private Date expiryDate;
+
+    @Column(name = "type_desc")
+    private String typeDesc;
 
     @Column(name="updateCount")
     private Long updateCount;
@@ -181,6 +193,14 @@ public class ReportResultsDto implements Serializable {
 
     public void setExpiryDate(Date expiryDate) { this.expiryDate = expiryDate;   }
 
+    public String getTypeDesc() {
+        return typeDesc;
+    }
+
+    public void setTypeDesc(String typeDesc) {
+        this.typeDesc = typeDesc;
+    }
+
     public Long getUpdateCount() {  return updateCount; }
 
     public void setUpdateCount(Long updateCount) { this.updateCount = updateCount; }
@@ -188,6 +208,22 @@ public class ReportResultsDto implements Serializable {
     public int getType() {   return type;   }
 
     public void setType(int type) { this.type = type;   }
+
+    public Long getFileSize() {
+        return fileSize;
+    }
+
+    public void setFileSize(Long fileSize) {
+        this.fileSize = fileSize;
+    }
+
+    public String getCriteria() {
+        return criteria;
+    }
+
+    public void setCriteria(String criteria) {
+        this.criteria = criteria;
+    }
 
     public Boolean getUserAllowed() {
         return userAllowed;
@@ -212,7 +248,7 @@ public class ReportResultsDto implements Serializable {
         this.updateCount = updateCount;
     }
     public ReportResultsDto(Long generatedRptId, Long savedRptId, String fileName, String fileType,String runDate,
-                            String expireDate,String status,int type,Date completedDate,Date expiryDate) {
+                            String expireDate,String status,int type,Long fileSize,String criteria,Date completedDate,Date expiryDate,String typeDesc) {
         this.generatedRptId = generatedRptId;
         this.savedRptId = savedRptId;
         this.fileName = fileName;
@@ -221,8 +257,11 @@ public class ReportResultsDto implements Serializable {
         this.expireDate = expireDate;
         this.status = status;
         this.type = type;
+        this.fileSize = fileSize;
+        this.criteria = criteria;
         this.completedDate = completedDate;
         this.expiryDate = expiryDate;
+        this.typeDesc = typeDesc;
     }
 
     public ReportResultsDto(Boolean userAllowed, Boolean userAllowedForPush) {
