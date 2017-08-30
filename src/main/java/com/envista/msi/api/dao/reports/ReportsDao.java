@@ -581,6 +581,8 @@ public class ReportsDao {
         }
         if(savedSchedReportDto.getScNextSubmitDate()!=null && !savedSchedReportDto.getScNextSubmitDate().isEmpty()){
             savedSchedReportDto.setScNextSubmitDate(convertDateFullYearString(savedSchedReportDto.getScNextSubmitDate()));
+        }else{
+            savedSchedReportDto.setScNextSubmitDate(String.valueOf(System.currentTimeMillis()));
         }
 
         QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", savedSchedReportDto.getSavedSchedRptId())

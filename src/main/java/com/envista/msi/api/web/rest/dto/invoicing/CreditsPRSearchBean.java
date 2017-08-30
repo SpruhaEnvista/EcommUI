@@ -51,6 +51,8 @@ public class CreditsPRSearchBean implements Serializable {
 
     private String invComments;
 
+    private String sort;
+
     public Long getBusinessPartnerId() {
         return businessPartnerId;
     }
@@ -225,5 +227,13 @@ public class CreditsPRSearchBean implements Serializable {
 
     public void setInvComments(String invComments) {
         this.invComments = invComments;
+    }
+
+    public String getSort() {
+        return sort;
+    }
+
+    public void setSort(String sort) {
+        this.sort = sort;
     }
 }
