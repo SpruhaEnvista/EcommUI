@@ -2706,12 +2706,21 @@ public class DashboardsController extends DashboardBaseController {
             }
             if (requestParams.getFromDate() != null && !requestParams.getFromDate().isEmpty() && requestParams.getToDate() != null && !requestParams.getToDate().isEmpty()) {
                 if(!requestParams.getFromChartEvent()){
-                    filter.setFromDate(DateUtil.format(DateUtil.parse(requestParams.getFromDate(), "yyyy-MM-dd"), "dd-MMM-yyyy"));
-                    filter.setToDate(DateUtil.format(DateUtil.parse(requestParams.getToDate(), "yyyy-MM-dd"), "dd-MMM-yyyy"));
+                    if(requestParams.getCustomisedDisplayUnits() != null && requestParams.getCustomisedDisplayUnits().equalsIgnoreCase("day")){
+                        filter.setFromDate(DateUtil.format(DateUtil.subtractDays(DateUtil.parse(requestParams.getFromDate(), "yyyy-MM-dd"), 1), "dd-MMM-yyyy"));
+                        filter.setToDate(DateUtil.format(DateUtil.subtractDays(DateUtil.parse(requestParams.getToDate(), "yyyy-MM-dd"), 1), "dd-MMM-yyyy"));
+                    }else{
+                        filter.setFromDate(DateUtil.format(DateUtil.parse(requestParams.getFromDate(), "yyyy-MM-dd"), "dd-MMM-yyyy"));
+                        filter.setToDate(DateUtil.format(DateUtil.parse(requestParams.getToDate(), "yyyy-MM-dd"), "dd-MMM-yyyy"));
+                    }
                 }else{
-                    filter.setFromDate(DateUtil.format(DateUtil.subtractDays(new Date(Long.parseLong(requestParams.getFromDate())), 1), "dd-MMM-yyyy"));
-                    filter.setToDate(DateUtil.format(DateUtil.subtractDays(new Date(Long.parseLong(requestParams.getToDate())), 1), "dd-MMM-yyyy"));
-
+                    if(requestParams.getCustomisedDisplayUnits() != null && requestParams.getCustomisedDisplayUnits().equalsIgnoreCase("day")){
+                        filter.setFromDate(DateUtil.format(DateUtil.subtractDays(new Date(Long.parseLong(requestParams.getFromDate())), 1), "dd-MMM-yyyy"));
+                        filter.setToDate(DateUtil.format(DateUtil.subtractDays(new Date(Long.parseLong(requestParams.getToDate())), 1), "dd-MMM-yyyy"));
+                    }else{
+                        filter.setFromDate(DateUtil.format(new Date(Long.parseLong(requestParams.getFromDate())), "dd-MMM-yyyy"));
+                        filter.setToDate(DateUtil.format(new Date(Long.parseLong(requestParams.getToDate())), "dd-MMM-yyyy"));
+                    }
                     if(requestParams.getLastDay() != null && (!requestParams.getToDate().substring(3,6).equals(requestParams.getLastDay().subSequence(3,6)) || Integer.parseInt(requestParams.getToDate().substring(0,2)) > Integer.parseInt(requestParams.getLastDay().substring(0,2)))){
                         filter.setToDate(DateUtil.format(DateUtil.parse(requestParams.getLastDay(), "yyyy-MM-dd"), "dd-MMM-yyyy"));
                     }
@@ -2745,12 +2754,21 @@ public class DashboardsController extends DashboardBaseController {
             }
             if (requestParams.getFromDate() != null && !requestParams.getFromDate().isEmpty() && requestParams.getToDate() != null && !requestParams.getToDate().isEmpty()) {
                 if(!requestParams.getFromChartEvent()){
-                    filter.setFromDate(DateUtil.format(DateUtil.parse(requestParams.getFromDate(), "yyyy-MM-dd"), "dd-MMM-yyyy"));
-                    filter.setToDate(DateUtil.format(DateUtil.parse(requestParams.getToDate(), "yyyy-MM-dd"), "dd-MMM-yyyy"));
+                    if(requestParams.getCustomisedDisplayUnits() != null && requestParams.getCustomisedDisplayUnits().equalsIgnoreCase("day")){
+                        filter.setFromDate(DateUtil.format(DateUtil.subtractDays(DateUtil.parse(requestParams.getFromDate(), "yyyy-MM-dd"), 1), "dd-MMM-yyyy"));
+                        filter.setToDate(DateUtil.format(DateUtil.subtractDays(DateUtil.parse(requestParams.getToDate(), "yyyy-MM-dd"), 1), "dd-MMM-yyyy"));
+                    }else{
+                        filter.setFromDate(DateUtil.format(DateUtil.parse(requestParams.getFromDate(), "yyyy-MM-dd"), "dd-MMM-yyyy"));
+                        filter.setToDate(DateUtil.format(DateUtil.parse(requestParams.getToDate(), "yyyy-MM-dd"), "dd-MMM-yyyy"));
+                    }
                 }else{
-                    filter.setFromDate(DateUtil.format(DateUtil.subtractDays(new Date(Long.parseLong(requestParams.getFromDate())), 1), "dd-MMM-yyyy"));
-                    filter.setToDate(DateUtil.format(DateUtil.subtractDays(new Date(Long.parseLong(requestParams.getToDate())), 1), "dd-MMM-yyyy"));
-
+                    if(requestParams.getCustomisedDisplayUnits() != null && requestParams.getCustomisedDisplayUnits().equalsIgnoreCase("day")){
+                        filter.setFromDate(DateUtil.format(DateUtil.subtractDays(new Date(Long.parseLong(requestParams.getFromDate())), 1), "dd-MMM-yyyy"));
+                        filter.setToDate(DateUtil.format(DateUtil.subtractDays(new Date(Long.parseLong(requestParams.getToDate())), 1), "dd-MMM-yyyy"));
+                    }else{
+                        filter.setFromDate(DateUtil.format(new Date(Long.parseLong(requestParams.getFromDate())), "dd-MMM-yyyy"));
+                        filter.setToDate(DateUtil.format(new Date(Long.parseLong(requestParams.getToDate())), "dd-MMM-yyyy"));
+                    }
                     if(requestParams.getLastDay() != null && (!requestParams.getToDate().substring(3,6).equals(requestParams.getLastDay().subSequence(3,6)) || Integer.parseInt(requestParams.getToDate().substring(0,2)) > Integer.parseInt(requestParams.getLastDay().substring(0,2)))){
                         filter.setToDate(DateUtil.format(DateUtil.parse(requestParams.getLastDay(), "yyyy-MM-dd"), "dd-MMM-yyyy"));
                     }
