@@ -161,6 +161,15 @@ public class CommonUtil {
             // Setting headers
             for ( int i=0; i< noOfColumns; i++ ) {
                 JSONObject columnInfo = firstRowData.getJSONObject(i);
+                String dataType = columnInfo.getString("dataType");
+                String format = columnInfo.getString("format");
+
+                if ( "NUMBER".equalsIgnoreCase(dataType) ) {
+                    headerStyle.setAlignment(HSSFCellStyle.ALIGN_RIGHT);
+                } else {
+                    headerStyle.setAlignment(HSSFCellStyle.ALIGN_LEFT);
+                }
+
                 cell = row.createCell(i);
                 cell.setCellValue(columnInfo.getString("header"));
                 cell.setCellStyle(headerStyle);
@@ -168,8 +177,6 @@ public class CommonUtil {
                 CellStyle cellStyle= workbook.createCellStyle();
                 cellStyle.setFont(dataFont);
 
-                String dataType = columnInfo.getString("dataType");
-                String format = columnInfo.getString("format");
 
                 if ( "NUMBER".equalsIgnoreCase(dataType) ) {
                     cellStyle.setAlignment(HSSFCellStyle.ALIGN_RIGHT);
