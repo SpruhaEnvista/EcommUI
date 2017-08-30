@@ -195,7 +195,7 @@ public class CommonUtil {
                 JSONArray eachRowData = resultsArray.getJSONArray(i);
                 for ( int j=0; j< noOfColumns; j++ ) {
 
-                    JSONObject columnInfo = firstRowData.getJSONObject(j);
+                    JSONObject columnInfo = eachRowData.getJSONObject(j);
                     cell = row.createCell(j);
                     Object columnValue = "";
                     String dataType = dataTypes[j];
