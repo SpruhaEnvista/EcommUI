@@ -924,4 +924,18 @@ public class ReportsService {
     public ReportFolderDto updateReportFolder(ReportFolderDto reportFolderDto, UserProfileDto userProfileDto){
         return reportsDao.updateReportFolder(reportFolderDto,userProfileDto);
     }
+
+    public Map<String, String> getReportCustomColumnNames(String customerId, Long reportId){
+        List<ReportCustomColumnDto> customColumns = reportsDao.getReportCustomColumnNames(customerId, reportId);
+        Map<String, String> customColsMap = null;
+        if(customColumns != null && !customColumns.isEmpty()){
+            customColsMap = new HashMap<>();
+            for(ReportCustomColumnDto col : customColumns){
+                if(col != null){
+                    customColsMap.put(col.getReportFieldName().toUpperCase(), col.getCustomFieldName());
+                }
+            }
+        }
+        return customColsMap;
+    }
 }

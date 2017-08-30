@@ -27,6 +27,7 @@ import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
 import com.envista.msi.api.web.rest.util.DateUtil;
 import com.envista.msi.api.web.rest.util.JSONUtil;
 import com.envista.msi.api.web.rest.util.pagination.PaginationBean;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,7 +40,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.el.MethodNotFoundException;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.ByteArrayOutputStream;
 import java.util.*;
 
 /**
@@ -2225,6 +2228,105 @@ public class DashboardsController extends DashboardBaseController {
             reportPaginationData = dashboardsService.getDashboardReportPaginationData(appliedFilter, offset, limit);
         }
         return ResponseEntity.status(HttpStatus.OK).body(reportPaginationData);
+    }
+
+    @RequestMapping(value = "/exportReport", method = {RequestMethod.GET}, produces = "application/text")
+    public @ResponseBody void exportDashboardReport(@RequestParam(required = false) String invoiceDate, @RequestParam(required = false) String dashletteName, @RequestParam(required = false) String carrierId,
+                                                    @RequestParam(required = false) String mode, @RequestParam(required = false) String carscoretype, @RequestParam(required = false) String service,
+                                                    @RequestParam(required = false, defaultValue = "0") Integer offset, @RequestParam(required = false, defaultValue = "1000") Integer limit,
+                                                    @RequestParam(required = false, defaultValue = "1000") Integer totalRecordCount,
+                                                    @RequestParam(required = false) String filter, HttpServletResponse response) throws Exception {
+        if  ( totalRecordCount <=1000  ) {
+
+            UserProfileDto user = getUserProfile();
+            DashboardsFilterCriteria appliedFilter = loadAppliedFilters(user.getUserId());
+            if (appliedFilter != null) {
+                if (invoiceDate != null && !invoiceDate.isEmpty()) {
+                    DashboardUtil.setDatesFromMonth(appliedFilter, invoiceDate);
+                }
+                appliedFilter.setDashletteName(dashletteName);
+                if (carrierId != null && !carrierId.isEmpty()) {
+                    appliedFilter.setCarriers(carrierId);
+                }
+                appliedFilter.setModeNames(mode);
+                appliedFilter.setScoreType(carscoretype);
+                appliedFilter.setService(service);
+                appliedFilter.setOffset(0);
+                appliedFilter.setPageSize(1000);
+            }
+
+            Workbook workbook = null;
+
+            if (filter != null && !filter.isEmpty()) {
+                workbook = dashboardsService.getReportForExport(appliedFilter, offset, 1000, DashboardUtil.prepareSearchFilterCriteria(filter));
+            } else {
+                workbook = dashboardsService.getReportForExport(appliedFilter, offset, 1000, null);
+            }
+
+            String fileName = "Dashboards_Export";
+
+            if (appliedFilter.getDashletteName()!= null) {
+                fileName = appliedFilter.getDashletteName().trim().replaceAll("&gt;", ">").replaceAll(" ", "_");
+                fileName = fileName.replaceAll(">", "_").replaceAll("\\|", "_").replaceAll("_+", "_");
+            }
+
+            response.setContentType("application/text");
+            response.setHeader("Content-Disposition", "attachment; filename="+fileName+".xlsx");
+
+            if (workbook != null) {
+                workbook.write(response.getOutputStream()); // Write workbook to response.
+                workbook.close();
+            }
+        } else {
+            //pushToReportsSection();
+        }
+
+
+    }
+
+    private void pushToReportsSection ( DashboardsFilterCriteria appliedFilter ) throws Exception {
+
+        JSONObject ssRptBean = new JSONObject();
+
+        String fileName = "Dashboards_Export";
+
+        if (appliedFilter.getDashletteName()!= null) {
+            fileName = appliedFilter.getDashletteName().trim().replaceAll("&gt;", ">").replaceAll(" ", "_");
+            fileName = fileName.replaceAll(">", "_").replaceAll("\\|", "_").replaceAll("_+", "_");
+        }
+
+        ssRptBean.put("svReportStatus", "Queued");
+
+        if (appliedFilter.isLineItemReport()) {
+            ssRptBean.put("rptId", 197);
+        } else {
+            ssRptBean.put("rptId", 100);
+        }
+
+        if ("SHIP_DATE".equalsIgnoreCase(appliedFilter.getDateType())) {
+            ssRptBean.put("rptDateOptionsId", 6 );
+        }else{
+            ssRptBean.put("rptDateOptionsId", 4 );
+        }
+
+        ssRptBean.put("isScheduled", false);
+        ssRptBean.put("reportTypeId", 5);
+        ssRptBean.put("dateSelectionFrequency", "dr");
+        ssRptBean.put("reportFileName", fileName);
+
+
+
+        ssRptBean.put("dateRangeTodayMinus2", 0);
+        ssRptBean.put("dateRangeTodayMinus1", 0);
+        ssRptBean.put("scTriggerBy", "");
+
+        ssRptBean.put("scWeeklyFrequency", 0);
+        ssRptBean.put("scMonthlyNoOfMonths", 0);
+        ssRptBean.put("consolidate", 0);
+        ssRptBean.put("scNextSubmitDate", "");
+
+
+
     }
 
 
