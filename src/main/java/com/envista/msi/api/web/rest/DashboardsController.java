@@ -2284,6 +2284,51 @@ public class DashboardsController extends DashboardBaseController {
 
     }
 
+    private void pushToReportsSection ( DashboardsFilterCriteria appliedFilter ) throws Exception {
+
+        JSONObject ssRptBean = new JSONObject();
+
+        String fileName = "Dashboards_Export";
+
+        if (appliedFilter.getDashletteName()!= null) {
+            fileName = appliedFilter.getDashletteName().trim().replaceAll("&gt;", ">").replaceAll(" ", "_");
+            fileName = fileName.replaceAll(">", "_").replaceAll("\\|", "_").replaceAll("_+", "_");
+        }
+
+        ssRptBean.put("svReportStatus", "Queued");
+
+        if (appliedFilter.isLineItemReport()) {
+            ssRptBean.put("rptId", 197);
+        } else {
+            ssRptBean.put("rptId", 100);
+        }
+
+        if ("SHIP_DATE".equalsIgnoreCase(appliedFilter.getDateType())) {
+            ssRptBean.put("rptDateOptionsId", 6 );
+        }else{
+            ssRptBean.put("rptDateOptionsId", 4 );
+        }
+
+        ssRptBean.put("isScheduled", false);
+        ssRptBean.put("reportTypeId", 5);
+        ssRptBean.put("dateSelectionFrequency", "dr");
+        ssRptBean.put("reportFileName", fileName);
+
+
+
+        ssRptBean.put("dateRangeTodayMinus2", 0);
+        ssRptBean.put("dateRangeTodayMinus1", 0);
+        ssRptBean.put("scTriggerBy", "");
+
+        ssRptBean.put("scWeeklyFrequency", 0);
+        ssRptBean.put("scMonthlyNoOfMonths", 0);
+        ssRptBean.put("consolidate", 0);
+        ssRptBean.put("scNextSubmitDate", "");
+
+
+
+    }
+
 
 
     /**
