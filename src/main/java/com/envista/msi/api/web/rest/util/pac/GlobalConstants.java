@@ -44,4 +44,9 @@ public class GlobalConstants {
 			+ "Port Of Destination Code@#@portOfDestination,Port Of Discharge@#@,Port Of Loading@#@,Port Of Loading Code@#@,Rated Miles@#@ratedMiles,Received Date@#@receivedDate,Reference 1@#@reference1,Reference 2@#@reference2,Reference 3@#@reference3,"
 			+ "Reference 4@#@reference4,Remit Comments@#@remitComments,Run Number@#@runNumber,Service Level@#@serviceLevel,Ship Date@#@shipDate,Variance@#@variance,Weight@#@totalWeight";
 	public static final String FREIGHT_INVOICE_LOOKUP_DEFAULT_COLUMNS = "Customer Name,Carrier Name,Ship Date,Run Number,Invoice Status,Load Match Date,Invoice Date,Approved Amount,BOL number,PRO number,InvoiceNumber";
+
+
+	/*Report Module*/
+	public static final Long REPORT_CURRENCY_CODE_GROUP_ID = 23l;
+	public static final Long REPORT_LANGUAGE_CODE_GROUP_ID = 662l;
 }

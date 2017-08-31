@@ -60,7 +60,7 @@ public class DashboardsFilterCriteria implements Serializable {
     private boolean isTopTenAccessorial;
     private Integer offset;
     private Integer pageSize;
-
+    private String customisedDisplayUnit;
 
     public String getCustomerIdsCSV() {
         return customerIdsCSV;
@@ -484,6 +484,14 @@ public class DashboardsFilterCriteria implements Serializable {
 
     public void setPageSize(Integer pageSize) {
         this.pageSize = pageSize;
+    }
+
+    public String getCustomisedDisplayUnit() {
+        return customisedDisplayUnit;
+    }
+
+    public void setCustomisedDisplayUnit(String customisedDisplayUnit) {
+        this.customisedDisplayUnit = customisedDisplayUnit;
     }
 
     public class FreightDashboardsDataBean {

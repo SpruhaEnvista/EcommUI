@@ -7,9 +7,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AccountSummaryDt
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AnnualSummaryDto;
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.MonthlySpendByModeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
-import com.envista.msi.api.web.rest.dto.dashboard.common.CommonMonthlyChartDto;
-import com.envista.msi.api.web.rest.dto.dashboard.common.CommonValuesForChartDto;
-import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendCommonDto;
+import com.envista.msi.api.web.rest.dto.dashboard.common.*;
 import com.envista.msi.api.web.rest.dto.dashboard.filter.UserFilterUtilityDataDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.AccessorialSpendDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.ActualVsBilledWeightDto;
@@ -1390,6 +1388,7 @@ public class JSONUtil {
             ArrayList<String> yearsList = new ArrayList<String>();
             ArrayList<String> categoriesList = new ArrayList<String>();
             String toDateYear = null;
+            Map<String, BigDecimal> totalSpendMap = new HashMap<>();
 
             if (filter.getToDate() != null && filter.getToDate().split("-").length > 2) {
                 toDateYear = filter.getToDate().split("-")[2];
@@ -1405,7 +1404,7 @@ public class JSONUtil {
             categoriesList.add("Small Package Spend");
             categoriesList.add("Freight Spend");
             categoriesList.add("Total Spend");
-            categoriesList.add("Recovery");
+            categoriesList.add("Small Package Recovery");
 
             for (AccountSummaryDto accountSummary : accountSummaryList) {
                 if (accountSummary != null) {
@@ -1414,14 +1413,12 @@ public class JSONUtil {
                     BigDecimal amount = accountSummary.getAmount();
                     String category = accountSummary.getCategory();
 
-                    if (category.contains("YTD")) {
-                        category = "Total Spend";
-                    } else if (isLtl == 0 && category.contains("Spend")) {
+                    if (isLtl == 0 && category.contains("Spend")) {
                         category = "Small Package Spend";
                     } else if (isLtl == 1 && category.contains("Spend")) {
                         category = "Freight Spend";
                     } else if (category.contains("Recovery")) {
-                        category = "Recovery";
+                        category = "Small Package Recovery";
                     }
 
                     if (categoriesBasedMap.containsKey(category)) {
@@ -1435,6 +1432,15 @@ public class JSONUtil {
                         tempMap.put(year, amount);
                         categoriesBasedMap.put(category, tempMap);
                     }
+
+                    if(amount != null && category.contains("Spend") && (isLtl == 0 || isLtl == 1)){
+                        if(totalSpendMap.containsKey(year)){
+                            BigDecimal total = amount.add(totalSpendMap.get(year));
+                            totalSpendMap.put(year, total);
+                        }else{
+                            totalSpendMap.put(year, amount);
+                        }
+                    }
                 }
             }
             JSONArray finalValuesArray = new JSONArray();
@@ -1444,27 +1450,32 @@ public class JSONUtil {
                 String key1 = "spend" + yearsList.get(0);
                 String key2 = "spend" + yearsList.get(1);
                 eachCategoryObj.put("name", category);
-                if (categoriesBasedMap.containsKey(category)) {
-                    if (categoriesBasedMap.get(category).containsKey(yearsList.get(0))) {
-                        eachCategoryObj.put(key1, categoriesBasedMap.get(category).get(yearsList.get(0)));
+
+                if(category.equalsIgnoreCase("Total Spend")){
+                    eachCategoryObj.put(key1, commaSeperatedDecimalFormat.format(totalSpendMap.get(yearsList.get(0))));
+                    eachCategoryObj.put(key2, commaSeperatedDecimalFormat.format(totalSpendMap.get(yearsList.get(1))));
+                }else{
+                    if (categoriesBasedMap.containsKey(category)) {
+                        if (categoriesBasedMap.get(category).containsKey(yearsList.get(0))) {
+                            eachCategoryObj.put(key1, commaSeperatedDecimalFormat.format(categoriesBasedMap.get(category).get(yearsList.get(0))));
+                        } else {
+                            eachCategoryObj.put(key1, "0");
+                        }
+
+                        if (categoriesBasedMap.get(category).containsKey(yearsList.get(1))) {
+                            eachCategoryObj.put(key2, commaSeperatedDecimalFormat.format(categoriesBasedMap.get(category).get(yearsList.get(1))));
+                        } else {
+                            eachCategoryObj.put(key2, "0");
+                        }
                     } else {
                         eachCategoryObj.put(key1, "0");
-                    }
-
-                    if (categoriesBasedMap.get(category).containsKey(yearsList.get(1))) {
-                        eachCategoryObj.put(key2, categoriesBasedMap.get(category).get(yearsList.get(1)));
-                    } else {
                         eachCategoryObj.put(key2, "0");
                     }
-                } else {
-                    eachCategoryObj.put(key1, "0");
-                    eachCategoryObj.put(key2, "0");
                 }
                 finalValuesArray.put(eachCategoryObj);
             }
 
             JSONArray yearsJsonArray = new JSONArray();
-
             yearsJsonArray.put(yearsList.get(0));
             yearsJsonArray.put(yearsList.get(1));
 
@@ -1480,14 +1491,15 @@ public class JSONUtil {
             Map<String, HashMap<String, HashMap<String, Double>>> modesMap = new LinkedHashMap<>();
             ArrayList<String> modesList = new ArrayList<>();
             ArrayList<String> quatersList = new ArrayList<>();
-            Map<String, Double> quaterlyWiseSpend = new HashMap<String, Double>();
+            Map<String, Double> quarterlySpend = new HashMap<String, Double>();
+            Map<String, Integer> quarterlyTotalShipment = new HashMap<String, Integer>();
 
             for (AnnualSummaryDto annualSummary : annualSummaryList) {
                 if (annualSummary != null) {
                     String quater = annualSummary.getQuarter();
                     String mode = annualSummary.getModes();
-                    double spend = annualSummary.getSpend();
-                    double noOfShipments = annualSummary.getNoOfShipments();
+                    double spend = (null == annualSummary.getSpend() ? 0 : annualSummary.getSpend());
+                    double noOfShipments = (null == annualSummary.getNoOfShipments() ? 0 : annualSummary.getNoOfShipments());
 
                     if (!modesList.contains(mode)) {
                         modesList.add(mode);
@@ -1528,12 +1540,20 @@ public class JSONUtil {
                         modesMap.put(mode, quatersWiseMap);
                     }
 
-                    if (quaterlyWiseSpend.containsKey(quater)) {
-                        double totalSpend = quaterlyWiseSpend.get(quater);
+                    if (quarterlySpend.containsKey(quater)) {
+                        double totalSpend = quarterlySpend.get(quater);
                         totalSpend += spend;
-                        quaterlyWiseSpend.put(quater, totalSpend);
+                        quarterlySpend.put(quater, totalSpend);
                     } else {
-                        quaterlyWiseSpend.put(quater, spend);
+                        quarterlySpend.put(quater, spend);
+                    }
+
+                    if(quarterlyTotalShipment.containsKey(quater)){
+                        Integer totalShipment = quarterlyTotalShipment.get(quater);
+                        totalShipment += annualSummary.getNoOfShipments();
+                        quarterlyTotalShipment.put(quater, totalShipment);
+                    }else{
+                        quarterlyTotalShipment.put(quater, (null == annualSummary.getNoOfShipments() ? 0 : annualSummary.getNoOfShipments()));
                     }
                 }
             }
@@ -1554,9 +1574,9 @@ public class JSONUtil {
                         quaterInnerDataObj.put("spend", commaSeperatedDecimalFormat.format(eachQuaterData.get("spend")));
                         quaterInnerDataObj.put("noOfShipments", eachQuaterData.get("noOfShipments"));
                         quaterInnerDataObj.put("total", commaSeperatedDecimalFormat.format(eachQuaterData.get("total")));
-                        if (quaterlyWiseSpend.containsKey(quater)) {
+                        if (quarterlySpend.containsKey(quater)) {
                             quaterInnerDataObj.put("perc",
-                                    commaSeperatedDecimalFormat.format(quaterlyWiseSpend.get(quater) != 0 ? (eachQuaterData.get("spend") / quaterlyWiseSpend.get(quater)) * 100 : 0) + "%");
+                                    commaSeperatedDecimalFormat.format(quarterlySpend.get(quater) != 0 ? (eachQuaterData.get("spend") / quarterlySpend.get(quater)) * 100 : 0) + "%");
                         } else {
                             quaterInnerDataObj.put("perc", "0%");
                         }
@@ -1573,11 +1593,29 @@ public class JSONUtil {
                 modesArray.put(modeWiseDataObj);
             }
 
+            JSONObject quartersJson = new JSONObject();
+            for(Map.Entry<String, Double> spendMap : quarterlySpend.entrySet()){
+                if(spendMap != null){
+                    JSONObject total = new JSONObject();
+                    Double totalSpend = spendMap.getValue();
+                    Integer totalShipment = quarterlyTotalShipment.get(spendMap.getKey());
+                    total.put("spend", commaSeperatedDecimalFormat.format(totalSpend));
+                    total.put("noOfShipments", totalShipment);
+                    total.put("perc", "");
+                    total.put("total", totalShipment != null && totalShipment != 0 ? commaSeperatedDecimalFormat.format(totalSpend / totalShipment) : "0");
+                    quartersJson.put(spendMap.getKey(), total);
+                }
+            }
+            JSONObject totalSpendJson = new JSONObject();
+            totalSpendJson.put("Total", new JSONObject().put("quaters", quartersJson));
+            if(modesArray != null){
+                modesArray.put(totalSpendJson);
+            }
             JSONArray quatersArray = new JSONArray();
-
             for (String quater : quatersList) {
                 quatersArray.put(quater);
             }
+
             finalObject.put("modes", modesArray);
             finalObject.put("quaters", quatersArray);
             returnJson.put("values", finalObject);
@@ -1697,6 +1735,7 @@ public class JSONUtil {
             Map<String, HashMap<String, HashMap<String, Double>>> modesMap = new LinkedHashMap<>();
             List<String> modesList = new ArrayList<String>();
             List<String> monthsList = new ArrayList<String>();
+            Map<String, Double> monthlyTotalSpend = new HashMap<String, Double>();
 
             for (MonthlySpendByModeDto monthlySpend : monthlySpendList) {
                 if (monthlySpend != null) {
@@ -1728,6 +1767,14 @@ public class JSONUtil {
                         monthsWiseMap.put(month, eachMonthData);
                         modesMap.put(mode, monthsWiseMap);
                     }
+
+                    if (monthlyTotalSpend.containsKey(month)) {
+                        double totalSpend = monthlyTotalSpend.get(month);
+                        totalSpend += spend;
+                        monthlyTotalSpend.put(month, totalSpend);
+                    } else {
+                        monthlyTotalSpend.put(month, spend);
+                    }
                 }
             }
 
@@ -1746,6 +1793,17 @@ public class JSONUtil {
                     modeWiseDataObj.put(month, spend);
                 }
                 modesArray.put(modeWiseDataObj);
+            }
+
+            if(modesArray != null){
+                JSONObject totalMonthlyJson = new JSONObject();
+                for(Map.Entry<String, Double> monthlyMap : monthlyTotalSpend.entrySet()){
+                    if(monthlyMap != null){
+                        totalMonthlyJson.put(monthlyMap.getKey(), commaSeperatedDecimalFormat.format(monthlyMap.getValue()));
+                    }
+                }
+                totalMonthlyJson.put("name", "Total");
+                modesArray.put(totalMonthlyJson);
             }
 
             JSONArray monthsArray = new JSONArray();
@@ -2749,6 +2807,106 @@ public class JSONUtil {
         finalObject.put("nodesData", nodesArray);
         finalObject.put("countryWisePercentage", countryWisePercentArray);
         return finalObject;
+    }
+
+    public static JSONObject prepareJsonForAverageChartByWeekly(List<CommonWeekChartDto> weekChartList) throws JSONException {
+        JSONObject returnJson = new JSONObject();
+        JSONArray returnArray = new JSONArray();
+        int count = 0;
+        String fromDate = null;
+        String toDate = null;
+        double totalAmount = 0;
+        long totalCount = 0;
+        int previousWeekNo = 0;
+        String previousWeekLastDay = null;
+        DecimalFormat decimalformat = new DecimalFormat("##.##");
+
+        for (CommonWeekChartDto weekChart : weekChartList) {
+            if (weekChart != null) {
+                JSONArray dataArray = new JSONArray();
+                String date = DateUtil.format(weekChart.getBillDate(), "yyyy-MM-dd");
+                int currentWeekNo = weekChart.getWeekNumber();
+                if (count == 0) {
+                    previousWeekNo = currentWeekNo;
+                }
+                dataArray.put(date);
+                dataArray.put(0);
+                returnArray.put(dataArray);
+
+                if (previousWeekNo == currentWeekNo) {
+                    totalAmount = totalAmount + weekChart.getAmount();
+                    totalCount = totalCount + weekChart.getCount();
+                } else {
+                    previousWeekNo = currentWeekNo;
+                    returnArray.getJSONArray(count - 1).put(0, previousWeekLastDay);
+                    returnArray.getJSONArray(count - 1).put(1, decimalformat.format(totalAmount / totalCount));
+
+                    totalAmount = weekChart.getAmount();
+                    totalCount = weekChart.getCount();
+
+                }
+                previousWeekLastDay = date;
+                if (count == 0) {
+                    fromDate = date;
+                }
+                toDate = date;
+                dataArray = null;
+                count++;
+            }
+        }
+        if (returnArray.length() > 0) {
+            returnArray.getJSONArray(count - 1).put(0, previousWeekLastDay);
+            returnArray.getJSONArray(count - 1).put(1, totalCount != 0 ? decimalformat.format(totalAmount / totalCount) : 0);
+        }
+        returnJson.put("values", returnArray);
+        returnJson.put("fromDate", fromDate);
+        returnJson.put("toDate", toDate);
+        return returnJson;
+    }
+
+    public static JSONObject prepareJsonForAverageChartByPeriod(List<CommonPeriodChartDto> commonPeriodChartList, String unit) throws JSONException {
+        JSONObject returnJson = new JSONObject();
+        JSONArray returnArray = new JSONArray();
+        int count = 0;
+        String fromDate = null;
+        String toDate = null;
+        double totalAmount =0;
+        long totalCount =0;
+        DecimalFormat decimalformat =new DecimalFormat("##.##");
+
+        if (commonPeriodChartList != null && !commonPeriodChartList.isEmpty()) {
+            for (CommonPeriodChartDto periodChart : commonPeriodChartList) {
+                if (periodChart != null) {
+                    totalAmount = totalAmount + periodChart.getAmount();
+                    totalCount = totalCount + periodChart.getCount();
+                    JSONArray dataArray = new JSONArray();
+                    String date = DateUtil.format(periodChart.getBillDate(), "yyyy-MM-dd");
+                    dataArray.put(date);
+                    if (unit.equalsIgnoreCase("day")) {
+                        dataArray.put(decimalformat.format(null == periodChart.getAverageAmount() ? 0d : periodChart.getAverageAmount()));
+                    } else {
+                        dataArray.put(0);
+                    }
+                    returnArray.put(dataArray);
+                    if (count == 0) {
+                        fromDate = date;
+                    }
+                    toDate = date;
+                    dataArray = null;
+                    count++;
+                }
+
+                if (!unit.equalsIgnoreCase("day") && returnArray.length() > 0) {
+                    returnArray.getJSONArray(0).put(0, fromDate);
+                    returnArray.getJSONArray(0).put(1, totalCount != 0 ? decimalformat.format(totalAmount / totalCount) : 0);
+                }
+
+                returnJson.put("values", returnArray);
+                returnJson.put("fromDate", fromDate);
+                returnJson.put("toDate", toDate);
+            }
+        }
+        return returnJson;
     }
 }
 
