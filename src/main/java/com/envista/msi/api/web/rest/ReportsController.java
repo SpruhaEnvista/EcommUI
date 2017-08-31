@@ -61,7 +61,7 @@ public class ReportsController {
     }
 
     @RequestMapping(value = "/results/reportslist/{userId}", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<List<ReportResultsDto>> getReportResults(@PathVariable String userId,@RequestParam String sort){
+    public ResponseEntity<List<ReportResultsDto>> getReportResults(@PathVariable String userId,@RequestParam(required = false) String showAll,@RequestParam String sort){
         String ascDesc=null;
         if(sort!=null && sort.trim().length()>0){
             if(sort.startsWith("-")){
@@ -71,7 +71,7 @@ public class ReportsController {
                 ascDesc = "asc";
             }
         }
-        List<ReportResultsDto> resultsList = reportsService.getReportResults(Long.parseLong(userId),sort,ascDesc);
+        List<ReportResultsDto> resultsList = reportsService.getReportResults(Long.parseLong(userId),showAll,sort,ascDesc);
         return new ResponseEntity<List<ReportResultsDto>>(resultsList, HttpStatus.OK);
     }
     @RequestMapping(value = "/results/updateexpirydate", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
@@ -319,9 +319,19 @@ public class ReportsController {
     }
 
     @RequestMapping(value = "/criteriacolumn", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<List<ReportColumnDto>> getReportCriteria(@RequestParam String userId, @RequestParam String rptId, @RequestParam String carrierIds){
+    public ResponseEntity<List<ReportColumnDto>> getReportCriteria(@RequestParam String userId, @RequestParam String rptId, @RequestParam String carrierIds, @RequestParam(required = false) String customerId){
         try {
             List<ReportColumnDto> reportCriteriaCols = reportsService.getReportCriteria(Long.parseLong(userId),Long.parseLong(rptId),carrierIds);
+            if(reportCriteriaCols != null && !reportCriteriaCols.isEmpty() && rptId != null && !rptId.isEmpty() && customerId != null && !customerId.isEmpty()){
+                Map<String, String> customColumns = reportsService.getReportCustomColumnNames(customerId, Long.parseLong(rptId));
+                if(customColumns != null && !customColumns.isEmpty()){
+                    reportCriteriaCols.forEach( reportCol -> {
+                        if(reportCol != null && reportCol.getSelectCluse() != null && customColumns.containsKey(reportCol.getSelectCluse().toUpperCase())){
+                            reportCol.setColumnName(customColumns.get(reportCol.getSelectCluse().toUpperCase()));
+                        }
+                    });
+                }
+            }
             return new ResponseEntity<List<ReportColumnDto>>(reportCriteriaCols, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<List<ReportColumnDto>>(new ArrayList<ReportColumnDto>(), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -329,9 +339,19 @@ public class ReportsController {
     }
 
     @RequestMapping(value = "/inclexclsortcolumn", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<List<ReportColumnDto>> getIncludeExcludeSortCol(@RequestParam String userId, @RequestParam String rptId, @RequestParam String carrierIds){
+    public ResponseEntity<List<ReportColumnDto>> getIncludeExcludeSortCol(@RequestParam String userId, @RequestParam String rptId, @RequestParam String carrierIds, @RequestParam(required = false) String customerId){
         try {
-            List<ReportColumnDto> reportIncludeExclSortCols = reportsService.getIncludeExcludeSortCol(Long.parseLong(userId),Long.parseLong(rptId),carrierIds);
+            List<ReportColumnDto> reportIncludeExclSortCols = reportsService.getIncludeExcludeSortCol(Long.parseLong(userId), Long.parseLong(rptId),carrierIds);
+            if(reportIncludeExclSortCols != null && !reportIncludeExclSortCols.isEmpty() && rptId != null && !rptId.isEmpty() && customerId != null && !customerId.isEmpty()){
+                Map<String, String> customColumns = reportsService.getReportCustomColumnNames(customerId, Long.parseLong(rptId));
+                if(customColumns != null && !customColumns.isEmpty()){
+                    reportIncludeExclSortCols.forEach( reportCol -> {
+                        if(reportCol != null && reportCol.getSelectCluse() != null && customColumns.containsKey(reportCol.getSelectCluse().toUpperCase())){
+                            reportCol.setColumnName(customColumns.get(reportCol.getSelectCluse().toUpperCase()));
+                        }
+                    });
+                }
+            }
             return new ResponseEntity<List<ReportColumnDto>>(reportIncludeExclSortCols, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<List<ReportColumnDto>>(new ArrayList<ReportColumnDto>(), HttpStatus.INTERNAL_SERVER_ERROR);

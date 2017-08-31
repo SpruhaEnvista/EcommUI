@@ -76,8 +76,8 @@ public class ReportsService {
     @Value("${from.emailid.0}")
     private String fromEmailId;
 
-    public List<ReportResultsDto> getReportResults(Long userId,String orderBy, String ascDesc) {
-        return  reportsDao.getReportResults(userId,orderBy,ascDesc);
+    public List<ReportResultsDto> getReportResults(Long userId,String showAll,String orderBy, String ascDesc) {
+        return  reportsDao.getReportResults(userId,showAll,orderBy,ascDesc);
     }
     public ReportResultsDto getGerPermissions(Long userId) {
         return  reportsDao.getGerPermissions(userId);
@@ -931,5 +931,19 @@ public class ReportsService {
 
     public List<String> getReportWeightList(){
         return Arrays.asList("LBS", "KGS", "LITRES", "GALLONS", "TONS");
+    }
+
+    public Map<String, String> getReportCustomColumnNames(String customerId, Long reportId){
+        List<ReportCustomColumnDto> customColumns = reportsDao.getReportCustomColumnNames(customerId, reportId);
+        Map<String, String> customColsMap = null;
+        if(customColumns != null && !customColumns.isEmpty()){
+            customColsMap = new HashMap<>();
+            for(ReportCustomColumnDto col : customColumns){
+                if(col != null){
+                    customColsMap.put(col.getReportFieldName().toUpperCase(), col.getCustomFieldName());
+                }
+            }
+        }
+        return customColsMap;
     }
 }
