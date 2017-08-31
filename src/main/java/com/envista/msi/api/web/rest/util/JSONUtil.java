@@ -7,9 +7,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AccountSummaryDt
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AnnualSummaryDto;
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.MonthlySpendByModeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
-import com.envista.msi.api.web.rest.dto.dashboard.common.CommonMonthlyChartDto;
-import com.envista.msi.api.web.rest.dto.dashboard.common.CommonValuesForChartDto;
-import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendCommonDto;
+import com.envista.msi.api.web.rest.dto.dashboard.common.*;
 import com.envista.msi.api.web.rest.dto.dashboard.filter.UserFilterUtilityDataDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.AccessorialSpendDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.ActualVsBilledWeightDto;
@@ -2809,6 +2807,106 @@ public class JSONUtil {
         finalObject.put("nodesData", nodesArray);
         finalObject.put("countryWisePercentage", countryWisePercentArray);
         return finalObject;
+    }
+
+    public static JSONObject prepareJsonForAverageChartByWeekly(List<CommonWeekChartDto> weekChartList) throws JSONException {
+        JSONObject returnJson = new JSONObject();
+        JSONArray returnArray = new JSONArray();
+        int count = 0;
+        String fromDate = null;
+        String toDate = null;
+        double totalAmount = 0;
+        long totalCount = 0;
+        int previousWeekNo = 0;
+        String previousWeekLastDay = null;
+        DecimalFormat decimalformat = new DecimalFormat("##.##");
+
+        for (CommonWeekChartDto weekChart : weekChartList) {
+            if (weekChart != null) {
+                JSONArray dataArray = new JSONArray();
+                String date = DateUtil.format(weekChart.getBillDate(), "yyyy-MM-dd");
+                int currentWeekNo = weekChart.getWeekNumber();
+                if (count == 0) {
+                    previousWeekNo = currentWeekNo;
+                }
+                dataArray.put(date);
+                dataArray.put(0);
+                returnArray.put(dataArray);
+
+                if (previousWeekNo == currentWeekNo) {
+                    totalAmount = totalAmount + weekChart.getAmount();
+                    totalCount = totalCount + weekChart.getCount();
+                } else {
+                    previousWeekNo = currentWeekNo;
+                    returnArray.getJSONArray(count - 1).put(0, previousWeekLastDay);
+                    returnArray.getJSONArray(count - 1).put(1, decimalformat.format(totalAmount / totalCount));
+
+                    totalAmount = weekChart.getAmount();
+                    totalCount = weekChart.getCount();
+
+                }
+                previousWeekLastDay = date;
+                if (count == 0) {
+                    fromDate = date;
+                }
+                toDate = date;
+                dataArray = null;
+                count++;
+            }
+        }
+        if (returnArray.length() > 0) {
+            returnArray.getJSONArray(count - 1).put(0, previousWeekLastDay);
+            returnArray.getJSONArray(count - 1).put(1, totalCount != 0 ? decimalformat.format(totalAmount / totalCount) : 0);
+        }
+        returnJson.put("values", returnArray);
+        returnJson.put("fromDate", fromDate);
+        returnJson.put("toDate", toDate);
+        return returnJson;
+    }
+
+    public static JSONObject prepareJsonForAverageChartByPeriod(List<CommonPeriodChartDto> commonPeriodChartList, String unit) throws JSONException {
+        JSONObject returnJson = new JSONObject();
+        JSONArray returnArray = new JSONArray();
+        int count = 0;
+        String fromDate = null;
+        String toDate = null;
+        double totalAmount =0;
+        long totalCount =0;
+        DecimalFormat decimalformat =new DecimalFormat("##.##");
+
+        if (commonPeriodChartList != null && !commonPeriodChartList.isEmpty()) {
+            for (CommonPeriodChartDto periodChart : commonPeriodChartList) {
+                if (periodChart != null) {
+                    totalAmount = totalAmount + periodChart.getAmount();
+                    totalCount = totalCount + periodChart.getCount();
+                    JSONArray dataArray = new JSONArray();
+                    String date = DateUtil.format(periodChart.getBillDate(), "yyyy-MM-dd");
+                    dataArray.put(date);
+                    if (unit.equalsIgnoreCase("day")) {
+                        dataArray.put(decimalformat.format(null == periodChart.getAverageAmount() ? 0d : periodChart.getAverageAmount()));
+                    } else {
+                        dataArray.put(0);
+                    }
+                    returnArray.put(dataArray);
+                    if (count == 0) {
+                        fromDate = date;
+                    }
+                    toDate = date;
+                    dataArray = null;
+                    count++;
+                }
+
+                if (!unit.equalsIgnoreCase("day") && returnArray.length() > 0) {
+                    returnArray.getJSONArray(0).put(0, fromDate);
+                    returnArray.getJSONArray(0).put(1, totalCount != 0 ? decimalformat.format(totalAmount / totalCount) : 0);
+                }
+
+                returnJson.put("values", returnArray);
+                returnJson.put("fromDate", fromDate);
+                returnJson.put("toDate", toDate);
+            }
+        }
+        return returnJson;
     }
 }
 
