@@ -66,6 +66,7 @@ import java.io.Serializable;
                                 @ColumnResult(name = "show_when_no_incl_colmns", type = String.class),
                                 @ColumnResult(name = "assign_operator", type = String.class),
                                 @ColumnResult(name = "value", type = String.class),
+                                @ColumnResult(name = "and_or_operator", type =  String.class),
                                 @ColumnResult(name = "selected", type = Boolean.class)
                         })
         }),
@@ -167,6 +168,9 @@ public class ReportColumnDto implements Serializable {
     @Column(name="value")
     private String value;
 
+    @Column(name="and_or_operator")
+    private String andOrOperator;
+
     @Column(name="selected")
     private Boolean selected;
 
@@ -196,7 +200,34 @@ public class ReportColumnDto implements Serializable {
         this.createUser = createUser;
     }
 
-    public ReportColumnDto(Integer sno, Long rptDetailsId, Long rptId, String columnName, String columnDataType, Boolean sortColumn, Boolean selectCriteria, String selectCluse, String query, String carrierId, Long sequence, Boolean excludable, Boolean inner, String specialTypeOptions, Boolean defaultExcluded, String aggregateType, String format, String showWhenNoInclColmns, String assignOperator, String value, Boolean selected) {
+    public ReportColumnDto(Integer sno, Long rptDetailsId, Long rptId, String columnName, String columnDataType, Boolean sortColumn, Boolean selectCriteria, String selectCluse, String query, String carrierId, Long sequence,
+                           Boolean excludable, Boolean inner, String specialTypeOptions, Boolean defaultExcluded, String aggregateType, String format, String showWhenNoInclColmns, String assignOperator, String value, String andOrOperator, Boolean selected) {
+        this.rptDetailsId = rptDetailsId;
+        this.rptId = rptId;
+        this.columnName = columnName;
+        this.columnDataType = columnDataType;
+        this.sortColumn = sortColumn;
+        this.selectCriteria = selectCriteria;
+        this.selectCluse = selectCluse;
+        this.query = query;
+        this.carrierId = carrierId;
+        this.sequence = sequence;
+        this.excludable = excludable;
+        this.inner = inner;
+        this.specialTypeOptions = specialTypeOptions;
+        this.defaultExcluded = defaultExcluded;
+        this.aggregateType = aggregateType;
+        this.format = format;
+        this.showWhenNoInclColmns = showWhenNoInclColmns;
+        this.assignOperator = assignOperator;
+        this.value = value;
+        this.andOrOperator = andOrOperator;
+        this.selected = selected;
+        this.sno=sno;
+    }
+
+    public ReportColumnDto(Integer sno, Long rptDetailsId, Long rptId, String columnName, String columnDataType, Boolean sortColumn, Boolean selectCriteria, String selectCluse, String query, String carrierId, Long sequence,
+                           Boolean excludable, Boolean inner, String specialTypeOptions, Boolean defaultExcluded, String aggregateType, String format, String showWhenNoInclColmns, String assignOperator, String value, Boolean selected) {
         this.rptDetailsId = rptDetailsId;
         this.rptId = rptId;
         this.columnName = columnName;
@@ -219,6 +250,7 @@ public class ReportColumnDto implements Serializable {
         this.selected = selected;
         this.sno=sno;
     }
+
 
     public ReportColumnDto(Long rptDetailsId, Long rptId, String columnName, String columnDataType, Boolean sortColumn, Boolean selectCriteria, String selectCluse, String query, String carrierId, Long sequence, Boolean excludable, Boolean inner, String specialTypeOptions, Boolean defaultExcluded, String aggregateType, String format, String showWhenNoInclColmns, Boolean subTotal,Boolean inSort, Boolean groupByCol) {
         this.rptDetailsId = rptDetailsId;
@@ -317,6 +349,14 @@ public class ReportColumnDto implements Serializable {
     public String getValue() { return value; }
 
     public void setValue(String value) { this.value = value; }
+
+    public String getAndOrOperator() {
+        return andOrOperator;
+    }
+
+    public void setAndOrOperator(String andOrOperator) {
+        this.andOrOperator = andOrOperator;
+    }
 
     public Boolean getSelected() {  return selected; }
 
