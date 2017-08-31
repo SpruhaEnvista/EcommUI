@@ -76,8 +76,8 @@ public class ReportsService {
     @Value("${from.emailid.0}")
     private String fromEmailId;
 
-    public List<ReportResultsDto> getReportResults(Long userId,String orderBy, String ascDesc) {
-        return  reportsDao.getReportResults(userId,orderBy,ascDesc);
+    public List<ReportResultsDto> getReportResults(Long userId,String showAll,String orderBy, String ascDesc) {
+        return  reportsDao.getReportResults(userId,showAll,orderBy,ascDesc);
     }
     public ReportResultsDto getGerPermissions(Long userId) {
         return  reportsDao.getGerPermissions(userId);
