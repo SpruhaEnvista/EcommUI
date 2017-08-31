@@ -925,6 +925,14 @@ public class ReportsService {
         return reportsDao.updateReportFolder(reportFolderDto,userProfileDto);
     }
 
+    public List<ReportCodeValueDto> getCodeValues(Long codeGroupId, String orderBy){
+        return reportsDao.getCodeValues(codeGroupId, orderBy);
+    }
+
+    public List<String> getReportWeightList(){
+        return Arrays.asList("LBS", "KGS", "LITRES", "GALLONS", "TONS");
+    }
+
     public Map<String, String> getReportCustomColumnNames(String customerId, Long reportId){
         List<ReportCustomColumnDto> customColumns = reportsDao.getReportCustomColumnNames(customerId, reportId);
         Map<String, String> customColsMap = null;
