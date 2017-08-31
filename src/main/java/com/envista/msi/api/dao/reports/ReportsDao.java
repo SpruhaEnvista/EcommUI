@@ -39,9 +39,9 @@ public class ReportsDao {
      * @return list<ReportResultsDto>
      */
     @Transactional( readOnly = true )
-    public List<ReportResultsDto> getReportResults(Long userId,String orderBy, String ascDesc) {
+    public List<ReportResultsDto> getReportResults(Long userId,String showAll,String orderBy, String ascDesc) {
         QueryParameter queryParameter = StoredProcedureParameter.with("userId", userId)
-                .and("orderBy", orderBy).and("ascDesc", ascDesc);
+                .and("orderBy", orderBy).and("ascDesc", ascDesc).and("showAll", showAll ==null ? "false":showAll.toLowerCase());
         return persistentContext.findEntitiesAndMapFields("ReportResults.getReportResults",queryParameter);
     }
     /**
@@ -581,6 +581,8 @@ public class ReportsDao {
         }
         if(savedSchedReportDto.getScNextSubmitDate()!=null && !savedSchedReportDto.getScNextSubmitDate().isEmpty()){
             savedSchedReportDto.setScNextSubmitDate(convertDateFullYearString(savedSchedReportDto.getScNextSubmitDate()));
+        }else{
+            savedSchedReportDto.setScNextSubmitDate(String.valueOf(System.currentTimeMillis()));
         }
 
         QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", savedSchedReportDto.getSavedSchedRptId())
@@ -739,5 +741,35 @@ public class ReportsDao {
                 .and("userId", (userProfileDto != null && userProfileDto.getUserId() != null ? userProfileDto.getUserId() : 0l ) )
                 .and("updateUser", (userProfileDto != null && userProfileDto.getUserName() != null ?  userProfileDto.getUserName() : "invalid" ));
         return persistentContext.findEntityAndMapFields("ReportFolder.updateRptFolder", queryParameter);
+    }
+
+    public List<ReportCodeValueDto> getCodeValues(Long codeGroupId, String orderBy){
+        ReportCodeValueDto codeValue = new ReportCodeValueDto();
+        codeValue.setCodeGroupId(codeGroupId);
+        return getCodeValues(codeValue, false, orderBy);
+    }
+
+    public List<ReportCodeValueDto> getCodeValues(ReportCodeValueDto codeValue, boolean allActiveAndInactive, String orderBy){
+        QueryParameter queryParameter = StoredProcedureParameter.with("P_NSP_CODE_VALUE_ID", null == codeValue.getCodeValueId() ? "" : codeValue.getCodeValueId().toString())
+                .and("P_CODE_GROUP_ID", null == codeValue.getCodeGroupId() ? "" : codeValue.getCodeGroupId().toString())
+                .and("P_PROPERTY_1", codeValue.getProperty1())
+                .and("P_PROPERTY_2", codeValue.getProperty2())
+                .and("P_PROPERTY_3", codeValue.getProperty3())
+                .and("P_PROPERTY_4", codeValue.getProperty4())
+                .and("P_PROPERTY_5", codeValue.getProperty5())
+                .and("P_PROPERTY_6", codeValue.getProperty6())
+                .and("P_PROPERTY_7", codeValue.getProperty7())
+                .and("P_PROPERTY_8", codeValue.getProperty8())
+                .and("P_PROPERTY_9", codeValue.getProperty9())
+                .and("P_ORDER_BY", orderBy)
+                .and("P_SELECT_ACTIVE_INACTIVE", allActiveAndInactive ? 1 : 0);
+
+        return persistentContext.findEntities("ReportCodeValueDto.getCodeValues", queryParameter);
+    }
+
+    public List<ReportCustomColumnDto> getReportCustomColumnNames(String customerId, Long reportId){
+        QueryParameter queryParameter = StoredProcedureParameter.with("p_customer_id", customerId)
+                .and("p_report_id", reportId);
+        return persistentContext.findEntitiesAndMapFields(ReportCustomColumnDto.Config.CustomColumnNames.STORED_PROCEDURE_QUERY_NAME, queryParameter);
     }
 }

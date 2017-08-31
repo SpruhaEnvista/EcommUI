@@ -24,7 +24,27 @@ import java.io.Serializable;
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_rpt_id", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_refcur_weight_info", type = Void.class)
-        })
+        }),
+        @NamedStoredProcedureQuery(
+                name = "ReportCodeValueDto.getCodeValues", procedureName = "SHP_RTP_GET_CODE_VALUES_PROC",
+                resultSetMappings = {"ReportCodeValueDto.getCodeValuesMapping"},
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_NSP_CODE_VALUE_ID", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CODE_GROUP_ID", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PROPERTY_1", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PROPERTY_2", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PROPERTY_3", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PROPERTY_4", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PROPERTY_5", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PROPERTY_6", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PROPERTY_7", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PROPERTY_8", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PROPERTY_9", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ORDER_BY", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_SELECT_ACTIVE_INACTIVE", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_CODE_VALUES_INFO", type = Void.class)
+                }
+        )
 })
 @SqlResultSetMappings({
         @SqlResultSetMapping(name = "ReportWeight", classes = {
@@ -35,6 +55,24 @@ import java.io.Serializable;
                                 @ColumnResult(name = "code_value", type = String.class),
                                 @ColumnResult(name = "property_1", type = String.class),
                                 @ColumnResult(name = "selected", type = Boolean.class)
+                        })
+        }),
+        @SqlResultSetMapping(name = "ReportCodeValueDto.getCodeValuesMapping", classes = {
+                @ConstructorResult(
+                        targetClass = ReportCodeValueDto.class,
+                        columns = {
+                                @ColumnResult(name = "nsp_code_value_id", type = Long.class),
+                                @ColumnResult(name = "code_value", type = String.class),
+                                @ColumnResult(name = "code_group_id", type = Long.class),
+                                @ColumnResult(name = "property_1", type = String.class),
+                                @ColumnResult(name = "property_2", type = String.class),
+                                @ColumnResult(name = "property_3", type = String.class),
+                                @ColumnResult(name = "property_4", type = String.class),
+                                @ColumnResult(name = "property_5", type = String.class),
+                                @ColumnResult(name = "property_6", type = String.class),
+                                @ColumnResult(name = "property_7", type = String.class),
+                                @ColumnResult(name = "property_8", type = String.class),
+                                @ColumnResult(name = "property_9", type = String.class)
                         })
         })
 })
@@ -78,7 +116,7 @@ public class ReportCodeValueDto implements Serializable {
     private String property9;
 
     @Column(name="selected")
-    private Boolean selected;
+    private Boolean selected = false;
 
     public ReportCodeValueDto() { }
 
@@ -87,6 +125,21 @@ public class ReportCodeValueDto implements Serializable {
         this.codeValue = codeValue;
         this.property1 = property1;
         this.selected = selected;
+    }
+
+    public ReportCodeValueDto(Long codeValueId, String codeValue, Long codeGroupId, String property1, String property2, String property3, String property4, String property5, String property6, String property7, String property8, String property9) {
+        this.codeValueId = codeValueId;
+        this.codeValue = codeValue;
+        this.codeGroupId = codeGroupId;
+        this.property1 = property1;
+        this.property2 = property2;
+        this.property3 = property3;
+        this.property4 = property4;
+        this.property5 = property5;
+        this.property6 = property6;
+        this.property7 = property7;
+        this.property8 = property8;
+        this.property9 = property9;
     }
 
     public ReportCodeValueDto(Long codeValueId, Long codeGroupId, String codeValue, String property1, String property2, String property3, String property4, String property5, String property6, String property7, String property8, String property9, Boolean selected) {

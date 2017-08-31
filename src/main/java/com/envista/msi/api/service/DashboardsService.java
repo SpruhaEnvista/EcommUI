@@ -27,11 +27,13 @@ import com.envista.msi.api.web.rest.dto.dashboard.report.DashboardReportDto;
 import com.envista.msi.api.web.rest.dto.dashboard.report.DashboardReportUtilityDataDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.*;
 import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
+import com.envista.msi.api.web.rest.util.CommonUtil;
 import com.envista.msi.api.web.rest.util.JSONUtil;
 import com.envista.msi.api.web.rest.util.WebConstants;
 import com.envista.msi.api.web.rest.util.pac.GlobalConstants;
 import com.envista.msi.api.web.rest.util.pagination.EnspirePagination;
 import com.envista.msi.api.web.rest.util.pagination.PaginationBean;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -611,7 +613,7 @@ public class DashboardsService {
             columnMap.put("SERVICE_LEVEL", "Service Level");
             Set<String> selectColumns = columnMap.keySet();
 
-            Map<String, String> customFieldsMap = getCustomDefinedLabelsByCustomer(filter, 100L);
+            Map<String, String> customFieldsMap = getCustomDefinedLabelsByCustomer(filter, filter.isLineItemReport()? 197L: 100L);
             if(customFieldsMap != null){
                 for(String selectCol : selectColumns){
                     if(customFieldsMap.containsKey(selectCol)){
@@ -621,6 +623,42 @@ public class DashboardsService {
             }
         }
         return columnMap;
+    }
+
+    private JSONArray getReportColumnDetailsJson(DashboardsFilterCriteria filter) throws Exception{
+        List<DashboardReportUtilityDataDto> reportColumnNames = dashboardsDao.getReportColumnNames(filter.isLineItemReport());
+        Map<String, String> customFieldsMap = getCustomDefinedLabelsByCustomer(filter, filter.isLineItemReport()? 197L: 100L);
+
+        JSONArray reportColumnDetails = new JSONArray();
+        for(DashboardReportUtilityDataDto columnDetails : reportColumnNames){
+            JSONObject columnInfo = new JSONObject();
+            columnInfo.put("selectClause", columnDetails.getSelectClause());
+
+            if(customFieldsMap != null){
+                if(customFieldsMap.containsKey(columnDetails.getSelectClause())){
+                    columnInfo.put("header", customFieldsMap.get(columnDetails.getSelectClause()));
+                } else {
+                    columnInfo.put("header", columnDetails.getColumnName());
+                }
+            } else {
+                columnInfo.put("header", columnDetails.getColumnName());
+            }
+
+            columnInfo.put("format", columnDetails.getFormat() !=null ? columnDetails.getFormat() : "");
+            columnInfo.put("dataType", columnDetails.getDataType());
+
+            reportColumnDetails.put(columnInfo);
+        }
+
+        JSONObject columnInfo = new JSONObject();
+        columnInfo.put("selectClause", "SERVICE_LEVEL");
+        columnInfo.put("header", "Service Level");
+        columnInfo.put("format", "");
+        columnInfo.put("dataType", "STRING");
+
+        reportColumnDetails.put(columnInfo);
+
+        return reportColumnDetails;
     }
 
     public PaginationBean getDashboardReportPaginationData(DashboardsFilterCriteria filter, int offset, int limit) throws Exception {
@@ -649,6 +687,8 @@ public class DashboardsService {
         }.preparePaginationData(paginationFilterMap, offset, limit);
     }
 
+
+
     private JSONArray loadDashboardReportJson(DashboardsFilterCriteria filter, Map<String, Object> paginationFilterMap) throws JSONException {
         JSONArray dashboardReportJson = null;
         List<DashboardReportDto> reportDataList = null;
@@ -663,6 +703,36 @@ public class DashboardsService {
         }
         return dashboardReportJson;
     }
+
+        public Workbook getReportForExport(DashboardsFilterCriteria filter, int offset, int limit, String searchFilter ) throws Exception {
+            JSONArray dashboardReportJson = null;
+
+            Map<String, Object> paginationFilterMap = new HashMap<String, Object>();
+            filter.setOffset(offset);
+            filter.setPageSize(limit);
+            paginationFilterMap.put("filter", filter);
+
+            if(searchFilter != null && !searchFilter.isEmpty()){
+                paginationFilterMap.put(WebConstants.SEARCH_FILTER_CONDITION, searchFilter);
+            }
+
+            List<DashboardReportDto> reportDataList = null;
+            if(filter.isLineItemReport()){
+                reportDataList = getLineItemReportDetails(filter);
+            }else{
+                reportDataList = getDashboardReport(filter, paginationFilterMap);
+            }
+
+            if(reportDataList != null && !reportDataList.isEmpty()){
+                JSONArray reportColumnDetails = getReportColumnDetailsJson(filter);
+                dashboardReportJson = JSONUtil.prepareExportReportDataJson(reportDataList, reportColumnDetails);
+            }
+
+            return CommonUtil.generateXlsxFromJson(dashboardReportJson);
+        }
+
+
+
 
     /**
      * Get Dashboard report for Parcel and Freight.

@@ -22,9 +22,12 @@ import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentRegion
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShippingLanesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.*;
 import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
+import com.envista.msi.api.web.rest.dto.reports.SavedSchedReportDto;
 import com.envista.msi.api.web.rest.util.DateUtil;
 import com.envista.msi.api.web.rest.util.JSONUtil;
 import com.envista.msi.api.web.rest.util.pagination.PaginationBean;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,7 +40,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.el.MethodNotFoundException;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.ByteArrayOutputStream;
+import java.net.InetAddress;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -2318,6 +2325,540 @@ public class DashboardsController extends DashboardBaseController {
             reportPaginationData = dashboardsService.getDashboardReportPaginationData(appliedFilter, offset, limit);
         }
         return ResponseEntity.status(HttpStatus.OK).body(reportPaginationData);
+    }
+
+    @RequestMapping(value = "/exportReport", method = {RequestMethod.GET}, produces = "application/text")
+    public @ResponseBody void exportDashboardReport(@RequestParam(required = false) String invoiceDate, @RequestParam(required = false) String dashletteName, @RequestParam(required = false) String carrierId,
+                                                    @RequestParam(required = false) String mode, @RequestParam(required = false) String carscoretype, @RequestParam(required = false) String service,
+                                                    @RequestParam(required = false, defaultValue = "0") Integer offset, @RequestParam(required = false, defaultValue = "1000") Integer limit,
+                                                    @RequestParam(required = false, defaultValue = "1000") Integer totalRecordCount,
+                                                    @RequestParam(required = false) String filter, HttpServletResponse response) throws Exception {
+
+        UserProfileDto userProfileDto = getUserProfile();
+        DashboardsFilterCriteria appliedFilter = getDashboardsFilterCriteria(invoiceDate, dashletteName, carrierId, mode, carscoretype, service, userProfileDto);
+
+            Workbook workbook = null;
+
+            if (filter != null && !filter.isEmpty()) {
+                workbook = dashboardsService.getReportForExport(appliedFilter, offset, 1000, DashboardUtil.prepareSearchFilterCriteria(filter));
+            } else {
+                workbook = dashboardsService.getReportForExport(appliedFilter, offset, 1000, null);
+            }
+
+            String fileName = "Dashboards_Export";
+
+            if (appliedFilter.getDashletteName()!= null) {
+                fileName = appliedFilter.getDashletteName().trim().replaceAll("&gt;", ">").replaceAll(" ", "_");
+                fileName = fileName.replaceAll(">", "_").replaceAll("\\|", "_").replaceAll("_+", "_");
+            }
+
+            response.setContentType("application/text");
+            response.setHeader("Content-Disposition", "attachment; filename="+fileName+".xlsx");
+
+            if (workbook != null) {
+                workbook.write(response.getOutputStream());
+                workbook.close();
+            }
+
+    }
+
+    private DashboardsFilterCriteria getDashboardsFilterCriteria(@RequestParam(required = false) String invoiceDate, @RequestParam(required = false) String dashletteName, @RequestParam(required = false) String carrierId, @RequestParam(required = false) String mode, @RequestParam(required = false) String carscoretype, @RequestParam(required = false) String service, UserProfileDto userProfileDto) throws Exception {
+        DashboardsFilterCriteria appliedFilter = loadAppliedFilters(userProfileDto.getUserId());
+        if (appliedFilter != null) {
+            if (invoiceDate != null && !invoiceDate.isEmpty()) {
+                DashboardUtil.setDatesFromMonth(appliedFilter, invoiceDate);
+            }
+            appliedFilter.setDashletteName(dashletteName);
+            if (carrierId != null && !carrierId.isEmpty()) {
+                appliedFilter.setCarriers(carrierId);
+            }
+            appliedFilter.setModeNames(mode);
+            appliedFilter.setScoreType(carscoretype);
+            appliedFilter.setService(service);
+            appliedFilter.setOffset(0);
+            appliedFilter.setPageSize(1000);
+        }
+        return appliedFilter;
+    }
+
+
+    @RequestMapping(value = "/pushDashboardReport", method = {RequestMethod.GET}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> pushDashboardReport(@RequestParam(required = false) String invoiceDate, @RequestParam(required = false) String dashletteName, @RequestParam(required = false) String carrierId,
+                                                    @RequestParam(required = false) String mode, @RequestParam(required = false) String carscoretype, @RequestParam(required = false) String service,
+                                                    @RequestParam(required = false, defaultValue = "0") Integer offset, @RequestParam(required = false, defaultValue = "1000") Integer limit,
+                                                    @RequestParam(required = false, defaultValue = "1000") Integer totalRecordCount,
+                                                    @RequestParam(required = false) String filter, HttpServletResponse response) throws Exception {
+
+        UserProfileDto userProfileDto = getUserProfile();
+        DashboardsFilterCriteria appliedFilter = getDashboardsFilterCriteria(invoiceDate, dashletteName, carrierId, mode, carscoretype, service, userProfileDto);
+
+        SavedSchedReportDto savedSchedReportDto = prepareReportsObject(appliedFilter, userProfileDto);
+        reportsService.saveSchedReport(savedSchedReportDto);
+        return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().put("status","success").toString());
+
+
+    }
+
+    private SavedSchedReportDto prepareReportsObject ( DashboardsFilterCriteria appliedFilter , UserProfileDto userProfileDto) throws Exception {
+
+        JSONObject reportObject = new JSONObject();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
+        String fileName = "Dashboards_Export";
+
+        if (appliedFilter.getDashletteName()!= null) {
+            fileName = appliedFilter.getDashletteName().trim().replaceAll("&gt;", ">").replaceAll(" ", "_");
+            fileName = fileName.replaceAll(">", "_").replaceAll("\\|", "_").replaceAll("_+", "_");
+        }
+
+        reportObject.put("svReportStatus", "Queued");
+
+        if (appliedFilter.isLineItemReport()) {
+            reportObject.put("rptId", 197);
+        } else {
+            reportObject.put("rptId", 100);
+        }
+
+        if ("SHIP_DATE".equalsIgnoreCase(appliedFilter.getDateType())) {
+            reportObject.put("rptDateOptionsId", 6 );
+        }else{
+            reportObject.put("rptDateOptionsId", 4 );
+        }
+
+        reportObject.put("scheduled", false);
+        reportObject.put("reportTypeId", 5);
+        reportObject.put("dateSelectionFrequency", "dr");
+        reportObject.put("reportFileName", fileName+ "_" + dateFormat.format(new Date()));
+        reportObject.put("date1", dateFormat.parse(appliedFilter.getFromDate()).getTime());
+        reportObject.put("date2", dateFormat.parse(appliedFilter.getToDate()).getTime());
+        reportObject.put("scNextSubmitDate", System.currentTimeMillis());
+        reportObject.put("carrierIds", appliedFilter.getCarriers());
+        reportObject.put("consolidate", 0);
+        reportObject.put("controlPayrunNumber", "");
+        reportObject.put("scMonthlyDayOfMonth", 0);
+        reportObject.put("createUser", userProfileDto.getUserName());
+
+        String hostName =null;
+
+        if (InetAddress.getLocalHost().getHostName() != null) {
+            hostName =  InetAddress.getLocalHost().getHostName();
+        } else {
+            hostName =  Runtime.getRuntime().exec("hostname").toString();
+        }
+
+        reportObject.put("submittedFromSystem",hostName);
+        reportObject.put("locale",appliedFilter.getLocale()!= null ? appliedFilter.getLocale() : "en_us");
+        reportObject.put("currency", appliedFilter.getConvertCurrencyCode());
+        reportObject.put("weightUom", appliedFilter.getConvertWeightUnit());
+
+
+        JSONObject usersObj = new JSONObject();
+        usersObj.put("userId",userProfileDto.getUserId());
+        usersObj.put("emailTemplateToBeSent",true);
+        usersObj.put("reportAttachedMail",false);
+        usersObj.put("reportSubscribed",true);
+        usersObj.put("createUser",userProfileDto.getUserName());
+        usersObj.put("shared",false);
+        usersObj.put("canEdit",true);
+
+        JSONArray customersArray = new JSONArray();
+        JSONObject customerIdsObject = null;
+        String[] customerIdsArray = appliedFilter.getCustomerIdsCSV().split(",");
+
+        for (String id : customerIdsArray) {
+            customerIdsObject = new JSONObject();
+            customerIdsObject.put("customerId", id);
+            customerIdsObject.put("createUser",userProfileDto.getUserName());
+            customersArray.put(customerIdsObject);
+        }
+
+        JSONArray includedColsArray = new JSONArray();
+        String[] shipmentDetailRptDetailsIds = { "2077", "2078", "2079", "2080", "2081", "2082", "2083", "2084", "2085", "2086", "2087", "2088", "2089", "2090", "2091", "2092", "2093", "2094",
+                "2095", "2096", "2097", "2098", "2099", "2100", "2101", "2102", "2103", "2104", "2105", "2106", "2107", "2108", "2109", "2110", "2111", "2112", "2114", "2115", "2116", "2117",
+                "6581", "6582", "6933", "2773", "2774", "2775", "4698", "4699", "4700", "4701", "4702", "4703", "4704", "5307", "11677", "11678", "11846" };
+
+        String[] lineItemDetailRptDetailsIds = { "5402", "5403", "5404", "5405", "5406", "5407", "5408", "5409", "5410", "5411", "5412", "5413", "5414", "5415", "5416", "5417", "5418", "5419",
+                "5420", "5421", "5422", "5423", "5424", "5425", "5426", "5427", "5428", "5429", "5430", "5431", "5432", "5433", "5434", "5435", "5436", "5437", "5438", "5439", "5440", "5441",
+                "5442", "5443", "5444", "5445", "5446", "5447", "5448", "5449", "5450", "5451", "5452", "5453", "5455", "5456", "5457", "5458", "5459", "5460", "5461", "5462", "5463", "5464",
+                "5465", "5466", "5467", "5468", "5469", "5470", "5471", "5472", "5473", "5474", "5475", "5476", "5477", "5478", "5479", "5480", "5481", "5482", "5483", "5484", "5485", "6587",
+                "6588" };
+
+        for (String id : appliedFilter.isLineItemReport() ? lineItemDetailRptDetailsIds : shipmentDetailRptDetailsIds) {
+            JSONObject columnIds = new JSONObject();
+            columnIds.put("rptDetailsId", id);
+            includedColsArray.put(columnIds);
+        }
+
+        JSONArray selectedBeansArray = new JSONArray();
+        if (appliedFilter.isHandleParcelServices() && appliedFilter.getService() != null && !"".equals(appliedFilter.getService())) {
+            JSONObject selectedBean = new JSONObject();
+            selectedBean.put("createUser",userProfileDto.getUserName());
+            selectedBean.put("rptDetailsId", 11846);
+            selectedBean.put("assignOperator", "=");
+            selectedBean.put("value", appliedFilter.getService() != null ? appliedFilter.getService().replaceAll("'", "") : appliedFilter.getService());
+            selectedBean.put("isMatchCase", false);
+            selectedBean.put("andOROperator", "AND");
+            selectedBeansArray.put(selectedBean);
+        } else if (appliedFilter.getService() != null && !"".equals(appliedFilter.getService())
+                && ("RecoveryByCredit".equalsIgnoreCase(appliedFilter.getReportForDashlette()) || "TotalCreditRecovery".equalsIgnoreCase(appliedFilter.getReportForDashlette()))) {
+            JSONObject selectedBean = new JSONObject();
+            selectedBean.put("createUser",userProfileDto.getUserName());
+            selectedBean.put("rptDetailsId", 5307);
+            selectedBean.put("assignOperator", "in");
+            selectedBean.put("value", appliedFilter.getService()!=null ? appliedFilter.getService().replaceAll("'", "") : appliedFilter.getService());
+            selectedBean.put("isMatchCase", false);
+            selectedBean.put("andOROperator", "AND");
+            selectedBeansArray.put(selectedBean);
+        }
+
+        if (appliedFilter.getAccDesc() != null  && !"".equals(appliedFilter.getAccDesc())) {
+
+            JSONObject selectedBean = new JSONObject();
+            selectedBean.put("createUser",userProfileDto.getUserName());
+            selectedBean.put("rptDetailsId", 5433);
+            selectedBean.put("assignOperator", "=");
+            selectedBean.put("value", appliedFilter.getAccDesc());
+            selectedBean.put("isMatchCase", false);
+            selectedBean.put("andOROperator", "OR");
+
+            selectedBeansArray.put(selectedBean);
+
+            selectedBean = new JSONObject();
+            selectedBean.put("rptDetailsId", 5449);
+            selectedBean.put("assignOperator", "=");
+            selectedBean.put("value", appliedFilter.getAccDesc());
+            selectedBean.put("isMatchCase", false);
+            selectedBean.put("andOROperator", "AND");
+
+
+            selectedBeansArray.put(selectedBean);
+
+        }
+
+        if (appliedFilter.getTax() != null && !"".equals(appliedFilter.getTax())) {
+
+            JSONObject selectedBean = new JSONObject();
+            selectedBean.put("createUser",userProfileDto.getUserName());
+            selectedBean.put("rptDetailsId", 5433);
+            selectedBean.put("assignOperator", "=");
+            selectedBean.put("value", appliedFilter.getTax());
+            selectedBean.put("isMatchCase", false);
+            selectedBean.put("andOROperator", "OR");
+
+            selectedBeansArray.put(selectedBean);
+
+            selectedBean = new JSONObject();
+            selectedBean.put("rptDetailsId", 5449);
+            selectedBean.put("assignOperator", "=");
+            selectedBean.put("value", appliedFilter.getTax());
+            selectedBean.put("isMatchCase", false);
+            selectedBean.put("andOROperator", "AND");
+
+            selectedBeansArray.put(selectedBean);
+        }
+/*
+        if (appliedFilter.getModes() != null && !"".equals(appliedFilter.getModes())) {
+            StringJoiner modes = new StringJoiner(",");
+            JSONObject selectedBean = new JSONObject();
+            selectedBean.put("createUser",userProfileDto.getUserName());
+            selectedBean.put("rptDetailsId", 2086);
+            selectedBean.put("assignOperator", "in");
+
+            Collection<IBean> modesList = dashboardsNewFacade.getCodeValuesByIds(appliedFilter.getModes());
+
+            for (IBean ibean : modesList) {
+                NspCodeValuesBean codeValuesBean = (NspCodeValuesBean) ibean;
+                modes.add(codeValuesBean.getCodeValue());
+            }
+
+            selectedBean.put("value", modes.toString());
+            selectedBean.put("isMatchCase", false);
+            selectedBean.put("andOROperator", "AND");
+            selectedBeansArray.put(selectedBean);
+        }
+
+        Collection<IBean> invoiceStatusNamesList = null;
+        StringJoiner invoiceStatusNames = new StringJoiner(",");
+
+        if (appliedFilter.getInvoiceStatusId() != null && !appliedFilter.getInvoiceStatusId().isEmpty()) {
+            JSONObject selectedBean = new JSONObject();
+            selectedBean.put("createUser",userProfileDto.getUserName());
+            selectedBean.put("rptDetailsId", 2112);
+            selectedBean.put("assignOperator", "in");
+
+            if (!"214".equals(appliedFilter.getInvoiceStatusId() )) {
+                invoiceStatusNamesList = dashboardsNewFacade.getCodeValuesByIds(appliedFilter.getInvoiceStatusId());
+            } else {
+                invoiceStatusNamesList = dashboardsNewFacade.getCodeValuesByIds(appliedFilter.getOpenInvoiceStatusIds());
+            }
+
+            for (IBean ibean : invoiceStatusNamesList) {
+                NspCodeValuesBean codeValuesBean = (NspCodeValuesBean) ibean;
+                invoiceStatusNames.add(codeValuesBean.getCodeValue());
+            }
+
+            selectedBean.put("value", invoiceStatusNames);
+            selectedBean.put("isMatchCase", false);
+            selectedBean.put("andOROperator", "AND");
+            selectedBeansArray.put(selectedBean);
+        }*/
+        if (appliedFilter.getDeliveryFlag() != null && !"".equals(appliedFilter.getDeliveryFlag())) {
+            JSONObject selectedBean = new JSONObject();
+            selectedBean.put("createUser",userProfileDto.getUserName());
+            selectedBean.put("rptDetailsId", 11677);
+            selectedBean.put("assignOperator", "=");
+            selectedBean.put("value", appliedFilter.getDeliveryFlag().toUpperCase());
+            selectedBean.put("isMatchCase", true);
+            selectedBean.put("andOROperator", "AND");
+            selectedBeansArray.put(selectedBean);
+        }
+        if (appliedFilter.getOrderMatch() != null && !"".equals(appliedFilter.getOrderMatch())) {
+            JSONObject selectedBean = new JSONObject();
+            selectedBean.put("createUser",userProfileDto.getUserName());
+            selectedBean.put("rptDetailsId", 11678);
+            selectedBean.put("assignOperator", "=");
+            if ("Matched".equalsIgnoreCase(appliedFilter.getOrderMatch())) {
+                selectedBean.put("value", "ORDER MATCHED");
+            } else {
+                selectedBean.put("value", "ORDER NOT MATCHED");
+            }
+
+            selectedBean.put("isMatchCase", false);
+            selectedBean.put("andOROperator", "AND");
+            selectedBeansArray.put(selectedBean);
+        }
+
+        if (appliedFilter.getInvoiceMethod() != null && !"".equals(appliedFilter.getInvoiceMethod())) {
+            JSONObject selectedBean = new JSONObject();
+            selectedBean.put("createUser",userProfileDto.getUserName());
+            selectedBean.put("rptDetailsId", 2087);
+            selectedBean.put("assignOperator", "in");
+            selectedBean.put("value", appliedFilter.getInvoiceMethod());
+            selectedBean.put("isMatchCase", false);
+            selectedBean.put("andOROperator", "AND");
+            selectedBeansArray.put(selectedBean);
+        }
+/*
+        if (appliedFilter.getFreightappliedFilter().getPod() != null && !"".equals(appliedFilter.getFreightappliedFilter().getPod())) {
+            JSONObject selectedBean = new JSONObject();
+            selectedBean.put("createUser",userProfileDto.getUserName());
+            selectedBean.put("rptDetailsId", 3822);
+            selectedBean.put("assignOperator", "=");
+            selectedBean.put("value", appliedFilter.getFreightappliedFilter().getPod().replaceAll("'", "''"));
+            selectedBean.put("isMatchCase", false);
+            selectedBean.put("andOROperator", "AND");
+            selectedBeansArray.put(selectedBean);
+        }
+
+        if (appliedFilter.getFreightappliedFilter().getPol() != null && !"".equals(appliedFilter.getFreightappliedFilter().getPol())) {
+            JSONObject selectedBean = new JSONObject();
+            selectedBean.put("createUser",userProfileDto.getUserName());
+            selectedBean.put("rptDetailsId", 3821);
+            selectedBean.put("assignOperator", "=");
+            selectedBean.put("value", appliedFilter.getFreightappliedFilter().getPol().replaceAll("'", "''"));
+            selectedBean.put("isMatchCase", false);
+            selectedBean.put("andOROperator", "AND");
+            selectedBeansArray.put(selectedBean);
+        }
+
+        if (appliedFilter.getFreightappliedFilter().getReceiverAddress() != null && !"".equals(appliedFilter.getFreightappliedFilter().getReceiverAddress())) {
+            String receiverAddress = appliedFilter.getFreightappliedFilter().getReceiverAddress();
+            String[] splitReceiverAddress = receiverAddress.split(",");
+
+            String receiverCity = splitReceiverAddress[0].replaceAll("'", "''");
+            String receiverState = splitReceiverAddress[1].replaceAll("'", "''");
+            String receiverCountry = splitReceiverAddress[2].replaceAll("'", "''");
+
+            JSONObject selectedBeanCity = new JSONObject();
+            selectedBeanCity.put("rptDetailsId", 2100);
+            selectedBeanCity.put("assignOperator", "in");
+            selectedBeanCity.put("value", receiverCity);
+            selectedBeanCity.put("isMatchCase", false);
+            selectedBeanCity.put("andOROperator", "AND");
+            selectedBeansArray.put(selectedBeanCity);
+
+            JSONObject selectedBeanState = new JSONObject();
+            selectedBeanState.put("rptDetailsId", 2101);
+            selectedBeanState.put("assignOperator", "in");
+            selectedBeanState.put("value", receiverState);
+            selectedBeanState.put("isMatchCase", false);
+            selectedBeanState.put("andOROperator", "AND");
+            selectedBeansArray.put(selectedBeanState);
+
+            JSONObject selectedBeanCountry = new JSONObject();
+            selectedBeanCountry.put("rptDetailsId", 2103);
+            selectedBeanCountry.put("assignOperator", "in");
+            selectedBeanCountry.put("value", receiverCountry);
+            selectedBeanCountry.put("isMatchCase", false);
+            selectedBeanCountry.put("andOROperator", "AND");
+            selectedBeansArray.put(selectedBeanCountry);
+
+        }
+
+        if (appliedFilter.getFreightappliedFilter().getShipperAddress() != null && !"".equals(appliedFilter.getFreightappliedFilter().getShipperAddress())) {
+            String shipperAddress = appliedFilter.getFreightappliedFilter().getShipperAddress();
+            String[] splitShipperAddress = shipperAddress.split(",");
+
+            String shipperCity = splitShipperAddress[0].replaceAll("'", "''");
+            String shipperState = splitShipperAddress[1].replaceAll("'", "''");
+            String shipperCountry = splitShipperAddress[2].replaceAll("'", "''");
+
+            JSONObject selectedBeanCity = new JSONObject();
+            selectedBeanCity.put("rptDetailsId", 2094);
+            selectedBeanCity.put("assignOperator", "in");
+            selectedBeanCity.put("value", shipperCity);
+            selectedBeanCity.put("isMatchCase", false);
+            selectedBeanCity.put("andOROperator", "AND");
+            selectedBeansArray.put(selectedBeanCity);
+
+            JSONObject selectedBeanState = new JSONObject();
+            selectedBeanState.put("rptDetailsId", 2095);
+            selectedBeanState.put("assignOperator", "in");
+            selectedBeanState.put("value", shipperState);
+            selectedBeanState.put("isMatchCase", false);
+            selectedBeanState.put("andOROperator", "AND");
+            selectedBeansArray.put(selectedBeanState);
+
+            JSONObject selectedBeanCountry = new JSONObject();
+            selectedBeanCountry.put("rptDetailsId", 2097);
+            selectedBeanCountry.put("assignOperator", "in");
+            selectedBeanCountry.put("value", shipperCountry);
+            selectedBeanCountry.put("isMatchCase", false);
+            selectedBeanCountry.put("andOROperator", "AND");
+            selectedBeansArray.put(selectedBeanCountry);
+
+        }*/
+
+        if ( appliedFilter.getBoundType() != null && "IB".equalsIgnoreCase(appliedFilter.getBoundType())  ) {
+
+            JSONObject selectedBeanCountry = new JSONObject();
+            selectedBeanCountry.put("rptDetailsId", 2103);
+            selectedBeanCountry.put("assignOperator", "=");
+            selectedBeanCountry.put("value", "US");
+            selectedBeanCountry.put("isMatchCase", false);
+            selectedBeanCountry.put("andOROperator", "AND");
+            selectedBeansArray.put(selectedBeanCountry);
+
+            selectedBeanCountry = new JSONObject();
+            selectedBeanCountry.put("rptDetailsId", 2097);
+            selectedBeanCountry.put("assignOperator", "<>");
+            selectedBeanCountry.put("value", "US");
+            selectedBeanCountry.put("isMatchCase", false);
+            selectedBeanCountry.put("andOROperator", "AND");
+            selectedBeansArray.put(selectedBeanCountry);
+        }
+
+        if ( appliedFilter.getBoundType() != null && "OB".equalsIgnoreCase(appliedFilter.getBoundType())  ) {
+
+            JSONObject selectedBeanCountry = new JSONObject();
+
+            selectedBeanCountry.put("rptDetailsId", 2097);
+            selectedBeanCountry.put("assignOperator", "=");
+            selectedBeanCountry.put("value", "US");
+            selectedBeanCountry.put("isMatchCase", false);
+            selectedBeanCountry.put("andOROperator", "AND");
+            selectedBeansArray.put(selectedBeanCountry);
+        }
+
+       /* if ( Constants.FINISH_LINE_CUSTOMER_ID.equals(appliedFilter.getCustomerIdsCSV()) && appliedFilter.getShipperGroupIdsCSV() != null  ) {
+
+
+            JSONObject selectedBeanCountry = new JSONObject();
+
+            selectedBeanCountry.put("rptDetailsId", 9839);
+            selectedBeanCountry.put("assignOperator", "=");
+            selectedBeanCountry.put("value", appliedFilter.getShipperGroupName());
+            selectedBeanCountry.put("isMatchCase", false);
+            selectedBeanCountry.put("andOROperator", "AND");
+            selectedBeansArray.put(selectedBeanCountry);
+        }*/
+
+/*
+        if ( appliedFilter.getLanesJson() != null && !appliedFilter.getLanesJson().isEmpty() ) {
+            JSONArray laneDetails = new JSONObject(appliedFilter.getLanesJson()).getJSONArray("LaneDetails");
+            for ( int i=0 ; i < laneDetails.length() ; i++ ) {
+                JSONObject laneInfoObj = laneDetails.getJSONObject(i);
+                String criteriaType = laneInfoObj.getString("criteriaType");
+                String criteriaOperator = laneInfoObj.getString("criteria");
+                String criteriaValue = laneInfoObj.getString("criteriaValue");
+                String criteriaOption = laneInfoObj.getString("criteriaOption");
+
+
+                if ( "SHIPPER_CITY".equalsIgnoreCase(criteriaType) ) {
+                    JSONObject selectedBean = new JSONObject();
+                    selectedBean.put("createUser",userProfileDto.getUserName());
+                    selectedBean.put("rptDetailsId", 2094);
+                    selectedBean.put("assignOperator", criteriaOperator);
+                    selectedBean.put("value", criteriaValue );
+                    selectedBean.put("isMatchCase", false);
+                    selectedBean.put("andOROperator", criteriaOption);
+                    selectedBeansArray.put(selectedBean);
+
+                } else if ( "SHIPPER_STATE".equalsIgnoreCase(criteriaType) ) {
+                    JSONObject selectedBean = new JSONObject();
+                    selectedBean.put("createUser",userProfileDto.getUserName());
+                    selectedBean.put("rptDetailsId", 2095);
+                    selectedBean.put("assignOperator", criteriaOperator);
+                    selectedBean.put("value", criteriaValue );
+                    selectedBean.put("isMatchCase", false);
+                    selectedBean.put("andOROperator", criteriaOption);
+                    selectedBeansArray.put(selectedBean);
+
+                } else if ( "SHIPPER_COUNTRY".equalsIgnoreCase(criteriaType) ) {
+                    JSONObject selectedBean = new JSONObject();
+                    selectedBean.put("createUser",userProfileDto.getUserName());
+                    selectedBean.put("rptDetailsId", 2097);
+                    selectedBean.put("assignOperator", criteriaOperator);
+                    selectedBean.put("value", criteriaValue );
+                    selectedBean.put("isMatchCase", false);
+                    selectedBean.put("andOROperator", criteriaOption);
+                    selectedBeansArray.put(selectedBean);
+
+                } else if ( "RECEIVER_CITY".equalsIgnoreCase(criteriaType) ) {
+                    JSONObject selectedBean = new JSONObject();
+                    selectedBean.put("createUser",userProfileDto.getUserName());
+                    selectedBean.put("rptDetailsId", 2100);
+                    selectedBean.put("assignOperator", criteriaOperator);
+                    selectedBean.put("value", criteriaValue );
+                    selectedBean.put("isMatchCase", false);
+                    selectedBean.put("andOROperator", criteriaOption);
+                    selectedBeansArray.put(selectedBean);
+
+                } else if ( "RECEIVER_STATE".equalsIgnoreCase(criteriaType) ) {
+                    JSONObject selectedBean = new JSONObject();
+                    selectedBean.put("createUser",userProfileDto.getUserName());
+                    selectedBean.put("rptDetailsId", 2101);
+                    selectedBean.put("assignOperator", criteriaOperator);
+                    selectedBean.put("value", criteriaValue );
+                    selectedBean.put("isMatchCase", false);
+                    selectedBean.put("andOROperator", criteriaOption);
+                    selectedBeansArray.put(selectedBean);
+
+                } else if ( "RECEIVER_COUNTRY".equalsIgnoreCase(criteriaType) ) {
+                    JSONObject selectedBean = new JSONObject();
+                    selectedBean.put("createUser",userProfileDto.getUserName());
+                    selectedBean.put("rptDetailsId", 2103);
+                    selectedBean.put("assignOperator", criteriaOperator);
+                    selectedBean.put("value", criteriaValue );
+                    selectedBean.put("isMatchCase", false);
+                    selectedBean.put("andOROperator", criteriaOption);
+                    selectedBeansArray.put(selectedBean);
+
+                }
+
+            }
+        }*/
+
+        reportObject.put("reportCriteriaList", selectedBeansArray);
+        reportObject.put("savedSchedUsersDtoList", new JSONArray().put(usersObj));
+        reportObject.put("savedSchedAccountsDtoList", customersArray);
+        reportObject.put("reportsInclColDtoList", includedColsArray);
+        reportObject.put("reportsSortColDtoList",new JSONArray());
+
+
+        ObjectMapper mapper = new ObjectMapper();
+        SavedSchedReportDto savedSchedReportDto = mapper.readValue(reportObject.toString(), SavedSchedReportDto.class);
+
+        return savedSchedReportDto;
     }
 
 

@@ -20,9 +20,9 @@ public class DashBoardService {
     @Inject
     private DashBoardDao dao;
 
-    public List<DashBoardDto> getDashBoardInfo(String fromDate, String toDate, String actionType) {
+    public List<DashBoardDto> getDashBoardInfo(String fromDate, String toDate, String actionType, String sort) {
 
-        return dao.getDashBoardInfo(fromDate, toDate, actionType);
+        return dao.getDashBoardInfo(fromDate, toDate, actionType, sort);
     }
 
     public List<DashBoardDto> getPendingCredits(String fromDate, String toDate, String actionType) {
