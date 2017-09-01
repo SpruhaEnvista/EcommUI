@@ -17,7 +17,7 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "get_criteria_info", type = Void.class)
         }),
         @NamedStoredProcedureQuery(name = "ReportCriteriaDto.getSavedIncludeExcludeSortColByName", procedureName = "shp_rpt_save_excl_byname_proc",
-                resultSetMappings = "InclExclSortCol",
+                resultSetMappings = "InclExclSortAscCol",
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_user_id", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_rpt_id", type = Long.class),
@@ -25,7 +25,7 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_refcur_excl_incl_info", type = Void.class)
         }),
         @NamedStoredProcedureQuery(name = "ReportCriteriaDto.getSavedIncludeExcludeColBySequence", procedureName = "shp_rpt_save_incl_byseque_proc",
-                resultSetMappings = "InclExclSortCol",
+                resultSetMappings = "InclExclSortAscCol",
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_user_id", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_rpt_id", type = Long.class),
@@ -92,6 +92,33 @@ import java.io.Serializable;
                                 @ColumnResult(name = "format", type = String.class),
                                 @ColumnResult(name = "show_when_no_incl_colmns", type = String.class),
                                 @ColumnResult(name = "is_sub_total", type = Boolean.class),
+                                @ColumnResult(name = "in_sort", type = Boolean.class),
+                                @ColumnResult(name = "group_by_col", type = Boolean.class)
+                        })
+        }),
+        @SqlResultSetMapping(name = "InclExclSortAscCol", classes = {
+                @ConstructorResult(
+                        targetClass = ReportColumnDto.class,
+                        columns = {
+                                @ColumnResult(name = "rpt_details_id", type = Long.class),
+                                @ColumnResult(name = "rpt_id", type = Long.class),
+                                @ColumnResult(name = "column_name", type = String.class),
+                                @ColumnResult(name = "column_data_type", type = String.class),
+                                @ColumnResult(name = "is_sortable", type = Boolean.class),
+                                @ColumnResult(name = "is_select_criteria", type = Boolean.class),
+                                @ColumnResult(name = "select_clause", type = String.class),
+                                @ColumnResult(name = "query", type = String.class),
+                                @ColumnResult(name = "carrier_id", type = String.class),
+                                @ColumnResult(name = "sequence", type = Long.class),
+                                @ColumnResult(name = "is_excludable", type = Boolean.class),
+                                @ColumnResult(name = "is_inner", type = Boolean.class),
+                                @ColumnResult(name = "special_type_options", type = String.class),
+                                @ColumnResult(name = "is_default_excluded", type = Boolean.class),
+                                @ColumnResult(name = "aggregate_type", type = String.class),
+                                @ColumnResult(name = "format", type = String.class),
+                                @ColumnResult(name = "show_when_no_incl_colmns", type = String.class),
+                                @ColumnResult(name = "is_sub_total", type = Boolean.class),
+                                @ColumnResult(name = "is_ascending", type = Boolean.class),
                                 @ColumnResult(name = "in_sort", type = Boolean.class),
                                 @ColumnResult(name = "group_by_col", type = Boolean.class)
                         })
@@ -176,6 +203,9 @@ public class ReportColumnDto implements Serializable {
 
     @Column(name="is_sub_total")
     private Boolean subTotal;
+
+    @Column(name="is_ascending")
+    private Boolean ascending;
 
     @Column(name="sno")
     private Integer sno;
@@ -274,6 +304,30 @@ public class ReportColumnDto implements Serializable {
         this.inSort=inSort;
         this.groupByCol=groupByCol;
     }
+    public ReportColumnDto(Long rptDetailsId, Long rptId, String columnName, String columnDataType, Boolean sortColumn, Boolean selectCriteria, String selectCluse, String query, String carrierId, Long sequence, Boolean excludable, Boolean inner, String specialTypeOptions, Boolean defaultExcluded,
+                           String aggregateType, String format, String showWhenNoInclColmns, Boolean subTotal,Boolean ascending,Boolean inSort, Boolean groupByCol) {
+        this.rptDetailsId = rptDetailsId;
+        this.rptId = rptId;
+        this.columnName = columnName;
+        this.columnDataType = columnDataType;
+        this.sortColumn = sortColumn;
+        this.selectCriteria = selectCriteria;
+        this.selectCluse = selectCluse;
+        this.query = query;
+        this.carrierId = carrierId;
+        this.sequence = sequence;
+        this.excludable = excludable;
+        this.inner = inner;
+        this.specialTypeOptions = specialTypeOptions;
+        this.defaultExcluded = defaultExcluded;
+        this.aggregateType = aggregateType;
+        this.format = format;
+        this.showWhenNoInclColmns = showWhenNoInclColmns;
+        this.subTotal=subTotal;
+        this.ascending=ascending;
+        this.inSort=inSort;
+        this.groupByCol=groupByCol;
+    }
 
     public Long getRptDetailsId() { return rptDetailsId;  }
 
@@ -365,6 +419,14 @@ public class ReportColumnDto implements Serializable {
     public Boolean getSubTotal() { return subTotal; }
 
     public void setSubTotal(Boolean subTotal) { this.subTotal = subTotal; }
+
+    public Boolean getAscending() {
+        return ascending;
+    }
+
+    public void setAscending(Boolean ascending) {
+        this.ascending = ascending;
+    }
 
     public Integer getSno() { return sno; }
 
