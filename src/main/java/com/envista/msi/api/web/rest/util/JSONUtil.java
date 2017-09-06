@@ -330,7 +330,7 @@ public class JSONUtil {
                 if (chartData != null) {
                     statusJson = new JSONObject();
                     statusJson.put("name", chartData.getName());
-                    statusJson.put("value", Math.rint(chartData.getValue()));
+                    statusJson.put("value", chartData.getValue());
                     statusJson.put("id", chartData.getId());
 
                     returnArray.put(statusJson);
@@ -457,7 +457,7 @@ public class JSONUtil {
         for (AverageSpendPerShipmentDto perShipmentDto : avgPerShipmentList) {
             String billDate = perShipmentDto.getBillingDate();
             String mode = perShipmentDto.getModes();
-            Double spend = Math.rint(perShipmentDto.getNetWeight());
+            Double spend = perShipmentDto.getNetWeight();
 
             if (spend != 0) {
 
