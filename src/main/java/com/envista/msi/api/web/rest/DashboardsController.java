@@ -3052,7 +3052,7 @@ public class DashboardsController extends DashboardBaseController {
 
             if (customerId != null && !customerId.isEmpty()){
                 DashboardsFilterCriteria filter = new DashboardsFilterCriteria();
-                filter.setDateType("INVOICE_DATE");
+                filter.setDateType("SHIP_DATE");
                 filter.setFromDate(DateUtil.format(DateUtil.subtractDays(new Date(), 90), "dd-MMM-yyyy"));
                 filter.setToDate(DateUtil.format(new Date(), "dd-MMM-yyyy"));
                 filter.setCustomerIdsCSV(customerId);
