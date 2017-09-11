@@ -331,6 +331,9 @@ public class DashboardUtil {
         if(dashboardAppliedFilter.getCurrencyId() != null && !dashboardAppliedFilter.getCurrencyId().isEmpty()){
             dashboardsFilterCriteria.setConvertCurrencyId(Long.parseLong(dashboardAppliedFilter.getCurrencyId()));
         }
+
+
+        dashboardsFilterCriteria.setConvertWeightUnit(dashboardAppliedFilter.getWeightUnit());
         dashboardsFilterCriteria.setCarriers(dashboardAppliedFilter.getCarrierIds());
         dashboardsFilterCriteria.setDateType(dashboardAppliedFilter.getDateType());
         dashboardsFilterCriteria.setFromDate(dashboardAppliedFilter.getFromDate());

@@ -1474,4 +1474,62 @@ public class DashboardsDao {
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
         return persistentContext.findEntities(ShipmentDto.Config.StoredProcedureQueryName.PACKAGE_DISTRIBUTION_COUNT, queryParameter);
     }
+
+    public List<AverageWeightModeShipmtDto> getAverageWeightModeByPeriod(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {
+                DashboardStoredProcParam.AverageWeightShipmentByPeriodParam.DATE_TYPE_PARAM, DashboardStoredProcParam.AverageWeightShipmentByPeriodParam.MODES_PARAM,
+                DashboardStoredProcParam.AverageWeightShipmentByPeriodParam.SERVICES_PARAM, DashboardStoredProcParam.AverageWeightShipmentByPeriodParam.ACCESSORIAL_NAME_PARAM,
+                DashboardStoredProcParam.AverageWeightShipmentByPeriodParam.LANES_PARAM, DashboardStoredProcParam.AverageWeightShipmentByPeriodParam.FROM_DATE_PARAM,
+                DashboardStoredProcParam.AverageWeightShipmentByPeriodParam.TO_DATE_PARAM, DashboardStoredProcParam.AverageWeightShipmentByPeriodParam.CONVERTED_WEIGHT_UNIT_PARAM,
+                DashboardStoredProcParam.AverageWeightShipmentByPeriodParam.CARRIER_IDS_PARAM, DashboardStoredProcParam.AverageWeightShipmentByPeriodParam.CUSTOMER_IDS_CSV_PARAM,
+                DashboardStoredProcParam.AverageWeightShipmentByPeriodParam.TOP_TEN_ACCESSORIAL_PARAM, DashboardStoredProcParam.AverageWeightShipmentByPeriodParam.MODE_NAMES_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(AverageWeightModeShipmtDto.Config.StoredProcedureQueryName.AVG_WEIGHT_MODE_SHIPMENT_BY_PERIOD, queryParameter);
+    }
+
+    public List<AverageWeightModeShipmtDto> getAverageWeightModeByWeek(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {
+                DashboardStoredProcParam.AverageWeightShipmentByPeriodParam.DATE_TYPE_PARAM, DashboardStoredProcParam.AverageWeightShipmentByPeriodParam.MODES_PARAM,
+                DashboardStoredProcParam.AverageWeightShipmentByPeriodParam.SERVICES_PARAM, DashboardStoredProcParam.AverageWeightShipmentByPeriodParam.ACCESSORIAL_NAME_PARAM,
+                DashboardStoredProcParam.AverageWeightShipmentByPeriodParam.LANES_PARAM, DashboardStoredProcParam.AverageWeightShipmentByPeriodParam.FROM_DATE_PARAM,
+                DashboardStoredProcParam.AverageWeightShipmentByPeriodParam.TO_DATE_PARAM, DashboardStoredProcParam.AverageWeightShipmentByPeriodParam.CONVERTED_WEIGHT_UNIT_PARAM,
+                DashboardStoredProcParam.AverageWeightShipmentByPeriodParam.CARRIER_IDS_PARAM, DashboardStoredProcParam.AverageWeightShipmentByPeriodParam.CUSTOMER_IDS_CSV_PARAM,
+                DashboardStoredProcParam.AverageWeightShipmentByPeriodParam.TOP_TEN_ACCESSORIAL_PARAM, DashboardStoredProcParam.AverageWeightShipmentByPeriodParam.MODE_NAMES_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(AverageWeightModeShipmtDto.Config.StoredProcedureQueryName.AVG_WEIGHT_MODE_SHIPMENT_BY_WEEK, queryParameter);
+    }
+
+    public List<AverageSpendPerShipmentDto> getAverageSpendPerShipmentByPeriod(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {
+                DashboardStoredProcParam.AverageSpendShipmentByPeriodParam.DATE_TYPE_PARAM, DashboardStoredProcParam.AverageSpendShipmentByPeriodParam.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardStoredProcParam.AverageSpendShipmentByPeriodParam.CONVERTED_CURRENCY_CODE_PARAM, DashboardStoredProcParam.AverageSpendShipmentByPeriodParam.MODES_PARAM,
+                DashboardStoredProcParam.AverageSpendShipmentByPeriodParam.SERVICES_PARAM, DashboardStoredProcParam.AverageSpendShipmentByPeriodParam.ACCESSORIAL_NAME_PARAM,
+                DashboardStoredProcParam.AverageSpendShipmentByPeriodParam.LANES_PARAM, DashboardStoredProcParam.AverageSpendShipmentByPeriodParam.FROM_DATE_PARAM,
+                DashboardStoredProcParam.AverageSpendShipmentByPeriodParam.TO_DATE_PARAM, DashboardStoredProcParam.AverageSpendShipmentByPeriodParam.CARRIER_IDS_PARAM,
+                DashboardStoredProcParam.AverageSpendShipmentByPeriodParam.CUSTOMER_IDS_CSV_PARAM, DashboardStoredProcParam.AverageSpendShipmentByPeriodParam.TOP_TEN_ACCESSORIAL_PARAM,
+                DashboardStoredProcParam.AverageSpendShipmentByPeriodParam.MODE_NAMES_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(AverageSpendPerShipmentDto.Config.StoredProcedureQueryName.AVG_SPEND_PER_SHIPMENT_BY_PERIOD, queryParameter);
+    }
+
+    public List<AverageSpendPerShipmentDto> getAverageSpendPerShipmentByWeek(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {
+                DashboardStoredProcParam.AverageSpendShipmentByWeekParam.DATE_TYPE_PARAM, DashboardStoredProcParam.AverageSpendShipmentByWeekParam.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardStoredProcParam.AverageSpendShipmentByWeekParam.CONVERTED_CURRENCY_CODE_PARAM, DashboardStoredProcParam.AverageSpendShipmentByWeekParam.MODES_PARAM,
+                DashboardStoredProcParam.AverageSpendShipmentByWeekParam.SERVICES_PARAM, DashboardStoredProcParam.AverageSpendShipmentByWeekParam.ACCESSORIAL_NAME_PARAM,
+                DashboardStoredProcParam.AverageSpendShipmentByWeekParam.LANES_PARAM, DashboardStoredProcParam.AverageSpendShipmentByWeekParam.FROM_DATE_PARAM,
+                DashboardStoredProcParam.AverageSpendShipmentByWeekParam.TO_DATE_PARAM, DashboardStoredProcParam.AverageSpendShipmentByWeekParam.CARRIER_IDS_PARAM,
+                DashboardStoredProcParam.AverageSpendShipmentByWeekParam.CUSTOMER_IDS_CSV_PARAM, DashboardStoredProcParam.AverageSpendShipmentByWeekParam.TOP_TEN_ACCESSORIAL_PARAM,
+                DashboardStoredProcParam.AverageSpendShipmentByWeekParam.MODE_NAMES_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(AverageSpendPerShipmentDto.Config.StoredProcedureQueryName.AVG_SPEND_PER_SHIPMENT_BY_WEEK, queryParameter);
+    }
 }

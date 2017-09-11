@@ -64,6 +64,42 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageWeightShipmentByMonthParam.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageWeightShipmentByCarrierParam.MODE_NAMES_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.AverageWeightShipmentByMonthParam.AVG_WGT_SHIPMT_BY_MNTH_PARAM, type = Void.class)
+                }),
+        @NamedStoredProcedureQuery(name = AverageWeightModeShipmtDto.Config.StoredProcedureQueryName.AVG_WEIGHT_MODE_SHIPMENT_BY_PERIOD,
+                procedureName = AverageWeightModeShipmtDto.Config.StoredProcedureName.AVG_WEIGHT_MODE_SHIPMENT_BY_PERIOD,
+                resultSetMappings = {AverageWeightModeShipmtDto.Config.ResultMappings.AVG_WEIGHT_MODE_SHIPMENT_BY_PERIOD_MAPPING},
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageWeightShipmentByPeriodParam.DATE_TYPE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageWeightShipmentByPeriodParam.MODES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageWeightShipmentByPeriodParam.SERVICES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageWeightShipmentByPeriodParam.ACCESSORIAL_NAME_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageWeightShipmentByPeriodParam.LANES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageWeightShipmentByPeriodParam.FROM_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageWeightShipmentByPeriodParam.TO_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageWeightShipmentByPeriodParam.CONVERTED_WEIGHT_UNIT_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageWeightShipmentByPeriodParam.CARRIER_IDS_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageWeightShipmentByPeriodParam.CUSTOMER_IDS_CSV_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageWeightShipmentByPeriodParam.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageWeightShipmentByPeriodParam.MODE_NAMES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.AverageWeightShipmentByPeriodParam.AVG_WGT_SHIPMT_BY_PERIOD_PARAM, type = Void.class)
+                }),
+        @NamedStoredProcedureQuery(name = AverageWeightModeShipmtDto.Config.StoredProcedureQueryName.AVG_WEIGHT_MODE_SHIPMENT_BY_WEEK,
+                procedureName = AverageWeightModeShipmtDto.Config.StoredProcedureName.AVG_WEIGHT_MODE_SHIPMENT_BY_WEEK,
+                resultSetMappings = {AverageWeightModeShipmtDto.Config.ResultMappings.AVG_WEIGHT_MODE_SHIPMENT_BY_WEEK_MAPPING},
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageWeightShipmentByWeekParam.DATE_TYPE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageWeightShipmentByWeekParam.MODES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageWeightShipmentByWeekParam.SERVICES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageWeightShipmentByWeekParam.ACCESSORIAL_NAME_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageWeightShipmentByWeekParam.LANES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageWeightShipmentByWeekParam.FROM_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageWeightShipmentByWeekParam.TO_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageWeightShipmentByWeekParam.CONVERTED_WEIGHT_UNIT_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageWeightShipmentByWeekParam.CARRIER_IDS_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageWeightShipmentByWeekParam.CUSTOMER_IDS_CSV_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageWeightShipmentByWeekParam.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageWeightShipmentByWeekParam.MODE_NAMES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.AverageWeightShipmentByWeekParam.AVG_WGT_SHIPMT_BY_WEEK_PARAM, type = Void.class)
                 })
 })
 
@@ -96,6 +132,28 @@ import java.util.Date;
                                 @ColumnResult(name = "AMOUNT", type = Double.class),
                         }
                 )
+        }),
+        @SqlResultSetMapping(name = AverageWeightModeShipmtDto.Config.ResultMappings.AVG_WEIGHT_MODE_SHIPMENT_BY_WEEK_MAPPING, classes = {
+                @ConstructorResult(
+                        targetClass = AverageWeightModeShipmtDto.class,
+                        columns = {
+                                @ColumnResult(name = "BILL_DATE", type = Date.class),
+                                @ColumnResult(name = "AMOUNT", type = Double.class),
+                                @ColumnResult(name = "WEEK_NO", type = Integer.class),
+                                @ColumnResult(name = "COUNT", type = Long.class),
+                        }
+                )
+        }),
+        @SqlResultSetMapping(name = AverageWeightModeShipmtDto.Config.ResultMappings.AVG_WEIGHT_MODE_SHIPMENT_BY_PERIOD_MAPPING, classes = {
+                @ConstructorResult(
+                        targetClass = AverageWeightModeShipmtDto.class,
+                        columns = {
+                                @ColumnResult(name = "BILL_DATE", type = Date.class),
+                                @ColumnResult(name = "AVG_AMOUNT", type = Double.class),
+                                @ColumnResult(name = "AMOUNT", type = Double.class),
+                                @ColumnResult(name = "COUNT", type = Long.class),
+                        }
+                )
         })
 })
 
@@ -123,8 +181,17 @@ public class AverageWeightModeShipmtDto implements Serializable {
     @Column(name = "BILLL_DATE")
     private Date billDate;
 
+    @Column(name = "AVG_AMOUNT")
+    private Double averageAmount;
+
     @Column(name = "AMOUNT")
     private Double amount;
+
+    @Column(name = "WEEK_NO")
+    private Integer weekNumber;
+
+    @Column(name = "COUNT")
+    private Long count;
 
     public AverageWeightModeShipmtDto() {    }
 
@@ -143,6 +210,20 @@ public class AverageWeightModeShipmtDto implements Serializable {
     public AverageWeightModeShipmtDto(Date billDate, Double amount) {
         this.billDate = billDate;
         this.amount = amount;
+    }
+
+    public AverageWeightModeShipmtDto(Date billDate, Double averageAmount, Double amount, Long count) {
+        this.billDate = billDate;
+        this.averageAmount = averageAmount;
+        this.amount = amount;
+        this.count = count;
+    }
+
+    public AverageWeightModeShipmtDto(Date billDate, Double amount, Integer weekNumber, Long count) {
+        this.billDate = billDate;
+        this.amount = amount;
+        this.weekNumber = weekNumber;
+        this.count = count;
     }
 
     public Long getId() {
@@ -201,6 +282,14 @@ public class AverageWeightModeShipmtDto implements Serializable {
         this.billDate = billDate;
     }
 
+    public Double getAverageAmount() {
+        return averageAmount;
+    }
+
+    public void setAverageAmount(Double averageAmount) {
+        this.averageAmount = averageAmount;
+    }
+
     public Double getAmount() {
         return amount;
     }
@@ -209,23 +298,45 @@ public class AverageWeightModeShipmtDto implements Serializable {
         this.amount = amount;
     }
 
+    public Integer getWeekNumber() {
+        return weekNumber;
+    }
+
+    public void setWeekNumber(Integer weekNumber) {
+        this.weekNumber = weekNumber;
+    }
+
+    public Long getCount() {
+        return count;
+    }
+
+    public void setCount(Long count) {
+        this.count = count;
+    }
+
     public static class Config{
         static class ResultMappings{
             static final String AVG_WEIGHT_MODE_SHIPMENT_MAPPING = "AverageWeightModeShipmtDto.AvgWeightByModeShipmentMapping";
             static final String AVG_WEIGHT_MODE_SHIPMENT_BY_CARRIER_MAPPING = "AverageWeightModeShipmtDto.AvgWeightModeByCarrierMapping";
             static final String AVG_WEIGHT_MODE_SHIPMENT_BY_MONTH_MAPPING = "AverageWeightModeShipmtDto.AvgWeightModetByMonthMapping";
+            static final String AVG_WEIGHT_MODE_SHIPMENT_BY_PERIOD_MAPPING = "AverageWeightModeShipmtDto.AvgWeightModeByPeriodMapping";
+            static final String AVG_WEIGHT_MODE_SHIPMENT_BY_WEEK_MAPPING = "AverageWeightModeShipmtDto.AvgWeightModeByWeekMapping";
         }
 
         static class StoredProcedureName{
             static final String AVG_WEIGHT_MODE_SHIPMENT = "SHP_DB_AVG_WGT_PROC";
             static final String AVG_WEIGHT_MODE_SHIPMENT_BY_CARRIER = "SHP_DB_AVG_WGT_BY_CARR_PROC";
             static final String AVG_WEIGHT_MODE_SHIPMENT_BY_MONTH = "SHP_DB_AVG_WGT_BY_MNTH_PROC";
+            static final String AVG_WEIGHT_MODE_SHIPMENT_BY_PERIOD = "SHP_DB_AVG_WGT_BY_PERIOD_PROC";
+            static final String AVG_WEIGHT_MODE_SHIPMENT_BY_WEEK = "SHP_DB_AVG_WGT_BY_WEEK_PROC";
         }
 
         public static class StoredProcedureQueryName{
             public static final String AVG_WEIGHT_MODE_SHIPMENT = "AverageWeightModeShipmtDto.getAverageWeightModeShipment";
             public static final String AVG_WEIGHT_MODE_SHIPMENT_BY_CARRIER = "AverageWeightModeShipmtDto.getAverageWeightModeByCarrier";
             public static final String AVG_WEIGHT_MODE_SHIPMENT_BY_MONTH = "AverageWeightModeShipmtDto.getAverageWeightModeByMonth";
+            public static final String AVG_WEIGHT_MODE_SHIPMENT_BY_PERIOD = "AverageWeightModeShipmtDto.getAverageWeightModeByPeriod";
+            public static final String AVG_WEIGHT_MODE_SHIPMENT_BY_WEEK = "AverageWeightModeShipmtDto.getAverageWeightModeByWeek";
         }
     }
 }

@@ -863,7 +863,7 @@ public class ReportsService {
         ReportFolderDto folderHierarchyDto=null;
         if(rptFolders!=null && rptFolders.size()>0) {
             for (ReportFolderDto dto : rptFolders) {
-                if (dto.getRptFolderId()==dto.getParentId())
+                if (dto.getRptFolderId().equals(dto.getParentId()))
                     hierarchy.add(dto);
             }
         }
@@ -911,18 +911,28 @@ public class ReportsService {
         }
         return null;
     }
-    public  ReportFolderDto findFolderGroup(ReportFolderDto folderGroups, long folderId) {
-        for (ReportFolderDto folderDto : folderGroups.getCollection()) {
-            if (folderDto.getRptFolderId() == folderId)
-                return folderDto;
-            ReportFolderDto child = findFolderGroup(folderDto, folderId);
-            if (child != null)
-                return child;
+    public  ReportFolderDto findFolderGroup(ReportFolderDto folderGroups, Long folderId) {
+        if(folderGroups!=null) {
+            for (ReportFolderDto folderDto : folderGroups.getCollection()) {
+                if (folderDto.getRptFolderId().equals(folderId))
+                    return folderDto;
+                ReportFolderDto child = findFolderGroup(folderDto, folderId);
+                if (child != null)
+                    return child;
+            }
         }
         return null;
     }
     public ReportFolderDto updateReportFolder(ReportFolderDto reportFolderDto, UserProfileDto userProfileDto){
         return reportsDao.updateReportFolder(reportFolderDto,userProfileDto);
+    }
+
+    public List<ReportCodeValueDto> getCodeValues(Long codeGroupId, String orderBy){
+        return reportsDao.getCodeValues(codeGroupId, orderBy);
+    }
+
+    public List<String> getReportWeightList(){
+        return Arrays.asList("LBS", "KGS", "LITRES", "GALLONS", "TONS");
     }
 
     public Map<String, String> getReportCustomColumnNames(String customerId, Long reportId){
