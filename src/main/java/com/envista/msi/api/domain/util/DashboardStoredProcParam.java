@@ -240,4 +240,20 @@ public class DashboardStoredProcParam {
         public static final String FILTER_DATA_PARAM = "p_filter_data";
         public static final String FILTER_NAME_PARAM = "p_filter_name";
     }
+
+    public static class AverageWeightShipmentByPeriodParam extends DashboardFilterParams {
+        public static final String AVG_WGT_SHIPMT_BY_PERIOD_PARAM = "p_avg_wegt_by_period";
+    }
+
+    public static class AverageWeightShipmentByWeekParam extends DashboardFilterParams {
+        public static final String AVG_WGT_SHIPMT_BY_WEEK_PARAM = "p_avg_wegt_by_week";
+    }
+
+    public static class AverageSpendShipmentByPeriodParam extends DashboardFilterParams {
+        public static final String AVG_SPEND_PER_SHIPMT_BY_PERIOD_PARAM = "p_avg_spend_by_period";
+    }
+
+    public static class AverageSpendShipmentByWeekParam extends DashboardFilterParams {
+        public static final String AVG_SPEND_PER_SHIPMT_BY_WEEK_PARAM = "p_avg_spend_by_week";
+    }
 }

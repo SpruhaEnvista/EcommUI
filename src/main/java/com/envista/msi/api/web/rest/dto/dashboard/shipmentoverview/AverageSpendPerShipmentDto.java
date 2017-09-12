@@ -68,6 +68,44 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageSpendShipmentByMonthParam.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageSpendShipmentByCarrierParam.MODE_NAMES_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.AverageSpendShipmentByMonthParam.AVG_SPEND_PER_SHIPMT_PARAM, type = Void.class)
+                }),
+        @NamedStoredProcedureQuery(name = AverageSpendPerShipmentDto.Config.StoredProcedureQueryName.AVG_SPEND_PER_SHIPMENT_BY_PERIOD,
+                procedureName = AverageSpendPerShipmentDto.Config.StoredProcedureName.AVG_SPEND_PER_SHIPMENT_BY_PERIOD,
+                resultSetMappings = AverageSpendPerShipmentDto.Config.ResultMappings.AVG_SPEND_PER_SHIPMENT_BY_PERIOD_MAPPING,
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageSpendShipmentByPeriodParam.DATE_TYPE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageSpendShipmentByPeriodParam.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageSpendShipmentByPeriodParam.CONVERTED_CURRENCY_CODE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageSpendShipmentByPeriodParam.MODES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageSpendShipmentByPeriodParam.SERVICES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageSpendShipmentByPeriodParam.ACCESSORIAL_NAME_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageSpendShipmentByPeriodParam.LANES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageSpendShipmentByPeriodParam.FROM_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageSpendShipmentByPeriodParam.TO_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageSpendShipmentByPeriodParam.CARRIER_IDS_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageSpendShipmentByPeriodParam.CUSTOMER_IDS_CSV_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageSpendShipmentByPeriodParam.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageSpendShipmentByPeriodParam.MODE_NAMES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.AverageSpendShipmentByPeriodParam.AVG_SPEND_PER_SHIPMT_BY_PERIOD_PARAM, type = Void.class)
+                }),
+        @NamedStoredProcedureQuery(name = AverageSpendPerShipmentDto.Config.StoredProcedureQueryName.AVG_SPEND_PER_SHIPMENT_BY_WEEK,
+                procedureName = AverageSpendPerShipmentDto.Config.StoredProcedureName.AVG_SPEND_PER_SHIPMENT_BY_WEEK,
+                resultSetMappings = AverageSpendPerShipmentDto.Config.ResultMappings.AVG_SPEND_PER_SHIPMENT_BY_WEEK_MAPPING,
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageSpendShipmentByWeekParam.DATE_TYPE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageSpendShipmentByWeekParam.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageSpendShipmentByWeekParam.CONVERTED_CURRENCY_CODE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageSpendShipmentByWeekParam.MODES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageSpendShipmentByWeekParam.SERVICES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageSpendShipmentByWeekParam.ACCESSORIAL_NAME_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageSpendShipmentByWeekParam.LANES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageSpendShipmentByWeekParam.FROM_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageSpendShipmentByWeekParam.TO_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageSpendShipmentByWeekParam.CARRIER_IDS_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageSpendShipmentByWeekParam.CUSTOMER_IDS_CSV_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageSpendShipmentByWeekParam.TOP_TEN_ACCESSORIAL_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AverageSpendShipmentByWeekParam.MODE_NAMES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.AverageSpendShipmentByWeekParam.AVG_SPEND_PER_SHIPMT_BY_WEEK_PARAM, type = Void.class)
                 })
 })
 
@@ -100,6 +138,28 @@ import java.util.Date;
                                 @ColumnResult(name = "AMOUNT", type = Double.class),
                         }
                 )
+        }),
+        @SqlResultSetMapping(name = AverageSpendPerShipmentDto.Config.ResultMappings.AVG_SPEND_PER_SHIPMENT_BY_WEEK_MAPPING, classes = {
+                @ConstructorResult(
+                        targetClass = AverageSpendPerShipmentDto.class,
+                        columns = {
+                                @ColumnResult(name = "BILL_DATE", type = Date.class),
+                                @ColumnResult(name = "AMOUNT", type = Double.class),
+                                @ColumnResult(name = "WEEK_NO", type = Integer.class),
+                                @ColumnResult(name = "COUNT", type = Long.class),
+                        }
+                )
+        }),
+        @SqlResultSetMapping(name = AverageSpendPerShipmentDto.Config.ResultMappings.AVG_SPEND_PER_SHIPMENT_BY_PERIOD_MAPPING, classes = {
+                @ConstructorResult(
+                        targetClass = AverageSpendPerShipmentDto.class,
+                        columns = {
+                                @ColumnResult(name = "BILL_DATE", type = Date.class),
+                                @ColumnResult(name = "AVG_AMOUNT", type = Double.class),
+                                @ColumnResult(name = "AMOUNT", type = Double.class),
+                                @ColumnResult(name = "COUNT", type = Long.class),
+                        }
+                )
         })
 })
 
@@ -130,6 +190,15 @@ public class AverageSpendPerShipmentDto implements Serializable{
     @Column(name = "AMOUNT")
     private Double amount;
 
+    @Column(name = "AVG_AMOUNT")
+    private Double averageAmount;
+
+    @Column(name = "WEEK_NO")
+    private Integer weekNumber;
+
+    @Column(name = "COUNT")
+    private Long count;
+
     public AverageSpendPerShipmentDto() {  }
 
     public AverageSpendPerShipmentDto(String billingDate, String modes, Double netWeight) {
@@ -147,6 +216,20 @@ public class AverageSpendPerShipmentDto implements Serializable{
     public AverageSpendPerShipmentDto(Date billDate, Double amount) {
         this.billDate = billDate;
         this.amount = amount;
+    }
+
+    public AverageSpendPerShipmentDto(Date billDate, Double amount, Integer weekNumber, Long count) {
+        this.billDate = billDate;
+        this.amount = amount;
+        this.weekNumber = weekNumber;
+        this.count = count;
+    }
+
+    public AverageSpendPerShipmentDto(Date billDate, Double averageAmount, Double amount, Long count) {
+        this.billDate = billDate;
+        this.averageAmount = averageAmount;
+        this.amount = amount;
+        this.count = count;
     }
 
     public Long getId() {
@@ -213,23 +296,53 @@ public class AverageSpendPerShipmentDto implements Serializable{
         this.amount = amount;
     }
 
+    public Double getAverageAmount() {
+        return averageAmount;
+    }
+
+    public void setAverageAmount(Double averageAmount) {
+        this.averageAmount = averageAmount;
+    }
+
+    public Integer getWeekNumber() {
+        return weekNumber;
+    }
+
+    public void setWeekNumber(Integer weekNumber) {
+        this.weekNumber = weekNumber;
+    }
+
+    public Long getCount() {
+        return count;
+    }
+
+    public void setCount(Long count) {
+        this.count = count;
+    }
+
     public static class Config{
         static class ResultMappings{
             static final String AVG_SPEND_PER_SHIPMENT_MAPPING = "AverageSpendPerShipmentDto.AvgSpendPerShipmentMapping";
             static final String AVG_SPEND_PER_SHIPMENT_BY_CARRIER_MAPPING = "AverageSpendPerShipmentDto.AvgSpendPerShipmentByCarrierMapping";
             static final String AVG_SPEND_PER_SHIPMENT_BY_MONTH_MAPPING = "AverageSpendPerShipmentDto.AvgSpendPerShipmentByMonthMapping";
+            static final String AVG_SPEND_PER_SHIPMENT_BY_PERIOD_MAPPING = "AverageSpendPerShipmentDto.AvgSpendPerShipmentByPeriodMapping";
+            static final String AVG_SPEND_PER_SHIPMENT_BY_WEEK_MAPPING = "AverageSpendPerShipmentDto.AvgSpendPerShipmentByWeekMapping";
         }
 
         static class StoredProcedureName{
             static final String AVG_SPEND_PER_SHIPMENT = "SHP_DB_AVG_SPEND_PROC";
             static final String AVG_SPEND_PER_SHIPMENT_BY_CARRIER = "SHP_DB_AVG_SPEND_BY_CARR_PROC";
             static final String AVG_SPEND_PER_SHIPMENT_BY_MONTH = "SHP_DB_AVG_SPEND_BY_MNTH_PROC";
+            static final String AVG_SPEND_PER_SHIPMENT_BY_PERIOD = "SHP_DB_AVG_SPEND_BY_PERD_PROC";
+            static final String AVG_SPEND_PER_SHIPMENT_BY_WEEK = "SHP_DB_AVG_SPEND_BY_WEEK_PROC";
         }
 
         public static class StoredProcedureQueryName{
             public static final String AVG_SPEND_PER_SHIPMENT = "AverageSpendPerShipmentDto.getAverageSpendPerShipment";
             public static final String AVG_SPEND_PER_SHIPMENT_BY_CARRIER = "AverageSpendPerShipmentDto.getAverageSpendPerShipmentByCarrier";
             public static final String AVG_SPEND_PER_SHIPMENT_BY_MONTH = "AverageSpendPerShipmentDto.getAverageSpendPerShipmentByMonth";
+            public static final String AVG_SPEND_PER_SHIPMENT_BY_PERIOD = "AverageSpendPerShipmentDto.getAverageSpendPerShipmentByPeriod";
+            public static final String AVG_SPEND_PER_SHIPMENT_BY_WEEK = "AverageSpendPerShipmentDto.getAverageSpendPerShipmentByWeek";
         }
     }
 }

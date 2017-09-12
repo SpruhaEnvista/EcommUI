@@ -4,36 +4,30 @@ import com.envista.msi.api.security.SecurityUtils;
 import com.envista.msi.api.service.ReportsService;
 import com.envista.msi.api.service.UserService;
 import com.envista.msi.api.web.rest.dto.UserProfileDto;
-import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
-import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendRequestDto;
 import com.envista.msi.api.web.rest.dto.reports.*;
+import com.envista.msi.api.web.rest.response.CommonResponse;
 import com.envista.msi.api.web.rest.util.JSONUtil;
 import com.envista.msi.api.web.rest.util.WebConstants;
+import com.envista.msi.api.web.rest.util.pac.GlobalConstants;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.springframework.cglib.core.internal.LoadingCache;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
+import java.util.ArrayList;
 import java.util.HashMap;
-
-import org.springframework.util.FileCopyUtils;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import java.util.List;
+import java.util.Map;
 /**
  * Created by Sreenivas on 2/17/2017.
  */
@@ -67,7 +61,7 @@ public class ReportsController {
     }
 
     @RequestMapping(value = "/results/reportslist/{userId}", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<List<ReportResultsDto>> getReportResults(@PathVariable String userId,@RequestParam String sort){
+    public ResponseEntity<List<ReportResultsDto>> getReportResults(@PathVariable String userId,@RequestParam(required = false) String showAll,@RequestParam String sort){
         String ascDesc=null;
         if(sort!=null && sort.trim().length()>0){
             if(sort.startsWith("-")){
@@ -77,7 +71,7 @@ public class ReportsController {
                 ascDesc = "asc";
             }
         }
-        List<ReportResultsDto> resultsList = reportsService.getReportResults(Long.parseLong(userId),sort,ascDesc);
+        List<ReportResultsDto> resultsList = reportsService.getReportResults(Long.parseLong(userId),showAll,sort,ascDesc);
         return new ResponseEntity<List<ReportResultsDto>>(resultsList, HttpStatus.OK);
     }
     @RequestMapping(value = "/results/updateexpirydate", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
@@ -107,10 +101,21 @@ public class ReportsController {
         }
     }
     @RequestMapping(value = "/savedschedreports", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<List<SavedSchedReportsDto>> getSavedSchedReports(@RequestParam String userId,@RequestParam(required = false) String folderId){
+    public ResponseEntity<List<SavedSchedReportsDto>> getSavedSchedReports(@RequestParam String userId,@RequestParam(required = false) String folderId,@RequestParam(required = false) String sort){
+
         if(folderId!=null)
             folderId = folderId.replaceAll("-","");
-        List<SavedSchedReportsDto> resultsList = reportsService.getSavedSchedReports(Long.parseLong(userId), (folderId == null ? 0 : Long.parseLong(folderId.trim())));
+        String ascorDesc=null;
+        if(sort!=null && sort.trim().length()>0){
+            if(sort.startsWith("-")){
+                ascorDesc = "desc";
+                sort = sort.replace("-","");
+            }else{
+                ascorDesc = "asc";
+            }
+        }
+
+        List<SavedSchedReportsDto> resultsList = reportsService.getSavedSchedReports(Long.parseLong(userId), (folderId == null ? 0 : Long.parseLong(folderId.trim())),sort,ascorDesc);
         return new ResponseEntity<List<SavedSchedReportsDto>>(resultsList, HttpStatus.OK);
     }
     @RequestMapping(value = "/savedschedtemplates", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
@@ -314,9 +319,19 @@ public class ReportsController {
     }
 
     @RequestMapping(value = "/criteriacolumn", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<List<ReportColumnDto>> getReportCriteria(@RequestParam String userId, @RequestParam String rptId, @RequestParam String carrierIds){
+    public ResponseEntity<List<ReportColumnDto>> getReportCriteria(@RequestParam String userId, @RequestParam String rptId, @RequestParam String carrierIds, @RequestParam(required = false) String customerId){
         try {
             List<ReportColumnDto> reportCriteriaCols = reportsService.getReportCriteria(Long.parseLong(userId),Long.parseLong(rptId),carrierIds);
+            if(reportCriteriaCols != null && !reportCriteriaCols.isEmpty() && rptId != null && !rptId.isEmpty() && customerId != null && !customerId.isEmpty()){
+                Map<String, String> customColumns = reportsService.getReportCustomColumnNames(customerId, Long.parseLong(rptId));
+                if(customColumns != null && !customColumns.isEmpty()){
+                    reportCriteriaCols.forEach( reportCol -> {
+                        if(reportCol != null && reportCol.getSelectCluse() != null && customColumns.containsKey(reportCol.getSelectCluse().toUpperCase())){
+                            reportCol.setColumnName(customColumns.get(reportCol.getSelectCluse().toUpperCase()));
+                        }
+                    });
+                }
+            }
             return new ResponseEntity<List<ReportColumnDto>>(reportCriteriaCols, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<List<ReportColumnDto>>(new ArrayList<ReportColumnDto>(), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -324,9 +339,19 @@ public class ReportsController {
     }
 
     @RequestMapping(value = "/inclexclsortcolumn", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<List<ReportColumnDto>> getIncludeExcludeSortCol(@RequestParam String userId, @RequestParam String rptId, @RequestParam String carrierIds){
+    public ResponseEntity<List<ReportColumnDto>> getIncludeExcludeSortCol(@RequestParam String userId, @RequestParam String rptId, @RequestParam String carrierIds, @RequestParam(required = false) String customerId){
         try {
-            List<ReportColumnDto> reportIncludeExclSortCols = reportsService.getIncludeExcludeSortCol(Long.parseLong(userId),Long.parseLong(rptId),carrierIds);
+            List<ReportColumnDto> reportIncludeExclSortCols = reportsService.getIncludeExcludeSortCol(Long.parseLong(userId), Long.parseLong(rptId),carrierIds);
+            if(reportIncludeExclSortCols != null && !reportIncludeExclSortCols.isEmpty() && rptId != null && !rptId.isEmpty() && customerId != null && !customerId.isEmpty()){
+                Map<String, String> customColumns = reportsService.getReportCustomColumnNames(customerId, Long.parseLong(rptId));
+                if(customColumns != null && !customColumns.isEmpty()){
+                    reportIncludeExclSortCols.forEach( reportCol -> {
+                        if(reportCol != null && reportCol.getSelectCluse() != null && customColumns.containsKey(reportCol.getSelectCluse().toUpperCase())){
+                            reportCol.setColumnName(customColumns.get(reportCol.getSelectCluse().toUpperCase()));
+                        }
+                    });
+                }
+            }
             return new ResponseEntity<List<ReportColumnDto>>(reportIncludeExclSortCols, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<List<ReportColumnDto>>(new ArrayList<ReportColumnDto>(), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -544,5 +569,25 @@ public class ReportsController {
         } catch (Exception e) {
             return new ResponseEntity<JSONObject>(new JSONObject(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+    @RequestMapping(value = "/folder/update", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<ReportFolderDto> updateReportFolder(@RequestBody ReportFolderDto reportFolderDto){
+        ReportFolderDto reportFolder = null;
+        if(reportFolderDto != null && reportFolderDto.getRptFolderName() != null){
+            reportFolder = reportsService.updateReportFolder(reportFolderDto,getUserProfile());
+        }
+        return new ResponseEntity<ReportFolderDto>(reportFolder,HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/reportFormat", method = {RequestMethod.GET, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<CommonResponse> getReportFormatData() {
+        Map<String, Object> respMap = new HashMap<>();
+        respMap.put("currency", reportsService.getCodeValues(GlobalConstants.REPORT_CURRENCY_CODE_GROUP_ID, "upper(code_value)"));
+        respMap.put("language", reportsService.getCodeValues(GlobalConstants.REPORT_LANGUAGE_CODE_GROUP_ID, "sequence"));
+        respMap.put("weight", reportsService.getReportWeightList());
+        CommonResponse response = new CommonResponse();
+        response.setData(respMap);
+        response.setStatusCode(HttpStatus.OK.value());
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

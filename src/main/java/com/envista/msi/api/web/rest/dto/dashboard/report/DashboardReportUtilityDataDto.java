@@ -90,7 +90,9 @@ import java.io.Serializable;
                                 targetClass = DashboardReportUtilityDataDto.class,
                                 columns = {
                                         @ColumnResult(name = "COLUMN_NAME", type = String.class),
-                                        @ColumnResult(name = "SELECT_CLAUSE", type = String.class)
+                                        @ColumnResult(name = "SELECT_CLAUSE", type = String.class),
+                                        @ColumnResult(name = "COLUMN_DATA_TYPE", type = String.class),
+                                        @ColumnResult(name = "FORMAT", type = String.class)
                                 }
                         )
                 }
@@ -148,6 +150,13 @@ public class DashboardReportUtilityDataDto implements Serializable {
     @Column(name = "SELECT_CLAUSE")
     private String selectClause;
 
+    @Column(name = "COLUMN_DATA_TYPE")
+    private String dataType;
+
+    @Column(name = "FORMAT")
+    private String format;
+
+
     @Column(name = "FIELD_COUNT")
     private Integer fieldCount;
 
@@ -180,9 +189,11 @@ public class DashboardReportUtilityDataDto implements Serializable {
 
     public DashboardReportUtilityDataDto(){}
 
-    public DashboardReportUtilityDataDto(String columnName, String selectClause) {
+    public DashboardReportUtilityDataDto(String columnName, String selectClause,String dataType , String format) {
         this.columnName = columnName;
         this.selectClause = selectClause;
+        this.format = format;
+        this.dataType = dataType;
     }
 
     public DashboardReportUtilityDataDto(Integer fieldCount, String reportFieldName, String customFieldName) {
@@ -306,6 +317,22 @@ public class DashboardReportUtilityDataDto implements Serializable {
 
     public void setRecordCount(Integer recordCount) {
         this.recordCount = recordCount;
+    }
+
+    public String getDataType() {
+        return dataType;
+    }
+
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
+    }
+
+    public String getFormat() {
+        return format;
+    }
+
+    public void setFormat(String format) {
+        this.format = format;
     }
 
     public static class Config{

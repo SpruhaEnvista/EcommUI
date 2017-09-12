@@ -34,7 +34,7 @@ public class CreditsPRDao {
                 .and("P_INVOICE_METHOD_ID", bean.getInvoiceMethodId()).and("P_PAYRUN_NOS", bean.getPayRunNos())
                 .and("P_CONTROL_NUMS", bean.getControlNums()).and("P_ADJ_REASONS", bean.getAdjReasons())
                 .and("P_INV_COMMENTS", bean.getInvComments()).and("P_OFFSET", offset)
-                .and("P_PAGE_SIZE", limit).and("P_ACTION_TYPE", "search");
+                .and("P_PAGE_SIZE", limit).and("P_SORT_COLUMN", bean.getSort()).and("P_ACTION_TYPE", "search");
 
         return persistentContext.findEntities("CreditsPRDto.getSearchInfo", queryParameter);
     }
@@ -53,7 +53,7 @@ public class CreditsPRDao {
                 .and("P_INVOICE_METHOD_ID", bean.getInvoiceMethodId()).and("P_PAYRUN_NOS", bean.getPayRunNos())
                 .and("P_CONTROL_NUMS", bean.getControlNums()).and("P_ADJ_REASONS", bean.getAdjReasons())
                 .and("P_INV_COMMENTS", bean.getInvComments()).and("P_OFFSET", 0)
-                .and("P_PAGE_SIZE", 0).and("P_ACTION_TYPE", "getTotalCount");
+                .and("P_PAGE_SIZE", 0).and("P_SORT_COLUMN", bean.getSort()).and("P_ACTION_TYPE", "getTotalCount");
 
         List<TotalCountDto> dtos = persistentContext.findEntities("CreditsPRDto.getSearCount", queryParameter);
 

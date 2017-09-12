@@ -154,7 +154,7 @@ public class DashboardUtil {
                     queryParameter = prepareQueryParam(DashboardStoredProcParam.DashboardFilterParams.POL, filter.getPol(), queryParameter);
                     break;
                 case DashboardStoredProcParam.DashboardFilterParams.POD:
-                    queryParameter = prepareQueryParam(DashboardStoredProcParam.DashboardFilterParams.POL, filter.getPod(), queryParameter);
+                    queryParameter = prepareQueryParam(DashboardStoredProcParam.DashboardFilterParams.POD, filter.getPod(), queryParameter);
                     break;
                 default:
                     throw new RuntimeException("Invalid stored procedure param name.");
@@ -331,6 +331,9 @@ public class DashboardUtil {
         if(dashboardAppliedFilter.getCurrencyId() != null && !dashboardAppliedFilter.getCurrencyId().isEmpty()){
             dashboardsFilterCriteria.setConvertCurrencyId(Long.parseLong(dashboardAppliedFilter.getCurrencyId()));
         }
+
+
+        dashboardsFilterCriteria.setConvertWeightUnit(dashboardAppliedFilter.getWeightUnit());
         dashboardsFilterCriteria.setCarriers(dashboardAppliedFilter.getCarrierIds());
         dashboardsFilterCriteria.setDateType(dashboardAppliedFilter.getDateType());
         dashboardsFilterCriteria.setFromDate(dashboardAppliedFilter.getFromDate());

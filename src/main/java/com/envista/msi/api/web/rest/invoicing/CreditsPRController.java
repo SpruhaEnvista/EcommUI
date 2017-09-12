@@ -60,7 +60,7 @@ public class CreditsPRController {
             , @RequestParam String createDate, @RequestParam String invoiceDate, @RequestParam String closeDate, @RequestParam String invoiceNumbers
             , @RequestParam String trackingNumbers, @RequestParam String internalKeyIds, @RequestParam Long invoiceMethodId, @RequestParam String payRunNos
             , @RequestParam String controlNums, @RequestParam String adjReasons, @RequestParam String invComments
-            , @RequestParam(required = false, defaultValue = "0") Integer offset, @RequestParam(required = false, defaultValue = "10") Integer limit) throws Exception {
+            , @RequestParam(required = false, defaultValue = "0") Integer offset, @RequestParam(required = false, defaultValue = "10") Integer limit, @RequestParam(required = false, defaultValue = "null") String sort) throws Exception {
         log.info("***search method started****");
 
         CreditsPRSearchBean bean = new CreditsPRSearchBean();
@@ -93,6 +93,7 @@ public class CreditsPRController {
         bean.setControlNums(controlNums);
         bean.setAdjReasons(adjReasons);
         bean.setInvComments(invComments);
+        bean.setSort(sort);
 
 
         PaginationBean paginationData = service.getSearchPaginationData(bean, offset, limit);
@@ -149,14 +150,14 @@ public class CreditsPRController {
 
     @RequestMapping(value = "/searchAndExport", params = {"businessPartnerId", "customerIds", "savedFilter", "invStatusId", "invCatagoryId", "invWeekEndId", "invoiceModeId",
             "carrierId", "creditClassId", "omitFlag", "reviewFlag", "createDate", "invoiceDate", "closeDate", "invoiceNumbers", "trackingNumbers", "internalKeyIds", "invoiceMethodId",
-            "payRunNos", "controlNums", "adjReasons", "invComments","totalRecordsCount"}, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+            "payRunNos", "controlNums", "adjReasons", "invComments","exportType","totalRecordsCount"}, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
     public @ResponseBody
     void  searchAndExport(@RequestParam Long businessPartnerId, @RequestParam String customerIds, @RequestParam String savedFilter
             , @RequestParam Long invStatusId, @RequestParam Long invCatagoryId, @RequestParam Long invWeekEndId, @RequestParam Long invoiceModeId
             , @RequestParam Long carrierId, @RequestParam Long creditClassId, @RequestParam String omitFlag, @RequestParam String reviewFlag
             , @RequestParam String createDate, @RequestParam String invoiceDate, @RequestParam String closeDate, @RequestParam String invoiceNumbers
             , @RequestParam String trackingNumbers, @RequestParam String internalKeyIds, @RequestParam Long invoiceMethodId, @RequestParam String payRunNos
-            , @RequestParam String controlNums, @RequestParam String adjReasons, @RequestParam String invComments
+            , @RequestParam String controlNums, @RequestParam String adjReasons, @RequestParam String invComments,@RequestParam String exportType
             , @RequestParam(required = false, defaultValue = "10") Integer totalRecordsCount,HttpServletResponse response) throws Exception {
         log.info("***searchAndExport method started****");
 
@@ -193,7 +194,7 @@ public class CreditsPRController {
 
         PaginationBean paginationData = service.getSearchPaginationData(bean, 0, totalRecordsCount);
 
-        fileOperations.exportPendingCredits("XLSX",(List<CreditsPRDto>)paginationData.getData(),response);
+        fileOperations.exportPendingCredits(exportType,(List<CreditsPRDto>)paginationData.getData(),response);
 
 
     }

@@ -7,9 +7,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AccountSummaryDt
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AnnualSummaryDto;
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.MonthlySpendByModeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
-import com.envista.msi.api.web.rest.dto.dashboard.common.CommonMonthlyChartDto;
-import com.envista.msi.api.web.rest.dto.dashboard.common.CommonValuesForChartDto;
-import com.envista.msi.api.web.rest.dto.dashboard.common.NetSpendCommonDto;
+import com.envista.msi.api.web.rest.dto.dashboard.common.*;
 import com.envista.msi.api.web.rest.dto.dashboard.filter.UserFilterUtilityDataDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.AccessorialSpendDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.ActualVsBilledWeightDto;
@@ -332,7 +330,7 @@ public class JSONUtil {
                 if (chartData != null) {
                     statusJson = new JSONObject();
                     statusJson.put("name", chartData.getName());
-                    statusJson.put("value", Math.rint(chartData.getValue()));
+                    statusJson.put("value", chartData.getValue());
                     statusJson.put("id", chartData.getId());
 
                     returnArray.put(statusJson);
@@ -459,7 +457,7 @@ public class JSONUtil {
         for (AverageSpendPerShipmentDto perShipmentDto : avgPerShipmentList) {
             String billDate = perShipmentDto.getBillingDate();
             String mode = perShipmentDto.getModes();
-            Double spend = Math.rint(perShipmentDto.getNetWeight());
+            Double spend = perShipmentDto.getNetWeight();
 
             if (spend != 0) {
 
@@ -562,12 +560,10 @@ public class JSONUtil {
             jsonObject.put("name", date);
             jsonObject.put("counter", counter);
 
-            double totalSpend = 0;
             while (modeFlagIterator.hasNext()) {
                 String modeFlag = modeFlagIterator.next();
                 double spend = modeFlagMap.get(modeFlag);
-                totalSpend += spend;
-                jsonObject.put(modeFlag, totalSpend);
+                jsonObject.put(modeFlag, spend);
             }
             valuesArray.put(jsonObject);
             counter++;
@@ -1253,7 +1249,7 @@ public class JSONUtil {
             laneInfoJson.put("rank", shippingLanesDto.getRank());
             laneInfoJson.put("shipperAddress", shippingLanesDto.getShipperAddress());
             laneInfoJson.put("receiverAddress", shippingLanesDto.getReceiverAddress());
-            laneInfoJson.put("laneTotal", shippingLanesDto.getLaneTotal());
+            laneInfoJson.put("laneTotal", CommonUtil.toDecimalFormat(shippingLanesDto.getLaneTotal()));
 
             lanesArray.put(laneInfoJson);
         }
@@ -1271,7 +1267,7 @@ public class JSONUtil {
             laneInfoJson.put("rank", portLanesDto.getRank());
             laneInfoJson.put("pol", portLanesDto.getPol());
             laneInfoJson.put("pod", portLanesDto.getPod());
-            laneInfoJson.put("laneTotal", portLanesDto.getLaneTotal());
+            laneInfoJson.put("laneTotal", CommonUtil.toDecimalFormat(portLanesDto.getLaneTotal()));
 
             lanesArray.put(laneInfoJson);
         }
@@ -1392,6 +1388,7 @@ public class JSONUtil {
             ArrayList<String> yearsList = new ArrayList<String>();
             ArrayList<String> categoriesList = new ArrayList<String>();
             String toDateYear = null;
+            Map<String, BigDecimal> totalSpendMap = new HashMap<>();
 
             if (filter.getToDate() != null && filter.getToDate().split("-").length > 2) {
                 toDateYear = filter.getToDate().split("-")[2];
@@ -1407,7 +1404,7 @@ public class JSONUtil {
             categoriesList.add("Small Package Spend");
             categoriesList.add("Freight Spend");
             categoriesList.add("Total Spend");
-            categoriesList.add("Recovery");
+            categoriesList.add("Small Package Recovery");
 
             for (AccountSummaryDto accountSummary : accountSummaryList) {
                 if (accountSummary != null) {
@@ -1416,14 +1413,12 @@ public class JSONUtil {
                     BigDecimal amount = accountSummary.getAmount();
                     String category = accountSummary.getCategory();
 
-                    if (category.contains("YTD")) {
-                        category = "Total Spend";
-                    } else if (isLtl == 0 && category.contains("Spend")) {
+                    if (isLtl == 0 && category.contains("Spend")) {
                         category = "Small Package Spend";
                     } else if (isLtl == 1 && category.contains("Spend")) {
                         category = "Freight Spend";
                     } else if (category.contains("Recovery")) {
-                        category = "Recovery";
+                        category = "Small Package Recovery";
                     }
 
                     if (categoriesBasedMap.containsKey(category)) {
@@ -1437,6 +1432,15 @@ public class JSONUtil {
                         tempMap.put(year, amount);
                         categoriesBasedMap.put(category, tempMap);
                     }
+
+                    if(amount != null && category.contains("Spend") && (isLtl == 0 || isLtl == 1)){
+                        if(totalSpendMap.containsKey(year)){
+                            BigDecimal total = amount.add(totalSpendMap.get(year));
+                            totalSpendMap.put(year, total);
+                        }else{
+                            totalSpendMap.put(year, amount);
+                        }
+                    }
                 }
             }
             JSONArray finalValuesArray = new JSONArray();
@@ -1446,27 +1450,32 @@ public class JSONUtil {
                 String key1 = "spend" + yearsList.get(0);
                 String key2 = "spend" + yearsList.get(1);
                 eachCategoryObj.put("name", category);
-                if (categoriesBasedMap.containsKey(category)) {
-                    if (categoriesBasedMap.get(category).containsKey(yearsList.get(0))) {
-                        eachCategoryObj.put(key1, categoriesBasedMap.get(category).get(yearsList.get(0)));
+
+                if(category.equalsIgnoreCase("Total Spend")){
+                    eachCategoryObj.put(key1, commaSeperatedDecimalFormat.format(totalSpendMap.get(yearsList.get(0))));
+                    eachCategoryObj.put(key2, commaSeperatedDecimalFormat.format(totalSpendMap.get(yearsList.get(1))));
+                }else{
+                    if (categoriesBasedMap.containsKey(category)) {
+                        if (categoriesBasedMap.get(category).containsKey(yearsList.get(0))) {
+                            eachCategoryObj.put(key1, commaSeperatedDecimalFormat.format(categoriesBasedMap.get(category).get(yearsList.get(0))));
+                        } else {
+                            eachCategoryObj.put(key1, "0");
+                        }
+
+                        if (categoriesBasedMap.get(category).containsKey(yearsList.get(1))) {
+                            eachCategoryObj.put(key2, commaSeperatedDecimalFormat.format(categoriesBasedMap.get(category).get(yearsList.get(1))));
+                        } else {
+                            eachCategoryObj.put(key2, "0");
+                        }
                     } else {
                         eachCategoryObj.put(key1, "0");
-                    }
-
-                    if (categoriesBasedMap.get(category).containsKey(yearsList.get(1))) {
-                        eachCategoryObj.put(key2, categoriesBasedMap.get(category).get(yearsList.get(1)));
-                    } else {
                         eachCategoryObj.put(key2, "0");
                     }
-                } else {
-                    eachCategoryObj.put(key1, "0");
-                    eachCategoryObj.put(key2, "0");
                 }
                 finalValuesArray.put(eachCategoryObj);
             }
 
             JSONArray yearsJsonArray = new JSONArray();
-
             yearsJsonArray.put(yearsList.get(0));
             yearsJsonArray.put(yearsList.get(1));
 
@@ -1482,14 +1491,15 @@ public class JSONUtil {
             Map<String, HashMap<String, HashMap<String, Double>>> modesMap = new LinkedHashMap<>();
             ArrayList<String> modesList = new ArrayList<>();
             ArrayList<String> quatersList = new ArrayList<>();
-            Map<String, Double> quaterlyWiseSpend = new HashMap<String, Double>();
+            Map<String, Double> quarterlySpend = new HashMap<String, Double>();
+            Map<String, Integer> quarterlyTotalShipment = new HashMap<String, Integer>();
 
             for (AnnualSummaryDto annualSummary : annualSummaryList) {
                 if (annualSummary != null) {
                     String quater = annualSummary.getQuarter();
                     String mode = annualSummary.getModes();
-                    double spend = annualSummary.getSpend();
-                    double noOfShipments = annualSummary.getNoOfShipments();
+                    double spend = (null == annualSummary.getSpend() ? 0 : annualSummary.getSpend());
+                    double noOfShipments = (null == annualSummary.getNoOfShipments() ? 0 : annualSummary.getNoOfShipments());
 
                     if (!modesList.contains(mode)) {
                         modesList.add(mode);
@@ -1530,12 +1540,20 @@ public class JSONUtil {
                         modesMap.put(mode, quatersWiseMap);
                     }
 
-                    if (quaterlyWiseSpend.containsKey(quater)) {
-                        double totalSpend = quaterlyWiseSpend.get(quater);
+                    if (quarterlySpend.containsKey(quater)) {
+                        double totalSpend = quarterlySpend.get(quater);
                         totalSpend += spend;
-                        quaterlyWiseSpend.put(quater, totalSpend);
+                        quarterlySpend.put(quater, totalSpend);
                     } else {
-                        quaterlyWiseSpend.put(quater, spend);
+                        quarterlySpend.put(quater, spend);
+                    }
+
+                    if(quarterlyTotalShipment.containsKey(quater)){
+                        Integer totalShipment = quarterlyTotalShipment.get(quater);
+                        totalShipment += annualSummary.getNoOfShipments();
+                        quarterlyTotalShipment.put(quater, totalShipment);
+                    }else{
+                        quarterlyTotalShipment.put(quater, (null == annualSummary.getNoOfShipments() ? 0 : annualSummary.getNoOfShipments()));
                     }
                 }
             }
@@ -1556,9 +1574,9 @@ public class JSONUtil {
                         quaterInnerDataObj.put("spend", commaSeperatedDecimalFormat.format(eachQuaterData.get("spend")));
                         quaterInnerDataObj.put("noOfShipments", eachQuaterData.get("noOfShipments"));
                         quaterInnerDataObj.put("total", commaSeperatedDecimalFormat.format(eachQuaterData.get("total")));
-                        if (quaterlyWiseSpend.containsKey(quater)) {
+                        if (quarterlySpend.containsKey(quater)) {
                             quaterInnerDataObj.put("perc",
-                                    commaSeperatedDecimalFormat.format(quaterlyWiseSpend.get(quater) != 0 ? (eachQuaterData.get("spend") / quaterlyWiseSpend.get(quater)) * 100 : 0) + "%");
+                                    commaSeperatedDecimalFormat.format(quarterlySpend.get(quater) != 0 ? (eachQuaterData.get("spend") / quarterlySpend.get(quater)) * 100 : 0) + "%");
                         } else {
                             quaterInnerDataObj.put("perc", "0%");
                         }
@@ -1575,11 +1593,29 @@ public class JSONUtil {
                 modesArray.put(modeWiseDataObj);
             }
 
+            JSONObject quartersJson = new JSONObject();
+            for(Map.Entry<String, Double> spendMap : quarterlySpend.entrySet()){
+                if(spendMap != null){
+                    JSONObject total = new JSONObject();
+                    Double totalSpend = spendMap.getValue();
+                    Integer totalShipment = quarterlyTotalShipment.get(spendMap.getKey());
+                    total.put("spend", commaSeperatedDecimalFormat.format(totalSpend));
+                    total.put("noOfShipments", totalShipment);
+                    total.put("perc", "");
+                    total.put("total", totalShipment != null && totalShipment != 0 ? commaSeperatedDecimalFormat.format(totalSpend / totalShipment) : "0");
+                    quartersJson.put(spendMap.getKey(), total);
+                }
+            }
+            JSONObject totalSpendJson = new JSONObject();
+            totalSpendJson.put("Total", new JSONObject().put("quaters", quartersJson));
+            if(modesArray != null){
+                modesArray.put(totalSpendJson);
+            }
             JSONArray quatersArray = new JSONArray();
-
             for (String quater : quatersList) {
                 quatersArray.put(quater);
             }
+
             finalObject.put("modes", modesArray);
             finalObject.put("quaters", quatersArray);
             returnJson.put("values", finalObject);
@@ -1594,6 +1630,7 @@ public class JSONUtil {
             ArrayList<String> servicesList = new ArrayList<>();
             ArrayList<String> quatersList = new ArrayList<>();
             Map<String, Double> quaterlyWiseSpend = new HashMap<String, Double>();
+            Map<String, Integer> quarterlyTotalShipment = new HashMap<String, Integer>();
 
             for (AnnualSummaryDto annualSummary : annualSummaryList) {
                 if (annualSummary != null) {
@@ -1647,6 +1684,14 @@ public class JSONUtil {
                     } else {
                         quaterlyWiseSpend.put(quater, spend);
                     }
+
+                    if(quarterlyTotalShipment.containsKey(quater)){
+                        Integer totalShipment = quarterlyTotalShipment.get(quater);
+                        totalShipment += annualSummary.getNoOfShipments();
+                        quarterlyTotalShipment.put(quater, totalShipment);
+                    }else{
+                        quarterlyTotalShipment.put(quater, (null == annualSummary.getNoOfShipments() ? 0 : annualSummary.getNoOfShipments()));
+                    }
                 }
             }
 
@@ -1681,6 +1726,25 @@ public class JSONUtil {
                 servicesArray.put(serviceWiseDataObj);
             }
 
+            JSONObject quartersJson = new JSONObject();
+            for(Map.Entry<String, Double> spendMap : quaterlyWiseSpend.entrySet()){
+                if(spendMap != null){
+                    JSONObject total = new JSONObject();
+                    Double totalSpend = spendMap.getValue();
+                    Integer totalShipment = quarterlyTotalShipment.get(spendMap.getKey());
+                    total.put("spend", commaSeperatedDecimalFormat.format(totalSpend));
+                    total.put("noOfShipments", totalShipment);
+                    total.put("perc", "");
+                    total.put("total", totalShipment != null && totalShipment != 0 ? commaSeperatedDecimalFormat.format(totalSpend / totalShipment) : "0");
+                    quartersJson.put(spendMap.getKey(), total);
+                }
+            }
+            JSONObject totalSpendJson = new JSONObject();
+            totalSpendJson.put("Total", new JSONObject().put("quaters", quartersJson));
+            if(servicesArray != null){
+                servicesArray.put(totalSpendJson);
+            }
+
             JSONArray quatersArray = new JSONArray();
             for (String quater : quatersList) {
                 quatersArray.put(quater);
@@ -1699,6 +1763,7 @@ public class JSONUtil {
             Map<String, HashMap<String, HashMap<String, Double>>> modesMap = new LinkedHashMap<>();
             List<String> modesList = new ArrayList<String>();
             List<String> monthsList = new ArrayList<String>();
+            Map<String, Double> monthlyTotalSpend = new HashMap<String, Double>();
 
             for (MonthlySpendByModeDto monthlySpend : monthlySpendList) {
                 if (monthlySpend != null) {
@@ -1730,6 +1795,14 @@ public class JSONUtil {
                         monthsWiseMap.put(month, eachMonthData);
                         modesMap.put(mode, monthsWiseMap);
                     }
+
+                    if (monthlyTotalSpend.containsKey(month)) {
+                        double totalSpend = monthlyTotalSpend.get(month);
+                        totalSpend += spend;
+                        monthlyTotalSpend.put(month, totalSpend);
+                    } else {
+                        monthlyTotalSpend.put(month, spend);
+                    }
                 }
             }
 
@@ -1748,6 +1821,17 @@ public class JSONUtil {
                     modeWiseDataObj.put(month, spend);
                 }
                 modesArray.put(modeWiseDataObj);
+            }
+
+            if(modesArray != null){
+                JSONObject totalMonthlyJson = new JSONObject();
+                for(Map.Entry<String, Double> monthlyMap : monthlyTotalSpend.entrySet()){
+                    if(monthlyMap != null){
+                        totalMonthlyJson.put(monthlyMap.getKey(), commaSeperatedDecimalFormat.format(monthlyMap.getValue()));
+                    }
+                }
+                totalMonthlyJson.put("name", "Total");
+                modesArray.put(totalMonthlyJson);
             }
 
             JSONArray monthsArray = new JSONArray();
@@ -1769,33 +1853,42 @@ public class JSONUtil {
             Map<String, HashMap<String, HashMap<String, Double>>> servicesMap = new LinkedHashMap<>();
             List<String> servicesList = new ArrayList<>();
             List<String> quatersList = new ArrayList<>();
+            Map<String, Double> monthlyTotalSpend = new HashMap<String, Double>();
 
             for (MonthlySpendByModeDto monthlySpend : monthlySpendList) {
                 if (monthlySpend != null) {
-                    String quater = monthlySpend.getMonth();
+                    String month = monthlySpend.getMonth();
                     String service = monthlySpend.getService();
                     double spend = monthlySpend.getSpend();
 
                     if (!servicesList.contains(service)) {
                         servicesList.add(service);
                     }
-                    if (!quatersList.contains(quater)) {
-                        quatersList.add(quater);
+                    if (!quatersList.contains(month)) {
+                        quatersList.add(month);
                     }
 
                     if (servicesMap.containsKey(service)) {
                         HashMap<String, HashMap<String, Double>> servicesDataMap = servicesMap.get(service);
-                        if (!servicesDataMap.containsKey(quater)) {
+                        if (!servicesDataMap.containsKey(month)) {
                             HashMap<String, Double> eachQuaterData = new HashMap<>();
                             eachQuaterData.put("spend", spend);
-                            servicesDataMap.put(quater, eachQuaterData);
+                            servicesDataMap.put(month, eachQuaterData);
                         }
                     } else {
                         HashMap<String, HashMap<String, Double>> quatersWiseMap = new HashMap<>();
                         HashMap<String, Double> eachQuaterData = new HashMap<>();
                         eachQuaterData.put("spend", spend);
-                        quatersWiseMap.put(quater, eachQuaterData);
+                        quatersWiseMap.put(month, eachQuaterData);
                         servicesMap.put(service, quatersWiseMap);
+                    }
+
+                    if (monthlyTotalSpend.containsKey(month)) {
+                        double totalSpend = monthlyTotalSpend.get(month);
+                        totalSpend += spend;
+                        monthlyTotalSpend.put(month, totalSpend);
+                    } else {
+                        monthlyTotalSpend.put(month, spend);
                     }
                 }
             }
@@ -1816,6 +1909,17 @@ public class JSONUtil {
                 servicesArray.put(serviceWiseDataObj);
             }
 
+            if(servicesArray != null){
+                JSONObject totalMonthlyJson = new JSONObject();
+                for(Map.Entry<String, Double> monthlyMap : monthlyTotalSpend.entrySet()){
+                    if(monthlyMap != null){
+                        totalMonthlyJson.put(monthlyMap.getKey(), commaSeperatedDecimalFormat.format(monthlyMap.getValue()));
+                    }
+                }
+                totalMonthlyJson.put("name", "Total");
+                servicesArray.put(totalMonthlyJson);
+            }
+
             JSONArray quatersArray = new JSONArray();
             for (String quater : quatersList) {
                 quatersArray.put(quater);
@@ -1827,6 +1931,201 @@ public class JSONUtil {
             returnJson.put("values", finalObject);
         }
         return returnJson;
+    }
+
+    public static JSONArray prepareExportReportDataJson ( List<DashboardReportDto> reportDataList , JSONArray reportColumnDetails ) throws Exception  {
+        JSONArray  finalJsonArray  = new JSONArray();
+        int counter = 0;
+        for (DashboardReportDto reportData : reportDataList) {
+            JSONArray  eachRowInfoArray  = new JSONArray();
+            for ( int i =0 ; i< reportColumnDetails.length() ; i++ ) {
+
+                JSONObject eachColumnData = new JSONObject();
+                JSONObject columnInfo = reportColumnDetails.getJSONObject(i);
+                String selectClause = columnInfo.getString("selectClause");
+
+                if ( counter == 0 ) {
+                    eachColumnData.put("header", columnInfo.getString("header"));
+                    eachColumnData.put("format", columnInfo.getString("format"));
+                    eachColumnData.put("dataType", columnInfo.getString("dataType"));
+                }
+
+                switch (selectClause.toUpperCase()) {
+                    case "CARRIER_NAME":
+                        eachColumnData.put("value", reportData.getCarrierName());
+                        break;
+                    case "INVOICE_NUMBER":
+                        eachColumnData.put("value", reportData.getInvoiceNumber());
+                        break;
+                    case "PRO_NUMBER":
+                        eachColumnData.put("value", reportData.getProNumber());
+                        break;
+                    case "BOL_NUMBER":
+                        eachColumnData.put("value", reportData.getBolNumber());
+                        break;
+                    case "BILL_OPTION":
+                        eachColumnData.put("value", reportData.getBillOption());
+                        break;
+                    case "BILL_DATE":
+                        eachColumnData.put("value", reportData.getBillDate());
+                        break;
+                    case "SHIP_DATE":
+                        eachColumnData.put("value", reportData.getShipDate());
+                        break;
+                    case "DELIVERY_DATE":
+                        eachColumnData.put("value", reportData.getDeliveryDate());
+                        break;
+                    case "INVOICE_MODE":
+                        eachColumnData.put("value", reportData.getInvoiceNumber());
+                        break;
+                    case "INVOICE_METHOD":
+                        eachColumnData.put("value", reportData.getInvoiceMethod());
+                        break;
+                    case "GL_ACCOUNTS_CODE":
+                        eachColumnData.put("value", reportData.getGlAccountCode());
+                        break;
+                    case "PO_NUMBER":
+                        eachColumnData.put("value", reportData.getPoNumber());
+                        break;
+                    case "REFERENCE1":
+                        eachColumnData.put("value", reportData.getReference1());
+                        break;
+                    case "REFERENCE2":
+                        eachColumnData.put("value", reportData.getReference2());
+                        break;
+                    case "SCAC_CODE":
+                        eachColumnData.put("value", reportData.getScacCode());
+                        break;
+                    case "SHIPPER_NAME":
+                        eachColumnData.put("value", reportData.getShipperName());
+                        break;
+                    case "SHIPPER_ADDRESS_1":
+                        eachColumnData.put("value", reportData.getShipperAddress1());
+                        break;
+                    case "SHIPPER_CITY":
+                        eachColumnData.put("value", reportData.getShipperCity());
+                        break;
+                    case "SHIPPER_STATE":
+                        eachColumnData.put("value", reportData.getShipperState());
+                        break;
+                    case "SHIPPER_ZIPCODE":
+                        eachColumnData.put("value", reportData.getShipperZipCode());
+                        break;
+                    case "SHIPPER_COUNTRY":
+                        eachColumnData.put("value", reportData.getShipperCountry());
+                        break;
+                    case "RECEIVER_NAME":
+                        eachColumnData.put("value", reportData.getReceiverName());
+                        break;
+                    case "RECEIVER_ADDRESS_1":
+                        eachColumnData.put("value", reportData.getReceiverAddress1());
+                        break;
+                    case "RECEIVER_CITY":
+                        eachColumnData.put("value", reportData.getReceiverCity());
+                        break;
+                    case "RECEIVER_STATE":
+                        eachColumnData.put("value", reportData.getReceiverState());
+                        break;
+                    case "RECEIVER_ZIPCODE":
+                        eachColumnData.put("value", reportData.getReceiverZipCode());
+                        break;
+                    case "RECEIVER_COUNTRY":
+                        eachColumnData.put("value", reportData.getReceiverCountry());
+                        break;
+                    case "TOTAL_WEIGHT":
+                        eachColumnData.put("value", reportData.getTotalWeight());
+                        break;
+                    case "TOTAL_CHARGES":
+                        eachColumnData.put("value", reportData.getTotalCharges());
+                        break;
+                    case "LINE_HAUL":
+                        eachColumnData.put("value", reportData.getLineHaul());
+                        break;
+                    case "FUEL_SURCHARGE":
+                        eachColumnData.put("value", reportData.getFuelCharges());
+                        break;
+                    case "DISCOUNT":
+                        eachColumnData.put("value", reportData.getDiscount());
+                        break;
+                    case "ACCESSORIALS":
+                        eachColumnData.put("value", reportData.getAccessorial());
+                        break;
+                    case "ADJUSTMENTS":
+                        eachColumnData.put("value", reportData.getAdjustments());
+                        break;
+                    case "TOTAL_DUE_AMOUNT":
+                        eachColumnData.put("value", reportData.getTotalDueAmount());
+                        break;
+                    case "INVOICE_STATUS":
+                        eachColumnData.put("value", reportData.getInvoiceStatus());
+                        break;
+                    case "CHECK_NO":
+                        eachColumnData.put("value", reportData.getCheckNumber());
+                        break;
+                    case "CHECK_DATE":
+                        eachColumnData.put("value", reportData.getCheckDate());
+                        break;
+                    case "CHECK_AMOUNT":
+                        eachColumnData.put("value", reportData.getCheckAmount());
+                        break;
+                    case "ADJUSTMENT_REASON":
+                        eachColumnData.put("value", reportData.getAdjustmentReason());
+                        break;
+                    case "SHIPPER_REGION":
+                        eachColumnData.put("value", reportData.getShipperRegion());
+                        break;
+                    case "RECEIVER_REGION":
+                        eachColumnData.put("value", reportData.getReceiverRegion());
+                        break;
+                    case "MULTI_WT":
+                        eachColumnData.put("value", reportData.getMultiWeight());
+                        break;
+                    case "SERVICE_LEVEL":
+                        eachColumnData.put("value", reportData.getServiceLevel());
+                        break;
+                    case "DELIVERY_FLAG":
+                        eachColumnData.put("value", reportData.getDeliveryFlag());
+                        break;
+                    case "CUSTOM_DEFINED_1":
+                        eachColumnData.put("value", reportData.getCustomDefined1());
+                        break;
+                    case "CUSTOM_DEFINED_2":
+                        eachColumnData.put("value", reportData.getCustomDefined2());
+                        break;
+                    case "CUSTOM_DEFINED_3":
+                        eachColumnData.put("value", reportData.getCustomDefined3());
+                        break;
+                    case "CUSTOM_DEFINED_4":
+                        eachColumnData.put("value", reportData.getCustomDefined4());
+                        break;
+                    case "CUSTOM_DEFINED_5":
+                        eachColumnData.put("value", reportData.getCustomDefined5());
+                        break;
+                    case "CUSTOM_DEFINED_6":
+                        eachColumnData.put("value", reportData.getCustomDefined6());
+                        break;
+                    case "CUSTOM_DEFINED_7":
+                        eachColumnData.put("value", reportData.getCustomDefined7());
+                        break;
+                    case "CUSTOM_DEFINED_8":
+                        eachColumnData.put("value", reportData.getCustomDefined8());
+                        break;
+                    case "CUSTOM_DEFINED_9":
+                        eachColumnData.put("value", reportData.getCustomDefined9());
+                        break;
+                    case "CUSTOM_DEFINED_10":
+                        eachColumnData.put("value", reportData.getCustomDefined10());
+                        break;
+                }
+                eachRowInfoArray.put(eachColumnData);
+
+            }
+            counter++;
+            finalJsonArray.put(eachRowInfoArray);
+        }
+
+
+        return finalJsonArray;
     }
 
     public static JSONArray prepareDashboardReportJson(List<DashboardReportDto> reportDataList, Map<String, String> resultColumn) throws JSONException {
@@ -2556,6 +2855,106 @@ public class JSONUtil {
         finalObject.put("nodesData", nodesArray);
         finalObject.put("countryWisePercentage", countryWisePercentArray);
         return finalObject;
+    }
+
+    public static JSONObject prepareJsonForAverageChartByWeekly(List<CommonWeekChartDto> weekChartList) throws JSONException {
+        JSONObject returnJson = new JSONObject();
+        JSONArray returnArray = new JSONArray();
+        int count = 0;
+        String fromDate = null;
+        String toDate = null;
+        double totalAmount = 0;
+        long totalCount = 0;
+        int previousWeekNo = 0;
+        String previousWeekLastDay = null;
+        DecimalFormat decimalformat = new DecimalFormat("##.##");
+
+        for (CommonWeekChartDto weekChart : weekChartList) {
+            if (weekChart != null) {
+                JSONArray dataArray = new JSONArray();
+                String date = DateUtil.format(weekChart.getBillDate(), "yyyy-MM-dd");
+                int currentWeekNo = weekChart.getWeekNumber();
+                if (count == 0) {
+                    previousWeekNo = currentWeekNo;
+                }
+                dataArray.put(date);
+                dataArray.put(0);
+                returnArray.put(dataArray);
+
+                if (previousWeekNo == currentWeekNo) {
+                    totalAmount = totalAmount + weekChart.getAmount();
+                    totalCount = totalCount + weekChart.getCount();
+                } else {
+                    previousWeekNo = currentWeekNo;
+                    returnArray.getJSONArray(count - 1).put(0, previousWeekLastDay);
+                    returnArray.getJSONArray(count - 1).put(1, decimalformat.format(totalAmount / totalCount));
+
+                    totalAmount = weekChart.getAmount();
+                    totalCount = weekChart.getCount();
+
+                }
+                previousWeekLastDay = date;
+                if (count == 0) {
+                    fromDate = date;
+                }
+                toDate = date;
+                dataArray = null;
+                count++;
+            }
+        }
+        if (returnArray.length() > 0) {
+            returnArray.getJSONArray(count - 1).put(0, previousWeekLastDay);
+            returnArray.getJSONArray(count - 1).put(1, totalCount != 0 ? decimalformat.format(totalAmount / totalCount) : 0);
+        }
+        returnJson.put("values", returnArray);
+        returnJson.put("fromDate", fromDate);
+        returnJson.put("toDate", toDate);
+        return returnJson;
+    }
+
+    public static JSONObject prepareJsonForAverageChartByPeriod(List<CommonPeriodChartDto> commonPeriodChartList, String unit) throws JSONException {
+        JSONObject returnJson = new JSONObject();
+        JSONArray returnArray = new JSONArray();
+        int count = 0;
+        String fromDate = null;
+        String toDate = null;
+        double totalAmount =0;
+        long totalCount =0;
+        DecimalFormat decimalformat =new DecimalFormat("##.##");
+
+        if (commonPeriodChartList != null && !commonPeriodChartList.isEmpty()) {
+            for (CommonPeriodChartDto periodChart : commonPeriodChartList) {
+                if (periodChart != null) {
+                    totalAmount = totalAmount + periodChart.getAmount();
+                    totalCount = totalCount + periodChart.getCount();
+                    JSONArray dataArray = new JSONArray();
+                    String date = DateUtil.format(periodChart.getBillDate(), "yyyy-MM-dd");
+                    dataArray.put(date);
+                    if (unit.equalsIgnoreCase("day")) {
+                        dataArray.put(decimalformat.format(null == periodChart.getAverageAmount() ? 0d : periodChart.getAverageAmount()));
+                    } else {
+                        dataArray.put(0);
+                    }
+                    returnArray.put(dataArray);
+                    if (count == 0) {
+                        fromDate = date;
+                    }
+                    toDate = date;
+                    dataArray = null;
+                    count++;
+                }
+
+                if (!unit.equalsIgnoreCase("day") && returnArray.length() > 0) {
+                    returnArray.getJSONArray(0).put(0, fromDate);
+                    returnArray.getJSONArray(0).put(1, totalCount != 0 ? decimalformat.format(totalAmount / totalCount) : 0);
+                }
+
+                returnJson.put("values", returnArray);
+                returnJson.put("fromDate", fromDate);
+                returnJson.put("toDate", toDate);
+            }
+        }
+        return returnJson;
     }
 }
 

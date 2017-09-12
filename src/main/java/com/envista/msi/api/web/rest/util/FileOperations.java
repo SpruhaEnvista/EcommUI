@@ -4,6 +4,7 @@ import com.envista.msi.api.web.rest.dto.invoicing.CreditResponseDto;
 import com.envista.msi.api.web.rest.dto.invoicing.CreditsPRDto;
 import com.envista.msi.api.web.rest.dto.invoicing.CustomOmitsDto;
 import com.envista.msi.api.web.rest.dto.invoicing.VoiceDto;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
@@ -39,6 +40,9 @@ public class FileOperations {
     private static final String MIME_TYPE = "application/text";
 
     String fileNameForXLSX="";
+    String fileNameForCSV="";
+    FileWriter writer = null;
+    final String COMMA_SEPARATOR=",";
 
     public static void main(String[] args) throws IOException {
 
@@ -119,7 +123,8 @@ public class FileOperations {
     public void exportVoices(String exportType, List<VoiceDto> voiceDtos,HttpServletResponse response) throws IOException {
         LOG.info("***exportVoices method started****");
 
-        FileOutputStream out = null;
+        FileOutputStream fOut = null;
+        BufferedOutputStream bOut=null;
         String filePath = getFileServerAbsolutePath("Invoicing");
         File dir=new File(filePath);
         if (!dir.exists())
@@ -141,7 +146,7 @@ public class FileOperations {
                         voiceDto.getVoiceName() != null?voiceDto.getVoiceName().toString():"",
                         voiceDto.getVoiceType() != null?voiceDto.getVoiceType().toString():"",
                         voiceDto.getParentVoiceName() != null?voiceDto.getParentVoiceName().toString():"",
-                        voiceDto.getComments() != null?voiceDto.getComments().toString():""
+                        voiceDto.getComments() != null? voiceDto.getComments().toString():""
                 });
             }
 
@@ -161,10 +166,11 @@ public class FileOperations {
                 fileNameForXLSX=filePath+"/VoicesXLSX_"+new SimpleDateFormat("yyyyMMddhhmmss").format(InvoicingUtilities.getCurrentTimeStamp())+".xlsx";
 
                 if(exportType.equalsIgnoreCase("XLSX")){
-                    out = new FileOutputStream(new File(fileNameForXLSX),false);
+                    fOut=new FileOutputStream(new File(fileNameForXLSX));
+                    bOut=new BufferedOutputStream(fOut);
                     LOG.info("***" +fileNameForXLSX+" File Created *** ");
                 }
-                workbook.write(out);
+                workbook.write(bOut);
                 fileDownloadFromServer(response,new File(fileNameForXLSX));
             }
             catch (Exception e)
@@ -173,9 +179,46 @@ public class FileOperations {
                 e.printStackTrace();
             }
             finally{
-                out.close();
+                fOut.close();
+                bOut.close();
 
             }
+        }else if(exportType.equalsIgnoreCase("CSV")){
+            LOG.info("***Voices CSV type export****");
+            try {
+                fileNameForCSV=filePath+"/VoicesCSV_"+new SimpleDateFormat("yyyyMMddhhmmss").format(InvoicingUtilities.getCurrentTimeStamp())+".csv" ;
+                writer = new FileWriter(fileNameForCSV,false);
+                writer.append("VOICE ID");
+                writer.append(COMMA_SEPARATOR);
+                writer.append("VOICE NAME");
+                writer.append(COMMA_SEPARATOR);
+                writer.append("VOICE TYPE");
+                writer.append(COMMA_SEPARATOR);
+                writer.append("PARENT VOICE NAME");
+                writer.append(COMMA_SEPARATOR);
+                writer.append("COMMENTS");
+                writer.append('\n');
+                for(VoiceDto voiceDto:voiceDtos){
+                    writer.append(voiceDto.getVoiceId() != null?voiceDto.getVoiceId().toString().trim():"");
+                    writer.append(COMMA_SEPARATOR);
+                    writer.append(voiceDto.getVoiceName() != null?StringEscapeUtils.escapeCsv(voiceDto.getVoiceName().toString()):"");
+                    writer.append(COMMA_SEPARATOR);
+                    writer.append(voiceDto.getVoiceType() !=null?StringEscapeUtils.escapeCsv(voiceDto.getVoiceType().toString()):"");
+                    writer.append(COMMA_SEPARATOR);
+                    writer.append(voiceDto.getParentVoiceName() != null?StringEscapeUtils.escapeCsv(voiceDto.getParentVoiceName().toString().trim()):"");
+                    writer.append(COMMA_SEPARATOR);
+                    writer.append( voiceDto.getComments() != null? StringEscapeUtils.escapeCsv(voiceDto.getComments().toString().trim()):"");
+                    writer.append('\n');
+                }
+            }catch(Exception e){
+                LOG.error("***Exception Occurred in the exportVoices CSV export ***");
+                e.printStackTrace();
+            }finally{
+                writer.flush();
+                writer.close();
+                fileDownloadFromServer(response,new File(fileNameForCSV));
+            }
+
         }
 
     }
@@ -186,7 +229,9 @@ public class FileOperations {
     public void exportCustomOmits(String exportType,List<CustomOmitsDto> customOmitsDtos,HttpServletResponse response) throws IOException {
         LOG.info("***exportCustomOmits method started****");
 
-        FileOutputStream out = null;
+        FileOutputStream fOut = null;
+        BufferedOutputStream bOut=null;
+
         String filePath = getFileServerAbsolutePath("Invoicing");
         File dir=new File(filePath);
         if (!dir.exists())
@@ -230,10 +275,11 @@ public class FileOperations {
                 fileNameForXLSX=filePath+"/CustomOmitsXLSX_"+new SimpleDateFormat("yyyyMMddhhmmss").format(InvoicingUtilities.getCurrentTimeStamp())+".xlsx";
 
                 if(exportType.equalsIgnoreCase("XLSX")){
-                    out = new FileOutputStream(new File(fileNameForXLSX),false);
+                    fOut=new FileOutputStream(new File(fileNameForXLSX));
+                    bOut=new BufferedOutputStream(fOut);
                     LOG.info("***" +fileNameForXLSX+" File Created *** ");
                 }
-                workbook.write(out);
+                workbook.write(bOut);
                 fileDownloadFromServer(response,new File(fileNameForXLSX));
             }
             catch (Exception e)
@@ -242,10 +288,53 @@ public class FileOperations {
                 e.printStackTrace();
             }
             finally{
-                out.close();
+                fOut.close();
+                bOut.close();
+            }
+        }else if(exportType.equalsIgnoreCase("CSV")){
+            LOG.info("***CustomOmits CSV type export****");
+            try {
+                fileNameForCSV=filePath+"/CustomOmitsCSV_"+new SimpleDateFormat("yyyyMMddhhmmss").format(InvoicingUtilities.getCurrentTimeStamp())+".csv";
+                writer = new FileWriter(fileNameForCSV,false);
+                writer.append("CUSTOM OMIT ID");
+                writer.append(COMMA_SEPARATOR);
+                writer.append("TRACKING NUMBER");
+                writer.append(COMMA_SEPARATOR);
+                writer.append("CUSTOMER");
+                writer.append(COMMA_SEPARATOR);
+                writer.append("CREDIT TYPE");
+                writer.append(COMMA_SEPARATOR);
+                writer.append("CARRIER");
+                writer.append(COMMA_SEPARATOR);
+                writer.append("EXPIRY DATE");
+                writer.append(COMMA_SEPARATOR);
+                writer.append("COMMENTS");
+                writer.append('\n');
+                for(CustomOmitsDto customOmitsDto:customOmitsDtos){
+                    writer.append(customOmitsDto.getCustomOmitsId() != null?customOmitsDto.getCustomOmitsId().toString():"");
+                    writer.append(COMMA_SEPARATOR);
+                    writer.append(customOmitsDto.getTrackingNumber() != null?StringEscapeUtils.escapeCsv(customOmitsDto.getTrackingNumber().toString()):"");
+                    writer.append(COMMA_SEPARATOR);
+                    writer.append(customOmitsDto.getCustomerName() != null?StringEscapeUtils.escapeCsv(customOmitsDto.getCustomerName().toString()):"");
+                    writer.append(COMMA_SEPARATOR);
+                    writer.append(customOmitsDto.getCreditType() != null?StringEscapeUtils.escapeCsv(customOmitsDto.getCreditType().toString()):"");
+                    writer.append(COMMA_SEPARATOR);
+                    writer.append( customOmitsDto.getCarrierName() != null?StringEscapeUtils.escapeCsv(customOmitsDto.getCarrierName().toString()):"");
+                    writer.append(COMMA_SEPARATOR);
+                    writer.append(customOmitsDto.getExpiryDate() != null?StringEscapeUtils.escapeCsv(customOmitsDto.getExpiryDate().toString()):"");
+                    writer.append(COMMA_SEPARATOR);
+                    writer.append(customOmitsDto.getComments() != null?StringEscapeUtils.escapeCsv(customOmitsDto.getComments().toString()):"");
+                    writer.append('\n');
+                }
+            }catch(Exception e){
+                LOG.error("***Exception Occurred in the exportCustomOmits CSV export ***");
+                e.printStackTrace();
+            }finally{
+                writer.flush();
+                writer.close();
+                fileDownloadFromServer(response,new File(fileNameForCSV));
             }
         }
-
     }
 
     /*
@@ -254,7 +343,8 @@ public class FileOperations {
     public void exportPendingCredits(String exportType,List<CreditsPRDto> pendingCreditsDtos,HttpServletResponse response) throws IOException {
         LOG.info("***exportPendingCredits method started****");
 
-        FileOutputStream out = null;
+        FileOutputStream fOut = null;
+        BufferedOutputStream bOut=null;
         String filePath = getFileServerAbsolutePath("Invoicing");
         File dir=new File(filePath);
         if (!dir.exists())
@@ -306,10 +396,11 @@ public class FileOperations {
                 fileNameForXLSX=filePath+"/PendingCreditsXLSX_"+new SimpleDateFormat("yyyyMMddhhmmss").format(InvoicingUtilities.getCurrentTimeStamp())+".xlsx";
 
                 if(exportType.equalsIgnoreCase("XLSX")){
-                    out = new FileOutputStream(new File(fileNameForXLSX),false);
+                    fOut=new FileOutputStream(new File(fileNameForXLSX));
+                    bOut=new BufferedOutputStream(fOut);
                     LOG.info("***" +fileNameForXLSX+" File Created ***");
                 }
-                workbook.write(out);
+                workbook.write(bOut);
                 fileDownloadFromServer(response,new File(fileNameForXLSX));
 
             }
@@ -319,7 +410,83 @@ public class FileOperations {
                 e.printStackTrace();
             }
             finally{
-                out.close();
+                fOut.close();
+                bOut.close();
+            }
+        }else if(exportType.equalsIgnoreCase("CSV")){
+            LOG.info("***PendingCredits CSV type export****");
+            try {
+                fileNameForCSV=filePath+ "/PendingCreditsCSV_"+new SimpleDateFormat("yyyyMMddhhmmss").format(InvoicingUtilities.getCurrentTimeStamp())+".csv" ;
+                writer = new FileWriter(fileNameForCSV,false);
+                writer.append("CUSTOMER CODE");
+                writer.append(COMMA_SEPARATOR);
+                writer.append("CARRIER");
+                writer.append(COMMA_SEPARATOR);
+                writer.append("TRACKING NUMBER");
+                writer.append(COMMA_SEPARATOR);
+                writer.append("SHIPPER NUMBER");
+                writer.append(COMMA_SEPARATOR);
+                writer.append("INVOICE NUMBER");
+                writer.append(COMMA_SEPARATOR);
+                writer.append("INVOICE DATE");
+                writer.append(COMMA_SEPARATOR);
+                writer.append("SHIP FROM");
+                writer.append(COMMA_SEPARATOR);
+                writer.append("SHIP TO");
+                writer.append(COMMA_SEPARATOR);
+                writer.append("REFERENCE NUMBER");
+                writer.append(COMMA_SEPARATOR);
+                writer.append("REASON");
+                writer.append(COMMA_SEPARATOR);
+                writer.append("WEEK END DATE");
+                writer.append(COMMA_SEPARATOR);
+                writer.append("CREDIT AMOUNT");
+                writer.append(COMMA_SEPARATOR);
+                writer.append("OMIT FLAG");
+                writer.append(COMMA_SEPARATOR);
+                writer.append("REVIEW FLAG");
+                writer.append(COMMA_SEPARATOR);
+                writer.append("COMMENTS");
+                writer.append('\n');
+                for(CreditsPRDto pendingCreditsDto:pendingCreditsDtos){
+                    writer.append(pendingCreditsDto.getCustomerCode() != null?StringEscapeUtils.escapeCsv(pendingCreditsDto.getCustomerCode()):"");
+                    writer.append(COMMA_SEPARATOR);
+                    writer.append(pendingCreditsDto.getCarrierName() != null?StringEscapeUtils.escapeCsv(pendingCreditsDto.getCarrierName().toString()):"");
+                    writer.append(COMMA_SEPARATOR);
+                    writer.append(pendingCreditsDto.getTrackingNumber() != null?StringEscapeUtils.escapeCsv(pendingCreditsDto.getTrackingNumber().toString()):"");
+                    writer.append(COMMA_SEPARATOR);
+                    writer.append(pendingCreditsDto.getShipperNumber() != null?StringEscapeUtils.escapeCsv(pendingCreditsDto.getShipperNumber().toString()):"");
+                    writer.append(COMMA_SEPARATOR);
+                    writer.append( pendingCreditsDto.getInvoiceNumber() != null?StringEscapeUtils.escapeCsv(pendingCreditsDto.getInvoiceNumber().toString()):"");
+                    writer.append(COMMA_SEPARATOR);
+                    writer.append(pendingCreditsDto.getInvoiceDate() != null?StringEscapeUtils.escapeCsv(pendingCreditsDto.getInvoiceDate().toString()):"");
+                    writer.append(COMMA_SEPARATOR);
+                    writer.append(pendingCreditsDto.getShipFrom() != null?StringEscapeUtils.escapeCsv(pendingCreditsDto.getShipFrom().toString()):"");
+                    writer.append(COMMA_SEPARATOR);
+                    writer.append(pendingCreditsDto.getShipTo() != null?StringEscapeUtils.escapeCsv(pendingCreditsDto.getShipTo().toString()):"");
+                    writer.append(COMMA_SEPARATOR);
+                    writer.append(pendingCreditsDto.getRefNumber() != null?StringEscapeUtils.escapeCsv(pendingCreditsDto.getRefNumber().toString()):"");
+                    writer.append(COMMA_SEPARATOR);
+                    writer.append(pendingCreditsDto.getReason() != null?StringEscapeUtils.escapeCsv(pendingCreditsDto.getReason().toString()):"");
+                    writer.append(COMMA_SEPARATOR);
+                    writer.append(pendingCreditsDto.getWeekEndDate() != null?StringEscapeUtils.escapeCsv(pendingCreditsDto.getWeekEndDate().toString()):"");
+                    writer.append(COMMA_SEPARATOR);
+                    writer.append(pendingCreditsDto.getCreditAmount() != null?StringEscapeUtils.escapeCsv(pendingCreditsDto.getCreditAmount().toString()):"");
+                    writer.append(COMMA_SEPARATOR);
+                    writer.append(pendingCreditsDto.getOmitFlag() != null?StringEscapeUtils.escapeCsv(pendingCreditsDto.getOmitFlag().toString()):"");
+                    writer.append(COMMA_SEPARATOR);
+                    writer.append(pendingCreditsDto.getReviewFlag() != null?StringEscapeUtils.escapeCsv(pendingCreditsDto.getReviewFlag()).toString():"");
+                    writer.append(COMMA_SEPARATOR);
+                    writer.append(pendingCreditsDto.getComments() != null?StringEscapeUtils.escapeCsv(pendingCreditsDto.getComments().toString()):"");
+                    writer.append('\n');
+                }
+            }catch(Exception e){
+                LOG.error("***Exception Occurred in the exportPendingCredits CSV export ***");
+                e.printStackTrace();
+            }finally{
+                writer.flush();
+                writer.close();
+                fileDownloadFromServer(response,new File(fileNameForCSV));
             }
         }
 
@@ -357,6 +524,7 @@ public class FileOperations {
         response.setHeader("Content-Disposition", "attachment; filename=" + file.getName());
         response.setHeader("Content-Length", String.valueOf(file.length()));
         FileCopyUtils.copy(in, response.getOutputStream());
+        in.close();
     }
 
 }
