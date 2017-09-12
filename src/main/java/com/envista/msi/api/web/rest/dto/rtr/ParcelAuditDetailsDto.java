@@ -175,6 +175,9 @@ public class ParcelAuditDetailsDto {
     @Column(name = "DW_FIELD_INFORMATION")
     private String dwFieldInformation;
 
+    @Column(name = "SHIPPER_NUMBER")
+    private String shipperNumber;
+
     public ParcelAuditDetailsDto() {
     }
 
@@ -476,6 +479,14 @@ public class ParcelAuditDetailsDto {
 
     public void setDwFieldInformation(String dwFieldInformation) {
         this.dwFieldInformation = dwFieldInformation;
+    }
+
+    public String getShipperNumber() {
+        return shipperNumber;
+    }
+
+    public void setShipperNumber(String shipperNumber) {
+        this.shipperNumber = shipperNumber;
     }
 
     public static class Config{
