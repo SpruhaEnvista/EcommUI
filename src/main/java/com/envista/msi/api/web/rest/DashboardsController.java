@@ -2298,24 +2298,13 @@ public class DashboardsController extends DashboardBaseController {
     }
 
     @RequestMapping(value = "/dashboardReport", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<PaginationBean> getDashboardReport(@RequestParam(required = false) String invoiceDate, @RequestParam(required = false) String dashletteName, @RequestParam(required = false) String carrierId,
-                                                             @RequestParam(required = false) String mode, @RequestParam(required = false) String carscoretype, @RequestParam(required = false) String service,
-                                                             @RequestParam(required = false, defaultValue = "0") Integer offset, @RequestParam(required = false, defaultValue = "20") Integer limit,
+    public ResponseEntity<PaginationBean> getDashboardReport(@RequestParam Map<String, Object> reqMap, @RequestParam(required = false, defaultValue = "0") Integer offset, @RequestParam(required = false, defaultValue = "20") Integer limit,
                                                              @RequestParam(required = false) String filter) throws Exception {
         PaginationBean reportPaginationData = new PaginationBean();
         UserProfileDto user = getUserProfile();
         DashboardsFilterCriteria appliedFilter = loadAppliedFilters(user.getUserId());
         if(appliedFilter != null){
-            if(invoiceDate != null && !invoiceDate.isEmpty()){
-                DashboardUtil.setDatesFromMonth(appliedFilter, invoiceDate);
-            }
-            appliedFilter.setDashletteName(dashletteName);
-            if(carrierId != null && !carrierId.isEmpty()){
-                appliedFilter.setCarriers(carrierId);
-            }
-            appliedFilter.setModeNames(mode);
-            appliedFilter.setScoreType(carscoretype);
-            appliedFilter.setService(service);
+            setReportRequestParamsValues(reqMap, appliedFilter);
             appliedFilter.setOffset(offset);
             appliedFilter.setPageSize(limit);
         }
@@ -2325,6 +2314,164 @@ public class DashboardsController extends DashboardBaseController {
             reportPaginationData = dashboardsService.getDashboardReportPaginationData(appliedFilter, offset, limit);
         }
         return ResponseEntity.status(HttpStatus.OK).body(reportPaginationData);
+    }
+
+    private void setReportRequestParamsValues(Map<String, Object> reqMap, DashboardsFilterCriteria appliedFilter) throws Exception {
+        if(reqMap != null){
+            if(reqMap.containsKey("mode") && reqMap.get("mode") != null){
+                Object modes = reqMap.get("mode");
+                if(modes != null){
+                    appliedFilter.setModeNames(modes.toString());
+                }
+            }
+
+            if(reqMap.containsKey("carscoretype")){
+                Object carScoreType = reqMap.get("carscoretype");
+                if(carScoreType != null){
+                    appliedFilter.setScoreType(carScoreType.toString());
+                }
+            }
+
+            if(reqMap.containsKey("service")){
+                Object service = reqMap.get("service");
+                if(service != null){
+                    appliedFilter.setService(service.toString());
+                }
+            }
+
+            if(reqMap.containsKey("carrierId")){
+                Object carrierId = reqMap.get("carrierId");
+                if(carrierId != null && !carrierId.toString().isEmpty()){
+                    appliedFilter.setCarriers(carrierId.toString());
+                }
+            }
+
+            if(reqMap.containsKey("invoiceDate")){
+                Object invoiceDate = reqMap.get("invoiceDate");
+                if(invoiceDate != null && !invoiceDate.toString().isEmpty()){
+                    DashboardUtil.setDatesFromMonth(appliedFilter, invoiceDate.toString());
+                }
+            }
+
+            if(reqMap.containsKey("dashletteName")){
+                Object dashletteName = reqMap.get("dashletteName");
+                if(dashletteName != null){
+                    appliedFilter.setDashletteName(dashletteName.toString());
+                }
+            }
+
+            if(reqMap.containsKey("invoiceMethod")){
+                Object invoiceMethod = reqMap.get("invoiceMethod");
+                if(invoiceMethod != null){
+                    appliedFilter.setInvoiceMethod(invoiceMethod.toString());
+                }
+            }
+
+            if(reqMap.containsKey("invoiceStatusId")){
+                Object invoiceStatus = reqMap.get("invoiceStatusId");
+                if(invoiceStatus != null){
+                    appliedFilter.setInvoiceStatusId(invoiceStatus.toString());
+                }
+            }
+
+            if(reqMap.containsKey("isLanesReport")){
+                Object isLanesReport = reqMap.get("isLanesReport");
+                if(isLanesReport != null && "true".equalsIgnoreCase(isLanesReport.toString())){
+                    appliedFilter.setInvoiceStatusId("14105, 54, 68,65,64");
+                }
+            }
+
+            if(reqMap.containsKey("orderMatch")){
+                Object orderMatch = reqMap.get("orderMatch");
+                if(orderMatch != null){
+                    appliedFilter.setOrderMatch(orderMatch.toString());
+                }
+            }
+
+            if(reqMap.containsKey("isLineItemReport")){
+                Object isLineItemReport = reqMap.get("isLineItemReport");
+                if(isLineItemReport != null){
+                    appliedFilter.setLineItemReport(Boolean.valueOf(isLineItemReport.toString()));
+                }
+            }
+
+            if(reqMap.containsKey("tax")){
+                Object tax = reqMap.get("tax");
+                if(tax != null){
+                    appliedFilter.setTax(tax.toString());
+                }
+            }
+
+            if(reqMap.containsKey("accessorialName")){
+                Object accessorialName = reqMap.get("accessorialName");
+                if(accessorialName != null){
+                    appliedFilter.setAccessorialName(accessorialName.toString());
+                }
+            }
+
+            if(reqMap.containsKey("deliveryFlag")){
+                Object deliveryFlag = reqMap.get("deliveryFlag");
+                if(deliveryFlag != null){
+                    appliedFilter.setDeliveryFlag(deliveryFlag.toString());
+                }
+            }
+
+            if(reqMap.containsKey("reportForDashlette")){
+                Object reportForDashlette = reqMap.get("reportForDashlette");
+                if(reportForDashlette != null){
+                    appliedFilter.setReportForDashlette(reportForDashlette.toString());
+                }
+            }
+
+            if(reqMap.containsKey("boundType")){
+                Object boundType = reqMap.get("boundType");
+                if(boundType != null){
+                    appliedFilter.setBoundType(boundType.toString());
+                }
+            }
+
+            if(reqMap.containsKey("shipperCity")){
+                Object shipperCity = reqMap.get("shipperCity");
+                if(shipperCity != null){
+                    appliedFilter.setShipperCity(shipperCity.toString());
+                }
+            }
+
+            if(reqMap.containsKey("receiverCity")){
+                Object receiverCity = reqMap.get("receiverCity");
+                if(receiverCity != null){
+                    appliedFilter.setReceiverCity(receiverCity.toString());
+                }
+            }
+
+            if(reqMap.containsKey("shipperAddress")){
+                Object shipperAddress = reqMap.get("shipperAddress");
+                if(shipperAddress != null){
+                    appliedFilter.setShipperAddress(shipperAddress.toString());
+                }
+            }
+
+            if(reqMap.containsKey("receiverAddress")){
+                Object receiverAddress = reqMap.get("receiverAddress");
+                if(receiverAddress != null){
+                    appliedFilter.setReceiverAddress(receiverAddress.toString());
+                }
+            }
+
+            if(reqMap.containsKey("pol")){
+                Object pol = reqMap.get("pol");
+                if(pol != null){
+                    appliedFilter.setPol(pol.toString());
+                }
+            }
+
+            if(reqMap.containsKey("pod")){
+                Object pod = reqMap.get("pod");
+                if(pod != null){
+                    appliedFilter.setPod(pod.toString());
+                }
+            }
+        }
     }
 
     @RequestMapping(value = "/exportReport", method = {RequestMethod.GET}, produces = "application/text")
