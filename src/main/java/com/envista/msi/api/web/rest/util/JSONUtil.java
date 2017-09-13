@@ -330,7 +330,7 @@ public class JSONUtil {
                 if (chartData != null) {
                     statusJson = new JSONObject();
                     statusJson.put("name", chartData.getName());
-                    statusJson.put("value", Math.rint(chartData.getValue()));
+                    statusJson.put("value", chartData.getValue());
                     statusJson.put("id", chartData.getId());
 
                     returnArray.put(statusJson);
@@ -457,7 +457,7 @@ public class JSONUtil {
         for (AverageSpendPerShipmentDto perShipmentDto : avgPerShipmentList) {
             String billDate = perShipmentDto.getBillingDate();
             String mode = perShipmentDto.getModes();
-            Double spend = Math.rint(perShipmentDto.getNetWeight());
+            Double spend = perShipmentDto.getNetWeight();
 
             if (spend != 0) {
 
@@ -1630,6 +1630,7 @@ public class JSONUtil {
             ArrayList<String> servicesList = new ArrayList<>();
             ArrayList<String> quatersList = new ArrayList<>();
             Map<String, Double> quaterlyWiseSpend = new HashMap<String, Double>();
+            Map<String, Integer> quarterlyTotalShipment = new HashMap<String, Integer>();
 
             for (AnnualSummaryDto annualSummary : annualSummaryList) {
                 if (annualSummary != null) {
@@ -1683,6 +1684,14 @@ public class JSONUtil {
                     } else {
                         quaterlyWiseSpend.put(quater, spend);
                     }
+
+                    if(quarterlyTotalShipment.containsKey(quater)){
+                        Integer totalShipment = quarterlyTotalShipment.get(quater);
+                        totalShipment += annualSummary.getNoOfShipments();
+                        quarterlyTotalShipment.put(quater, totalShipment);
+                    }else{
+                        quarterlyTotalShipment.put(quater, (null == annualSummary.getNoOfShipments() ? 0 : annualSummary.getNoOfShipments()));
+                    }
                 }
             }
 
@@ -1715,6 +1724,25 @@ public class JSONUtil {
                 }
                 serviceWiseDataObj.put(service, new JSONObject().put("quaters", allQuatersDataObj));
                 servicesArray.put(serviceWiseDataObj);
+            }
+
+            JSONObject quartersJson = new JSONObject();
+            for(Map.Entry<String, Double> spendMap : quaterlyWiseSpend.entrySet()){
+                if(spendMap != null){
+                    JSONObject total = new JSONObject();
+                    Double totalSpend = spendMap.getValue();
+                    Integer totalShipment = quarterlyTotalShipment.get(spendMap.getKey());
+                    total.put("spend", commaSeperatedDecimalFormat.format(totalSpend));
+                    total.put("noOfShipments", totalShipment);
+                    total.put("perc", "");
+                    total.put("total", totalShipment != null && totalShipment != 0 ? commaSeperatedDecimalFormat.format(totalSpend / totalShipment) : "0");
+                    quartersJson.put(spendMap.getKey(), total);
+                }
+            }
+            JSONObject totalSpendJson = new JSONObject();
+            totalSpendJson.put("Total", new JSONObject().put("quaters", quartersJson));
+            if(servicesArray != null){
+                servicesArray.put(totalSpendJson);
             }
 
             JSONArray quatersArray = new JSONArray();
@@ -1825,33 +1853,42 @@ public class JSONUtil {
             Map<String, HashMap<String, HashMap<String, Double>>> servicesMap = new LinkedHashMap<>();
             List<String> servicesList = new ArrayList<>();
             List<String> quatersList = new ArrayList<>();
+            Map<String, Double> monthlyTotalSpend = new HashMap<String, Double>();
 
             for (MonthlySpendByModeDto monthlySpend : monthlySpendList) {
                 if (monthlySpend != null) {
-                    String quater = monthlySpend.getMonth();
+                    String month = monthlySpend.getMonth();
                     String service = monthlySpend.getService();
                     double spend = monthlySpend.getSpend();
 
                     if (!servicesList.contains(service)) {
                         servicesList.add(service);
                     }
-                    if (!quatersList.contains(quater)) {
-                        quatersList.add(quater);
+                    if (!quatersList.contains(month)) {
+                        quatersList.add(month);
                     }
 
                     if (servicesMap.containsKey(service)) {
                         HashMap<String, HashMap<String, Double>> servicesDataMap = servicesMap.get(service);
-                        if (!servicesDataMap.containsKey(quater)) {
+                        if (!servicesDataMap.containsKey(month)) {
                             HashMap<String, Double> eachQuaterData = new HashMap<>();
                             eachQuaterData.put("spend", spend);
-                            servicesDataMap.put(quater, eachQuaterData);
+                            servicesDataMap.put(month, eachQuaterData);
                         }
                     } else {
                         HashMap<String, HashMap<String, Double>> quatersWiseMap = new HashMap<>();
                         HashMap<String, Double> eachQuaterData = new HashMap<>();
                         eachQuaterData.put("spend", spend);
-                        quatersWiseMap.put(quater, eachQuaterData);
+                        quatersWiseMap.put(month, eachQuaterData);
                         servicesMap.put(service, quatersWiseMap);
+                    }
+
+                    if (monthlyTotalSpend.containsKey(month)) {
+                        double totalSpend = monthlyTotalSpend.get(month);
+                        totalSpend += spend;
+                        monthlyTotalSpend.put(month, totalSpend);
+                    } else {
+                        monthlyTotalSpend.put(month, spend);
                     }
                 }
             }
@@ -1870,6 +1907,17 @@ public class JSONUtil {
                     serviceWiseDataObj.put(quater, spend);
                 }
                 servicesArray.put(serviceWiseDataObj);
+            }
+
+            if(servicesArray != null){
+                JSONObject totalMonthlyJson = new JSONObject();
+                for(Map.Entry<String, Double> monthlyMap : monthlyTotalSpend.entrySet()){
+                    if(monthlyMap != null){
+                        totalMonthlyJson.put(monthlyMap.getKey(), commaSeperatedDecimalFormat.format(monthlyMap.getValue()));
+                    }
+                }
+                totalMonthlyJson.put("name", "Total");
+                servicesArray.put(totalMonthlyJson);
             }
 
             JSONArray quatersArray = new JSONArray();

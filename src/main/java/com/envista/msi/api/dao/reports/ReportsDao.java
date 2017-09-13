@@ -73,15 +73,26 @@ public class ReportsDao {
         try {
             sdate = new Date(Long.parseLong(date));
         }catch(Exception e){
-            e.printStackTrace();
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+                sdate = sdf.parse(date);
+            }catch(Exception e1) {
+                e.printStackTrace();
+            }
         }
         return sdate;
     }
 
     public static String convertDateFullYearString(String date) {
         String dateText = "";
+        Date sdate;
         try {
-            Date sdate = new Date(Long.parseLong(date));
+            try {
+                sdate = new Date(Long.parseLong(date));
+            }catch(Exception e1){
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+                sdate = sdf.parse(date);
+            }
             SimpleDateFormat df2 = new SimpleDateFormat("dd-MM-yyyy");
             dateText = df2.format(sdate);
         }catch(Exception e){
@@ -308,6 +319,8 @@ public class ReportsDao {
         }
         if(savedSchedReportDto.getScNextSubmitDate()!=null && !savedSchedReportDto.getScNextSubmitDate().isEmpty()){
             savedSchedReportDto.setScNextSubmitDate(convertDateFullYearString(savedSchedReportDto.getScNextSubmitDate()));
+        }else{
+            savedSchedReportDto.setScNextSubmitDate(convertDateFullYearString(String.valueOf(System.currentTimeMillis())));
         }
 
         QueryParameter queryParameter = StoredProcedureParameter.with("rptId", savedSchedReportDto.getRptId()==null?0:savedSchedReportDto.getRptId())
@@ -582,7 +595,7 @@ public class ReportsDao {
         if(savedSchedReportDto.getScNextSubmitDate()!=null && !savedSchedReportDto.getScNextSubmitDate().isEmpty()){
             savedSchedReportDto.setScNextSubmitDate(convertDateFullYearString(savedSchedReportDto.getScNextSubmitDate()));
         }else{
-            savedSchedReportDto.setScNextSubmitDate(String.valueOf(System.currentTimeMillis()));
+            savedSchedReportDto.setScNextSubmitDate(convertDateFullYearString(String.valueOf(System.currentTimeMillis())));
         }
 
         QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId", savedSchedReportDto.getSavedSchedRptId())
