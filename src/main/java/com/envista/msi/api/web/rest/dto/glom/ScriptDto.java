@@ -1,6 +1,6 @@
 package com.envista.msi.api.web.rest.dto.glom;
 
-import com.envista.msi.api.web.rest.dto.invoicing.VoiceDto;
+
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -21,7 +21,7 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_SCRIPT_INFO", type = Void.class)
                 }),
         @NamedStoredProcedureQuery(name = "ScriptDto.getCount", procedureName = "SHP_GLM_GET_SCRIPTS_PRO",
-                resultSetMappings = "totalCount",
+                resultSetMappings = "ScriptDto.TotalCount",
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_SCRIPT_ID", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CUSTOMER_ID", type = Long.class),
@@ -44,24 +44,24 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_IS_FAVORITE", type = int.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_USER_ID", type = int.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_VOICE_INFO", type = Void.class)
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_SCRIPTS_INFO", type = Void.class)
                 }),
         @NamedStoredProcedureQuery(name = "ScriptDto.findByScriptName", procedureName = "SHP_GLM_GET_BY_SCRIPT_NAME_PRO",
-                resultClasses = VoiceDto.class,
+                resultClasses = ScriptDto.class,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_SCRIPT_NAME", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PREV_SCRIPT_NAME", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_SCRIPT_INFO", type = Void.class)
                 }),
         @NamedStoredProcedureQuery(name = "ScriptDto.delete", procedureName = "SHP_GLM_DEL_SCRIPT_PRO",
-                resultClasses = VoiceDto.class,
+                resultClasses = ScriptDto.class,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_SCRIPT_IDS", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_SCRIPT_INFO", type = Void.class)
                 })
 })
 @SqlResultSetMappings({
-        @SqlResultSetMapping(name = "totalCount", classes = {
+        @SqlResultSetMapping(name = "ScriptDto.TotalCount", classes = {
                 @ConstructorResult(
                         targetClass = ScriptDto.class,
                         columns = {
