@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by KRISHNAREDDYM on 9/14/2017.
@@ -21,13 +22,15 @@ public class ScriptDao {
     private PersistentContext persistentContext;
 
 
-    public List<ScriptDto> getAll(ScriptBean bean) {
+    public List<ScriptDto> getAll(Map<String, Object> paginationFilterMap, ScriptBean bean) {
 
         QueryParameter queryParameter = StoredProcedureParameter.with("P_SCRIPT_ID", bean.getScriptId())
                 .and("P_CUSTOMER_ID", bean.getCustomerId()).and("P_OFFSET", bean.getOffset()).and("P_PAGE_SIZE", bean.getPageSize())
                 .and("P_SORT_COLUMN", bean.getSortColumn()).and("P_ACTION_TYPE", bean.getActionType());
 
-        return persistentContext.findEntities("ScriptDto.getAll", queryParameter);
+        List<ScriptDto> scriptDtos = persistentContext.findEntities("ScriptDto.getAll", queryParameter);
+
+        return scriptDtos;
     }
 
     public int getCount(ScriptBean bean) {
@@ -39,7 +42,7 @@ public class ScriptDao {
         List<ScriptDto> dtos = persistentContext.findEntities("ScriptDto.getCount", queryParameter);
         int count = 0;
         if (null != dtos && dtos.size() > 0) {
-            count = dtos.get(0).getTotalCount();
+            count = dtos.size();
         }
         return count;
     }

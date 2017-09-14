@@ -28,9 +28,9 @@ public class ScriptService {
     @Inject
     private ScriptDao dao;
 
-    public List<ScriptDto> getAll(ScriptBean bean) {
+    public List<ScriptDto> getAll(Map<String, Object> paginationFilterMap, ScriptBean bean) {
 
-        return dao.getAll(bean);
+        return dao.getAll(paginationFilterMap, bean);
     }
 
     public int getCount(ScriptBean bean) {
@@ -60,7 +60,7 @@ public class ScriptService {
 
     public PaginationBean getAllPaginationData(ScriptBean bean) throws Exception {
         Map<String, Object> paginationFilterMap = new HashMap<String, Object>();
-
+        paginationFilterMap.put("filter", bean);
         return new EnspirePagination() {
             @Override
             protected int getTotalRowCount(Map<String, Object> paginationFilterMap) {
@@ -69,7 +69,9 @@ public class ScriptService {
 
             @Override
             protected Object loadPaginationData(Map<String, Object> paginationFilterMap, int offset, int limit, String sort) throws Exception {
-                return getAll(bean);
+                // bean.setOffset(offset);
+                //bean.setPageSize(limit);
+                return getAll(paginationFilterMap, bean);
             }
         }.preparePaginationData(paginationFilterMap, bean.getOffset(), bean.getPageSize(), bean.getSortColumn());
     }
