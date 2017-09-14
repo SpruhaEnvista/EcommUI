@@ -78,6 +78,12 @@ public class ParcelRateRequestBuilder {
                 constraints.setServiceFlags(serviceFlagList);
                 parcelRateRequest.setConstraints(constraints);
 
+                if(parcelAuditDetailsList.get(0).getCustomerCode().equalsIgnoreCase("WISO")){
+                    ParcelRateRequest.Shipper shipper = new ParcelRateRequest.Shipper();
+                    shipper.setNumber(parcelAuditDetailsList.get(0).getShipperNumber());
+                    parcelRateRequest.setShipper(shipper);
+                }
+
                 List<ParcelRateRequest.Item> items = new ArrayList<>();
                 for(ParcelAuditDetailsDto auditDetails : parcelAuditDetailsList) {
                     if (auditDetails != null) {
@@ -242,6 +248,12 @@ public class ParcelRateRequestBuilder {
                 constraints.setCustomerCode(parcelAuditDetails.getCustomerCode());
                 constraints.setServiceFlags(serviceFlagList);
                 parcelRateRequest.setConstraints(constraints);
+
+                if(parcelAuditDetailsList.get(0).getCustomerCode().equalsIgnoreCase("WISO")){
+                    ParcelRateRequest.Shipper shipper = new ParcelRateRequest.Shipper();
+                    shipper.setNumber(parcelAuditDetailsList.get(0).getShipperNumber());
+                    parcelRateRequest.setShipper(shipper);
+                }
 
                 List<ParcelRateRequest.Item> items = new ArrayList<>();
                 for(ParcelAuditDetailsDto auditDetails : parcelAuditDetailsList) {
