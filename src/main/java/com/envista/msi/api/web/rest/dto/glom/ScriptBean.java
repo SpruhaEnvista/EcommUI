@@ -7,9 +7,9 @@ import java.io.Serializable;
  */
 public class ScriptBean implements Serializable {
 
-    private Long scriptId;
+    private long scriptId;
 
-    private Long customerId;
+    private int customerId;
 
     private String sortColumn;
 
@@ -34,19 +34,19 @@ public class ScriptBean implements Serializable {
     private int userId;
 
 
-    public Long getScriptId() {
+    public long getScriptId() {
         return scriptId;
     }
 
-    public void setScriptId(Long scriptId) {
+    public void setScriptId(long scriptId) {
         this.scriptId = scriptId;
     }
 
-    public Long getCustomerId() {
+    public int getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(Long customerId) {
+    public void setCustomerId(int customerId) {
         this.customerId = customerId;
     }
 

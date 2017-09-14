@@ -1,6 +1,7 @@
 package com.envista.msi.api.web.rest.glom;
 
 import com.envista.msi.api.service.glom.ScriptService;
+import com.envista.msi.api.web.rest.dto.CustomerDto;
 import com.envista.msi.api.web.rest.dto.glom.ScriptBean;
 import com.envista.msi.api.web.rest.dto.glom.ScriptDto;
 import com.envista.msi.api.web.rest.util.pagination.PaginationBean;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
+import java.util.List;
 
 /**
  * Created by KRISHNAREDDYM on 9/14/2017.
@@ -50,7 +52,7 @@ public class ScriptController {
     }
 
     @RequestMapping(value = "/getByCustomer", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
-    public ResponseEntity<PaginationBean> getByCustomer(@RequestParam(required = true) Long customerId,
+    public ResponseEntity<PaginationBean> getByCustomer(@RequestParam(required = true) int customerId,
                                                         @RequestParam(required = false, defaultValue = "0") Integer offset,
                                                         @RequestParam(required = false, defaultValue = "10") Integer limit,
                                                         @RequestParam(required = false, defaultValue = "null") String sort
@@ -134,6 +136,14 @@ public class ScriptController {
         bean.setActionType("getbyid");
 
         return new ResponseEntity<ScriptDto>(service.findById(bean), HttpStatus.OK);
+    }
+
+
+    @RequestMapping(value = "/getCustomers/{userId}", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+    public ResponseEntity<List<CustomerDto>> findById(@PathVariable("userId") int userId) {
+
+
+        return new ResponseEntity<List<CustomerDto>>(service.getAllCustomers(userId), HttpStatus.OK);
     }
 
 }

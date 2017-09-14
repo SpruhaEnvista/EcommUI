@@ -3,6 +3,7 @@ package com.envista.msi.api.dao.glom;
 import com.envista.msi.api.domain.PersistentContext;
 import com.envista.msi.api.domain.util.QueryParameter;
 import com.envista.msi.api.domain.util.StoredProcedureParameter;
+import com.envista.msi.api.web.rest.dto.CustomerDto;
 import com.envista.msi.api.web.rest.dto.glom.ScriptBean;
 import com.envista.msi.api.web.rest.dto.glom.ScriptDto;
 import org.springframework.stereotype.Repository;
@@ -102,5 +103,11 @@ public class ScriptDao {
 
     }
 
+    public List<CustomerDto> getAllCustomers(int userId) {
+
+        QueryParameter queryParameter = StoredProcedureParameter.with("P_USER_ID", userId);
+
+        return persistentContext.findEntities("ScriptDto.getCustomers", queryParameter);
+    }
 
 }

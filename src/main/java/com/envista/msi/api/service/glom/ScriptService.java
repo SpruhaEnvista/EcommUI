@@ -1,6 +1,7 @@
 package com.envista.msi.api.service.glom;
 
 import com.envista.msi.api.dao.glom.ScriptDao;
+import com.envista.msi.api.web.rest.dto.CustomerDto;
 import com.envista.msi.api.web.rest.dto.glom.ScriptBean;
 import com.envista.msi.api.web.rest.dto.glom.ScriptDto;
 import com.envista.msi.api.web.rest.util.pagination.EnspirePagination;
@@ -74,4 +75,8 @@ public class ScriptService {
     }
 
 
+    public List<CustomerDto> getAllCustomers(int userId) {
+
+        return dao.getAllCustomers(userId);
+    }
 }

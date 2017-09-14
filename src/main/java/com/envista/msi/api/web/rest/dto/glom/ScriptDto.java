@@ -1,6 +1,7 @@
 package com.envista.msi.api.web.rest.dto.glom;
 
 
+import com.envista.msi.api.web.rest.dto.CustomerDto;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -13,9 +14,9 @@ import java.io.Serializable;
                 resultClasses = ScriptDto.class,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_SCRIPT_ID", type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CUSTOMER_ID", type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_OFFSET", type = int.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PAGE_SIZE", type = int.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CUSTOMER_ID", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_OFFSET", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PAGE_SIZE", type = Integer.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_SORT_COLUMN", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_SCRIPT_INFO", type = Void.class)
@@ -24,9 +25,9 @@ import java.io.Serializable;
                 resultSetMappings = "ScriptDto.TotalCount",
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_SCRIPT_ID", type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CUSTOMER_ID", type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_OFFSET", type = int.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PAGE_SIZE", type = int.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CUSTOMER_ID", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_OFFSET", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_PAGE_SIZE", type = Integer.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_SORT_COLUMN", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_SCRIPT_INFO", type = Void.class)
@@ -36,13 +37,13 @@ import java.io.Serializable;
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_SCRIPT_ID", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_SCRIPT_NAME", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CUSTOMER_ID", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CUSTOMER_ID", type = Integer.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_DESCRIPTION", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_EFFECTIVE_DATE", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_EXPIRY_DATE", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_IS_ACTIVE", type = int.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_IS_FAVORITE", type = int.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_USER_ID", type = int.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_IS_ACTIVE", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_IS_FAVORITE", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_USER_ID", type = Integer.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_SCRIPTS_INFO", type = Void.class)
                 }),
@@ -58,6 +59,12 @@ import java.io.Serializable;
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_SCRIPT_IDS", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_SCRIPT_INFO", type = Void.class)
+                }),
+        @NamedStoredProcedureQuery(name = "ScriptDto.getCustomers", procedureName = "SHP_GLM_GET_CUTOMERS_PRO",
+                resultClasses = CustomerDto.class,
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_USER_ID", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_CUST_INFO", type = Void.class)
                 })
 })
 @SqlResultSetMappings({
@@ -74,13 +81,13 @@ public class ScriptDto implements Serializable {
 
     @Id
     @Column(name = "SCRIPT_ID")
-    private Long scriptId;
+    private long scriptId;
 
     @Column(name = "SCRIPT_NAME", nullable = false, unique = true)
     private String scriptName;
 
     @Column(name = "CUSTOMER_ID", nullable = true)
-    private Long customerId;
+    private int customerId;
 
     @Column(name = "DESCRIPTION", nullable = true)
     private String description;
@@ -114,11 +121,11 @@ public class ScriptDto implements Serializable {
         this.totalCount = totalCount;
     }
 
-    public Long getScriptId() {
+    public long getScriptId() {
         return scriptId;
     }
 
-    public void setScriptId(Long scriptId) {
+    public void setScriptId(long scriptId) {
         this.scriptId = scriptId;
     }
 
@@ -130,11 +137,11 @@ public class ScriptDto implements Serializable {
         this.scriptName = scriptName;
     }
 
-    public Long getCustomerId() {
+    public int getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(Long customerId) {
+    public void setCustomerId(int customerId) {
         this.customerId = customerId;
     }
 
