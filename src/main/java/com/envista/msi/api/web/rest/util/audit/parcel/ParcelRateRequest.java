@@ -50,6 +50,17 @@ public class ParcelRateRequest implements Serializable {
     @XmlElement(name="BilledMiles")
     private String billedMiles;
 
+    @XmlElement(name = "Shipper")
+    private Shipper shipper = new Shipper();
+
+    public Shipper getShipper() {
+        return shipper;
+    }
+
+    public void setShipper(Shipper shipper) {
+        this.shipper = shipper;
+    }
+
     @XmlAccessorType(XmlAccessType.NONE)
     public static class BatchShipment implements Serializable {
         private static final long serialVersionUID = 1L;
@@ -873,5 +884,21 @@ public class ParcelRateRequest implements Serializable {
             e.printStackTrace();
         }
         return xmlString;
+    }
+
+    @XmlAccessorType(XmlAccessType.NONE)
+    public static class Shipper implements Serializable {
+        private static final long serialVersionUID = 1L;
+
+        @XmlAttribute
+        private String number = "";
+
+        public String getNumber() {
+            return number;
+        }
+
+        public void setNumber(String number) {
+            this.number = number;
+        }
     }
 }
