@@ -12,8 +12,30 @@ import java.io.Serializable;
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_customer_ids", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_carrList", type = void.class)
+                }),
+        @NamedStoredProcedureQuery(name = "CarrierDto.getCarriersByIds", procedureName = "SHP_GET_CARRIER_INFO_PROC",
+                resultSetMappings = {"CarrierDto.getCarriersByIdsMapping"},
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_carrier_ids", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_carrier_details", type = void.class)
                 })
 })
+
+@SqlResultSetMappings({
+        @SqlResultSetMapping(
+                name = "CarrierDto.getCarriersByIdsMapping",
+                classes = {
+                        @ConstructorResult(
+                                targetClass = CarrierDto.class,
+                                columns = {
+                                        @ColumnResult(name = "carrier_id", type = Long.class),
+                                        @ColumnResult(name = "carrier_name", type = String.class)
+                                }
+                        )
+                }
+        )
+})
+
 @Entity
 public class CarrierDto implements Serializable{
 
@@ -37,6 +59,14 @@ public class CarrierDto implements Serializable{
 
     @Column(name = "group_desc")
     private String carrierGroupDescription;
+
+    public CarrierDto() {
+    }
+
+    public CarrierDto(Long carrierId, String carrierName) {
+        this.carrierId = carrierId;
+        this.carrierName = carrierName;
+    }
 
     public Long getCarrierId() {
         return carrierId;
