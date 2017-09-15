@@ -13,10 +13,10 @@ import java.io.Serializable;
                 procedureName = "SHP_RPT_CRITERIA_DETAILS_PROC",
                 resultClasses = {ReportCriteriaDetailsDto.class},
                 parameters = {
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_shipper_ids", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_shipper_names", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_shipper_codes", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_shipper_list", type = void.class)
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_rpt_details_ids", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_rpt_ids", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_order_by", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_rpt_criteria_list", type = void.class)
                 }
         )
 })

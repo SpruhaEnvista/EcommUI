@@ -18,12 +18,32 @@ import java.io.Serializable;
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_carrier_ids", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_carrier_details", type = void.class)
+                }),
+        @NamedStoredProcedureQuery(name = "CarrierDto.getUserCarrierDetailsForReport", procedureName = "shp_rpt_carrier_proc_temp",
+                resultSetMappings = {"CarrierDto.getCarrierDetailsForUserAndCustomerMapping"},
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_user_id", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_rpt_id", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_customer_ids", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_refcur_carrier_info", type = void.class)
                 })
 })
 
 @SqlResultSetMappings({
         @SqlResultSetMapping(
                 name = "CarrierDto.getCarriersByIdsMapping",
+                classes = {
+                        @ConstructorResult(
+                                targetClass = CarrierDto.class,
+                                columns = {
+                                        @ColumnResult(name = "carrier_id", type = Long.class),
+                                        @ColumnResult(name = "carrier_name", type = String.class)
+                                }
+                        )
+                }
+        ),
+        @SqlResultSetMapping(
+                name = "CarrierDto.getCarrierDetailsForUserAndCustomerMapping",
                 classes = {
                         @ConstructorResult(
                                 targetClass = CarrierDto.class,

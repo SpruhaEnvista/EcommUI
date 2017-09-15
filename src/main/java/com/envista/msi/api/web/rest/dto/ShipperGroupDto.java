@@ -69,7 +69,12 @@ public class ShipperGroupDto implements Serializable {
     public ShipperGroupDto() {
     }
 
-
+    public ShipperGroupDto(Long shipperGroupId, String shipperGroupName, String shipperGroupDescription, Long customerId) {
+        this.shipperGroupId = shipperGroupId;
+        this.shipperGroupName = shipperGroupName;
+        this.shipperGroupDescription = shipperGroupDescription;
+        this.customerId = customerId;
+    }
 
     public Long getShipperGroupId() {
         return shipperGroupId;

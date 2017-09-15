@@ -4,9 +4,7 @@ import com.envista.msi.api.dao.type.GenericObject;
 import com.envista.msi.api.domain.PersistentContext;
 import com.envista.msi.api.domain.util.QueryParameter;
 import com.envista.msi.api.domain.util.StoredProcedureParameter;
-import com.envista.msi.api.security.SecurityUtils;
 import com.envista.msi.api.web.rest.dto.*;
-import com.envista.msi.api.web.rest.dto.UserProfileDto;
 import com.envista.msi.api.web.rest.dto.reports.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
@@ -16,7 +14,6 @@ import javax.inject.Inject;
 import javax.persistence.ParameterMode;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -833,5 +830,12 @@ public class ReportsDao {
                 .and("p_rpt_ids", rptIds)
                 .and("p_order_by", orderBy);
         return persistentContext.findEntities("ReportCriteriaDetailsDto.getReportCriteriaDetails", queryParameter);
+    }
+
+    public List<CarrierDto> getUserCarrierDetailsForReport(Long userId, Long rptId, String customerIds){
+        QueryParameter queryParameter = StoredProcedureParameter.with("p_user_id", userId)
+                .and("p_rpt_id", rptId)
+                .and("p_customer_ids", customerIds);
+        return persistentContext.findEntities("CarrierDto.getUserCarrierDetailsForReport", queryParameter);
     }
 }

@@ -9,6 +9,7 @@ import com.envista.msi.api.domain.util.ReportsUtil;
 import com.envista.msi.api.domain.util.StringEncrypter;
 import com.envista.msi.api.web.rest.dto.*;
 import com.envista.msi.api.web.rest.dto.reports.*;
+import com.envista.msi.api.web.rest.util.DateUtil;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,8 +22,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URLEncoder;
 import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -39,6 +38,8 @@ public class ReportsService {
     @Inject
     private MailService mailService;
 
+    @Inject
+    private UserService userService;
 
     @Inject
     private ReportsValidationDao reportsValidationDao;
@@ -424,11 +425,12 @@ public class ReportsService {
         return physicalFileName;
     }
 
-    public SavedSchedReportDto saveSchedReport(SavedSchedReportDto savedSchedReportDto){
-
-        prepareAndSetCriteria(savedSchedReportDto, false);
+    public SavedSchedReportDto saveSchedReport(SavedSchedReportDto savedSchedReportDto) {
+        String criteria = prepareReportCriteria(savedSchedReportDto);
+        if(criteria != null && !criteria.isEmpty()){
+            savedSchedReportDto.setCriteria(criteria);
+        }
         SavedSchedReportDto savedSchedReport = reportsDao.saveSchedReport(savedSchedReportDto);
-
             if(savedSchedReport.getSavedSchedRptId()>0){
                 if(savedSchedReportDto.getReportsInclColDtoList() == null || savedSchedReportDto.getReportsInclColDtoList().size()==0){
                     ArrayList<ReportColumnDto> defaultInclCols = (ArrayList<ReportColumnDto>) reportsDao.getDefaultInclExclCol(savedSchedReport.getSavedSchedRptId(),
@@ -453,96 +455,11 @@ public class ReportsService {
         return savedSchedReport;
     }
 
-    private void prepareAndSetCriteria(SavedSchedReportDto savedSchedReportDto, boolean isForGeneratedReport) {
-        DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+    private String prepareReportCriteria(SavedSchedReportDto savedSchedReportDto) {
+        String dateFormat = "MM/dd/yyyy";
         StringBuffer criteria = new StringBuffer();
-        String selectedCarriers = savedSchedReportDto.getCarrierIds();
         List<ReportsSavedSchdAccountDto> accounts = savedSchedReportDto.getSavedSchedAccountsDtoList();
 
-        if(savedSchedReportDto.getCategory() != null && savedSchedReportDto.getCategory() == 3){
-            int count = 0;
-            List<CarrierDto> carrierList = getCarrierDetailsByIds(selectedCarriers);
-            if(carrierList != null && !carrierList.isEmpty()){
-                for(CarrierDto carrier : carrierList){
-                    if(carrier != null){
-                        if (count > 0) {
-                            criteria.append(", ");
-                        }
-
-                        if(count > 3) {
-                            criteria.append(" ...(" + carrierList.size() + ");");
-                            break;
-                        }
-
-                        criteria.append(carrier.getCarrierName());
-                        count++;
-                    }
-                }
-            }
-            //need to check here.
-            criteria.append(";");
-        }
-
-        ReportsDateOptionsCriteriaDto dateOptionsCriteria = null;
-        if(savedSchedReportDto.getRptDateOptionsId() != null){
-            List<ReportsDateOptionsCriteriaDto> reportsDateOptionsCriteriaList = getDateOptionCriteriaByIds(savedSchedReportDto.getRptDateOptionsId().toString());
-            if(null == reportsDateOptionsCriteriaList || reportsDateOptionsCriteriaList.isEmpty() || reportsDateOptionsCriteriaList.get(0) == null){
-                throw new RuntimeException("The dateOptionsBean is null. Cannot proceed with this request. The date options Id used is : " + savedSchedReportDto.getRptDateOptionsId());
-            }
-            dateOptionsCriteria = reportsDateOptionsCriteriaList.get(0);
-        }
-
-        if(isForGeneratedReport){
-            if (dateOptionsCriteria.getDateCriteria().toLowerCase().contains("control")) {
-                criteria.append("Control Number: " + savedSchedReportDto.getControlPayrunNumber());
-            } else if (dateOptionsCriteria.getDateCriteria().toLowerCase().contains("pay run")) {
-                criteria.append("Pay Run Number: " + savedSchedReportDto.getControlPayrunNumber());
-            } else if (dateOptionsCriteria.getDateCriteria().toLowerCase().contains("open")) {
-                criteria.append("Open Invoice");
-            } else {
-                criteria.append(dateOptionsCriteria.getDateCriteria() + ": ");
-                /*if (savedSchedReportDto.getFromDate() != null && createReportBean.getToDate() != null) {
-                    criteria.append(dateFormat.format(createReportBean.getFromDate()));
-                    criteria.append(" to ");
-                    criteria.append(dateFormat.format(createReportBean.getToDate()));
-                }*/
-            }
-        }else{
-            if(savedSchedReportDto.getScheduled() != null && savedSchedReportDto.getScheduled() && savedSchedReportDto.getScTriggerBy() != null){
-                criteria.append(" Triggered by: " + savedSchedReportDto.getScTriggerBy());
-            }else if(dateOptionsCriteria.getDateCriteria().toLowerCase().contains("control")){
-                criteria.append("Control Number:" + savedSchedReportDto.getControlPayrunNumber());
-            }else if(dateOptionsCriteria.getDateCriteria().toLowerCase().contains("pay run")){
-                criteria.append("Pay Run Number:" + savedSchedReportDto.getControlPayrunNumber());
-            }else if(dateOptionsCriteria.getDateCriteria().toLowerCase().contains("open")){
-                criteria.append("Open Invoice");
-            }else{
-                criteria.append(dateOptionsCriteria.getDateCriteria() + ": ");
-                if (savedSchedReportDto.getDateSelectionFrequency() != null && savedSchedReportDto.getDateSelectionFrequency().equalsIgnoreCase("sd")) {
-                    criteria.append("Single Date: " + dateFormat.format(savedSchedReportDto.getDate1()));
-                } else if (savedSchedReportDto.getDateSelectionFrequency() != null && savedSchedReportDto.getDateSelectionFrequency().equalsIgnoreCase("dr")) {
-                    criteria.append("Date Range: " + dateFormat.format(savedSchedReportDto.getDate1()));
-                    criteria.append(" to " + dateFormat.format(savedSchedReportDto.getDate2()));
-                } else if (savedSchedReportDto.getDateSelectionFrequency() != null && savedSchedReportDto.getDateSelectionFrequency().equalsIgnoreCase("sp")) {
-                    criteria.append("Specific Period: " + savedSchedReportDto.getPeriodOption() + " ending " + dateFormat.format(savedSchedReportDto.getDate1()));
-                } else if (savedSchedReportDto.getDateSelectionFrequency() != null && savedSchedReportDto.getDateSelectionFrequency().equalsIgnoreCase("rp")) {
-                    criteria.append("Rolling Period: " + savedSchedReportDto.getPeriodOption());
-                } else if (savedSchedReportDto.getDateSelectionFrequency() != null && savedSchedReportDto.getDateSelectionFrequency().equalsIgnoreCase("la")) {
-                    criteria.append("Last: " + savedSchedReportDto.getLastNoOfDays() + " day(s)");
-                } else if (savedSchedReportDto.getDateSelectionFrequency() != null && savedSchedReportDto.getDateSelectionFrequency().equalsIgnoreCase("tm")) {
-                    criteria.append("Today -  " + savedSchedReportDto.getDateRangeTodayMinus1() + " to Today - " + savedSchedReportDto.getDateRangeTodayMinus2());
-                } else if (savedSchedReportDto.getDateSelectionFrequency() != null && savedSchedReportDto.getDateSelectionFrequency().equalsIgnoreCase("dm")) { // MSI-16843 Add "Current Date" Option to Date Range Tab
-                    criteria.append("Date Range:  " + savedSchedReportDto.getDate1() + " to Today - " + savedSchedReportDto.getDateRangeTodayMinus1());
-                }
-            }
-        }
-
-        int custCount = 0;
-        int sgCount = 0;
-        int shipperCount = 0;
-        List<ShipperDto> shipperList = null;
-        List<CustomerDto> customerList = null;
-        List<ShipperGroupDto> shipperGroupList = null;
         StringJoiner customerIds = new StringJoiner(",");
         StringJoiner shipperGroupIds = new StringJoiner(",");
         StringJoiner shipperIds = new StringJoiner(",");
@@ -560,6 +477,85 @@ public class ReportsService {
                 }
             }
         }
+
+        if(savedSchedReportDto.getCategory() != null && savedSchedReportDto.getCategory() == 3){
+            int count = 0;
+            UserProfileDto user = null;
+            try{user = userService.getLoggedInUser();}catch (Exception e){throw new RuntimeException("User Not Found!");}
+            List<CarrierDto> carrierList = getUserCarrierDetailsForReport(user.getUserId(), savedSchedReportDto.getRptId(), customerIds.toString());
+            if(carrierList != null && !carrierList.isEmpty()){
+                for(CarrierDto carrier : carrierList){
+                    if(carrier != null){
+                        if (count > 0) {
+                            criteria.append(", ");
+                        }
+
+                        if(count > 3) {
+                            criteria.append(" ...(" + carrierList.size() + ");");
+                            break;
+                        }
+
+                        criteria.append(carrier.getCarrierName());
+                        count++;
+                    }
+                }
+            }
+            criteria.append(";");
+        }
+
+        ReportsDateOptionsCriteriaDto dateOptionsCriteria = null;
+        if(savedSchedReportDto.getRptDateOptionsId() != null){
+            List<ReportsDateOptionsCriteriaDto> reportsDateOptionsCriteriaList = getDateOptionCriteriaByIds(savedSchedReportDto.getRptDateOptionsId().toString());
+            if(null == reportsDateOptionsCriteriaList || reportsDateOptionsCriteriaList.isEmpty() || reportsDateOptionsCriteriaList.get(0) == null){
+                throw new RuntimeException("The dateOptionsBean is null. Cannot proceed with this request. The date options Id used is : " + savedSchedReportDto.getRptDateOptionsId());
+            }
+            dateOptionsCriteria = reportsDateOptionsCriteriaList.get(0);
+        }
+
+
+        if(savedSchedReportDto.getScheduled() != null && savedSchedReportDto.getScheduled() && savedSchedReportDto.getScTriggerBy() != null){
+            criteria.append(" Triggered by: " + savedSchedReportDto.getScTriggerBy());
+        }else if(dateOptionsCriteria.getDateCriteria().toLowerCase().contains("control")){
+            criteria.append("Control Number:" + savedSchedReportDto.getControlPayrunNumber());
+        }else if(dateOptionsCriteria.getDateCriteria().toLowerCase().contains("pay run")){
+            criteria.append("Pay Run Number:" + savedSchedReportDto.getControlPayrunNumber());
+        }else if(dateOptionsCriteria.getDateCriteria().toLowerCase().contains("open")){
+            criteria.append("Open Invoice");
+        }else{
+            String date1 = "";
+            String date2 = "";
+            if(savedSchedReportDto.getDate1() != null && !savedSchedReportDto.getDate1().isEmpty()){
+                date1 = DateUtil.format(Long.parseLong(savedSchedReportDto.getDate1()), dateFormat);
+            }
+            if(savedSchedReportDto.getDate2() != null && !savedSchedReportDto.getDate2().isEmpty()){
+                date2 =  DateUtil.format(Long.parseLong(savedSchedReportDto.getDate2()), dateFormat);
+            }
+            criteria.append(dateOptionsCriteria.getDateCriteria() + ": ");
+            if (savedSchedReportDto.getDateSelectionFrequency() != null && savedSchedReportDto.getDateSelectionFrequency().equalsIgnoreCase("sd")) {
+                criteria.append("Single Date: " + date1);
+            } else if (savedSchedReportDto.getDateSelectionFrequency() != null && savedSchedReportDto.getDateSelectionFrequency().equalsIgnoreCase("dr")) {
+                criteria.append("Date Range: " + date1);
+                criteria.append(" to " + date2);
+            } else if (savedSchedReportDto.getDateSelectionFrequency() != null && savedSchedReportDto.getDateSelectionFrequency().equalsIgnoreCase("sp")) {
+                criteria.append("Specific Period: " + savedSchedReportDto.getPeriodOption() + " ending " + date1);
+            } else if (savedSchedReportDto.getDateSelectionFrequency() != null && savedSchedReportDto.getDateSelectionFrequency().equalsIgnoreCase("rp")) {
+                criteria.append("Rolling Period: " + savedSchedReportDto.getPeriodOption());
+            } else if (savedSchedReportDto.getDateSelectionFrequency() != null && savedSchedReportDto.getDateSelectionFrequency().equalsIgnoreCase("la")) {
+                criteria.append("Last: " + savedSchedReportDto.getLastNoOfDays() + " day(s)");
+            } else if (savedSchedReportDto.getDateSelectionFrequency() != null && savedSchedReportDto.getDateSelectionFrequency().equalsIgnoreCase("tm")) {
+                criteria.append("Today -  " + DateUtil.format(savedSchedReportDto.getDateRangeTodayMinus1().longValue(), dateFormat) + " to Today - " + DateUtil.format(savedSchedReportDto.getDateRangeTodayMinus2().longValue(), dateFormat));
+            } else if (savedSchedReportDto.getDateSelectionFrequency() != null && savedSchedReportDto.getDateSelectionFrequency().equalsIgnoreCase("dm")) {
+                criteria.append("Date Range:  " + date1 + " to Today - " + DateUtil.format(savedSchedReportDto.getDateRangeTodayMinus1().longValue(), dateFormat));
+            }
+        }
+
+        int custCount = 0;
+        int sgCount = 0;
+        int shipperCount = 0;
+        List<ShipperDto> shipperList = null;
+        List<CustomerDto> customerList = null;
+        List<ShipperGroupDto> shipperGroupList = null;
+
         if(customerIds != null && !customerIds.toString().isEmpty()){
             customerList = getCustomersById(customerIds.toString());
         }
@@ -663,6 +659,7 @@ public class ReportsService {
         if(criteria != null && !criteria.toString().isEmpty()){
             savedSchedReportDto.setCriteria(criteria.toString());
         }
+        return criteria.toString();
     }
 
     private ReportCriteriaDetailsDto findReportCriteriaFromList(List<ReportCriteriaDetailsDto> reportCriteriaDetailsList, Long rptDetailsId) {
@@ -1229,5 +1226,9 @@ public class ReportsService {
 
     public List<ReportCriteriaDetailsDto> getReportCriteriaDetails(String rptDetailsIds){
         return reportsDao.getReportCriteriaDetails(rptDetailsIds, null, null);
+    }
+
+    public List<CarrierDto> getUserCarrierDetailsForReport(Long userId, Long rptId, String customerIds){
+        return reportsDao.getUserCarrierDetailsForReport(userId, rptId, customerIds);
     }
 }
