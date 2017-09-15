@@ -339,7 +339,7 @@ public class DashboardUtil {
         dashboardsFilterCriteria.setFromDate(dashboardAppliedFilter.getFromDate());
         dashboardsFilterCriteria.setLanes(dashboardAppliedFilter.getLanes());
         dashboardsFilterCriteria.setModes(dashboardAppliedFilter.getModes());
-        dashboardsFilterCriteria.setService(dashboardAppliedFilter.getServices());
+        dashboardsFilterCriteria.setServices(dashboardAppliedFilter.getServices());
         dashboardsFilterCriteria.setToDate(dashboardAppliedFilter.getToDate());
         dashboardsFilterCriteria.setConvertWeightUnit(dashboardAppliedFilter.getWeightUnit());
         dashboardsFilterCriteria.setUserId(dashboardAppliedFilter.getLoginUserId());
