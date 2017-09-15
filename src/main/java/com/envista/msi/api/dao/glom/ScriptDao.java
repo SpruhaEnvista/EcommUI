@@ -22,7 +22,7 @@ public class ScriptDao {
     private PersistentContext persistentContext;
 
 
-    public List<ScriptDto> getAll(Map<String, Object> paginationFilterMap, ScriptBean bean) {
+    public List<ScriptDto> getAll(ScriptBean bean) {
 
         QueryParameter queryParameter = StoredProcedureParameter.with("P_SCRIPT_ID", bean.getScriptId())
                 .and("P_CUSTOMER_ID", bean.getCustomerId()).and("P_OFFSET", bean.getOffset()).and("P_PAGE_SIZE", bean.getPageSize())

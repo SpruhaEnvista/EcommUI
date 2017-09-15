@@ -1,6 +1,7 @@
 package com.envista.msi.api.web.rest.dto.glom;
 
 
+
 import com.envista.msi.api.web.rest.dto.CustomerDto;
 
 import javax.persistence.*;
@@ -22,7 +23,7 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_SCRIPT_INFO", type = Void.class)
                 }),
         @NamedStoredProcedureQuery(name = "ScriptDto.getCount", procedureName = "SHP_GLM_GET_SCRIPTS_PRO",
-                resultSetMappings = "ScriptDto.TotalCount",
+                resultSetMappings = "ScriptDtoTotalCount",
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_SCRIPT_ID", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CUSTOMER_ID", type = Integer.class),
@@ -68,7 +69,7 @@ import java.io.Serializable;
                 })
 })
 @SqlResultSetMappings({
-        @SqlResultSetMapping(name = "ScriptDto.TotalCount", classes = {
+        @SqlResultSetMapping(name = "ScriptDtoTotalCount", classes = {
                 @ConstructorResult(
                         targetClass = ScriptDto.class,
                         columns = {
@@ -83,28 +84,28 @@ public class ScriptDto implements Serializable {
     @Column(name = "SCRIPT_ID")
     private long scriptId;
 
-    @Column(name = "SCRIPT_NAME", nullable = false, unique = true)
+    @Column(name = "SCRIPT_NAME")
     private String scriptName;
 
-    @Column(name = "CUSTOMER_ID", nullable = true)
+    @Column(name = "CUSTOMER_ID")
     private int customerId;
 
-    @Column(name = "DESCRIPTION", nullable = true)
+    @Column(name = "DESCRIPTION")
     private String description;
 
-    @Column(name = "EFFECTIVE_DATE", nullable = false, unique = true)
+    @Column(name = "EFFECTIVE_DATE")
     private String effectiveDate;
 
-    @Column(name = "EXPIRY_DATE", nullable = true)
+    @Column(name = "EXPIRY_DATE")
     private String expiryDate;
 
-    @Column(name = "IS_ACTIVE", nullable = true)
+    @Column(name = "IS_ACTIVE")
     private int isActive;
 
-    @Column(name = "IS_Favorite", nullable = false, unique = true)
+    @Column(name = "IS_Favorite")
     private int isFavorite;
 
-    @Column(name = "CUSTOMER_NAME", nullable = true)
+    @Column(name = "CUSTOMER_NAME")
     private String customerName;
 
     @Column(name = "TOTAL_COUNT")

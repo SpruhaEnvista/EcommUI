@@ -4,6 +4,7 @@ import com.envista.msi.api.service.glom.ScriptService;
 import com.envista.msi.api.web.rest.dto.CustomerDto;
 import com.envista.msi.api.web.rest.dto.glom.ScriptBean;
 import com.envista.msi.api.web.rest.dto.glom.ScriptDto;
+import com.envista.msi.api.web.rest.util.DateUtil;
 import com.envista.msi.api.web.rest.util.pagination.PaginationBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -82,6 +84,13 @@ public class ScriptController {
 
 
         bean.setActionType("INSERT");
+
+        if (bean.getExpiryDate() != null)
+            bean.setExpiryDate(DateUtil.format(new Date(Long.valueOf(bean.getExpiryDate())), "dd-MM-yyyy"));
+
+        if (bean.getEffectiveDate() != null)
+            bean.setEffectiveDate(DateUtil.format(new Date(Long.valueOf(bean.getEffectiveDate())), "dd-MM-yyyy"));
+
         ScriptDto dbDto = service.insertOrUpdate(bean);
 
         return new ResponseEntity<ScriptDto>(dbDto, HttpStatus.OK);
@@ -93,6 +102,13 @@ public class ScriptController {
     @RequestMapping(value = "/update", consumes = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.PUT)
     public ResponseEntity<ScriptDto> update(@RequestBody ScriptBean bean) {
         bean.setActionType("UPDATE");
+
+        if (bean.getExpiryDate() != null)
+            bean.setExpiryDate(DateUtil.format(new Date(Long.valueOf(bean.getExpiryDate())), "dd-MM-yyyy"));
+
+        if (bean.getEffectiveDate() != null)
+            bean.setEffectiveDate(DateUtil.format(new Date(Long.valueOf(bean.getEffectiveDate())), "dd-MM-yyyy"));
+
         ScriptDto dbDto = service.insertOrUpdate(bean);
         return new ResponseEntity<ScriptDto>(dbDto, HttpStatus.OK);
     }
