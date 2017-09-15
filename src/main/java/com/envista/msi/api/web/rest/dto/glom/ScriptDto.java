@@ -23,7 +23,7 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_SCRIPT_INFO", type = Void.class)
                 }),
         @NamedStoredProcedureQuery(name = "ScriptDto.getCount", procedureName = "SHP_GLM_GET_SCRIPTS_PRO",
-                resultSetMappings = "ScriptDtoTotalCount",
+                resultSetMappings = "ScriptDto.TotalCount",
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_SCRIPT_ID", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CUSTOMER_ID", type = Integer.class),
@@ -69,7 +69,7 @@ import java.io.Serializable;
                 })
 })
 @SqlResultSetMappings({
-        @SqlResultSetMapping(name = "ScriptDtoTotalCount", classes = {
+        @SqlResultSetMapping(name = "ScriptDto.TotalCount", classes = {
                 @ConstructorResult(
                         targetClass = ScriptDto.class,
                         columns = {

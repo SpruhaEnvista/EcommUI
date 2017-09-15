@@ -30,10 +30,14 @@ public class ScriptService {
 
     public List<ScriptDto> getAll(ScriptBean bean) {
 
+        bean.setActionType("getall");
+
         return dao.getAll(bean);
     }
 
     public int getCount(ScriptBean bean) {
+
+        bean.setActionType("getcount");
 
         return dao.getCount(bean);
     }

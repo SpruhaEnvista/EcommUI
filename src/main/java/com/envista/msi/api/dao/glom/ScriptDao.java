@@ -42,7 +42,7 @@ public class ScriptDao {
         List<ScriptDto> dtos = persistentContext.findEntities("ScriptDto.getCount", queryParameter);
         int count = 0;
         if (null != dtos && dtos.size() > 0) {
-            count = dtos.size();
+            count = dtos.get(0).getTotalCount();
         }
         return count;
     }
