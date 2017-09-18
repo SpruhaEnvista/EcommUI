@@ -36,7 +36,8 @@ public class ScriptController {
     @RequestMapping(value = "/getAll", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
     public ResponseEntity<PaginationBean> getAll(@RequestParam(required = false, defaultValue = "0") Integer offset,
                                                  @RequestParam(required = false, defaultValue = "10") Integer limit,
-                                                 @RequestParam(required = false, defaultValue = "null") String sort
+                                                 @RequestParam(required = false, defaultValue = "null") String sort,
+                                                 @RequestParam(required = false, defaultValue = "1") Integer isActive
     ) throws Exception {
 
         log.info("***getAll method started****");
@@ -45,6 +46,7 @@ public class ScriptController {
         bean.setSortColumn(sort);
         bean.setOffset(offset);
         bean.setPageSize(limit);
+        bean.setIsActive(isActive);
         bean.setActionType("getall");
 
         PaginationBean paginationData = new PaginationBean();
@@ -57,7 +59,8 @@ public class ScriptController {
     public ResponseEntity<PaginationBean> getByCustomer(@RequestParam(required = true) int customerId,
                                                         @RequestParam(required = false, defaultValue = "0") Integer offset,
                                                         @RequestParam(required = false, defaultValue = "10") Integer limit,
-                                                        @RequestParam(required = false, defaultValue = "null") String sort
+                                                        @RequestParam(required = false, defaultValue = "null") String sort,
+                                                        @RequestParam(required = false, defaultValue = "1") Integer isActive
     ) throws Exception {
 
         log.info("***getAll method started****");
@@ -67,6 +70,7 @@ public class ScriptController {
         bean.setOffset(offset);
         bean.setPageSize(limit);
         bean.setCustomerId(customerId);
+        bean.setIsActive(isActive);
         bean.setActionType("getbycustomerid");
 
         PaginationBean paginationData = new PaginationBean();
@@ -113,11 +117,12 @@ public class ScriptController {
         return new ResponseEntity<ScriptDto>(dbDto, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/findByScriptName/{scriptName}/{prevScriptName}", produces = MediaType.TEXT_PLAIN_VALUE, method = RequestMethod.GET)
-    public ResponseEntity<String> findByVoiceName(@PathVariable("scriptName") String scriptName, @PathVariable("prevScriptName") String prevScriptName) {
+    @RequestMapping(value = "/findByScriptName/{scriptName}/{prevScriptName}/{customerId}/{prevCustomerId}", produces = MediaType.TEXT_PLAIN_VALUE, method = RequestMethod.GET)
+    public ResponseEntity<String> findByVoiceName(@PathVariable("scriptName") String scriptName, @PathVariable("prevScriptName") String prevScriptName,
+                                                  @PathVariable("customerId") int customerId, @PathVariable("prevCustomerId") int prevCustomerId) {
 
 
-        ScriptDto dto = service.findByScriptName(scriptName.toUpperCase(), prevScriptName.toUpperCase());
+        ScriptDto dto = service.findByScriptName(scriptName.toUpperCase(), prevScriptName.toUpperCase(), customerId, prevCustomerId);
 
         String msg = "Script Name is not exist";
 

@@ -52,9 +52,9 @@ public class ScriptService {
         return dao.insertOrUpdate(bean);
     }
 
-    public ScriptDto findByScriptName(String scriptName, String prevScriptName) {
+    public ScriptDto findByScriptName(String scriptName, String prevScriptName, int customerId, int prevCustomerId) {
 
-        return dao.findByScriptName(scriptName, prevScriptName);
+        return dao.findByScriptName(scriptName, prevScriptName, customerId, prevCustomerId);
     }
 
     public int delete(String scriptIds) {

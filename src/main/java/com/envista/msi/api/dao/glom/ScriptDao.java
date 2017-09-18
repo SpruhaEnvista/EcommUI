@@ -26,7 +26,7 @@ public class ScriptDao {
 
         QueryParameter queryParameter = StoredProcedureParameter.with("P_SCRIPT_ID", bean.getScriptId())
                 .and("P_CUSTOMER_ID", bean.getCustomerId()).and("P_OFFSET", bean.getOffset()).and("P_PAGE_SIZE", bean.getPageSize())
-                .and("P_SORT_COLUMN", bean.getSortColumn()).and("P_ACTION_TYPE", bean.getActionType());
+                .and("P_SORT_COLUMN", bean.getSortColumn()).and("P_IS_ACTIVE", bean.getIsActive()).and("P_ACTION_TYPE", bean.getActionType());
 
         List<ScriptDto> scriptDtos = persistentContext.findEntities("ScriptDto.getAll", queryParameter);
 
@@ -37,7 +37,7 @@ public class ScriptDao {
 
         QueryParameter queryParameter = StoredProcedureParameter.with("P_SCRIPT_ID", bean.getScriptId())
                 .and("P_CUSTOMER_ID", bean.getCustomerId()).and("P_OFFSET", bean.getOffset()).and("P_PAGE_SIZE", bean.getPageSize())
-                .and("P_SORT_COLUMN", bean.getSortColumn()).and("P_ACTION_TYPE", bean.getActionType());
+                .and("P_SORT_COLUMN", bean.getSortColumn()).and("P_IS_ACTIVE", bean.getIsActive()).and("P_ACTION_TYPE", bean.getActionType());
 
         List<ScriptDto> dtos = persistentContext.findEntities("ScriptDto.getCount", queryParameter);
         int count = 0;
@@ -52,7 +52,7 @@ public class ScriptDao {
 
         QueryParameter queryParameter = StoredProcedureParameter.with("P_SCRIPT_ID", bean.getScriptId())
                 .and("P_CUSTOMER_ID", bean.getCustomerId()).and("P_OFFSET", bean.getOffset()).and("P_PAGE_SIZE", bean.getPageSize())
-                .and("P_SORT_COLUMN", bean.getSortColumn()).and("P_ACTION_TYPE", bean.getActionType());
+                .and("P_SORT_COLUMN", bean.getSortColumn()).and("P_IS_ACTIVE", bean.getIsActive()).and("P_ACTION_TYPE", bean.getActionType());
 
         List<ScriptDto> dtos = persistentContext.findEntities("ScriptDto.getAll", queryParameter);
 
@@ -75,10 +75,10 @@ public class ScriptDao {
         return persistentContext.findEntityAndMapFields("ScriptDto.insertOrUpdate", queryParameter);
     }
 
-    public ScriptDto findByScriptName(String scriptName, String prevScriptName) {
+    public ScriptDto findByScriptName(String scriptName, String prevScriptName, int customerId, int prevCustomerId) {
 
         QueryParameter queryParameter = StoredProcedureParameter.with("P_SCRIPT_NAME", scriptName)
-                .and("P_PREV_SCRIPT_NAME", prevScriptName);
+                .and("P_PREV_SCRIPT_NAME", prevScriptName).and("P_CUSTOMER_ID", customerId).and("P_PREV_CUSTOMER_ID", prevCustomerId);
 
         // return persistentContext.findEntity("VoiceDto.findByVoiceName", queryParameter);
 
