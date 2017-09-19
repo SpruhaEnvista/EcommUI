@@ -307,6 +307,9 @@ public class SavedSchedReportDto {
     @Column(name = "locale")
     private String locale;
 
+    @Transient
+    private Integer category;
+
     public SavedSchedReportDto(Long savedSchedRptId, Long rptId, Boolean scheduled, Integer rptDateOptionsId, Integer reportTypeId, String reportFileName, String dateSelectionFrequency, String date1, String date2,
                                String periodOption, Integer lastNoOfDays, String scTriggerBy, String scScheduleType, Integer scWeeklyFrequency, String scWeeklyMonthlyDayofWeek, Integer scMonthlyDayOfMonth,
                                Integer scMonthlyNoOfMonths, String scMonthlyPeriodicFrequency, String svReportStatus, String submittedOn, String scNextSubmitDate, String carrierIds, String controlPayrunNumber, Boolean consolidate,
@@ -858,5 +861,13 @@ public class SavedSchedReportDto {
         this.weightUom = weightUom;
         this.rptDescr = rptDescr;
         this.rptFolderId = rptFolderId;
+    }
+
+    public Integer getCategory() {
+        return category;
+    }
+
+    public void setCategory(Integer category) {
+        this.category = category;
     }
 }
