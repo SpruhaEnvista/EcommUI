@@ -31,7 +31,7 @@ public class ScriptController {
 
 
     /**
-     * HTTP GET - Get all Voices
+     * HTTP GET - Get all Rules
      */
     @RequestMapping(value = "/getAll", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
     public ResponseEntity<PaginationBean> getAll(@RequestParam(required = false, defaultValue = "0") Integer offset,
@@ -118,8 +118,8 @@ public class ScriptController {
     }
 
     @RequestMapping(value = "/findByScriptName/{scriptName}/{prevScriptName}/{customerId}/{prevCustomerId}", produces = MediaType.TEXT_PLAIN_VALUE, method = RequestMethod.GET)
-    public ResponseEntity<String> findByVoiceName(@PathVariable("scriptName") String scriptName, @PathVariable("prevScriptName") String prevScriptName,
-                                                  @PathVariable("customerId") int customerId, @PathVariable("prevCustomerId") int prevCustomerId) {
+    public ResponseEntity<String> findByScriptName(@PathVariable("scriptName") String scriptName, @PathVariable("prevScriptName") String prevScriptName,
+                                                   @PathVariable("customerId") int customerId, @PathVariable("prevCustomerId") int prevCustomerId) {
 
 
         ScriptDto dto = service.findByScriptName(scriptName.toUpperCase(), prevScriptName.toUpperCase(), customerId, prevCustomerId);
