@@ -15,12 +15,12 @@ import java.util.TreeSet;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_rpt_id", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "refcur_customer_info", type = Void.class)
                 }),
-        @NamedStoredProcedureQuery(name = "ReportCustomerCarrier.getReportCarrier", procedureName = "shp_rpt_carrier_proc",
+        @NamedStoredProcedureQuery(name = "ReportCustomerCarrier.getReportCarrier", procedureName = "shp_rpt_carrier_proc_temp",
                 resultSetMappings = "ReportCarrier",
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_user_id", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_rpt_id", type = Long.class),
-                        //@StoredProcedureParameter(mode = ParameterMode.IN, name = "p_customer_ids", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_customer_ids", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_refcur_carrier_info", type = Void.class)
                 }),
         @NamedStoredProcedureQuery(name = "ReportCustomerCarrier.getCustomerLevels", procedureName = "shp_rpt_customer_levels_proc",
