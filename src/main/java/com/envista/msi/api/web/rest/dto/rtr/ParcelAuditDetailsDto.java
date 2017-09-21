@@ -1,5 +1,7 @@
 package com.envista.msi.api.web.rest.dto.rtr;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -63,6 +65,7 @@ import java.util.Date;
 })
 
 @Entity
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ParcelAuditDetailsDto {
     @Id
     private Long id;
