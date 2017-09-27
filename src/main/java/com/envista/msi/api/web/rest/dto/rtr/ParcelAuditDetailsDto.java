@@ -1,5 +1,7 @@
 package com.envista.msi.api.web.rest.dto.rtr;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -63,6 +65,7 @@ import java.util.Date;
 })
 
 @Entity
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ParcelAuditDetailsDto {
     @Id
     private Long id;
@@ -174,6 +177,9 @@ public class ParcelAuditDetailsDto {
 
     @Column(name = "DW_FIELD_INFORMATION")
     private String dwFieldInformation;
+
+    @Column(name = "SHIPPER_NUMBER")
+    private String shipperNumber;
 
     public ParcelAuditDetailsDto() {
     }
@@ -476,6 +482,14 @@ public class ParcelAuditDetailsDto {
 
     public void setDwFieldInformation(String dwFieldInformation) {
         this.dwFieldInformation = dwFieldInformation;
+    }
+
+    public String getShipperNumber() {
+        return shipperNumber;
+    }
+
+    public void setShipperNumber(String shipperNumber) {
+        this.shipperNumber = shipperNumber;
     }
 
     public static class Config{
