@@ -60,4 +60,10 @@ public class DateUtil {
         DateFormat df = new SimpleDateFormat(format);
         return df.parse (dateString);
     }
+
+    public static String format(Long timeInMilliSeconds, String dateFormat){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(timeInMilliSeconds);
+        return format(calendar.getTime(), dateFormat);
+    }
 }

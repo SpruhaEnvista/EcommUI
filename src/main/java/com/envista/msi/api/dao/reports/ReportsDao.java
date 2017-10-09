@@ -4,10 +4,7 @@ import com.envista.msi.api.dao.type.GenericObject;
 import com.envista.msi.api.domain.PersistentContext;
 import com.envista.msi.api.domain.util.QueryParameter;
 import com.envista.msi.api.domain.util.StoredProcedureParameter;
-import com.envista.msi.api.security.SecurityUtils;
-import com.envista.msi.api.web.rest.dto.UserDetailsDto;
-import com.envista.msi.api.web.rest.dto.UserProfileDto;
-import com.envista.msi.api.web.rest.dto.UserProfileDto;
+import com.envista.msi.api.web.rest.dto.*;
 import com.envista.msi.api.web.rest.dto.reports.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
@@ -17,7 +14,6 @@ import javax.inject.Inject;
 import javax.persistence.ParameterMode;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -202,9 +198,9 @@ public class ReportsDao {
      * @param userId
      * @return List<ReportCustomerCarrierDto>
      */
-    public List<ReportCustomerCarrierDto> getReportCarrier(Long rptId, Long userId){
+    public List<ReportCustomerCarrierDto> getReportCarrier(Long rptId, Long userId,String customerIds){
         QueryParameter queryParameter = StoredProcedureParameter.with("p_user_id", userId)
-                .and("p_rpt_id", rptId);
+                .and("p_rpt_id", rptId).and("p_customer_ids", customerIds);
         return persistentContext.findEntities("ReportCustomerCarrier.getReportCarrier",queryParameter);
     }
     /**
@@ -784,5 +780,62 @@ public class ReportsDao {
         QueryParameter queryParameter = StoredProcedureParameter.with("p_customer_id", customerId)
                 .and("p_report_id", reportId);
         return persistentContext.findEntitiesAndMapFields(ReportCustomColumnDto.Config.CustomColumnNames.STORED_PROCEDURE_QUERY_NAME, queryParameter);
+    }
+
+    public List<CarrierDto> getCarrierDetailsByIds(String carrierIds){
+        return persistentContext.findEntities("CarrierDto.getCarriersByIds", StoredProcedureParameter.with("p_carrier_ids", carrierIds));
+    }
+
+    public List<ReportsDateOptionsCriteriaDto> getDateOptionCriteriaByIds(String dateOptionIds){
+        return persistentContext.findEntities("ReportsDateOptionsCriteriaDto.getDateOptionCriteriaByIds", StoredProcedureParameter.with("p_date_option_ids", dateOptionIds));
+    }
+
+    public List<CustomerDto> getCustomersById(String customerIds){
+        return persistentContext.findEntities("CustomerDto.getCustomersById", StoredProcedureParameter.with("p_customer_ids", customerIds));
+    }
+
+    public List<ShipperGroupDto> getShipperGroupDetails(String shipperGroupIds, String shipperGroupNames, String customerIds){
+        QueryParameter queryParameter = StoredProcedureParameter.with("p_shipper_grp_ids", shipperGroupIds)
+                .and("p_shipper_grp_name", shipperGroupNames)
+                .and("p_customer_ids", customerIds);
+        return persistentContext.findEntities("ShipperGroupDto.getShipperGroupDetails", queryParameter);
+    }
+
+    public List<ShipperGroupDto> getShipperGroupDetails(String shipperGroupIds){
+        return getShipperGroupDetails(shipperGroupIds, null, null);
+    }
+
+    public ShipperGroupDto getShipperGroupById(Long shipperGroupId){
+        ShipperGroupDto shipperGroup = null;
+        List<ShipperGroupDto> shipperGroupList = getShipperGroupDetails(shipperGroupId.toString(), null, null);
+        if(shipperGroupList != null && !shipperGroupList.isEmpty()){
+            shipperGroup = shipperGroupList.get(0);
+        }
+        return shipperGroup;
+    }
+
+    public List<ShipperDto> getShipperDetails(String shipperIds, String shipperNames, String shipperCodes){
+        QueryParameter queryParameter = StoredProcedureParameter.with("p_shipper_ids", shipperIds)
+                .and("p_shipper_names", shipperNames)
+                .and("p_shipper_codes", shipperCodes);
+        return persistentContext.findEntities("ShipperDto.getShipperDetails", queryParameter);
+    }
+
+    public List<ShipperDto> getShipperDetails(String shipperIds){
+        return getShipperDetails(shipperIds, null, null);
+    }
+
+    public List<ReportCriteriaDetailsDto> getReportCriteriaDetails(String rptDetailsIds, String rptIds, String orderBy){
+        QueryParameter queryParameter = StoredProcedureParameter.with("p_rpt_details_ids", rptDetailsIds)
+                .and("p_rpt_ids", rptIds)
+                .and("p_order_by", orderBy);
+        return persistentContext.findEntities("ReportCriteriaDetailsDto.getReportCriteriaDetails", queryParameter);
+    }
+
+    public List<CarrierDto> getUserCarrierDetailsForReport(Long userId, Long rptId, String customerIds){
+        QueryParameter queryParameter = StoredProcedureParameter.with("p_user_id", userId)
+                .and("p_rpt_id", rptId)
+                .and("p_customer_ids", customerIds);
+        return persistentContext.findEntities("CarrierDto.getUserCarrierDetailsForReport", queryParameter);
     }
 }

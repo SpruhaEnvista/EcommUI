@@ -2,15 +2,14 @@ package com.envista.msi.api.service;
 
 import com.envista.msi.api.dao.DaoException;
 import com.envista.msi.api.dao.reports.ReportsDao;
+import com.envista.msi.api.dao.reports.ReportsValidationDao;
+import com.envista.msi.api.dao.reports.UserRoleDao;
 import com.envista.msi.api.dao.type.GenericObject;
 import com.envista.msi.api.domain.util.ReportsUtil;
 import com.envista.msi.api.domain.util.StringEncrypter;
-import com.envista.msi.api.web.rest.dto.UserDetailsDto;
-import com.envista.msi.api.dao.reports.ReportsValidationDao;
-import com.envista.msi.api.dao.reports.UserRoleDao;
-import com.envista.msi.api.web.rest.dto.UserProfileDto;
-import com.envista.msi.api.web.rest.dto.dashboard.DashboardAppliedFilterDto;
+import com.envista.msi.api.web.rest.dto.*;
 import com.envista.msi.api.web.rest.dto.reports.*;
+import com.envista.msi.api.web.rest.util.DateUtil;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,17 +18,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.*;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * Created by Sreenivas on 2/17/2017.
@@ -45,6 +38,8 @@ public class ReportsService {
     @Inject
     private MailService mailService;
 
+    @Inject
+    private UserService userService;
 
     @Inject
     private ReportsValidationDao reportsValidationDao;
@@ -200,8 +195,8 @@ public class ReportsService {
     public List<ReportCustomerCarrierDto> getReportCustomers(Long rptId, Long userId){
         return reportsDao.getReportCustomers(rptId,userId);
     }
-    public List<ReportCustomerCarrierDto> getReportCarrier(Long rptId, Long userId){
-        return reportsDao.getReportCarrier(rptId,userId);
+    public List<ReportCustomerCarrierDto> getReportCarrier(Long rptId, Long userId,String customerIds){
+        return reportsDao.getReportCarrier(rptId,userId,customerIds);
     }
 
     public  ReportCustomerCarrierDto getCustomerHierarchyObject(List<ReportCustomerCarrierDto> customerList) throws JSONException {
@@ -430,10 +425,12 @@ public class ReportsService {
         return physicalFileName;
     }
 
-    public SavedSchedReportDto saveSchedReport(SavedSchedReportDto savedSchedReportDto){
-
+    public SavedSchedReportDto saveSchedReport(SavedSchedReportDto savedSchedReportDto) {
+        String criteria = prepareReportCriteria(savedSchedReportDto);
+        if(criteria != null && !criteria.isEmpty()){
+            savedSchedReportDto.setCriteria(criteria);
+        }
         SavedSchedReportDto savedSchedReport = reportsDao.saveSchedReport(savedSchedReportDto);
-
             if(savedSchedReport.getSavedSchedRptId()>0){
                 if(savedSchedReportDto.getReportsInclColDtoList() == null || savedSchedReportDto.getReportsInclColDtoList().size()==0){
                     ArrayList<ReportColumnDto> defaultInclCols = (ArrayList<ReportColumnDto>) reportsDao.getDefaultInclExclCol(savedSchedReport.getSavedSchedRptId(),
@@ -457,6 +454,258 @@ public class ReportsService {
 
         return savedSchedReport;
     }
+
+    private String prepareReportCriteria(SavedSchedReportDto savedSchedReportDto) {
+        String dateFormat = "MM/dd/yyyy";
+        StringBuffer criteria = new StringBuffer();
+        List<ReportsSavedSchdAccountDto> accounts = savedSchedReportDto.getSavedSchedAccountsDtoList();
+
+        StringJoiner customerIds = new StringJoiner(",");
+        StringJoiner shipperGroupIds = new StringJoiner(",");
+        StringJoiner shipperIds = new StringJoiner(",");
+
+        for(ReportsSavedSchdAccountDto account : accounts){
+            if(account != null){
+                if(account.getCustomerId() != null){
+                    customerIds.add(account.getCustomerId().toString());
+                }
+                if(account.getShipperGroupId() != null){
+                    shipperGroupIds.add(account.getShipperGroupId().toString());
+                }
+                if(account.getShipperId() != null){
+                    shipperIds.add(account.getShipperId().toString());
+                }
+            }
+        }
+
+        if(savedSchedReportDto.getCategory() != null && savedSchedReportDto.getCategory() == 3){
+            int count = 0;
+            UserProfileDto user = null;
+            try{user = userService.getLoggedInUser();}catch (Exception e){throw new RuntimeException("User Not Found!");}
+            List<CarrierDto> carrierList = getUserCarrierDetailsForReport(user.getUserId(), savedSchedReportDto.getRptId(), customerIds.toString());
+            if(carrierList != null && !carrierList.isEmpty()){
+                for(CarrierDto carrier : carrierList){
+                    if(carrier != null){
+                        if (count > 0) {
+                            criteria.append(", ");
+                        }
+
+                        if(count > 3) {
+                            criteria.append(" ...(" + carrierList.size() + ");");
+                            break;
+                        }
+
+                        criteria.append(carrier.getCarrierName());
+                        count++;
+                    }
+                }
+            }
+            criteria.append(";");
+        }
+
+        ReportsDateOptionsCriteriaDto dateOptionsCriteria = null;
+        if(savedSchedReportDto.getRptDateOptionsId() != null){
+            List<ReportsDateOptionsCriteriaDto> reportsDateOptionsCriteriaList = getDateOptionCriteriaByIds(savedSchedReportDto.getRptDateOptionsId().toString());
+            if(null == reportsDateOptionsCriteriaList || reportsDateOptionsCriteriaList.isEmpty() || reportsDateOptionsCriteriaList.get(0) == null){
+                throw new RuntimeException("The dateOptionsBean is null. Cannot proceed with this request. The date options Id used is : " + savedSchedReportDto.getRptDateOptionsId());
+            }
+            dateOptionsCriteria = reportsDateOptionsCriteriaList.get(0);
+        }
+
+
+        if(savedSchedReportDto.getScheduled() != null && savedSchedReportDto.getScheduled() && savedSchedReportDto.getScTriggerBy() != null){
+            criteria.append(" Triggered by: " + savedSchedReportDto.getScTriggerBy());
+        }else if(dateOptionsCriteria.getDateCriteria().toLowerCase().contains("control")){
+            criteria.append("Control Number:" + savedSchedReportDto.getControlPayrunNumber());
+        }else if(dateOptionsCriteria.getDateCriteria().toLowerCase().contains("pay run")){
+            criteria.append("Pay Run Number:" + savedSchedReportDto.getControlPayrunNumber());
+        }else if(dateOptionsCriteria.getDateCriteria().toLowerCase().contains("open")){
+            criteria.append("Open Invoice");
+        }else{
+            String date1 = "";
+            String date2 = "";
+            if(savedSchedReportDto.getDate1() != null && !savedSchedReportDto.getDate1().isEmpty()){
+                date1 = DateUtil.format(Long.parseLong(savedSchedReportDto.getDate1()), dateFormat);
+            }
+            if(savedSchedReportDto.getDate2() != null && !savedSchedReportDto.getDate2().isEmpty()){
+                date2 =  DateUtil.format(Long.parseLong(savedSchedReportDto.getDate2()), dateFormat);
+            }
+            criteria.append(dateOptionsCriteria.getDateCriteria() + ": ");
+            if (savedSchedReportDto.getDateSelectionFrequency() != null && savedSchedReportDto.getDateSelectionFrequency().equalsIgnoreCase("sd")) {
+                criteria.append("Single Date: " + date1);
+            } else if (savedSchedReportDto.getDateSelectionFrequency() != null && savedSchedReportDto.getDateSelectionFrequency().equalsIgnoreCase("dr")) {
+                criteria.append("Date Range: " + date1);
+                criteria.append(" to " + date2);
+            } else if (savedSchedReportDto.getDateSelectionFrequency() != null && savedSchedReportDto.getDateSelectionFrequency().equalsIgnoreCase("sp")) {
+                criteria.append("Specific Period: " + savedSchedReportDto.getPeriodOption() + " ending " + date1);
+            } else if (savedSchedReportDto.getDateSelectionFrequency() != null && savedSchedReportDto.getDateSelectionFrequency().equalsIgnoreCase("rp")) {
+                criteria.append("Rolling Period: " + savedSchedReportDto.getPeriodOption());
+            } else if (savedSchedReportDto.getDateSelectionFrequency() != null && savedSchedReportDto.getDateSelectionFrequency().equalsIgnoreCase("la")) {
+                criteria.append("Last: " + savedSchedReportDto.getLastNoOfDays() + " day(s)");
+            } else if (savedSchedReportDto.getDateSelectionFrequency() != null && savedSchedReportDto.getDateSelectionFrequency().equalsIgnoreCase("tm")) {
+                criteria.append("Today -  " + DateUtil.format(savedSchedReportDto.getDateRangeTodayMinus1().longValue(), dateFormat) + " to Today - " + DateUtil.format(savedSchedReportDto.getDateRangeTodayMinus2().longValue(), dateFormat));
+            } else if (savedSchedReportDto.getDateSelectionFrequency() != null && savedSchedReportDto.getDateSelectionFrequency().equalsIgnoreCase("dm")) {
+                criteria.append("Date Range:  " + date1 + " to Today - " + DateUtil.format(savedSchedReportDto.getDateRangeTodayMinus1().longValue(), dateFormat));
+            }
+        }
+
+        int custCount = 0;
+        int sgCount = 0;
+        int shipperCount = 0;
+        List<ShipperDto> shipperList = null;
+        List<CustomerDto> customerList = null;
+        List<ShipperGroupDto> shipperGroupList = null;
+
+        if(customerIds != null && !customerIds.toString().isEmpty()){
+            customerList = getCustomersById(customerIds.toString());
+        }
+        if(shipperGroupIds != null && !shipperGroupIds.toString().isEmpty()){
+            shipperGroupList = getShipperGroupDetails(shipperGroupIds.toString());
+        }
+        if(shipperIds != null && !shipperIds.toString().isEmpty()){
+            shipperList = getShipperDetails(shipperIds.toString());
+        }
+
+        for(ReportsSavedSchdAccountDto account : accounts){
+            if(account != null){
+                if(account.getCustomerId() != null){
+                    if (custCount > 3) {
+                        criteria.append(" ...");
+                        break;
+                    }
+                    if (custCount > 0) {
+                        criteria.append(", ");
+                    }
+
+                    CustomerDto customer = findCustomerFromList(customerList, account.getCustomerId());
+                    if(customer != null){
+                        if (custCount == 0) {
+                            criteria.append(";");
+                            criteria.append("Customer Accounts in ");
+                        }
+                        criteria.append(customer.getCustomerName());
+                        custCount++;
+                    }
+                }
+            }
+
+            if(account.getShipperGroupId() != null){
+                if (sgCount > 3) {
+                    criteria.append(" ...");
+                    break;
+                }
+                if (sgCount > 0) {
+                    criteria.append(", ");
+                }
+                ShipperGroupDto shipperGroup = findShipperGroupFromList(shipperGroupList, account.getShipperGroupId());
+                if (shipperGroup != null){
+                    if (sgCount == 0) {
+                        criteria.append(";");
+                        criteria.append("Shipper Group Accounts in ");
+                    }
+                    criteria.append(shipperGroup.getShipperGroupName());
+                    sgCount++;
+                }
+            }
+
+            if(account.getShipperId() != null){
+                if (shipperCount > 3) {
+                    criteria.append(" ...");
+                    break;
+                }
+                if (shipperCount > 0) {
+                    criteria.append(", ");
+                }
+
+                ShipperDto shipper = findShipperFromList(shipperList, account.getShipperId());
+                if (shipper != null) {
+                    if (shipperCount == 0) {
+                        criteria.append(";");
+                        criteria.append("Shipper Accounts in ");
+                    }
+                    criteria.append(shipper.getShipperCode());
+                    shipperCount++;
+                }
+            }
+        }
+
+        if(savedSchedReportDto.getReportCriteriaList() != null && !savedSchedReportDto.getReportCriteriaList().isEmpty()) {
+            List<ReportCriteriaDetailsDto> reportCriteriaDetailsList = null;
+            StringJoiner rptDetailsIds = new StringJoiner(",");
+            for (ReportSavedSchdCriteriaDto savedSchdCriteria : savedSchedReportDto.getReportCriteriaList()) {
+                if (savedSchdCriteria != null && savedSchdCriteria.getRptDetailsId() != null) {
+                    rptDetailsIds.add(savedSchdCriteria.getRptDetailsId().toString());
+                }
+            }
+            if (rptDetailsIds != null && !rptDetailsIds.toString().isEmpty()){
+                reportCriteriaDetailsList = getReportCriteriaDetails(rptDetailsIds.toString());
+            }
+            for(ReportSavedSchdCriteriaDto savedSchdCriteria : savedSchedReportDto.getReportCriteriaList()){
+                if(savedSchdCriteria != null){
+                    ReportCriteriaDetailsDto rptCriteria = findReportCriteriaFromList(reportCriteriaDetailsList, savedSchdCriteria.getRptDetailsId());
+                    criteria.append(";");
+                    criteria.append(rptCriteria.getColumnName()
+                            + " "
+                            + savedSchdCriteria.getAssignOperator()
+                            + " "
+                            + ((savedSchdCriteria.getValue() != null) ? ((savedSchdCriteria.getAssignOperator().contains("is null") || savedSchdCriteria
+                            .getAssignOperator().contains("is not null")) ? "" : savedSchdCriteria.getValue()) : "") + " ");
+                    if (savedSchdCriteria.getMatchCase() != null  && savedSchdCriteria.getMatchCase()) {
+                        criteria.append(" (Case Sensitive)");
+                    }
+                }
+            }
+        }
+        if(criteria != null && !criteria.toString().isEmpty()){
+            savedSchedReportDto.setCriteria(criteria.toString());
+        }
+        return criteria.toString();
+    }
+
+    private ReportCriteriaDetailsDto findReportCriteriaFromList(List<ReportCriteriaDetailsDto> reportCriteriaDetailsList, Long rptDetailsId) {
+        if(reportCriteriaDetailsList != null){
+            for(ReportCriteriaDetailsDto rptCriteria : reportCriteriaDetailsList){
+                if(rptCriteria != null && rptCriteria.getRptDetailsId() != null && rptDetailsId != null && rptCriteria.getRptDetailsId().equals(rptDetailsId)){
+                    return rptCriteria;
+                }
+            }
+        }
+        return null;
+    }
+
+    private ShipperDto findShipperFromList(List<ShipperDto> shipperList, Long shipperId) {
+        if(shipperList != null){
+            for(ShipperDto shipper : shipperList){
+                if(shipper != null && shipper.getShipperId() != null && shipperId != null && shipper.getShipperId().equals(shipperId)){
+                    return shipper;
+                }
+            }
+        }
+        return null;
+    }
+
+    private ShipperGroupDto findShipperGroupFromList(List<ShipperGroupDto> shipperGroupList, Long shipperGroupId) {
+        if(shipperGroupList != null){
+            for(ShipperGroupDto shipperGroup : shipperGroupList){
+                if(shipperGroup != null && shipperGroup.getShipperGroupId() != null && shipperGroupId != null && shipperGroup.getShipperGroupId().equals(shipperGroupId)){
+                    return shipperGroup;
+                }
+            }
+        }
+        return null;
+    }
+
+    private CustomerDto findCustomerFromList(List<CustomerDto> customerList, Long customerId) {
+        if(customerList != null){
+            for(CustomerDto customer : customerList){
+                if(customer != null && customer.getCustomerId() != null && customerId != null && customer.getCustomerId().equals(customerId)){
+                    return customer;
+                }
+            }
+        }
+        return null;
+    }
+
     private void moveReportToFolder(Long savedSchedRptId, Long rptFolderId){
         ReportFolderDetailsDto rptFolderDetails = new ReportFolderDetailsDto();
         rptFolderDetails.setSavedSchdReportId(savedSchedRptId);
@@ -932,7 +1181,9 @@ public class ReportsService {
     }
 
     public List<String> getReportWeightList(){
-        return Arrays.asList("LBS", "KGS", "LITRES", "GALLONS", "TONS");
+        List<String> weightList = new ArrayList<>(Arrays.asList("LBS", "KGS", "LITRES", "GALLONS", "TONS"));
+        Collections.sort(weightList);
+        return weightList;
     }
 
     public Map<String, String> getReportCustomColumnNames(String customerId, Long reportId){
@@ -947,5 +1198,37 @@ public class ReportsService {
             }
         }
         return customColsMap;
+    }
+
+    public List<CarrierDto> getCarrierDetailsByIds(String carrierIds){
+        return reportsDao.getCarrierDetailsByIds(carrierIds);
+    }
+
+    public List<ReportsDateOptionsCriteriaDto> getDateOptionCriteriaByIds(String dateOptionIds){
+        return reportsDao.getDateOptionCriteriaByIds(dateOptionIds);
+    }
+
+    public List<CustomerDto> getCustomersById(String customerIds){
+        return reportsDao.getCustomersById(customerIds);
+    }
+
+    public ShipperGroupDto getShipperGroupById(Long shipperGroupId){
+        return reportsDao.getShipperGroupById(shipperGroupId);
+    }
+
+    public List<ShipperGroupDto> getShipperGroupDetails(String shipperGroupIds){
+        return reportsDao.getShipperGroupDetails(shipperGroupIds);
+    }
+
+    public List<ShipperDto> getShipperDetails(String shipperIds){
+        return reportsDao.getShipperDetails(shipperIds);
+    }
+
+    public List<ReportCriteriaDetailsDto> getReportCriteriaDetails(String rptDetailsIds){
+        return reportsDao.getReportCriteriaDetails(rptDetailsIds, null, null);
+    }
+
+    public List<CarrierDto> getUserCarrierDetailsForReport(Long userId, Long rptId, String customerIds){
+        return reportsDao.getUserCarrierDetailsForReport(userId, rptId, customerIds);
     }
 }

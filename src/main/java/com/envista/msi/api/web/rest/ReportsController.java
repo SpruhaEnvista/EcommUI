@@ -183,9 +183,40 @@ public class ReportsController {
         }
         return new ResponseEntity<JSONObject>(customCarrierJson, HttpStatus.OK);
     }
+    @RequestMapping(value = "/customerlist", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<JSONObject> getCustomers(@RequestParam String rptId,@RequestParam String userId){
+        JSONObject customerJson = null;
+        try {
+
+            List<ReportCustomerCarrierDto> customerList = reportsService.getReportCustomers(Long.parseLong(rptId), Long.parseLong(userId));
+            customerJson = new JSONObject();
+            if (customerList != null && customerList.size() > 0) {
+                customerJson.put("customerList", JSONUtil.customerHierarchyJson(reportsService.getCustomerHierarchyObject(customerList)));
+            }
+        }catch(Exception e){
+            return new ResponseEntity<JSONObject>(new JSONObject(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<JSONObject>(customerJson, HttpStatus.OK);
+    }
+    @RequestMapping(value = "/carrierlist", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<JSONObject> getCarriers(@RequestParam String rptId,@RequestParam String userId,@RequestParam String customerIds){
+        JSONObject carrierJson = null;
+        try {
+            List<ReportCustomerCarrierDto> carrierList=reportsService.getReportCarrier(Long.parseLong(rptId),Long.parseLong(userId),customerIds);
+            carrierJson = new JSONObject();
+            if(carrierList!=null && carrierList.size()>0) {
+                carrierJson.put("carrierList",JSONUtil.carriersJson(carrierList));
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+            return new ResponseEntity<JSONObject>(new JSONObject(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<JSONObject>(carrierJson, HttpStatus.OK);
+
+    }
     public JSONObject loadCustomerCarrierJson(Long userId,Long rptId) throws JSONException{
         List<ReportCustomerCarrierDto> customerList=reportsService.getReportCustomers(rptId,userId);
-        List<ReportCustomerCarrierDto> carrierList=reportsService.getReportCarrier(rptId,userId);
+        List<ReportCustomerCarrierDto> carrierList=reportsService.getReportCarrier(rptId,userId,"");
         JSONObject customerCarrierJson=new JSONObject();
         if(customerList!=null && customerList.size()>0) {
             customerCarrierJson.put("customerList", JSONUtil.customerHierarchyJson(reportsService.getCustomerHierarchyObject(customerList)));
