@@ -4,7 +4,6 @@ import com.envista.msi.api.domain.PersistentContext;
 import com.envista.msi.api.domain.util.QueryParameter;
 import com.envista.msi.api.domain.util.StoredProcedureParameter;
 import com.envista.msi.api.web.rest.dto.invoicing.CreditResponseDto;
-import com.envista.msi.api.web.rest.dto.invoicing.DashBoardDto;
 import org.springframework.stereotype.Repository;
 
 import javax.inject.Inject;
@@ -26,7 +25,7 @@ public class CreditResponseDao {
             QueryParameter queryParameter = StoredProcedureParameter.with("P_CREDIT_RESP_ID", 0L)
                     .and("P_CUSTOMER_CODE", dto.getCustomerCode()).and("P_TRACKING_NUMBER", dto.getTrackingNumber())
                     .and("P_NOTES", dto.getNotes()).and("P_STATUS", dto.getStatus()).and("P_FILE_INFO_ID", dto.getFileInfoId())
-                    .and("P_ACTION_TYPE", "insert");
+                    .and("P_FILE_TYPE_ID", dto.getFileTypeId()).and("P_ACTION_TYPE", "insert");
 
             persistentContext.findEntities("CreditResponseDto.insertOrUpdate", queryParameter);
 

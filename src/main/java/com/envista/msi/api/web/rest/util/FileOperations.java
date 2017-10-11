@@ -48,7 +48,7 @@ public class FileOperations {
 
         FileOperations fileOperations = new FileOperations();
 
-        fileOperations.customOmitFileUploadOperation(null, 0L);
+        fileOperations.customOmitFileUploadOperation(null, 0L,"Voids",1L);
     }
 
     public String getFileServerAbsolutePath(String physicalFileName) throws FileNotFoundException {
@@ -62,12 +62,13 @@ public class FileOperations {
         return physicalFileName;
     }
 
-    public List<CreditResponseDto> customOmitFileUploadOperation(MultipartFile file, Long fileInfoId) throws IOException {
+    public List<CreditResponseDto> customOmitFileUploadOperation(MultipartFile file, Long fileInfoId,String fileType,Long fileTypeId) throws IOException {
         LOG.info("***customOmitFileUploadOperation method started***");
 
         List<CreditResponseDto> dtos = new ArrayList<CreditResponseDto>();
         FileOutputStream outputStream = null;
         String filePath = InvConstants.filePath;
+        String fileName=file.getOriginalFilename();
         File dir = new File(filePath);
         int count = 0;
         if (!dir.exists())
@@ -93,10 +94,23 @@ public class FileOperations {
 
                         CreditResponseDto dto = new CreditResponseDto();
                         dto.setFileInfoId(fileInfoId);
-                        dto.setCustomerCode(lineArray[1]);
-                        dto.setTrackingNumber(lineArray[3]);
-                        dto.setNotes(lineArray[10]);
-                        dto.setStatus(lineArray[16]);
+                        if(fileType != null && fileType.equalsIgnoreCase("Voids")){
+                            dto.setCustomerCode(lineArray[1]);
+                            dto.setTrackingNumber(lineArray[3] != null?StringEscapeUtils.escapeCsv(lineArray[3].replace("\'","")):"");
+                            dto.setNotes(lineArray[10] != null ?StringEscapeUtils.escapeCsv(lineArray[10].replace("\'","")):"");
+                            dto.setStatus(lineArray[16]);
+                            dto.setFileTypeId(fileTypeId);
+                        }else if(fileType != null && fileType.equalsIgnoreCase("GSRs")){
+                            dto.setTrackingNumber(lineArray[0] != null ?StringEscapeUtils.escapeCsv(lineArray[0].replace("\'","")):"");
+                            dto.setNotes(lineArray[6] != null ? StringEscapeUtils.escapeCsv(lineArray[6]):"");
+                            dto.setStatus("Approved");
+                            dto.setFileTypeId(fileTypeId);
+                        }else if(fileType != null && fileType.equalsIgnoreCase("Address Corrections and Residentials")){
+                            dto.setTrackingNumber(lineArray[0] != null ?StringEscapeUtils.escapeCsv(lineArray[0].replace("\'","")):"");
+                            dto.setNotes(lineArray[6] != null?StringEscapeUtils.escapeCsv(lineArray[6]):"");
+                            dto.setStatus("Approved");
+                            dto.setFileTypeId(fileTypeId);
+                        }
                         dtos.add(dto);
                     }
 
@@ -357,7 +371,7 @@ public class FileOperations {
             XSSFSheet sheet = workbook.createSheet("Pending Credits");
 
             Map<Integer, Object[]> data = new HashMap<Integer, Object[]>();
-            data.put(1, new Object[] {"CUSTOMER CODE","CARRIER","TRACKING NUMBER","SHIPPER NUMBER","INVOICE NUMBER","INVOICE DATE","SHIP FROM","SHIP TO","REFERENCE NUMBER","REASON","WEEK END DATE","CREDIT AMOUNT","OMIT FLAG","REVIEW FLAG","COMMENTS"});
+            data.put(1, new Object[] {"CUSTOMER CODE","CARRIER","TRACKING NUMBER","SHIPPER NUMBER","INVOICE NUMBER","INVOICE DATE","SHIP FROM","SHIP TO","REFERENCE NUMBER","REASON","WEEK END DATE","CREDIT AMOUNT","OMIT FLAG","REVIEW FLAG","CREDIT CLASS","COMMENTS"});
             int count = 1;
             for(CreditsPRDto pendingCreditsDto:pendingCreditsDtos){
                 count++;
@@ -376,6 +390,7 @@ public class FileOperations {
                         pendingCreditsDto.getCreditAmount() != null?pendingCreditsDto.getCreditAmount().toString():"",
                         pendingCreditsDto.getOmitFlag() != null?pendingCreditsDto.getOmitFlag().toString():"",
                         pendingCreditsDto.getReviewFlag() != null?pendingCreditsDto.getReviewFlag().toString():"",
+                        pendingCreditsDto.getCreditClass() != null?pendingCreditsDto.getCreditClass().toString():"",
                         pendingCreditsDto.getComments() != null?pendingCreditsDto.getComments().toString():""
                 });
             }
@@ -446,6 +461,8 @@ public class FileOperations {
                 writer.append(COMMA_SEPARATOR);
                 writer.append("REVIEW FLAG");
                 writer.append(COMMA_SEPARATOR);
+                writer.append("CREDIT CLASS");
+                writer.append(COMMA_SEPARATOR);
                 writer.append("COMMENTS");
                 writer.append('\n');
                 for(CreditsPRDto pendingCreditsDto:pendingCreditsDtos){
@@ -476,6 +493,8 @@ public class FileOperations {
                     writer.append(pendingCreditsDto.getOmitFlag() != null?StringEscapeUtils.escapeCsv(pendingCreditsDto.getOmitFlag().toString()):"");
                     writer.append(COMMA_SEPARATOR);
                     writer.append(pendingCreditsDto.getReviewFlag() != null?StringEscapeUtils.escapeCsv(pendingCreditsDto.getReviewFlag()).toString():"");
+                    writer.append(COMMA_SEPARATOR);
+                    writer.append(pendingCreditsDto.getCreditClass() != null?StringEscapeUtils.escapeCsv(pendingCreditsDto.getCreditClass().toString()):"");
                     writer.append(COMMA_SEPARATOR);
                     writer.append(pendingCreditsDto.getComments() != null?StringEscapeUtils.escapeCsv(pendingCreditsDto.getComments().toString()):"");
                     writer.append('\n');

@@ -4,6 +4,7 @@ import com.envista.msi.api.domain.PersistentContext;
 import com.envista.msi.api.domain.util.QueryParameter;
 import com.envista.msi.api.domain.util.StoredProcedureParameter;
 import com.envista.msi.api.web.rest.dto.invoicing.DashBoardDto;
+import com.envista.msi.api.web.rest.dto.invoicing.FileDefDto;
 import com.envista.msi.api.web.rest.dto.invoicing.FileInfoDto;
 import com.envista.msi.api.web.rest.dto.invoicing.WeekStatusDto;
 import org.springframework.stereotype.Repository;
@@ -72,9 +73,9 @@ public class DashBoardDao {
         return 0;
     }
 
-    public FileInfoDto insertFileInfo(String fileName, Long weekEndId, String userName) {
+    public FileInfoDto insertFileInfo(String fileName, Long weekEndId, String userName,Long fileTypeId) {
 
-        QueryParameter queryParameter = StoredProcedureParameter.with("P_FILE_NAME", fileName).and("P_WEEK_END_ID", weekEndId).and("P_USER_NAME", userName);
+        QueryParameter queryParameter = StoredProcedureParameter.with("P_FILE_NAME", fileName).and("P_WEEK_END_ID", weekEndId).and("P_USER_NAME", userName).and("P_FILE_TYPE_ID", fileTypeId);
 
         List<FileInfoDto> dtos = persistentContext.findEntities("DashBoardDto.insertFileInfo", queryParameter);
         FileInfoDto dto = null;
@@ -97,6 +98,27 @@ public class DashBoardDao {
             dto = dtos.get(0);
         }
         return dto;
+    }
+
+    public List<FileDefDto> getFileDefTypesListInfo() {
+
+        QueryParameter queryParameter = StoredProcedureParameter.with("P_FILE_DEF_ID", 0L).and("P_ACTION_TYPE", "getAll");
+
+        return persistentContext.findEntities("FileDefDto.getFileDefTypes", queryParameter);
+
+    }
+
+    public FileDefDto validateFileType(long fileTypeId) {
+
+        QueryParameter queryParameter = StoredProcedureParameter.with("P_FILE_DEF_ID", fileTypeId).and("P_ACTION_TYPE", "getFileTypeById");
+
+        List<FileDefDto> dtos =  persistentContext.findEntities("FileDefDto.getFileDefTypes", queryParameter);
+        FileDefDto dto = null;
+        if (null != dtos && dtos.size() > 0) {
+            dto = dtos.get(0);
+        }
+        return dto;
+
     }
 
 }

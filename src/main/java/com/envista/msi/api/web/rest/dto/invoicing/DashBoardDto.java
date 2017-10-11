@@ -46,6 +46,7 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_FILE_NAME", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_WEEK_END_ID", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_USER_NAME", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_FILE_TYPE_ID", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_FILE_INFO", type = Void.class)
                 })
 })

@@ -105,19 +105,27 @@ public class DashBoardController {
     }
 
     @RequestMapping(value = "/uploadCreditRespInfo", method = RequestMethod.POST)
-    public ResponseEntity<String> UploadCreditResp(@RequestParam("files") MultipartFile[] file, @RequestParam("weekEndId") Long weekEndId, @RequestParam("userName") String userName, HttpServletRequest request) throws IOException {
+    public ResponseEntity<String> UploadCreditResp(@RequestParam("files") MultipartFile[] file, @RequestParam("weekEndId") Long weekEndId, @RequestParam("userName") String userName, HttpServletRequest request, @RequestParam("fileTypeId") Long fileTypeId, @RequestParam("fileType") String fileType) throws IOException {
         log.info("***UploadCreditResp method started***");
+        String responseStr="";
         try {
             MultipartHttpServletRequest mRequest;
             mRequest = (MultipartHttpServletRequest) request;
             List<MultipartFile> files = mRequest.getFiles("file");
-            FileInfoDto fileInfoDto = service.insertFileInfo(files.get(0).getOriginalFilename(), weekEndId, userName);
-            List<CreditResponseDto> dtos = fileOperations.customOmitFileUploadOperation(files.get(0), fileInfoDto != null ? fileInfoDto.getId() : 0L);
-            creditResponseService.insert(dtos);
+            //FileDefDto dto=service.validateFileType(fileTypeId);
+            //if(dto !=null && dto.getId() >0){
+                FileInfoDto fileInfoDto = service.insertFileInfo(files.get(0).getOriginalFilename(), weekEndId, userName,fileTypeId);
+                List<CreditResponseDto> dtos = fileOperations.customOmitFileUploadOperation(files.get(0), fileInfoDto != null ? fileInfoDto.getId() : 0L,fileType,fileTypeId);
+                creditResponseService.insert(dtos);
+                responseStr="file uploaded Successfully";
+           // }else{
+               // responseStr="invalid file format";
+            //}
+
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new ResponseEntity<String>("file(s) uploaded Successfully", HttpStatus.OK);
+        return new ResponseEntity<String>(responseStr, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/testUpload", method = RequestMethod.POST)
@@ -125,7 +133,7 @@ public class DashBoardController {
         log.info("***UploadCreditResp method started***");
         try {
 
-            List<CreditResponseDto> dtos = fileOperations.customOmitFileUploadOperation(null, 0L);
+            List<CreditResponseDto> dtos = fileOperations.customOmitFileUploadOperation(null, 0L,"Voids",1L);
             creditResponseService.insert(dtos);
         } catch (Exception e) {
             e.printStackTrace();
@@ -170,6 +178,16 @@ public class DashBoardController {
 
         log.info("***getWeekStatusInfo json***==== " + dto);
         return new ResponseEntity<WeekStatusDto>(dto, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/getFileDefTypesList",produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+    public ResponseEntity<List<FileDefDto>> getFileDefTypesListInfo() throws JSONException {
+        log.info("***getFileDefTypesListInfo method started****");
+
+        List<FileDefDto> dtos = service.getFileDefTypesListInfo();
+
+        log.info("***getFileDefTypesListInfo json***==== " + dtos);
+        return new ResponseEntity<List<FileDefDto>>(dtos, HttpStatus.OK);
     }
 
 }
