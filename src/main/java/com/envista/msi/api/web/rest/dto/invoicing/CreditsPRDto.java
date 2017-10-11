@@ -146,6 +146,9 @@ public class CreditsPRDto implements Serializable {
     @Column(name = "INTERNAL_INVOICING_COMMENTS")
     private String comments;
 
+    @Column(name = "CREDIT_CLASS")
+    private String creditClass;
+
     @Column(name = "UPDATE_COUNT")
     private int updateCount;
 
@@ -293,4 +296,8 @@ public class CreditsPRDto implements Serializable {
     public void setUpdateCount(int updateCount) {
         this.updateCount = updateCount;
     }
+
+    public String getCreditClass() { return creditClass; }
+
+    public void setCreditClass(String creditClass) { this.creditClass = creditClass;  }
 }
