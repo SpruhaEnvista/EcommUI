@@ -102,15 +102,15 @@ public class DashBoardDao {
 
     public List<FileDefDto> getFileDefTypesListInfo() {
 
-        QueryParameter queryParameter = StoredProcedureParameter.with("P_FILE_DEF_ID", 0L).and("P_ACTION_TYPE", "getAll");
+        QueryParameter queryParameter = StoredProcedureParameter.with("P_FILE_DEF_ID", 0L).and("P_FILE_SIGNATURE", null).and("P_ACTION_TYPE", "getAll");
 
         return persistentContext.findEntities("FileDefDto.getFileDefTypes", queryParameter);
 
     }
 
-    public FileDefDto validateFileType(long fileTypeId) {
+    public FileDefDto validateFileType(long fileTypeId,String fileSignature) {
 
-        QueryParameter queryParameter = StoredProcedureParameter.with("P_FILE_DEF_ID", fileTypeId).and("P_ACTION_TYPE", "getFileTypeById");
+        QueryParameter queryParameter = StoredProcedureParameter.with("P_FILE_DEF_ID", fileTypeId).and("P_FILE_SIGNATURE", fileSignature).and("P_ACTION_TYPE", "getFileTypeById");
 
         List<FileDefDto> dtos =  persistentContext.findEntities("FileDefDto.getFileDefTypes", queryParameter);
         FileDefDto dto = null;

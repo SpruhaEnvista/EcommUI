@@ -60,8 +60,8 @@ public class DashBoardService {
 
         return dao.getFileDefTypesListInfo();
     }
-    public FileDefDto validateFileType(long fileTypeId) {
+    public FileDefDto validateFileType(long fileTypeId,String fileSignature) {
 
-        return dao.validateFileType(fileTypeId);
+        return dao.validateFileType(fileTypeId,fileSignature);
     }
 }

@@ -21,6 +21,7 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by KRISHNAREDDYM on 5/8/2017.
@@ -112,15 +113,17 @@ public class DashBoardController {
             MultipartHttpServletRequest mRequest;
             mRequest = (MultipartHttpServletRequest) request;
             List<MultipartFile> files = mRequest.getFiles("file");
-            //FileDefDto dto=service.validateFileType(fileTypeId);
-            //if(dto !=null && dto.getId() >0){
+            Map<String,Object> resObj=null;
+            List<CreditResponseDto> dtos=null;
+            resObj= fileOperations.customOmitFileUploadOperation(files.get(0), 0L,fileType,fileTypeId);
+            if(resObj != null && resObj.size() >0 && resObj.get("dtos") != null){
                 FileInfoDto fileInfoDto = service.insertFileInfo(files.get(0).getOriginalFilename(), weekEndId, userName,fileTypeId);
-                List<CreditResponseDto> dtos = fileOperations.customOmitFileUploadOperation(files.get(0), fileInfoDto != null ? fileInfoDto.getId() : 0L,fileType,fileTypeId);
+                dtos=(List<CreditResponseDto>)resObj.get("dtos");
                 creditResponseService.insert(dtos);
                 responseStr="file uploaded Successfully";
-           // }else{
-               // responseStr="invalid file format";
-            //}
+            }else{
+                responseStr="Invalid file format";
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -132,8 +135,10 @@ public class DashBoardController {
     public ResponseEntity<String> testUpload() throws IOException {
         log.info("***UploadCreditResp method started***");
         try {
+            Map<String,Object> resObj=null;
+            List<CreditResponseDto> dtos=null;
 
-            List<CreditResponseDto> dtos = fileOperations.customOmitFileUploadOperation(null, 0L,"Voids",1L);
+            resObj= fileOperations.customOmitFileUploadOperation(null, 0L,"Voids",1L);
             creditResponseService.insert(dtos);
         } catch (Exception e) {
             e.printStackTrace();

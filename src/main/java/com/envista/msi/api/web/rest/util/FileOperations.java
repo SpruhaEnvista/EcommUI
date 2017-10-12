@@ -1,9 +1,7 @@
 package com.envista.msi.api.web.rest.util;
 
-import com.envista.msi.api.web.rest.dto.invoicing.CreditResponseDto;
-import com.envista.msi.api.web.rest.dto.invoicing.CreditsPRDto;
-import com.envista.msi.api.web.rest.dto.invoicing.CustomOmitsDto;
-import com.envista.msi.api.web.rest.dto.invoicing.VoiceDto;
+import com.envista.msi.api.dao.invoicing.DashBoardDao;
+import com.envista.msi.api.web.rest.dto.invoicing.*;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
@@ -17,6 +15,7 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
@@ -38,6 +37,9 @@ public class FileOperations {
     @Value("${FILESERVER}")
     private String fileServer;
     private static final String MIME_TYPE = "application/text";
+
+    @Autowired
+    DashBoardDao dao;
 
     String fileNameForXLSX="";
     String fileNameForCSV="";
@@ -62,10 +64,11 @@ public class FileOperations {
         return physicalFileName;
     }
 
-    public List<CreditResponseDto> customOmitFileUploadOperation(MultipartFile file, Long fileInfoId,String fileType,Long fileTypeId) throws IOException {
+    public Map<String,Object> customOmitFileUploadOperation(MultipartFile file, Long fileInfoId,String fileType,Long fileTypeId) throws IOException {
         LOG.info("***customOmitFileUploadOperation method started***");
 
         List<CreditResponseDto> dtos = new ArrayList<CreditResponseDto>();
+        Map<String,Object> resObject=new HashMap<String,Object>();
         FileOutputStream outputStream = null;
         String filePath = InvConstants.filePath;
         String fileName=file.getOriginalFilename();
@@ -83,10 +86,15 @@ public class FileOperations {
             String cvsSplitBy = ",";
 
             try (BufferedReader br = new BufferedReader(new FileReader(savedFilepath))) {
+                FileDefDto fileDefDto=null;
                 while ((line = br.readLine()) != null) {
-
-                    // use comma as separator
-                    if (count != 0) {
+                    if(count == 0){
+                        line=line.replaceAll(",","*").concat("*");
+                        fileDefDto= dao.validateFileType(fileTypeId,line);
+                        if(fileDefDto == null){
+                            resObject.put("error","Invalid File Format");
+                        }
+                    }else if (count != 0 && null != fileDefDto) {
                         if (StringUtils.containsIgnoreCase(line, "\"")) {
                             line = StringUtils.remove(line, "\"");
                         }
@@ -112,6 +120,7 @@ public class FileOperations {
                             dto.setFileTypeId(fileTypeId);
                         }
                         dtos.add(dto);
+                        resObject.put("dtos",dtos);
                     }
 
                     count++;
@@ -129,7 +138,7 @@ public class FileOperations {
             e.printStackTrace();
         }
 
-        return dtos;
+        return resObject;
     }
     /*
         This method exports the voices data

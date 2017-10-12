@@ -11,6 +11,7 @@ import javax.persistence.*;
                 resultClasses = FileDefDto.class,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_FILE_DEF_ID", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_FILE_SIGNATURE", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_FILE_DEF_INFO", type = Void.class)
                 })
