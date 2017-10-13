@@ -98,7 +98,7 @@ public class FileOperations {
                         /*if (StringUtils.containsIgnoreCase(line, "\"")) {
                             line = StringUtils.remove(line, "\"");
                         }*/
-                        String[] lineArray = line.split(",(?=([^\"]|\"[^\"]*\")*$)");;
+                        String[] lineArray = line.split(",(?=([^\"]|\"[^\"]*\")*$)");
 
                         CreditResponseDto dto = new CreditResponseDto();
                         dto.setFileInfoId(fileInfoId);
