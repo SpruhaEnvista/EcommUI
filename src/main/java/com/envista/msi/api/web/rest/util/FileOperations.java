@@ -3,7 +3,6 @@ package com.envista.msi.api.web.rest.util;
 import com.envista.msi.api.dao.invoicing.DashBoardDao;
 import com.envista.msi.api.web.rest.dto.invoicing.*;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.util.HSSFColor;
@@ -83,7 +82,7 @@ public class FileOperations {
             outputStream.write(file.getBytes());
             outputStream.close();
             String line = "";
-            String cvsSplitBy = ",";
+            //String cvsSplitBy = ",";
 
             try (BufferedReader br = new BufferedReader(new FileReader(savedFilepath))) {
                 FileDefDto fileDefDto=null;
@@ -93,29 +92,30 @@ public class FileOperations {
                         fileDefDto= dao.validateFileType(fileTypeId,line);
                         if(fileDefDto == null){
                             resObject.put("error","Invalid File Format");
+                            break;
                         }
                     }else if (count != 0 && null != fileDefDto) {
-                        if (StringUtils.containsIgnoreCase(line, "\"")) {
+                        /*if (StringUtils.containsIgnoreCase(line, "\"")) {
                             line = StringUtils.remove(line, "\"");
-                        }
-                        String[] lineArray = line.split(cvsSplitBy);
+                        }*/
+                        String[] lineArray = line.split(",(?=([^\"]|\"[^\"]*\")*$)");;
 
                         CreditResponseDto dto = new CreditResponseDto();
                         dto.setFileInfoId(fileInfoId);
                         if(fileType != null && fileType.equalsIgnoreCase("Voids")){
                             dto.setCustomerCode(lineArray[1]);
-                            dto.setTrackingNumber(lineArray[3] != null?StringEscapeUtils.escapeCsv(lineArray[3].replace("\'","")):"");
-                            dto.setNotes(lineArray[10] != null ?StringEscapeUtils.escapeCsv(lineArray[10].replace("\'","")):"");
+                            dto.setTrackingNumber(lineArray[3] != null?lineArray[3].replace("\'",""):"");
+                            dto.setNotes(lineArray[10] != null ?lineArray[10].replace("\'","").replaceAll("\"",""):"");
                             dto.setStatus(lineArray[16]);
                             dto.setFileTypeId(fileTypeId);
                         }else if(fileType != null && fileType.equalsIgnoreCase("GSRs")){
-                            dto.setTrackingNumber(lineArray[0] != null ?StringEscapeUtils.escapeCsv(lineArray[0].replace("\'","")):"");
-                            dto.setNotes(lineArray[6] != null ? StringEscapeUtils.escapeCsv(lineArray[6]):"");
+                            dto.setTrackingNumber(lineArray[0] != null ?lineArray[0].replace("\'",""):"");
+                            dto.setNotes(lineArray[6] != null ? lineArray[6].replaceAll("\"",""):"");
                             dto.setStatus("Approved");
                             dto.setFileTypeId(fileTypeId);
                         }else if(fileType != null && fileType.equalsIgnoreCase("Address Corrections and Residentials")){
-                            dto.setTrackingNumber(lineArray[0] != null ?StringEscapeUtils.escapeCsv(lineArray[0].replace("\'","")):"");
-                            dto.setNotes(lineArray[6] != null?StringEscapeUtils.escapeCsv(lineArray[6]):"");
+                            dto.setTrackingNumber(lineArray[0] != null ?lineArray[0].replace("\'",""):"");
+                            dto.setNotes(lineArray[6] != null?lineArray[6].replaceAll("\"",""):"");
                             dto.setStatus("Approved");
                             dto.setFileTypeId(fileTypeId);
                         }
