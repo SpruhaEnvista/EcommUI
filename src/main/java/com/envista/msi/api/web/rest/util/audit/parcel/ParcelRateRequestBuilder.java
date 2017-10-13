@@ -93,6 +93,7 @@ public class ParcelRateRequestBuilder {
                 }
 
                 List<ParcelRateRequest.Item> items = new ArrayList<>();
+                int itemSequence = 1;
                 for(ParcelAuditDetailsDto auditDetails : parcelAuditDetailsList) {
                     if (auditDetails != null) {
                         if (auditDetails.getChargeClassificationCode() != null
@@ -123,7 +124,7 @@ public class ParcelRateRequestBuilder {
                             dimensionsObj.setUnits(dimUnit);
 
                             ParcelRateRequest.Item item = new ParcelRateRequest.Item();
-                            item.setSequence(1);
+                            item.setSequence(itemSequence++);
                             item.setWeight(weightObj);
                             item.setQuantity(quantityObj);
                             item.setDimensions(dimensionsObj);
@@ -273,6 +274,7 @@ public class ParcelRateRequestBuilder {
                 }
 
                 List<ParcelRateRequest.Item> items = new ArrayList<>();
+                int itemSequence = 1;
                 for(ParcelAuditDetailsDto auditDetails : parcelAuditDetailsList) {
                     if (auditDetails != null) {
                         if (auditDetails.getChargeClassificationCode() != null
@@ -303,7 +305,7 @@ public class ParcelRateRequestBuilder {
                             dimensionsObj.setUnits(dimUnit);
 
                             ParcelRateRequest.Item item = new ParcelRateRequest.Item();
-                            item.setSequence(1);
+                            item.setSequence(itemSequence++);
                             item.setWeight(weightObj);
                             item.setQuantity(quantityObj);
                             item.setDimensions(dimensionsObj);
