@@ -195,4 +195,24 @@ public class DashBoardController {
         return new ResponseEntity<List<FileDefDto>>(dtos, HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/getFileInfoList", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+    public ResponseEntity<List<FileInfoDto>> getFileInfoList(@RequestParam("weekEndId") Long weekEndId) throws JSONException {
+        log.info("***getFileDefTypesListInfo method started****");
+
+        List<FileInfoDto> dtos = service.getFileInfoByWeekEndId(weekEndId);
+
+        log.info("***getFileInfoList json***==== " + dtos);
+        return new ResponseEntity<List<FileInfoDto>>(dtos, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/getScrubCreditsHis", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+    public ResponseEntity<List<ScrubCreditsHisDto>> getScrubCreditsHistory(@RequestParam("weekEndId") Long weekEndId) throws JSONException {
+        log.info("***getFileDefTypesListInfo method started****");
+
+        List<ScrubCreditsHisDto> dtos = service.getScrubCreditsHistory(weekEndId);
+
+        log.info("***getScrubCreditsHis json***==== " + dtos);
+        return new ResponseEntity<List<ScrubCreditsHisDto>>(dtos, HttpStatus.OK);
+    }
+
 }

@@ -33,7 +33,7 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_USER_NAME", type = String.class)
                        /* @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_DAS_INFO", type = Void.class)*/
                 }),
-        @NamedStoredProcedureQuery(name = "DashBoardDto.weeklyScrub", procedureName = "SHP_INV_UPS_WEEKLY_SCRUB_PRO",
+        @NamedStoredProcedureQuery(name = "DashBoardDto.scrubCredits", procedureName = "SHP_INV_SCRUB_CREDITS_PRO",
 
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_WEEK_END_ID", type = Long.class),
@@ -48,6 +48,18 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_USER_NAME", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_FILE_TYPE_ID", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_FILE_INFO", type = Void.class)
+                }),
+        @NamedStoredProcedureQuery(name = "FileInfoDto.getFileInfoByWeekEndId", procedureName = "SHP_INV_GET_FILE_INFO_PRO",
+                resultClasses = FileInfoDto.class,
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_WEEK_END_ID", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_FILE_INFO", type = Void.class)
+                }),
+        @NamedStoredProcedureQuery(name = "ScrubCreditsHisDto.getScrubCreditsHistory", procedureName = "SHP_INV_GET_SCRUB_HIS_INFO_PRO",
+                resultClasses = ScrubCreditsHisDto.class,
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_WEEK_END_ID", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_SCRUBHIS_INFO", type = Void.class)
                 })
 })
 @SqlResultSetMappings({

@@ -1,10 +1,7 @@
 package com.envista.msi.api.service.invoicing;
 
 import com.envista.msi.api.dao.invoicing.DashBoardDao;
-import com.envista.msi.api.web.rest.dto.invoicing.DashBoardDto;
-import com.envista.msi.api.web.rest.dto.invoicing.FileDefDto;
-import com.envista.msi.api.web.rest.dto.invoicing.FileInfoDto;
-import com.envista.msi.api.web.rest.dto.invoicing.WeekStatusDto;
+import com.envista.msi.api.web.rest.dto.invoicing.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,5 +60,15 @@ public class DashBoardService {
     public FileDefDto validateFileType(long fileTypeId,String fileSignature) {
 
         return dao.validateFileType(fileTypeId,fileSignature);
+    }
+
+    public List<FileInfoDto> getFileInfoByWeekEndId(Long weekEndId) {
+
+        return dao.getFileInfoByWeekEndId(weekEndId);
+    }
+
+    public List<ScrubCreditsHisDto> getScrubCreditsHistory(Long weekEndId) {
+
+        return dao.getScrubCreditsHistory(weekEndId);
     }
 }
