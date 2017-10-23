@@ -215,4 +215,14 @@ public class DashBoardController {
         return new ResponseEntity<List<ScrubCreditsHisDto>>(dtos, HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/getWeekStatusByWeekendDate", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+    public ResponseEntity<WeekEndDto> getWeekStatusByWeekendDate(@RequestParam String weekEndDate) throws JSONException {
+        log.info("***getWeekStatusByWeekendDate method started****");
+
+        WeekEndDto dto = weekEndService.findByWeekEndDate(weekEndDate);
+
+        log.info("***getWeekStatusByWeekendDate json***==== " + dto);
+        return new ResponseEntity<WeekEndDto>(dto, HttpStatus.OK);
+    }
+
 }
