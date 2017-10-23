@@ -195,8 +195,8 @@ public class ReportsService {
     public List<ReportCustomerCarrierDto> getReportCustomers(Long rptId, Long userId){
         return reportsDao.getReportCustomers(rptId,userId);
     }
-    public List<ReportCustomerCarrierDto> getReportCarrier(Long rptId, Long userId){
-        return reportsDao.getReportCarrier(rptId,userId);
+    public List<ReportCustomerCarrierDto> getReportCarrier(Long rptId, Long userId,String customerIds){
+        return reportsDao.getReportCarrier(rptId,userId,customerIds);
     }
 
     public  ReportCustomerCarrierDto getCustomerHierarchyObject(List<ReportCustomerCarrierDto> customerList) throws JSONException {

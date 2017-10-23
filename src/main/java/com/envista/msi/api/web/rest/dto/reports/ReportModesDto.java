@@ -27,6 +27,7 @@ import java.util.Date;
                                 @ColumnResult(name = "rpt_grp_id", type = Integer.class),
                                 @ColumnResult(name = "group_name", type = String.class),
                                 @ColumnResult(name = "group_under", type = Integer.class),
+                                @ColumnResult(name = "is_supports_carriers", type = Boolean.class),
                                 @ColumnResult(name = "group_under_name", type = String.class),
                                 @ColumnResult(name = "rpt_descr", type = String.class)
                         }
@@ -58,6 +59,9 @@ public class ReportModesDto implements Serializable {
     @Column(name = "group_under")
     private Integer groupUnder;
 
+    @Column(name = "is_supports_carriers")
+    private Boolean isSupportsCarriers;
+
     @Column(name = "group_under_name")
     private String groupUnderName;
 
@@ -66,7 +70,8 @@ public class ReportModesDto implements Serializable {
 
     public ReportModesDto() {  }
 
-    public ReportModesDto(Long rptId, String reportFileName, Integer category, Integer isConsolidated, Integer reportGroupId, String groupName, Integer groupUnder, String groupUnderName,String reportDescr) {
+    public ReportModesDto(Long rptId, String reportFileName, Integer category, Integer isConsolidated, Integer reportGroupId, String groupName,
+                          Integer groupUnder,Boolean isSupportsCarriers, String groupUnderName,String reportDescr) {
         this.rptId = rptId;
         this.reportFileName = reportFileName;
         this.category = category;
@@ -74,6 +79,7 @@ public class ReportModesDto implements Serializable {
         this.reportGroupId = reportGroupId;
         this.groupName = groupName;
         this.groupUnder = groupUnder;
+        this.isSupportsCarriers = isSupportsCarriers;
         this.groupUnderName = groupUnderName;
         this.reportDescr= reportDescr;
     }
@@ -132,6 +138,14 @@ public class ReportModesDto implements Serializable {
 
     public void setGroupUnder(Integer groupUnder) {
         this.groupUnder = groupUnder;
+    }
+
+    public Boolean getSupportsCarriers() {
+        return isSupportsCarriers;
+    }
+
+    public void setSupportsCarriers(Boolean supportsCarriers) {
+        isSupportsCarriers = supportsCarriers;
     }
 
     public String getGroupUnderName() {

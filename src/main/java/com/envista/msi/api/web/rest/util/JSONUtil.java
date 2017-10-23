@@ -57,16 +57,16 @@ public class JSONUtil {
             colorsList.add("#1d3549");
             colorsList.add("SlateGray");
             colorsList.add("Brown");
-            colorsList.add("Aqua");
-            colorsList.add("Gold");
+            colorsList.add("#ed638d");
+            colorsList.add("#5F9EA0");
             colorsList.add("Maroon");
-            colorsList.add("LawnGreen");
+            colorsList.add("#295C7A");
             colorsList.add("MediumOrchid");
-            colorsList.add("BurlyWood");
+            colorsList.add("#333300");
             colorsList.add("Orange");
             colorsList.add("DarkOliveGreen");
             colorsList.add("DimGray");
-            colorsList.add("Yellow");
+            colorsList.add("#F08080");
             colorsList.add("Black");
             colorsList.add("#000080");
             colorsList.add("#C21D55");// Rose color

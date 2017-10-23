@@ -25,7 +25,12 @@ public class ParcelRateRequestBuilder {
      */
     public static ParcelRateRequest buildParcelRateRequestForUps(List<ParcelAuditDetailsDto> parcelAuditDetailsList, String licenseKey){
         ParcelRateRequest parcelRateRequest = new ParcelRateRequest();
+        parcelRateRequest.setLicenseKey(licenseKey);
+
         if(parcelAuditDetailsList != null && !parcelAuditDetailsList.isEmpty()){
+            boolean isWisoCustomer = parcelAuditDetailsList.get(0).getCustomerCode().equalsIgnoreCase("WISO");
+            ParcelRateRequest.BatchShipment batchShipment = new ParcelRateRequest.BatchShipment();
+            batchShipment.setId("1");
             String mode = "PCL";
             ParcelAuditDetailsDto parcelAuditDetails = parcelAuditDetailsList.get(0);
             if(parcelAuditDetails != null){
@@ -38,9 +43,10 @@ public class ParcelRateRequestBuilder {
                     billOption = "TP";
                 }
 
-                parcelRateRequest.setBilledMiles("0.0");
-                parcelRateRequest.setLicenseKey(licenseKey);
 
+
+
+                batchShipment.setBilledMiles("0.0");
                 //ServiceFlags section
                 List<ParcelRateRequest.ServiceFlag> serviceFlagList = new ArrayList<>();
                 for(ParcelAuditDetailsDto auditDetails : parcelAuditDetailsList){
@@ -61,9 +67,11 @@ public class ParcelRateRequestBuilder {
                 String scacCode = (null == parcelAuditDetails.getRtrScacCode() ? "" : "FDEG".equals(parcelAuditDetails.getRtrScacCode()) ? "FDE" : parcelAuditDetails.getRtrScacCode());
                 String currency = (null == parcelAuditDetails.getCurrency() || parcelAuditDetails.getCurrency().isEmpty() ? "USD" : parcelAuditDetails.getCurrency());
 
-                ParcelRateRequest.Contract contract = new ParcelRateRequest.Contract();
-                contract.setName(contractNumber);
-                constraints.setContract(contract);
+                if(!isWisoCustomer) {
+                    ParcelRateRequest.Contract contract = new ParcelRateRequest.Contract();
+                    contract.setName(contractNumber);
+                    constraints.setContract(contract);
+                }
 
                 ParcelRateRequest.Carrier carrier = new ParcelRateRequest.Carrier();
                 carrier.setScac(scacCode);
@@ -76,15 +84,16 @@ public class ParcelRateRequestBuilder {
                 constraints.setService(null == serviceLevel ? "" : serviceLevel);
                 constraints.setCustomerCode(parcelAuditDetails.getCustomerCode());
                 constraints.setServiceFlags(serviceFlagList);
-                parcelRateRequest.setConstraints(constraints);
+                batchShipment.setConstraints(constraints);
 
-                if(parcelAuditDetailsList.get(0).getCustomerCode().equalsIgnoreCase("WISO")){
+                if(isWisoCustomer){
                     ParcelRateRequest.Shipper shipper = new ParcelRateRequest.Shipper();
                     shipper.setNumber(parcelAuditDetailsList.get(0).getShipperNumber());
-                    parcelRateRequest.setShipper(shipper);
+                    batchShipment.setShipper(shipper);
                 }
 
                 List<ParcelRateRequest.Item> items = new ArrayList<>();
+                int itemSequence = 1;
                 for(ParcelAuditDetailsDto auditDetails : parcelAuditDetailsList) {
                     if (auditDetails != null) {
                         if (auditDetails.getChargeClassificationCode() != null
@@ -115,6 +124,7 @@ public class ParcelRateRequestBuilder {
                             dimensionsObj.setUnits(dimUnit);
 
                             ParcelRateRequest.Item item = new ParcelRateRequest.Item();
+                            item.setSequence(itemSequence++);
                             item.setWeight(weightObj);
                             item.setQuantity(quantityObj);
                             item.setDimensions(dimensionsObj);
@@ -122,7 +132,7 @@ public class ParcelRateRequestBuilder {
                         }
                     }
                 }
-                parcelRateRequest.setItems(items);
+                batchShipment.setItems(items);
 
                 //Events section
                 String pickupDate = "", dropDate = "", locationCode = "";
@@ -170,7 +180,8 @@ public class ParcelRateRequestBuilder {
                 receiverLocation.setLocationCode(locationCode);
                 dropDateEvent.setLocation(receiverLocation);
 
-                parcelRateRequest.setEvents(Arrays.asList(pickupDateEvent, dropDateEvent));
+                batchShipment.setEvents(Arrays.asList(pickupDateEvent, dropDateEvent));
+                parcelRateRequest.getShipments().add(batchShipment);
             }
         }
         return parcelRateRequest;
@@ -184,7 +195,13 @@ public class ParcelRateRequestBuilder {
      */
     public static ParcelRateRequest buildParcelRateRequestForNonUpsCarrier(List<ParcelAuditDetailsDto> parcelAuditDetailsList, String licenseKey){
         ParcelRateRequest parcelRateRequest = new ParcelRateRequest();
+        parcelRateRequest.setLicenseKey(licenseKey);
+
         if(parcelAuditDetailsList != null && !parcelAuditDetailsList.isEmpty()){
+            boolean isWisoCustomer = parcelAuditDetailsList.get(0).getCustomerCode().equalsIgnoreCase("WISO");
+            ParcelRateRequest.BatchShipment batchShipment = new ParcelRateRequest.BatchShipment();
+            batchShipment.setId("1");
+
             for(ParcelAuditDetailsDto auditDetails : parcelAuditDetailsList) {
                 if (auditDetails != null && auditDetails.getDwFieldInformation() != null) {
                     try{
@@ -210,8 +227,7 @@ public class ParcelRateRequestBuilder {
                     billOption = "TP";
                 }
 
-                parcelRateRequest.setBilledMiles("0.0");
-                parcelRateRequest.setLicenseKey(licenseKey);
+                batchShipment.setBilledMiles("0.0");
 
                 //ServiceFlags section
                 List<ParcelRateRequest.ServiceFlag> serviceFlagList = new ArrayList<>();
@@ -233,9 +249,11 @@ public class ParcelRateRequestBuilder {
                 String rtrScacCode = (null == parcelAuditDetails.getRtrScacCode() ? "" : "FDEG".equals(parcelAuditDetails.getRtrScacCode()) ? "FDE" : parcelAuditDetails.getRtrScacCode());
                 String currency = (null == parcelAuditDetails.getCurrency() || parcelAuditDetails.getCurrency().isEmpty() ? "USD" : parcelAuditDetails.getCurrency());
 
-                ParcelRateRequest.Contract contract = new ParcelRateRequest.Contract();
-                contract.setName(contractNumber);
-                constraints.setContract(contract);
+                if(!isWisoCustomer) {
+                    ParcelRateRequest.Contract contract = new ParcelRateRequest.Contract();
+                    contract.setName(contractNumber);
+                    constraints.setContract(contract);
+                }
 
                 ParcelRateRequest.Carrier carrier = new ParcelRateRequest.Carrier();
                 carrier.setScac(rtrScacCode);
@@ -247,15 +265,16 @@ public class ParcelRateRequestBuilder {
                 constraints.setService(findServiceLevel(parcelAuditDetailsList));
                 constraints.setCustomerCode(parcelAuditDetails.getCustomerCode());
                 constraints.setServiceFlags(serviceFlagList);
-                parcelRateRequest.setConstraints(constraints);
+                batchShipment.setConstraints(constraints);
 
-                if(parcelAuditDetailsList.get(0).getCustomerCode().equalsIgnoreCase("WISO")){
+                if(isWisoCustomer){
                     ParcelRateRequest.Shipper shipper = new ParcelRateRequest.Shipper();
                     shipper.setNumber(parcelAuditDetailsList.get(0).getShipperNumber());
-                    parcelRateRequest.setShipper(shipper);
+                    batchShipment.setShipper(shipper);
                 }
 
                 List<ParcelRateRequest.Item> items = new ArrayList<>();
+                int itemSequence = 1;
                 for(ParcelAuditDetailsDto auditDetails : parcelAuditDetailsList) {
                     if (auditDetails != null) {
                         if (auditDetails.getChargeClassificationCode() != null
@@ -286,6 +305,7 @@ public class ParcelRateRequestBuilder {
                             dimensionsObj.setUnits(dimUnit);
 
                             ParcelRateRequest.Item item = new ParcelRateRequest.Item();
+                            item.setSequence(itemSequence++);
                             item.setWeight(weightObj);
                             item.setQuantity(quantityObj);
                             item.setDimensions(dimensionsObj);
@@ -293,7 +313,7 @@ public class ParcelRateRequestBuilder {
                         }
                     }
                 }
-                parcelRateRequest.setItems(items);
+                batchShipment.setItems(items);
 
                 //Events section
                 String pickupDate = "", dropDate = "", locationCode = "";
@@ -341,7 +361,8 @@ public class ParcelRateRequestBuilder {
                 receiverLocation.setLocationCode(locationCode);
                 dropDateEvent.setLocation(receiverLocation);
 
-                parcelRateRequest.setEvents(Arrays.asList(pickupDateEvent, dropDateEvent));
+                batchShipment.setEvents(Arrays.asList(pickupDateEvent, dropDateEvent));
+                parcelRateRequest.getShipments().add(batchShipment);
             }
         }
         return parcelRateRequest;

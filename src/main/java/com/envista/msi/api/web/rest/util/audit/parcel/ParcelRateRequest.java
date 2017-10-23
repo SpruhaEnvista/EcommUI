@@ -25,7 +25,7 @@ public class ParcelRateRequest implements Serializable {
     private String requestId;
 
     @XmlElement(name="Features")
-    private Features features = new Features();
+    private Features features = null;
 
     // Batch
     @XmlElementWrapper(name="Shipments")
@@ -33,33 +33,22 @@ public class ParcelRateRequest implements Serializable {
     private List<ParcelRateRequest.BatchShipment> shipments = new ArrayList<ParcelRateRequest.BatchShipment>();
 
     @XmlElement(name="Constraints", required=true)
-    private ParcelRateRequest.Constraints constraints = new ParcelRateRequest.Constraints();
+    private ParcelRateRequest.Constraints constraints = null;
 
     @XmlElementWrapper(name="Items")
     @XmlElement(name="Item", required=true)
-    private List<ParcelRateRequest.Item> items = new ArrayList<ParcelRateRequest.Item>();
+    private List<ParcelRateRequest.Item> items = null;
 
     @XmlElementWrapper(name="Events")
     @XmlElement(name="Event", required=true)
-    private List<ParcelRateRequest.Event> events = new ArrayList<ParcelRateRequest.Event>();
+    private List<ParcelRateRequest.Event> events = null;
 
     @XmlElementWrapper(name="ReferenceNumbers")
     @XmlElement(name="ReferenceNumber", required=true)
-    private List<ParcelRateRequest.ReferenceNumber> referenceNumbers = new ArrayList<ParcelRateRequest.ReferenceNumber>();
+    private List<ParcelRateRequest.ReferenceNumber> referenceNumbers = null;
 
     @XmlElement(name="BilledMiles")
     private String billedMiles;
-
-    @XmlElement(name = "Shipper")
-    private Shipper shipper = new Shipper();
-
-    public Shipper getShipper() {
-        return shipper;
-    }
-
-    public void setShipper(Shipper shipper) {
-        this.shipper = shipper;
-    }
 
     @XmlAccessorType(XmlAccessType.NONE)
     public static class BatchShipment implements Serializable {
@@ -70,6 +59,12 @@ public class ParcelRateRequest implements Serializable {
 
         @XmlElement(name="Constraints", required=true)
         private Constraints constraints = new Constraints();
+
+        @XmlElement(name = "Shipper")
+        private Shipper shipper = new Shipper();
+
+        @XmlElement(name="Features")
+        private Features features = new Features();
 
         @XmlElement(name="Weight")
         private Weight weight = new Weight();
@@ -139,6 +134,15 @@ public class ParcelRateRequest implements Serializable {
         public void setBilledMiles(String billedMiles) {
             this.billedMiles = billedMiles;
         }
+
+        public Shipper getShipper() {
+            return shipper;
+        }
+
+        public void setShipper(Shipper shipper) {
+            this.shipper = shipper;
+        }
+
         @Override
         public String toString() {
             StringBuilder res = new StringBuilder();

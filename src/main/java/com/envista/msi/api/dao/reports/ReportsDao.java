@@ -198,9 +198,9 @@ public class ReportsDao {
      * @param userId
      * @return List<ReportCustomerCarrierDto>
      */
-    public List<ReportCustomerCarrierDto> getReportCarrier(Long rptId, Long userId){
+    public List<ReportCustomerCarrierDto> getReportCarrier(Long rptId, Long userId,String customerIds){
         QueryParameter queryParameter = StoredProcedureParameter.with("p_user_id", userId)
-                .and("p_rpt_id", rptId);
+                .and("p_rpt_id", rptId).and("p_customer_ids", customerIds);
         return persistentContext.findEntities("ReportCustomerCarrier.getReportCarrier",queryParameter);
     }
     /**
