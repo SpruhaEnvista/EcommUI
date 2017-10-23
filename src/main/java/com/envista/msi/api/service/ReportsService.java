@@ -729,7 +729,16 @@ public class ReportsService {
 
         SavedSchedReportDto savedSchedReport = new SavedSchedReportDto();
         if(savedSchedReportDto.getReportPacketsDetList() !=null && savedSchedReportDto.getReportPacketsDetList().size()>0){
-
+            StringJoiner rptPktCriteria = new StringJoiner(";");
+            for(ReportPacketsDetDto packetsDto : savedSchedReportDto.getReportPacketsDetList()){
+                if(packetsDto != null && packetsDto.getTemplateId() != null && packetsDto.getTemplateId() > 0){
+                    SavedSchedReportDto report = reportsDao.getReportDetails(packetsDto.getTemplateId());
+                    if(report != null){
+                        rptPktCriteria.add(report.getCriteria() == null ? "" : report.getCriteria());
+                    }
+                }
+            }
+            savedSchedReportDto.setCriteria(rptPktCriteria.toString());
             savedSchedReport = reportsDao.saveSchedReport(savedSchedReportDto);
 
             if(savedSchedReport.getSavedSchedRptId()>0){
