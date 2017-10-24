@@ -29,8 +29,6 @@ public class FileInfoDto {
     @Column(name = "FILE_TYPE_ID")
     private Long fileTypeId;
 
-    @Column(name = "FILE_TYPE")
-    private String fileType;
 
     public FileInfoDto() {
     }
@@ -79,11 +77,4 @@ public class FileInfoDto {
 
     public void setFileTypeId(Long fileTypeId) {  this.fileTypeId = fileTypeId; }
 
-    public String getFileType() {
-        return fileType;
-    }
-
-    public void setFileType(String fileType) {
-        this.fileType = fileType;
-    }
 }
