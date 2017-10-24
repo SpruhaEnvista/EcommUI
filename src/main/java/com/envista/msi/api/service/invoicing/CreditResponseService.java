@@ -18,8 +18,8 @@ public class CreditResponseService {
     @Inject
     private CreditResponseDao dao;
 
-    public int insert(List<CreditResponseDto> dtos) {
+    public int insert(List<CreditResponseDto> dtos, Long fileInfoId) {
 
-        return dao.insert(dtos);
+        return dao.insert(dtos, fileInfoId);
     }
 }

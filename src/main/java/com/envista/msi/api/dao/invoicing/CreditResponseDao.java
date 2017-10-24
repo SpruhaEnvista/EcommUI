@@ -18,13 +18,13 @@ public class CreditResponseDao {
     @Inject
     private PersistentContext persistentContext;
 
-    public int insert(List<CreditResponseDto> dtos) {
+    public int insert(List<CreditResponseDto> dtos, Long fileInfoId) {
 
         int count = 0;
         for (CreditResponseDto dto : dtos) {
             QueryParameter queryParameter = StoredProcedureParameter.with("P_CREDIT_RESP_ID", 0L)
                     .and("P_CUSTOMER_CODE", dto.getCustomerCode()).and("P_TRACKING_NUMBER", dto.getTrackingNumber())
-                    .and("P_NOTES", dto.getNotes()).and("P_STATUS", dto.getStatus()).and("P_FILE_INFO_ID", dto.getFileInfoId())
+                    .and("P_NOTES", dto.getNotes()).and("P_STATUS", dto.getStatus()).and("P_FILE_INFO_ID", fileInfoId)
                     .and("P_FILE_TYPE_ID", dto.getFileTypeId()).and("P_ACTION_TYPE", "insert");
 
             persistentContext.findEntities("CreditResponseDto.insertOrUpdate", queryParameter);

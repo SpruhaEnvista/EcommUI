@@ -119,7 +119,7 @@ public class DashBoardController {
             if(resObj != null && resObj.size() >0 && resObj.get("dtos") != null){
                 FileInfoDto fileInfoDto = service.insertFileInfo(files.get(0).getOriginalFilename(), weekEndId, userName,fileTypeId);
                 dtos=(List<CreditResponseDto>)resObj.get("dtos");
-                creditResponseService.insert(dtos);
+                creditResponseService.insert(dtos, fileInfoDto.getId());
                 responseStr="file uploaded Successfully";
             }else{
                 responseStr="Invalid file format";
@@ -131,20 +131,7 @@ public class DashBoardController {
         return new ResponseEntity<String>(responseStr, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/testUpload", method = RequestMethod.POST)
-    public ResponseEntity<String> testUpload() throws IOException {
-        log.info("***UploadCreditResp method started***");
-        try {
-            Map<String,Object> resObj=null;
-            List<CreditResponseDto> dtos=null;
 
-            resObj= fileOperations.customOmitFileUploadOperation(null, 0L,"Voids",1L);
-            creditResponseService.insert(dtos);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return new ResponseEntity<String>("file(s) uploaded Successfully", HttpStatus.OK);
-    }
 
     /**
      * HTTP GET - Get Current Week End Info
