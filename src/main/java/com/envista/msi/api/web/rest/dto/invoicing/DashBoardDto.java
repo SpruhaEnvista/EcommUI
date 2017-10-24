@@ -37,7 +37,8 @@ import java.io.Serializable;
 
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_WEEK_END_ID", type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_USER_NAME", type = String.class)
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_USER_NAME", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class)
                        /* @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_DAS_INFO", type = Void.class)*/
                 }),
         @NamedStoredProcedureQuery(name = "DashBoardDto.insertFileInfo", procedureName = "SHP_INV_INSERT_FILE_INFO_PRO",

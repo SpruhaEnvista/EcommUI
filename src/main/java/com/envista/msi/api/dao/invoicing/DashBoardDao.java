@@ -64,7 +64,7 @@ public class DashBoardDao {
 
     public int scrubCredits(Long weekEndId, String userName) {
 
-        QueryParameter queryParameter = StoredProcedureParameter.with("P_WEEK_END_ID", weekEndId).and("P_USER_NAME", userName);
+        QueryParameter queryParameter = StoredProcedureParameter.with("P_WEEK_END_ID", weekEndId).and("P_USER_NAME", userName).and("P_ACTION_TYPE", null);
         persistentContext.findEntities("DashBoardDto.scrubCredits", queryParameter);
 
         return 0;
