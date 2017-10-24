@@ -10,7 +10,7 @@ import java.io.Serializable;
 @NamedStoredProcedureQueries({
         @NamedStoredProcedureQuery(
                 name = "ReportDto.getReportTemplates",
-                procedureName = "SHP_RPT_GET_RPT_TEMPLATE_PROC",
+                procedureName = "SHP_RPT_GET_REPORT_PROC",
                 resultSetMappings = {"ReportDto.getReportTemplatesMapping"},
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_rpt_id", type = String.class),
