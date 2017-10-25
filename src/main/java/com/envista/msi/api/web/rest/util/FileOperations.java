@@ -107,20 +107,17 @@ public class FileOperations {
                             dto.setTrackingNumber(lineArray[3] != null?lineArray[3].replace("\'",""):"");
                             dto.setNotes(lineArray[10] != null ?lineArray[10].replace("\'","").replaceAll("\"",""):"");
                             dto.setStatus(lineArray[16]);
-                            dto.setFileTypeId(fileTypeId);
-                            dto.setCreditClass("Void");
+
                         }else if(fileType != null && fileType.equalsIgnoreCase("GSRs")){
                             dto.setTrackingNumber(lineArray[0] != null ?lineArray[0].replace("\'",""):"");
                             dto.setNotes(lineArray[6] != null ? lineArray[6].replaceAll("\"",""):"");
                             dto.setStatus("Approved");
-                            dto.setFileTypeId(fileTypeId);
-                            dto.setCreditClass("GSR");
+
                         }else if(fileType != null && fileType.equalsIgnoreCase("Address Corrections and Residentials")){
                             dto.setTrackingNumber(lineArray[0] != null ?lineArray[0].replace("\'",""):"");
                             dto.setNotes(lineArray[6] != null?lineArray[6].replaceAll("\"",""):"");
                             dto.setStatus("Approved");
-                            dto.setFileTypeId(fileTypeId);
-                            dto.setCreditClass("Resi,ADDY");
+
                         }
                         dtos.add(dto);
                         resObject.put("dtos",dtos);

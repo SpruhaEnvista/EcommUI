@@ -48,11 +48,6 @@ public class CreditResponseDto implements Serializable {
     @Column(name = "FILE_INFO_ID")
     private Long fileInfoId;
 
-    @Column(name = "FILE_TYPE_ID")
-    private Long fileTypeId;
-
-    @Column(name = "CREDIT_CLASS")
-    private String creditClass;
 
     public CreditResponseDto() {
     }
@@ -117,11 +112,4 @@ public class CreditResponseDto implements Serializable {
         this.fileInfoId = fileInfoId;
     }
 
-    public Long getFileTypeId() { return fileTypeId;   }
-
-    public void setFileTypeId(Long fileTypeId) { this.fileTypeId = fileTypeId; }
-
-    public String getCreditClass() { return creditClass;   }
-
-    public void setCreditClass(String creditClass) { this.creditClass = creditClass;  }
 }
