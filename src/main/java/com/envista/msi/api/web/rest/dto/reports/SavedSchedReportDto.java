@@ -107,7 +107,14 @@ import java.util.Date;
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "reportDetails", type = Void.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "savedSchedRptId", type = Long.class)
-                })
+                }),
+        @NamedStoredProcedureQuery(name = "SavedSchedReportDto.getReportDetailsByIds", procedureName = "SHP_RPT_REPORT_DETAILS_PROC",
+                resultSetMappings = {"SavedSchedReportDto.getReportDetailsByIdsMapping"},
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_report_ids", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "reportDetails", type = Void.class)
+                }
+        )
 })
 
 @SqlResultSetMappings({
@@ -180,7 +187,18 @@ import java.util.Date;
                                 @ColumnResult(name = "rpt_folder_id", type = Long.class)
                         }
                 )
-        })
+        }),
+        @SqlResultSetMapping(name = "SavedSchedReportDto.getReportDetailsByIdsMapping",
+                classes = {
+                        @ConstructorResult(
+                                targetClass = SavedSchedReportDto.class,
+                                columns = {
+                                        @ColumnResult(name = "saved_sched_rpt_id", type = Long.class),
+                                        @ColumnResult(name = "rpt_id", type = Long.class),
+                                        @ColumnResult(name = "criteria", type = String.class)
+                                }
+                        )
+                })
 })
 
 @Entity
@@ -374,6 +392,12 @@ public class SavedSchedReportDto {
 
     @Column(name = "rpt_folder_id")
     private Long rptFolderId;
+
+    public SavedSchedReportDto(Long savedSchedRptId, Long rptId, String criteria) {
+        this.savedSchedRptId = savedSchedRptId;
+        this.rptId = rptId;
+        this.criteria = criteria;
+    }
 
     public Long getSavedSchedRptId() {
         return savedSchedRptId;
