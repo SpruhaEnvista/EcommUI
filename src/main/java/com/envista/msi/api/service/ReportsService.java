@@ -726,14 +726,12 @@ public class ReportsService {
     }
 
     public SavedSchedReportDto saveSchedPacketReport(SavedSchedReportDto savedSchedReportDto){
-
         SavedSchedReportDto savedSchedReport = new SavedSchedReportDto();
         if(savedSchedReportDto.getReportPacketsDetList() !=null && savedSchedReportDto.getReportPacketsDetList().size()>0){
-
+            savedSchedReportDto.setCriteria(prepareReportPacketCriteria(savedSchedReportDto));
             savedSchedReport = reportsDao.saveSchedReport(savedSchedReportDto);
 
             if(savedSchedReport.getSavedSchedRptId()>0){
-
                 for(ReportPacketsDetDto packetsDto : savedSchedReportDto.getReportPacketsDetList()){
                     packetsDto.setSavedSchdRptId(savedSchedReport.getSavedSchedRptId());
                     ReportPacketsDetDto outPacketDto = reportsDao.saveSchedPacketReport(packetsDto);
@@ -749,9 +747,60 @@ public class ReportsService {
                     moveReportToFolder(savedSchedReport.getSavedSchedRptId(),savedSchedReportDto.getRptFolderId());
                 }
             }
-
         }
         return savedSchedReport;
+    }
+
+    private String prepareReportPacketCriteria(SavedSchedReportDto savedSchedReportDto) {
+        StringJoiner rptPktCriteria = new StringJoiner(";");
+        StringJoiner reportIds = new StringJoiner(",");
+        StringJoiner savedSchedRptIds = new StringJoiner(",");
+        List<ReportDto> reportList = null;
+        List<SavedSchedReportDto> reportTemplateList = null;
+
+        for(ReportPacketsDetDto packetsDto : savedSchedReportDto.getReportPacketsDetList()){
+            if(packetsDto != null && packetsDto.getTemplateId() != null && packetsDto.getTemplateId() > 0){
+                savedSchedRptIds.add(packetsDto.getTemplateId().toString());
+            }
+        }
+
+        if(savedSchedRptIds != null && !savedSchedRptIds.toString().isEmpty()){
+            reportTemplateList = reportsDao.getSavedScheduledReports(savedSchedRptIds.toString());
+        }
+
+        if(reportTemplateList != null && !reportTemplateList.isEmpty()){
+            for(SavedSchedReportDto report : reportTemplateList){
+                if(report != null && report.getRptId() != null){
+                    reportIds.add(report.getRptId().toString());
+                }
+            }
+            reportList = getReportList(reportIds.toString());
+        }
+
+        for(SavedSchedReportDto reportTemplate : reportTemplateList){
+            if(reportTemplate != null && reportTemplate.getSavedSchedRptId() != null && reportTemplate.getSavedSchedRptId() > 0){
+                if(reportTemplate != null){
+                    String reportName = findReportName(reportList, reportTemplate.getRptId());
+                    if(reportTemplate.getCriteria() != null && !reportTemplate.getCriteria().isEmpty()){
+                        rptPktCriteria.add(reportName + ":" +reportTemplate.getCriteria());
+                    }
+                }
+            }
+        }
+        return rptPktCriteria.toString().length() > 1000 ? rptPktCriteria.toString().substring(0, 999) : rptPktCriteria.toString();
+    }
+
+    private String findReportName(List<ReportDto> reportList, Long templateId) {
+        String reportName = "";
+        if(reportList != null && !reportList.isEmpty()){
+            for(ReportDto report : reportList){
+                if(report != null && templateId != null && report.getRptId().equals(templateId) && report.getReportName() != null){
+                    reportName = report.getReportName();
+                    break;
+                }
+            }
+        }
+        return reportName;
     }
 
     public ArrayList<ReportSavedSchdUsersDto> removeDuplicateUsers(ArrayList<ReportSavedSchdUsersDto> reportsavedUsersList){
@@ -1227,5 +1276,9 @@ public class ReportsService {
 
     public List<CarrierDto> getUserCarrierDetailsForReport(Long userId, Long rptId, String customerIds){
         return reportsDao.getUserCarrierDetailsForReport(userId, rptId, customerIds);
+    }
+
+    public List<ReportDto> getReportList(String rptIds){
+        return reportsDao.getReportList(rptIds);
     }
 }
