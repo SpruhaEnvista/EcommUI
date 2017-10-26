@@ -635,6 +635,7 @@
 											<entry key="spring.oauth2.sso.server.host" value="msiuat02" />
 											<entry key="spring.oauth2.sso.server.port" value="8888" />
 											<entry key="FILESERVER" value="\\\\msirsuat\\e\\export\\" />
+											<entry key="spring.mail.host" value="172.16.6.15" />
 										</propertyfile>
 									</tasks>
 								</configuration>
@@ -773,6 +774,7 @@
 											<entry key="spring.oauth2.sso.server.port" value="80" />
 											<entry key="SUBMITTED_SYSTEM_FROM" value="msiweb01" />
 											<entry key="FILESERVER" value="//mnt//win//" />
+											<entry key="spring.mail.host" value="172.16.6.15" />
 										</propertyfile>
 									</tasks>
 								</configuration>
@@ -843,6 +845,7 @@
 											<entry key="spring.oauth2.sso.server.host" value="10.100.11.62" />
 											<entry key="spring.oauth2.sso.server.port" value="80" />
 											<entry key="FILESERVER" value="//mnt//win//" />
+											<entry key="spring.mail.host" value="172.16.6.15" />
 										</propertyfile>
 									</tasks>
 								</configuration>

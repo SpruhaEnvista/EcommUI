@@ -1144,13 +1144,10 @@ public class ReportsService {
         String subject = ReportsUtil.constructMessage(emailSubject, object2);
 
        if (isFileToBeEmailed) {
-
-           ReportTypeDto reportTypeDto =   reportsDao.getReportTypeDetails(Long.parseLong(String.valueOf(savedSchedReportDto.getReportTypeId())));
-
-           mailService.sendMail(fromEmail,recipients,subject,body,false,true,generatedReportDetailsDto.getReportFileName(),getFileServerAbsolutePath(generatedReportDetailsDto.getPhysicalFileName()));
-
+            //ReportTypeDto reportTypeDto =   reportsDao.getReportTypeDetails(Long.parseLong(String.valueOf(savedSchedReportDto.getReportTypeId())));
+            mailService.sendMail(fromEmail,recipients,subject,body,false,true,generatedReportDetailsDto.getReportFileName(),getFileServerAbsolutePath(generatedReportDetailsDto.getPhysicalFileName()));
         } else {
-           mailService.sendEmail(recipients,subject,body,false,true);
+            mailService.sendEmail(fromEmail, recipients, subject, body);
         }
 
     }
