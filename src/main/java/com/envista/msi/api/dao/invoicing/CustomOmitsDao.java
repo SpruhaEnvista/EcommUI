@@ -3,8 +3,10 @@ package com.envista.msi.api.dao.invoicing;
 import com.envista.msi.api.domain.PersistentContext;
 import com.envista.msi.api.domain.util.QueryParameter;
 import com.envista.msi.api.domain.util.StoredProcedureParameter;
+import com.envista.msi.api.web.rest.dto.invoicing.BusinessPartnerDto;
 import com.envista.msi.api.web.rest.dto.invoicing.CarrierDto;
 import com.envista.msi.api.web.rest.dto.invoicing.CustomOmitsDto;
+import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
 import org.springframework.stereotype.Repository;
 
 import javax.inject.Inject;
@@ -147,5 +149,28 @@ public class CustomOmitsDao {
 
         return persistentContext.findEntities("CarrierDto.getAllCarriers", queryParameter);
     }
+
+    public List<ReportCustomerCarrierDto> getCustomers(long userId, long carrierId, long businessPartnerId, String actionType) {
+
+        QueryParameter queryParameter = StoredProcedureParameter.with("P_USER_ID", userId).and("P_CARRIER_ID", carrierId)
+                .and("P_BUSINESS_PARTNER_ID", businessPartnerId).and("P_ACTION_TYPE", actionType);
+
+        return persistentContext.findEntities("CustomOmitsDto.getCustomers", queryParameter);
+    }
+
+    public int getBusinessPartnerByCustomer(long customerId) {
+
+        QueryParameter queryParameter = StoredProcedureParameter.with("P_CUSTOMER_ID", customerId);
+
+        List<BusinessPartnerDto> dtos = persistentContext.findEntities("BusinessPartnerDto.getBusinessPartner", queryParameter);
+
+        int businessPartnerId = 0;
+        if (null != dtos && dtos.size() > 0) {
+            businessPartnerId = dtos.get(0).getBusinessPartnerId();
+        }
+
+        return businessPartnerId;
+    }
+
 
 }
