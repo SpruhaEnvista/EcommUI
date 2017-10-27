@@ -840,4 +840,14 @@ public class ReportsDao {
                 .and("p_customer_ids", customerIds);
         return persistentContext.findEntities("CarrierDto.getUserCarrierDetailsForReport", queryParameter);
     }
+
+    public List<ReportDto> getReportList(String rptIds){
+        QueryParameter queryParameter = StoredProcedureParameter.with("p_rpt_id", rptIds);
+        return persistentContext.findEntities("ReportDto.getReportTemplates", queryParameter);
+    }
+
+    public List<SavedSchedReportDto> getSavedScheduledReports(String reportIds){
+        QueryParameter queryParameter = StoredProcedureParameter.with("p_report_ids", reportIds);
+        return persistentContext.findEntities("SavedSchedReportDto.getReportDetailsByIds", queryParameter);
+    }
 }
