@@ -193,6 +193,23 @@ public class CustomOmitsController {
     /**
      * HTTP GET - Get all
      */
+    @RequestMapping(value = "/getCarriers", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+    public ResponseEntity<JSONObject> getCarriers() throws JSONException {
+        LOG.info("***getCarriers method started****");
+        JSONObject jsonObject = new JSONObject();
+
+
+        jsonObject.put("carriers", service.getAllCarriers());
+
+        LOG.info("***jsonObject***" + jsonObject);
+
+
+        return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.OK);
+    }
+
+    /**
+     * HTTP GET - Get all
+     */
     @RequestMapping(value = "/getCariersByCustomer/{customerIds}", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
     public ResponseEntity<List<UserFilterUtilityDataDto>> getCariersByCustomer(@PathVariable("customerIds") String customerIds) {
         LOG.info("***getCariersByCustomer method started****");
