@@ -353,7 +353,8 @@ public class ReportsDao {
                 .and("locale",savedSchedReportDto.getLocale())
                 .and("currency",savedSchedReportDto.getCurrency())
                 .and("weightUom",savedSchedReportDto.getWeightUom())
-                .and("rptDescr",savedSchedReportDto.getRptDescr());
+                .and("rptDescr",savedSchedReportDto.getRptDescr())
+                .and("rptDelimiter",savedSchedReportDto.getDelimiter());
 
         return persistentContext.findEntity("SavedSchedReports.saveSchedReport",queryParameter);
 
@@ -629,7 +630,8 @@ public class ReportsDao {
                 .and("locale",savedSchedReportDto.getLocale())
                 .and("currency",savedSchedReportDto.getCurrency())
                 .and("weightUom",savedSchedReportDto.getWeightUom())
-                .and("rptDescr",savedSchedReportDto.getRptDescr());
+                .and("rptDescr",savedSchedReportDto.getRptDescr())
+                .and("rptDelimiter",savedSchedReportDto.getDelimiter());
 
         return persistentContext.findEntity("SavedSchedReports.updateSchedReport",queryParameter);
     }
