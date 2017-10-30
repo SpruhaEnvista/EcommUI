@@ -198,9 +198,9 @@ public class ReportsDao {
      * @param userId
      * @return List<ReportCustomerCarrierDto>
      */
-    public List<ReportCustomerCarrierDto> getReportCarrier(Long rptId, Long userId){
+    public List<ReportCustomerCarrierDto> getReportCarrier(Long rptId, Long userId,String customerIds){
         QueryParameter queryParameter = StoredProcedureParameter.with("p_user_id", userId)
-                .and("p_rpt_id", rptId);
+                .and("p_rpt_id", rptId).and("p_customer_ids", customerIds);
         return persistentContext.findEntities("ReportCustomerCarrier.getReportCarrier",queryParameter);
     }
     /**
@@ -353,7 +353,8 @@ public class ReportsDao {
                 .and("locale",savedSchedReportDto.getLocale())
                 .and("currency",savedSchedReportDto.getCurrency())
                 .and("weightUom",savedSchedReportDto.getWeightUom())
-                .and("rptDescr",savedSchedReportDto.getRptDescr());
+                .and("rptDescr",savedSchedReportDto.getRptDescr())
+                .and("rptDelimiter",savedSchedReportDto.getDelimiter());
 
         return persistentContext.findEntity("SavedSchedReports.saveSchedReport",queryParameter);
 
@@ -629,7 +630,8 @@ public class ReportsDao {
                 .and("locale",savedSchedReportDto.getLocale())
                 .and("currency",savedSchedReportDto.getCurrency())
                 .and("weightUom",savedSchedReportDto.getWeightUom())
-                .and("rptDescr",savedSchedReportDto.getRptDescr());
+                .and("rptDescr",savedSchedReportDto.getRptDescr())
+                .and("rptDelimiter",savedSchedReportDto.getDelimiter());
 
         return persistentContext.findEntity("SavedSchedReports.updateSchedReport",queryParameter);
     }
@@ -837,5 +839,15 @@ public class ReportsDao {
                 .and("p_rpt_id", rptId)
                 .and("p_customer_ids", customerIds);
         return persistentContext.findEntities("CarrierDto.getUserCarrierDetailsForReport", queryParameter);
+    }
+
+    public List<ReportDto> getReportList(String rptIds){
+        QueryParameter queryParameter = StoredProcedureParameter.with("p_rpt_id", rptIds);
+        return persistentContext.findEntities("ReportDto.getReportTemplates", queryParameter);
+    }
+
+    public List<SavedSchedReportDto> getSavedScheduledReports(String reportIds){
+        QueryParameter queryParameter = StoredProcedureParameter.with("p_report_ids", reportIds);
+        return persistentContext.findEntities("SavedSchedReportDto.getReportDetailsByIds", queryParameter);
     }
 }
