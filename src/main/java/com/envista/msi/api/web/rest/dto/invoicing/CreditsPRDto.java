@@ -19,7 +19,7 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_INVOICE_MODE_ID", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CARRIER_ID", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CREDIT_CLASS_ID", type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_OMIT_FLAG", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CLAIM_FLAG", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_REVIEW_FLAG", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CREATE_DATE", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_INVOICE_DATE", type = String.class),
@@ -50,7 +50,7 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_INVOICE_MODE_ID", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CARRIER_ID", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CREDIT_CLASS_ID", type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_OMIT_FLAG", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CLAIM_FLAG", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_REVIEW_FLAG", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CREATE_DATE", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_INVOICE_DATE", type = String.class),
@@ -137,8 +137,8 @@ public class CreditsPRDto implements Serializable {
     @Column(name = "CREDIT_AMOUNT")
     private String creditAmount;
 
-    @Column(name = "OMIT_FLAG")
-    private String omitFlag;
+    @Column(name = "CLAIM_FLAG")
+    private String claimFlag;
 
     @Column(name = "REVIEW_FLAG")
     private String reviewFlag;
@@ -265,12 +265,12 @@ public class CreditsPRDto implements Serializable {
         this.creditAmount = creditAmount;
     }
 
-    public String getOmitFlag() {
-        return omitFlag;
+    public String getClaimFlag() {
+        return claimFlag;
     }
 
-    public void setOmitFlag(String omitFlag) {
-        this.omitFlag = omitFlag;
+    public void setClaimFlag(String claimFlag) {
+        this.claimFlag = claimFlag;
     }
 
     public String getReviewFlag() {

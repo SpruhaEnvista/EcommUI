@@ -397,7 +397,7 @@ public class FileOperations {
                         pendingCreditsDto.getReason() != null?pendingCreditsDto.getReason().toString():"",
                         pendingCreditsDto.getWeekEndDate() != null?pendingCreditsDto.getWeekEndDate().toString():"",
                         pendingCreditsDto.getCreditAmount() != null?pendingCreditsDto.getCreditAmount().toString():"",
-                        pendingCreditsDto.getOmitFlag() != null?pendingCreditsDto.getOmitFlag().toString():"",
+                        pendingCreditsDto.getClaimFlag() != null ? pendingCreditsDto.getClaimFlag().toString() : "",
                         pendingCreditsDto.getReviewFlag() != null?pendingCreditsDto.getReviewFlag().toString():"",
                         pendingCreditsDto.getCreditClass() != null?pendingCreditsDto.getCreditClass().toString():"",
                         pendingCreditsDto.getComments() != null?pendingCreditsDto.getComments().toString():""
@@ -499,7 +499,7 @@ public class FileOperations {
                     writer.append(COMMA_SEPARATOR);
                     writer.append(pendingCreditsDto.getCreditAmount() != null?StringEscapeUtils.escapeCsv(pendingCreditsDto.getCreditAmount().toString()):"");
                     writer.append(COMMA_SEPARATOR);
-                    writer.append(pendingCreditsDto.getOmitFlag() != null?StringEscapeUtils.escapeCsv(pendingCreditsDto.getOmitFlag().toString()):"");
+                    writer.append(pendingCreditsDto.getClaimFlag() != null ? StringEscapeUtils.escapeCsv(pendingCreditsDto.getClaimFlag().toString()) : "");
                     writer.append(COMMA_SEPARATOR);
                     writer.append(pendingCreditsDto.getReviewFlag() != null?StringEscapeUtils.escapeCsv(pendingCreditsDto.getReviewFlag()).toString():"");
                     writer.append(COMMA_SEPARATOR);

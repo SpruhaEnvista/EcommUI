@@ -10,7 +10,6 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -292,14 +291,14 @@ public final class InvoicingUtilities {
 
 
             String[] idsArray = StringUtils.split(object.getString("ids"), "~");
-            String[] omitFlagArray = StringUtils.split(object.getString("omitFlags"), "~");
+            String[] claimFlagArray = StringUtils.split(object.getString("claimFlags"), "~");
             String[] invCommentsArray = StringUtils.split(object.getString("invoiceComments"), "~");
             String userName = object.getString("userName");
 
             for (int arr = 0; arr < idsArray.length; arr++) {
                 bean = new UvVoiceUpdateBean();
                 bean.setEbillManifestId(new Long(idsArray[arr]));
-                bean.setOmitFlag(omitFlagArray[arr]);
+                bean.setClaimFlag(claimFlagArray[arr]);
                 bean.setInternalInvComments(invCommentsArray[arr]);
                 bean.setActionName(object.getString("action"));
                 bean.setVoiceName(object.getString("name"));
