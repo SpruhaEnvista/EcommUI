@@ -382,7 +382,7 @@ public class FileOperations {
             XSSFSheet sheet = workbook.createSheet("Pending Credits");
 
             Map<Integer, Object[]> data = new HashMap<Integer, Object[]>();
-            data.put(1, new Object[] {"CUSTOMER CODE","CARRIER","TRACKING NUMBER","SHIPPER NUMBER","INVOICE NUMBER","INVOICE DATE","SHIP FROM","SHIP TO","REFERENCE NUMBER","REASON","WEEK END DATE","CREDIT AMOUNT","OMIT FLAG","REVIEW FLAG","CREDIT CLASS","COMMENTS"});
+            data.put(1, new Object[] {"CUSTOMER CODE","CARRIER","TRACKING NUMBER","SHIPPER NUMBER","INVOICE NUMBER","INVOICE DATE","SHIP FROM","SHIP TO","REFERENCE NUMBER","REASON","WEEK END DATE","CREDIT AMOUNT","CLAIM FLAG","REVIEW FLAG","CREDIT CLASS","COMMENTS"});
             int count = 1;
             for(CreditsPRDto pendingCreditsDto:pendingCreditsDtos){
                 count++;
@@ -468,7 +468,7 @@ public class FileOperations {
                 writer.append(COMMA_SEPARATOR);
                 writer.append("CREDIT AMOUNT");
                 writer.append(COMMA_SEPARATOR);
-                writer.append("OMIT FLAG");
+                writer.append("CLAIM FLAG");
                 writer.append(COMMA_SEPARATOR);
                 writer.append("REVIEW FLAG");
                 writer.append(COMMA_SEPARATOR);
