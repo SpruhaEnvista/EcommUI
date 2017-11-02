@@ -88,7 +88,13 @@ public class FileOperations {
                 FileDefDto fileDefDto=null;
                 while ((line = br.readLine()) != null) {
                     if(count == 0){
-                        line=line.replaceAll(",","*").concat("*");
+                        if(fileType != null && fileType.equalsIgnoreCase("GSRs")){
+                            line=line.replaceAll(",,,,,,,,,,,,,,,,","").replaceAll(",","*").concat("*");
+
+                        }else{
+                            line=line.replaceAll(",","*").concat("*");
+                        }
+
                         fileDefDto= dao.validateFileType(fileTypeId,line);
                         if(fileDefDto == null){
                             resObject.put("error","Invalid File Format");
@@ -101,26 +107,50 @@ public class FileOperations {
                         String[] lineArray = line.split(",(?=([^\"]|\"[^\"]*\")*$)");
 
                         if(lineArray != null && lineArray.length >0){
-                            CreditResponseDto dto = new CreditResponseDto();
-                            dto.setFileInfoId(fileInfoId);
+                            CreditResponseDto dto=null;
                             if(fileType != null && fileType.equalsIgnoreCase("Voids")){
-                                dto.setCustomerCode(lineArray[1]);
-                                dto.setTrackingNumber(lineArray[3] != null?lineArray[3].replace("\'",""):"");
-                                dto.setNotes(lineArray[10] != null ?lineArray[10].replace("\'","").replaceAll("\"",""):"");
-                                dto.setStatus(lineArray[16]);
+                                if( lineArray[3] != null && !lineArray[3].trim().equals("") ){
+                                    dto = new CreditResponseDto();
+                                    dto.setFileInfoId(fileInfoId);
+                                    dto.setCustomerCode(lineArray[1]);
+                                    dto.setTrackingNumber(lineArray[3] != null?lineArray[3].replace("\'",""):"");
+                                    dto.setNotes(lineArray[10] != null ?lineArray[10].replace("\'","").replaceAll("\"",""):"");
+                                    dto.setStatus(lineArray[16]);
+                                }
+
 
                             }else if(fileType != null && fileType.equalsIgnoreCase("GSRs")){
-                                dto.setTrackingNumber(lineArray[0] != null ?lineArray[0].replace("\'",""):"");
-                                dto.setNotes(lineArray[6] != null ? lineArray[6].replaceAll("\"",""):"");
-                                dto.setStatus("Approved");
+                                if( lineArray[0] != null  && !lineArray[0].trim().equals("")) {
+                                    dto = new CreditResponseDto();
+                                    dto.setFileInfoId(fileInfoId);
+                                    dto.setTrackingNumber(lineArray[0] != null ? lineArray[0].replace("\'", "") : "");
+                                    dto.setNotes(lineArray[6] != null ? lineArray[6].replaceAll("\"", "") : "");
+                                    dto.setStatus("Approved");
+                                }
 
                             }else if(fileType != null && fileType.equalsIgnoreCase("Address Corrections and Residentials")){
-                                dto.setTrackingNumber(lineArray[0] != null ?lineArray[0].replace("\'",""):"");
-                                dto.setNotes(lineArray[6] != null?lineArray[6].replaceAll("\"",""):"");
-                                dto.setStatus("Approved");
+                                if( lineArray[0] != null  && !lineArray[0].trim().equals("")) {
+                                    dto = new CreditResponseDto();
+                                    dto.setFileInfoId(fileInfoId);
+                                    dto.setTrackingNumber(lineArray[0] != null ? lineArray[0].replace("\'", "") : "");
+                                    dto.setNotes(lineArray[6] != null ? lineArray[6].replaceAll("\"", "") : "");
+                                    dto.setStatus("Approved");
+                                }
+
+                            }else if(fileType != null && fileType.equalsIgnoreCase("Hazmat")){
+                                if( lineArray[0] != null  && !lineArray[0].trim().equals("")) {
+                                    dto = new CreditResponseDto();
+                                    dto.setFileInfoId(fileInfoId);
+                                    dto.setTrackingNumber(lineArray[0] != null ? lineArray[0].replace("\'", "") : "");
+                                    dto.setNotes(lineArray[4] != null ? lineArray[4].replaceAll("\"", "") : "");
+                                    dto.setStatus("Approved");
+                                }
 
                             }
-                            dtos.add(dto);
+                            if(dto != null){
+                                dtos.add(dto);
+                            }
+
                         }
                     }
 
