@@ -1,11 +1,8 @@
 package com.envista.msi.api.web.rest.util;
 
-import com.envista.msi.api.web.rest.dto.invoicing.CreditResponseDto;
-import com.envista.msi.api.web.rest.dto.invoicing.CreditsPRDto;
-import com.envista.msi.api.web.rest.dto.invoicing.CustomOmitsDto;
-import com.envista.msi.api.web.rest.dto.invoicing.VoiceDto;
+import com.envista.msi.api.dao.invoicing.DashBoardDao;
+import com.envista.msi.api.web.rest.dto.invoicing.*;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.util.HSSFColor;
@@ -17,6 +14,7 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
@@ -39,6 +37,9 @@ public class FileOperations {
     private String fileServer;
     private static final String MIME_TYPE = "application/text";
 
+    @Autowired
+    DashBoardDao dao;
+
     String fileNameForXLSX="";
     String fileNameForCSV="";
     FileWriter writer = null;
@@ -48,7 +49,7 @@ public class FileOperations {
 
         FileOperations fileOperations = new FileOperations();
 
-        fileOperations.customOmitFileUploadOperation(null, 0L);
+        fileOperations.customOmitFileUploadOperation(null, 0L,"Voids",1L);
     }
 
     public String getFileServerAbsolutePath(String physicalFileName) throws FileNotFoundException {
@@ -62,12 +63,14 @@ public class FileOperations {
         return physicalFileName;
     }
 
-    public List<CreditResponseDto> customOmitFileUploadOperation(MultipartFile file, Long fileInfoId) throws IOException {
+    public Map<String,Object> customOmitFileUploadOperation(MultipartFile file, Long fileInfoId,String fileType,Long fileTypeId) throws IOException {
         LOG.info("***customOmitFileUploadOperation method started***");
 
         List<CreditResponseDto> dtos = new ArrayList<CreditResponseDto>();
+        Map<String,Object> resObject=new HashMap<String,Object>();
         FileOutputStream outputStream = null;
         String filePath = InvConstants.filePath;
+        String fileName=file.getOriginalFilename();
         File dir = new File(filePath);
         int count = 0;
         if (!dir.exists())
@@ -79,30 +82,82 @@ public class FileOperations {
             outputStream.write(file.getBytes());
             outputStream.close();
             String line = "";
-            String cvsSplitBy = ",";
+            //String cvsSplitBy = ",";
 
             try (BufferedReader br = new BufferedReader(new FileReader(savedFilepath))) {
+                FileDefDto fileDefDto=null;
                 while ((line = br.readLine()) != null) {
+                    if(count == 0){
+                        if(fileType != null && fileType.equalsIgnoreCase("GSRs")){
+                            line=line.replaceAll(",,,,,,,,,,,,,,,,","").replaceAll(",","*").concat("*");
 
-                    // use comma as separator
-                    if (count != 0) {
-                        if (StringUtils.containsIgnoreCase(line, "\"")) {
-                            line = StringUtils.remove(line, "\"");
+                        }else{
+                            line=line.replaceAll(",","*").concat("*");
                         }
-                        String[] lineArray = line.split(cvsSplitBy);
 
-                        CreditResponseDto dto = new CreditResponseDto();
-                        dto.setFileInfoId(fileInfoId);
-                        dto.setCustomerCode(lineArray[1]);
-                        dto.setTrackingNumber(lineArray[3]);
-                        dto.setNotes(lineArray[10]);
-                        dto.setStatus(lineArray[16]);
-                        dtos.add(dto);
+                        fileDefDto= dao.validateFileType(fileTypeId,line);
+                        if(fileDefDto == null){
+                            resObject.put("error","Invalid File Format");
+                            break;
+                        }
+                    }else if (count != 0 && null != fileDefDto) {
+                        /*if (StringUtils.containsIgnoreCase(line, "\"")) {
+                            line = StringUtils.remove(line, "\"");
+                        }*/
+                        String[] lineArray = line.split(",(?=([^\"]|\"[^\"]*\")*$)");
+
+                        if(lineArray != null && lineArray.length >0){
+                            CreditResponseDto dto=null;
+                            if(fileType != null && fileType.equalsIgnoreCase("Voids")){
+                                if( lineArray[3] != null && !lineArray[3].trim().equals("") ){
+                                    dto = new CreditResponseDto();
+                                    dto.setFileInfoId(fileInfoId);
+                                    dto.setCustomerCode(lineArray[1]);
+                                    dto.setTrackingNumber(lineArray[3] != null?lineArray[3].replace("\'",""):"");
+                                    dto.setNotes(lineArray[10] != null ?lineArray[10].replace("\'","").replaceAll("\"",""):"");
+                                    dto.setStatus(lineArray[16]);
+                                }
+
+
+                            }else if(fileType != null && fileType.equalsIgnoreCase("GSRs")){
+                                if( lineArray[0] != null  && !lineArray[0].trim().equals("")) {
+                                    dto = new CreditResponseDto();
+                                    dto.setFileInfoId(fileInfoId);
+                                    dto.setTrackingNumber(lineArray[0] != null ? lineArray[0].replace("\'", "") : "");
+                                    dto.setNotes(lineArray[6] != null ? lineArray[6].replaceAll("\"", "") : "");
+                                    dto.setStatus("Approved");
+                                }
+
+                            }else if(fileType != null && fileType.equalsIgnoreCase("Address Corrections and Residentials")){
+                                if( lineArray[0] != null  && !lineArray[0].trim().equals("")) {
+                                    dto = new CreditResponseDto();
+                                    dto.setFileInfoId(fileInfoId);
+                                    dto.setTrackingNumber(lineArray[0] != null ? lineArray[0].replace("\'", "") : "");
+                                    dto.setNotes(lineArray[6] != null ? lineArray[6].replaceAll("\"", "") : "");
+                                    dto.setStatus("Approved");
+                                }
+
+                            }else if(fileType != null && fileType.equalsIgnoreCase("Hazmat")){
+                                if( lineArray[0] != null  && !lineArray[0].trim().equals("")) {
+                                    dto = new CreditResponseDto();
+                                    dto.setFileInfoId(fileInfoId);
+                                    dto.setTrackingNumber(lineArray[0] != null ? lineArray[0].replace("\'", "") : "");
+                                    dto.setNotes(lineArray[4] != null ? lineArray[4].replaceAll("\"", "") : "");
+                                    dto.setStatus("Approved");
+                                }
+
+                            }
+                            if(dto != null){
+                                dtos.add(dto);
+                            }
+
+                        }
                     }
 
                     count++;
 
                 }
+                resObject.put("dtos",dtos);
 
             } catch (IOException e) {
                 System.out.println(count);
@@ -115,7 +170,7 @@ public class FileOperations {
             e.printStackTrace();
         }
 
-        return dtos;
+        return resObject;
     }
     /*
         This method exports the voices data
@@ -357,7 +412,7 @@ public class FileOperations {
             XSSFSheet sheet = workbook.createSheet("Pending Credits");
 
             Map<Integer, Object[]> data = new HashMap<Integer, Object[]>();
-            data.put(1, new Object[] {"CUSTOMER CODE","CARRIER","TRACKING NUMBER","SHIPPER NUMBER","INVOICE NUMBER","INVOICE DATE","SHIP FROM","SHIP TO","REFERENCE NUMBER","REASON","WEEK END DATE","CREDIT AMOUNT","OMIT FLAG","REVIEW FLAG","COMMENTS"});
+            data.put(1, new Object[] {"CUSTOMER CODE","CARRIER","TRACKING NUMBER","SHIPPER NUMBER","INVOICE NUMBER","INVOICE DATE","SHIP FROM","SHIP TO","REFERENCE NUMBER","REASON","WEEK END DATE","CREDIT AMOUNT","CLAIM FLAG","REVIEW FLAG","CREDIT CLASS","COMMENTS"});
             int count = 1;
             for(CreditsPRDto pendingCreditsDto:pendingCreditsDtos){
                 count++;
@@ -374,8 +429,9 @@ public class FileOperations {
                         pendingCreditsDto.getReason() != null?pendingCreditsDto.getReason().toString():"",
                         pendingCreditsDto.getWeekEndDate() != null?pendingCreditsDto.getWeekEndDate().toString():"",
                         pendingCreditsDto.getCreditAmount() != null?pendingCreditsDto.getCreditAmount().toString():"",
-                        pendingCreditsDto.getOmitFlag() != null?pendingCreditsDto.getOmitFlag().toString():"",
+                        pendingCreditsDto.getClaimFlag() != null ? pendingCreditsDto.getClaimFlag().toString() : "",
                         pendingCreditsDto.getReviewFlag() != null?pendingCreditsDto.getReviewFlag().toString():"",
+                        pendingCreditsDto.getCreditClass() != null?pendingCreditsDto.getCreditClass().toString():"",
                         pendingCreditsDto.getComments() != null?pendingCreditsDto.getComments().toString():""
                 });
             }
@@ -442,9 +498,11 @@ public class FileOperations {
                 writer.append(COMMA_SEPARATOR);
                 writer.append("CREDIT AMOUNT");
                 writer.append(COMMA_SEPARATOR);
-                writer.append("OMIT FLAG");
+                writer.append("CLAIM FLAG");
                 writer.append(COMMA_SEPARATOR);
                 writer.append("REVIEW FLAG");
+                writer.append(COMMA_SEPARATOR);
+                writer.append("CREDIT CLASS");
                 writer.append(COMMA_SEPARATOR);
                 writer.append("COMMENTS");
                 writer.append('\n');
@@ -473,9 +531,11 @@ public class FileOperations {
                     writer.append(COMMA_SEPARATOR);
                     writer.append(pendingCreditsDto.getCreditAmount() != null?StringEscapeUtils.escapeCsv(pendingCreditsDto.getCreditAmount().toString()):"");
                     writer.append(COMMA_SEPARATOR);
-                    writer.append(pendingCreditsDto.getOmitFlag() != null?StringEscapeUtils.escapeCsv(pendingCreditsDto.getOmitFlag().toString()):"");
+                    writer.append(pendingCreditsDto.getClaimFlag() != null ? StringEscapeUtils.escapeCsv(pendingCreditsDto.getClaimFlag().toString()) : "");
                     writer.append(COMMA_SEPARATOR);
                     writer.append(pendingCreditsDto.getReviewFlag() != null?StringEscapeUtils.escapeCsv(pendingCreditsDto.getReviewFlag()).toString():"");
+                    writer.append(COMMA_SEPARATOR);
+                    writer.append(pendingCreditsDto.getCreditClass() != null?StringEscapeUtils.escapeCsv(pendingCreditsDto.getCreditClass().toString()):"");
                     writer.append(COMMA_SEPARATOR);
                     writer.append(pendingCreditsDto.getComments() != null?StringEscapeUtils.escapeCsv(pendingCreditsDto.getComments().toString()):"");
                     writer.append('\n');

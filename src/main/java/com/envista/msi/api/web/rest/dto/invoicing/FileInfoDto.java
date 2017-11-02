@@ -26,6 +26,12 @@ public class FileInfoDto {
     @Column(name = "CREATE_USER")
     private String createUser;
 
+    @Column(name = "FILE_TYPE_ID")
+    private Long fileTypeId;
+
+    @Column(name = "FILE_TYPE")
+    private String fileType;
+
     public FileInfoDto() {
     }
 
@@ -67,5 +73,17 @@ public class FileInfoDto {
 
     public void setCreateUser(String createUser) {
         this.createUser = createUser;
+    }
+
+    public Long getFileTypeId() { return fileTypeId; }
+
+    public void setFileTypeId(Long fileTypeId) {  this.fileTypeId = fileTypeId; }
+
+    public String getFileType() {
+        return fileType;
+    }
+
+    public void setFileType(String fileType) {
+        this.fileType = fileType;
     }
 }

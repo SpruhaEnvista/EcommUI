@@ -21,7 +21,7 @@ public class UvVoiceUpdateBean {
 
     private Long ebillManifestId;
 
-    private String omitFlag;
+    private String claimFlag;
 
     private String userName;
 
@@ -90,12 +90,12 @@ public class UvVoiceUpdateBean {
         this.ebillManifestId = ebillManifestId;
     }
 
-    public String getOmitFlag() {
-        return omitFlag;
+    public String getClaimFlag() {
+        return claimFlag;
     }
 
-    public void setOmitFlag(String omitFlag) {
-        this.omitFlag = omitFlag;
+    public void setClaimFlag(String claimFlag) {
+        this.claimFlag = claimFlag;
     }
 
     public String getUserName() {

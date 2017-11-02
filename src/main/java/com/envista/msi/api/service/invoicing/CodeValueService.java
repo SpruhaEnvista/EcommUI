@@ -27,8 +27,8 @@ public class CodeValueService {
         return dao.getCodeValues(groupName, property1, codeValue, actionType);
     }
 
-    public String getOmitFlagByVoiceId(Long voiceId) {
+    public String getClaimFlagByVoiceId(Long voiceId) {
 
-        return dao.getOmitFlagByVoiceId(voiceId);
+        return dao.getClaimFlagByVoiceId(voiceId);
     }
 }

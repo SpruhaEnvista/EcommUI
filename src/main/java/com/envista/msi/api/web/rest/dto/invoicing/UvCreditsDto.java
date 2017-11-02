@@ -19,7 +19,7 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_INVOICE_MODE_ID", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CARRIER_ID", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CREDIT_CLASS_ID", type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_OMIT_FLAG", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CLAIM_FLAG", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_REVIEW_FLAG", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CREATE_DATE", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_INVOICE_DATE", type = String.class),
@@ -50,7 +50,7 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_VOICE_ID", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_NEW_VOICE_NAME", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_VOICE_COMMENTS", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_OMIT_FLAG", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CLAIM_FLAG", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_USER_NAME", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class)
                         //@StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_UPDATE_UV_INFO", type = Void.class)
@@ -101,8 +101,8 @@ public class UvCreditsDto implements Serializable {
     @Column(name = "REQUESTOR_NAME")
     private String requestorName;
 
-    @Column(name = "OMIT_FLAG_TEMP")
-    private String omitFlagTemp;
+    @Column(name = "CLAIM_FLAG_TEMP")
+    private String claimFlagTemp;
 
     @Column(name = "INV_COMMENTS_TEMP")
     private String invCommentsTemp;
@@ -182,12 +182,12 @@ public class UvCreditsDto implements Serializable {
         this.requestorName = requestorName;
     }
 
-    public String getOmitFlagTemp() {
-        return omitFlagTemp;
+    public String getClaimFlagTemp() {
+        return claimFlagTemp;
     }
 
-    public void setOmitFlagTemp(String omitFlagTemp) {
-        this.omitFlagTemp = omitFlagTemp;
+    public void setClaimFlagTemp(String claimFlagTemp) {
+        this.claimFlagTemp = claimFlagTemp;
     }
 
     public String getInvCommentsTemp() {
