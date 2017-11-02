@@ -257,7 +257,7 @@ public final class InvoicingUtilities {
 
         object = new JSONObject();
         object.put("id", "AddAsCompetitorNotOurVoice");
-        object.put("name", "Add As Competitor [Not Our Voice]");
+        object.put("name", "Add As Competitor [Omit]");
         jsonArray.put(object);
 
         object = new JSONObject();
