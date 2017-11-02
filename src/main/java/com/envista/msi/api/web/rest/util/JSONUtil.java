@@ -1707,7 +1707,7 @@ public class JSONUtil {
                     if (quatersWiseMap.containsKey(quater)) {
                         Map<String, Double> eachQuaterData = quatersWiseMap.get(quater);
                         quaterInnerDataObj.put("spend", commaSeperatedDecimalFormat.format(eachQuaterData.get("spend")));
-                        quaterInnerDataObj.put("noOfShipments", eachQuaterData.get("noOfShipments"));
+                        quaterInnerDataObj.put("noOfShipments", commaSeperatedDecimalFormat.format(eachQuaterData.get("noOfShipments")));
                         quaterInnerDataObj.put("total", commaSeperatedDecimalFormat.format(eachQuaterData.get("total")));
                         if (quaterlyWiseSpend.containsKey(quater)) {
                             quaterInnerDataObj.put("perc", commaSeperatedDecimalFormat.format(quaterlyWiseSpend.get(quater) != 0 ? (eachQuaterData.get("spend") / quaterlyWiseSpend.get(quater)) * 100 : 0) + "%");
@@ -1733,7 +1733,7 @@ public class JSONUtil {
                     Double totalSpend = spendMap.getValue();
                     Integer totalShipment = quarterlyTotalShipment.get(spendMap.getKey());
                     total.put("spend", commaSeperatedDecimalFormat.format(totalSpend));
-                    total.put("noOfShipments", totalShipment);
+                    total.put("noOfShipments", commaSeperatedDecimalFormat.format(totalShipment));
                     total.put("perc", "");
                     total.put("total", totalShipment != null && totalShipment != 0 ? commaSeperatedDecimalFormat.format(totalSpend / totalShipment) : "0");
                     quartersJson.put(spendMap.getKey(), total);
