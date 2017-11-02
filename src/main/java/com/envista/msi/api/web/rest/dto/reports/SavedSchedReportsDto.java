@@ -84,7 +84,8 @@ import java.util.Date;
                                 @ColumnResult(name = "is_folder",type = Long.class),
                                 @ColumnResult(name = "is_packet",type = Boolean.class),
                                 @ColumnResult(name = "can_edit",type = Boolean.class),
-                                @ColumnResult(name = "is_shared",type = Boolean.class)
+                                @ColumnResult(name = "is_shared",type = Boolean.class),
+                                @ColumnResult(name = "packets_count",type = Integer.class)
                         }
                 )
         })
@@ -148,6 +149,9 @@ public class SavedSchedReportsDto implements Serializable{
     @Column(name = "is_shared")
     private Boolean shared;
 
+    @Column(name="packets_count")
+    private Integer packetsCount;
+
     public SavedSchedReportsDto(){}
 
     public SavedSchedReportsDto(Long reportTbUpdatCount,Long reportUsersTbUpdateCount){
@@ -188,6 +192,25 @@ public class SavedSchedReportsDto implements Serializable{
         this.packet = packet;
         this.canEdit = canEdit;
         this.shared = shared;
+    }
+    public SavedSchedReportsDto(Long savedSchedRptId,Long rptId,Boolean scheduled,String reportFileName,String reportStatus,
+                                String createUser,Date createDate,String lastUpdateUser,Date lastUpdateDate,Integer usersCount,
+                                Long isFolder, Boolean packet,Boolean canEdit, Boolean shared,Integer packetsCount){
+        this.savedSchedRptId = savedSchedRptId;
+        this.rptId = rptId;
+        this.scheduled = scheduled;
+        this.reportFileName = reportFileName;
+        this.reportStatus = reportStatus;
+        this.createUser = createUser;
+        this.createDate = createDate;
+        this.lastUpdateUser = lastUpdateUser;
+        this.lastUpdateDate = lastUpdateDate;
+        this.usersCount = usersCount;
+        this.isFolder = isFolder;
+        this.packet = packet;
+        this.canEdit = canEdit;
+        this.shared = shared;
+        this.packetsCount = packetsCount;
     }
 
     public Long getReportTbUpdatCount() {
@@ -318,6 +341,14 @@ public class SavedSchedReportsDto implements Serializable{
 
     public void setShared(Boolean shared) {
         this.shared = shared;
+    }
+
+    public Integer getPacketsCount() {
+        return packetsCount;
+    }
+
+    public void setPacketsCount(Integer packetsCount) {
+        this.packetsCount = packetsCount;
     }
 
 }
