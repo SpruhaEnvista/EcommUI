@@ -106,9 +106,10 @@ public class DashBoardController {
     }
 
     @RequestMapping(value = "/uploadCreditRespInfo", method = RequestMethod.POST)
-    public ResponseEntity<String> UploadCreditResp(@RequestParam("files") MultipartFile[] file, @RequestParam("weekEndId") Long weekEndId, @RequestParam("userName") String userName, HttpServletRequest request, @RequestParam("fileTypeId") Long fileTypeId, @RequestParam("fileType") String fileType) throws IOException {
+    public ResponseEntity<JSONObject> UploadCreditResp(@RequestParam("files") MultipartFile[] file, @RequestParam("weekEndId") Long weekEndId, @RequestParam("userName") String userName, HttpServletRequest request, @RequestParam("fileTypeId") Long fileTypeId, @RequestParam("fileType") String fileType) throws IOException {
         log.info("***UploadCreditResp method started***");
         String responseStr="";
+        JSONObject jsonObject = new JSONObject();
         try {
             MultipartHttpServletRequest mRequest;
             mRequest = (MultipartHttpServletRequest) request;
@@ -117,18 +118,21 @@ public class DashBoardController {
             List<CreditResponseDto> dtos=null;
             resObj= fileOperations.customOmitFileUploadOperation(files.get(0), 0L,fileType,fileTypeId);
             if(resObj != null && resObj.size() >0 && resObj.get("dtos") != null){
-                FileInfoDto fileInfoDto = service.insertFileInfo(files.get(0).getOriginalFilename(), weekEndId, userName,fileTypeId);
                 dtos=(List<CreditResponseDto>)resObj.get("dtos");
-                creditResponseService.insert(dtos, fileInfoDto.getId());
-                responseStr="file uploaded Successfully";
-            }else{
-                responseStr="Invalid file format";
+                    FileInfoDto fileInfoDto = service.insertFileInfo(files.get(0).getOriginalFilename(), weekEndId, userName,fileTypeId);
+                    creditResponseService.insert(dtos, fileInfoDto.getId());
+                    responseStr="File uploaded Successfully.";
+            }else if(resObj != null && resObj.size() >0 && resObj.get("error") != null && !resObj.get("error").equals("")){
+                responseStr="Invalid file format.";
             }
+            jsonObject.put("message",responseStr);
+
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new ResponseEntity<String>(responseStr, HttpStatus.OK);
+        return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.OK);
+                //new ResponseEntity<String>(responseStr, HttpStatus.OK);
     }
 
 

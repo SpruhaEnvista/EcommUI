@@ -157,7 +157,9 @@ public class FileOperations {
                     count++;
 
                 }
-                resObject.put("dtos",dtos);
+                if(fileDefDto != null) {
+                    resObject.put("dtos", dtos);
+                }
 
             } catch (IOException e) {
                 System.out.println(count);
