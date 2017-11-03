@@ -84,4 +84,7 @@ public interface PersistentContext extends EntityManager {
 	 * @return hibernate session
 	 */
 	public Session getHibernateSession();
+
+	public <T> List<T> executeStoredProcedureListType(String storedProcedureName, QueryParameter parameters, String object, String objectArray)
+			throws SQLException;
 }

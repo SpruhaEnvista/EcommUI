@@ -35,6 +35,15 @@ public class WeekEndDto implements Serializable {
     @Column(name = "CLOSED_BY")
     private String closedBy;
 
+    @Column(name = "STATUS")
+    private String status;
+
+    @Column(name = "Scrub_Credits_By")
+    private String scrubCreditsBy;
+
+    @Column(name = "Is_Scrub_Credits")
+    private int isScrubCredits;
+
     public WeekEndDto() {
     }
 
@@ -76,5 +85,29 @@ public class WeekEndDto implements Serializable {
 
     public void setClosedBy(String closedBy) {
         this.closedBy = closedBy;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getScrubCreditsBy() {
+        return scrubCreditsBy;
+    }
+
+    public void setScrubCreditsBy(String scrubCreditsBy) {
+        this.scrubCreditsBy = scrubCreditsBy;
+    }
+
+    public int getIsScrubCredits() {
+        return isScrubCredits;
+    }
+
+    public void setIsScrubCredits(int isScrubCredits) {
+        this.isScrubCredits = isScrubCredits;
     }
 }

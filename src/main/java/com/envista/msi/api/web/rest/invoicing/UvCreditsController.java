@@ -53,7 +53,7 @@ public class UvCreditsController {
      * @param invoiceModeId
      * @param carrierId
      * @param creditClassId
-     * @param omitFlag
+     * @param claimFlag
      * @param reviewFlag
      * @param createDate
      * @param invoiceDate
@@ -69,11 +69,11 @@ public class UvCreditsController {
      * @return List<UvCreditsDto>
      */
     @RequestMapping(value = "/search", params = {"businessPartnerId", "customerIds", "savedFilter", "invStatusId", "invCatagoryId", "invWeekEndId", "invoiceModeId",
-            "carrierId", "creditClassId", "omitFlag", "reviewFlag", "createDate", "invoiceDate", "closeDate", "invoiceNumbers", "trackingNumbers", "internalKeyIds", "invoiceMethodId",
+            "carrierId", "creditClassId", "claimFlag", "reviewFlag", "createDate", "invoiceDate", "closeDate", "invoiceNumbers", "trackingNumbers", "internalKeyIds", "invoiceMethodId",
             "payRunNos", "controlNums", "adjReasons", "invComments"}, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
     public ResponseEntity<List<UvCreditsDto>> search(@RequestParam Long businessPartnerId, @RequestParam String customerIds, @RequestParam String savedFilter
             , @RequestParam Long invStatusId, @RequestParam Long invCatagoryId, @RequestParam Long invWeekEndId, @RequestParam Long invoiceModeId
-            , @RequestParam Long carrierId, @RequestParam Long creditClassId, @RequestParam String omitFlag, @RequestParam String reviewFlag
+            , @RequestParam Long carrierId, @RequestParam Long creditClassId, @RequestParam String claimFlag, @RequestParam String reviewFlag
             , @RequestParam String createDate, @RequestParam String invoiceDate, @RequestParam String closeDate, @RequestParam String invoiceNumbers
             , @RequestParam String trackingNumbers, @RequestParam String internalKeyIds, @RequestParam Long invoiceMethodId, @RequestParam String payRunNos
             , @RequestParam String controlNums, @RequestParam String adjReasons, @RequestParam String invComments) {
@@ -92,7 +92,7 @@ public class UvCreditsController {
         bean.setInvoiceModeId(invoiceModeId);
         bean.setCarrierId(carrierId);
         bean.setCreditClassId(creditClassId);
-        bean.setOmitFlag(omitFlag);
+        bean.setClaimFlag(claimFlag);
         bean.setReviewFlag(reviewFlag);
         if (createDate != null && !StringUtils.equalsIgnoreCase(createDate, "null"))
             bean.setCreateDate(DateUtil.format(new Date(Long.valueOf(createDate)), "dd-MM-yyyy"));
@@ -148,12 +148,12 @@ public class UvCreditsController {
         return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/getOmitFlag", params = {"voiceId"}, produces = MediaType.TEXT_PLAIN_VALUE, method = RequestMethod.GET)
-    public ResponseEntity<String> getOmitFlagByVoiceId(@RequestParam Long voiceId) throws JSONException {
-        log.info("***getOmitFlagByVoiceId method started****");
+    @RequestMapping(value = "/getClaimFlag", params = {"voiceId"}, produces = MediaType.TEXT_PLAIN_VALUE, method = RequestMethod.GET)
+    public ResponseEntity<String> getClaimFlagByVoiceId(@RequestParam Long voiceId) throws JSONException {
+        log.info("***getClaimFlagByVoiceId method started****");
 
-        String omitFlag = codeValueService.getOmitFlagByVoiceId(voiceId);
+        String claimFlag = codeValueService.getClaimFlagByVoiceId(voiceId);
 
-        return new ResponseEntity<String>(omitFlag, HttpStatus.OK);
+        return new ResponseEntity<String>(claimFlag, HttpStatus.OK);
     }
 }
