@@ -120,6 +120,13 @@ public class CommonUtil {
         return df.format(value);
     }
 
+    public static String decimalNumberToCommaReadableFormat(Double value){
+        if(null == value){
+            return "0.00";
+        }
+        DecimalFormat df = new DecimalFormat("#,###.00");
+        return df.format(value);
+    }
 
     public static Workbook generateXlsxFromJson (JSONArray resultsArray ) throws Exception {
 

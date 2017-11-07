@@ -1249,7 +1249,7 @@ public class JSONUtil {
             laneInfoJson.put("rank", shippingLanesDto.getRank());
             laneInfoJson.put("shipperAddress", shippingLanesDto.getShipperAddress());
             laneInfoJson.put("receiverAddress", shippingLanesDto.getReceiverAddress());
-            laneInfoJson.put("laneTotal", CommonUtil.toDecimalFormat(shippingLanesDto.getLaneTotal()));
+            laneInfoJson.put("laneTotal", CommonUtil.decimalNumberToCommaReadableFormat(shippingLanesDto.getLaneTotal()));
 
             lanesArray.put(laneInfoJson);
         }
@@ -1267,7 +1267,7 @@ public class JSONUtil {
             laneInfoJson.put("rank", portLanesDto.getRank());
             laneInfoJson.put("pol", portLanesDto.getPol());
             laneInfoJson.put("pod", portLanesDto.getPod());
-            laneInfoJson.put("laneTotal", CommonUtil.toDecimalFormat(portLanesDto.getLaneTotal()));
+            laneInfoJson.put("laneTotal", CommonUtil.decimalNumberToCommaReadableFormat(portLanesDto.getLaneTotal()));
 
             lanesArray.put(laneInfoJson);
         }
