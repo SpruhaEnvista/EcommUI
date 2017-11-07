@@ -25,7 +25,7 @@ public class CreditsPRSearchBean implements Serializable {
 
     private Long creditClassId;
 
-    private String omitFlag;
+    private String claimFlag;
 
     private String reviewFlag;
 
@@ -125,12 +125,12 @@ public class CreditsPRSearchBean implements Serializable {
         this.creditClassId = creditClassId;
     }
 
-    public String getOmitFlag() {
-        return omitFlag;
+    public String getClaimFlag() {
+        return claimFlag;
     }
 
-    public void setOmitFlag(String omitFlag) {
-        this.omitFlag = omitFlag;
+    public void setClaimFlag(String claimFlag) {
+        this.claimFlag = claimFlag;
     }
 
     public String getReviewFlag() {

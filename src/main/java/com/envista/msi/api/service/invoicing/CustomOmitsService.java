@@ -1,8 +1,10 @@
 package com.envista.msi.api.service.invoicing;
 
 import com.envista.msi.api.dao.invoicing.CustomOmitsDao;
+import com.envista.msi.api.web.rest.dto.CustomerDto;
 import com.envista.msi.api.web.rest.dto.invoicing.CarrierDto;
 import com.envista.msi.api.web.rest.dto.invoicing.CustomOmitsDto;
+import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
 import com.envista.msi.api.web.rest.util.pagination.EnspirePagination;
 import com.envista.msi.api.web.rest.util.pagination.PaginationBean;
 import org.slf4j.Logger;
@@ -95,5 +97,15 @@ public class CustomOmitsService {
     public int getSeachCount(CustomOmitsDto dto) {
 
         return dao.getSearchCount(dto);
+    }
+
+    public List<ReportCustomerCarrierDto> getCustomers(long userId, long carrierId, long businessPartnerId, String actionType) {
+
+        return dao.getCustomers(userId, carrierId, businessPartnerId, actionType);
+    }
+
+    public int getBusinessPartnerByCustomer(long customerId) {
+
+        return dao.getBusinessPartnerByCustomer(customerId);
     }
 }

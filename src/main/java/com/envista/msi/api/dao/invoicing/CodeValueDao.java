@@ -26,17 +26,17 @@ public class CodeValueDao {
         return persistentContext.findEntities("CodeValueDto.getCodeValues", queryParameter);
     }
 
-    public String getOmitFlagByVoiceId(Long voiceId) {
+    public String getClaimFlagByVoiceId(Long voiceId) {
 
         QueryParameter queryParameter = StoredProcedureParameter.with("P_VOICE_ID", voiceId);
 
-        List<CodeValueDto> dtos = persistentContext.findEntities("CodeValueDto.getOmitFlagByVoiceId", queryParameter);
-        String omitFlag = null;
+        List<CodeValueDto> dtos = persistentContext.findEntities("CodeValueDto.getClaimFlagByVoiceId", queryParameter);
+        String claimFlag = null;
         if (null != dtos && dtos.size() > 0) {
-            omitFlag = dtos.get(0).getProperty2();
+            claimFlag = dtos.get(0).getProperty2();
         }
 
-        return omitFlag;
+        return claimFlag;
     }
 
 
