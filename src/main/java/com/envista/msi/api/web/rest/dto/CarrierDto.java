@@ -19,7 +19,7 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_carrier_ids", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_carrier_details", type = void.class)
                 }),
-        @NamedStoredProcedureQuery(name = "CarrierDto.getUserCarrierDetailsForReport", procedureName = "shp_rpt_carrier_proc_temp",
+        @NamedStoredProcedureQuery(name = "CarrierDto.getUserCarrierDetailsForReport", procedureName = "shp_rpt_carrier_proc",
                 resultSetMappings = {"CarrierDto.getCarrierDetailsForUserAndCustomerMapping"},
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_user_id", type = Long.class),
