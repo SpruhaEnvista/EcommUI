@@ -1,5 +1,7 @@
 package com.envista.msi.api.web.rest.dto.invoicing;
 
+import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
@@ -82,6 +84,15 @@ import java.io.Serializable;
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CUSTOM_OMITS_IDS", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_OMITS_INFO", type = Void.class)
+                }),
+        @NamedStoredProcedureQuery(name = "CustomOmitsDto.getCustomers", procedureName = "SHP_INV_GET_CUSTOMERS_PRO",
+                resultSetMappings = "ReportCustomerCarrierDto.DashboardCustomerMapping",
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_USER_ID", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CARRIER_ID", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_BUSINESS_PARTNER_ID", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_CUSTOMERS_DATA", type = Void.class)
                 })
 })
 @SqlResultSetMappings({

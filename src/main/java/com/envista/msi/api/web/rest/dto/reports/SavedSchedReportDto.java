@@ -47,7 +47,8 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "locale", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "currency", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "weightUom", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "rptDescr", type = String.class)
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "rptDescr", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "rptDelimiter", type = String.class)
                 }),
         @NamedStoredProcedureQuery(name = "SavedSchedReports.updateSchedReport", procedureName = "shp_rpt_update_savshde_proc",
                 resultSetMappings = "UpdateSavedSchedReport",
@@ -88,7 +89,8 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "locale", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "currency", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "weightUom", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "rptDescr", type = String.class)
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "rptDescr", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "rptDelimiter", type = String.class)
                 }),
         @NamedStoredProcedureQuery(name = "SavedSchedReports.deleteChildDataSchedReport", procedureName = "shp_rpt_delete_records_mt_proc",
                 resultSetMappings = "UpdateSavedSchedReport",
@@ -184,7 +186,8 @@ import java.util.Date;
                                 @ColumnResult(name = "currency", type = String.class),
                                 @ColumnResult(name = "weight_uom", type = String.class),
                                 @ColumnResult(name = "rpt_descr", type = String.class),
-                                @ColumnResult(name = "rpt_folder_id", type = Long.class)
+                                @ColumnResult(name = "rpt_folder_id", type = Long.class),
+                                @ColumnResult(name = "delimiter", type = String.class)
                         }
                 )
         }),
@@ -392,6 +395,9 @@ public class SavedSchedReportDto {
 
     @Column(name = "rpt_folder_id")
     private Long rptFolderId;
+
+    @Column(name = "DELIMITER")
+    private String delimiter;
 
     public SavedSchedReportDto(Long savedSchedRptId, Long rptId, String criteria) {
         this.savedSchedRptId = savedSchedRptId;
@@ -840,7 +846,7 @@ public class SavedSchedReportDto {
                                String createUser,String createDate,String lastUpdateUser,String lastUpdateDate,String criteria,
                                Integer dateRangeTodayMinus1,Integer dateRangeTodayMinus2,Long ftpAccountsId,Boolean suppressInvoices,
                                Integer highPriority,String submittedFromSystem,Boolean packet,String queueName,String flagsJson,
-                               String locale,String currency,String weightUom,String rptDescr, Long rptFolderId){
+                               String locale,String currency,String weightUom,String rptDescr, Long rptFolderId, String delimiter){
         this.savedSchedRptId = savedSchedRptId;
         this.rptId = rptId;
         this.scheduled = scheduled;
@@ -885,6 +891,7 @@ public class SavedSchedReportDto {
         this.weightUom = weightUom;
         this.rptDescr = rptDescr;
         this.rptFolderId = rptFolderId;
+        this.delimiter = delimiter;
     }
 
     public Integer getCategory() {
@@ -893,5 +900,13 @@ public class SavedSchedReportDto {
 
     public void setCategory(Integer category) {
         this.category = category;
+    }
+
+    public String getDelimiter() {
+        return delimiter;
+    }
+
+    public void setDelimiter(String delimiter) {
+        this.delimiter = delimiter;
     }
 }

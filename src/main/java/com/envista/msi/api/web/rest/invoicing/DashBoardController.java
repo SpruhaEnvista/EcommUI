@@ -21,6 +21,7 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by KRISHNAREDDYM on 5/8/2017.
@@ -105,33 +106,36 @@ public class DashBoardController {
     }
 
     @RequestMapping(value = "/uploadCreditRespInfo", method = RequestMethod.POST)
-    public ResponseEntity<String> UploadCreditResp(@RequestParam("files") MultipartFile[] file, @RequestParam("weekEndId") Long weekEndId, @RequestParam("userName") String userName, HttpServletRequest request) throws IOException {
+    public ResponseEntity<JSONObject> UploadCreditResp(@RequestParam("files") MultipartFile[] file, @RequestParam("weekEndId") Long weekEndId, @RequestParam("userName") String userName, HttpServletRequest request, @RequestParam("fileTypeId") Long fileTypeId, @RequestParam("fileType") String fileType) throws IOException {
         log.info("***UploadCreditResp method started***");
+        String responseStr="";
+        JSONObject jsonObject = new JSONObject();
         try {
             MultipartHttpServletRequest mRequest;
             mRequest = (MultipartHttpServletRequest) request;
             List<MultipartFile> files = mRequest.getFiles("file");
-            FileInfoDto fileInfoDto = service.insertFileInfo(files.get(0).getOriginalFilename(), weekEndId, userName);
-            List<CreditResponseDto> dtos = fileOperations.customOmitFileUploadOperation(files.get(0), fileInfoDto != null ? fileInfoDto.getId() : 0L);
-            creditResponseService.insert(dtos);
+            Map<String,Object> resObj=null;
+            List<CreditResponseDto> dtos=null;
+            resObj= fileOperations.customOmitFileUploadOperation(files.get(0), 0L,fileType,fileTypeId);
+            if(resObj != null && resObj.size() >0 && resObj.get("dtos") != null){
+                dtos=(List<CreditResponseDto>)resObj.get("dtos");
+                    FileInfoDto fileInfoDto = service.insertFileInfo(files.get(0).getOriginalFilename(), weekEndId, userName,fileTypeId);
+                    creditResponseService.insert(dtos, fileInfoDto.getId());
+                    responseStr="File uploaded Successfully.";
+            }else if(resObj != null && resObj.size() >0 && resObj.get("error") != null && !resObj.get("error").equals("")){
+                responseStr="Invalid file format.";
+            }
+            jsonObject.put("message",responseStr);
+
+
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new ResponseEntity<String>("file(s) uploaded Successfully", HttpStatus.OK);
+        return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.OK);
+                //new ResponseEntity<String>(responseStr, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/testUpload", method = RequestMethod.POST)
-    public ResponseEntity<String> testUpload() throws IOException {
-        log.info("***UploadCreditResp method started***");
-        try {
 
-            List<CreditResponseDto> dtos = fileOperations.customOmitFileUploadOperation(null, 0L);
-            creditResponseService.insert(dtos);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return new ResponseEntity<String>("file(s) uploaded Successfully", HttpStatus.OK);
-    }
 
     /**
      * HTTP GET - Get Current Week End Info
@@ -170,6 +174,46 @@ public class DashBoardController {
 
         log.info("***getWeekStatusInfo json***==== " + dto);
         return new ResponseEntity<WeekStatusDto>(dto, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/getFileDefTypesList",produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+    public ResponseEntity<List<FileDefDto>> getFileDefTypesListInfo() throws JSONException {
+        log.info("***getFileDefTypesListInfo method started****");
+
+        List<FileDefDto> dtos = service.getFileDefTypesListInfo();
+
+        log.info("***getFileDefTypesListInfo json***==== " + dtos);
+        return new ResponseEntity<List<FileDefDto>>(dtos, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/getFileInfoList", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+    public ResponseEntity<List<FileInfoDto>> getFileInfoList(@RequestParam("weekEndId") Long weekEndId) throws JSONException {
+        log.info("***getFileDefTypesListInfo method started****");
+
+        List<FileInfoDto> dtos = service.getFileInfoByWeekEndId(weekEndId);
+
+        log.info("***getFileInfoList json***==== " + dtos);
+        return new ResponseEntity<List<FileInfoDto>>(dtos, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/getScrubCreditsHis", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+    public ResponseEntity<List<ScrubCreditsHisDto>> getScrubCreditsHistory(@RequestParam("weekEndId") Long weekEndId) throws JSONException {
+        log.info("***getFileDefTypesListInfo method started****");
+
+        List<ScrubCreditsHisDto> dtos = service.getScrubCreditsHistory(weekEndId);
+
+        log.info("***getScrubCreditsHis json***==== " + dtos);
+        return new ResponseEntity<List<ScrubCreditsHisDto>>(dtos, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/getWeekStatusByWeekendDate", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+    public ResponseEntity<WeekEndDto> getWeekStatusByWeekendDate(@RequestParam String weekEndDate) throws JSONException {
+        log.info("***getWeekStatusByWeekendDate method started****");
+
+        WeekEndDto dto = weekEndService.findByWeekEndDate(weekEndDate);
+
+        log.info("***getWeekStatusByWeekendDate json***==== " + dto);
+        return new ResponseEntity<WeekEndDto>(dto, HttpStatus.OK);
     }
 
 }

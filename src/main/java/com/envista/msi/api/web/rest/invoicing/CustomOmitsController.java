@@ -193,6 +193,23 @@ public class CustomOmitsController {
     /**
      * HTTP GET - Get all
      */
+    @RequestMapping(value = "/getCarriers", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+    public ResponseEntity<JSONObject> getCarriers() throws JSONException {
+        LOG.info("***getCarriers method started****");
+        JSONObject jsonObject = new JSONObject();
+
+
+        jsonObject.put("carriers", service.getAllCarriers());
+
+        LOG.info("***jsonObject***" + jsonObject);
+
+
+        return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.OK);
+    }
+
+    /**
+     * HTTP GET - Get all
+     */
     @RequestMapping(value = "/getCariersByCustomer/{customerIds}", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
     public ResponseEntity<List<UserFilterUtilityDataDto>> getCariersByCustomer(@PathVariable("customerIds") String customerIds) {
         LOG.info("***getCariersByCustomer method started****");
@@ -263,5 +280,66 @@ public class CustomOmitsController {
 
         fileOperations.exportCustomOmits(exportType,(List<CustomOmitsDto>)CustomOmitsPaginationData.getData(),response);
 
+    }
+
+    /**
+     * HTTP GET - Get Customers By Carrier
+     */
+    @RequestMapping(value = "/getCustomersByCarrier", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+    public ResponseEntity<JSONObject> getCustomersByCarrier(@RequestParam(required = true, defaultValue = "0L") Long userId, @RequestParam(required = true, defaultValue = "0L") Long carrierId) throws JSONException {
+        LOG.info("***getCustomersByCarrier method started****");
+        JSONObject jsonObject = new JSONObject();
+
+        if (userId == null)
+            userId = (long) 0;
+
+        if (carrierId == null)
+            carrierId = (long) 0;
+
+        List<ReportCustomerCarrierDto> customers = service.getCustomers(userId, carrierId, 0, "GETBYCARRIER");
+
+        ReportCustomerCarrierDto customerHierarchy = reportsService.getCustomerHierarchyObject(customers, false);
+        jsonObject.put("customers", JSONUtil.customerHierarchyJson(customerHierarchy));
+
+        return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.OK);
+    }
+
+    /**
+     * HTTP GET - Get Customers By BusinessPartner
+     */
+    @RequestMapping(value = "/getCustomersByBusinessPartner", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+    public ResponseEntity<JSONObject> getCustomersByBusinessPartner(@RequestParam(required = true, defaultValue = "0L") Long userId, @RequestParam(required = true, defaultValue = "0L") Long businessPartnerId) throws JSONException {
+        LOG.info("***getCustomersByBusinessPartner method started****");
+        JSONObject jsonObject = new JSONObject();
+
+        if (userId == null)
+            userId = (long) 0;
+
+        if (businessPartnerId == null)
+            businessPartnerId = (long) 0;
+
+        List<ReportCustomerCarrierDto> customers = service.getCustomers(userId, 0, businessPartnerId, "GETBYBUSINESSPARTNER");
+
+        ReportCustomerCarrierDto customerHierarchy = reportsService.getCustomerHierarchyObject(customers, false);
+        jsonObject.put("customers", JSONUtil.customerHierarchyJson(customerHierarchy));
+
+        return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.OK);
+    }
+
+    /**
+     * HTTP GET - Get BusinessPartner By Customer
+     */
+    @RequestMapping(value = "/getBusinessPartnerByCustomer", method = RequestMethod.GET)
+    public ResponseEntity<Integer> getBusinessPartnerByCustomer(@RequestParam(required = true, defaultValue = "0L") Long customerId) throws JSONException {
+        LOG.info("***getBusinessPartnerByCustomer method started****");
+        JSONObject jsonObject = new JSONObject();
+
+        if (customerId == null)
+            customerId = (long) 0;
+
+
+        int businessPartnerId = service.getBusinessPartnerByCustomer(customerId);
+
+        return new ResponseEntity<Integer>(businessPartnerId, HttpStatus.OK);
     }
 }

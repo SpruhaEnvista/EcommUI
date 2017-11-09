@@ -3,9 +3,7 @@ package com.envista.msi.api.dao.invoicing;
 import com.envista.msi.api.domain.PersistentContext;
 import com.envista.msi.api.domain.util.QueryParameter;
 import com.envista.msi.api.domain.util.StoredProcedureParameter;
-import com.envista.msi.api.web.rest.dto.invoicing.DashBoardDto;
-import com.envista.msi.api.web.rest.dto.invoicing.FileInfoDto;
-import com.envista.msi.api.web.rest.dto.invoicing.WeekStatusDto;
+import com.envista.msi.api.web.rest.dto.invoicing.*;
 import org.springframework.stereotype.Repository;
 
 import javax.inject.Inject;
@@ -66,15 +64,15 @@ public class DashBoardDao {
 
     public int scrubCredits(Long weekEndId, String userName) {
 
-        QueryParameter queryParameter = StoredProcedureParameter.with("P_WEEK_END_ID", weekEndId).and("P_USER_NAME", userName);
-        persistentContext.findEntities("DashBoardDto.weeklyScrub", queryParameter);
+        QueryParameter queryParameter = StoredProcedureParameter.with("P_WEEK_END_ID", weekEndId).and("P_USER_NAME", userName).and("P_ACTION_TYPE", null);
+        persistentContext.findEntities("DashBoardDto.scrubCredits", queryParameter);
 
         return 0;
     }
 
-    public FileInfoDto insertFileInfo(String fileName, Long weekEndId, String userName) {
+    public FileInfoDto insertFileInfo(String fileName, Long weekEndId, String userName,Long fileTypeId) {
 
-        QueryParameter queryParameter = StoredProcedureParameter.with("P_FILE_NAME", fileName).and("P_WEEK_END_ID", weekEndId).and("P_USER_NAME", userName);
+        QueryParameter queryParameter = StoredProcedureParameter.with("P_FILE_NAME", fileName).and("P_WEEK_END_ID", weekEndId).and("P_USER_NAME", userName).and("P_FILE_TYPE_ID", fileTypeId);
 
         List<FileInfoDto> dtos = persistentContext.findEntities("DashBoardDto.insertFileInfo", queryParameter);
         FileInfoDto dto = null;
@@ -97,6 +95,43 @@ public class DashBoardDao {
             dto = dtos.get(0);
         }
         return dto;
+    }
+
+    public List<FileDefDto> getFileDefTypesListInfo() {
+
+        QueryParameter queryParameter = StoredProcedureParameter.with("P_FILE_DEF_ID", 0L).and("P_FILE_SIGNATURE", null).and("P_ACTION_TYPE", "getAll");
+
+        return persistentContext.findEntities("FileDefDto.getFileDefTypes", queryParameter);
+
+    }
+
+    public FileDefDto validateFileType(long fileTypeId,String fileSignature) {
+
+        QueryParameter queryParameter = StoredProcedureParameter.with("P_FILE_DEF_ID", fileTypeId).and("P_FILE_SIGNATURE", fileSignature).and("P_ACTION_TYPE", "getFileTypeById");
+
+        List<FileDefDto> dtos =  persistentContext.findEntities("FileDefDto.getFileDefTypes", queryParameter);
+        FileDefDto dto = null;
+        if (null != dtos && dtos.size() > 0) {
+            dto = dtos.get(0);
+        }
+        return dto;
+
+    }
+
+    public List<FileInfoDto> getFileInfoByWeekEndId(Long weekEndId) {
+
+        QueryParameter queryParameter = StoredProcedureParameter.with("P_WEEK_END_ID", weekEndId);
+
+        return persistentContext.findEntities("FileInfoDto.getFileInfoByWeekEndId", queryParameter);
+
+    }
+
+    public List<ScrubCreditsHisDto> getScrubCreditsHistory(Long weekEndId) {
+
+        QueryParameter queryParameter = StoredProcedureParameter.with("P_WEEK_END_ID", weekEndId);
+
+        return persistentContext.findEntities("ScrubCreditsHisDto.getScrubCreditsHistory", queryParameter);
+
     }
 
 }

@@ -1249,7 +1249,7 @@ public class JSONUtil {
             laneInfoJson.put("rank", shippingLanesDto.getRank());
             laneInfoJson.put("shipperAddress", shippingLanesDto.getShipperAddress());
             laneInfoJson.put("receiverAddress", shippingLanesDto.getReceiverAddress());
-            laneInfoJson.put("laneTotal", CommonUtil.toDecimalFormat(shippingLanesDto.getLaneTotal()));
+            laneInfoJson.put("laneTotal", CommonUtil.decimalNumberToCommaReadableFormat(shippingLanesDto.getLaneTotal()));
 
             lanesArray.put(laneInfoJson);
         }
@@ -1267,7 +1267,7 @@ public class JSONUtil {
             laneInfoJson.put("rank", portLanesDto.getRank());
             laneInfoJson.put("pol", portLanesDto.getPol());
             laneInfoJson.put("pod", portLanesDto.getPod());
-            laneInfoJson.put("laneTotal", CommonUtil.toDecimalFormat(portLanesDto.getLaneTotal()));
+            laneInfoJson.put("laneTotal", CommonUtil.decimalNumberToCommaReadableFormat(portLanesDto.getLaneTotal()));
 
             lanesArray.put(laneInfoJson);
         }
@@ -1572,7 +1572,7 @@ public class JSONUtil {
                     if (quatersWiseMap.containsKey(quater)) {
                         HashMap<String, Double> eachQuaterData = quatersWiseMap.get(quater);
                         quaterInnerDataObj.put("spend", commaSeperatedDecimalFormat.format(eachQuaterData.get("spend")));
-                        quaterInnerDataObj.put("noOfShipments", eachQuaterData.get("noOfShipments"));
+                        quaterInnerDataObj.put("noOfShipments", commaSeperatedDecimalFormat.format(eachQuaterData.get("noOfShipments")));
                         quaterInnerDataObj.put("total", commaSeperatedDecimalFormat.format(eachQuaterData.get("total")));
                         if (quarterlySpend.containsKey(quater)) {
                             quaterInnerDataObj.put("perc",
@@ -1600,7 +1600,7 @@ public class JSONUtil {
                     Double totalSpend = spendMap.getValue();
                     Integer totalShipment = quarterlyTotalShipment.get(spendMap.getKey());
                     total.put("spend", commaSeperatedDecimalFormat.format(totalSpend));
-                    total.put("noOfShipments", totalShipment);
+                    total.put("noOfShipments", commaSeperatedDecimalFormat.format(totalShipment));
                     total.put("perc", "");
                     total.put("total", totalShipment != null && totalShipment != 0 ? commaSeperatedDecimalFormat.format(totalSpend / totalShipment) : "0");
                     quartersJson.put(spendMap.getKey(), total);
@@ -1707,7 +1707,7 @@ public class JSONUtil {
                     if (quatersWiseMap.containsKey(quater)) {
                         Map<String, Double> eachQuaterData = quatersWiseMap.get(quater);
                         quaterInnerDataObj.put("spend", commaSeperatedDecimalFormat.format(eachQuaterData.get("spend")));
-                        quaterInnerDataObj.put("noOfShipments", eachQuaterData.get("noOfShipments"));
+                        quaterInnerDataObj.put("noOfShipments", commaSeperatedDecimalFormat.format(eachQuaterData.get("noOfShipments")));
                         quaterInnerDataObj.put("total", commaSeperatedDecimalFormat.format(eachQuaterData.get("total")));
                         if (quaterlyWiseSpend.containsKey(quater)) {
                             quaterInnerDataObj.put("perc", commaSeperatedDecimalFormat.format(quaterlyWiseSpend.get(quater) != 0 ? (eachQuaterData.get("spend") / quaterlyWiseSpend.get(quater)) * 100 : 0) + "%");
@@ -1733,7 +1733,7 @@ public class JSONUtil {
                     Double totalSpend = spendMap.getValue();
                     Integer totalShipment = quarterlyTotalShipment.get(spendMap.getKey());
                     total.put("spend", commaSeperatedDecimalFormat.format(totalSpend));
-                    total.put("noOfShipments", totalShipment);
+                    total.put("noOfShipments", commaSeperatedDecimalFormat.format(totalShipment));
                     total.put("perc", "");
                     total.put("total", totalShipment != null && totalShipment != 0 ? commaSeperatedDecimalFormat.format(totalSpend / totalShipment) : "0");
                     quartersJson.put(spendMap.getKey(), total);
