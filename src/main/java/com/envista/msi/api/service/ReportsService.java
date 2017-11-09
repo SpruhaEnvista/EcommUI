@@ -1145,7 +1145,7 @@ public class ReportsService {
 
        if (isFileToBeEmailed) {
             //ReportTypeDto reportTypeDto =   reportsDao.getReportTypeDetails(Long.parseLong(String.valueOf(savedSchedReportDto.getReportTypeId())));
-            mailService.sendMail(fromEmail,recipients,subject,body,false,true,generatedReportDetailsDto.getReportFileName(),getFileServerAbsolutePath(generatedReportDetailsDto.getPhysicalFileName()));
+            mailService.sendMailWithAttachment(fromEmail, recipients, subject, body, generatedReportDetailsDto.getReportFileName(), getFileServerAbsolutePath(generatedReportDetailsDto.getPhysicalFileName()));
         } else {
             mailService.sendEmail(fromEmail, recipients, subject, body);
         }
