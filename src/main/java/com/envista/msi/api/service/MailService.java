@@ -86,6 +86,25 @@ public class MailService {
         }
     }
 
+    public void sendMailWithAttachment(String from, String to, String subject, final String content, String fileName, String filePath) {
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        try {
+            MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, CharEncoding.UTF_8);
+            message.setTo(to);
+            message.setFrom(from);
+            message.setSubject(subject);
+            message.setText(content);
+
+            FileSystemResource file = new FileSystemResource(new File(filePath));
+            message.addAttachment(fileName, file);
+
+            javaMailSender.send(mimeMessage);
+
+        } catch (MessagingException e) {
+            log.warn("E-mail could not be sent to user '{}', exception is: {}", to, e.getMessage());
+        }
+    }
+
 	public void sendMail(String from, String to, String subject, final String content, boolean isMultipart,
 			boolean isHtml, String fileName, String filePath) {
 		log.debug("Send e-mail[multipart '{}' and html '{}'] to '{}' with subject '{}' and content={}",
