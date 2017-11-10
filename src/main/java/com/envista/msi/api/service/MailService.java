@@ -115,7 +115,7 @@ public class MailService {
 			message.setTo(to);
 			message.setFrom(from);
 			message.setSubject(subject);
-			message.setText(content);
+			message.setText(content, true);
 
 			FileSystemResource file = new FileSystemResource(new File(filePath));
 			message.addAttachment(fileName, file);
