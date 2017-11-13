@@ -77,7 +77,7 @@ public class MailService {
             message.setTo(to);
             message.setFrom(from);
             message.setSubject(subject);
-            message.setText(content, true);
+            message.setText(content);
             javaMailSender.send(mimeMessage);
             log.debug("Sent e-mail to User '{}'", to);
         } catch (Exception e) {
@@ -93,7 +93,7 @@ public class MailService {
             message.setTo(to);
             message.setFrom(from);
             message.setSubject(subject);
-            message.setText(content);
+            message.setText(content, true);
 
             FileSystemResource file = new FileSystemResource(new File(filePath));
             message.addAttachment(fileName, file);
