@@ -1454,6 +1454,8 @@ public class JSONUtil {
                 if(category.equalsIgnoreCase("Total Spend")){
                     eachCategoryObj.put(key1, commaSeperatedDecimalFormat.format(totalSpendMap.get(yearsList.get(0))));
                     eachCategoryObj.put(key2, commaSeperatedDecimalFormat.format(totalSpendMap.get(yearsList.get(1))));
+                    BigDecimal toatalSpend=totalSpendMap.get(yearsList.get(0)).add(totalSpendMap.get(yearsList.get(1)));
+                    eachCategoryObj.put("spendTotal", commaSeperatedDecimalFormat.format(toatalSpend));
                 }else{
                     if (categoriesBasedMap.containsKey(category)) {
                         if (categoriesBasedMap.get(category).containsKey(yearsList.get(0))) {
@@ -1467,9 +1469,16 @@ public class JSONUtil {
                         } else {
                             eachCategoryObj.put(key2, "0");
                         }
+
+                        Double d=Double.parseDouble(eachCategoryObj.getString(key1).replace(",",""))+Double.parseDouble(eachCategoryObj.getString(key2).replace(",",""));
+
+
+                        eachCategoryObj.put("spendTotal",commaSeperatedDecimalFormat.format(d));
+
                     } else {
                         eachCategoryObj.put(key1, "0");
                         eachCategoryObj.put(key2, "0");
+                        eachCategoryObj.put("spendTotal", "0");
                     }
                 }
                 finalValuesArray.put(eachCategoryObj);
@@ -1478,6 +1487,8 @@ public class JSONUtil {
             JSONArray yearsJsonArray = new JSONArray();
             yearsJsonArray.put(yearsList.get(0));
             yearsJsonArray.put(yearsList.get(1));
+            yearsJsonArray.put("Total");
+
 
             resultJsonObj.put("years", yearsJsonArray);
             resultJsonObj.put("values", finalValuesArray);
@@ -1566,6 +1577,10 @@ public class JSONUtil {
                 HashMap<String, HashMap<String, Double>> quatersWiseMap = modesMap.get(mode);
 
                 JSONObject allQuatersDataObj = new JSONObject();
+                Double spendTotal=0.0;
+                int shipmentsTotal=0;
+                Double averageTotal=0.0;
+                Double percTotal=0.0;
                 for (String quater : quatersList) {
 
                     JSONObject quaterInnerDataObj = new JSONObject();
@@ -1587,18 +1602,35 @@ public class JSONUtil {
                         quaterInnerDataObj.put("perc", "0%");
                     }
 
+                    spendTotal=spendTotal+Double.parseDouble(quaterInnerDataObj.getString("spend").replace(",",""));
+                    shipmentsTotal=shipmentsTotal+Integer.parseInt(quaterInnerDataObj.getString("noOfShipments").replace(",",""));
+                    averageTotal=averageTotal+Double.parseDouble(quaterInnerDataObj.getString("total").replace(",",""));
+                    percTotal =percTotal+Double.parseDouble(quaterInnerDataObj.getString("perc").replace(",","").replace("%",""));
+
                     allQuatersDataObj.put(quater, quaterInnerDataObj);
                 }
-                modeWiseDataObj.put(mode, new JSONObject().put("quaters", allQuatersDataObj));
+                JSONObject rowTotalJson=new JSONObject();
+                rowTotalJson.put("totalSpend",commaSeperatedDecimalFormat.format(spendTotal));
+                rowTotalJson.put("totalShipments",commaSeperatedDecimalFormat.format(shipmentsTotal));
+                rowTotalJson.put("totalAverage",commaSeperatedDecimalFormat.format(averageTotal));
+                rowTotalJson.put("totalPercentage",commaSeperatedDecimalFormat.format(percTotal)+"%");
+
+                JSONObject json=new JSONObject();
+                modeWiseDataObj.put(mode, json.put("quaters", allQuatersDataObj));
+                modeWiseDataObj.put(mode, json.put("rowTotal", rowTotalJson));
                 modesArray.put(modeWiseDataObj);
             }
 
             JSONObject quartersJson = new JSONObject();
+            Double grandSpendTotal=0.0;
+            Integer grandShipmentsTotal=0;
             for(Map.Entry<String, Double> spendMap : quarterlySpend.entrySet()){
                 if(spendMap != null){
                     JSONObject total = new JSONObject();
                     Double totalSpend = spendMap.getValue();
+                    grandSpendTotal=grandSpendTotal+totalSpend;
                     Integer totalShipment = quarterlyTotalShipment.get(spendMap.getKey());
+                    grandShipmentsTotal=grandShipmentsTotal+totalShipment;
                     total.put("spend", commaSeperatedDecimalFormat.format(totalSpend));
                     total.put("noOfShipments", commaSeperatedDecimalFormat.format(totalShipment));
                     total.put("perc", "");
@@ -1606,8 +1638,16 @@ public class JSONUtil {
                     quartersJson.put(spendMap.getKey(), total);
                 }
             }
+
+            JSONObject rowTotalJson=new JSONObject();
+            rowTotalJson.put("totalSpend",commaSeperatedDecimalFormat.format(grandSpendTotal));
+            rowTotalJson.put("totalShipments",commaSeperatedDecimalFormat.format(grandShipmentsTotal));
+            rowTotalJson.put("totalAverage",grandShipmentsTotal != null && grandShipmentsTotal != 0 ? commaSeperatedDecimalFormat.format(grandSpendTotal / grandShipmentsTotal) : "0");
+            rowTotalJson.put("totalPercentage","");
             JSONObject totalSpendJson = new JSONObject();
-            totalSpendJson.put("Total", new JSONObject().put("quaters", quartersJson));
+            JSONObject quarterJson = new JSONObject();
+            totalSpendJson.put("Total", quarterJson.put("quaters", quartersJson));
+            totalSpendJson.put("Total", quarterJson.put("rowTotal", rowTotalJson));
             if(modesArray != null){
                 modesArray.put(totalSpendJson);
             }
@@ -1615,6 +1655,7 @@ public class JSONUtil {
             for (String quater : quatersList) {
                 quatersArray.put(quater);
             }
+           // quatersArray.put("Total");
 
             finalObject.put("modes", modesArray);
             finalObject.put("quaters", quatersArray);
@@ -1698,10 +1739,15 @@ public class JSONUtil {
             JSONObject finalObject = new JSONObject();
             JSONArray servicesArray = new JSONArray();
 
+
             for (String service : servicesList) {
                 JSONObject serviceWiseDataObj = new JSONObject();
                 Map<String, HashMap<String, Double>> quatersWiseMap = servicesMap.get(service);
                 JSONObject allQuatersDataObj = new JSONObject();
+                Double spendTotal=0.0;
+                int shipmentsTotal=0;
+                Double averageTotal=0.0;
+                Double percTotal=0.0;
                 for (String quater : quatersList) {
                     JSONObject quaterInnerDataObj = new JSONObject();
                     if (quatersWiseMap.containsKey(quater)) {
@@ -1720,18 +1766,34 @@ public class JSONUtil {
                         quaterInnerDataObj.put("total", "0");
                         quaterInnerDataObj.put("perc", "0%");
                     }
+                    spendTotal=spendTotal+Double.parseDouble(quaterInnerDataObj.getString("spend").replace(",",""));
+                    shipmentsTotal=shipmentsTotal+Integer.parseInt(quaterInnerDataObj.getString("noOfShipments").replace(",",""));
+                    averageTotal=averageTotal+Double.parseDouble(quaterInnerDataObj.getString("total").replace(",",""));
+                    percTotal =percTotal+Double.parseDouble(quaterInnerDataObj.getString("perc").replace(",","").replace("%",""));
+
                     allQuatersDataObj.put(quater, quaterInnerDataObj);
                 }
-                serviceWiseDataObj.put(service, new JSONObject().put("quaters", allQuatersDataObj));
+                JSONObject rowTotalJson=new JSONObject();
+                rowTotalJson.put("totalSpend",commaSeperatedDecimalFormat.format(spendTotal));
+                rowTotalJson.put("totalShipments",commaSeperatedDecimalFormat.format(shipmentsTotal));
+                rowTotalJson.put("totalAverage",commaSeperatedDecimalFormat.format(averageTotal));
+                rowTotalJson.put("totalPercentage",commaSeperatedDecimalFormat.format(percTotal)+"%");
+                JSONObject json=new JSONObject();
+                serviceWiseDataObj.put(service,  json.put("quaters", allQuatersDataObj));
+                serviceWiseDataObj.put(service,  json.put("rowTotal", rowTotalJson));
                 servicesArray.put(serviceWiseDataObj);
             }
 
             JSONObject quartersJson = new JSONObject();
+            Double grandSpendTotal=0.0;
+            Integer grandShipmentsTotal=0;
             for(Map.Entry<String, Double> spendMap : quaterlyWiseSpend.entrySet()){
                 if(spendMap != null){
                     JSONObject total = new JSONObject();
                     Double totalSpend = spendMap.getValue();
+                    grandSpendTotal=grandSpendTotal+totalSpend;
                     Integer totalShipment = quarterlyTotalShipment.get(spendMap.getKey());
+                    grandShipmentsTotal=grandShipmentsTotal+totalShipment;
                     total.put("spend", commaSeperatedDecimalFormat.format(totalSpend));
                     total.put("noOfShipments", commaSeperatedDecimalFormat.format(totalShipment));
                     total.put("perc", "");
@@ -1739,8 +1801,15 @@ public class JSONUtil {
                     quartersJson.put(spendMap.getKey(), total);
                 }
             }
+            JSONObject rowTotalJson=new JSONObject();
+            rowTotalJson.put("totalSpend",commaSeperatedDecimalFormat.format(grandSpendTotal));
+            rowTotalJson.put("totalShipments",commaSeperatedDecimalFormat.format(grandShipmentsTotal));
+            rowTotalJson.put("totalAverage",grandShipmentsTotal != null && grandShipmentsTotal != 0 ? commaSeperatedDecimalFormat.format(grandSpendTotal / grandShipmentsTotal) : "0");
+            rowTotalJson.put("totalPercentage","");
             JSONObject totalSpendJson = new JSONObject();
-            totalSpendJson.put("Total", new JSONObject().put("quaters", quartersJson));
+            JSONObject quarterJson = new JSONObject();
+            totalSpendJson.put("Total", quarterJson.put("quaters", quartersJson));
+            totalSpendJson.put("Total", quarterJson.put("rowTotal", rowTotalJson));
             if(servicesArray != null){
                 servicesArray.put(totalSpendJson);
             }
@@ -1813,23 +1882,29 @@ public class JSONUtil {
                 JSONObject modeWiseDataObj = new JSONObject();
                 HashMap<String, HashMap<String, Double>> monthsWiseMap = modesMap.get(mode);
                 modeWiseDataObj.put("name", mode);
+                Double  totalSpendForAllMonths=0.0;
                 for (String month : monthsList) {
                     String spend = "0";
                     if (monthsWiseMap != null && monthsWiseMap.containsKey(month)) {
                         spend = commaSeperatedDecimalFormat.format(monthsWiseMap.get(month).get("spend"));
                     }
                     modeWiseDataObj.put(month, spend);
+                    totalSpendForAllMonths=totalSpendForAllMonths+Double.parseDouble(spend.replace(",",""));
                 }
+                modeWiseDataObj.put("Total",commaSeperatedDecimalFormat.format(totalSpendForAllMonths));
                 modesArray.put(modeWiseDataObj);
             }
 
             if(modesArray != null){
                 JSONObject totalMonthlyJson = new JSONObject();
+                Double grandTotalSpend=0.0;
                 for(Map.Entry<String, Double> monthlyMap : monthlyTotalSpend.entrySet()){
                     if(monthlyMap != null){
                         totalMonthlyJson.put(monthlyMap.getKey(), commaSeperatedDecimalFormat.format(monthlyMap.getValue()));
+                        grandTotalSpend=grandTotalSpend+monthlyMap.getValue();
                     }
                 }
+                totalMonthlyJson.put("Total",commaSeperatedDecimalFormat.format(grandTotalSpend));
                 totalMonthlyJson.put("name", "Total");
                 modesArray.put(totalMonthlyJson);
             }
@@ -1838,6 +1913,8 @@ public class JSONUtil {
             for (String month : monthsList) {
                 monthsArray.put(month);
             }
+
+            monthsArray.put("Total");
 
             finalObject.put("modes", modesArray);
             finalObject.put("quaters", monthsArray);
@@ -1899,23 +1976,29 @@ public class JSONUtil {
                 JSONObject serviceWiseDataObj = new JSONObject();
                 HashMap<String, HashMap<String, Double>> quatersWiseMap = servicesMap.get(service);
                 serviceWiseDataObj.put("name", service);
+                Double totalSpendForAllMonths=0.0;
                 for (String quater : quatersList) {
                     String spend = "0";
                     if (quatersWiseMap != null && quatersWiseMap.containsKey(quater)) {
                         spend = commaSeperatedDecimalFormat.format(quatersWiseMap.get(quater).get("spend"));
                     }
                     serviceWiseDataObj.put(quater, spend);
+                    totalSpendForAllMonths=totalSpendForAllMonths+Double.parseDouble(spend.replace(",",""));
                 }
+                serviceWiseDataObj.put("Total",commaSeperatedDecimalFormat.format(totalSpendForAllMonths));
                 servicesArray.put(serviceWiseDataObj);
             }
 
             if(servicesArray != null){
                 JSONObject totalMonthlyJson = new JSONObject();
+                Double grandTotalSpend=0.0;
                 for(Map.Entry<String, Double> monthlyMap : monthlyTotalSpend.entrySet()){
                     if(monthlyMap != null){
                         totalMonthlyJson.put(monthlyMap.getKey(), commaSeperatedDecimalFormat.format(monthlyMap.getValue()));
+                        grandTotalSpend=grandTotalSpend+monthlyMap.getValue();
                     }
                 }
+                totalMonthlyJson.put("Total",commaSeperatedDecimalFormat.format(grandTotalSpend));
                 totalMonthlyJson.put("name", "Total");
                 servicesArray.put(totalMonthlyJson);
             }
@@ -1924,9 +2007,10 @@ public class JSONUtil {
             for (String quater : quatersList) {
                 quatersArray.put(quater);
             }
+            quatersArray.put("Total");
 
             finalObject.put("services", servicesArray);
-            finalObject.put("quaters", quatersList);
+            finalObject.put("quaters", quatersArray);
 
             returnJson.put("values", finalObject);
         }
