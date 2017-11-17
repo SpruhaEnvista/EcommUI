@@ -77,7 +77,7 @@ public class MailService {
             message.setTo(to);
             message.setFrom(from);
             message.setSubject(subject);
-            message.setText(content);
+            message.setText(content, true);
             javaMailSender.send(mimeMessage);
             log.debug("Sent e-mail to User '{}'", to);
         } catch (Exception e) {
