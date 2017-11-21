@@ -73,7 +73,7 @@ public class RulesDao {
                 .and("P_COLUMN_7", bean.getColumn7()).and("P_COLUMN_8", bean.getColumn8())
                 .and("P_COLUMN_9", bean.getColumn9()).and("P_COLUMN_10", bean.getColumn10())
                 .and("P_IS_ACTIVE", bean.getIsActive()).and("P_USER_ID", bean.getUserId())
-                .and("P_ACTION_TYPE", bean.getActionType());
+                .and("P_INSERT_TYPE", bean.getInsertType()).and("P_ACTION_TYPE", bean.getActionType());
 
 
         return persistentContext.findEntityAndMapFields("RulesDto.insertOrUpdate", queryParameter);
