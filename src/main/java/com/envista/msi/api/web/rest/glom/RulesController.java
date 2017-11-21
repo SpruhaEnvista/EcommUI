@@ -46,6 +46,7 @@ public class RulesController {
         bean.setPageSize(limit);
         bean.setIsActive(isActive);
         bean.setActionType("getall");
+        bean.setRuleId(0L);
 
         PaginationBean paginationData = new PaginationBean();
         paginationData = service.getAllPaginationData(bean);
