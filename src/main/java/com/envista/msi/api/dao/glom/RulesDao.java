@@ -79,7 +79,7 @@ public class RulesDao {
         return persistentContext.findEntityAndMapFields("RulesDto.insertOrUpdate", queryParameter);
     }
 
-    public RulesDto findByScriptName(String ruleName, String prevRuleName, Long scriptId) {
+    public RulesDto findByRuleName(String ruleName, String prevRuleName, Long scriptId) {
 
         QueryParameter queryParameter = StoredProcedureParameter.with("P_RULE_NAME", ruleName)
                 .and("P_PREV_RULE_NAME", prevRuleName).and("P_SCRIPT_ID", scriptId);

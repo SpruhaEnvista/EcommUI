@@ -30,7 +30,7 @@ public class RulesController {
      * HTTP GET - Get all Rules
      */
     @RequestMapping(value = "/getAll", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
-    public ResponseEntity<PaginationBean> getAll(@RequestParam(required = false, defaultValue = "0") Long scriptId,
+    public ResponseEntity<PaginationBean> getAll(@RequestParam(required = true) Long scriptId,
                                                  @RequestParam(required = false, defaultValue = "0") Integer offset,
                                                  @RequestParam(required = false, defaultValue = "10") Integer limit,
                                                  @RequestParam(required = false, defaultValue = "null") String sort,
@@ -82,12 +82,13 @@ public class RulesController {
         return new ResponseEntity<RulesDto>(dbDto, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/findByRuleName/{scriptName}/{prevScriptName}/{customerId}/{prevCustomerId}", produces = MediaType.TEXT_PLAIN_VALUE, method = RequestMethod.GET)
-    public ResponseEntity<String> findByRuleName(@PathVariable("ruleName") String ruleName, @PathVariable("prevRuleName") String prevRuleName,
-                                                 @PathVariable("scriptId") Long scriptId) {
+    @RequestMapping(value = "/findByRuleName", produces = MediaType.TEXT_PLAIN_VALUE, method = RequestMethod.GET)
+    public ResponseEntity<String> findByRuleName(@RequestParam(required = true, defaultValue = "null") String ruleName,
+                                                 @RequestParam(required = false, defaultValue = "null") String prevRuleName,
+                                                 @RequestParam(required = true, defaultValue = "0L") Long scriptId) {
 
 
-        RulesDto dto = service.findByScriptName(ruleName.toUpperCase(), prevRuleName.toUpperCase(), scriptId);
+        RulesDto dto = service.findByRuleName(ruleName.toUpperCase(), prevRuleName.toUpperCase(), scriptId);
 
         String msg = "Rule Name is not exist";
 
@@ -119,6 +120,10 @@ public class RulesController {
 
         RulesBean bean = new RulesBean();
         bean.setRuleId(ruleId);
+        bean.setScriptId(0L);
+        bean.setOffset(0);
+        bean.setPageSize(0);
+        bean.setIsActive(1);
         bean.setActionType("getbyid");
 
         return new ResponseEntity<RulesDto>(service.findById(bean), HttpStatus.OK);
