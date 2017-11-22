@@ -1534,14 +1534,14 @@ public class DashboardsDao {
         return persistentContext.findEntities(AverageSpendPerShipmentDto.Config.StoredProcedureQueryName.AVG_SPEND_PER_SHIPMENT_BY_WEEK, queryParameter);
     }
 
-    public List<CarrierWiseMonthlySpendDto> getCarrierWiseMonthlySpend(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
-        String[] paramNames = {DashboardStoredProcParam.NetSpendParams.DATE_TYPE_PARAM, DashboardStoredProcParam.NetSpendParams.CONVERTED_CURRENCY_ID_PARAM,
-                DashboardStoredProcParam.NetSpendParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardStoredProcParam.NetSpendParams.CUSTOMER_IDS_CSV_PARAM,
-                DashboardStoredProcParam.NetSpendParams.CARRIER_IDS_PARAM, DashboardStoredProcParam.NetSpendParams.MODES_PARAM,
-                DashboardStoredProcParam.NetSpendParams.SERVICES_PARAM, DashboardStoredProcParam.NetSpendParams.LANES_PARAM,
-                DashboardStoredProcParam.NetSpendParams.ACCESSORIAL_NAME_PARAM,
-                DashboardStoredProcParam.NetSpendParams.FROM_DATE_PARAM, DashboardStoredProcParam.NetSpendParams.TO_DATE_PARAM,
-                DashboardStoredProcParam.NetSpendParams.TOP_TEN_ACCESSORIAL_PARAM
+    public List<CarrierWiseMonthlySpendDto> getCarrierWiseMonthlySpend(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        String[] paramNames = {DashboardStoredProcParam.CarrierWiseMonthlySpend.DATE_TYPE_PARAM, DashboardStoredProcParam.CarrierWiseMonthlySpend.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardStoredProcParam.CarrierWiseMonthlySpend.CONVERTED_CURRENCY_CODE_PARAM, DashboardStoredProcParam.CarrierWiseMonthlySpend.CUSTOMER_IDS_CSV_PARAM,
+                DashboardStoredProcParam.CarrierWiseMonthlySpend.CARRIER_IDS_PARAM, DashboardStoredProcParam.CarrierWiseMonthlySpend.MODES_PARAM,
+                DashboardStoredProcParam.CarrierWiseMonthlySpend.SERVICES_PARAM, DashboardStoredProcParam.CarrierWiseMonthlySpend.LANES_PARAM,
+                DashboardStoredProcParam.CarrierWiseMonthlySpend.ACCESSORIAL_NAME_PARAM,
+                DashboardStoredProcParam.CarrierWiseMonthlySpend.FROM_DATE_PARAM, DashboardStoredProcParam.CarrierWiseMonthlySpend.TO_DATE_PARAM,
+                DashboardStoredProcParam.CarrierWiseMonthlySpend.TOP_TEN_ACCESSORIAL_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
         return persistentContext.findEntities(CarrierWiseMonthlySpendDto.Config.CarrierWiseMonthlySpend.STORED_PROCEDURE_QUERY_NAME, queryParameter);

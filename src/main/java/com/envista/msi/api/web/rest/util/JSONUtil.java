@@ -3099,29 +3099,29 @@ public class JSONUtil {
                 JSONObject modeWiseDataObj = new JSONObject();
                 HashMap<String, HashMap<String, Double>> monthsWiseMap = modesMap.get(mode);
                 modeWiseDataObj.put("name", mode);
-                Double  totalSpendForAllMonths=0.0;
+                Double totalSpendForAllMonths = 0.0;
                 for (String month : monthsList) {
                     String spend = "0";
                     if (monthsWiseMap != null && monthsWiseMap.containsKey(month)) {
                         spend = commaSeperatedDecimalFormat.format(monthsWiseMap.get(month).get("spend"));
                     }
                     modeWiseDataObj.put(month, spend);
-                    totalSpendForAllMonths=totalSpendForAllMonths+Double.parseDouble(spend.replace(",",""));
+                    totalSpendForAllMonths = totalSpendForAllMonths + Double.parseDouble(spend.replace(",", ""));
                 }
-                modeWiseDataObj.put("Total",commaSeperatedDecimalFormat.format(totalSpendForAllMonths));
+                modeWiseDataObj.put("Total", commaSeperatedDecimalFormat.format(totalSpendForAllMonths));
                 modesArray.put(modeWiseDataObj);
             }
 
-            if(modesArray != null){
+            if (modesArray != null) {
                 JSONObject totalMonthlyJson = new JSONObject();
-                Double grandTotalSpend=0.0;
-                for(Map.Entry<String, Double> monthlyMap : monthlyTotalSpend.entrySet()){
-                    if(monthlyMap != null){
+                Double grandTotalSpend = 0.0;
+                for (Map.Entry<String, Double> monthlyMap : monthlyTotalSpend.entrySet()) {
+                    if (monthlyMap != null) {
                         totalMonthlyJson.put(monthlyMap.getKey(), commaSeperatedDecimalFormat.format(monthlyMap.getValue()));
-                        grandTotalSpend=grandTotalSpend+monthlyMap.getValue();
+                        grandTotalSpend = grandTotalSpend + monthlyMap.getValue();
                     }
                 }
-                totalMonthlyJson.put("Total",commaSeperatedDecimalFormat.format(grandTotalSpend));
+                totalMonthlyJson.put("Total", commaSeperatedDecimalFormat.format(grandTotalSpend));
                 totalMonthlyJson.put("name", "Total");
                 modesArray.put(totalMonthlyJson);
             }
