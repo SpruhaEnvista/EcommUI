@@ -3115,14 +3115,41 @@ public class DashboardsController extends DashboardBaseController {
         return ResponseEntity.status(HttpStatus.OK).body(userFilterData);
     }
 
-    @RequestMapping(value = "/carrsByCustomer", method = {RequestMethod.GET, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    /*@RequestMapping(value = "/carrsByCustomer", method = {RequestMethod.GET, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<Map<String, Object>>  getCarriersByCustomer(@RequestParam String customerIds, @RequestParam boolean isParcelDashlettes) throws JSONException {
         Map<String, Object> userFilterData = new HashMap();
         List<UserFilterUtilityDataDto> carrList = dashboardsService.getCarrierByCustomer(customerIds, isParcelDashlettes);
+
         if(carrList != null && !carrList.isEmpty()){
             userFilterData.put("carriers", JSONUtil.prepareFilterCarrierJson(carrList));
         }
         return ResponseEntity.status(HttpStatus.OK).body(userFilterData);
+    }*/
+
+    @RequestMapping(value = "/carrsByCustomer", method = {RequestMethod.GET, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<Map<String, Object>>  getCarriersByCustomer(@RequestParam String customerIds, @RequestParam boolean isParcelDashlettes) throws JSONException {
+        Map<String, Object> userFilterData = new HashMap();
+        List<UserFilterUtilityDataDto> carrListFreight = dashboardsService.getCarrierByCustomer(customerIds, false);
+        List<UserFilterUtilityDataDto> carrListParcel = dashboardsService.getCarrierByCustomer(customerIds, true);
+
+        JSONArray freightCarrJsonArr = new JSONArray();
+        if (carrListFreight != null && !carrListFreight.isEmpty()) {
+            freightCarrJsonArr = JSONUtil.prepareCarriersByGroupJson(carrListFreight, false);
+        }
+
+        JSONArray parcelCarJsonArr = new JSONArray();
+        if (carrListParcel != null && !carrListParcel.isEmpty()) {
+            parcelCarJsonArr = JSONUtil.prepareCarriersByGroupJson(carrListParcel, true);
+        }
+
+        JSONObject carrJson = new JSONObject();
+        carrJson.put("parcelCarriers", parcelCarJsonArr);
+        carrJson.put("freightCarriers", freightCarrJsonArr);
+
+        userFilterData.put("carriers", carrJson);
+
+        return ResponseEntity.status(HttpStatus.OK).body(userFilterData);
+
     }
 
     @RequestMapping(value = "/modesByCarr", method = {RequestMethod.GET, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
@@ -3145,7 +3172,7 @@ public class DashboardsController extends DashboardBaseController {
     public ResponseEntity<Map<String, Object>>  getCarriersByCustomer() throws JSONException {
         Map<String, Object> userFilterData = new HashMap();
         UserProfileDto user = getUserProfile();
-        List<DashSavedFilterDto> userSavedFilters = dashboardsService.getSavedFiltersByUser(user.getUserId());
+         List<DashSavedFilterDto> userSavedFilters = dashboardsService.getSavedFiltersByUser(user.getUserId());
         List<ReportCustomerCarrierDto> customers = dashboardsService.getDashboardCustomers(user.getUserId());
         userFilterData.put("savedFilterNames", userSavedFilters);
         userFilterData.put("currenciesList", JSONUtil.prepareCurrenciesJson(dashboardsService.getCodeValuesByCodeGroup(468L)));

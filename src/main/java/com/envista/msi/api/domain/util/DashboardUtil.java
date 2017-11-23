@@ -12,6 +12,7 @@ import org.json.JSONException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
+import org.json.JSONObject;
 
 /**
  * Created by Sujit kumar on 06/02/2017.
@@ -292,7 +293,15 @@ public class DashboardUtil {
         if (savedCarrList.size() > 0) {
             modesArray = JSONUtil.prepareFilterModesJson(modes, savedModes, modeWiseCarriers, isParcelDashlettes, isNew);
         }
-        userFilterDetailsMap.put("carrDetails", JSONUtil.prepareFilterCarrierJson(carriers, savedCarrList, isNew));
+        // userFilterDetailsMap.put("carrDetails", JSONUtil.prepareFilterCarrierJson(carriers, savedCarrList, isNew));
+
+        /*JSONObject carrJson = new JSONObject();
+        JSONArray freightCarrJsonArr = JSONUtil.prepareCarriersByGroupJson(carriers,savedCarrList, isNew,false);
+        JSONArray parcelCarJsonArr = JSONUtil.prepareCarriersByGroupJson(carriers,savedCarrList, isNew,true);
+        carrJson.put("parcelCarriers", parcelCarJsonArr);
+        carrJson.put("freightCarriers", freightCarrJsonArr);*/
+
+       // userFilterDetailsMap.put("carrDetails", carrJson);
         userFilterDetailsMap.put("modesDetails", modesArray);
         userFilterDetailsMap.put("servicesDetails", JSONUtil.prepareFilterServiceJson(services, savedServices, isNew));
         userFilterDetailsMap.put("filterDetails", savedFilter);

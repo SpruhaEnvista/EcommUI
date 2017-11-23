@@ -2514,6 +2514,76 @@ public class JSONUtil {
         return prepareFilterCarrierJson(carrierList, null, true);
     }
 
+    public static JSONArray prepareCarriersByGroupJson(List<UserFilterUtilityDataDto> carrierList,boolean isParcelDashlettes) throws JSONException {
+        return prepareCarriersByGroupJson(carrierList, null, true,isParcelDashlettes);
+    }
+
+    public static JSONArray prepareCarriersByGroupJson(List<UserFilterUtilityDataDto> carrierList, List<Long> selectedCarrList, boolean isNew,boolean isParcelDashlettes) throws JSONException {
+        JSONObject carrJson = new JSONObject();
+        JSONArray parcelCarJsonArr = new JSONArray();
+        JSONArray freightCarrJsonArr = new JSONArray();
+
+       // JSONArray parcelCarGroupJsonArr = new JSONArray();
+
+
+
+        if (carrierList != null && !carrierList.isEmpty()) {
+            for (UserFilterUtilityDataDto userFilterCarr : carrierList) {
+                JSONObject  carGroupJson =  new JSONObject();
+                if (userFilterCarr != null) {
+
+                    JSONArray childJsonArr = new JSONArray();
+
+                    String carrierGroupName = userFilterCarr.getCarrierGroupName();
+                    String[] carrierIdCsvLArr = userFilterCarr.getCarrierIdCSV().split("#@#");
+                    String[] carrierNameCsvLArr = userFilterCarr.getCarrierName().split("#@#");
+                    String carriers = userFilterCarr.getCarrierIdCSV().replace("#@#",",");
+
+                    carGroupJson.put("name",carrierGroupName);
+                    carGroupJson.put("carriers",carriers);
+
+
+                    if(carrierIdCsvLArr.length>0)
+                    {
+                        for(int i=0;i<carrierIdCsvLArr.length;i++)
+                        {
+
+                            JSONObject carrObj = new JSONObject();
+                            carrObj.put("id", Long.parseLong(carrierIdCsvLArr[i]));
+                            carrObj.put("name", carrierNameCsvLArr[i]);
+                            carrObj.put("checked", isNew ? true : selectedCarrList != null && selectedCarrList.contains(userFilterCarr.getCarrierId()));
+
+                            childJsonArr.put(carrObj);
+
+                           /* userFilterCarr.setCarrierId(Long.parseLong(carrierIdCsvLArr[i]));
+                            userFilterCarr.setCarrierIdCSV(carrierIdCsvLArr[i]);
+                            userFilterCarr.setCarrierName(carrierNameCsvLArr[i]);
+                            carrierListNew.add(userFilterCarr);*/
+                        }
+
+                    }
+
+                    carGroupJson.put("children",childJsonArr);
+
+                }
+
+                if(isParcelDashlettes){
+                    parcelCarJsonArr.put(carGroupJson);
+                }else {
+                    freightCarrJsonArr.put(carGroupJson);
+                }
+            }
+        }
+        /*carrJson.put("parcelCarriers", parcelCarJsonArr);
+        carrJson.put("freightCarriers", freightCarrJsonArr);*/
+        if(isParcelDashlettes){
+            return  parcelCarJsonArr;
+        }else {
+            return freightCarrJsonArr;
+        }
+
+    }
+
     public static JSONObject prepareFilterCarrierJson(List<UserFilterUtilityDataDto> carrierList, List<Long> selectedCarrList, boolean isNew) throws JSONException {
         JSONObject carrJson = new JSONObject();
         JSONArray parcelCarJsonArr = new JSONArray();
@@ -2526,9 +2596,14 @@ public class JSONUtil {
                     carrObj.put("name", userFilterCarr.getCarrierName());
                     carrObj.put("checked", isNew ? true : selectedCarrList != null && selectedCarrList.contains(userFilterCarr.getCarrierId()));
 
-                    if("parcel".equalsIgnoreCase(userFilterCarr.getCarrierType())){
+                    if("parcel".equalsIgnoreCase(userFilterCarr.getCarrierGroupName())){
                         parcelCarJsonArr.put(carrObj);
-                    }else if("freight".equalsIgnoreCase(userFilterCarr.getCarrierType())){
+                    }else if("freight".equalsIgnoreCase(userFilterCarr.getCarrierGroupName())){
+
+                        if  ( userFilterCarr.getCarrierName().contains("#") ) {
+
+                        }
+
                         freightCarrJsonArr.put(carrObj);
                     }
                 }

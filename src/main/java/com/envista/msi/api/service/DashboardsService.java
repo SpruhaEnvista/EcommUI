@@ -820,13 +820,31 @@ public class DashboardsService {
         List<Long> carrList = new ArrayList<Long>();
         List<Long> modeList = new ArrayList<Long>();
         List<Long> servicesList = new ArrayList<Long>();
-        List<UserFilterUtilityDataDto> carriers = getCarrierByCustomer(String.valueOf(userFilter.getCustomerIds()), isParcelDashlettes);
+        //List<UserFilterUtilityDataDto> carriers = getCarrierByCustomer(String.valueOf(userFilter.getCustomerIds()), isParcelDashlettes);
+        List<UserFilterUtilityDataDto> carriers = new ArrayList<>();
+        List<UserFilterUtilityDataDto> carrListParcel = getCarrierByCustomer(String.valueOf(userFilter.getCustomerIds()), true);
+        List<UserFilterUtilityDataDto> carrListFreight = getCarrierByCustomer(String.valueOf(userFilter.getCustomerIds()), false);
+
+        carriers.addAll(carrListParcel);
+        carriers.addAll(carrListFreight);
+
         StringJoiner carrierCSV = new StringJoiner(",");
         for(UserFilterUtilityDataDto car : carriers){
-            if(car != null){
+           /* if(car != null){
                 carrList.add(car.getCarrierId());
                 carrierCSV.add(car.getCarrierId().toString());
+            }*/
+            if(car != null){
+                String[] carrierIdCsvLArr  = car.getCarrierIdCSV().split("#@#");
+                if(carrierIdCsvLArr.length>0) {
+                    for (int i = 0; i < carrierIdCsvLArr.length; i++) {
+                        carrList.add(Long.parseLong(carrierIdCsvLArr[i]));
+                        carrierCSV.add(carrierIdCsvLArr[i]);
+                    }
+                }
+
             }
+
         }
         filter.setCarriers(carrierCSV.toString());
         userFilter.setCarrierIds(carrierCSV.toString());
@@ -856,9 +874,20 @@ public class DashboardsService {
             userFilter.setServices(servicesCSV.toString());
         }
 
-
-        return DashboardUtil.prepareFilterDetails(carriers, services,
+        Map<String, Object> userFilterDetailsMap = DashboardUtil.prepareFilterDetails(carriers, services,
                 modes, carrList, modeList, servicesList, userFilter, getModeWiseCarrier(carrierCSV.toString()), isParcelDashlettes, true);
+
+        JSONObject carrJson = new JSONObject();
+        JSONArray parcelCarJsonArr = JSONUtil.prepareCarriersByGroupJson(carrListParcel,carrList, true,true);
+        JSONArray freightCarrJsonArr = JSONUtil.prepareCarriersByGroupJson(carrListFreight,carrList, true,false);
+
+        carrJson.put("parcelCarriers", parcelCarJsonArr);
+        carrJson.put("freightCarriers", freightCarrJsonArr);
+
+        userFilterDetailsMap.put("carrDetails", carrJson);
+        return userFilterDetailsMap;
+       /* return DashboardUtil.prepareFilterDetails(carriers, services,
+                modes, carrList, modeList, servicesList, userFilter, getModeWiseCarrier(carrierCSV.toString()), isParcelDashlettes, true);*/
     }
 
     public Map<String, Object> getUserFilterDetails(Long filterId, boolean isParcelDashlettes) throws JSONException {
@@ -939,8 +968,37 @@ public class DashboardsService {
      * @param isParcelDashlettes
      * @return
      */
-    public List<UserFilterUtilityDataDto> getCarrierByCustomer(String customerIds, boolean isParcelDashlettes){
+   /* public List<UserFilterUtilityDataDto> getCarrierByCustomer(String customerIds, boolean isParcelDashlettes){
         return dashboardsDao.getCarrierByCustomer(customerIds, isParcelDashlettes);
+    }*/
+    public List<UserFilterUtilityDataDto> getCarrierByCustomer(String customerIds, boolean isParcelDashlettes){
+
+        List<UserFilterUtilityDataDto> carrierList =   dashboardsDao.getCarrierByCustomer(customerIds, isParcelDashlettes);
+       /* List<UserFilterUtilityDataDto> carrierListNew = new ArrayList<>();
+        // Handlimg
+        if (carrierList != null && !carrierList.isEmpty()) {
+            for (UserFilterUtilityDataDto userFilterCarr : carrierList) {
+                if (userFilterCarr != null) {
+
+                    String[] carrierIdCsvLArr = userFilterCarr.getCarrierIdCSV().split("#@#");
+                    String[] carrierNameCsvLArr = userFilterCarr.getCarrierName().split("#@#");
+                    if(carrierIdCsvLArr.length>0)
+                    {
+                       for(int i=0;i<carrierIdCsvLArr.length;i++)
+                          {
+                              userFilterCarr.setCarrierId(Long.parseLong(carrierIdCsvLArr[i]));
+                              userFilterCarr.setCarrierIdCSV(carrierIdCsvLArr[i]);
+                              userFilterCarr.setCarrierName(carrierNameCsvLArr[i]);
+                              carrierListNew.add(userFilterCarr);
+                          }
+
+                    }
+
+                }
+            }
+        }*/
+
+        return carrierList;
     }
 
     /**

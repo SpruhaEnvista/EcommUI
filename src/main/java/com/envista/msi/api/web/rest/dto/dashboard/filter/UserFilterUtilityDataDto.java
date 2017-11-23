@@ -63,8 +63,9 @@ import java.io.Serializable;
                         @ConstructorResult(
                                 targetClass = UserFilterUtilityDataDto.class,
                                 columns = {
-                                        @ColumnResult(name = "CARRIER_TYPE", type = String.class),
-                                        @ColumnResult(name = "CARRIER_ID", type = Long.class),
+                                        @ColumnResult(name = "GROUP_NAME", type = String.class),
+                                        @ColumnResult(name = "CARRIER_ID_CSV", type = String.class),
+
                                         @ColumnResult(name = "CARRIER_NAME", type = String.class)
                                 }
                         )
@@ -117,8 +118,11 @@ public class UserFilterUtilityDataDto implements Serializable {
 
     private String name;
 
-    @Column(name = "CARRIER_TYPE")
-    private String carrierType;
+    @Column(name = "GROUP_NAME")
+    private String carrierGroupName;
+
+    @Column(name = "CARRIER_ID_CSV")
+    private String carrierIdCSV;
 
     @Column(name = "CARRIER_ID")
     private Long carrierId;
@@ -140,9 +144,15 @@ public class UserFilterUtilityDataDto implements Serializable {
         this.name = name;
     }
 
-    public UserFilterUtilityDataDto(String carrierType, Long carrierId, String carrierName) {
-        this.carrierType = carrierType;
+    public UserFilterUtilityDataDto(String carrierGroupName, Long carrierId, String carrierName) {
+        this.carrierGroupName = carrierGroupName;
         this.carrierId = carrierId;
+        this.carrierName = carrierName;
+    }
+
+    public UserFilterUtilityDataDto(String carrierGroupName, String carrierIdCSV, String carrierName) {
+        this.carrierGroupName = carrierGroupName;
+        this.carrierIdCSV = carrierIdCSV;
         this.carrierName = carrierName;
     }
 
@@ -174,12 +184,12 @@ public class UserFilterUtilityDataDto implements Serializable {
         this.name = name;
     }
 
-    public String getCarrierType() {
-        return carrierType;
+    public String getCarrierGroupName() {
+        return carrierGroupName;
     }
 
-    public void setCarrierType(String carrierType) {
-        this.carrierType = carrierType;
+    public void setCarrierGroupName(String carrierGroupName) {
+        this.carrierGroupName = carrierGroupName;
     }
 
     public Long getCarrierId() {
@@ -188,6 +198,14 @@ public class UserFilterUtilityDataDto implements Serializable {
 
     public void setCarrierId(Long carrierId) {
         this.carrierId = carrierId;
+    }
+
+    public String getCarrierIdCSV() {
+        return carrierIdCSV;
+    }
+
+    public void setCarrierIdCSV(String carrierIdCSV) {
+        this.carrierIdCSV = carrierIdCSV;
     }
 
     public String getCarrierName() {
