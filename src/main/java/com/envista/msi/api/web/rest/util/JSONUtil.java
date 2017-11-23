@@ -5,6 +5,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.CodeValueDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AccountSummaryDto;
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AnnualSummaryDto;
+import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.CarrierWiseMonthlySpendDto;
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.MonthlySpendByModeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
 import com.envista.msi.api.web.rest.dto.dashboard.common.*;
@@ -3040,8 +3041,102 @@ public class JSONUtil {
         }
         return returnJson;
     }
+
+    public static JSONObject prepareCarrierWiseMonthlySpendJson(List<CarrierWiseMonthlySpendDto> monthlySpendList) throws JSONException {
+        JSONObject returnJson = new JSONObject();
+
+        if (monthlySpendList != null && !monthlySpendList.isEmpty()) {
+            Map<String, HashMap<String, HashMap<String, Double>>> modesMap = new LinkedHashMap<>();
+            List<String> modesList = new ArrayList<String>();
+            List<String> monthsList = new ArrayList<String>();
+            Map<String, Double> monthlyTotalSpend = new HashMap<String, Double>();
+
+            for (CarrierWiseMonthlySpendDto monthlySpend : monthlySpendList) {
+                if (monthlySpend != null) {
+                    String month = monthlySpend.getBillingDate();
+                    String carrierName = monthlySpend.getCarrierName();
+                    Double spend = monthlySpend.getNetCharges();
+
+                    if (!modesList.contains(carrierName)) {
+                        modesList.add(carrierName);
+                    }
+                    if (!monthsList.contains(month)) {
+                        monthsList.add(month);
+                    }
+                    if (modesMap.containsKey(carrierName)) {
+                        HashMap<String, HashMap<String, Double>> modesDataMap = modesMap.get(carrierName);
+                        if (!modesDataMap.containsKey(month)) {
+                            HashMap<String, Double> eachMonthData = new HashMap<>();
+                            eachMonthData.put("spend", spend);
+                            modesDataMap.put(month, eachMonthData);
+                        } else {
+                            HashMap<String, Double> eachQuaterData = modesDataMap.get(month);
+                            eachQuaterData.put("spend", eachQuaterData.get("spend") + spend);
+                        }
+                    } else {
+                        HashMap<String, HashMap<String, Double>> monthsWiseMap = new HashMap<>();
+                        HashMap<String, Double> eachMonthData = new HashMap<>();
+                        eachMonthData.put("spend", spend);
+
+                        monthsWiseMap.put(month, eachMonthData);
+                        modesMap.put(carrierName, monthsWiseMap);
+                    }
+
+                    if (monthlyTotalSpend.containsKey(month)) {
+                        double totalSpend = monthlyTotalSpend.get(month);
+                        totalSpend += spend;
+                        monthlyTotalSpend.put(month, totalSpend);
+                    } else {
+                        monthlyTotalSpend.put(month, spend);
+                    }
+                }
+            }
+
+            JSONObject finalObject = new JSONObject();
+            JSONArray modesArray = new JSONArray();
+
+            for (String mode : modesList) {
+                JSONObject modeWiseDataObj = new JSONObject();
+                HashMap<String, HashMap<String, Double>> monthsWiseMap = modesMap.get(mode);
+                modeWiseDataObj.put("name", mode);
+                Double totalSpendForAllMonths = 0.0;
+                for (String month : monthsList) {
+                    String spend = "0";
+                    if (monthsWiseMap != null && monthsWiseMap.containsKey(month)) {
+                        spend = commaSeperatedDecimalFormat.format(monthsWiseMap.get(month).get("spend"));
+                    }
+                    modeWiseDataObj.put(month, spend);
+                    totalSpendForAllMonths = totalSpendForAllMonths + Double.parseDouble(spend.replace(",", ""));
+                }
+                modeWiseDataObj.put("Total", commaSeperatedDecimalFormat.format(totalSpendForAllMonths));
+                modesArray.put(modeWiseDataObj);
+            }
+
+            if (modesArray != null) {
+                JSONObject totalMonthlyJson = new JSONObject();
+                Double grandTotalSpend = 0.0;
+                for (Map.Entry<String, Double> monthlyMap : monthlyTotalSpend.entrySet()) {
+                    if (monthlyMap != null) {
+                        totalMonthlyJson.put(monthlyMap.getKey(), commaSeperatedDecimalFormat.format(monthlyMap.getValue()));
+                        grandTotalSpend = grandTotalSpend + monthlyMap.getValue();
+                    }
+                }
+                totalMonthlyJson.put("Total", commaSeperatedDecimalFormat.format(grandTotalSpend));
+                totalMonthlyJson.put("name", "Total");
+                modesArray.put(totalMonthlyJson);
+            }
+
+            JSONArray monthsArray = new JSONArray();
+            for (String month : monthsList) {
+                monthsArray.put(month);
+            }
+
+            monthsArray.put("Total");
+
+            finalObject.put("carriers", modesArray);
+            finalObject.put("months", monthsArray);
+            returnJson.put("values", finalObject);
+        }
+        return returnJson;
+    }
 }
-
-
-
-

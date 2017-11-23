@@ -256,4 +256,8 @@ public class DashboardStoredProcParam {
     public static class AverageSpendShipmentByWeekParam extends DashboardFilterParams {
         public static final String AVG_SPEND_PER_SHIPMT_BY_WEEK_PARAM = "p_avg_spend_by_week";
     }
+
+    public static class CarrierWiseMonthlySpend extends DashboardFilterParams {
+        public static final String MONTHLY_SPEND_PARAM = "p_monthly_spend";
+    }
 }
