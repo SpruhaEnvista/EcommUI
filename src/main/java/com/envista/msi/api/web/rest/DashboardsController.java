@@ -3482,7 +3482,7 @@ public class DashboardsController extends DashboardBaseController {
         UserProfileDto user = getUserProfile();
         DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
         if(filter != null){
-            filter.setModes(mode);
+            filter.setModeNames(mode);
         }
         List<CarrierWiseMonthlySpendDto> spendList = dashboardsService.getCarrierWiseMonthlySpend(filter, false);
         if(spendList != null && !spendList.isEmpty()){
