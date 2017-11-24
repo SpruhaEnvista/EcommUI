@@ -51,9 +51,9 @@ public class RulesService {
         return dao.insertOrUpdate(bean);
     }
 
-    public RulesDto findByScriptName(String ruleName, String prevRuleName, Long scriptId) {
+    public RulesDto findByRuleName(String ruleName, String prevRuleName, Long scriptId) {
 
-        return dao.findByScriptName(ruleName, prevRuleName, scriptId);
+        return dao.findByRuleName(ruleName, prevRuleName, scriptId);
     }
 
     public int delete(String scriptIds) {
