@@ -13,6 +13,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.DashboardAppliedFilterDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AccountSummaryDto;
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AnnualSummaryDto;
+import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.CarrierWiseMonthlySpendDto;
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.MonthlySpendByModeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
 import com.envista.msi.api.web.rest.dto.dashboard.common.DashCustomColumnConfigDto;
@@ -1531,5 +1532,18 @@ public class DashboardsDao {
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
         return persistentContext.findEntities(AverageSpendPerShipmentDto.Config.StoredProcedureQueryName.AVG_SPEND_PER_SHIPMENT_BY_WEEK, queryParameter);
+    }
+
+    public List<CarrierWiseMonthlySpendDto> getCarrierWiseMonthlySpend(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        String[] paramNames = {DashboardStoredProcParam.CarrierWiseMonthlySpend.DATE_TYPE_PARAM, DashboardStoredProcParam.CarrierWiseMonthlySpend.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardStoredProcParam.CarrierWiseMonthlySpend.CONVERTED_CURRENCY_CODE_PARAM, DashboardStoredProcParam.CarrierWiseMonthlySpend.CUSTOMER_IDS_CSV_PARAM,
+                DashboardStoredProcParam.CarrierWiseMonthlySpend.CARRIER_IDS_PARAM, DashboardStoredProcParam.CarrierWiseMonthlySpend.MODES_PARAM,
+                DashboardStoredProcParam.CarrierWiseMonthlySpend.SERVICES_PARAM, DashboardStoredProcParam.CarrierWiseMonthlySpend.LANES_PARAM,
+                DashboardStoredProcParam.CarrierWiseMonthlySpend.ACCESSORIAL_NAME_PARAM,
+                DashboardStoredProcParam.CarrierWiseMonthlySpend.FROM_DATE_PARAM, DashboardStoredProcParam.CarrierWiseMonthlySpend.TO_DATE_PARAM,
+                DashboardStoredProcParam.CarrierWiseMonthlySpend.TOP_TEN_ACCESSORIAL_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(CarrierWiseMonthlySpendDto.Config.CarrierWiseMonthlySpend.STORED_PROCEDURE_QUERY_NAME, queryParameter);
     }
 }

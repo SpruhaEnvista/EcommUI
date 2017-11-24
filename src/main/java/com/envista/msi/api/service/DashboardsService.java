@@ -13,6 +13,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.DashboardAppliedFilterDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AccountSummaryDto;
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AnnualSummaryDto;
+import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.CarrierWiseMonthlySpendDto;
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.MonthlySpendByModeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
 import com.envista.msi.api.web.rest.dto.dashboard.common.DashCustomColumnConfigDto;
@@ -1206,5 +1207,9 @@ public class DashboardsService {
 
     public List<AverageSpendPerShipmentDto> getAverageSpendPerShipmentByWeek(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
         return dashboardsDao.getAverageSpendPerShipmentByWeek(filter, isTopTenAccessorial);
+    }
+
+    public List<CarrierWiseMonthlySpendDto> getCarrierWiseMonthlySpend(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        return dashboardsDao.getCarrierWiseMonthlySpend(filter, isTopTenAccessorial);
     }
 }
