@@ -567,6 +567,26 @@ public class ReportsDao {
     }
 
     @Transactional
+    public ReportUserFavouritesDto saveFavouriteReport(ReportUserFavouritesDto reportUserFavouritesDto) {
+
+        QueryParameter queryParameter = StoredProcedureParameter.with("USER_ID",reportUserFavouritesDto.getUserId())
+                .and("rpt_id", reportUserFavouritesDto.getRptId());
+
+        return persistentContext.findEntity(ReportUserFavouritesDto.Config.StoredProcedureQueryName.INSERT_USER_FAV_RPT,queryParameter);
+
+    }
+
+    @Transactional
+    public ReportUserFavouritesDto deleteFavouriteReport(ReportUserFavouritesDto reportUserFavouritesDto) {
+
+        QueryParameter queryParameter = StoredProcedureParameter.with("USER_ID",reportUserFavouritesDto.getUserId())
+                .and("rpt_id", reportUserFavouritesDto.getRptId());
+
+        return persistentContext.findEntity(ReportUserFavouritesDto.Config.StoredProcedureQueryName.DELETE_USER_FAV_RPT,queryParameter);
+
+    }
+
+    @Transactional
     public ReportsSortDto saveSchedSortColDetails(ReportsSortDto sortColDto) {
 
         QueryParameter queryParameter = StoredProcedureParameter.with("savedSchedRptId",sortColDto.getSavedSchedRptId())
@@ -580,6 +600,7 @@ public class ReportsDao {
         return persistentContext.findEntity("ReportSortCol.insertRecord",queryParameter);
 
     }
+
     @Transactional
     public SavedSchedReportDto updateSchedReport(SavedSchedReportDto savedSchedReportDto) {
 

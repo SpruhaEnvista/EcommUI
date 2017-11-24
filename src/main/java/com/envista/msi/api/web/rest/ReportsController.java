@@ -164,12 +164,15 @@ public class ReportsController {
         return ResponseEntity.status(HttpStatus.OK).body(respMap);
     }
     @RequestMapping(value = "/getModesReport", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<List<ReportModesDto>> getReportForModes(@RequestParam String userId){
+    public ResponseEntity<JSONObject> getReportForModes(@RequestParam String userId){
         try {
             List<ReportModesDto> reportModeDto = reportsService.getReportForModes(Long.parseLong(userId));
-            return new ResponseEntity<List<ReportModesDto>>(reportModeDto, HttpStatus.OK);
+            JSONObject reportModesJSON = JSONUtil.prepareReportForModesJson(reportModeDto);
+            //return new ResponseEntity<List<ReportModesDto>>(reportModeDto, HttpStatus.OK);
+            return new ResponseEntity<JSONObject>(reportModesJSON, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<List<ReportModesDto>>(new ArrayList<ReportModesDto>(), HttpStatus.INTERNAL_SERVER_ERROR);
+            //return new ResponseEntity<List<ReportModesDto>>(new ArrayList<ReportModesDto>(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<JSONObject>(new JSONObject(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     @RequestMapping(value = "/customercarrierlist", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
@@ -280,6 +283,19 @@ public class ReportsController {
         response.setHeader("Content-Disposition", "attachment; filename=" + file.getName());
         response.setHeader("Content-Length", String.valueOf(file.length()));
         FileCopyUtils.copy(in, response.getOutputStream());
+    }
+
+
+    @RequestMapping(value = "/savefavouritereport", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<ReportUserFavouritesDto> saveFavouriteReport(@RequestBody ReportUserFavouritesDto savedUserFavouritesDto){
+        ReportUserFavouritesDto savedDto = reportsService.saveFavouriteReport(savedUserFavouritesDto);
+        return new ResponseEntity<ReportUserFavouritesDto>(savedDto, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/deletefavouritereport", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<ReportUserFavouritesDto> deleteFavouriteReport(@RequestBody ReportUserFavouritesDto deleteUserFavouritesDto){
+        ReportUserFavouritesDto deletedDto = reportsService.deleteFavouriteReport(deleteUserFavouritesDto);
+        return new ResponseEntity<ReportUserFavouritesDto>(deletedDto, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/saveschedreport", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})

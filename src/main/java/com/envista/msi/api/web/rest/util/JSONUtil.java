@@ -23,6 +23,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.AverageWeight
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.ServiceLevelUsageAndPerformanceDto;
 import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
 import com.envista.msi.api.web.rest.dto.reports.ReportFolderDto;
+import com.envista.msi.api.web.rest.dto.reports.ReportModesDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
@@ -2513,6 +2514,10 @@ public class JSONUtil {
     public static JSONObject prepareFilterCarrierJson(List<UserFilterUtilityDataDto> carrierList) throws JSONException {
         return prepareFilterCarrierJson(carrierList, null, true);
     }
+    public static JSONArray prepareFilterCarrierJsonForParcel(List<UserFilterUtilityDataDto> carrierList) throws JSONException {
+        return prepareFilterCarrierJsonForParcel(carrierList, null, true);
+    }
+
 
     public static JSONArray prepareCarriersByGroupJson(List<UserFilterUtilityDataDto> carrierList,boolean isParcelDashlettes) throws JSONException {
         return prepareCarriersByGroupJson(carrierList, null, true,isParcelDashlettes);
@@ -2540,30 +2545,57 @@ public class JSONUtil {
                     String carriers = userFilterCarr.getCarrierIdCSV().replace("#@#",",");
 
                     carGroupJson.put("name",carrierGroupName);
-                    carGroupJson.put("carriers",carriers);
 
+                    boolean isGroupAllCarriersSelected = true;
 
                     if(carrierIdCsvLArr.length>0)
                     {
+
+
                         for(int i=0;i<carrierIdCsvLArr.length;i++)
                         {
 
                             JSONObject carrObj = new JSONObject();
+
+                            boolean isCarrierSelected = isNew ? true : selectedCarrList != null && selectedCarrList.contains(Long.valueOf(carrierIdCsvLArr[i])) ;
                             carrObj.put("id", Long.parseLong(carrierIdCsvLArr[i]));
                             carrObj.put("name", carrierNameCsvLArr[i]);
-                            carrObj.put("checked", isNew ? true : selectedCarrList != null && selectedCarrList.contains(userFilterCarr.getCarrierId()));
+
+                            carrObj.put("checked", isCarrierSelected);
+                            carrObj.put("selected", isCarrierSelected);
+
+                            if( ! isCarrierSelected)
+                                isGroupAllCarriersSelected = false;
 
                             childJsonArr.put(carrObj);
 
-                           /* userFilterCarr.setCarrierId(Long.parseLong(carrierIdCsvLArr[i]));
-                            userFilterCarr.setCarrierIdCSV(carrierIdCsvLArr[i]);
-                            userFilterCarr.setCarrierName(carrierNameCsvLArr[i]);
-                            carrierListNew.add(userFilterCarr);*/
+
                         }
 
                     }
 
-                    carGroupJson.put("children",childJsonArr);
+                    if(carrierIdCsvLArr.length>1 )
+                    {
+
+                        carGroupJson.put("id", "");
+                        carGroupJson.put("children",childJsonArr);
+                        carGroupJson.put("carriers",carriers);
+
+
+                        carGroupJson.put("checked", isGroupAllCarriersSelected);
+                        carGroupJson.put("selected", isGroupAllCarriersSelected);
+                    }
+
+                    else if(carrierIdCsvLArr.length==1)
+                    {
+                        carGroupJson.put("id",carrierIdCsvLArr[0]);
+                        carGroupJson.put("children",new JSONArray());
+                        carGroupJson.put("carriers","");
+                        carGroupJson.put("checked", isNew ? true : selectedCarrList != null && selectedCarrList.contains(Long.valueOf(userFilterCarr.getCarrierIdCSV())));
+                        carGroupJson.put("selected", isNew ? true : selectedCarrList != null && selectedCarrList.contains(Long.valueOf(userFilterCarr.getCarrierIdCSV())));
+
+
+                    }
 
                 }
 
@@ -2582,6 +2614,91 @@ public class JSONUtil {
             return freightCarrJsonArr;
         }
 
+    }
+
+
+
+    public static JSONObject prepareReportForModesJson(List<ReportModesDto> reportModeDtoList) throws JSONException {
+
+        JSONObject reportModesJSON = new JSONObject();
+
+        JSONObject parcelJSON = new JSONObject();
+        JSONObject customReportJSON = new JSONObject();
+
+        JSONArray topReportsJsonArr = new JSONArray();
+        JSONArray allModesJsonArr = new JSONArray();
+        JSONArray freightJsonArr = new JSONArray();
+
+        JSONArray auditParcelJsonArr = new JSONArray();
+        JSONArray deliveryParcelJsonArr = new JSONArray();
+        JSONArray invoiceParcelJsonArr = new JSONArray();
+
+        JSONArray allModesCustRepJsonArr = new JSONArray();
+        JSONArray freightCustRepJsonArr = new JSONArray();
+        JSONArray parcelCustRepJsonArr = new JSONArray();
+
+
+        if (reportModeDtoList != null && !reportModeDtoList.isEmpty()) {
+            for (ReportModesDto reportModesDto : reportModeDtoList) {
+
+                if (reportModesDto != null) {
+
+                     if(reportModesDto.getReportFileName().trim().equalsIgnoreCase("All Modes Shipment Detail")
+                             || reportModesDto.getReportFileName().trim().equalsIgnoreCase("Freight Shipment Detail")
+                             || reportModesDto.getReportFileName().trim().equalsIgnoreCase("Parcel Shipment Detail")
+                             || reportModesDto.getReportFileName().trim().equalsIgnoreCase("Invoice Cycle Time")
+                             || reportModesDto.getReportFileName().trim().equalsIgnoreCase("New Payment")) {
+                         topReportsJsonArr.put(reportModesDto);
+                     }
+                     else if("All Modes".equalsIgnoreCase(reportModesDto.getGroupName()))
+                         allModesJsonArr.put(reportModesDto);
+                     else if("Freight".equalsIgnoreCase(reportModesDto.getGroupName()))
+                         freightJsonArr.put(reportModesDto);
+                     else if("Custom Reports".equalsIgnoreCase(reportModesDto.getGroupName()))
+                     {
+                         if("All Modes".equalsIgnoreCase(reportModesDto.getGroupUnderName()))
+                             allModesCustRepJsonArr.put(reportModesDto);
+                         else if("Freight".equalsIgnoreCase(reportModesDto.getGroupUnderName()))
+                             freightCustRepJsonArr.put(reportModesDto);
+                         else if("Parcel".equalsIgnoreCase(reportModesDto.getGroupUnderName()))
+                             parcelCustRepJsonArr.put(reportModesDto);
+
+                     }
+
+                     else if("Parcel".equalsIgnoreCase(reportModesDto.getGroupUnderName()))
+                     {
+                         if("Audit".equalsIgnoreCase(reportModesDto.getGroupName()))
+                             auditParcelJsonArr.put(reportModesDto);
+                         else if("Delivery & Tracking".equalsIgnoreCase(reportModesDto.getGroupName()))
+                             deliveryParcelJsonArr.put(reportModesDto);
+                         else if("Invoice & GL Coding".equalsIgnoreCase(reportModesDto.getGroupName()))
+                             invoiceParcelJsonArr.put(reportModesDto);
+
+                     }
+
+
+
+                }
+
+            } // List For End
+
+        }
+        parcelJSON.put("audit",auditParcelJsonArr);
+        parcelJSON.put("delivery",deliveryParcelJsonArr);
+        parcelJSON.put("invoice",invoiceParcelJsonArr);
+
+        customReportJSON.put("allModes",allModesCustRepJsonArr);
+        customReportJSON.put("freight",freightCustRepJsonArr);
+        customReportJSON.put("parcel",parcelCustRepJsonArr);
+
+        reportModesJSON.put("topReports",topReportsJsonArr);
+        reportModesJSON.put("allModes",allModesJsonArr);
+        reportModesJSON.put("freight",freightJsonArr);
+        reportModesJSON.put("parcel",parcelJSON);
+        reportModesJSON.put("customReports",customReportJSON);
+
+
+        return reportModesJSON;
     }
 
     public static JSONObject prepareFilterCarrierJson(List<UserFilterUtilityDataDto> carrierList, List<Long> selectedCarrList, boolean isNew) throws JSONException {
@@ -2612,6 +2729,26 @@ public class JSONUtil {
         carrJson.put("parcelCarriers", parcelCarJsonArr);
         carrJson.put("freightCarriers", freightCarrJsonArr);
         return carrJson;
+    }
+
+    public static JSONArray prepareFilterCarrierJsonForParcel(List<UserFilterUtilityDataDto> carrierList, List<Long> selectedCarrList, boolean isNew) throws JSONException {
+        JSONObject carrJson = new JSONObject();
+        JSONArray parcelCarJsonArr = new JSONArray();
+
+        if (carrierList != null && !carrierList.isEmpty()) {
+            for (UserFilterUtilityDataDto userFilterCarr : carrierList) {
+                if (userFilterCarr != null) {
+                    JSONObject carrObj = new JSONObject();
+                    carrObj.put("id", userFilterCarr.getCarrierIdCSV());
+                    carrObj.put("name", userFilterCarr.getCarrierName());
+                    carrObj.put("checked", isNew ? true : selectedCarrList != null && selectedCarrList.contains(Long.valueOf(userFilterCarr.getCarrierIdCSV())));
+                    carrObj.put("selected",isNew ? true : selectedCarrList != null && selectedCarrList.contains(Long.valueOf(userFilterCarr.getCarrierIdCSV())));
+                    parcelCarJsonArr.put(carrObj);
+                }
+            }
+        }
+
+        return parcelCarJsonArr;
     }
 
     public static JSONArray prepareFilterModesJson(List<UserFilterUtilityDataDto> modes, Map<String, String> modeWiseCarriers, boolean isParcelDashlettes) throws JSONException {

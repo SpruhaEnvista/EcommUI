@@ -878,10 +878,10 @@ public class DashboardsService {
                 modes, carrList, modeList, servicesList, userFilter, getModeWiseCarrier(carrierCSV.toString()), isParcelDashlettes, true);
 
         JSONObject carrJson = new JSONObject();
-        JSONArray parcelCarJsonArr = JSONUtil.prepareCarriersByGroupJson(carrListParcel,carrList, true,true);
+        JSONArray parcelCarrJsonArr = JSONUtil.prepareFilterCarrierJsonForParcel(carrListParcel,carrList,true);
         JSONArray freightCarrJsonArr = JSONUtil.prepareCarriersByGroupJson(carrListFreight,carrList, true,false);
 
-        carrJson.put("parcelCarriers", parcelCarJsonArr);
+        carrJson.put("parcelCarriers", parcelCarrJsonArr);
         carrJson.put("freightCarriers", freightCarrJsonArr);
 
         userFilterDetailsMap.put("carrDetails", carrJson);
@@ -906,6 +906,34 @@ public class DashboardsService {
 
         if(userFilter != null){
             List<Long> carrList = new ArrayList<Long>();
+
+
+            List<UserFilterUtilityDataDto> carrListParcel = getCarrierByCustomer(String.valueOf(userFilter.getCustomerIds()), true);
+            List<UserFilterUtilityDataDto> carrListFreight = getCarrierByCustomer(String.valueOf(userFilter.getCustomerIds()), false);
+
+            /*List<UserFilterUtilityDataDto> carrListParcelUpdated = new ArrayList<>();
+            List<UserFilterUtilityDataDto> carrListFreightUpdated = new ArrayList<>();*/
+
+           /* if(filter.getCarriers()!=null){
+                carrListParcel.forEach(userFilterUtilityDataDto->{
+                    List tempCarrierList=Arrays.asList(filter.getCarriers().split(","));
+                    if(tempCarrierList.contains(userFilterUtilityDataDto.getCarrierIdCSV()))
+                          carrListParcelUpdated.add(userFilterUtilityDataDto);
+
+                });
+
+                carrListFreight.forEach(userFilterUtilityDataDto->{
+                    List tempCarrierList=Arrays.asList(filter.getCarriers().split(","));
+                    if(tempCarrierList.contains(userFilterUtilityDataDto.getCarrierIdCSV()) && !carrListParcelUpdated.contains(userFilterUtilityDataDto.getCarrierIdCSV()) )
+                        carrListFreightUpdated.add(userFilterUtilityDataDto);
+
+                });
+
+
+            }*/
+
+
+
             List<Long> servicesList = new ArrayList<Long>();
             List<Long> modeList = new ArrayList<Long>();
 
@@ -940,6 +968,18 @@ public class DashboardsService {
 
             userFilterDetailsMap = DashboardUtil.prepareFilterDetails(getCarrierByCustomer(customerIds, isParcelDashlettes), getFilterServices(filter, isParcelDashlettes),
                     getFilterModes(filter, isParcelDashlettes), carrList, modeList, servicesList, userFilter, getModeWiseCarrier(carrierIds), isParcelDashlettes, false);
+
+           /* Map<String, Object> userFilterDetailsMap = DashboardUtil.prepareFilterDetails(carriers, services,
+                    modes, carrList, modeList, servicesList, userFilter, getModeWiseCarrier(carrierCSV.toString()), isParcelDashlettes, true);*/
+
+            JSONObject carrJson = new JSONObject();
+            JSONArray parcelCarrJsonArr = JSONUtil.prepareFilterCarrierJsonForParcel(carrListParcel,carrList,false);
+            JSONArray freightCarrJsonArr = JSONUtil.prepareCarriersByGroupJson(carrListFreight,carrList, false,false);
+
+            carrJson.put("parcelCarriers", parcelCarrJsonArr);
+            carrJson.put("freightCarriers", freightCarrJsonArr);
+
+            userFilterDetailsMap.put("carrDetails", carrJson);
         }
         return userFilterDetailsMap;
     }

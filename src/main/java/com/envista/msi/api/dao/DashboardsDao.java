@@ -1303,6 +1303,7 @@ public class DashboardsDao {
                 DashboardStoredProcParam.NetSpendParams.CARRIER_IDS_PARAM
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        System.out.println("CArriersssss"+filter.getCarriers());
         queryParameter.and(DashboardStoredProcParam.UserFilterUtilityDataParam.IS_PARCEL_DASHLETTES_PARAM, isParcelDashlettes ? 1 : 0);
         return persistentContext.findEntities(UserFilterUtilityDataDto.Config.StoredProcedureQueryName.MODES_BY_CARRIER, queryParameter);
     }
