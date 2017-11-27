@@ -1008,38 +1008,10 @@ public class DashboardsService {
      * @param isParcelDashlettes
      * @return
      */
-   /* public List<UserFilterUtilityDataDto> getCarrierByCustomer(String customerIds, boolean isParcelDashlettes){
-        return dashboardsDao.getCarrierByCustomer(customerIds, isParcelDashlettes);
-    }*/
     public List<UserFilterUtilityDataDto> getCarrierByCustomer(String customerIds, boolean isParcelDashlettes){
-
-        List<UserFilterUtilityDataDto> carrierList =   dashboardsDao.getCarrierByCustomer(customerIds, isParcelDashlettes);
-       /* List<UserFilterUtilityDataDto> carrierListNew = new ArrayList<>();
-        // Handlimg
-        if (carrierList != null && !carrierList.isEmpty()) {
-            for (UserFilterUtilityDataDto userFilterCarr : carrierList) {
-                if (userFilterCarr != null) {
-
-                    String[] carrierIdCsvLArr = userFilterCarr.getCarrierIdCSV().split("#@#");
-                    String[] carrierNameCsvLArr = userFilterCarr.getCarrierName().split("#@#");
-                    if(carrierIdCsvLArr.length>0)
-                    {
-                       for(int i=0;i<carrierIdCsvLArr.length;i++)
-                          {
-                              userFilterCarr.setCarrierId(Long.parseLong(carrierIdCsvLArr[i]));
-                              userFilterCarr.setCarrierIdCSV(carrierIdCsvLArr[i]);
-                              userFilterCarr.setCarrierName(carrierNameCsvLArr[i]);
-                              carrierListNew.add(userFilterCarr);
-                          }
-
-                    }
-
-                }
-            }
-        }*/
-
-        return carrierList;
+        return dashboardsDao.getCarrierByCustomer(customerIds, isParcelDashlettes);
     }
+
 
     /**
      * Get filter modes.
