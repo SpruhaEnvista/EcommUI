@@ -3477,13 +3477,10 @@ public class DashboardsController extends DashboardBaseController {
     }
 
     @RequestMapping(value = "/carrWiseMonthlySpend", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getCarrierWiseMonthlySpend(@RequestParam(required = false) String mode) throws Exception {
+    public ResponseEntity<String> getCarrierWiseMonthlySpend() throws Exception {
         JSONObject nspData = null;
         UserProfileDto user = getUserProfile();
         DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-        if(filter != null){
-            filter.setModeNames(mode);
-        }
         List<CarrierWiseMonthlySpendDto> spendList = dashboardsService.getCarrierWiseMonthlySpend(filter, false);
         if(spendList != null && !spendList.isEmpty()){
             nspData = JSONUtil.prepareCarrierWiseMonthlySpendJson(spendList);
