@@ -1285,7 +1285,7 @@ public class DashboardsDao {
     public List<DashSavedFilterDto> getSavedFiltersByUser(Long userId){
         QueryParameter queryParameter = StoredProcedureParameter.with(DashboardStoredProcParam.DashSavedFilterParam.USER_ID_PARAM, userId);
         List<DashSavedFilterDto> userSavedFilters = persistentContext.findEntities(DashSavedFilterDto.Config.StoredProcedureQueryName.GET_FILTER_BY_USER, queryParameter);
-        if(userSavedFilters != null){
+        if(userSavedFilters != null && !userSavedFilters.isEmpty()){
             for(DashSavedFilterDto savedFilter :userSavedFilters){
                 if(savedFilter != null){
                     persistentContext.getHibernateSession().evict(savedFilter);
