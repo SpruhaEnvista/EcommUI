@@ -19,6 +19,8 @@ import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
@@ -287,15 +289,17 @@ public class ReportsController {
 
 
     @RequestMapping(value = "/savefavouritereport", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<ReportUserFavouritesDto> saveFavouriteReport(@RequestBody ReportUserFavouritesDto savedUserFavouritesDto){
+    public ResponseEntity<JSONObject> saveFavouriteReport(@RequestBody ReportUserFavouritesDto savedUserFavouritesDto,@RequestParam String userId){
         ReportUserFavouritesDto savedDto = reportsService.saveFavouriteReport(savedUserFavouritesDto);
-        return new ResponseEntity<ReportUserFavouritesDto>(savedDto, HttpStatus.OK);
+        ResponseEntity<JSONObject> responseEntity = getReportForModes(userId);
+        return responseEntity;
     }
 
     @RequestMapping(value = "/deletefavouritereport", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<ReportUserFavouritesDto> deleteFavouriteReport(@RequestBody ReportUserFavouritesDto deleteUserFavouritesDto){
+    public ResponseEntity<JSONObject> deleteFavouriteReport(@RequestBody ReportUserFavouritesDto deleteUserFavouritesDto,@RequestParam String userId){
         ReportUserFavouritesDto deletedDto = reportsService.deleteFavouriteReport(deleteUserFavouritesDto);
-        return new ResponseEntity<ReportUserFavouritesDto>(deletedDto, HttpStatus.OK);
+        ResponseEntity<JSONObject> responseEntity = getReportForModes(userId);
+        return responseEntity;
     }
 
     @RequestMapping(value = "/saveschedreport", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
