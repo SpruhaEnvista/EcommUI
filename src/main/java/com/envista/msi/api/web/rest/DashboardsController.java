@@ -3137,13 +3137,13 @@ public class DashboardsController extends DashboardBaseController {
             freightCarrJsonArr = JSONUtil.prepareCarriersByGroupJson(carrListFreight, false);
         }
 
-        JSONArray parcelJSON = new JSONArray();
+        JSONArray parcelCarrJsonArr = new JSONArray();
         if (carrListParcel != null && !carrListParcel.isEmpty()) {
-            parcelJSON = JSONUtil.prepareFilterCarrierJsonForParcel(carrListParcel);
+            parcelCarrJsonArr = JSONUtil.prepareCarriersByGroupJson(carrListParcel,true);
         }
 
         JSONObject carrJson = new JSONObject();
-        carrJson.put("parcelCarriers", parcelJSON);
+        carrJson.put("parcelCarriers", parcelCarrJsonArr);
         carrJson.put("freightCarriers", freightCarrJsonArr);
 
         userFilterData.put("carriers", carrJson);

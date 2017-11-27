@@ -878,7 +878,7 @@ public class DashboardsService {
                 modes, carrList, modeList, servicesList, userFilter, getModeWiseCarrier(carrierCSV.toString()), isParcelDashlettes, true);
 
         JSONObject carrJson = new JSONObject();
-        JSONArray parcelCarrJsonArr = JSONUtil.prepareFilterCarrierJsonForParcel(carrListParcel,carrList,true);
+        JSONArray parcelCarrJsonArr = JSONUtil.prepareCarriersByGroupJson(carrListParcel,carrList,true,true);
         JSONArray freightCarrJsonArr = JSONUtil.prepareCarriersByGroupJson(carrListFreight,carrList, true,false);
 
         carrJson.put("parcelCarriers", parcelCarrJsonArr);
@@ -973,7 +973,8 @@ public class DashboardsService {
                     modes, carrList, modeList, servicesList, userFilter, getModeWiseCarrier(carrierCSV.toString()), isParcelDashlettes, true);*/
 
             JSONObject carrJson = new JSONObject();
-            JSONArray parcelCarrJsonArr = JSONUtil.prepareFilterCarrierJsonForParcel(carrListParcel,carrList,false);
+            //JSONArray parcelCarrJsonArr = JSONUtil.prepareFilterCarrierJsonForParcel(carrListParcel,carrList,false);
+            JSONArray parcelCarrJsonArr = JSONUtil.prepareCarriersByGroupJson(carrListParcel,carrList,false,true);
             JSONArray freightCarrJsonArr = JSONUtil.prepareCarriersByGroupJson(carrListFreight,carrList, false,false);
 
             carrJson.put("parcelCarriers", parcelCarrJsonArr);

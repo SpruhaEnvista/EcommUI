@@ -2564,6 +2564,7 @@ public class JSONUtil {
 
                             carrObj.put("checked", isCarrierSelected);
                             carrObj.put("selected", isCarrierSelected);
+                            carrObj.put("isParcel", isParcelDashlettes);
 
                             if( ! isCarrierSelected)
                                 isGroupAllCarriersSelected = false;
@@ -2581,6 +2582,7 @@ public class JSONUtil {
                         carGroupJson.put("id", "");
                         carGroupJson.put("children",childJsonArr);
                         carGroupJson.put("carriers",carriers);
+                        carGroupJson.put("isParcel", isParcelDashlettes);
 
 
                         carGroupJson.put("checked", isGroupAllCarriersSelected);
@@ -2592,6 +2594,7 @@ public class JSONUtil {
                         carGroupJson.put("id",carrierIdCsvLArr[0]);
                         carGroupJson.put("children",new JSONArray());
                         carGroupJson.put("carriers","");
+                        carGroupJson.put("isParcel", isParcelDashlettes);
                         carGroupJson.put("checked", isNew ? true : selectedCarrList != null && selectedCarrList.contains(Long.valueOf(userFilterCarr.getCarrierIdCSV())));
                         carGroupJson.put("selected", isNew ? true : selectedCarrList != null && selectedCarrList.contains(Long.valueOf(userFilterCarr.getCarrierIdCSV())));
 
