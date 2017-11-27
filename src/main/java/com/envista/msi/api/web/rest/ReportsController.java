@@ -288,16 +288,15 @@ public class ReportsController {
     }
 
 
-    @RequestMapping(value = "/savefavouritereport", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<JSONObject> saveFavouriteReport(@RequestBody ReportUserFavouritesDto savedUserFavouritesDto,@RequestParam String userId){
-        ReportUserFavouritesDto savedDto = reportsService.saveFavouriteReport(savedUserFavouritesDto);
+    @RequestMapping(value = "/savefavouritereport", method = {RequestMethod.GET}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<JSONObject> saveFavouriteReport(@RequestParam String rptId,@RequestParam String userId){
+        reportsService.saveFavouriteReport(Long.parseLong(rptId), Long.parseLong(userId));
         ResponseEntity<JSONObject> responseEntity = getReportForModes(userId);
         return responseEntity;
     }
-
-    @RequestMapping(value = "/deletefavouritereport", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<JSONObject> deleteFavouriteReport(@RequestBody ReportUserFavouritesDto deleteUserFavouritesDto,@RequestParam String userId){
-        ReportUserFavouritesDto deletedDto = reportsService.deleteFavouriteReport(deleteUserFavouritesDto);
+    @RequestMapping(value = "/deletefavouritereport", method = {RequestMethod.GET}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<JSONObject> deleteFavouriteReport(@RequestParam String rptId,@RequestParam String userId){
+        reportsService.deleteFavouriteReport(Long.parseLong(rptId), Long.parseLong(userId));
         ResponseEntity<JSONObject> responseEntity = getReportForModes(userId);
         return responseEntity;
     }

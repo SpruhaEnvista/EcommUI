@@ -567,23 +567,18 @@ public class ReportsDao {
     }
 
     @Transactional
-    public ReportUserFavouritesDto saveFavouriteReport(ReportUserFavouritesDto reportUserFavouritesDto) {
-
-        QueryParameter queryParameter = StoredProcedureParameter.with("USER_ID",reportUserFavouritesDto.getUserId())
-                .and("rpt_id", reportUserFavouritesDto.getRptId());
-
-        return persistentContext.findEntity(ReportUserFavouritesDto.Config.StoredProcedureQueryName.INSERT_USER_FAV_RPT,queryParameter);
-
+    public void saveFavouriteReport(long rptId, long userId) {
+        persistentContext.findEntities(ReportUserFavouritesDto.Config.StoredProcedureQueryName.INSERT_USER_FAV_RPT,
+                StoredProcedureParameter.with("p_user_id", userId)
+                        .and("p_rpt_id",  rptId));
     }
 
     @Transactional
-    public ReportUserFavouritesDto deleteFavouriteReport(ReportUserFavouritesDto reportUserFavouritesDto) {
+    public void deleteFavouriteReport(long rptId, long userId) {
 
-        QueryParameter queryParameter = StoredProcedureParameter.with("USER_ID",reportUserFavouritesDto.getUserId())
-                .and("rpt_id", reportUserFavouritesDto.getRptId());
-
-        return persistentContext.findEntity(ReportUserFavouritesDto.Config.StoredProcedureQueryName.DELETE_USER_FAV_RPT,queryParameter);
-
+        persistentContext.findEntities(ReportUserFavouritesDto.Config.StoredProcedureQueryName.DELETE_USER_FAV_RPT,
+                StoredProcedureParameter.with("p_user_id", userId)
+                        .and("p_rpt_id",  rptId));
     }
 
     @Transactional

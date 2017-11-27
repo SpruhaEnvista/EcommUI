@@ -15,8 +15,8 @@ import javax.persistence.*;
                 procedureName = ReportUserFavouritesDto.Config.StoredProcedureName.INSERT_USER_FAV_RPT,
                 resultSetMappings = {ReportUserFavouritesDto.Config.ResultMappings.INSERT_USER_FAV_RPT_MAPPING},
                 parameters = {
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "USER_ID", type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "rpt_id", type = Long.class)
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_user_id", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_rpt_id", type = Long.class)
                 }
         ),
         @NamedStoredProcedureQuery(
@@ -24,8 +24,8 @@ import javax.persistence.*;
                 procedureName = ReportUserFavouritesDto.Config.StoredProcedureName.DELETE_USER_FAV_RPT,
                 resultSetMappings = {ReportUserFavouritesDto.Config.ResultMappings.INSERT_USER_FAV_RPT_MAPPING},
                 parameters = {
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "USER_ID", type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "rpt_id", type = Long.class)
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_user_id", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_rpt_id", type = Long.class)
                 }
         )
 

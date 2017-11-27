@@ -352,12 +352,12 @@ public class ReportsService {
         return reportsDao.createReportFolder(reportFolderDto,userProfileDto);
     }
 
-    public ReportUserFavouritesDto saveFavouriteReport(ReportUserFavouritesDto reportUserFavouritesDto){
-        return reportsDao.saveFavouriteReport(reportUserFavouritesDto);
+    public void saveFavouriteReport(long rptId, long userId){
+       reportsDao.saveFavouriteReport(rptId,  userId );
     }
 
-    public ReportUserFavouritesDto deleteFavouriteReport(ReportUserFavouritesDto reportUserFavouritesDto){
-        return reportsDao.deleteFavouriteReport(reportUserFavouritesDto);
+    public void deleteFavouriteReport(long rptId, long userId){
+        reportsDao.deleteFavouriteReport(rptId, userId);
     }
 
     public ReportFolderDetailsDto moveRptsToFolder( ReportFolderDetailsDto rptFolderDetailsDto ){
