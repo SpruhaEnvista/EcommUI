@@ -10,6 +10,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.DashboardAppliedFilterDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AccountSummaryDto;
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AnnualSummaryDto;
+import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.CarrierWiseMonthlySpendDto;
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.MonthlySpendByModeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
 import com.envista.msi.api.web.rest.dto.dashboard.common.*;
@@ -42,7 +43,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.el.MethodNotFoundException;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.ByteArrayOutputStream;
 import java.net.InetAddress;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -3474,5 +3474,17 @@ public class DashboardsController extends DashboardBaseController {
             }
         }
         return new ResponseEntity<String>(avgWeightModeData != null ? avgWeightModeData.toString() : new JSONObject().toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/carrWiseMonthlySpend", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getCarrierWiseMonthlySpend() throws Exception {
+        JSONObject nspData = null;
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        List<CarrierWiseMonthlySpendDto> spendList = dashboardsService.getCarrierWiseMonthlySpend(filter, false);
+        if(spendList != null && !spendList.isEmpty()){
+            nspData = JSONUtil.prepareCarrierWiseMonthlySpendJson(spendList);
+        }
+        return new ResponseEntity<String>(nspData != null ? nspData.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 }
