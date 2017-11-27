@@ -55,6 +55,8 @@ public class RulesBean {
 
     private int pageSize;
 
+    private String insertType;
+
 
     public Long getRuleId() {
         return ruleId;
@@ -254,5 +256,14 @@ public class RulesBean {
 
     public void setPageSize(int pageSize) {
         this.pageSize = pageSize;
+    }
+
+
+    public String getInsertType() {
+        return insertType;
+    }
+
+    public void setInsertType(String insertType) {
+        this.insertType = insertType;
     }
 }
