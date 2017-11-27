@@ -2543,6 +2543,7 @@ public class JSONUtil {
                     String[] carrierIdCsvLArr = userFilterCarr.getCarrierIdCSV().split("#@#");
                     String[] carrierNameCsvLArr = userFilterCarr.getCarrierName().split("#@#");
                     String carriers = userFilterCarr.getCarrierIdCSV().replace("#@#",",");
+                    Long carrierGroupId = userFilterCarr.getCarrierGroupId();
 
                     carGroupJson.put("name",carrierGroupName);
 
@@ -2574,7 +2575,7 @@ public class JSONUtil {
 
                     }
 
-                    if(carrierIdCsvLArr.length>1 )
+                    if(carrierIdCsvLArr.length>1 || carrierGroupId!=null)
                     {
 
                         carGroupJson.put("id", "");
@@ -2586,7 +2587,7 @@ public class JSONUtil {
                         carGroupJson.put("selected", isGroupAllCarriersSelected);
                     }
 
-                    else if(carrierIdCsvLArr.length==1)
+                    else if(carrierIdCsvLArr.length==1  )
                     {
                         carGroupJson.put("id",carrierIdCsvLArr[0]);
                         carGroupJson.put("children",new JSONArray());

@@ -64,8 +64,8 @@ import java.io.Serializable;
                                 targetClass = UserFilterUtilityDataDto.class,
                                 columns = {
                                         @ColumnResult(name = "GROUP_NAME", type = String.class),
+                                        @ColumnResult(name = "CARRIER_GROUP_ID", type = Long.class),
                                         @ColumnResult(name = "CARRIER_ID_CSV", type = String.class),
-
                                         @ColumnResult(name = "CARRIER_NAME", type = String.class)
                                 }
                         )
@@ -121,6 +121,10 @@ public class UserFilterUtilityDataDto implements Serializable {
     @Column(name = "GROUP_NAME")
     private String carrierGroupName;
 
+
+    @Column(name = "CARRIER_GROUP_ID")
+    private Long carrierGroupId;
+
     @Column(name = "CARRIER_ID_CSV")
     private String carrierIdCSV;
 
@@ -150,10 +154,11 @@ public class UserFilterUtilityDataDto implements Serializable {
         this.carrierName = carrierName;
     }
 
-    public UserFilterUtilityDataDto(String carrierGroupName, String carrierIdCSV, String carrierName) {
+    public UserFilterUtilityDataDto(String carrierGroupName,Long carrierGroupId,  String carrierIdCSV, String carrierName) {
         this.carrierGroupName = carrierGroupName;
         this.carrierIdCSV = carrierIdCSV;
         this.carrierName = carrierName;
+        this.carrierGroupId = carrierGroupId;
     }
 
     public UserFilterUtilityDataDto(Long id, String name, String active, String type) {
@@ -170,6 +175,14 @@ public class UserFilterUtilityDataDto implements Serializable {
 
     public Long getId() {
         return id;
+    }
+
+    public Long getCarrierGroupId() {
+        return carrierGroupId;
+    }
+
+    public void setCarrierGroupId(Long carrierGroupId) {
+        this.carrierGroupId = carrierGroupId;
     }
 
     public void setId(Long id) {
