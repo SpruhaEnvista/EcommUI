@@ -2761,6 +2761,7 @@ public class JSONUtil {
 
     public static JSONArray prepareFilterModesJson(List<UserFilterUtilityDataDto> modes, List<Long> savedModes, Map<String, String> modeWiseCarriers, boolean isParcelDashlettes, boolean isNew) throws JSONException {
         JSONArray modesDetailsArray = new JSONArray();
+        boolean needToAddSmallPackage = true;
         if (modes != null && !modes.isEmpty()) {
             List<String> modesList = new ArrayList<String>();
             for (UserFilterUtilityDataDto userFilterMode : modes) {
@@ -2770,6 +2771,9 @@ public class JSONUtil {
                             modesList.add(String.valueOf(userFilterMode.getId()));
                             JSONObject jsonObject = new JSONObject();
                             jsonObject.put("id", userFilterMode.getId());
+                            if ( "Small Package".equalsIgnoreCase(userFilterMode.getName())) {
+                                needToAddSmallPackage = false;
+                            }
                             jsonObject.put("name", userFilterMode.getName());
                             jsonObject.put("checked", isNew ? true : savedModes != null && savedModes.contains(userFilterMode.getId()));
                             modesDetailsArray.put(jsonObject);
@@ -2777,7 +2781,7 @@ public class JSONUtil {
                     }
                 }
             }
-            if (modeWiseCarriers.containsKey("parcelCarrier")) {
+            if (modeWiseCarriers.containsKey("parcelCarrier") && needToAddSmallPackage) {
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("id", WebConstants.SMALL_PACKAGE_CODE_VALUE_ID);
                 jsonObject.put("name", WebConstants.SMALL_PACKAGE_CARRIER_MODES);
