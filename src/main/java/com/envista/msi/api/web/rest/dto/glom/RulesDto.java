@@ -56,6 +56,7 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_COLUMN_10", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_IS_ACTIVE", type = Integer.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_USER_ID", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_INSERT_TYPE", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_RULES_INFO", type = Void.class)
                 }),

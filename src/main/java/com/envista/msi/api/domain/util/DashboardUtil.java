@@ -304,6 +304,9 @@ public class DashboardUtil {
        // userFilterDetailsMap.put("carrDetails", carrJson);
         userFilterDetailsMap.put("modesDetails", modesArray);
         userFilterDetailsMap.put("servicesDetails", JSONUtil.prepareFilterServiceJson(services, savedServices, isNew));
+        if(isParcelDashlettes && savedFilter != null){
+            savedFilter.setModes("322906");
+        }
         userFilterDetailsMap.put("filterDetails", savedFilter);
         return userFilterDetailsMap;
     }
