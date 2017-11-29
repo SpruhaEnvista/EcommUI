@@ -32,7 +32,7 @@ public class DataCriteriaController {
      * HTTP GET -  get criteria by data object id
      */
     @RequestMapping(value = "/getByDataObjectId", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
-    public ResponseEntity<List<DataCriteriaDto>> findById(@RequestParam(required = false, defaultValue = "0") Long dataObjectId) {
+    public ResponseEntity<List<DataCriteriaDto>> findById(@RequestParam(required = true, defaultValue = "0") Long dataObjectId) {
 
 
         return new ResponseEntity<List<DataCriteriaDto>>(service.findById(dataObjectId), HttpStatus.OK);

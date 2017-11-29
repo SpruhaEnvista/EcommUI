@@ -23,7 +23,7 @@ public class DataCriteriaService {
     @Inject
     private DataCriteriaDao dao;
 
-    public List<DataCriteriaDto> findById(long dataObjectId) {
+    public List<DataCriteriaDto> findById(Long dataObjectId) {
 
         return dao.findById(dataObjectId);
     }

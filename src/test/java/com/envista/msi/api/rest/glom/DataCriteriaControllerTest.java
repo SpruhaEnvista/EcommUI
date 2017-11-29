@@ -22,12 +22,12 @@ public class DataCriteriaControllerTest extends WebappTestEnvironment {
 
     @Test
     public void getByDataObjectId() throws Exception {
-        MvcResult result = mockRestMvc().perform(get(SEARCH_API_BASE_PATH_VALUE + "getByDataObjectId/2")
+        MvcResult result = mockRestMvc().perform(get(SEARCH_API_BASE_PATH_VALUE + "/getByDataObjectId?dataObjectId=2")
         ).andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)).andReturn();
 
-        logger.info("****getById result is****" + result.getResponse().getContentAsString());
+        logger.info("****getByDataObjectId result is****" + result.getResponse().getContentAsString());
 
-        System.out.println("***getById result is***" + result.getResponse().getContentAsString());
+        System.out.println("***getByDataObjectId result is***" + result.getResponse().getContentAsString());
     }
 }

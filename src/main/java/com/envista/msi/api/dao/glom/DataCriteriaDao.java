@@ -18,7 +18,7 @@ public class DataCriteriaDao {
     @Inject
     private PersistentContext persistentContext;
 
-    public List<DataCriteriaDto> findById(long dataObjectId) {
+    public List<DataCriteriaDto> findById(Long dataObjectId) {
 
         QueryParameter queryParameter = StoredProcedureParameter.with("P_DATA_OBJECT_ID", dataObjectId).and("P_ACTION_TYPE", "getByDataObjectId");
 

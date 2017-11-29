@@ -7,7 +7,7 @@ import java.io.Serializable;
  * Created by KRISHNAREDDYM on 11/29/2017.
  */
 @NamedStoredProcedureQueries({
-        @NamedStoredProcedureQuery(name = "DataObjectDto.getAll", procedureName = "SHP_GLM_GET_SCRIPTS_PRO",
+        @NamedStoredProcedureQuery(name = "DataObjectDto.getAll", procedureName = "SHP_GLM_GET_DATA_OBJS_INFO_PRO",
                 resultClasses = ScriptDto.class,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_DATA_OBJECT_ID", type = Long.class),
@@ -18,7 +18,7 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_DATA_OBJ_INFO", type = Void.class)
                 }),
-        @NamedStoredProcedureQuery(name = "DataObjectDto.getCount", procedureName = "SHP_GLM_GET_SCRIPTS_PRO",
+        @NamedStoredProcedureQuery(name = "DataObjectDto.getCount", procedureName = "SHP_GLM_GET_DATA_OBJS_INFO_PRO",
                 resultSetMappings = "DataObjectDto.TotalCount",
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_DATA_OBJECT_ID", type = Long.class),
