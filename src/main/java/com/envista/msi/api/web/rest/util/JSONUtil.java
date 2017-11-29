@@ -2629,7 +2629,6 @@ public class JSONUtil {
         JSONObject parcelJSON = new JSONObject();
         JSONObject customReportJSON = new JSONObject();
 
-        JSONArray topReportsJsonArr = new JSONArray();
         JSONArray allModesJsonArr = new JSONArray();
         JSONArray freightJsonArr = new JSONArray();
 
@@ -2647,19 +2646,12 @@ public class JSONUtil {
 
                 if (reportModesDto != null) {
 
-                     if(reportModesDto.getReportFileName().trim().equalsIgnoreCase("All Modes Shipment Detail")
-                             || reportModesDto.getReportFileName().trim().equalsIgnoreCase("Freight Shipment Detail")
-                             || reportModesDto.getReportFileName().trim().equalsIgnoreCase("Parcel Shipment Detail")
-                             || reportModesDto.getReportFileName().trim().equalsIgnoreCase("Invoice Cycle Time")
-                             || reportModesDto.getReportFileName().trim().equalsIgnoreCase("New Payment")) {
-                         topReportsJsonArr.put(reportModesDto);
-                     }
-                     else if("All Modes".equalsIgnoreCase(reportModesDto.getGroupName()))
-                         allModesJsonArr.put(reportModesDto);
-                     else if("Freight".equalsIgnoreCase(reportModesDto.getGroupName()))
-                         freightJsonArr.put(reportModesDto);
-                     else if("Custom Reports".equalsIgnoreCase(reportModesDto.getGroupName()))
-                     {
+                      if("All Modes".equalsIgnoreCase(reportModesDto.getGroupName())) {
+                          allModesJsonArr.put(reportModesDto);
+                      } else if("Freight".equalsIgnoreCase(reportModesDto.getGroupName())) {
+                          freightJsonArr.put(reportModesDto);
+                      } else if("Custom Reports".equalsIgnoreCase(reportModesDto.getGroupName())) {
+
                          if("All Modes".equalsIgnoreCase(reportModesDto.getGroupUnderName()))
                              allModesCustRepJsonArr.put(reportModesDto);
                          else if("Freight".equalsIgnoreCase(reportModesDto.getGroupUnderName()))
@@ -2667,10 +2659,7 @@ public class JSONUtil {
                          else if("Parcel".equalsIgnoreCase(reportModesDto.getGroupUnderName()))
                              parcelCustRepJsonArr.put(reportModesDto);
 
-                     }
-
-                     else if("Parcel".equalsIgnoreCase(reportModesDto.getGroupUnderName()))
-                     {
+                     } else if("Parcel".equalsIgnoreCase(reportModesDto.getGroupUnderName())) {
                          if("Audit".equalsIgnoreCase(reportModesDto.getGroupName()))
                              auditParcelJsonArr.put(reportModesDto);
                          else if("Delivery & Tracking".equalsIgnoreCase(reportModesDto.getGroupName()))
@@ -2679,8 +2668,6 @@ public class JSONUtil {
                              invoiceParcelJsonArr.put(reportModesDto);
 
                      }
-
-
 
                 }
 
@@ -2695,7 +2682,6 @@ public class JSONUtil {
         customReportJSON.put("freight",freightCustRepJsonArr);
         customReportJSON.put("parcel",parcelCustRepJsonArr);
 
-        reportModesJSON.put("topReports",topReportsJsonArr);
         reportModesJSON.put("allModes",allModesJsonArr);
         reportModesJSON.put("freight",freightJsonArr);
         reportModesJSON.put("parcel",parcelJSON);
