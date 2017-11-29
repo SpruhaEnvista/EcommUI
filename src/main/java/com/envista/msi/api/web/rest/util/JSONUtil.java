@@ -2760,6 +2760,7 @@ public class JSONUtil {
                             if ( "Small Package".equalsIgnoreCase(userFilterMode.getName())) {
                                 needToAddSmallPackage = false;
                             }
+
                             jsonObject.put("name", userFilterMode.getName());
                             jsonObject.put("checked", isNew ? true : savedModes != null && savedModes.contains(userFilterMode.getId()));
                             modesDetailsArray.put(jsonObject);
