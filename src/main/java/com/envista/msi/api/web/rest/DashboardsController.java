@@ -3115,16 +3115,7 @@ public class DashboardsController extends DashboardBaseController {
         return ResponseEntity.status(HttpStatus.OK).body(userFilterData);
     }
 
-    /*@RequestMapping(value = "/carrsByCustomer", method = {RequestMethod.GET, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<Map<String, Object>>  getCarriersByCustomer(@RequestParam String customerIds, @RequestParam boolean isParcelDashlettes) throws JSONException {
-        Map<String, Object> userFilterData = new HashMap();
-        List<UserFilterUtilityDataDto> carrList = dashboardsService.getCarrierByCustomer(customerIds, isParcelDashlettes);
 
-        if(carrList != null && !carrList.isEmpty()){
-            userFilterData.put("carriers", JSONUtil.prepareFilterCarrierJson(carrList));
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(userFilterData);
-    }*/
 
     @RequestMapping(value = "/carrsByCustomer", method = {RequestMethod.GET, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<Map<String, Object>>  getCarriersByCustomer(@RequestParam String customerIds, @RequestParam boolean isParcelDashlettes) throws JSONException {

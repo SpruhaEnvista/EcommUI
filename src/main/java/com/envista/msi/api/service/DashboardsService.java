@@ -912,28 +912,6 @@ public class DashboardsService {
             List<UserFilterUtilityDataDto> carrListParcel = getCarrierByCustomer(String.valueOf(userFilter.getCustomerIds()), true);
             List<UserFilterUtilityDataDto> carrListFreight = getCarrierByCustomer(String.valueOf(userFilter.getCustomerIds()), false);
 
-            /*List<UserFilterUtilityDataDto> carrListParcelUpdated = new ArrayList<>();
-            List<UserFilterUtilityDataDto> carrListFreightUpdated = new ArrayList<>();*/
-
-           /* if(filter.getCarriers()!=null){
-                carrListParcel.forEach(userFilterUtilityDataDto->{
-                    List tempCarrierList=Arrays.asList(filter.getCarriers().split(","));
-                    if(tempCarrierList.contains(userFilterUtilityDataDto.getCarrierIdCSV()))
-                          carrListParcelUpdated.add(userFilterUtilityDataDto);
-
-                });
-
-                carrListFreight.forEach(userFilterUtilityDataDto->{
-                    List tempCarrierList=Arrays.asList(filter.getCarriers().split(","));
-                    if(tempCarrierList.contains(userFilterUtilityDataDto.getCarrierIdCSV()) && !carrListParcelUpdated.contains(userFilterUtilityDataDto.getCarrierIdCSV()) )
-                        carrListFreightUpdated.add(userFilterUtilityDataDto);
-
-                });
-
-
-            }*/
-
-
 
             List<Long> servicesList = new ArrayList<Long>();
             List<Long> modeList = new ArrayList<Long>();
