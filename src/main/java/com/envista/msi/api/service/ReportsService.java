@@ -351,6 +351,15 @@ public class ReportsService {
     public ReportFolderDto createReportFolder(ReportFolderDto reportFolderDto, UserProfileDto userProfileDto){
         return reportsDao.createReportFolder(reportFolderDto,userProfileDto);
     }
+
+    public void saveFavouriteReport(long rptId, long userId){
+       reportsDao.saveFavouriteReport(rptId,  userId );
+    }
+
+    public void deleteFavouriteReport(long rptId, long userId){
+        reportsDao.deleteFavouriteReport(rptId, userId);
+    }
+
     public ReportFolderDetailsDto moveRptsToFolder( ReportFolderDetailsDto rptFolderDetailsDto ){
         return reportsDao.moveReportToFolder(rptFolderDetailsDto);
     }

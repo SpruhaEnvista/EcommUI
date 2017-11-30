@@ -24,6 +24,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.AverageWeight
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.ServiceLevelUsageAndPerformanceDto;
 import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
 import com.envista.msi.api.web.rest.dto.reports.ReportFolderDto;
+import com.envista.msi.api.web.rest.dto.reports.ReportModesDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
@@ -2514,6 +2515,182 @@ public class JSONUtil {
     public static JSONObject prepareFilterCarrierJson(List<UserFilterUtilityDataDto> carrierList) throws JSONException {
         return prepareFilterCarrierJson(carrierList, null, true);
     }
+    public static JSONArray prepareFilterCarrierJsonForParcel(List<UserFilterUtilityDataDto> carrierList) throws JSONException {
+        return prepareFilterCarrierJsonForParcel(carrierList, null, true);
+    }
+
+
+    public static JSONArray prepareCarriersByGroupJson(List<UserFilterUtilityDataDto> carrierList,boolean isParcelDashlettes) throws JSONException {
+        return prepareCarriersByGroupJson(carrierList, null, true,isParcelDashlettes);
+    }
+
+    public static JSONArray prepareCarriersByGroupJson(List<UserFilterUtilityDataDto> carrierList, List<Long> selectedCarrList, boolean isNew,boolean isParcelDashlettes) throws JSONException {
+        JSONObject carrJson = new JSONObject();
+        JSONArray parcelCarJsonArr = new JSONArray();
+        JSONArray freightCarrJsonArr = new JSONArray();
+
+       // JSONArray parcelCarGroupJsonArr = new JSONArray();
+
+
+
+        if (carrierList != null && !carrierList.isEmpty()) {
+            for (UserFilterUtilityDataDto userFilterCarr : carrierList) {
+                JSONObject  carGroupJson =  new JSONObject();
+                if (userFilterCarr != null) {
+
+                    JSONArray childJsonArr = new JSONArray();
+
+                    String carrierGroupName = userFilterCarr.getCarrierGroupName();
+                    String[] carrierIdCsvLArr = userFilterCarr.getCarrierIdCSV().split("#@#");
+                    String[] carrierNameCsvLArr = userFilterCarr.getCarrierName().split("#@#");
+                    String carriers = userFilterCarr.getCarrierIdCSV().replace("#@#",",");
+                    Long carrierGroupId = userFilterCarr.getCarrierGroupId();
+
+                    carGroupJson.put("name",carrierGroupName);
+
+                    boolean isGroupAllCarriersSelected = true;
+
+                    if(carrierIdCsvLArr.length>0)
+                    {
+
+
+                        for(int i=0;i<carrierIdCsvLArr.length;i++)
+                        {
+
+                            JSONObject carrObj = new JSONObject();
+
+                            boolean isCarrierSelected = isNew ? true : selectedCarrList != null && selectedCarrList.contains(Long.valueOf(carrierIdCsvLArr[i])) ;
+                            carrObj.put("id", Long.parseLong(carrierIdCsvLArr[i]));
+                            carrObj.put("name", carrierNameCsvLArr[i]);
+
+                            carrObj.put("checked", isCarrierSelected);
+                            carrObj.put("selected", isCarrierSelected);
+                            carrObj.put("isParcel", isParcelDashlettes);
+
+                            if( ! isCarrierSelected)
+                                isGroupAllCarriersSelected = false;
+
+                            childJsonArr.put(carrObj);
+
+
+                        }
+
+                    }
+
+                    if(carrierIdCsvLArr.length>1 || carrierGroupId!=null)
+                    {
+
+                        carGroupJson.put("id", "");
+                        carGroupJson.put("children",childJsonArr);
+                        carGroupJson.put("carriers",carriers);
+                        carGroupJson.put("isParcel", isParcelDashlettes);
+
+
+                        carGroupJson.put("checked", isGroupAllCarriersSelected);
+                        carGroupJson.put("selected", isGroupAllCarriersSelected);
+                    }
+
+                    else if(carrierIdCsvLArr.length==1  )
+                    {
+                        carGroupJson.put("id",carrierIdCsvLArr[0]);
+                        carGroupJson.put("children",new JSONArray());
+                        carGroupJson.put("carriers","");
+                        carGroupJson.put("isParcel", isParcelDashlettes);
+                        carGroupJson.put("checked", isNew ? true : selectedCarrList != null && selectedCarrList.contains(Long.valueOf(userFilterCarr.getCarrierIdCSV())));
+                        carGroupJson.put("selected", isNew ? true : selectedCarrList != null && selectedCarrList.contains(Long.valueOf(userFilterCarr.getCarrierIdCSV())));
+
+
+                    }
+
+                }
+
+                if(isParcelDashlettes){
+                    parcelCarJsonArr.put(carGroupJson);
+                }else {
+                    freightCarrJsonArr.put(carGroupJson);
+                }
+            }
+        }
+        /*carrJson.put("parcelCarriers", parcelCarJsonArr);
+        carrJson.put("freightCarriers", freightCarrJsonArr);*/
+        if(isParcelDashlettes){
+            return  parcelCarJsonArr;
+        }else {
+            return freightCarrJsonArr;
+        }
+
+    }
+
+
+
+    public static JSONObject prepareReportForModesJson(List<ReportModesDto> reportModeDtoList) throws JSONException {
+
+        JSONObject reportModesJSON = new JSONObject();
+
+        JSONObject parcelJSON = new JSONObject();
+        JSONObject customReportJSON = new JSONObject();
+
+        JSONArray allModesJsonArr = new JSONArray();
+        JSONArray freightJsonArr = new JSONArray();
+
+        JSONArray auditParcelJsonArr = new JSONArray();
+        JSONArray deliveryParcelJsonArr = new JSONArray();
+        JSONArray invoiceParcelJsonArr = new JSONArray();
+
+        JSONArray allModesCustRepJsonArr = new JSONArray();
+        JSONArray freightCustRepJsonArr = new JSONArray();
+        JSONArray parcelCustRepJsonArr = new JSONArray();
+
+
+        if (reportModeDtoList != null && !reportModeDtoList.isEmpty()) {
+            for (ReportModesDto reportModesDto : reportModeDtoList) {
+
+                if (reportModesDto != null) {
+
+                      if("All Modes".equalsIgnoreCase(reportModesDto.getGroupName())) {
+                          allModesJsonArr.put(reportModesDto);
+                      } else if("Freight".equalsIgnoreCase(reportModesDto.getGroupName())) {
+                          freightJsonArr.put(reportModesDto);
+                      } else if("Custom Reports".equalsIgnoreCase(reportModesDto.getGroupName())) {
+
+                         if("All Modes".equalsIgnoreCase(reportModesDto.getGroupUnderName()))
+                             allModesCustRepJsonArr.put(reportModesDto);
+                         else if("Freight".equalsIgnoreCase(reportModesDto.getGroupUnderName()))
+                             freightCustRepJsonArr.put(reportModesDto);
+                         else if("Parcel".equalsIgnoreCase(reportModesDto.getGroupUnderName()))
+                             parcelCustRepJsonArr.put(reportModesDto);
+
+                     } else if("Parcel".equalsIgnoreCase(reportModesDto.getGroupUnderName())) {
+                         if("Audit".equalsIgnoreCase(reportModesDto.getGroupName()))
+                             auditParcelJsonArr.put(reportModesDto);
+                         else if("Delivery & Tracking".equalsIgnoreCase(reportModesDto.getGroupName()))
+                             deliveryParcelJsonArr.put(reportModesDto);
+                         else if("Invoice & GL Coding".equalsIgnoreCase(reportModesDto.getGroupName()))
+                             invoiceParcelJsonArr.put(reportModesDto);
+
+                     }
+
+                }
+
+            } // List For End
+
+        }
+        parcelJSON.put("audit",auditParcelJsonArr);
+        parcelJSON.put("delivery",deliveryParcelJsonArr);
+        parcelJSON.put("invoice",invoiceParcelJsonArr);
+
+        customReportJSON.put("allModes",allModesCustRepJsonArr);
+        customReportJSON.put("freight",freightCustRepJsonArr);
+        customReportJSON.put("parcel",parcelCustRepJsonArr);
+
+        reportModesJSON.put("allModes",allModesJsonArr);
+        reportModesJSON.put("freight",freightJsonArr);
+        reportModesJSON.put("parcel",parcelJSON);
+        reportModesJSON.put("customReports",customReportJSON);
+
+
+        return reportModesJSON;
+    }
 
     public static JSONObject prepareFilterCarrierJson(List<UserFilterUtilityDataDto> carrierList, List<Long> selectedCarrList, boolean isNew) throws JSONException {
         JSONObject carrJson = new JSONObject();
@@ -2527,9 +2704,14 @@ public class JSONUtil {
                     carrObj.put("name", userFilterCarr.getCarrierName());
                     carrObj.put("checked", isNew ? true : selectedCarrList != null && selectedCarrList.contains(userFilterCarr.getCarrierId()));
 
-                    if("parcel".equalsIgnoreCase(userFilterCarr.getCarrierType())){
+                    if("parcel".equalsIgnoreCase(userFilterCarr.getCarrierGroupName())){
                         parcelCarJsonArr.put(carrObj);
-                    }else if("freight".equalsIgnoreCase(userFilterCarr.getCarrierType())){
+                    }else if("freight".equalsIgnoreCase(userFilterCarr.getCarrierGroupName())){
+
+                        if  ( userFilterCarr.getCarrierName().contains("#") ) {
+
+                        }
+
                         freightCarrJsonArr.put(carrObj);
                     }
                 }
@@ -2538,6 +2720,26 @@ public class JSONUtil {
         carrJson.put("parcelCarriers", parcelCarJsonArr);
         carrJson.put("freightCarriers", freightCarrJsonArr);
         return carrJson;
+    }
+
+    public static JSONArray prepareFilterCarrierJsonForParcel(List<UserFilterUtilityDataDto> carrierList, List<Long> selectedCarrList, boolean isNew) throws JSONException {
+        JSONObject carrJson = new JSONObject();
+        JSONArray parcelCarJsonArr = new JSONArray();
+
+        if (carrierList != null && !carrierList.isEmpty()) {
+            for (UserFilterUtilityDataDto userFilterCarr : carrierList) {
+                if (userFilterCarr != null) {
+                    JSONObject carrObj = new JSONObject();
+                    carrObj.put("id", userFilterCarr.getCarrierIdCSV());
+                    carrObj.put("name", userFilterCarr.getCarrierName());
+                    carrObj.put("checked", isNew ? true : selectedCarrList != null && selectedCarrList.contains(Long.valueOf(userFilterCarr.getCarrierIdCSV())));
+                    carrObj.put("selected",isNew ? true : selectedCarrList != null && selectedCarrList.contains(Long.valueOf(userFilterCarr.getCarrierIdCSV())));
+                    parcelCarJsonArr.put(carrObj);
+                }
+            }
+        }
+
+        return parcelCarJsonArr;
     }
 
     public static JSONArray prepareFilterModesJson(List<UserFilterUtilityDataDto> modes, Map<String, String> modeWiseCarriers, boolean isParcelDashlettes) throws JSONException {
@@ -2550,7 +2752,6 @@ public class JSONUtil {
             List<String> modesList = new ArrayList<String>();
             for (UserFilterUtilityDataDto userFilterMode : modes) {
                 if (userFilterMode != null) {
-                    if (!isParcelDashlettes && modeWiseCarriers.containsKey("freightCarrier")) {
                         if (!modesList.contains(userFilterMode.getId())) {
                             modesList.add(String.valueOf(userFilterMode.getId()));
                             JSONObject jsonObject = new JSONObject();
@@ -2558,17 +2759,16 @@ public class JSONUtil {
                             jsonObject.put("name", userFilterMode.getName());
                             jsonObject.put("checked", isNew ? true : savedModes != null && savedModes.contains(userFilterMode.getId()));
                             modesDetailsArray.put(jsonObject);
-                        }
                     }
                 }
             }
-            if (modeWiseCarriers.containsKey("parcelCarrier")) {
+            /*if (modeWiseCarriers.containsKey("parcelCarrier") && needToAddSmallPackage) {
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("id", WebConstants.SMALL_PACKAGE_CODE_VALUE_ID);
                 jsonObject.put("name", WebConstants.SMALL_PACKAGE_CARRIER_MODES);
                 jsonObject.put("checked", isNew ? true : savedModes != null && savedModes.contains(Long.valueOf(WebConstants.SMALL_PACKAGE_CODE_VALUE_ID)));
                 modesDetailsArray.put(jsonObject);
-            }
+            }*/
         }
         return modesDetailsArray;
     }

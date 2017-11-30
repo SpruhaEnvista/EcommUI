@@ -19,6 +19,8 @@ import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
@@ -164,12 +166,15 @@ public class ReportsController {
         return ResponseEntity.status(HttpStatus.OK).body(respMap);
     }
     @RequestMapping(value = "/getModesReport", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<List<ReportModesDto>> getReportForModes(@RequestParam String userId){
+    public ResponseEntity<JSONObject> getReportForModes(@RequestParam String userId){
         try {
             List<ReportModesDto> reportModeDto = reportsService.getReportForModes(Long.parseLong(userId));
-            return new ResponseEntity<List<ReportModesDto>>(reportModeDto, HttpStatus.OK);
+            JSONObject reportModesJSON = JSONUtil.prepareReportForModesJson(reportModeDto);
+            //return new ResponseEntity<List<ReportModesDto>>(reportModeDto, HttpStatus.OK);
+            return new ResponseEntity<JSONObject>(reportModesJSON, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<List<ReportModesDto>>(new ArrayList<ReportModesDto>(), HttpStatus.INTERNAL_SERVER_ERROR);
+            //return new ResponseEntity<List<ReportModesDto>>(new ArrayList<ReportModesDto>(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<JSONObject>(new JSONObject(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     @RequestMapping(value = "/customercarrierlist", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
@@ -280,6 +285,20 @@ public class ReportsController {
         response.setHeader("Content-Disposition", "attachment; filename=" + file.getName());
         response.setHeader("Content-Length", String.valueOf(file.length()));
         FileCopyUtils.copy(in, response.getOutputStream());
+    }
+
+
+    @RequestMapping(value = "/savefavouritereport", method = {RequestMethod.GET}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<JSONObject> saveFavouriteReport(@RequestParam String rptId,@RequestParam String userId){
+        reportsService.saveFavouriteReport(Long.parseLong(rptId), Long.parseLong(userId));
+        ResponseEntity<JSONObject> responseEntity = getReportForModes(userId);
+        return responseEntity;
+    }
+    @RequestMapping(value = "/deletefavouritereport", method = {RequestMethod.GET}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<JSONObject> deleteFavouriteReport(@RequestParam String rptId,@RequestParam String userId){
+        reportsService.deleteFavouriteReport(Long.parseLong(rptId), Long.parseLong(userId));
+        ResponseEntity<JSONObject> responseEntity = getReportForModes(userId);
+        return responseEntity;
     }
 
     @RequestMapping(value = "/saveschedreport", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE},consumes = {MediaType.APPLICATION_JSON_VALUE})
