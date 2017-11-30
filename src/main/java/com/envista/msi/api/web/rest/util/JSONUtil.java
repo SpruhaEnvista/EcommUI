@@ -2748,34 +2748,27 @@ public class JSONUtil {
 
     public static JSONArray prepareFilterModesJson(List<UserFilterUtilityDataDto> modes, List<Long> savedModes, Map<String, String> modeWiseCarriers, boolean isParcelDashlettes, boolean isNew) throws JSONException {
         JSONArray modesDetailsArray = new JSONArray();
-        boolean needToAddSmallPackage = true;
         if (modes != null && !modes.isEmpty()) {
             List<String> modesList = new ArrayList<String>();
             for (UserFilterUtilityDataDto userFilterMode : modes) {
                 if (userFilterMode != null) {
-                    if (!isParcelDashlettes && modeWiseCarriers.containsKey("freightCarrier")) {
                         if (!modesList.contains(userFilterMode.getId())) {
                             modesList.add(String.valueOf(userFilterMode.getId()));
                             JSONObject jsonObject = new JSONObject();
                             jsonObject.put("id", userFilterMode.getId());
-                            if ( "Small Package".equalsIgnoreCase(userFilterMode.getName())) {
-                                needToAddSmallPackage = false;
-                            }
-
                             jsonObject.put("name", userFilterMode.getName());
                             jsonObject.put("checked", isNew ? true : savedModes != null && savedModes.contains(userFilterMode.getId()));
                             modesDetailsArray.put(jsonObject);
-                        }
                     }
                 }
             }
-            if (modeWiseCarriers.containsKey("parcelCarrier") && needToAddSmallPackage) {
+            /*if (modeWiseCarriers.containsKey("parcelCarrier") && needToAddSmallPackage) {
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("id", WebConstants.SMALL_PACKAGE_CODE_VALUE_ID);
                 jsonObject.put("name", WebConstants.SMALL_PACKAGE_CARRIER_MODES);
                 jsonObject.put("checked", isNew ? true : savedModes != null && savedModes.contains(Long.valueOf(WebConstants.SMALL_PACKAGE_CODE_VALUE_ID)));
                 modesDetailsArray.put(jsonObject);
-            }
+            }*/
         }
         return modesDetailsArray;
     }
