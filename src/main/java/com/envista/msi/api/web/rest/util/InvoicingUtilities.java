@@ -1,5 +1,7 @@
 package com.envista.msi.api.web.rest.util;
 
+import com.envista.msi.api.web.rest.dto.glom.DataCriteriaDto;
+import com.envista.msi.api.web.rest.dto.glom.GlmGenericTypeBean;
 import com.envista.msi.api.web.rest.dto.invoicing.UvVoiceUpdateBean;
 import com.envista.msi.api.web.rest.dto.invoicing.VoiceDto;
 import org.apache.commons.lang.StringUtils;
@@ -320,6 +322,25 @@ public final class InvoicingUtilities {
         }
 
         return beans;
+    }
+
+    public static List<GlmGenericTypeBean> prepareDataCriteria(List<DataCriteriaDto> dtos) {
+
+        List<GlmGenericTypeBean> genericTypeBeans = new ArrayList<GlmGenericTypeBean>();
+        GlmGenericTypeBean bean;
+        if (dtos != null)
+            for (DataCriteriaDto dto : dtos) {
+                bean = new GlmGenericTypeBean();
+                bean.setParam1(String.valueOf(dto.getCodeValueId()));
+                bean.setParam2(dto.getColumnName());
+                bean.setParam3(dto.getCriOperator());
+                bean.setParam4(dto.getAndOrCondition());
+                bean.setParam5(dto.getCriValue());
+
+                genericTypeBeans.add(bean);
+            }
+
+        return genericTypeBeans;
     }
 
 }

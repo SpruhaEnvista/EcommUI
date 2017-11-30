@@ -1,18 +1,17 @@
 package com.envista.msi.api.web.rest.glom;
 
 import com.envista.msi.api.service.glom.DataObjectService;
+import com.envista.msi.api.web.rest.dto.glom.DataObjectBean;
 import com.envista.msi.api.web.rest.util.pagination.PaginationBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
+import java.sql.SQLException;
 
 /**
  * Created by KRISHNAREDDYM on 11/29/2017.
@@ -46,5 +45,34 @@ public class DataObjectController {
         log.info("***getAll json***==== " + paginationData);
 
         return ResponseEntity.status(HttpStatus.OK).body(paginationData);
+    }
+
+    /**
+     * HTTP POST - Create new Script
+     */
+    @RequestMapping(value = "/insert", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.TEXT_PLAIN_VALUE, method = RequestMethod.POST)
+    public ResponseEntity<String> insert(@RequestBody DataObjectBean bean) throws SQLException {
+
+
+        bean.setActionType("INSERT");
+        bean.setDataObjectId(0L);
+
+
+        service.insertOrUpdate(bean);
+
+        return new ResponseEntity<String>("success", HttpStatus.OK);
+    }
+
+    /**
+     * HTTP PUT - Update Script
+     */
+    @RequestMapping(value = "/update", consumes = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.PUT)
+    public ResponseEntity<String> update(@RequestBody DataObjectBean bean) throws SQLException {
+
+        bean.setActionType("UPDATE");
+
+        service.insertOrUpdate(bean);
+
+        return new ResponseEntity<String>("success", HttpStatus.OK);
     }
 }

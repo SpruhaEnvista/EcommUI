@@ -8,7 +8,7 @@ import java.io.Serializable;
  */
 @NamedStoredProcedureQueries({
         @NamedStoredProcedureQuery(name = "DataObjectDto.getAll", procedureName = "SHP_GLM_GET_DATA_OBJS_INFO_PRO",
-                resultClasses = ScriptDto.class,
+                resultClasses = DataObjectDto.class,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_DATA_OBJECT_ID", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_OFFSET", type = Integer.class),

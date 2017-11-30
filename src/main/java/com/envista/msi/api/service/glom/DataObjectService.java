@@ -1,7 +1,10 @@
 package com.envista.msi.api.service.glom;
 
 import com.envista.msi.api.dao.glom.DataObjectDao;
+import com.envista.msi.api.web.rest.dto.glom.DataObjectBean;
 import com.envista.msi.api.web.rest.dto.glom.DataObjectDto;
+import com.envista.msi.api.web.rest.dto.glom.GlmGenericTypeBean;
+import com.envista.msi.api.web.rest.util.InvoicingUtilities;
 import com.envista.msi.api.web.rest.util.pagination.EnspirePagination;
 import com.envista.msi.api.web.rest.util.pagination.PaginationBean;
 import org.slf4j.Logger;
@@ -10,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +38,11 @@ public class DataObjectService {
     public int getCount(int isActive) {
 
         return dao.getCount(isActive);
+    }
+
+    public void insertOrUpdate(DataObjectBean bean) throws SQLException {
+
+        dao.insertOrUpdate(bean, InvoicingUtilities.prepareDataCriteria(bean.getCriteriaDtos()));
     }
 
     public PaginationBean getAllPaginationData(int offSet, int pageSize, int isActive, String sortColumn) throws Exception {

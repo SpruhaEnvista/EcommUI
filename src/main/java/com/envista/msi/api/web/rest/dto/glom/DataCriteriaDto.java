@@ -31,14 +31,14 @@ public class DataCriteriaDto {
     @Column(name = "COLUMN_NAME")
     private String columnName;
 
-    @Column(name = "OPERATOR")
-    private String operator;
+    @Column(name = "CRI_OPERATOR")
+    private String criOperator;
 
     @Column(name = "AND_OR_COND")
     private String andOrCondition;
 
-    @Column(name = "VALUE")
-    private String value;
+    @Column(name = "CRI_VALUE")
+    private String criValue;
 
 
     public DataCriteriaDto() {
@@ -76,12 +76,12 @@ public class DataCriteriaDto {
         this.columnName = columnName;
     }
 
-    public String getOperator() {
-        return operator;
+    public String getCriOperator() {
+        return criOperator;
     }
 
-    public void setOperator(String operator) {
-        this.operator = operator;
+    public void setCriOperator(String criOperator) {
+        this.criOperator = criOperator;
     }
 
     public String getAndOrCondition() {
@@ -92,11 +92,11 @@ public class DataCriteriaDto {
         this.andOrCondition = andOrCondition;
     }
 
-    public String getValue() {
-        return value;
+    public String getCriValue() {
+        return criValue;
     }
 
-    public void setValue(String value) {
-        this.value = value;
+    public void setCriValue(String criValue) {
+        this.criValue = criValue;
     }
 }

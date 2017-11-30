@@ -8,6 +8,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -29,5 +31,37 @@ public class DataObjectControllerTest extends WebappTestEnvironment {
         logger.info("****getAllTest result is****" + result.getResponse().getContentAsString());
 
         System.out.println("***getAllTest result is***" + result.getResponse().getContentAsString());
+    }
+
+    @Test
+    public void insert() throws Exception {
+
+        String inputJson = "{\"dataObjectName\":\"TestObj2\",\"description\":\"testdesc2\",\"userId\":23,\"criteriaDtos\":[{\"CODE_VALUE_ID\":12,\"columnName\":\"Invoice Number\"" +
+                ",\"criOperator\":\">=\",\"andOrCondition\":\"and\",\"criValue\":\"inv123\"}]}";
+
+
+        MvcResult result = mockRestMvc().perform(post(SEARCH_API_BASE_PATH_VALUE + "/insert").content(inputJson).contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isOk()).andReturn();
+
+
+        logger.info("****insert result is****" + result.getResponse().getContentAsString());
+
+        System.out.println("***insert result is***" + result.getResponse().getContentAsString());
+    }
+
+    @Test
+    public void update() throws Exception {
+
+        String inputJson = "{\"dataObjectId\":4,\"dataObjectName\":\"TestObj2update\",\"description\":\"testdesc2update\",\"userId\":21,\"criteriaDtos\":[{\"CODE_VALUE_ID\":13,\"columnName\":\"Invoice Number\"" +
+                ",\"criOperator\":\">=\",\"andOrCondition\":\"and\",\"criValue\":\"inv123568\"}]}";
+
+
+        MvcResult result = mockRestMvc().perform(put(SEARCH_API_BASE_PATH_VALUE + "/update").content(inputJson).contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isOk()).andReturn();
+
+
+        logger.info("****update result is****" + result.getResponse().getContentAsString());
+
+        System.out.println("***update result is***" + result.getResponse().getContentAsString());
     }
 }
