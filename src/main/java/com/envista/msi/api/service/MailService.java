@@ -2,6 +2,7 @@ package com.envista.msi.api.service;
 
 import com.envista.msi.api.config.MSIAppProperties;
 import com.envista.msi.api.dao.UserProfileDao;
+import com.envista.msi.api.web.rest.util.pac.GlobalConstants;
 import org.apache.commons.lang.CharEncoding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,10 +14,10 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring4.SpringTemplateEngine;
+
 import javax.inject.Inject;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-
 import java.io.File;
 import java.util.Locale;
 
@@ -77,7 +78,7 @@ public class MailService {
             message.setTo(to);
             message.setFrom(from);
             message.setSubject(subject);
-            message.setText(content, true);
+            message.setText(GlobalConstants.STYLETAG + content, true);
             javaMailSender.send(mimeMessage);
             log.debug("Sent e-mail to User '{}'", to);
         } catch (Exception e) {
@@ -93,14 +94,14 @@ public class MailService {
             message.setTo(to);
             message.setFrom(from);
             message.setSubject(subject);
-            message.setText(content, true);
+            message.setText(GlobalConstants.STYLETAG + content, true);
 
             FileSystemResource file = new FileSystemResource(new File(filePath));
             message.addAttachment(fileName, file);
 
             javaMailSender.send(mimeMessage);
 
-        } catch (MessagingException e) {
+        } catch (Exception e) {
             log.warn("E-mail could not be sent to user '{}', exception is: {}", to, e.getMessage());
         }
     }
