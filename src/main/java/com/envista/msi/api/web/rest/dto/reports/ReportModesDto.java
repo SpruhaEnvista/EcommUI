@@ -2,7 +2,6 @@ package com.envista.msi.api.web.rest.dto.reports;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * Created by Siddhant on 24/02/2017.
@@ -29,7 +28,8 @@ import java.util.Date;
                                 @ColumnResult(name = "group_under", type = Integer.class),
                                 @ColumnResult(name = "is_supports_carriers", type = Boolean.class),
                                 @ColumnResult(name = "group_under_name", type = String.class),
-                                @ColumnResult(name = "rpt_descr", type = String.class)
+                                @ColumnResult(name = "rpt_descr", type = String.class),
+                                @ColumnResult(name = "is_fav", type = Boolean.class)
                         }
                 )
         })
@@ -68,10 +68,14 @@ public class ReportModesDto implements Serializable {
     @Column(name = "rpt_descr")
     private String reportDescr;
 
+
+    @Column(name = "is_fav")
+    private boolean isFavourite;
+
     public ReportModesDto() {  }
 
     public ReportModesDto(Long rptId, String reportFileName, Integer category, Integer isConsolidated, Integer reportGroupId, String groupName,
-                          Integer groupUnder,Boolean isSupportsCarriers, String groupUnderName,String reportDescr) {
+                          Integer groupUnder,Boolean isSupportsCarriers, String groupUnderName,String reportDescr, Boolean isFavourite) {
         this.rptId = rptId;
         this.reportFileName = reportFileName;
         this.category = category;
@@ -82,6 +86,7 @@ public class ReportModesDto implements Serializable {
         this.isSupportsCarriers = isSupportsCarriers;
         this.groupUnderName = groupUnderName;
         this.reportDescr= reportDescr;
+        this.isFavourite = isFavourite;
     }
 
     public Long getRptId() {
@@ -159,4 +164,12 @@ public class ReportModesDto implements Serializable {
     public String getReportDescr() { return reportDescr; }
 
     public void setReportDescr(String reportDescr) { this.reportDescr = reportDescr; }
+
+    public boolean isFavourite() {
+        return isFavourite;
+    }
+
+    public void setFavourite(boolean favourite) {
+        isFavourite = favourite;
+    }
 }
