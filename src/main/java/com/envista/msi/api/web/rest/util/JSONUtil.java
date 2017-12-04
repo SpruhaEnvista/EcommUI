@@ -130,7 +130,7 @@ public class JSONUtil {
                 if (netSpendDto != null && netSpendDto.getSpend() != 0) {
                     String mode = netSpendDto.getModes();
                     String scoreType = netSpendDto.getScoreType();
-                    Double spend = netSpendDto.getSpend();
+                    Double spend = Math.rint(netSpendDto.getSpend());
 
                     if (!scortypeList.contains(scoreType)) {
                         scortypeList.add(scoreType);
@@ -290,7 +290,7 @@ public class JSONUtil {
             for (NetSpendCommonDto taxSpend : spendList) {
                 if (taxSpend != null) {
                     String spendTypeName = taxSpend.getSpendTypeName();
-                    Double spend = taxSpend.getSpend();
+                    Double spend = Math.rint(taxSpend.getSpend());
                     if (spend > 0) {
                         if (spendMap.containsKey(spendTypeName)) {
                             double spendAmount = spendMap.get(spendTypeName);
@@ -322,6 +322,18 @@ public class JSONUtil {
     }
 
     public static JSONObject prepareCommonJsonForChart(List<CommonValuesForChartDto> dataList) throws JSONException {
+        return prepareCommonJsonForChart(dataList, false);
+    }
+
+    /**
+     * Generic method to prepare json data having id, name and values as key per object.
+     * manipulateValue - flag is used to identify whether any manipulation need to be done on value field (Added during removing decimal places for MSI-29440).
+     * @param dataList
+     * @param manipulateValue
+     * @return
+     * @throws JSONException
+     */
+    public static JSONObject prepareCommonJsonForChart(List<CommonValuesForChartDto> dataList, boolean manipulateValue) throws JSONException {
         JSONObject returnJson = new JSONObject();
         JSONArray returnArray = null;
         JSONObject statusJson = null;
@@ -332,7 +344,30 @@ public class JSONUtil {
                 if (chartData != null) {
                     statusJson = new JSONObject();
                     statusJson.put("name", chartData.getName());
-                    statusJson.put("value", chartData.getValue());
+                    statusJson.put("value", manipulateValue ? Math.rint(chartData.getValue()) : chartData.getValue());
+                    statusJson.put("id", chartData.getId());
+
+                    returnArray.put(statusJson);
+                    statusJson = null;
+                }
+            }
+            returnJson.put("values", returnArray);
+        }
+        return returnJson;
+    }
+
+    public static JSONObject prepareCommonJsonForWeightChart(List<CommonValuesForChartDto> dataList, boolean manipulateValue) throws JSONException {
+        JSONObject returnJson = new JSONObject();
+        JSONArray returnArray = null;
+        JSONObject statusJson = null;
+
+        if (dataList != null && dataList.size() > 0) {
+            returnArray = new JSONArray();
+            for (CommonValuesForChartDto chartData : dataList) {
+                if (chartData != null) {
+                    statusJson = new JSONObject();
+                    statusJson.put("name", chartData.getName());
+                    statusJson.put("value", manipulateValue ? CommonUtil.round(chartData.getValue(), 1) : chartData.getValue());
                     statusJson.put("id", chartData.getId());
 
                     returnArray.put(statusJson);
@@ -530,7 +565,7 @@ public class JSONUtil {
         for (AverageWeightModeShipmtDto perWeightShipmentDto : avgWeigthModeShpmtList) {
             String billDate = perWeightShipmentDto.getBillingDate();
             String mode = perWeightShipmentDto.getModes();
-            Double spend = Math.rint(perWeightShipmentDto.getNetWeight());
+            Double spend = CommonUtil.round(perWeightShipmentDto.getNetWeight(), 1);
 
             if (spend != null && spend != 0) {
                 if (!modeFlagList.contains(mode)) {
@@ -713,7 +748,7 @@ public class JSONUtil {
                 if (spendDto != null) {
                     String billDate = spendDto.getBillingDate();
                     String carrierScacCode = spendDto.getCarrierName();
-                    Double spend = Math.rint(spendDto.getNetDueAmount());
+                    Double spend = spendDto.getNetDueAmount();
                     Long carrierId = spendDto.getCarrierId();
                     String carrierIaAndName = carrierId + "#@#" + carrierScacCode;
                     if (!carriersList.contains(carrierIaAndName)) {
@@ -948,7 +983,7 @@ public class JSONUtil {
                     String service = recoveryService.getBucketType();
                     String carrierName = recoveryService.getCarrierName();
                     Long carrierId = recoveryService.getCarrierId();
-                    Double spend = recoveryService.getCreditAmount();
+                    Double spend = Math.rint(recoveryService.getCreditAmount());
                     carrierMap.put(carrierName, carrierId);
                     if (spend != null && spend != 0) {
                         String concatCarrier = carrierId + "#@#" + carrierName;
@@ -1204,6 +1239,10 @@ public class JSONUtil {
     }
 
     public static JSONObject prepareMonthlyChartJson(List<CommonMonthlyChartDto> monthlyChartDtoList) throws JSONException {
+        return prepareMonthlyChartJson(monthlyChartDtoList, false);
+    }
+
+    public static JSONObject prepareMonthlyChartJson(List<CommonMonthlyChartDto> monthlyChartDtoList, boolean manipulateAmount) throws JSONException {
         JSONObject returnJson = new JSONObject();
         JSONArray returnArray = null;
         int count = 0;
@@ -1221,7 +1260,7 @@ public class JSONUtil {
                     }
 
                     dataArray.put(dateInMilliSecs);
-                    dataArray.put(monthlyChartDto.getAmount());
+                    dataArray.put(manipulateAmount ? Math.rint(monthlyChartDto.getAmount()) : monthlyChartDto.getAmount());
                     returnArray.put(dataArray);
                     if (count == 0) {
                         fromDate = dateInMilliSecs;
@@ -1251,7 +1290,7 @@ public class JSONUtil {
             laneInfoJson.put("rank", shippingLanesDto.getRank());
             laneInfoJson.put("shipperAddress", shippingLanesDto.getShipperAddress());
             laneInfoJson.put("receiverAddress", shippingLanesDto.getReceiverAddress());
-            laneInfoJson.put("laneTotal", CommonUtil.decimalNumberToCommaReadableFormat(shippingLanesDto.getLaneTotal()));
+            laneInfoJson.put("laneTotal", CommonUtil.toDecimalFormat(shippingLanesDto.getLaneTotal(), "#,###"));
 
             lanesArray.put(laneInfoJson);
         }
@@ -1269,7 +1308,7 @@ public class JSONUtil {
             laneInfoJson.put("rank", portLanesDto.getRank());
             laneInfoJson.put("pol", portLanesDto.getPol());
             laneInfoJson.put("pod", portLanesDto.getPod());
-            laneInfoJson.put("laneTotal", CommonUtil.decimalNumberToCommaReadableFormat(portLanesDto.getLaneTotal()));
+            laneInfoJson.put("laneTotal", CommonUtil.toDecimalFormat(portLanesDto.getLaneTotal(), "#,###"));
 
             lanesArray.put(laneInfoJson);
         }
@@ -3142,7 +3181,7 @@ public class JSONUtil {
         return finalObject;
     }
 
-    public static JSONObject prepareJsonForAverageChartByWeekly(List<CommonWeekChartDto> weekChartList) throws JSONException {
+    public static JSONObject prepareJsonForAverageChartByWeekly(List<CommonWeekChartDto> weekChartList, boolean isWeight, boolean isSpend, boolean manipulate) throws JSONException {
         JSONObject returnJson = new JSONObject();
         JSONArray returnArray = new JSONArray();
         int count = 0;
@@ -3152,7 +3191,6 @@ public class JSONUtil {
         long totalCount = 0;
         int previousWeekNo = 0;
         String previousWeekLastDay = null;
-        DecimalFormat decimalformat = new DecimalFormat("##.##");
 
         for (CommonWeekChartDto weekChart : weekChartList) {
             if (weekChart != null) {
@@ -3172,7 +3210,13 @@ public class JSONUtil {
                 } else {
                     previousWeekNo = currentWeekNo;
                     returnArray.getJSONArray(count - 1).put(0, previousWeekLastDay);
-                    returnArray.getJSONArray(count - 1).put(1, decimalformat.format(totalAmount / totalCount));
+                    if(isWeight && manipulate){
+                        returnArray.getJSONArray(count - 1).put(1, CommonUtil.round(totalAmount / totalCount, 1));
+                    }else if(isSpend && manipulate){
+                        returnArray.getJSONArray(count - 1).put(1, CommonUtil.round(totalAmount / totalCount, 2));
+                    }else{
+                        returnArray.getJSONArray(count - 1).put(1, totalAmount / totalCount);
+                    }
 
                     totalAmount = weekChart.getAmount();
                     totalCount = weekChart.getCount();
@@ -3189,7 +3233,13 @@ public class JSONUtil {
         }
         if (returnArray.length() > 0) {
             returnArray.getJSONArray(count - 1).put(0, previousWeekLastDay);
-            returnArray.getJSONArray(count - 1).put(1, totalCount != 0 ? decimalformat.format(totalAmount / totalCount) : 0);
+            if(isWeight && manipulate){
+                returnArray.getJSONArray(count - 1).put(1, totalCount != 0 ? CommonUtil.round(totalAmount / totalCount, 1) : 0);
+            }else if(isSpend && manipulate){
+                returnArray.getJSONArray(count - 1).put(1, totalCount != 0 ? CommonUtil.round(totalAmount / totalCount, 2) : 0);
+            }else{
+                returnArray.getJSONArray(count - 1).put(1, totalCount != 0 ? totalAmount / totalCount : 0);
+            }
         }
         returnJson.put("values", returnArray);
         returnJson.put("fromDate", fromDate);
@@ -3197,7 +3247,7 @@ public class JSONUtil {
         return returnJson;
     }
 
-    public static JSONObject prepareJsonForAverageChartByPeriod(List<CommonPeriodChartDto> commonPeriodChartList, String unit) throws JSONException {
+    public static JSONObject prepareJsonForAverageChartByPeriod(List<CommonPeriodChartDto> commonPeriodChartList, String unit, boolean isWeight, boolean isSpend, boolean manipulate) throws JSONException {
         JSONObject returnJson = new JSONObject();
         JSONArray returnArray = new JSONArray();
         int count = 0;
@@ -3205,7 +3255,6 @@ public class JSONUtil {
         String toDate = null;
         double totalAmount =0;
         long totalCount =0;
-        DecimalFormat decimalformat =new DecimalFormat("##.##");
 
         if (commonPeriodChartList != null && !commonPeriodChartList.isEmpty()) {
             for (CommonPeriodChartDto periodChart : commonPeriodChartList) {
@@ -3216,7 +3265,13 @@ public class JSONUtil {
                     String date = DateUtil.format(periodChart.getBillDate(), "yyyy-MM-dd");
                     dataArray.put(date);
                     if (unit.equalsIgnoreCase("day")) {
-                        dataArray.put(decimalformat.format(null == periodChart.getAverageAmount() ? 0d : periodChart.getAverageAmount()));
+                        if(isWeight && manipulate){
+                            dataArray.put(null == periodChart.getAverageAmount() ? 0d : CommonUtil.round(periodChart.getAverageAmount(), 1));
+                        }else if(isSpend && manipulate){
+                            dataArray.put(null == periodChart.getAverageAmount() ? 0d : CommonUtil.round(periodChart.getAverageAmount(), 2));
+                        }else{
+                            dataArray.put(null == periodChart.getAverageAmount() ? 0d : periodChart.getAverageAmount());
+                        }
                     } else {
                         dataArray.put(0);
                     }
@@ -3231,7 +3286,13 @@ public class JSONUtil {
 
                 if (!unit.equalsIgnoreCase("day") && returnArray.length() > 0) {
                     returnArray.getJSONArray(0).put(0, fromDate);
-                    returnArray.getJSONArray(0).put(1, totalCount != 0 ? decimalformat.format(totalAmount / totalCount) : 0);
+                    if(isWeight && manipulate){
+                        returnArray.getJSONArray(0).put(1, totalCount != 0 ? CommonUtil.round(totalAmount / totalCount, 1) : 0);
+                    }else if(isSpend && manipulate){
+                        returnArray.getJSONArray(0).put(1, totalCount != 0 ? CommonUtil.round(totalAmount / totalCount, 2) : 0);
+                    }else{
+                        returnArray.getJSONArray(0).put(1, totalCount != 0 ? totalAmount / totalCount : 0);
+                    }
                 }
 
                 returnJson.put("values", returnArray);

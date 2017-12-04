@@ -1155,7 +1155,7 @@ public class DashboardsController extends DashboardBaseController {
                     monthlyChartDataList.add(commonMonthlyChartDto);
                 }
             }
-            annualSummaryJson = JSONUtil.prepareMonthlyChartJson(monthlyChartDataList);
+            annualSummaryJson = JSONUtil.prepareMonthlyChartJson(monthlyChartDataList, true);
         }
         return annualSummaryJson;
     }
@@ -1163,7 +1163,7 @@ public class DashboardsController extends DashboardBaseController {
     private JSONObject loadAnnualSummaryByCarrierJson(DashboardsFilterCriteria filter) throws JSONException {
         List<AnnualSummaryDto> annualSummaryList = dashboardsService.getAnnualSummaryByCarrier(filter, false);
         List<CommonValuesForChartDto> commonValuesForChartList = CommonValuesForChartDto.buildAnnualSummaryListToCommonValueForChartList(annualSummaryList);
-        return JSONUtil.prepareCommonJsonForChart(commonValuesForChartList);
+        return JSONUtil.prepareCommonJsonForChart(commonValuesForChartList, true);
     }
 
     private JSONObject loadAnnualSummaryByServiceJson(DashboardsFilterCriteria filter) throws JSONException {
@@ -1205,7 +1205,7 @@ public class DashboardsController extends DashboardBaseController {
                 commonMonthlyChartDto.setAmount(packageExceptionDto.getAmount());
                 commonMonthlyChartDtoList.add(commonMonthlyChartDto);
             }
-            pkgExcpJson = JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList);
+            pkgExcpJson = JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList, true);
         }
         return pkgExcpJson;
     }
@@ -1215,7 +1215,7 @@ public class DashboardsController extends DashboardBaseController {
         List<PackageExceptionDto> packageExceptionList = dashboardsService.getPackageExceptionsByCarrier(filter, false);
         if(packageExceptionList != null && !packageExceptionList.isEmpty()){
             List<CommonValuesForChartDto> commonValuesForChartList = CommonValuesForChartDto.buildPackageExceptionListToCommonValueForChartList(packageExceptionList);
-            pkgExcpJson = JSONUtil.prepareCommonJsonForChart(commonValuesForChartList);
+            pkgExcpJson = JSONUtil.prepareCommonJsonForChart(commonValuesForChartList, true);
         }
         return pkgExcpJson;
     }
@@ -1255,7 +1255,7 @@ public class DashboardsController extends DashboardBaseController {
                 commonMonthlyChartDto.setAmount(recoveryServiceDto.getAmount());
                 commonMonthlyChartDtoList.add(commonMonthlyChartDto);
             }
-            recovServJson = JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList);
+            recovServJson = JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList, true);
         }
         return recovServJson;
     }
@@ -1298,7 +1298,7 @@ public class DashboardsController extends DashboardBaseController {
                 commonMonthlyChartDto.setAmount(recoveryAdjustmentDto.getAmount());
                 commonMonthlyChartDtoList.add(commonMonthlyChartDto);
             }
-            recovAdjJson = JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList);
+            recovAdjJson = JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList, true);
         }
         return recovAdjJson;
     }
@@ -1308,7 +1308,7 @@ public class DashboardsController extends DashboardBaseController {
         List<RecoveryAdjustmentDto> recoveryAdjustmentList = dashboardsService.getRecoveryAdjustmentByCarrier(filter, false);
         if(recoveryAdjustmentList != null && !recoveryAdjustmentList.isEmpty()){
             List<CommonValuesForChartDto> commonValuesForChartList = CommonValuesForChartDto.buildRecoveryAdjustmentListToCommonValueForChartList(recoveryAdjustmentList);
-            recovAdjJson = JSONUtil.prepareCommonJsonForChart(commonValuesForChartList);
+            recovAdjJson = JSONUtil.prepareCommonJsonForChart(commonValuesForChartList, true);
         }
         return recovAdjJson;
     }
@@ -1348,7 +1348,7 @@ public class DashboardsController extends DashboardBaseController {
                 commonMonthlyChartDto.setAmount(billedVsApprovedDto.getAmount());
                 commonMonthlyChartDtoList.add(commonMonthlyChartDto);
             }
-            billedVsApprovedJson = JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList);
+            billedVsApprovedJson = JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList, true);
         }
         return billedVsApprovedJson;
     }
@@ -1391,7 +1391,7 @@ public class DashboardsController extends DashboardBaseController {
                 commonMonthlyChartDto.setAmount(orderMatchDto.getAmount());
                 commonMonthlyChartDtoList.add(commonMonthlyChartDto);
             }
-            orderMatchJson = JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList);
+            orderMatchJson = JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList, true);
         }
         return orderMatchJson;
     }
@@ -1407,7 +1407,7 @@ public class DashboardsController extends DashboardBaseController {
                     chartValueList.add(new CommonValuesForChartDto(orderMatch));
                 }
             }
-            orderMatchJson = JSONUtil.prepareCommonJsonForChart(chartValueList);
+            orderMatchJson = JSONUtil.prepareCommonJsonForChart(chartValueList, true);
         }
         return orderMatchJson;
     }
@@ -1450,7 +1450,7 @@ public class DashboardsController extends DashboardBaseController {
                 commonMonthlyChartDto.setAmount(invoiceMethodScoreDto.getAmount());
                 commonMonthlyChartDtoList.add(commonMonthlyChartDto);
             }
-            invMethodScoreJson = JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList);
+            invMethodScoreJson = JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList, true);
         }
         return invMethodScoreJson;
     }
@@ -1466,7 +1466,7 @@ public class DashboardsController extends DashboardBaseController {
                     chartValueList.add(new CommonValuesForChartDto(invoiceMethodScore));
                 }
             }
-            invMethodScoreJson = JSONUtil.prepareCommonJsonForChart(chartValueList);
+            invMethodScoreJson = JSONUtil.prepareCommonJsonForChart(chartValueList, true);
         }
         return invMethodScoreJson;
     }
@@ -1509,7 +1509,7 @@ public class DashboardsController extends DashboardBaseController {
                 commonMonthlyChartDto.setAmount(invoiceStatusAmountDto.getAmount());
                 commonMonthlyChartDtoList.add(commonMonthlyChartDto);
             }
-            invStsJson = JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList);
+            invStsJson = JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList, true);
         }
         return invStsJson;
     }
@@ -1525,7 +1525,7 @@ public class DashboardsController extends DashboardBaseController {
                     chartValueList.add(new CommonValuesForChartDto(invStatusAmt));
                 }
             }
-            invStsJson = JSONUtil.prepareCommonJsonForChart(chartValueList);
+            invStsJson = JSONUtil.prepareCommonJsonForChart(chartValueList, true);
         }
         return invStsJson;
     }
@@ -1541,7 +1541,7 @@ public class DashboardsController extends DashboardBaseController {
                     chartValueList.add(new CommonValuesForChartDto(invStsAmt));
                 }
             }
-            invStsJson = JSONUtil.prepareCommonJsonForChart(chartValueList);
+            invStsJson = JSONUtil.prepareCommonJsonForChart(chartValueList, true);
         }
         return invStsJson;
     }
@@ -1575,7 +1575,7 @@ public class DashboardsController extends DashboardBaseController {
                 commonMonthlyChartDto.setAmount(invoiceStatusCountDto.getAmount());
                 commonMonthlyChartDtoList.add(commonMonthlyChartDto);
             }
-            invStsJson = JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList);
+            invStsJson = JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList, true);
         }
         return invStsJson;
     }
@@ -1591,7 +1591,7 @@ public class DashboardsController extends DashboardBaseController {
                     chartValueList.add(new CommonValuesForChartDto(invStatusCount));
                 }
             }
-            invStsJson = JSONUtil.prepareCommonJsonForChart(chartValueList);
+            invStsJson = JSONUtil.prepareCommonJsonForChart(chartValueList, true);
         }
         return invStsJson;
     }
@@ -1607,7 +1607,7 @@ public class DashboardsController extends DashboardBaseController {
                     chartValueList.add(new CommonValuesForChartDto(invStatusCount));
                 }
             }
-            invStsJson = JSONUtil.prepareCommonJsonForChart(chartValueList);
+            invStsJson = JSONUtil.prepareCommonJsonForChart(chartValueList, true);
         }
         return invStsJson;
     }
@@ -1647,7 +1647,7 @@ public class DashboardsController extends DashboardBaseController {
                 commonMonthlyChartDto.setAmount(netSpend.getAmount());
                 commonMonthlyChartDtoList.add(commonMonthlyChartDto);
             }
-            netSpendJson = JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList);
+            netSpendJson = JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList, true);
         }
         return netSpendJson;
     }
@@ -1663,7 +1663,7 @@ public class DashboardsController extends DashboardBaseController {
                     commonValueList.add(new CommonValuesForChartDto(netSpend));
                 }
             }
-            netSpendJsonData = JSONUtil.prepareCommonJsonForChart(commonValueList);
+            netSpendJsonData = JSONUtil.prepareCommonJsonForChart(commonValueList, true);
         }
         return netSpendJsonData;
     }
@@ -1688,7 +1688,7 @@ public class DashboardsController extends DashboardBaseController {
                 commonMonthlyChartDto.setAmount(netSpendOverTime.getAmount());
                 commonMonthlyChartDtoList.add(commonMonthlyChartDto);
             }
-            netSpendJson = JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList);
+            netSpendJson = JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList, true);
         }
         return netSpendJson;
     }
@@ -1731,7 +1731,7 @@ public class DashboardsController extends DashboardBaseController {
                 commonMonthlyChartDto.setAmount(taxSpend.getAmount());
                 commonMonthlyChartDtoList.add(commonMonthlyChartDto);
             }
-            taxSpendJson = JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList);
+            taxSpendJson = JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList, true);
         }
         return taxSpendJson;
     }
@@ -1746,7 +1746,7 @@ public class DashboardsController extends DashboardBaseController {
                     commonValueList.add(new CommonValuesForChartDto(taxSpend));
                 }
             }
-            taxSpendJson = JSONUtil.prepareCommonJsonForChart(commonValueList);
+            taxSpendJson = JSONUtil.prepareCommonJsonForChart(commonValueList, true);
         }
         return taxSpendJson;
     }
@@ -1812,7 +1812,7 @@ public class DashboardsController extends DashboardBaseController {
                         commonValList.add(commonValuesForChart);
                     }
                 }
-                accSpendJson = JSONUtil.prepareCommonJsonForChart(commonValList);
+                accSpendJson = JSONUtil.prepareCommonJsonForChart(commonValList, true);
             }
         }
         return accSpendJson;
@@ -1829,7 +1829,7 @@ public class DashboardsController extends DashboardBaseController {
                 commonMonthlyChartDto.setAmount(accessorialSpendDto.getAmount());
                 commonMonthlyChartDtoList.add(commonMonthlyChartDto);
             }
-            accSpendJson = JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList);
+            accSpendJson = JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList, true);
         }
         return accSpendJson;
     }
@@ -1846,7 +1846,7 @@ public class DashboardsController extends DashboardBaseController {
                         commonValList.add(new CommonValuesForChartDto(accSpend));
                     }
                 }
-                accSpendJson = JSONUtil.prepareCommonJsonForChart(commonValList);
+                accSpendJson = JSONUtil.prepareCommonJsonForChart(commonValList, true);
             }
         }
         return accSpendJson;
@@ -1879,7 +1879,7 @@ public class DashboardsController extends DashboardBaseController {
                 commonMonthlyChartDto.setAmount(accessorialSpendDto.getAmount());
                 commonMonthlyChartDtoList.add(commonMonthlyChartDto);
             }
-            accesorialJson = JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList);
+            accesorialJson = JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList, true);
         }
         return accesorialJson;
     }
@@ -1895,7 +1895,7 @@ public class DashboardsController extends DashboardBaseController {
                     commonValList.add(new CommonValuesForChartDto(accSpend));
                 }
             }
-            accSpendJson = JSONUtil.prepareCommonJsonForChart(commonValList);
+            accSpendJson = JSONUtil.prepareCommonJsonForChart(commonValList, true);
         }
         return accSpendJson;
     }
@@ -1963,7 +1963,7 @@ public class DashboardsController extends DashboardBaseController {
             commonValuesForChartDto.setValue(shipmentRegionDto.getSpend());
             commonValuesForChartDtoList.add(commonValuesForChartDto);
         }
-        return JSONUtil.prepareCommonJsonForChart(commonValuesForChartDtoList);
+        return JSONUtil.prepareCommonJsonForChart(commonValuesForChartDtoList, true);
     }
 
     public JSONObject loadShipmentRegionByMonthJson(DashboardsFilterCriteria filterCriteria) throws Exception {
@@ -1975,7 +1975,7 @@ public class DashboardsController extends DashboardBaseController {
             commonMonthlyChartDto.setAmount(shipmentRegionDto.getAmount());
             commonMonthlyChartDtoList.add(commonMonthlyChartDto);
         }
-        return  JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList);
+        return  JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList, true);
     }
 
     private JSONObject loadTopShippingLanesJsonData(ShippingLanesConstant shippingLanesConstant, DashboardsFilterCriteria filter) throws Exception {
@@ -2011,7 +2011,7 @@ public class DashboardsController extends DashboardBaseController {
             commonValuesForChartDto.setValue(shippingLanesDto.getSpend());
             commonValuesForChartDtoList.add(commonValuesForChartDto);
         }
-        return  JSONUtil.prepareCommonJsonForChart(commonValuesForChartDtoList);
+        return  JSONUtil.prepareCommonJsonForChart(commonValuesForChartDtoList, true);
     }
 
     public JSONObject loadShippingLanesByMonthJson(DashboardsFilterCriteria filterCriteria) throws Exception {
@@ -2024,7 +2024,7 @@ public class DashboardsController extends DashboardBaseController {
 
             commonMonthlyChartDtoList.add(commonMonthlyChartDto);
         }
-        return  JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList);
+        return  JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList, true);
     }
 
     private JSONObject loadTopPortLanesJsonData(PortLanesConstant portLanesConstant, DashboardsFilterCriteria filter) throws Exception {
@@ -2060,7 +2060,7 @@ public class DashboardsController extends DashboardBaseController {
             commonValuesForChartDto.setValue(portLanesDto.getSpend());
             commonValuesForChartDtoList.add(commonValuesForChartDto);
         }
-        return  JSONUtil.prepareCommonJsonForChart(commonValuesForChartDtoList);
+        return  JSONUtil.prepareCommonJsonForChart(commonValuesForChartDtoList, true);
     }
 
     public JSONObject loadPortLanesByMonthJson(DashboardsFilterCriteria filterCriteria) throws Exception {
@@ -2073,7 +2073,7 @@ public class DashboardsController extends DashboardBaseController {
 
             commonMonthlyChartDtoList.add(commonMonthlyChartDto);
         }
-        return  JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList);
+        return  JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList, true);
     }
 
 
@@ -2132,7 +2132,7 @@ public class DashboardsController extends DashboardBaseController {
                     commonWeekChartList.add(commonWeekChart);
                 }
             }
-            avgWeightJson = JSONUtil.prepareJsonForAverageChartByWeekly(commonWeekChartList);
+            avgWeightJson = JSONUtil.prepareJsonForAverageChartByWeekly(commonWeekChartList, true, false, true);
         }
         return avgWeightJson;
     }
@@ -2152,7 +2152,7 @@ public class DashboardsController extends DashboardBaseController {
                     commonPeriodChartList.add(commonPeriodChart);
                 }
             }
-            avgWeightJson = JSONUtil.prepareJsonForAverageChartByPeriod(commonPeriodChartList, filter.getCustomisedDisplayUnit());
+            avgWeightJson = JSONUtil.prepareJsonForAverageChartByPeriod(commonPeriodChartList, filter.getCustomisedDisplayUnit(), true, false, true);
         }
         return avgWeightJson;
     }
@@ -2172,7 +2172,7 @@ public class DashboardsController extends DashboardBaseController {
                     commonWeekChartList.add(commonWeekChart);
                 }
             }
-            avgShipmentJson = JSONUtil.prepareJsonForAverageChartByWeekly(commonWeekChartList);
+            avgShipmentJson = JSONUtil.prepareJsonForAverageChartByWeekly(commonWeekChartList, false, true, true);
         }
         return avgShipmentJson;
     }
@@ -2192,7 +2192,7 @@ public class DashboardsController extends DashboardBaseController {
                     commonPeriodChartList.add(commonPeriodChart);
                 }
             }
-            avgShipmentJson = JSONUtil.prepareJsonForAverageChartByPeriod(commonPeriodChartList, filter.getCustomisedDisplayUnit());
+            avgShipmentJson = JSONUtil.prepareJsonForAverageChartByPeriod(commonPeriodChartList, filter.getCustomisedDisplayUnit(), false, true, true);
         }
         return avgShipmentJson;
     }
@@ -2254,7 +2254,7 @@ public class DashboardsController extends DashboardBaseController {
                     }
                 }
             }
-            avgShipmentJson = JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList);
+            avgShipmentJson = JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList, true);
         }
         return avgShipmentJson;
     }
@@ -2274,7 +2274,7 @@ public class DashboardsController extends DashboardBaseController {
                     commonValueList.add(commonValueChartDto);
                 }
             }
-            avgWeightJson = JSONUtil.prepareCommonJsonForChart(commonValueList);
+            avgWeightJson = JSONUtil.prepareCommonJsonForWeightChart(commonValueList, true);
         }
         return avgWeightJson;
     }
@@ -2292,7 +2292,7 @@ public class DashboardsController extends DashboardBaseController {
                     commonMonthlyChartDtoList.add(commonMonthlyChartDto);
                 }
             }
-            avgWeightJson = JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList);
+            avgWeightJson = JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList, true);
         }
         return avgWeightJson;
     }
