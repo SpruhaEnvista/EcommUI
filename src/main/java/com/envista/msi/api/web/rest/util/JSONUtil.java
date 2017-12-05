@@ -748,7 +748,7 @@ public class JSONUtil {
                 if (spendDto != null) {
                     String billDate = spendDto.getBillingDate();
                     String carrierScacCode = spendDto.getCarrierName();
-                    Double spend = spendDto.getNetDueAmount();
+                    Double spend = Math.rint(spendDto.getNetDueAmount());
                     Long carrierId = spendDto.getCarrierId();
                     String carrierIaAndName = carrierId + "#@#" + carrierScacCode;
                     if (!carriersList.contains(carrierIaAndName)) {

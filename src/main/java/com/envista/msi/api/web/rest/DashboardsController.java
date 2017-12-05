@@ -610,7 +610,7 @@ public class DashboardsController extends DashboardBaseController {
                 commonMonthlyChartDto.setAmount(outboundSpendDto.getAmount());
                 commonMonthlyChartDtoList.add(commonMonthlyChartDto);
             }
-            outboundJson = JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList);
+            outboundJson = JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList, true);
         }
         return outboundJson;
     }
@@ -647,7 +647,7 @@ public class DashboardsController extends DashboardBaseController {
                 commonMonthlyChartDto.setAmount(inboundSpendDto.getAmount());
                 commonMonthlyChartDtoList.add(commonMonthlyChartDto);
             }
-            inboundJson = JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList);
+            inboundJson = JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList, true);
         }
         return inboundJson;
     }
