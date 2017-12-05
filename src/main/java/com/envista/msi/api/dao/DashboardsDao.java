@@ -1604,7 +1604,6 @@ public class DashboardsDao {
                 DashboardStoredProcParam.DashboardFilterParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardStoredProcParam.DashboardFilterParams.CUSTOMER_IDS_CSV_PARAM,
                 DashboardStoredProcParam.DashboardFilterParams.CARRIER_IDS_PARAM, DashboardStoredProcParam.DashboardFilterParams.MODES_PARAM,
                 DashboardStoredProcParam.DashboardFilterParams.SERVICES_PARAM, DashboardStoredProcParam.DashboardFilterParams.LANES_PARAM,
-                DashboardStoredProcParam.DashboardFilterParams.ACCESSORIAL_NAME_PARAM,
                 DashboardStoredProcParam.DashboardFilterParams.FROM_DATE_PARAM, DashboardStoredProcParam.DashboardFilterParams.TO_DATE_PARAM,
                 DashboardStoredProcParam.DashboardFilterParams.CONVERTED_WEIGHT_UNIT_PARAM
         };

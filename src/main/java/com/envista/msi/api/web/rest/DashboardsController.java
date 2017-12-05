@@ -285,12 +285,10 @@ public class DashboardsController extends DashboardBaseController {
     }
 
     @RequestMapping(value = "/RelSpendByCarrier", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> getRelSpendByCarrier(@RequestParam String mode) throws Exception {
+    public ResponseEntity<String> getRelSpendByCarrier() throws Exception {
         UserProfileDto user = getUserProfile();
         DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
-        if(filter != null && mode != null){
-            filter.setModeNames(mode);
-        }
+
         JSONObject nspData = loadRelSpendByCarrierJson(filter);
         return new ResponseEntity<String>(nspData != null ? nspData.toString() : new JSONObject().toString(), HttpStatus.OK);
     }

@@ -36,7 +36,7 @@ import java.util.Date;
                 @ConstructorResult(
                         targetClass = CarrierSpendAnalysisDto.class,
                         columns = {
-                                @ColumnResult(name = "ID", type = Long.class),
+                                @ColumnResult(name = "carrier_id", type = Long.class),
                                 @ColumnResult(name = "carrier_name", type = String.class),
                                 @ColumnResult(name = "spend", type = Double.class),
                                 @ColumnResult(name = "perc_spend", type = Double.class),

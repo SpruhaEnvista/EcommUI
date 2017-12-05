@@ -3402,10 +3402,88 @@ public class JSONUtil {
     }
 
     public static JSONObject prepareCarrSpendAnalysisJson(List<CarrierSpendAnalysisDto> spendAnalysisList) throws JSONException {
+        JSONObject returnJson = new JSONObject();
+        JSONArray returnArray = null;
+        JSONObject statusJson = null;
+        JSONArray headersJson = new JSONArray();
+
+        if (spendAnalysisList != null && spendAnalysisList.size() > 0) {
+            returnArray = new JSONArray();
+
+            for (int i=0;i<spendAnalysisList.size();i++) {
+                CarrierSpendAnalysisDto analysisDto = spendAnalysisList.get(i);
+                Double othersSpendDbl = 0d;
+                Double othersPercSpendDbl = 0d;
+                Double othersNoOfShipmentsDbl = 0d;
+                Double othersPercShipmentsDbl = 0d;
+                Double othersCostPerShpmntDbl = 0d;
+                Double othersWeightPerShmntDbl = 0d;
+                Double othersCostWeightDbl = 0d;
+
+                if(i<10)
+                {
+                    if (analysisDto != null) {
+                        statusJson = new JSONObject();
+                        statusJson.put("id", analysisDto.getId());
+                        statusJson.put("name", analysisDto.getCarrierName());
+                        statusJson.put("spend", analysisDto.getSpend());
+                        statusJson.put("percSpend", analysisDto.getPercSpend());
+                        statusJson.put("noOfShipments", analysisDto.getNoOfShipments());
+                        statusJson.put("percShipments", analysisDto.getPercShipments());
+                        statusJson.put("costPerShpmnt", analysisDto.getCostPerShpmnt());
+                        statusJson.put("weightPerShmnt", analysisDto.getWeightPerShmnt());
+                        statusJson.put("costWeight", analysisDto.getCostWeight());
+
+                        returnArray.put(statusJson);
+                        statusJson = null;
+                    }
+                }
+                else {
+
+                    othersSpendDbl = othersSpendDbl + analysisDto.getSpend();
+                    othersPercSpendDbl = othersPercSpendDbl + analysisDto.getPercSpend();
+                    othersNoOfShipmentsDbl = othersNoOfShipmentsDbl + analysisDto.getNoOfShipments();
+                    othersPercShipmentsDbl = othersPercShipmentsDbl + analysisDto.getPercShipments() ;
+                    othersCostPerShpmntDbl = othersCostPerShpmntDbl + analysisDto.getCostPerShpmnt();
+                    othersWeightPerShmntDbl= othersWeightPerShmntDbl + analysisDto.getWeightPerShmnt();
+                    othersCostWeightDbl = othersCostWeightDbl + analysisDto.getCostWeight();
+
+                    if(i==spendAnalysisList.size()-1)
+                    {
+                        statusJson = new JSONObject();
+                        statusJson.put("id", analysisDto.getId());
+                        statusJson.put("name", analysisDto.getCarrierName());
+                        statusJson.put("spend", othersSpendDbl);
+                        statusJson.put("percSpend", othersPercSpendDbl);
+                        statusJson.put("noOfShipments", othersNoOfShipmentsDbl);
+                        statusJson.put("percShipments", othersPercShipmentsDbl);
+                        statusJson.put("costPerShpmnt", othersCostPerShpmntDbl);
+                        statusJson.put("weightPerShmnt", othersWeightPerShmntDbl);
+                        statusJson.put("costWeight", othersCostWeightDbl);
+
+                        returnArray.put(statusJson);
+                        statusJson = null;
+                    }
+
+                }
 
 
+            }
+            headersJson.put("id");
+            headersJson.put("name");
+            headersJson.put("spend");
+            headersJson.put("percSpend");
+            headersJson.put("noOfShipments");
+            headersJson.put("percShipments");
+            headersJson.put("costPerShpmnt");
+            headersJson.put("weightPerShmnt");
+            headersJson.put("costWeight");
 
-        return null;
+            returnJson.put("values", returnArray);
+            returnJson.put("headers",headersJson);
+
+        }
+        return returnJson;
     }
     }
 
