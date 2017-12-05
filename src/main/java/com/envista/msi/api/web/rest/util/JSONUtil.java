@@ -346,7 +346,7 @@ public class JSONUtil {
             for (int i=0;i<dataList.size();i++) {
                 CommonValuesForChartDto chartData = dataList.get(i);
 
-                if(i<10)
+                if(i<15)
                 {
                     if (chartData != null) {
                         statusJson = new JSONObject();
