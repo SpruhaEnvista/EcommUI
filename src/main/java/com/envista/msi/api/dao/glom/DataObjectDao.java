@@ -61,4 +61,18 @@ public class DataObjectDao {
         persistentContext.executeStoredProcedureGlmGeneric("SHP_GLM_INST_UPD_DATA_OBJ_PRO", queryParameter, "GLM_GENERIC_OBJ", "GLM_GENERIC_OBJ_ARRAY");
 
     }
+    public int delete(String DataObjectId) {
+
+        QueryParameter queryParameter = StoredProcedureParameter.with("P_DATA_OBJECT_ID", DataObjectId);
+
+        List<DataObjectDto> dtos = persistentContext.findEntities("DataObjectDto.delete", queryParameter);
+
+        int count = 0;
+        if (dtos != null)
+            count = dtos.size();
+
+        return count;
+
+    }
+
 }

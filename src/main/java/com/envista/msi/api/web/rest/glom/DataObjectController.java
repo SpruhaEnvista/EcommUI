@@ -75,4 +75,11 @@ public class DataObjectController {
 
         return new ResponseEntity<String>("success", HttpStatus.OK);
     }
+    @RequestMapping(value = "/delete", params = {"dataObjectId"}, method = RequestMethod.PUT)
+    public ResponseEntity<Integer> delete(@RequestParam String dataObjectId) {
+
+        int count = service.delete(dataObjectId);
+
+        return new ResponseEntity<Integer>(count, HttpStatus.OK);
+    }
 }

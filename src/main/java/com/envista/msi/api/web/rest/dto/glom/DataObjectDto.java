@@ -28,6 +28,11 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_IS_ACTIVE", type = Integer.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_DATA_OBJ_INFO", type = Void.class)
+                }),
+        @NamedStoredProcedureQuery(name = "DataObjectDto.delete", procedureName = "SHP_GLM_DEL_DATA_OBJECT_PRO",
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_DATA_OBJECT_ID", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_DATA_OBJECT_INFO", type = Void.class)
                 })
 })
 @SqlResultSetMappings({

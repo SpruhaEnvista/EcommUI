@@ -60,5 +60,8 @@ public class DataObjectService {
             }
         }.preparePaginationData(paginationFilterMap, offSet, pageSize, sortColumn);
     }
+    public int delete(String dataObjectId) {
 
+        return dao.delete(dataObjectId);
+    }
 }
