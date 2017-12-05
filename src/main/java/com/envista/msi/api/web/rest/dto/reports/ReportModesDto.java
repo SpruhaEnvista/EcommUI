@@ -29,7 +29,8 @@ import java.io.Serializable;
                                 @ColumnResult(name = "is_supports_carriers", type = Boolean.class),
                                 @ColumnResult(name = "group_under_name", type = String.class),
                                 @ColumnResult(name = "rpt_descr", type = String.class),
-                                @ColumnResult(name = "is_fav", type = Boolean.class)
+                                @ColumnResult(name = "is_fav", type = Boolean.class),
+                                @ColumnResult(name = "is_popular_report", type = Boolean.class)
                         }
                 )
         })
@@ -72,10 +73,13 @@ public class ReportModesDto implements Serializable {
     @Column(name = "is_fav")
     private boolean isFavourite;
 
+    @Column(name="is_popular_report")
+    private boolean isPopularReport;
+
     public ReportModesDto() {  }
 
     public ReportModesDto(Long rptId, String reportFileName, Integer category, Integer isConsolidated, Integer reportGroupId, String groupName,
-                          Integer groupUnder,Boolean isSupportsCarriers, String groupUnderName,String reportDescr, Boolean isFavourite) {
+                          Integer groupUnder,Boolean isSupportsCarriers, String groupUnderName,String reportDescr, Boolean isFavourite,Boolean isPopularReport) {
         this.rptId = rptId;
         this.reportFileName = reportFileName;
         this.category = category;
@@ -87,6 +91,8 @@ public class ReportModesDto implements Serializable {
         this.groupUnderName = groupUnderName;
         this.reportDescr= reportDescr;
         this.isFavourite = isFavourite;
+        this.isPopularReport=isPopularReport;
+
     }
 
     public Long getRptId() {
@@ -172,4 +178,13 @@ public class ReportModesDto implements Serializable {
     public void setFavourite(boolean favourite) {
         isFavourite = favourite;
     }
+
+    public boolean isPopularReport() {
+        return isPopularReport;
+    }
+
+    public void setPopularReport(boolean popularReport) {
+        isPopularReport = popularReport;
+    }
+
 }
