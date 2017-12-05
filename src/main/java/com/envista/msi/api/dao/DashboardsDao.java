@@ -16,6 +16,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AnnualSummaryDto
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.CarrierWiseMonthlySpendDto;
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.MonthlySpendByModeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
+import com.envista.msi.api.web.rest.dto.dashboard.carrierspend.CarrierSpendAnalysisDto;
 import com.envista.msi.api.web.rest.dto.dashboard.common.DashCustomColumnConfigDto;
 import com.envista.msi.api.web.rest.dto.dashboard.filter.DashSavedFilterDto;
 import com.envista.msi.api.web.rest.dto.dashboard.filter.UserFilterUtilityDataDto;
@@ -144,12 +145,55 @@ public class DashboardsDao {
         return persistentContext.findEntities(NetSpendByModeDto.Config.StoredProcedureQueryName.NET_SPEND_BY_CARRIER, queryParameter);
     }
 
+
+    @Transactional(readOnly = true)
+    public List<NetSpendByModeDto> getOverallSpendByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        //filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {DashboardStoredProcParam.NetSpendParams.DATE_TYPE_PARAM, DashboardStoredProcParam.NetSpendParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardStoredProcParam.NetSpendParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardStoredProcParam.NetSpendParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardStoredProcParam.NetSpendParams.CARRIER_IDS_PARAM, DashboardStoredProcParam.NetSpendParams.MODES_PARAM,
+                DashboardStoredProcParam.NetSpendParams.SERVICES_PARAM, DashboardStoredProcParam.NetSpendParams.LANES_PARAM,
+                DashboardStoredProcParam.NetSpendParams.FROM_DATE_PARAM, DashboardStoredProcParam.NetSpendParams.TO_DATE_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(NetSpendByModeDto.Config.StoredProcedureQueryName.OVERALL_SPEND_BY_MONTH, queryParameter);
+    }
+
+
+    @Transactional(readOnly = true)
+    public List<NetSpendByModeDto> getRelSpendByCarrier(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        //filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {DashboardStoredProcParam.NetSpendParams.DATE_TYPE_PARAM, DashboardStoredProcParam.NetSpendParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardStoredProcParam.NetSpendParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardStoredProcParam.NetSpendParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardStoredProcParam.NetSpendParams.CARRIER_IDS_PARAM, DashboardStoredProcParam.NetSpendParams.MODES_PARAM,
+                DashboardStoredProcParam.NetSpendParams.SERVICES_PARAM, DashboardStoredProcParam.NetSpendParams.LANES_PARAM,
+                DashboardStoredProcParam.NetSpendParams.FROM_DATE_PARAM, DashboardStoredProcParam.NetSpendParams.TO_DATE_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(NetSpendByModeDto.Config.StoredProcedureQueryName.REL_SPEND_BY_CARR, queryParameter);
+    }
+
     /**
      * @param filter
      * @param isTopTenAccessorial
      * @return
      */
     public List<NetSpendByModeDto> getNetSpendByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        filter.setTopTenAccessorial(isTopTenAccessorial);
+        String[] paramNames = {DashboardStoredProcParam.NetSpendParams.DATE_TYPE_PARAM, DashboardStoredProcParam.NetSpendParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardStoredProcParam.NetSpendParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardStoredProcParam.NetSpendParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardStoredProcParam.NetSpendParams.CARRIER_IDS_PARAM, DashboardStoredProcParam.NetSpendParams.MODES_PARAM,
+                DashboardStoredProcParam.NetSpendParams.SERVICES_PARAM, DashboardStoredProcParam.NetSpendParams.LANES_PARAM,
+                DashboardStoredProcParam.NetSpendParams.ACCESSORIAL_NAME_PARAM,
+                DashboardStoredProcParam.NetSpendParams.FROM_DATE_PARAM, DashboardStoredProcParam.NetSpendParams.TO_DATE_PARAM,
+                DashboardStoredProcParam.NetSpendParams.TOP_TEN_ACCESSORIAL_PARAM,
+                DashboardStoredProcParam.NetSpendParams.MODE_NAMES_PARAM, DashboardStoredProcParam.NetSpendParams.SCORE_TYPE_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(NetSpendByModeDto.Config.StoredProcedureQueryName.NET_SPEND_BY_MONTH, queryParameter);
+    }
+
+    public List<NetSpendByModeDto> getCarrierSpendByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
         filter.setTopTenAccessorial(isTopTenAccessorial);
         String[] paramNames = {DashboardStoredProcParam.NetSpendParams.DATE_TYPE_PARAM, DashboardStoredProcParam.NetSpendParams.CONVERTED_CURRENCY_ID_PARAM,
                 DashboardStoredProcParam.NetSpendParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardStoredProcParam.NetSpendParams.CUSTOMER_IDS_CSV_PARAM,
@@ -1553,5 +1597,18 @@ public class DashboardsDao {
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
         return persistentContext.findEntities(CarrierWiseMonthlySpendDto.Config.CarrierWiseMonthlySpend.STORED_PROCEDURE_QUERY_NAME, queryParameter);
+    }
+
+    public List<CarrierSpendAnalysisDto> getcarrSpendAnalysis(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        String[] paramNames = {DashboardStoredProcParam.DashboardFilterParams.DATE_TYPE_PARAM, DashboardStoredProcParam.DashboardFilterParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardStoredProcParam.DashboardFilterParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardStoredProcParam.DashboardFilterParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardStoredProcParam.DashboardFilterParams.CARRIER_IDS_PARAM, DashboardStoredProcParam.DashboardFilterParams.MODES_PARAM,
+                DashboardStoredProcParam.DashboardFilterParams.SERVICES_PARAM, DashboardStoredProcParam.DashboardFilterParams.LANES_PARAM,
+                DashboardStoredProcParam.DashboardFilterParams.ACCESSORIAL_NAME_PARAM,
+                DashboardStoredProcParam.DashboardFilterParams.FROM_DATE_PARAM, DashboardStoredProcParam.DashboardFilterParams.TO_DATE_PARAM,
+                DashboardStoredProcParam.DashboardFilterParams.CONVERTED_WEIGHT_UNIT_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(CarrierSpendAnalysisDto.Config.StoredProcedureQueryName.CARR_SPND_Analysis, queryParameter);
     }
 }

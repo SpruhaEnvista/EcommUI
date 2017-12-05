@@ -8,6 +8,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AnnualSummaryDto
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.CarrierWiseMonthlySpendDto;
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.MonthlySpendByModeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
+import com.envista.msi.api.web.rest.dto.dashboard.carrierspend.CarrierSpendAnalysisDto;
 import com.envista.msi.api.web.rest.dto.dashboard.common.*;
 import com.envista.msi.api.web.rest.dto.dashboard.filter.UserFilterUtilityDataDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.AccessorialSpendDto;
@@ -328,12 +329,72 @@ public class JSONUtil {
 
         if (dataList != null && dataList.size() > 0) {
             returnArray = new JSONArray();
-            for (CommonValuesForChartDto chartData : dataList) {
+            /*for (CommonValuesForChartDto chartData : dataList) {
                 if (chartData != null) {
                     statusJson = new JSONObject();
                     statusJson.put("name", chartData.getName());
                     statusJson.put("value", chartData.getValue());
                     statusJson.put("id", chartData.getId());
+
+
+                    returnArray.put(statusJson);
+                    statusJson = null;
+                }
+            }*/
+
+            for (int i=0;i<dataList.size();i++) {
+                CommonValuesForChartDto chartData = dataList.get(i);
+                Double othersSpendDbl = 0d;
+                if(i<10)
+                {
+                    if (chartData != null) {
+                        statusJson = new JSONObject();
+                        statusJson.put("name", chartData.getName());
+                        statusJson.put("value", chartData.getValue());
+                        statusJson.put("id", chartData.getId());
+
+                        returnArray.put(statusJson);
+                        statusJson = null;
+                    }
+                }
+                else {
+
+                    othersSpendDbl = othersSpendDbl + chartData.getValue();
+
+                     if(i==dataList.size()-1)
+                     {
+                         statusJson = new JSONObject();
+                         statusJson.put("name", "Others");
+                         statusJson.put("value", othersSpendDbl);
+                         statusJson.put("id", "0");
+
+                         returnArray.put(statusJson);
+                         statusJson = null;
+                     }
+
+                }
+
+
+            }
+            returnJson.put("values", returnArray);
+        }
+        return returnJson;
+    }
+
+    public static JSONObject prepareOverallSpendJsonForChart(List<CommonValuesForChartDto> dataList) throws JSONException {
+        JSONObject returnJson = new JSONObject();
+        JSONArray returnArray = null;
+        JSONObject statusJson = null;
+
+        if (dataList != null && dataList.size() > 0) {
+            returnArray = new JSONArray();
+            for (CommonValuesForChartDto chartData : dataList) {
+                if (chartData != null) {
+                    statusJson = new JSONObject();
+                    statusJson.put("name", chartData.getName());
+                    statusJson.put("value", chartData.getValue());
+                    //statusJson.put("id", chartData.getId());
+                    statusJson.put("id", chartData.getName());
 
                     returnArray.put(statusJson);
                     statusJson = null;
@@ -3339,4 +3400,13 @@ public class JSONUtil {
         }
         return returnJson;
     }
-}
+
+    public static JSONObject prepareCarrSpendAnalysisJson(List<CarrierSpendAnalysisDto> spendAnalysisList) throws JSONException {
+
+
+
+        return null;
+    }
+    }
+
+

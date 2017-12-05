@@ -16,6 +16,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AnnualSummaryDto
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.CarrierWiseMonthlySpendDto;
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.MonthlySpendByModeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
+import com.envista.msi.api.web.rest.dto.dashboard.carrierspend.CarrierSpendAnalysisDto;
 import com.envista.msi.api.web.rest.dto.dashboard.common.DashCustomColumnConfigDto;
 import com.envista.msi.api.web.rest.dto.dashboard.filter.DashSavedFilterDto;
 import com.envista.msi.api.web.rest.dto.dashboard.filter.UserFilterUtilityDataDto;
@@ -114,6 +115,14 @@ public class DashboardsService {
         return dashboardsDao.getNetSpendByCarrier(filter, isTopTenAccessorial);
     }
 
+    public List<NetSpendByModeDto> getOverallSpendByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        return dashboardsDao.getOverallSpendByMonth(filter, isTopTenAccessorial);
+    }
+
+    public List<NetSpendByModeDto> getRelSpendByCarrier(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        return dashboardsDao.getRelSpendByCarrier(filter, isTopTenAccessorial);
+    }
+
     /**
      *
      * @param filter
@@ -121,6 +130,10 @@ public class DashboardsService {
      * @return
      */
     public List<NetSpendByModeDto> getNetSpendByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        return dashboardsDao.getNetSpendByMonth(filter, isTopTenAccessorial);
+    }
+
+    public List<NetSpendByModeDto> getCarrierSpendByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
         return dashboardsDao.getNetSpendByMonth(filter, isTopTenAccessorial);
     }
 
@@ -1260,5 +1273,8 @@ public class DashboardsService {
 
     public List<CarrierWiseMonthlySpendDto> getCarrierWiseMonthlySpend(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
         return dashboardsDao.getCarrierWiseMonthlySpend(filter, isTopTenAccessorial);
+    }
+    public List<CarrierSpendAnalysisDto> getcarrSpendAnalysis(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        return dashboardsDao.getcarrSpendAnalysis(filter, isTopTenAccessorial);
     }
 }

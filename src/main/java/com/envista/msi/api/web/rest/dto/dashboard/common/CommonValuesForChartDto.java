@@ -26,6 +26,15 @@ public class CommonValuesForChartDto implements Serializable{
         this.value = netSpend.getSpend();
     }
 
+    public CommonValuesForChartDto(NetSpendByModeDto netSpend ,boolean isOverallSpend ){
+        this.id = netSpend.getCarrierId();
+        if(netSpend.getBillingDate()!=null && !"".equalsIgnoreCase(netSpend.getBillingDate()))
+        this.name = netSpend.getBillingDate();
+        else
+            this.name = netSpend.getCarrierName();
+        this.value = netSpend.getAmount();
+    }
+
     public CommonValuesForChartDto(TaxSpendDto taxSpend){
         this.id = taxSpend.getCarrierId();
         this.name = taxSpend.getName();

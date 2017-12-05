@@ -42,6 +42,9 @@ public class DashboardStoredProcParam {
     public static class NetSpendParams extends DashboardFilterParams {
         public static final String NET_SPEND_PARAM = "p_net_spend";
     }
+    public static class RelSpendParams extends DashboardFilterParams {
+        public static final String REL_SPEND_PARAM = "p_cursor";
+    }
 
     public static class TaxSpendParams extends DashboardFilterParams {
         public static final String TAX_SPEND_PARAM = "p_tax_spend";
