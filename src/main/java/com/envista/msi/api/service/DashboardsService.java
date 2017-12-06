@@ -753,14 +753,14 @@ public class DashboardsService {
 
         //headersDtMap.put("id","NUMBER"); // Long
         headersDtMap.put("Carrier","String");
-        headersDtMap.put("Spend","NUMBER");
+        headersDtMap.put("Spend","String");
         headersDtMap.put("% of Total Spend","String");
-        headersDtMap.put("# of Shipments","NUMBER");
+        headersDtMap.put("# of Shipments","String");
         headersDtMap.put("% of Total Shpts","String");
-        headersDtMap.put("Total Weight","NUMBER");
-        headersDtMap.put("Cost/Shipment","NUMBER");
-        headersDtMap.put("Weight/Shipment","NUMBER");
-        headersDtMap.put("Cost/Weight","NUMBER");
+        headersDtMap.put("Total Weight","String");
+        headersDtMap.put("Cost/Shipment","String");
+        headersDtMap.put("Weight/Shipment","String");
+        headersDtMap.put("Cost/Weight","String");
 
         //headersPropMap.put("id","id"); // Long
         headersPropMap.put("Carrier","Carrier");
