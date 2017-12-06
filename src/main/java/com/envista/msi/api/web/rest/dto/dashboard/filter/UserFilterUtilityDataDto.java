@@ -262,7 +262,7 @@ public class UserFilterUtilityDataDto implements Serializable {
         }
 
         static class StoredProcedureName{
-            static final String CARRIER_BY_CUSTOMER = "SHP_DB_CARR_BY_CUSTOMER_PROC_T";
+            static final String CARRIER_BY_CUSTOMER = "SHP_DB_CARR_BY_CUSTOMER_PROC";
             static final String MODES_BY_CARRIER = "SHP_DB_MODES_BY_CARR_PROC";
             static final String SERVICE_BY_GROUP = "SHP_DB_SERVICE_BY_GROUP_PROC";
             static final String CARRIER_BY_IDS = "SHP_DB_CARRIERS_BY_IDS_PROC";

@@ -130,7 +130,7 @@ public class JSONUtil {
                 if (netSpendDto != null && netSpendDto.getSpend() != 0) {
                     String mode = netSpendDto.getModes();
                     String scoreType = netSpendDto.getScoreType();
-                    Double spend = Math.rint(netSpendDto.getSpend());
+                    Double spend = ((double) Math.round(netSpendDto.getSpend()));
 
                     if (!scortypeList.contains(scoreType)) {
                         scortypeList.add(scoreType);
@@ -204,7 +204,7 @@ public class JSONUtil {
                     String billDate = overTimeDto.getBillingDate();
                     String carrierName = overTimeDto.getCarrierName();
                     long carrierId = overTimeDto.getCarrierId();
-                    Double spend = Math.rint(overTimeDto.getNetCharges());
+                    Double spend = ((double) Math.round(overTimeDto.getNetCharges()));
 
                     if (spend != 0) {
                         String concatCarrier = carrierId + "#@#" + carrierName;
@@ -290,7 +290,7 @@ public class JSONUtil {
             for (NetSpendCommonDto taxSpend : spendList) {
                 if (taxSpend != null) {
                     String spendTypeName = taxSpend.getSpendTypeName();
-                    Double spend = Math.rint(taxSpend.getSpend());
+                    Double spend = ((double) Math.round(taxSpend.getSpend()));
                     if (spend > 0) {
                         if (spendMap.containsKey(spendTypeName)) {
                             double spendAmount = spendMap.get(spendTypeName);
@@ -307,7 +307,7 @@ public class JSONUtil {
             Iterator<String> taxIterator = spendMap.keySet().iterator();
             while (taxIterator.hasNext()) {
                 String tax = taxIterator.next();
-                double spend = Math.rint(spendMap.get(tax));
+                double spend = Math.round(spendMap.get(tax));
 
                 JSONObject taxesJson = new JSONObject();
                 taxesJson.put("name", tax);
@@ -344,7 +344,7 @@ public class JSONUtil {
                 if (chartData != null) {
                     statusJson = new JSONObject();
                     statusJson.put("name", chartData.getName());
-                    statusJson.put("value", manipulateValue ? Math.rint(chartData.getValue()) : chartData.getValue());
+                    statusJson.put("value", manipulateValue ? Math.round(chartData.getValue()) : chartData.getValue());
                     statusJson.put("id", chartData.getId());
 
                     returnArray.put(statusJson);
@@ -390,7 +390,7 @@ public class JSONUtil {
                 if (chartData != null) {
                     statusJson = new JSONObject();
                     statusJson.put("name", chartData.getName());
-                    statusJson.put("value", Math.rint(chartData.getValue()));
+                    statusJson.put("value", Math.round(chartData.getValue()));
                     statusJson.put("id", chartData.getInvoiceMethodId());
 
                     returnArray.put(statusJson);
@@ -419,7 +419,7 @@ public class JSONUtil {
                 if (accSpend != null) {
                     String billDate = accSpend.getBillDate();
                     String service = accSpend.getAccessorialName();
-                    Double spend = Math.rint(accSpend.getSpend());
+                    Double spend = ((double) Math.round(accSpend.getSpend()));
 
                     if (spend != 0) {
 
@@ -748,7 +748,7 @@ public class JSONUtil {
                 if (spendDto != null) {
                     String billDate = spendDto.getBillingDate();
                     String carrierScacCode = spendDto.getCarrierName();
-                    Double spend = Math.rint(spendDto.getNetDueAmount());
+                    Double spend = ((double) Math.round(spendDto.getNetDueAmount()));
                     Long carrierId = spendDto.getCarrierId();
                     String carrierIaAndName = carrierId + "#@#" + carrierScacCode;
                     if (!carriersList.contains(carrierIaAndName)) {
@@ -871,9 +871,9 @@ public class JSONUtil {
                     statusJson = new JSONObject();
                     statusJson.put("id", billedVsApproved.getCarrierId());
                     statusJson.put("name", billedVsApproved.getCarrierName());
-                    statusJson.put("Billed", Math.rint(billedVsApproved.getBilledAmount()));
-                    statusJson.put("Approved", Math.rint(billedVsApproved.getApprovedAmount()));
-                    statusJson.put("Recovered", Math.rint(billedVsApproved.getRecoveredAmount()));
+                    statusJson.put("Billed", Math.round(billedVsApproved.getBilledAmount()));
+                    statusJson.put("Approved", Math.round(billedVsApproved.getApprovedAmount()));
+                    statusJson.put("Recovered", Math.round(billedVsApproved.getRecoveredAmount()));
 
                     returnArray.put(statusJson);
                     statusJson = null;
@@ -898,7 +898,7 @@ public class JSONUtil {
                 if (recoveryAdjustment != null) {
                     String month = recoveryAdjustment.getMonth();
                     String service = recoveryAdjustment.getService();
-                    Double spend = Math.rint(recoveryAdjustment.getSpend());
+                    Double spend = ((double) Math.round(recoveryAdjustment.getSpend()));
 
                     if (spend != 0) {
                         if (!servicesList.contains(service)) {
@@ -983,7 +983,7 @@ public class JSONUtil {
                     String service = recoveryService.getBucketType();
                     String carrierName = recoveryService.getCarrierName();
                     Long carrierId = recoveryService.getCarrierId();
-                    Double spend = Math.rint(recoveryService.getCreditAmount());
+                    Double spend = ((double) Math.round(recoveryService.getCreditAmount()));
                     carrierMap.put(carrierName, carrierId);
                     if (spend != null && spend != 0) {
                         String concatCarrier = carrierId + "#@#" + carrierName;
@@ -1260,7 +1260,7 @@ public class JSONUtil {
                     }
 
                     dataArray.put(dateInMilliSecs);
-                    dataArray.put(manipulateAmount ? Math.rint(monthlyChartDto.getAmount()) : monthlyChartDto.getAmount());
+                    dataArray.put(manipulateAmount ? Math.round(monthlyChartDto.getAmount()) : monthlyChartDto.getAmount());
                     returnArray.put(dataArray);
                     if (count == 0) {
                         fromDate = dateInMilliSecs;
@@ -2447,7 +2447,7 @@ public class JSONUtil {
         if (commaSeperatedFields.contains(columnName)) {
             try {
                 if (val != null) {
-                    value = commaSeperatedDecimalFormat.format(Math.rint(Double.parseDouble(val.toString())));
+                    value = commaSeperatedDecimalFormat.format(Math.round(Double.parseDouble(val.toString())));
                 }
             } catch (Exception e) {
                 value = val != null ? val.toString() : "";
@@ -2455,7 +2455,7 @@ public class JSONUtil {
         } else {
             try {
                 if (val != null) {
-                    value = String.valueOf(Math.rint(Double.parseDouble(val.toString())));
+                    value = String.valueOf(Math.round(Double.parseDouble(val.toString())));
                 }
             } catch (Exception e) {
                 value = val != null ? val.toString() : "";
@@ -2476,8 +2476,8 @@ public class JSONUtil {
                 if (weightDto != null) {
                     JSONObject monthWiseObj = new JSONObject();
                     monthWiseObj.put("name", weightDto.getBillingDate());
-                    monthWiseObj.put("Actual Weight", Math.rint(weightDto.getActualWeight()));
-                    monthWiseObj.put("Bill Weight", Math.rint(weightDto.getBilledWeight()));
+                    monthWiseObj.put("Actual Weight", Math.round(weightDto.getActualWeight()));
+                    monthWiseObj.put("Bill Weight", Math.round(weightDto.getBilledWeight()));
                     valuesArray.put(monthWiseObj);
                 }
             }
@@ -2507,8 +2507,8 @@ public class JSONUtil {
                     JSONObject wtJson = new JSONObject();
                     wtJson.put("id", weightDto.getCarrierId());
                     wtJson.put("name", weightDto.getCarrierName());
-                    wtJson.put("Actual", Math.rint(weightDto.getActualWeight()));
-                    wtJson.put("Billed", Math.rint(weightDto.getBilledWeight()));
+                    wtJson.put("Actual", Math.round(weightDto.getActualWeight()));
+                    wtJson.put("Billed", Math.round(weightDto.getBilledWeight()));
                     weightJsonArr.put(wtJson);
                 }
             }
@@ -2530,8 +2530,8 @@ public class JSONUtil {
                     JSONArray dataArray = new JSONArray();
                     long dateInMilliSecs = weightDto.getBillDate() != null ? weightDto.getBillDate().getTime() : 0L;
                     dataArray.put(dateInMilliSecs);
-                    dataArray.put(Math.rint(weightDto.getActualWeight()));
-                    dataArray.put(Math.rint(weightDto.getBilledWeight()));
+                    dataArray.put(Math.round(weightDto.getActualWeight()));
+                    dataArray.put(Math.round(weightDto.getBilledWeight()));
 
                     returnArray.put(dataArray);
                     if (count == 0) {
