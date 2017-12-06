@@ -2590,6 +2590,38 @@ public class DashboardsController extends DashboardBaseController {
 
     }
 
+    @RequestMapping(value = "/exportCarrSpendAnalysis", method = {RequestMethod.GET}, produces = "application/text")
+    public @ResponseBody void exportCarrSpendAnalysis(@RequestParam(required = false) String invoiceDate, @RequestParam(required = false) String dashletteName, @RequestParam(required = false) String carrierId,
+                                                      @RequestParam(required = false) String mode, @RequestParam(required = false) String carscoretype, @RequestParam(required = false) String service,
+                                                      @RequestParam(required = false, defaultValue = "0") Integer offset, @RequestParam(required = false, defaultValue = "1000") Integer limit,
+                                                      @RequestParam(required = false, defaultValue = "1000") Integer totalRecordCount,
+                                                      @RequestParam(required = false) String filter, HttpServletResponse response) throws Exception {
+
+        JSONObject nspData = null;
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filterCriteria = loadAppliedFilters(user.getUserId());
+        List<CarrierSpendAnalysisDto> spendAnalysisList = dashboardsService.getcarrSpendAnalysis(filterCriteria, false);
+        if(spendAnalysisList != null && !spendAnalysisList.isEmpty()){
+            nspData = JSONUtil.prepareCarrSpendAnalysisJson(spendAnalysisList);
+        }
+
+        Workbook workbook = null;
+
+        JSONArray dataJSONArray = (JSONArray) nspData.get("values");
+        String fileName="CarrSpendAnalysis";
+
+        workbook = dashboardsService.getExportCarrSpendAnalysis(dataJSONArray,fileName);
+
+        response.setContentType("application/text");
+        response.setHeader("Content-Disposition", "attachment; filename="+fileName+".xlsx");
+
+        if (workbook != null) {
+            workbook.write(response.getOutputStream());
+            workbook.close();
+        }
+
+    }
+
     private DashboardsFilterCriteria getDashboardsFilterCriteria(@RequestParam(required = false) String invoiceDate, @RequestParam(required = false) String dashletteName, @RequestParam(required = false) String carrierId, @RequestParam(required = false) String mode, @RequestParam(required = false) String carscoretype, @RequestParam(required = false) String service, UserProfileDto userProfileDto) throws Exception {
         DashboardsFilterCriteria appliedFilter = loadAppliedFilters(userProfileDto.getUserId());
         if (appliedFilter != null) {
@@ -3599,4 +3631,7 @@ public class DashboardsController extends DashboardBaseController {
         }
         return new ResponseEntity<String>(nspData != null ? nspData.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
+
+
+
 }

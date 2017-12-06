@@ -21,7 +21,7 @@ import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.*;
 
 /**
  * This utility class is specially designed to keep all methods which are commonly used/to be used over different module in Avatar project.
@@ -248,6 +248,78 @@ public class CommonUtil {
                // workbook.close();
             }
         }
+        return workbook;
+    }
+
+
+    public static Workbook generateXlsxFromJson(JSONArray dataJSONArray, Map<String,String> headersDtMap, Map<String,String> headersPropMap, String sheetname ) throws Exception {
+
+        SXSSFWorkbook workbook = new SXSSFWorkbook(100);
+        Sheet sheet = null;
+        Row row = null;
+        Cell cell = null;
+
+        try {
+
+            int rowCount = 0;
+
+            sheet = workbook.createSheet(sheetname);
+            CreationHelper createHelper = workbook.getCreationHelper();
+            CellStyle cellStyle[] = new CellStyle[headersDtMap.size()];
+
+            // Excel row with headers with cell format
+            row = sheet.createRow(rowCount++);
+            Set<String> headersSet =  headersDtMap.keySet();
+            String[] headerarray = new String[headersSet.size()];
+            headersSet.toArray(headerarray);
+
+            for (int i = 1; i <=headersDtMap.size(); i++) {
+                cell = row.createCell(i - 1);
+                if(headersDtMap != null )
+                    cell.setCellValue(headerarray[i-1]);
+
+                    /*cellStyle[i - 1] = workbook.createCellStyle();
+                    cellStyle[i - 1].setDataFormat(createHelper.createDataFormat().getFormat(headersDtMap.get(i)));*/
+
+                sheet.setDefaultColumnWidth(15);
+            }
+
+            for (int j = 1; j <=dataJSONArray.length(); j++)  {
+
+                JSONObject carrJson = (JSONObject)dataJSONArray.get(j-1);
+                if (carrJson != null) {
+                    row = sheet.createRow(rowCount++);
+                    for (int i = 1; i <= headerarray.length; i++) {
+                        String headerKey = headerarray[i-1];
+                        String propertyKey = headersPropMap.get(headerKey);
+                        String headerDataType = headersDtMap.get(headerKey);
+                        cell = row.createCell(i - 1);
+                        String cellValueStr="";
+                        Integer cellValueInteger=null;
+
+                        cell.setCellValue(carrJson.getString(propertyKey));
+                        if("NUMBER".equalsIgnoreCase(headerDataType))
+                        {
+                            cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+                        }
+                        else{
+                            cell.setCellType(Cell.CELL_TYPE_STRING);
+                        }
+
+                    }//End of each Cell
+
+                }//End of carrJson
+
+            } // End Of ResultSet
+
+
+            //workbook.dispose(); // we have to check whether it will not cause problem when streaming to browser.
+        } catch (Exception e) {
+            throw e;
+        } finally {
+
+        }
+
         return workbook;
     }
 

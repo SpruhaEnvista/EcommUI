@@ -746,6 +746,49 @@ public class DashboardsService {
         }
 
 
+    public Workbook getExportCarrSpendAnalysis(JSONArray dataJSONArray,String fileName) throws Exception {
+
+        Map<String,String> headersDtMap = new LinkedHashMap(); // Headers and Dtataypes
+        Map<String,String> headersPropMap = new LinkedHashMap();
+
+        //headersDtMap.put("id","NUMBER"); // Long
+        headersDtMap.put("Carrier","String");
+        headersDtMap.put("Spend","NUMBER");
+        headersDtMap.put("% of Total Spend","NUMBER");
+        headersDtMap.put("# of Shipments","NUMBER");
+        headersDtMap.put("% of Total Shpts","NUMBER");
+        headersDtMap.put("Total Weight","NUMBER");
+        headersDtMap.put("Cost/Shipment","NUMBER");
+        headersDtMap.put("Weight/Shipment","NUMBER");
+        headersDtMap.put("Cost/Weight","NUMBER");
+
+        //headersPropMap.put("id","id"); // Long
+        headersPropMap.put("Carrier","Carrier");
+        headersPropMap.put("Spend","Spend");
+        headersPropMap.put("% of Total Spend","% of Total Spend");
+        headersPropMap.put("# of Shipments","# of Shipments");
+        headersPropMap.put("% of Total Shpts","% of Total Shpts");
+        headersPropMap.put("Total Weight","Total Weight");
+        headersPropMap.put("Cost/Shipment","Cost/Shipment");
+        headersPropMap.put("Weight/Shipment","Weight/Shipment");
+        headersPropMap.put("Cost/Weight","Cost/Weight");
+
+       /* headersPropMap.put("id","id"); // Long
+        headersPropMap.put("Carrier","name");
+        headersPropMap.put("Spend","spend");
+        headersPropMap.put("% of Total Spend","percSpend");
+        headersPropMap.put("# of Shipments","noOfShipments");
+        headersPropMap.put("% of Total Shpts","percShipments");
+        headersPropMap.put("Total Weight","totalWeight");
+        headersPropMap.put("Cost/Shipment","costPerShpmnt");
+        headersPropMap.put("Weight/Shipment","weightPerShmnt");
+        headersPropMap.put("Cost/Weight","costWeight");*/
+
+        return CommonUtil. generateXlsxFromJson(dataJSONArray,headersDtMap,headersPropMap,fileName);
+
+
+
+    }
 
 
     /**

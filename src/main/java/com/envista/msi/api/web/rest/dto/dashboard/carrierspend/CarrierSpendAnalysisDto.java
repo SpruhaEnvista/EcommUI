@@ -42,6 +42,7 @@ import java.util.Date;
                                 @ColumnResult(name = "perc_spend", type = Double.class),
                                 @ColumnResult(name = "no_of_shipments", type = Double.class),
                                 @ColumnResult(name = "Perc_Shipments", type = Double.class),
+                                @ColumnResult(name = "total_weight", type = Double.class),
                                 @ColumnResult(name = "cost_per_shpmnt", type = Double.class),
                                 @ColumnResult(name = "weight_per_shmnt", type = Double.class),
                                 @ColumnResult(name = "cost_weight", type = Double.class)
@@ -74,6 +75,10 @@ public class CarrierSpendAnalysisDto implements Serializable {
     private Double percShipments;
 
 
+
+    @Column(name = "total_weight")
+    private Double totalWeight;
+
     @Column(name = "cost_per_shpmnt")
     private Double costPerShpmnt;
 
@@ -90,13 +95,14 @@ public class CarrierSpendAnalysisDto implements Serializable {
     public CarrierSpendAnalysisDto(){}
 
     public CarrierSpendAnalysisDto(Long id, String carrierName, Double spend,Double percSpend,
-    Double noOfShipments,Double percShipments,Double costPerShpmnt,Double weightPerShmnt,Double costWeight) {
+    Double noOfShipments,Double percShipments,Double totalWeight,Double costPerShpmnt,Double weightPerShmnt,Double costWeight) {
         this.id = id;
         this.carrierName = carrierName;
         this.spend = spend;
         this.percSpend = percSpend;
         this.noOfShipments = noOfShipments;
         this.percShipments = percShipments;
+        this.totalWeight = totalWeight ;
         this.costPerShpmnt = costPerShpmnt;
         this.weightPerShmnt = weightPerShmnt;
         this.costWeight = costWeight;
@@ -173,6 +179,14 @@ public class CarrierSpendAnalysisDto implements Serializable {
 
     public void setCostWeight(Double costWeight) {
         this.costWeight = costWeight;
+    }
+
+    public Double getTotalWeight() {
+        return totalWeight;
+    }
+
+    public void setTotalWeight(Double totalWeight) {
+        this.totalWeight = totalWeight;
     }
 
     public static class Config{

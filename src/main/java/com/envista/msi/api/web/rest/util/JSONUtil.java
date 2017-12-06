@@ -3470,29 +3470,74 @@ public class JSONUtil {
         if (spendAnalysisList != null && spendAnalysisList.size() > 0) {
             returnArray = new JSONArray();
 
+            Double othersSpendDbl = 0d;
+            Double othersPercSpendDbl = 0d;
+            Double othersNoOfShipmentsDbl = 0d;
+            Double othersPercShipmentsDbl = 0d;
+            Double othersTotalWeightDbl = 0d;
+            Double othersCostPerShpmntDbl = 0d;
+            Double othersWeightPerShmntDbl = 0d;
+            Double othersCostWeightDbl = 0d;
+
+            Double NonothersSpendDbl = 0d;
+            Double NonothersPercSpendDbl = 0d;
+            Double NonothersNoOfShipmentsDbl = 0d;
+            Double NonothersPercShipmentsDbl = 0d;
+            Double NonothersTotalWeightDbl = 0d;
+            Double NonothersCostPerShpmntDbl = 0d;
+            Double NonothersWeightPerShmntDbl = 0d;
+            Double NonothersCostWeightDbl = 0d;
+
+
+
             for (int i=0;i<spendAnalysisList.size();i++) {
                 CarrierSpendAnalysisDto analysisDto = spendAnalysisList.get(i);
-                Double othersSpendDbl = 0d;
-                Double othersPercSpendDbl = 0d;
-                Double othersNoOfShipmentsDbl = 0d;
-                Double othersPercShipmentsDbl = 0d;
-                Double othersCostPerShpmntDbl = 0d;
-                Double othersWeightPerShmntDbl = 0d;
-                Double othersCostWeightDbl = 0d;
 
-                if(i<10)
+                /*headersDtMap.put("Carrier","String");
+                headersDtMap.put("Spend","NUMBER");
+                headersDtMap.put("% of Total Spend","NUMBER");
+                headersDtMap.put("# of Shipments","NUMBER");
+                headersDtMap.put("% of Total Shpts","NUMBER");
+                headersDtMap.put("Total Weight","NUMBER");
+                headersDtMap.put("Cost/Shipment","NUMBER");
+                headersDtMap.put("Weight/Shipment","NUMBER");
+                headersDtMap.put("Cost/Weight","NUMBER");*/
+
+                /*statusJson.put("id", analysisDto.getId());
+                statusJson.put("name", analysisDto.getCarrierName());
+                statusJson.put("spend", analysisDto.getSpend());
+                statusJson.put("percSpend", analysisDto.getPercSpend());
+                statusJson.put("noOfShipments", analysisDto.getNoOfShipments());
+                statusJson.put("percShipments", analysisDto.getPercShipments());
+                statusJson.put("totalWeight", analysisDto.getTotalWeight());
+                statusJson.put("costPerShpmnt", analysisDto.getCostPerShpmnt());
+                statusJson.put("weightPerShmnt", analysisDto.getWeightPerShmnt());
+                statusJson.put("costWeight", analysisDto.getCostWeight());*/
+
+                if(i<15)
                 {
                     if (analysisDto != null) {
                         statusJson = new JSONObject();
                         statusJson.put("id", analysisDto.getId());
-                        statusJson.put("name", analysisDto.getCarrierName());
-                        statusJson.put("spend", analysisDto.getSpend());
-                        statusJson.put("percSpend", analysisDto.getPercSpend());
-                        statusJson.put("noOfShipments", analysisDto.getNoOfShipments());
-                        statusJson.put("percShipments", analysisDto.getPercShipments());
-                        statusJson.put("costPerShpmnt", analysisDto.getCostPerShpmnt());
-                        statusJson.put("weightPerShmnt", analysisDto.getWeightPerShmnt());
-                        statusJson.put("costWeight", analysisDto.getCostWeight());
+                        statusJson.put("Carrier", analysisDto.getCarrierName());
+                        statusJson.put("Spend", analysisDto.getSpend());
+                        statusJson.put("% of Total Spend", analysisDto.getPercSpend());
+                        statusJson.put("# of Shipments", analysisDto.getNoOfShipments());
+                        statusJson.put("% of Total Shpts", analysisDto.getPercShipments());
+                        statusJson.put("Total Weight", analysisDto.getTotalWeight());
+                        statusJson.put("Cost/Shipment", analysisDto.getCostPerShpmnt());
+                        statusJson.put("Weight/Shipment", analysisDto.getWeightPerShmnt());
+                        statusJson.put("Cost/Weight", analysisDto.getCostWeight());
+
+                        NonothersSpendDbl = NonothersSpendDbl + analysisDto.getSpend();
+                        NonothersPercSpendDbl = NonothersPercSpendDbl + analysisDto.getPercSpend();
+                        NonothersNoOfShipmentsDbl = NonothersNoOfShipmentsDbl + analysisDto.getNoOfShipments();
+                        NonothersPercShipmentsDbl = NonothersPercShipmentsDbl + analysisDto.getPercShipments() ;
+
+                        NonothersTotalWeightDbl = NonothersTotalWeightDbl + analysisDto.getTotalWeight();
+                        NonothersCostPerShpmntDbl = NonothersCostPerShpmntDbl + analysisDto.getCostPerShpmnt();
+                        NonothersWeightPerShmntDbl= NonothersWeightPerShmntDbl + analysisDto.getWeightPerShmnt();
+                        NonothersCostWeightDbl = NonothersCostWeightDbl + analysisDto.getCostWeight();
 
                         returnArray.put(statusJson);
                         statusJson = null;
@@ -3504,6 +3549,8 @@ public class JSONUtil {
                     othersPercSpendDbl = othersPercSpendDbl + analysisDto.getPercSpend();
                     othersNoOfShipmentsDbl = othersNoOfShipmentsDbl + analysisDto.getNoOfShipments();
                     othersPercShipmentsDbl = othersPercShipmentsDbl + analysisDto.getPercShipments() ;
+
+                    othersTotalWeightDbl = othersTotalWeightDbl + analysisDto.getTotalWeight();
                     othersCostPerShpmntDbl = othersCostPerShpmntDbl + analysisDto.getCostPerShpmnt();
                     othersWeightPerShmntDbl= othersWeightPerShmntDbl + analysisDto.getWeightPerShmnt();
                     othersCostWeightDbl = othersCostWeightDbl + analysisDto.getCostWeight();
@@ -3511,18 +3558,36 @@ public class JSONUtil {
                     if(i==spendAnalysisList.size()-1)
                     {
                         statusJson = new JSONObject();
-                        statusJson.put("id", analysisDto.getId());
-                        statusJson.put("name", analysisDto.getCarrierName());
-                        statusJson.put("spend", othersSpendDbl);
-                        statusJson.put("percSpend", othersPercSpendDbl);
-                        statusJson.put("noOfShipments", othersNoOfShipmentsDbl);
-                        statusJson.put("percShipments", othersPercShipmentsDbl);
-                        statusJson.put("costPerShpmnt", othersCostPerShpmntDbl);
-                        statusJson.put("weightPerShmnt", othersWeightPerShmntDbl);
-                        statusJson.put("costWeight", othersCostWeightDbl);
+                        statusJson.put("id", 0);
+                        statusJson.put("Carrier", "Others");
+                        statusJson.put("Spend", othersSpendDbl);
+                        statusJson.put("% of Total Spend", othersPercSpendDbl);
+                        statusJson.put("# of Shipments", othersNoOfShipmentsDbl);
+                        statusJson.put("% of Total Shpts", othersPercShipmentsDbl);
+                        statusJson.put("Total Weight", othersTotalWeightDbl);
+                        statusJson.put("Cost/Shipment", othersCostPerShpmntDbl);
+                        statusJson.put("Weight/Shipment", othersWeightPerShmntDbl);
+                        statusJson.put("Cost/Weight", othersCostWeightDbl);
 
                         returnArray.put(statusJson);
                         statusJson = null;
+
+                        // Add Total row of Pivot Table
+                        statusJson = new JSONObject();
+                        statusJson.put("id", -1);
+                        statusJson.put("Carrier", "Total");
+                        statusJson.put("Spend", NonothersSpendDbl+ othersSpendDbl);
+                        statusJson.put("% of Total Spend", NonothersPercSpendDbl+othersPercSpendDbl);
+                        statusJson.put("# of Shipments", NonothersNoOfShipmentsDbl+othersNoOfShipmentsDbl);
+                        statusJson.put("% of Total Shpts", NonothersPercShipmentsDbl+othersPercShipmentsDbl);
+                        statusJson.put("Total Weight", NonothersTotalWeightDbl+othersTotalWeightDbl);
+                        statusJson.put("Cost/Shipment", NonothersCostPerShpmntDbl+othersCostPerShpmntDbl);
+                        statusJson.put("Weight/Shipment", NonothersWeightPerShmntDbl+othersWeightPerShmntDbl);
+                        statusJson.put("Cost/Weight", NonothersCostWeightDbl+othersCostWeightDbl);
+
+                        returnArray.put(statusJson);
+                        statusJson = null;
+
                     }
 
                 }
@@ -3530,14 +3595,15 @@ public class JSONUtil {
 
             }
             headersJson.put("id");
-            headersJson.put("name");
-            headersJson.put("spend");
-            headersJson.put("percSpend");
-            headersJson.put("noOfShipments");
-            headersJson.put("percShipments");
-            headersJson.put("costPerShpmnt");
-            headersJson.put("weightPerShmnt");
-            headersJson.put("costWeight");
+            headersJson.put("Carrier");
+            headersJson.put("Spend");
+            headersJson.put("% of Total Spend");
+            headersJson.put("# of Shipments");
+            headersJson.put("% of Total Shpts");
+            headersJson.put("Total Weight");
+            headersJson.put("Cost/Shipment");
+            headersJson.put("Weight/Shipment");
+            headersJson.put("Cost/Weight");
 
             returnJson.put("values", returnArray);
             returnJson.put("headers",headersJson);
