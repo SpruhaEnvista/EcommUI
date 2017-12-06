@@ -275,8 +275,13 @@ public class CommonUtil {
 
             for (int i = 1; i <=headersDtMap.size(); i++) {
                 cell = row.createCell(i - 1);
+                CellStyle style = workbook.createCellStyle();//Create style
+                Font font = workbook.createFont();//Create font
+                font.setBoldweight(Font.BOLDWEIGHT_BOLD);//Make font bold
+                style.setFont(font);//set it to bold
                 if(headersDtMap != null )
                     cell.setCellValue(headerarray[i-1]);
+                    cell.setCellStyle(style);
 
                     /*cellStyle[i - 1] = workbook.createCellStyle();
                     cellStyle[i - 1].setDataFormat(createHelper.createDataFormat().getFormat(headersDtMap.get(i)));*/
@@ -298,6 +303,7 @@ public class CommonUtil {
                         Integer cellValueInteger=null;
 
                         cell.setCellValue(carrJson.getString(propertyKey));
+
                         if("NUMBER".equalsIgnoreCase(headerDataType))
                         {
                             cell.setCellType(Cell.CELL_TYPE_NUMERIC);
