@@ -3520,14 +3520,14 @@ public class JSONUtil {
                         statusJson = new JSONObject();
                         statusJson.put("id", analysisDto.getId());
                         statusJson.put("Carrier", analysisDto.getCarrierName());
-                        statusJson.put("Spend", analysisDto.getSpend());
-                        statusJson.put("% of Total Spend", analysisDto.getPercSpend());
-                        statusJson.put("# of Shipments", analysisDto.getNoOfShipments());
-                        statusJson.put("% of Total Shpts", analysisDto.getPercShipments());
-                        statusJson.put("Total Weight", analysisDto.getTotalWeight());
-                        statusJson.put("Cost/Shipment", analysisDto.getCostPerShpmnt());
-                        statusJson.put("Weight/Shipment", analysisDto.getWeightPerShmnt());
-                        statusJson.put("Cost/Weight", analysisDto.getCostWeight());
+                        statusJson.put("Spend", commaSeperatedDecimalFormat.format(analysisDto.getSpend()));
+                        statusJson.put("% of Total Spend", commaSeperatedDecimalFormat.format(analysisDto.getPercSpend())+"%");
+                        statusJson.put("# of Shipments", commaSeperatedDecimalFormat.format(analysisDto.getNoOfShipments()));
+                        statusJson.put("% of Total Shpts", commaSeperatedDecimalFormat.format(analysisDto.getPercShipments())+"%");
+                        statusJson.put("Total Weight", commaSeperatedDecimalFormat.format(analysisDto.getTotalWeight()));
+                        statusJson.put("Cost/Shipment", commaSeperatedDecimalFormat.format(analysisDto.getCostPerShpmnt()));
+                        statusJson.put("Weight/Shipment", commaSeperatedDecimalFormat.format(analysisDto.getWeightPerShmnt()));
+                        statusJson.put("Cost/Weight", commaSeperatedDecimalFormat.format(analysisDto.getCostWeight()));
 
                         NonothersSpendDbl = NonothersSpendDbl + analysisDto.getSpend();
                         NonothersPercSpendDbl = NonothersPercSpendDbl + analysisDto.getPercSpend();
@@ -3560,14 +3560,14 @@ public class JSONUtil {
                         statusJson = new JSONObject();
                         statusJson.put("id", 0);
                         statusJson.put("Carrier", "Others");
-                        statusJson.put("Spend", othersSpendDbl);
-                        statusJson.put("% of Total Spend", othersPercSpendDbl);
-                        statusJson.put("# of Shipments", othersNoOfShipmentsDbl);
-                        statusJson.put("% of Total Shpts", othersPercShipmentsDbl);
-                        statusJson.put("Total Weight", othersTotalWeightDbl);
-                        statusJson.put("Cost/Shipment", othersCostPerShpmntDbl);
-                        statusJson.put("Weight/Shipment", othersWeightPerShmntDbl);
-                        statusJson.put("Cost/Weight", othersCostWeightDbl);
+                        statusJson.put("Spend", commaSeperatedDecimalFormat.format(othersSpendDbl));
+                        statusJson.put("% of Total Spend", commaSeperatedDecimalFormat.format(othersPercSpendDbl)+"%");
+                        statusJson.put("# of Shipments", commaSeperatedDecimalFormat.format(othersNoOfShipmentsDbl));
+                        statusJson.put("% of Total Shpts", commaSeperatedDecimalFormat.format(othersPercShipmentsDbl)+"%");
+                        statusJson.put("Total Weight", commaSeperatedDecimalFormat.format(othersTotalWeightDbl));
+                        statusJson.put("Cost/Shipment", commaSeperatedDecimalFormat.format(othersCostPerShpmntDbl));
+                        statusJson.put("Weight/Shipment", commaSeperatedDecimalFormat.format(othersWeightPerShmntDbl));
+                        statusJson.put("Cost/Weight", commaSeperatedDecimalFormat.format(othersCostWeightDbl));
 
                         returnArray.put(statusJson);
                         statusJson = null;
@@ -3576,14 +3576,14 @@ public class JSONUtil {
                         statusJson = new JSONObject();
                         statusJson.put("id", -1);
                         statusJson.put("Carrier", "Total");
-                        statusJson.put("Spend", NonothersSpendDbl+ othersSpendDbl);
-                        statusJson.put("% of Total Spend", NonothersPercSpendDbl+othersPercSpendDbl);
-                        statusJson.put("# of Shipments", NonothersNoOfShipmentsDbl+othersNoOfShipmentsDbl);
-                        statusJson.put("% of Total Shpts", NonothersPercShipmentsDbl+othersPercShipmentsDbl);
-                        statusJson.put("Total Weight", NonothersTotalWeightDbl+othersTotalWeightDbl);
-                        statusJson.put("Cost/Shipment", NonothersCostPerShpmntDbl+othersCostPerShpmntDbl);
-                        statusJson.put("Weight/Shipment", NonothersWeightPerShmntDbl+othersWeightPerShmntDbl);
-                        statusJson.put("Cost/Weight", NonothersCostWeightDbl+othersCostWeightDbl);
+                        statusJson.put("Spend", commaSeperatedDecimalFormat.format(NonothersSpendDbl+ othersSpendDbl));
+                        statusJson.put("% of Total Spend", commaSeperatedDecimalFormat.format(NonothersPercSpendDbl+othersPercSpendDbl)+"%");
+                        statusJson.put("# of Shipments", commaSeperatedDecimalFormat.format(NonothersNoOfShipmentsDbl+othersNoOfShipmentsDbl));
+                        statusJson.put("% of Total Shpts", commaSeperatedDecimalFormat.format(NonothersPercShipmentsDbl+othersPercShipmentsDbl)+"%");
+                        statusJson.put("Total Weight", commaSeperatedDecimalFormat.format(NonothersTotalWeightDbl+othersTotalWeightDbl));
+                        statusJson.put("Cost/Shipment", commaSeperatedDecimalFormat.format(NonothersCostPerShpmntDbl+othersCostPerShpmntDbl));
+                        statusJson.put("Weight/Shipment", commaSeperatedDecimalFormat.format(NonothersWeightPerShmntDbl+othersWeightPerShmntDbl));
+                        statusJson.put("Cost/Weight", commaSeperatedDecimalFormat.format(NonothersCostWeightDbl+othersCostWeightDbl));
 
                         returnArray.put(statusJson);
                         statusJson = null;
