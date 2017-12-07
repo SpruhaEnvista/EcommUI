@@ -66,7 +66,7 @@ public class DataObjectController {
     /**
      * HTTP PUT - Update Script
      */
-    @RequestMapping(value = "/update", consumes = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.PUT)
+    @RequestMapping(value = "/update", consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.TEXT_PLAIN_VALUE, method = RequestMethod.PUT)
     public ResponseEntity<String> update(@RequestBody DataObjectBean bean) throws SQLException {
 
         bean.setActionType("UPDATE");
