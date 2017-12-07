@@ -265,7 +265,7 @@ public class CommonUtil {
 
             sheet = workbook.createSheet(sheetname);
             CreationHelper createHelper = workbook.getCreationHelper();
-            CellStyle cellStyle[] = new CellStyle[headersDtMap.size()];
+            //CellStyle cellStyle[] = new CellStyle[headersDtMap.size()];
 
             // Excel row with headers with cell format
             row = sheet.createRow(rowCount++);
@@ -299,10 +299,22 @@ public class CommonUtil {
                         String propertyKey = headersPropMap.get(headerKey);
                         String headerDataType = headersDtMap.get(headerKey);
                         cell = row.createCell(i - 1);
-                        String cellValueStr="";
-                        Integer cellValueInteger=null;
+
 
                         cell.setCellValue(carrJson.getString(propertyKey));
+
+                        if(i>1)
+                        {
+                            CellStyle cellStyle = workbook.createCellStyle();
+                            cellStyle.setAlignment(CellStyle.ALIGN_RIGHT);
+                            cellStyle.setVerticalAlignment(CellStyle.VERTICAL_TOP);
+                            cell.setCellStyle(cellStyle);
+
+                            /*CellStyle cellStyle = cell.getCellStyle();
+                            cellStyle.setAlignment(CellStyle.ALIGN_RIGHT);
+                            cell.setCellStyle(cellStyle);*/
+                        }
+
 
                         if("NUMBER".equalsIgnoreCase(headerDataType))
                         {

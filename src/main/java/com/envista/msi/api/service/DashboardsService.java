@@ -124,6 +124,10 @@ public class DashboardsService {
         return dashboardsDao.getRelSpendByCarrier(filter, isTopTenAccessorial);
     }
 
+    public List<ServiceLevelDto> getTotalSpendByService(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        return dashboardsDao.getTotalSpendByService(filter, isTopTenAccessorial);
+    }
+
     /**
      *
      * @param filter
@@ -764,7 +768,7 @@ public class DashboardsService {
         headersDtMap.put("Cost/Weight","String");
 
         //headersPropMap.put("id","id"); // Long
-        headersPropMap.put("Service Level","Service Level");
+        headersPropMap.put("Service Level","ServiceLevel");
         headersPropMap.put("Spend","Spend");
         headersPropMap.put("% of Total Spend","% of Total Spend");
         headersPropMap.put("# of Packages","# of Packages");
@@ -805,16 +809,6 @@ public class DashboardsService {
         headersPropMap.put("Weight/Shipment","Weight/Shipment");
         headersPropMap.put("Cost/Weight","Cost/Weight");
 
-       /* headersPropMap.put("id","id"); // Long
-        headersPropMap.put("Carrier","name");
-        headersPropMap.put("Spend","spend");
-        headersPropMap.put("% of Total Spend","percSpend");
-        headersPropMap.put("# of Shipments","noOfShipments");
-        headersPropMap.put("% of Total Shpts","percShipments");
-        headersPropMap.put("Total Weight","totalWeight");
-        headersPropMap.put("Cost/Shipment","costPerShpmnt");
-        headersPropMap.put("Weight/Shipment","weightPerShmnt");
-        headersPropMap.put("Cost/Weight","costWeight");*/
 
         return CommonUtil. generateXlsxFromJson(dataJSONArray,headersDtMap,headersPropMap,fileName);
 

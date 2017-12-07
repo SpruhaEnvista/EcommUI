@@ -44,6 +44,9 @@ import java.util.*;
 public class JSONUtil {
     static ArrayList<String> colorsList = new ArrayList<String>();
     static final DecimalFormat commaSeperatedDecimalFormat = new DecimalFormat("#,##0");
+    static final DecimalFormat commaSeperatedDecimalFormat1 = new DecimalFormat("#,##0.0");
+    static final DecimalFormat commaSeperatedDecimalFormat2 = new DecimalFormat("#,##0.00");
+
     static String[] commaSeperatedFieldsArr = {
             "Total Weight", "Total Charges", "Line Haul", "Fuel Surcharge", "Discount", "Accessorials",
             "Adjustments", "Total Due Amount", "Invoice Amount", "Approved Line Charges", "Line Charges", "Adjustment"
@@ -330,18 +333,7 @@ public class JSONUtil {
 
         if (dataList != null && dataList.size() > 0) {
             returnArray = new JSONArray();
-            /*for (CommonValuesForChartDto chartData : dataList) {
-                if (chartData != null) {
-                    statusJson = new JSONObject();
-                    statusJson.put("name", chartData.getName());
-                    statusJson.put("value", chartData.getValue());
-                    statusJson.put("id", chartData.getId());
 
-
-                    returnArray.put(statusJson);
-                    statusJson = null;
-                }
-            }*/
 
             Double othersSpendDbl = 0d;
             for (int i=0;i<dataList.size();i++) {
@@ -373,6 +365,54 @@ public class JSONUtil {
                          returnArray.put(statusJson);
                          statusJson = null;
                      }
+
+                }
+
+
+            }
+            returnJson.put("values", returnArray);
+        }
+        return returnJson;
+    }
+
+
+    public static JSONObject prepareTotalSpendByServiceChart(List<ServiceLevelDto> dataList) throws JSONException {
+        JSONObject returnJson = new JSONObject();
+        JSONArray returnArray = null;
+        JSONObject statusJson = null;
+
+        if (dataList != null && dataList.size() > 0) {
+            returnArray = new JSONArray();
+            Double othersSpendDbl = 0d;
+            for (int i=0;i<dataList.size();i++) {
+                ServiceLevelDto chartData = dataList.get(i);
+
+                if(i<15)
+                {
+                    if (chartData != null) {
+                        statusJson = new JSONObject();
+                        statusJson.put("name", chartData.getServicelevel());
+                        statusJson.put("value", chartData.getSpend());
+                        statusJson.put("id", chartData.getServicelevel());
+
+                        returnArray.put(statusJson);
+                        statusJson = null;
+                    }
+                }
+                else {
+
+                    othersSpendDbl = othersSpendDbl + chartData.getSpend();
+
+                    if(i==dataList.size()-1)
+                    {
+                        statusJson = new JSONObject();
+                        statusJson.put("name", "Others");
+                        statusJson.put("value", othersSpendDbl);
+                        statusJson.put("id", "0");
+
+                        returnArray.put(statusJson);
+                        statusJson = null;
+                    }
 
                 }
 
@@ -3526,9 +3566,9 @@ public class JSONUtil {
                         statusJson.put("# of Shipments", commaSeperatedDecimalFormat.format(analysisDto.getNoOfShipments()));
                         statusJson.put("% of Total Shpts", commaSeperatedDecimalFormat.format(analysisDto.getPercShipments())+"%");
                         statusJson.put("Total Weight", commaSeperatedDecimalFormat.format(analysisDto.getTotalWeight()));
-                        statusJson.put("Cost/Shipment", commaSeperatedDecimalFormat.format(analysisDto.getCostPerShpmnt()));
-                        statusJson.put("Weight/Shipment", commaSeperatedDecimalFormat.format(analysisDto.getWeightPerShmnt()));
-                        statusJson.put("Cost/Weight", commaSeperatedDecimalFormat.format(analysisDto.getCostWeight()));
+                        statusJson.put("Cost/Shipment", commaSeperatedDecimalFormat2.format(analysisDto.getCostPerShpmnt()));
+                        statusJson.put("Weight/Shipment", commaSeperatedDecimalFormat1.format(analysisDto.getWeightPerShmnt()));
+                        statusJson.put("Cost/Weight", commaSeperatedDecimalFormat2.format(analysisDto.getCostWeight()));
 
                         NonothersSpendDbl = NonothersSpendDbl + analysisDto.getSpend();
                         NonothersPercSpendDbl = NonothersPercSpendDbl + analysisDto.getPercSpend();
@@ -3566,9 +3606,9 @@ public class JSONUtil {
                         statusJson.put("# of Shipments", commaSeperatedDecimalFormat.format(othersNoOfShipmentsDbl));
                         statusJson.put("% of Total Shpts", commaSeperatedDecimalFormat.format(othersPercShipmentsDbl)+"%");
                         statusJson.put("Total Weight", commaSeperatedDecimalFormat.format(othersTotalWeightDbl));
-                        statusJson.put("Cost/Shipment", commaSeperatedDecimalFormat.format(othersCostPerShpmntDbl));
-                        statusJson.put("Weight/Shipment", commaSeperatedDecimalFormat.format(othersWeightPerShmntDbl));
-                        statusJson.put("Cost/Weight", commaSeperatedDecimalFormat.format(othersCostWeightDbl));
+                        statusJson.put("Cost/Shipment", commaSeperatedDecimalFormat2.format(othersCostPerShpmntDbl));
+                        statusJson.put("Weight/Shipment", commaSeperatedDecimalFormat1.format(othersWeightPerShmntDbl));
+                        statusJson.put("Cost/Weight", commaSeperatedDecimalFormat2.format(othersCostWeightDbl));
 
                         returnArray.put(statusJson);
                         statusJson = null;
@@ -3604,9 +3644,9 @@ public class JSONUtil {
                     statusJson.put("# of Shipments", commaSeperatedDecimalFormat.format(NonothersNoOfShipmentsDbl+othersNoOfShipmentsDbl));
                     statusJson.put("% of Total Shpts", commaSeperatedDecimalFormat.format(NonothersPercShipmentsDbl+othersPercShipmentsDbl)+"%");
                     statusJson.put("Total Weight", commaSeperatedDecimalFormat.format(NonothersTotalWeightDbl+othersTotalWeightDbl));
-                    statusJson.put("Cost/Shipment", commaSeperatedDecimalFormat.format(NonothersCostPerShpmntDbl+othersCostPerShpmntDbl));
-                    statusJson.put("Weight/Shipment", commaSeperatedDecimalFormat.format(NonothersWeightPerShmntDbl+othersWeightPerShmntDbl));
-                    statusJson.put("Cost/Weight", commaSeperatedDecimalFormat.format(NonothersCostWeightDbl+othersCostWeightDbl));
+                    statusJson.put("Cost/Shipment", commaSeperatedDecimalFormat2.format(NonothersCostPerShpmntDbl+othersCostPerShpmntDbl));
+                    statusJson.put("Weight/Shipment", commaSeperatedDecimalFormat1.format(NonothersWeightPerShmntDbl+othersWeightPerShmntDbl));
+                    statusJson.put("Cost/Weight", commaSeperatedDecimalFormat2.format(NonothersCostWeightDbl+othersCostWeightDbl));
 
                     returnArray.put(statusJson);
                     statusJson = null;
@@ -3669,7 +3709,7 @@ public class JSONUtil {
                 {
                     if (analysisDto != null) {
                         statusJson = new JSONObject();
-                        statusJson.put("Service Level", analysisDto.getServicelevel());
+                        statusJson.put("ServiceLevel", analysisDto.getServicelevel());
                         statusJson.put("Spend", commaSeperatedDecimalFormat.format(analysisDto.getSpend()));
                         statusJson.put("% of Total Spend", commaSeperatedDecimalFormat.format(analysisDto.getPercSpend())+"%");
                         statusJson.put("# of Packages", commaSeperatedDecimalFormat.format(analysisDto.getNoOfPackages()));
@@ -3709,7 +3749,7 @@ public class JSONUtil {
                     {
                         statusJson = new JSONObject();
                         //statusJson.put("id", 0);
-                        statusJson.put("Service Level", "Others");
+                        statusJson.put("ServiceLevel", "Others");
                         statusJson.put("Spend", commaSeperatedDecimalFormat.format(othersSpendDbl));
                         statusJson.put("% of Total Spend", commaSeperatedDecimalFormat.format(othersPercSpendDbl)+"%");
                         statusJson.put("# of Packages", commaSeperatedDecimalFormat.format(othersNoOfPckgsDbl));
@@ -3747,7 +3787,7 @@ public class JSONUtil {
                     // Add Total row of Pivot Table
                     statusJson = new JSONObject();
                     //statusJson.put("id", -1);
-                    statusJson.put("Service Level", "Total");
+                    statusJson.put("ServiceLevel", "Total");
                     statusJson.put("Spend", commaSeperatedDecimalFormat.format(NonothersSpendDbl+ othersSpendDbl));
                     statusJson.put("% of Total Spend", commaSeperatedDecimalFormat.format(NonothersPercSpendDbl+othersPercSpendDbl)+"%");
                     statusJson.put("# of Packages", commaSeperatedDecimalFormat.format(NonothersNoOfPckgsDbl+othersNoOfPckgsDbl));
@@ -3764,7 +3804,7 @@ public class JSONUtil {
 
             }
             //headersJson.put("id");
-            headersJson.put("Service Level");
+            headersJson.put("ServiceLevel");
             headersJson.put("Spend");
             headersJson.put("% of Total Spend");
             headersJson.put("# of Packages");

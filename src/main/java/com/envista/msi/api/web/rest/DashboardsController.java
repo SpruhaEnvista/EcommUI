@@ -1750,6 +1750,23 @@ public class DashboardsController extends DashboardBaseController {
         return netSpendJsonData;
     }
 
+
+    private JSONObject loadTotalSpendByServiceJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject netSpendJsonData = null;
+
+        List<ServiceLevelDto> totalSpendList = dashboardsService.getTotalSpendByService(filter, false);
+        if(totalSpendList != null && !totalSpendList.isEmpty()){
+            List<CommonValuesForChartDto> commonValueList = new ArrayList<CommonValuesForChartDto>();
+            for(ServiceLevelDto totalSpend : totalSpendList){
+                if(totalSpend != null){
+                    commonValueList.add(new CommonValuesForChartDto(totalSpend,true));
+                }
+            }
+            netSpendJsonData = JSONUtil.prepareTotalSpendByServiceChart(totalSpendList);
+        }
+        return netSpendJsonData;
+    }
+
     private JSONObject loadNetSpendByOverTimeJson(DashboardsFilterCriteria filter) throws JSONException {
         JSONObject netSpendJsonData = null;
         List<NetSpendOverTimeDto> netSpendDtoList = dashboardsService.getNetSpendByOverTime(filter, false);
@@ -3676,6 +3693,15 @@ public class DashboardsController extends DashboardBaseController {
             workbook.close();
         }
 
+    }
+
+    @RequestMapping(value = "/totalSpendByService", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getTotalSpendByService() throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+
+        JSONObject nspData = loadTotalSpendByServiceJson(filter);
+        return new ResponseEntity<String>(nspData != null ? nspData.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
 }
