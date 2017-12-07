@@ -22,6 +22,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.PortLanesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentRegionDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShippingLanesDto;
+import com.envista.msi.api.web.rest.dto.dashboard.servicelevel.ServiceLevelDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.*;
 import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
 import com.envista.msi.api.web.rest.dto.reports.SavedSchedReportDto;
@@ -2608,7 +2609,7 @@ public class DashboardsController extends DashboardBaseController {
         Workbook workbook = null;
 
         JSONArray dataJSONArray = (JSONArray) nspData.get("values");
-        String fileName="CarrSpendAnalysis";
+        String fileName="CarrierSpendAnalysis";
 
         workbook = dashboardsService.getExportCarrSpendAnalysis(dataJSONArray,fileName);
 
@@ -3632,6 +3633,18 @@ public class DashboardsController extends DashboardBaseController {
         return new ResponseEntity<String>(nspData != null ? nspData.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
+
+    @RequestMapping(value = "/serviceLevAnalysis", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getServiceLevAnalysis() throws Exception {
+        JSONObject nspData = null;
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        List<ServiceLevelDto> serviceLevelList = dashboardsService.getServiceLevAnalysis(filter, false);
+        if(serviceLevelList != null && !serviceLevelList.isEmpty()){
+            nspData = JSONUtil.prepareServiceLevelAnalysisJson(serviceLevelList);
+        }
+        return new ResponseEntity<String>(nspData != null ? nspData.toString() : new JSONObject().toString(), HttpStatus.OK);
+    }
 
 
 }

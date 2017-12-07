@@ -20,6 +20,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentRegionDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShippingLanesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.report.DashboardReportDto;
+import com.envista.msi.api.web.rest.dto.dashboard.servicelevel.ServiceLevelDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.AverageSpendPerShipmentDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.AverageWeightModeShipmtDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.ServiceLevelUsageAndPerformanceDto;
@@ -3514,7 +3515,7 @@ public class JSONUtil {
                 statusJson.put("weightPerShmnt", analysisDto.getWeightPerShmnt());
                 statusJson.put("costWeight", analysisDto.getCostWeight());*/
 
-                if(i<15)
+                if(i<10)
                 {
                     if (analysisDto != null) {
                         statusJson = new JSONObject();
@@ -3572,7 +3573,7 @@ public class JSONUtil {
                         returnArray.put(statusJson);
                         statusJson = null;
 
-                        // Add Total row of Pivot Table
+                        /*// Add Total row of Pivot Table
                         statusJson = new JSONObject();
                         statusJson.put("id", -1);
                         statusJson.put("Carrier", "Total");
@@ -3586,10 +3587,29 @@ public class JSONUtil {
                         statusJson.put("Cost/Weight", commaSeperatedDecimalFormat.format(NonothersCostWeightDbl+othersCostWeightDbl));
 
                         returnArray.put(statusJson);
-                        statusJson = null;
+                        statusJson = null;*/
 
                     }
 
+                }
+
+                if(i==spendAnalysisList.size()-1)
+                {
+                    // Add Total row of Pivot Table
+                    statusJson = new JSONObject();
+                    statusJson.put("id", -1);
+                    statusJson.put("Carrier", "Total");
+                    statusJson.put("Spend", commaSeperatedDecimalFormat.format(NonothersSpendDbl+ othersSpendDbl));
+                    statusJson.put("% of Total Spend", commaSeperatedDecimalFormat.format(NonothersPercSpendDbl+othersPercSpendDbl)+"%");
+                    statusJson.put("# of Shipments", commaSeperatedDecimalFormat.format(NonothersNoOfShipmentsDbl+othersNoOfShipmentsDbl));
+                    statusJson.put("% of Total Shpts", commaSeperatedDecimalFormat.format(NonothersPercShipmentsDbl+othersPercShipmentsDbl)+"%");
+                    statusJson.put("Total Weight", commaSeperatedDecimalFormat.format(NonothersTotalWeightDbl+othersTotalWeightDbl));
+                    statusJson.put("Cost/Shipment", commaSeperatedDecimalFormat.format(NonothersCostPerShpmntDbl+othersCostPerShpmntDbl));
+                    statusJson.put("Weight/Shipment", commaSeperatedDecimalFormat.format(NonothersWeightPerShmntDbl+othersWeightPerShmntDbl));
+                    statusJson.put("Cost/Weight", commaSeperatedDecimalFormat.format(NonothersCostWeightDbl+othersCostWeightDbl));
+
+                    returnArray.put(statusJson);
+                    statusJson = null;
                 }
 
 
@@ -3611,6 +3631,156 @@ public class JSONUtil {
         }
         return returnJson;
     }
+
+
+    public static JSONObject prepareServiceLevelAnalysisJson(List<ServiceLevelDto> serviceLevelDtoList) throws JSONException {
+        JSONObject returnJson = new JSONObject();
+        JSONArray returnArray = null;
+        JSONObject statusJson = null;
+        JSONArray headersJson = new JSONArray();
+
+        if (serviceLevelDtoList != null && serviceLevelDtoList.size() > 0) {
+            returnArray = new JSONArray();
+
+            Double othersSpendDbl = 0d;
+            Double othersPercSpendDbl = 0d;
+            Double othersNoOfPckgsDbl = 0d;
+            Double othersPercPckgsDbl = 0d;
+            Double othersTotalWeightDbl = 0d;
+            Double othersCostPerPckgsDbl = 0d;
+            Double othersWeightPerPckgsDbl = 0d;
+            Double othersCostWeightDbl = 0d;
+
+            Double NonothersSpendDbl = 0d;
+            Double NonothersPercSpendDbl = 0d;
+            Double NonothersNoOfPckgsDbl = 0d;
+            Double NonothersPercPckgsDbl = 0d;
+            Double NonothersTotalWeightDbl = 0d;
+            Double NonothersCostPerPckgDbl = 0d;
+            Double NonothersWeightPerPckgDbl = 0d;
+            Double NonothersCostWeightDbl = 0d;
+
+
+
+            for (int i=0;i<serviceLevelDtoList.size();i++) {
+                ServiceLevelDto analysisDto = serviceLevelDtoList.get(i);
+
+                if(i<15)
+                {
+                    if (analysisDto != null) {
+                        statusJson = new JSONObject();
+                        statusJson.put("Service Level", analysisDto.getServicelevel());
+                        statusJson.put("Spend", commaSeperatedDecimalFormat.format(analysisDto.getSpend()));
+                        statusJson.put("% of Total Spend", commaSeperatedDecimalFormat.format(analysisDto.getPercSpend())+"%");
+                        statusJson.put("# of Packages", commaSeperatedDecimalFormat.format(analysisDto.getNoOfPackages()));
+                        statusJson.put("% of Total Packages", commaSeperatedDecimalFormat.format(analysisDto.getPercPackages())+"%");
+                        statusJson.put("Total Weight", commaSeperatedDecimalFormat.format(analysisDto.getTotalWeight()));
+                        statusJson.put("Cost/Package", commaSeperatedDecimalFormat.format(analysisDto.getCostPerPackage()));
+                        statusJson.put("Weight/Package", commaSeperatedDecimalFormat.format(analysisDto.getWeightPerPackage()));
+                        statusJson.put("Cost/Weight", commaSeperatedDecimalFormat.format(analysisDto.getCostWeight()));
+
+                        NonothersSpendDbl = NonothersSpendDbl + analysisDto.getSpend();
+                        NonothersPercSpendDbl = NonothersPercSpendDbl + analysisDto.getPercSpend();
+                        NonothersNoOfPckgsDbl = NonothersNoOfPckgsDbl + analysisDto.getNoOfPackages();
+                        NonothersPercPckgsDbl = NonothersPercPckgsDbl + analysisDto.getPercPackages() ;
+
+                        NonothersTotalWeightDbl = NonothersTotalWeightDbl + analysisDto.getTotalWeight();
+                        NonothersCostPerPckgDbl = NonothersCostPerPckgDbl + analysisDto.getCostPerPackage();
+                        NonothersWeightPerPckgDbl= NonothersWeightPerPckgDbl + analysisDto.getWeightPerPackage();
+                        NonothersCostWeightDbl = NonothersCostWeightDbl + analysisDto.getCostWeight();
+
+                        returnArray.put(statusJson);
+                        statusJson = null;
+                    }
+                }
+                else {
+
+                    othersSpendDbl = othersSpendDbl + analysisDto.getSpend();
+                    othersPercSpendDbl = othersPercSpendDbl + analysisDto.getPercSpend();
+                    othersNoOfPckgsDbl = othersNoOfPckgsDbl + analysisDto.getNoOfPackages();
+                    othersPercPckgsDbl = othersPercPckgsDbl + analysisDto.getPercPackages() ;
+
+                    othersTotalWeightDbl = othersTotalWeightDbl + analysisDto.getTotalWeight();
+                    othersCostPerPckgsDbl = othersCostPerPckgsDbl + analysisDto.getCostPerPackage();
+                    othersWeightPerPckgsDbl= othersWeightPerPckgsDbl + analysisDto.getWeightPerPackage();
+                    othersCostWeightDbl = othersCostWeightDbl + analysisDto.getCostWeight();
+
+                    if(i==serviceLevelDtoList.size()-1)
+                    {
+                        statusJson = new JSONObject();
+                        statusJson.put("id", 0);
+                        statusJson.put("Service Level", "Others");
+                        statusJson.put("Spend", commaSeperatedDecimalFormat.format(othersSpendDbl));
+                        statusJson.put("% of Total Spend", commaSeperatedDecimalFormat.format(othersPercSpendDbl)+"%");
+                        statusJson.put("# of Packages", commaSeperatedDecimalFormat.format(othersNoOfPckgsDbl));
+                        statusJson.put("% of Total Packages", commaSeperatedDecimalFormat.format(othersPercPckgsDbl)+"%");
+                        statusJson.put("Total Weight", commaSeperatedDecimalFormat.format(othersTotalWeightDbl));
+                        statusJson.put("Cost/Package", commaSeperatedDecimalFormat.format(othersCostPerPckgsDbl));
+                        statusJson.put("Weight/Package", commaSeperatedDecimalFormat.format(othersWeightPerPckgsDbl));
+                        statusJson.put("Cost/Weight", commaSeperatedDecimalFormat.format(othersCostWeightDbl));
+
+                        returnArray.put(statusJson);
+                        statusJson = null;
+
+                        /*// Add Total row of Pivot Table
+                        statusJson = new JSONObject();
+                        statusJson.put("id", -1);
+                        statusJson.put("Service Level", "Total");
+                        statusJson.put("Spend", commaSeperatedDecimalFormat.format(NonothersSpendDbl+ othersSpendDbl));
+                        statusJson.put("% of Total Spend", commaSeperatedDecimalFormat.format(NonothersPercSpendDbl+othersPercSpendDbl)+"%");
+                        statusJson.put("# of Packages", commaSeperatedDecimalFormat.format(NonothersNoOfPckgsDbl+othersNoOfPckgsDbl));
+                        statusJson.put("% of Total Packages", commaSeperatedDecimalFormat.format(NonothersPercPckgsDbl+othersPercPckgsDbl)+"%");
+                        statusJson.put("Total Weight", commaSeperatedDecimalFormat.format(NonothersTotalWeightDbl+othersTotalWeightDbl));
+                        statusJson.put("Cost/Package", commaSeperatedDecimalFormat.format(NonothersCostPerPckgDbl+othersCostPerPckgsDbl));
+                        statusJson.put("Weight/Package", commaSeperatedDecimalFormat.format(NonothersWeightPerPckgDbl+othersWeightPerPckgsDbl));
+                        statusJson.put("Cost/Weight", commaSeperatedDecimalFormat.format(NonothersCostWeightDbl+othersCostWeightDbl));
+
+                        returnArray.put(statusJson);
+                        statusJson = null;*/
+
+                    }
+
+                }
+
+                if(i==serviceLevelDtoList.size()-1)
+                {
+                    // Add Total row of Pivot Table
+                    statusJson = new JSONObject();
+                    statusJson.put("id", -1);
+                    statusJson.put("Service Level", "Total");
+                    statusJson.put("Spend", commaSeperatedDecimalFormat.format(NonothersSpendDbl+ othersSpendDbl));
+                    statusJson.put("% of Total Spend", commaSeperatedDecimalFormat.format(NonothersPercSpendDbl+othersPercSpendDbl)+"%");
+                    statusJson.put("# of Packages", commaSeperatedDecimalFormat.format(NonothersNoOfPckgsDbl+othersNoOfPckgsDbl));
+                    statusJson.put("% of Total Packages", commaSeperatedDecimalFormat.format(NonothersPercPckgsDbl+othersPercPckgsDbl)+"%");
+                    statusJson.put("Total Weight", commaSeperatedDecimalFormat.format(NonothersTotalWeightDbl+othersTotalWeightDbl));
+                    statusJson.put("Cost/Package", commaSeperatedDecimalFormat.format(NonothersCostPerPckgDbl+othersCostPerPckgsDbl));
+                    statusJson.put("Weight/Package", commaSeperatedDecimalFormat.format(NonothersWeightPerPckgDbl+othersWeightPerPckgsDbl));
+                    statusJson.put("Cost/Weight", commaSeperatedDecimalFormat.format(NonothersCostWeightDbl+othersCostWeightDbl));
+
+                    returnArray.put(statusJson);
+                    statusJson = null;
+                }
+
+
+            }
+            headersJson.put("id");
+            headersJson.put("Carrier");
+            headersJson.put("Spend");
+            headersJson.put("% of Total Spend");
+            headersJson.put("# of Packages");
+            headersJson.put("% of Total Packages");
+            headersJson.put("Total Weight");
+            headersJson.put("Cost/Package");
+            headersJson.put("Weight/Package");
+            headersJson.put("Cost/Weight");
+
+            returnJson.put("values", returnArray);
+            returnJson.put("headers",headersJson);
+
+        }
+        return returnJson;
+    }
+
     }
 
 
