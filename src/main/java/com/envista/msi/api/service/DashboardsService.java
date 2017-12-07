@@ -747,6 +747,37 @@ public class DashboardsService {
         }
 
 
+    public Workbook getExportServiceLevAnalysis(JSONArray dataJSONArray,String fileName) throws Exception {
+
+        Map<String,String> headersDtMap = new LinkedHashMap(); // Headers and Dtataypes
+        Map<String,String> headersPropMap = new LinkedHashMap();
+
+        //headersDtMap.put("id","NUMBER"); // Long
+        headersDtMap.put("Service Level","String");
+        headersDtMap.put("Spend","String");
+        headersDtMap.put("% of Total Spend","String");
+        headersDtMap.put("# of Packages","String");
+        headersDtMap.put("% of Total Packages","String");
+        headersDtMap.put("Total Weight","String");
+        headersDtMap.put("Cost/Package","String");
+        headersDtMap.put("Weight/Package","String");
+        headersDtMap.put("Cost/Weight","String");
+
+        //headersPropMap.put("id","id"); // Long
+        headersPropMap.put("Service Level","Service Level");
+        headersPropMap.put("Spend","Spend");
+        headersPropMap.put("% of Total Spend","% of Total Spend");
+        headersPropMap.put("# of Packages","# of Packages");
+        headersPropMap.put("% of Total Packages","% of Total Packages");
+        headersPropMap.put("Total Weight","Total Weight");
+        headersPropMap.put("Cost/Package","Cost/Package");
+        headersPropMap.put("Weight/Package","Weight/Package");
+        headersPropMap.put("Cost/Weight","Cost/Weight");
+
+
+        return CommonUtil. generateXlsxFromJson(dataJSONArray,headersDtMap,headersPropMap,fileName);
+    }
+
     public Workbook getExportCarrSpendAnalysis(JSONArray dataJSONArray,String fileName) throws Exception {
 
         Map<String,String> headersDtMap = new LinkedHashMap(); // Headers and Dtataypes
@@ -790,7 +821,6 @@ public class DashboardsService {
 
 
     }
-
 
     /**
      * Get Dashboard report for Parcel and Freight.

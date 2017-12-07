@@ -3708,7 +3708,7 @@ public class JSONUtil {
                     if(i==serviceLevelDtoList.size()-1)
                     {
                         statusJson = new JSONObject();
-                        statusJson.put("id", 0);
+                        //statusJson.put("id", 0);
                         statusJson.put("Service Level", "Others");
                         statusJson.put("Spend", commaSeperatedDecimalFormat.format(othersSpendDbl));
                         statusJson.put("% of Total Spend", commaSeperatedDecimalFormat.format(othersPercSpendDbl)+"%");
@@ -3746,7 +3746,7 @@ public class JSONUtil {
                 {
                     // Add Total row of Pivot Table
                     statusJson = new JSONObject();
-                    statusJson.put("id", -1);
+                    //statusJson.put("id", -1);
                     statusJson.put("Service Level", "Total");
                     statusJson.put("Spend", commaSeperatedDecimalFormat.format(NonothersSpendDbl+ othersSpendDbl));
                     statusJson.put("% of Total Spend", commaSeperatedDecimalFormat.format(NonothersPercSpendDbl+othersPercSpendDbl)+"%");
@@ -3763,8 +3763,8 @@ public class JSONUtil {
 
 
             }
-            headersJson.put("id");
-            headersJson.put("Carrier");
+            //headersJson.put("id");
+            headersJson.put("Service Level");
             headersJson.put("Spend");
             headersJson.put("% of Total Spend");
             headersJson.put("# of Packages");

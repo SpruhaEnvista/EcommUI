@@ -177,7 +177,7 @@ public class ServiceLevelDto implements Serializable {
         }
 
         static class StoredProcedureName{
-            static final String SERVICE_LEVEL_ANALYSIS = "SHP_DB_CARR_SPND_Analysis_PROC";
+            static final String SERVICE_LEVEL_ANALYSIS = "SHP_DB_SERV_LVL_Analysis_PROC";
 
         }
 
