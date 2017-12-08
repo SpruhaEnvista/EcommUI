@@ -1762,7 +1762,7 @@ public class DashboardsController extends DashboardBaseController {
                     commonValueList.add(new CommonValuesForChartDto(totalSpend,true));
                 }
             }
-            netSpendJsonData = JSONUtil.prepareTotalSpendByServiceChart(totalSpendList);
+            netSpendJsonData = JSONUtil.prepareTotalSpendByServiceChart(commonValueList);
         }
         return netSpendJsonData;
     }

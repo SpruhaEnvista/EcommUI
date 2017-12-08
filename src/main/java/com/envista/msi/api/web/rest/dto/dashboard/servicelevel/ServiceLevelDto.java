@@ -110,6 +110,12 @@ public class ServiceLevelDto implements Serializable {
 
     public ServiceLevelDto(){}
 
+    public ServiceLevelDto(String servicelevel, Double  spend)
+    {
+        this.servicelevel = servicelevel;
+        this.spend = spend;
+    }
+
     public ServiceLevelDto(String servicelevel, Double  spend,Double percSpend,
                                    Double noOfPackages,Double percPackages,Double totalWeight,Double costPerPackage,Double weightPerPackage,Double costWeight) {
 
