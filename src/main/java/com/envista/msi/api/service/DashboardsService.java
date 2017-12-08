@@ -128,6 +128,10 @@ public class DashboardsService {
         return dashboardsDao.getTotalSpendByService(filter, isTopTenAccessorial);
     }
 
+    public List<ServiceLevelDto> getTotalPckgsByService(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        return dashboardsDao.getTotalPckgsByService(filter, isTopTenAccessorial);
+    }
+
     /**
      *
      * @param filter

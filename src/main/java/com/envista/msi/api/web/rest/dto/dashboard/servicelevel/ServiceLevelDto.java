@@ -44,6 +44,23 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.NetSpendParams.TO_DATE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.NetSpendParams.CONVERTED_WEIGHT_UNIT_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.RelSpendParams.REL_SPEND_PARAM, type = Void.class)
+                }),
+        @NamedStoredProcedureQuery(name = ServiceLevelDto.Config.StoredProcedureQueryName.TOTAL_PCKG_SERVICE_LEVEL,
+                procedureName = ServiceLevelDto.Config.StoredProcedureName.TOTAL_PCKG_SERVICE_LEVEL,
+                resultSetMappings = {ServiceLevelDto.Config.ResultMappings.TOTAL_PCKG_SERVICE_LEVEL_MAPPING},
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.NetSpendParams.DATE_TYPE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.NetSpendParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.NetSpendParams.CONVERTED_CURRENCY_CODE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.NetSpendParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.NetSpendParams.CARRIER_IDS_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.NetSpendParams.MODES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.NetSpendParams.SERVICES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.NetSpendParams.LANES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.NetSpendParams.FROM_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.NetSpendParams.TO_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.NetSpendParams.CONVERTED_WEIGHT_UNIT_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.RelSpendParams.REL_SPEND_PARAM, type = Void.class)
                 })
 
 })
@@ -69,7 +86,17 @@ import java.util.Date;
                         targetClass = ServiceLevelDto.class,
                         columns = {
                                 @ColumnResult(name = "service_level", type = String.class),
-                                @ColumnResult(name = "spend", type = Double.class)
+                                @ColumnResult(name = "spend", type = Double.class),
+                                @ColumnResult(name = "no_of_packages", type = Double.class)
+                        })
+        }),
+        @SqlResultSetMapping(name = ServiceLevelDto.Config.ResultMappings.TOTAL_PCKG_SERVICE_LEVEL_MAPPING, classes = {
+                @ConstructorResult(
+                        targetClass = ServiceLevelDto.class,
+                        columns = {
+                                @ColumnResult(name = "service_level", type = String.class),
+                                @ColumnResult(name = "spend", type = Double.class),
+                                @ColumnResult(name = "no_of_packages", type = Double.class)
                         })
         })
 
@@ -110,10 +137,11 @@ public class ServiceLevelDto implements Serializable {
 
     public ServiceLevelDto(){}
 
-    public ServiceLevelDto(String servicelevel, Double  spend)
+    public ServiceLevelDto(String servicelevel, Double  spend,Double  noOfPackages)
     {
         this.servicelevel = servicelevel;
         this.spend = spend;
+        this.noOfPackages = noOfPackages;
     }
 
     public ServiceLevelDto(String servicelevel, Double  spend,Double percSpend,
@@ -206,18 +234,21 @@ public class ServiceLevelDto implements Serializable {
     public static class Config{
         static class ResultMappings{
             static final String SERVICE_LEVEL_ANALYSIS_MAPPING = "ServiceLevelDto.getServiceLevAnalysis";
-            public static final String TOTAL_SPEND_SERVICE_LEVEL_MAPPING = "ServiceLevelDto.getTotalSpendByService";
+             static final String TOTAL_SPEND_SERVICE_LEVEL_MAPPING = "ServiceLevelDto.getTotalSpendByService";
+            static final String TOTAL_PCKG_SERVICE_LEVEL_MAPPING = "ServiceLevelDto.getTotalPckgsByService";
         }
 
         static class StoredProcedureName{
             static final String SERVICE_LEVEL_ANALYSIS = "SHP_DB_SERV_LVL_Analysis_PROC";
-            static final String TOTAL_SPEND_SERVICE_LEVEL = "SHP_DB_SERV_LVL_Analysis_PROC";
-
+            static final String TOTAL_SPEND_SERVICE_LEVEL = "SHP_DB_SERV_LVL_PERC_PROC";
+            static final String TOTAL_PCKG_SERVICE_LEVEL = "SHP_DB_SERV_LVL_PERC_PROC";
         }
 
         public static class StoredProcedureQueryName{
             public static final String SERVICE_LEVEL_ANALYSIS = "ServiceLevelDto.getServiceLevAnalysis";
             public static final String TOTAL_SPEND_SERVICE_LEVEL = "ServiceLevelDto.getTotalSpendByService";
+            public static final String TOTAL_PCKG_SERVICE_LEVEL = "ServiceLevelDto.getTotalPckgsByService";
+
 
         }
     }

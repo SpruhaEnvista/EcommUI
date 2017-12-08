@@ -1767,6 +1767,22 @@ public class DashboardsController extends DashboardBaseController {
         return netSpendJsonData;
     }
 
+    private JSONObject loadTotalPckgsByServiceJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject netSpendJsonData = null;
+
+        List<ServiceLevelDto> totalPckgsList = dashboardsService.getTotalPckgsByService(filter, false);
+        if(totalPckgsList != null && !totalPckgsList.isEmpty()){
+            List<CommonValuesForChartDto> commonValueList = new ArrayList<CommonValuesForChartDto>();
+            for(ServiceLevelDto totalPckg : totalPckgsList){
+                if(totalPckg != null){
+                    commonValueList.add(new CommonValuesForChartDto(totalPckg,false));
+                }
+            }
+            netSpendJsonData = JSONUtil.prepareTotalSpendByServiceChart(commonValueList);
+        }
+        return netSpendJsonData;
+    }
+
     private JSONObject loadNetSpendByOverTimeJson(DashboardsFilterCriteria filter) throws JSONException {
         JSONObject netSpendJsonData = null;
         List<NetSpendOverTimeDto> netSpendDtoList = dashboardsService.getNetSpendByOverTime(filter, false);
@@ -3701,6 +3717,15 @@ public class DashboardsController extends DashboardBaseController {
         DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
 
         JSONObject nspData = loadTotalSpendByServiceJson(filter);
+        return new ResponseEntity<String>(nspData != null ? nspData.toString() : new JSONObject().toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/totalPckgByService", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getTotalPckgByService() throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+
+        JSONObject nspData = loadTotalPckgsByServiceJson(filter);
         return new ResponseEntity<String>(nspData != null ? nspData.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
