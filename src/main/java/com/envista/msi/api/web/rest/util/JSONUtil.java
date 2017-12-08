@@ -283,6 +283,98 @@ public class JSONUtil {
         return returnObject;
     }
 
+   /* public static JSONObject prepareCostPerShipmentByServiceJson(List<ServiceLevelDto> serviceLevelDtoList) throws JSONException {
+        JSONObject returnObject = new JSONObject();
+        JSONArray valuesArray = null;
+        JSONArray seriesArray = null;
+        LinkedHashMap<String, HashMap<String, Double>> datesValuesMap = null;
+        ArrayList<String> carriersList = null;
+
+        if (serviceLevelDtoList != null && serviceLevelDtoList.size() > 0) {
+            valuesArray = new JSONArray();
+            seriesArray = new JSONArray();
+            datesValuesMap = new LinkedHashMap<String, HashMap<String, Double>>();
+            carriersList = new ArrayList<String>();
+
+            for (ServiceLevelDto overTimeDto : serviceLevelDtoList) {
+                if (overTimeDto != null) {
+                    String billDate = overTimeDto.getBillingDate();
+                    String carrierName = overTimeDto.getCarrierName();
+                    long carrierId = overTimeDto.getCarrierId();
+                    Double spend = Math.rint(overTimeDto.getNetCharges());
+
+                    if (spend != 0) {
+                        String concatCarrier = carrierId + "#@#" + carrierName;
+                        if (!carriersList.contains(concatCarrier)) {
+                            carriersList.add(concatCarrier);
+                        }
+
+                        if (datesValuesMap.containsKey(billDate)) {
+                            datesValuesMap.get(billDate).put(carrierName, spend);
+                        } else {
+                            HashMap<String, Double> tempHashMap = new HashMap<String, Double>();
+                            tempHashMap.put(carrierName, spend);
+                            datesValuesMap.put(billDate, tempHashMap);
+                        }
+                    }
+                }
+            }
+
+            // Bar Chart
+            int counter = 1;
+            Iterator<String> datesIterator = datesValuesMap.keySet().iterator();
+
+            while (datesIterator.hasNext()) {
+                JSONObject jsonObject = new JSONObject();
+
+                String date = datesIterator.next();
+                HashMap<String, Double> carrierFlagMap = datesValuesMap.get(date);
+
+                Iterator<String> carrierFlagIterator = carrierFlagMap.keySet().iterator();
+
+                jsonObject.put("name", date);
+                jsonObject.put("counter", counter);
+
+                while (carrierFlagIterator.hasNext()) {
+                    String carrierFlag = carrierFlagIterator.next();
+                    double spend = carrierFlagMap.get(carrierFlag);
+                    jsonObject.put(carrierFlag, spend);
+                }
+
+                valuesArray.put(jsonObject);
+                counter++;
+            }
+
+            String append = "\"";
+            counter = 1;
+
+            for (String carrierDetails : carriersList) {
+                String carrierId = carrierDetails.split("#@#")[0];
+                String carrierName = carrierDetails.split("#@#")[1];
+
+                carrierId = append + carrierId + append;
+                carrierName = append + carrierName + append;
+                String seriesId = append + "S" + counter + append;
+                String object = "{\"id\":" + seriesId + ",\"name\":" + carrierName + ", \"carrierId\":" + carrierId + ",\"data\": {\"field\":" + carrierName
+                        + "},\"type\":\"line\",\"style\":{\"lineWidth\": 2,smoothing: true, marker: {shape: \"circle\", width: 5},";
+
+                object = object + "lineColor: \"" + colorsList.get(counter - 1) + "\"";
+                object = object + "}}";
+
+                seriesArray.put(new JSONObject(object));
+                counter++;
+                if (counter == colorsList.size()) {
+                    counter = 1;
+                }
+            }
+
+            returnObject.put("values", valuesArray);
+            returnObject.put("series", seriesArray);
+            returnObject.put("carrierDetails", new JSONArray().put(carriersList));
+        }
+        return returnObject;
+    }*/
+
     public static JSONObject prepareCommonSpendJson(List<NetSpendCommonDto> spendList) throws JSONException {
         JSONObject returnObject = new JSONObject();
         JSONArray spendArray = null;
@@ -3680,9 +3772,9 @@ public class JSONUtil {
                         statusJson.put("# of Packages", commaSeperatedDecimalFormat.format(analysisDto.getNoOfPackages()));
                         statusJson.put("% of Total Packages", commaSeperatedDecimalFormat.format(analysisDto.getPercPackages())+"%");
                         statusJson.put("Total Weight", commaSeperatedDecimalFormat.format(analysisDto.getTotalWeight()));
-                        statusJson.put("Cost/Package", commaSeperatedDecimalFormat.format(analysisDto.getCostPerPackage()));
-                        statusJson.put("Weight/Package", commaSeperatedDecimalFormat.format(analysisDto.getWeightPerPackage()));
-                        statusJson.put("Cost/Weight", commaSeperatedDecimalFormat.format(analysisDto.getCostWeight()));
+                        statusJson.put("Cost/Package", commaSeperatedDecimalFormat2.format(analysisDto.getCostPerPackage()));
+                        statusJson.put("Weight/Package", commaSeperatedDecimalFormat1.format(analysisDto.getWeightPerPackage()));
+                        statusJson.put("Cost/Weight", commaSeperatedDecimalFormat2.format(analysisDto.getCostWeight()));
 
                         NonothersSpendDbl = NonothersSpendDbl + analysisDto.getSpend();
                         NonothersPercSpendDbl = NonothersPercSpendDbl + analysisDto.getPercSpend();
@@ -3710,25 +3802,6 @@ public class JSONUtil {
                     othersWeightPerPckgsDbl= othersWeightPerPckgsDbl + analysisDto.getWeightPerPackage();
                     othersCostWeightDbl = othersCostWeightDbl + analysisDto.getCostWeight();
 
-                    /*if(i==serviceLevelDtoList.size()-1)
-                    {
-                        statusJson = new JSONObject();
-                        //statusJson.put("id", 0);
-                        statusJson.put("ServiceLevel", "Others");
-                        statusJson.put("Spend", commaSeperatedDecimalFormat.format(othersSpendDbl));
-                        statusJson.put("% of Total Spend", commaSeperatedDecimalFormat.format(othersPercSpendDbl)+"%");
-                        statusJson.put("# of Packages", commaSeperatedDecimalFormat.format(othersNoOfPckgsDbl));
-                        statusJson.put("% of Total Packages", commaSeperatedDecimalFormat.format(othersPercPckgsDbl)+"%");
-                        statusJson.put("Total Weight", commaSeperatedDecimalFormat.format(othersTotalWeightDbl));
-                        statusJson.put("Cost/Package", commaSeperatedDecimalFormat.format(othersCostPerPckgsDbl));
-                        statusJson.put("Weight/Package", commaSeperatedDecimalFormat.format(othersWeightPerPckgsDbl));
-                        statusJson.put("Cost/Weight", commaSeperatedDecimalFormat.format(othersCostWeightDbl));
-
-                        returnArray.put(statusJson);
-                        statusJson = null;
-
-                    }*/
-
                 }
 
                 if(i==serviceLevelDtoList.size()-1)
@@ -3745,9 +3818,9 @@ public class JSONUtil {
                     statusJson.put("# of Packages", commaSeperatedDecimalFormat.format(othersNoOfPckgsDbl));
                     statusJson.put("% of Total Packages", commaSeperatedDecimalFormat.format(othersPercPckgsDbl)+"%");
                     statusJson.put("Total Weight", commaSeperatedDecimalFormat.format(othersTotalWeightDbl));
-                    statusJson.put("Cost/Package", commaSeperatedDecimalFormat.format(othersCostPerPckgsDbl));
-                    statusJson.put("Weight/Package", commaSeperatedDecimalFormat.format(othersWeightPerPckgsDbl));
-                    statusJson.put("Cost/Weight", commaSeperatedDecimalFormat.format(othersCostWeightDbl));
+                    statusJson.put("Cost/Package", commaSeperatedDecimalFormat2.format(othersCostPerPckgsDbl));
+                    statusJson.put("Weight/Package", commaSeperatedDecimalFormat1.format(othersWeightPerPckgsDbl));
+                    statusJson.put("Cost/Weight", commaSeperatedDecimalFormat2.format(othersCostWeightDbl));
 
                     returnArray.put(statusJson);
                     statusJson = null;
@@ -3761,9 +3834,9 @@ public class JSONUtil {
                     statusJson.put("# of Packages", commaSeperatedDecimalFormat.format(NonothersNoOfPckgsDbl+othersNoOfPckgsDbl));
                     statusJson.put("% of Total Packages", commaSeperatedDecimalFormat.format(NonothersPercPckgsDbl+othersPercPckgsDbl)+"%");
                     statusJson.put("Total Weight", commaSeperatedDecimalFormat.format(NonothersTotalWeightDbl+othersTotalWeightDbl));
-                    statusJson.put("Cost/Package", commaSeperatedDecimalFormat.format(NonothersCostPerPckgDbl+othersCostPerPckgsDbl));
-                    statusJson.put("Weight/Package", commaSeperatedDecimalFormat.format(NonothersWeightPerPckgDbl+othersWeightPerPckgsDbl));
-                    statusJson.put("Cost/Weight", commaSeperatedDecimalFormat.format(NonothersCostWeightDbl+othersCostWeightDbl));
+                    statusJson.put("Cost/Package", commaSeperatedDecimalFormat2.format(NonothersCostPerPckgDbl+othersCostPerPckgsDbl));
+                    statusJson.put("Weight/Package", commaSeperatedDecimalFormat1.format(NonothersWeightPerPckgDbl+othersWeightPerPckgsDbl));
+                    statusJson.put("Cost/Weight", commaSeperatedDecimalFormat2.format(NonothersCostWeightDbl+othersCostWeightDbl));
 
                     returnArray.put(statusJson);
                     statusJson = null;

@@ -106,6 +106,11 @@ public class DashboardsService {
         return  dashboardsDao.getNetSpendByOverTime(filter, isTopTenAccessorial);
     }
 
+    @Transactional(readOnly = true)
+    public List<NetSpendOverTimeDto> getCostPerShipmentByService(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        return  dashboardsDao.getCostPerShipmentByService(filter, isTopTenAccessorial);
+    }
+
     /**
      *
      * @param filter

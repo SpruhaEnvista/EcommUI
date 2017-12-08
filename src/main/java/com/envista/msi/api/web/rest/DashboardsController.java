@@ -263,6 +263,14 @@ public class DashboardsController extends DashboardBaseController {
         return new ResponseEntity<String>(nspData != null ? nspData.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/costShpmntByServLev" , method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getCostPerShipmentByService() throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        JSONObject nspData = loadNetSpendJsonData(NetSpendConstant.NET_SPEND_BY_OVER_TIME, filter);
+        return new ResponseEntity<String>(nspData != null ? nspData.toString() : new JSONObject().toString(), HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/netSpendByCarr", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<String> getNetSpendByCarrier(@RequestParam String mode) throws Exception {
         UserProfileDto user = getUserProfile();
@@ -1789,6 +1797,15 @@ public class DashboardsController extends DashboardBaseController {
         if(netSpendDtoList != null){
             netSpendJsonData = JSONUtil.prepareNetSpendOverTimeJson(netSpendDtoList);
         }
+        return netSpendJsonData;
+    }
+
+    private JSONObject loadCostPerShipmentByServiceJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject netSpendJsonData = null;
+        List<NetSpendOverTimeDto> netSpendDtoList = dashboardsService.getCostPerShipmentByService(filter, false);
+        /*if(netSpendDtoList != null){
+            netSpendJsonData = JSONUtil.prepareCostPerShipmentByServiceJson(netSpendDtoList);
+        }*/
         return netSpendJsonData;
     }
 
