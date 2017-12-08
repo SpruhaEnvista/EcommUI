@@ -1344,7 +1344,7 @@ public class JSONUtil {
                 if (accountSummary != null) {
                     String year = accountSummary.getBillYear();
                     int isLtl = accountSummary.getLtl();
-                    BigDecimal amount = accountSummary.getAmount();
+                    BigDecimal amount = new BigDecimal(accountSummary.getAmount() != null ? Math.round(accountSummary.getAmount().doubleValue()) : 0d);
                     String category = accountSummary.getCategory();
 
                     if (isLtl == 0 && category.contains("Spend")) {
