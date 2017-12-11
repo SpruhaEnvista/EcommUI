@@ -283,37 +283,38 @@ public class JSONUtil {
         return returnObject;
     }
 
-   /* public static JSONObject prepareCostPerShipmentByServiceJson(List<ServiceLevelDto> serviceLevelDtoList) throws JSONException {
+    public static JSONObject prepareCostPerShipmentByServiceJson(List<ServiceLevelDto> serviceLevelDtoList) throws JSONException {
         JSONObject returnObject = new JSONObject();
         JSONArray valuesArray = null;
         JSONArray seriesArray = null;
         LinkedHashMap<String, HashMap<String, Double>> datesValuesMap = null;
-        ArrayList<String> carriersList = null;
+        ArrayList<String> servicesList = null;
 
         if (serviceLevelDtoList != null && serviceLevelDtoList.size() > 0) {
             valuesArray = new JSONArray();
             seriesArray = new JSONArray();
             datesValuesMap = new LinkedHashMap<String, HashMap<String, Double>>();
-            carriersList = new ArrayList<String>();
+            servicesList = new ArrayList<String>();
 
-            for (ServiceLevelDto overTimeDto : serviceLevelDtoList) {
-                if (overTimeDto != null) {
-                    String billDate = overTimeDto.getBillingDate();
-                    String carrierName = overTimeDto.getCarrierName();
-                    long carrierId = overTimeDto.getCarrierId();
-                    Double spend = Math.rint(overTimeDto.getNetCharges());
+            for (ServiceLevelDto serviceLevelDto : serviceLevelDtoList) {
+                if (serviceLevelDto != null) {
+                    String billDate = serviceLevelDto.getBillingDate();
+                    String serviceLevel = serviceLevelDto.getServicelevel();
+                    //long carrierId = overTimeDto.getCarrierId();
+                    //Double spend = Math.rint(serviceLevelDto.getNetCharges());
+                    Double costPerPackage = Math.rint(serviceLevelDto.getCostPerPackage());
 
-                    if (spend != 0) {
-                        String concatCarrier = carrierId + "#@#" + carrierName;
-                        if (!carriersList.contains(concatCarrier)) {
-                            carriersList.add(concatCarrier);
+                    if (costPerPackage != 0) {
+
+                        if (!servicesList.contains(serviceLevel)) {
+                            servicesList.add(serviceLevel);
                         }
 
                         if (datesValuesMap.containsKey(billDate)) {
-                            datesValuesMap.get(billDate).put(carrierName, spend);
+                            datesValuesMap.get(billDate).put(serviceLevel, costPerPackage);
                         } else {
                             HashMap<String, Double> tempHashMap = new HashMap<String, Double>();
-                            tempHashMap.put(carrierName, spend);
+                            tempHashMap.put(serviceLevel, costPerPackage);
                             datesValuesMap.put(billDate, tempHashMap);
                         }
                     }
@@ -328,18 +329,30 @@ public class JSONUtil {
                 JSONObject jsonObject = new JSONObject();
 
                 String date = datesIterator.next();
-                HashMap<String, Double> carrierFlagMap = datesValuesMap.get(date);
+                HashMap<String, Double> serviceLevelMap = datesValuesMap.get(date);
 
-                Iterator<String> carrierFlagIterator = carrierFlagMap.keySet().iterator();
+                Iterator<String> serviceFlagIterator = serviceLevelMap.keySet().iterator();
 
                 jsonObject.put("name", date);
                 jsonObject.put("counter", counter);
 
-                while (carrierFlagIterator.hasNext()) {
-                    String carrierFlag = carrierFlagIterator.next();
-                    double spend = carrierFlagMap.get(carrierFlag);
-                    jsonObject.put(carrierFlag, spend);
+                int noofServices = 0 ;
+                double  othersSum = 0;
+                while (serviceFlagIterator.hasNext()) {
+                    String serviceFlag = serviceFlagIterator.next();
+                    double costPerPackage = serviceLevelMap.get(serviceFlag);
+                    /*if ( noofServices <=15) {
+                        jsonObject.put(serviceFlag, costPerPackage);
+                    } else {
+                        othersSum += costPerPackage;
+                    }*/
+                    jsonObject.put(serviceFlag, costPerPackage);
+                    noofServices++;
                 }
+
+                /*if ( noofServices > 15 ) {
+                    jsonObject.put("Remaining", othersSum);
+                }*/
 
                 valuesArray.put(jsonObject);
                 counter++;
@@ -348,14 +361,15 @@ public class JSONUtil {
             String append = "\"";
             counter = 1;
 
-            for (String carrierDetails : carriersList) {
-                String carrierId = carrierDetails.split("#@#")[0];
-                String carrierName = carrierDetails.split("#@#")[1];
+            for (String serviceLevel : servicesList) {
+                /*String carrierId = serviceDetails.split("#@#")[0];
+                String carrierName = serviceDetails.split("#@#")[1];*/
+                //String serviceLevel = serviceDetails
 
-                carrierId = append + carrierId + append;
-                carrierName = append + carrierName + append;
+                //carrierId = append + carrierId + append;
+                serviceLevel = append + serviceLevel + append;
                 String seriesId = append + "S" + counter + append;
-                String object = "{\"id\":" + seriesId + ",\"name\":" + carrierName + ", \"carrierId\":" + carrierId + ",\"data\": {\"field\":" + carrierName
+                String object = "{\"id\":" + seriesId + ",\"name\":" + serviceLevel + ", \"data\": {\"field\":" + serviceLevel
                         + "},\"type\":\"line\",\"style\":{\"lineWidth\": 2,smoothing: true, marker: {shape: \"circle\", width: 5},";
 
                 object = object + "lineColor: \"" + colorsList.get(counter - 1) + "\"";
@@ -370,10 +384,10 @@ public class JSONUtil {
 
             returnObject.put("values", valuesArray);
             returnObject.put("series", seriesArray);
-            returnObject.put("carrierDetails", new JSONArray().put(carriersList));
+            returnObject.put("carrierDetails", new JSONArray().put(servicesList));
         }
         return returnObject;
-    }*/
+    }
 
     public static JSONObject prepareCommonSpendJson(List<NetSpendCommonDto> spendList) throws JSONException {
         JSONObject returnObject = new JSONObject();
@@ -498,7 +512,7 @@ public class JSONUtil {
                     if(i==dataList.size()-1)
                     {
                         statusJson = new JSONObject();
-                        statusJson.put("name", "Others");
+                        statusJson.put("name", "Remaining");
                         statusJson.put("value", othersSpendDbl);
                         statusJson.put("id", "0");
 
@@ -3812,7 +3826,7 @@ public class JSONUtil {
 
                     statusJson = new JSONObject();
                     //statusJson.put("id", 0);
-                    statusJson.put("ServiceLevel", "Others");
+                    statusJson.put("ServiceLevel", "Remaining");
                     statusJson.put("Spend", commaSeperatedDecimalFormat.format(othersSpendDbl));
                     statusJson.put("% of Total Spend", commaSeperatedDecimalFormat.format(othersPercSpendDbl)+"%");
                     statusJson.put("# of Packages", commaSeperatedDecimalFormat.format(othersNoOfPckgsDbl));

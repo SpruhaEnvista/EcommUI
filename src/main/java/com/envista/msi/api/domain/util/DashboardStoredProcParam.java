@@ -38,6 +38,8 @@ public class DashboardStoredProcParam {
         public static final String DELIVERY_FLAG_DESC_PARAM = "p_delivery_flag_desc";
         public static final String BOUND_TYPE_PARAM = "p_bound_type";
         public static final String SERVICE_NAME = "p_service_name";
+        public static final String IS_WEIGHT = "p_is_weight";
+
 
     }
 

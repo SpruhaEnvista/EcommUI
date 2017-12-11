@@ -77,7 +77,8 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.NetSpendParams.FROM_DATE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.NetSpendParams.TO_DATE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.NetSpendParams.CONVERTED_WEIGHT_UNIT_PARAM, type = String.class),
-
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashboardFilterParams.SERVICE_NAME, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashboardFilterParams.IS_WEIGHT, type = Double.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.RelSpendParams.REL_SPEND_PARAM, type = Void.class)
                 })
 
@@ -166,6 +167,7 @@ public class ServiceLevelDto implements Serializable {
 
 
 
+
     public ServiceLevelDto(){}
 
     public ServiceLevelDto(String billingDate,String servicelevel, Double  costPerPackage,Double  costWeight)
@@ -181,6 +183,23 @@ public class ServiceLevelDto implements Serializable {
         this.servicelevel = servicelevel;
         this.spend = spend;
         this.noOfPackages = noOfPackages;
+    }
+
+    public ServiceLevelDto(String servicelevel, Double  spend,Double percSpend,
+                           Double noOfPackages,Double percPackages,Double totalWeight,Double costPerPackage,
+                           Double weightPerPackage,Double costWeight) {
+
+        this.servicelevel = servicelevel;
+        this.spend = spend;
+        this.percSpend = percSpend;
+        this.noOfPackages = noOfPackages;
+        this.percPackages = percPackages;
+        this.totalWeight = totalWeight ;
+        this.costPerPackage = costPerPackage;
+        this.weightPerPackage = weightPerPackage;
+        this.costWeight = costWeight;
+
+
     }
 
     public ServiceLevelDto(String servicelevel, Double  spend,Double percSpend,
@@ -293,7 +312,7 @@ public class ServiceLevelDto implements Serializable {
             static final String SERVICE_LEVEL_ANALYSIS = "SHP_DB_SERV_LVL_Analysis_PROC";
             static final String TOTAL_SPEND_SERVICE_LEVEL = "SHP_DB_SERV_LVL_PERC_PROC";
             static final String TOTAL_PCKG_SERVICE_LEVEL = "SHP_DB_SERV_LVL_PERC_PROC";
-            static final String COST_SHIPMENT_SERVICE_LEVEL = "SHP_DB_SERV_LVL_PERC_PROC";
+            static final String COST_SHIPMENT_SERVICE_LEVEL = "SHP_DB_SERV_LVL_COST_WGT_PROC";
 
 
         }
