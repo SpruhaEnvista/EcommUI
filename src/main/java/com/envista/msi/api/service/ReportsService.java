@@ -169,6 +169,7 @@ public class ReportsService {
 
             }
         }
+        ReportResultsUsersListDto userResultsList= reportsDao.pushToUser(reportResultsUsersListDto);
         if(reportResultsUsersListDto!=null && reportResultsUsersListDto.size()>0){
             for(ReportResultsUsersListDto user : reportResultsUsersListDto){
                 ReportGeneratedDetailsDto genRptDetailsDto = new ReportGeneratedDetailsDto();
@@ -187,7 +188,7 @@ public class ReportsService {
                 }
             }
         }
-        return reportsDao.pushToUser(reportResultsUsersListDto);
+        return userResultsList;
     }
     public List<ReportModesDto> getReportForModes(Long userId) {
         return  reportsDao.getReportForModes(userId);
