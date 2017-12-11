@@ -169,6 +169,7 @@ public class ReportsService {
 
             }
         }
+        ReportResultsUsersListDto userResultsList= reportsDao.pushToUser(reportResultsUsersListDto);
         if(reportResultsUsersListDto!=null && reportResultsUsersListDto.size()>0){
             for(ReportResultsUsersListDto user : reportResultsUsersListDto){
                 ReportGeneratedDetailsDto genRptDetailsDto = new ReportGeneratedDetailsDto();
@@ -187,7 +188,7 @@ public class ReportsService {
                 }
             }
         }
-        return reportsDao.pushToUser(reportResultsUsersListDto);
+        return userResultsList;
     }
     public List<ReportModesDto> getReportForModes(Long userId) {
         return  reportsDao.getReportForModes(userId);
@@ -351,6 +352,15 @@ public class ReportsService {
     public ReportFolderDto createReportFolder(ReportFolderDto reportFolderDto, UserProfileDto userProfileDto){
         return reportsDao.createReportFolder(reportFolderDto,userProfileDto);
     }
+
+    public void saveFavouriteReport(long rptId, long userId){
+       reportsDao.saveFavouriteReport(rptId,  userId );
+    }
+
+    public void deleteFavouriteReport(long rptId, long userId){
+        reportsDao.deleteFavouriteReport(rptId, userId);
+    }
+
     public ReportFolderDetailsDto moveRptsToFolder( ReportFolderDetailsDto rptFolderDetailsDto ){
         return reportsDao.moveReportToFolder(rptFolderDetailsDto);
     }

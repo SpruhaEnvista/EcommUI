@@ -24,6 +24,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.AverageWeight
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.ServiceLevelUsageAndPerformanceDto;
 import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
 import com.envista.msi.api.web.rest.dto.reports.ReportFolderDto;
+import com.envista.msi.api.web.rest.dto.reports.ReportModesDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
@@ -129,7 +130,7 @@ public class JSONUtil {
                 if (netSpendDto != null && netSpendDto.getSpend() != 0) {
                     String mode = netSpendDto.getModes();
                     String scoreType = netSpendDto.getScoreType();
-                    Double spend = netSpendDto.getSpend();
+                    Double spend = ((double) Math.round(netSpendDto.getSpend()));
 
                     if (!scortypeList.contains(scoreType)) {
                         scortypeList.add(scoreType);
@@ -203,7 +204,7 @@ public class JSONUtil {
                     String billDate = overTimeDto.getBillingDate();
                     String carrierName = overTimeDto.getCarrierName();
                     long carrierId = overTimeDto.getCarrierId();
-                    Double spend = Math.rint(overTimeDto.getNetCharges());
+                    Double spend = ((double) Math.round(overTimeDto.getNetCharges()));
 
                     if (spend != 0) {
                         String concatCarrier = carrierId + "#@#" + carrierName;
@@ -289,7 +290,7 @@ public class JSONUtil {
             for (NetSpendCommonDto taxSpend : spendList) {
                 if (taxSpend != null) {
                     String spendTypeName = taxSpend.getSpendTypeName();
-                    Double spend = taxSpend.getSpend();
+                    Double spend = ((double) Math.round(taxSpend.getSpend()));
                     if (spend > 0) {
                         if (spendMap.containsKey(spendTypeName)) {
                             double spendAmount = spendMap.get(spendTypeName);
@@ -306,7 +307,7 @@ public class JSONUtil {
             Iterator<String> taxIterator = spendMap.keySet().iterator();
             while (taxIterator.hasNext()) {
                 String tax = taxIterator.next();
-                double spend = Math.rint(spendMap.get(tax));
+                double spend = Math.round(spendMap.get(tax));
 
                 JSONObject taxesJson = new JSONObject();
                 taxesJson.put("name", tax);
@@ -321,6 +322,18 @@ public class JSONUtil {
     }
 
     public static JSONObject prepareCommonJsonForChart(List<CommonValuesForChartDto> dataList) throws JSONException {
+        return prepareCommonJsonForChart(dataList, false);
+    }
+
+    /**
+     * Generic method to prepare json data having id, name and values as key per object.
+     * manipulateValue - flag is used to identify whether any manipulation need to be done on value field (Added during removing decimal places for MSI-29440).
+     * @param dataList
+     * @param manipulateValue
+     * @return
+     * @throws JSONException
+     */
+    public static JSONObject prepareCommonJsonForChart(List<CommonValuesForChartDto> dataList, boolean manipulateValue) throws JSONException {
         JSONObject returnJson = new JSONObject();
         JSONArray returnArray = null;
         JSONObject statusJson = null;
@@ -331,7 +344,30 @@ public class JSONUtil {
                 if (chartData != null) {
                     statusJson = new JSONObject();
                     statusJson.put("name", chartData.getName());
-                    statusJson.put("value", chartData.getValue());
+                    statusJson.put("value", manipulateValue ? Math.round(chartData.getValue()) : chartData.getValue());
+                    statusJson.put("id", chartData.getId());
+
+                    returnArray.put(statusJson);
+                    statusJson = null;
+                }
+            }
+            returnJson.put("values", returnArray);
+        }
+        return returnJson;
+    }
+
+    public static JSONObject prepareCommonJsonForWeightChart(List<CommonValuesForChartDto> dataList, boolean manipulateValue) throws JSONException {
+        JSONObject returnJson = new JSONObject();
+        JSONArray returnArray = null;
+        JSONObject statusJson = null;
+
+        if (dataList != null && dataList.size() > 0) {
+            returnArray = new JSONArray();
+            for (CommonValuesForChartDto chartData : dataList) {
+                if (chartData != null) {
+                    statusJson = new JSONObject();
+                    statusJson.put("name", chartData.getName());
+                    statusJson.put("value", manipulateValue ? CommonUtil.round(chartData.getValue(), 1) : chartData.getValue());
                     statusJson.put("id", chartData.getId());
 
                     returnArray.put(statusJson);
@@ -354,7 +390,7 @@ public class JSONUtil {
                 if (chartData != null) {
                     statusJson = new JSONObject();
                     statusJson.put("name", chartData.getName());
-                    statusJson.put("value", Math.rint(chartData.getValue()));
+                    statusJson.put("value", Math.round(chartData.getValue()));
                     statusJson.put("id", chartData.getInvoiceMethodId());
 
                     returnArray.put(statusJson);
@@ -383,7 +419,7 @@ public class JSONUtil {
                 if (accSpend != null) {
                     String billDate = accSpend.getBillDate();
                     String service = accSpend.getAccessorialName();
-                    Double spend = Math.rint(accSpend.getSpend());
+                    Double spend = ((double) Math.round(accSpend.getSpend()));
 
                     if (spend != 0) {
 
@@ -529,7 +565,7 @@ public class JSONUtil {
         for (AverageWeightModeShipmtDto perWeightShipmentDto : avgWeigthModeShpmtList) {
             String billDate = perWeightShipmentDto.getBillingDate();
             String mode = perWeightShipmentDto.getModes();
-            Double spend = Math.rint(perWeightShipmentDto.getNetWeight());
+            Double spend = CommonUtil.round(perWeightShipmentDto.getNetWeight(), 1);
 
             if (spend != null && spend != 0) {
                 if (!modeFlagList.contains(mode)) {
@@ -712,7 +748,7 @@ public class JSONUtil {
                 if (spendDto != null) {
                     String billDate = spendDto.getBillingDate();
                     String carrierScacCode = spendDto.getCarrierName();
-                    Double spend = Math.rint(spendDto.getNetDueAmount());
+                    Double spend = ((double) Math.round(spendDto.getNetDueAmount()));
                     Long carrierId = spendDto.getCarrierId();
                     String carrierIaAndName = carrierId + "#@#" + carrierScacCode;
                     if (!carriersList.contains(carrierIaAndName)) {
@@ -835,9 +871,9 @@ public class JSONUtil {
                     statusJson = new JSONObject();
                     statusJson.put("id", billedVsApproved.getCarrierId());
                     statusJson.put("name", billedVsApproved.getCarrierName());
-                    statusJson.put("Billed", Math.rint(billedVsApproved.getBilledAmount()));
-                    statusJson.put("Approved", Math.rint(billedVsApproved.getApprovedAmount()));
-                    statusJson.put("Recovered", Math.rint(billedVsApproved.getRecoveredAmount()));
+                    statusJson.put("Billed", Math.round(billedVsApproved.getBilledAmount()));
+                    statusJson.put("Approved", Math.round(billedVsApproved.getApprovedAmount()));
+                    statusJson.put("Recovered", Math.round(billedVsApproved.getRecoveredAmount()));
 
                     returnArray.put(statusJson);
                     statusJson = null;
@@ -862,7 +898,7 @@ public class JSONUtil {
                 if (recoveryAdjustment != null) {
                     String month = recoveryAdjustment.getMonth();
                     String service = recoveryAdjustment.getService();
-                    Double spend = Math.rint(recoveryAdjustment.getSpend());
+                    Double spend = ((double) Math.round(recoveryAdjustment.getSpend()));
 
                     if (spend != 0) {
                         if (!servicesList.contains(service)) {
@@ -947,7 +983,7 @@ public class JSONUtil {
                     String service = recoveryService.getBucketType();
                     String carrierName = recoveryService.getCarrierName();
                     Long carrierId = recoveryService.getCarrierId();
-                    Double spend = recoveryService.getCreditAmount();
+                    Double spend = ((double) Math.round(recoveryService.getCreditAmount()));
                     carrierMap.put(carrierName, carrierId);
                     if (spend != null && spend != 0) {
                         String concatCarrier = carrierId + "#@#" + carrierName;
@@ -1203,6 +1239,10 @@ public class JSONUtil {
     }
 
     public static JSONObject prepareMonthlyChartJson(List<CommonMonthlyChartDto> monthlyChartDtoList) throws JSONException {
+        return prepareMonthlyChartJson(monthlyChartDtoList, false);
+    }
+
+    public static JSONObject prepareMonthlyChartJson(List<CommonMonthlyChartDto> monthlyChartDtoList, boolean manipulateAmount) throws JSONException {
         JSONObject returnJson = new JSONObject();
         JSONArray returnArray = null;
         int count = 0;
@@ -1220,7 +1260,7 @@ public class JSONUtil {
                     }
 
                     dataArray.put(dateInMilliSecs);
-                    dataArray.put(monthlyChartDto.getAmount());
+                    dataArray.put(manipulateAmount ? Math.round(monthlyChartDto.getAmount()) : monthlyChartDto.getAmount());
                     returnArray.put(dataArray);
                     if (count == 0) {
                         fromDate = dateInMilliSecs;
@@ -1250,7 +1290,7 @@ public class JSONUtil {
             laneInfoJson.put("rank", shippingLanesDto.getRank());
             laneInfoJson.put("shipperAddress", shippingLanesDto.getShipperAddress());
             laneInfoJson.put("receiverAddress", shippingLanesDto.getReceiverAddress());
-            laneInfoJson.put("laneTotal", CommonUtil.decimalNumberToCommaReadableFormat(shippingLanesDto.getLaneTotal()));
+            laneInfoJson.put("laneTotal", CommonUtil.toDecimalFormat(shippingLanesDto.getLaneTotal(), "#,###"));
 
             lanesArray.put(laneInfoJson);
         }
@@ -1268,7 +1308,7 @@ public class JSONUtil {
             laneInfoJson.put("rank", portLanesDto.getRank());
             laneInfoJson.put("pol", portLanesDto.getPol());
             laneInfoJson.put("pod", portLanesDto.getPod());
-            laneInfoJson.put("laneTotal", CommonUtil.decimalNumberToCommaReadableFormat(portLanesDto.getLaneTotal()));
+            laneInfoJson.put("laneTotal", CommonUtil.toDecimalFormat(portLanesDto.getLaneTotal(), "#,###"));
 
             lanesArray.put(laneInfoJson);
         }
@@ -1304,7 +1344,7 @@ public class JSONUtil {
                 if (accountSummary != null) {
                     String year = accountSummary.getBillYear();
                     int isLtl = accountSummary.getLtl();
-                    BigDecimal amount = accountSummary.getAmount();
+                    BigDecimal amount = new BigDecimal(accountSummary.getAmount() != null ? Math.round(accountSummary.getAmount().doubleValue()) : 0d);
                     String category = accountSummary.getCategory();
 
                     if (isLtl == 0 && category.contains("Spend")) {
@@ -2407,7 +2447,7 @@ public class JSONUtil {
         if (commaSeperatedFields.contains(columnName)) {
             try {
                 if (val != null) {
-                    value = commaSeperatedDecimalFormat.format(Math.rint(Double.parseDouble(val.toString())));
+                    value = commaSeperatedDecimalFormat.format(Math.round(Double.parseDouble(val.toString())));
                 }
             } catch (Exception e) {
                 value = val != null ? val.toString() : "";
@@ -2415,7 +2455,7 @@ public class JSONUtil {
         } else {
             try {
                 if (val != null) {
-                    value = String.valueOf(Math.rint(Double.parseDouble(val.toString())));
+                    value = String.valueOf(Math.round(Double.parseDouble(val.toString())));
                 }
             } catch (Exception e) {
                 value = val != null ? val.toString() : "";
@@ -2436,8 +2476,8 @@ public class JSONUtil {
                 if (weightDto != null) {
                     JSONObject monthWiseObj = new JSONObject();
                     monthWiseObj.put("name", weightDto.getBillingDate());
-                    monthWiseObj.put("Actual Weight", Math.rint(weightDto.getActualWeight()));
-                    monthWiseObj.put("Bill Weight", Math.rint(weightDto.getBilledWeight()));
+                    monthWiseObj.put("Actual Weight", Math.round(weightDto.getActualWeight()));
+                    monthWiseObj.put("Bill Weight", Math.round(weightDto.getBilledWeight()));
                     valuesArray.put(monthWiseObj);
                 }
             }
@@ -2467,8 +2507,8 @@ public class JSONUtil {
                     JSONObject wtJson = new JSONObject();
                     wtJson.put("id", weightDto.getCarrierId());
                     wtJson.put("name", weightDto.getCarrierName());
-                    wtJson.put("Actual", Math.rint(weightDto.getActualWeight()));
-                    wtJson.put("Billed", Math.rint(weightDto.getBilledWeight()));
+                    wtJson.put("Actual", Math.round(weightDto.getActualWeight()));
+                    wtJson.put("Billed", Math.round(weightDto.getBilledWeight()));
                     weightJsonArr.put(wtJson);
                 }
             }
@@ -2490,8 +2530,8 @@ public class JSONUtil {
                     JSONArray dataArray = new JSONArray();
                     long dateInMilliSecs = weightDto.getBillDate() != null ? weightDto.getBillDate().getTime() : 0L;
                     dataArray.put(dateInMilliSecs);
-                    dataArray.put(Math.rint(weightDto.getActualWeight()));
-                    dataArray.put(Math.rint(weightDto.getBilledWeight()));
+                    dataArray.put(Math.round(weightDto.getActualWeight()));
+                    dataArray.put(Math.round(weightDto.getBilledWeight()));
 
                     returnArray.put(dataArray);
                     if (count == 0) {
@@ -2514,6 +2554,182 @@ public class JSONUtil {
     public static JSONObject prepareFilterCarrierJson(List<UserFilterUtilityDataDto> carrierList) throws JSONException {
         return prepareFilterCarrierJson(carrierList, null, true);
     }
+    public static JSONArray prepareFilterCarrierJsonForParcel(List<UserFilterUtilityDataDto> carrierList) throws JSONException {
+        return prepareFilterCarrierJsonForParcel(carrierList, null, true);
+    }
+
+
+    public static JSONArray prepareCarriersByGroupJson(List<UserFilterUtilityDataDto> carrierList,boolean isParcelDashlettes) throws JSONException {
+        return prepareCarriersByGroupJson(carrierList, null, true,isParcelDashlettes);
+    }
+
+    public static JSONArray prepareCarriersByGroupJson(List<UserFilterUtilityDataDto> carrierList, List<Long> selectedCarrList, boolean isNew,boolean isParcelDashlettes) throws JSONException {
+        JSONObject carrJson = new JSONObject();
+        JSONArray parcelCarJsonArr = new JSONArray();
+        JSONArray freightCarrJsonArr = new JSONArray();
+
+       // JSONArray parcelCarGroupJsonArr = new JSONArray();
+
+
+
+        if (carrierList != null && !carrierList.isEmpty()) {
+            for (UserFilterUtilityDataDto userFilterCarr : carrierList) {
+                JSONObject  carGroupJson =  new JSONObject();
+                if (userFilterCarr != null) {
+
+                    JSONArray childJsonArr = new JSONArray();
+
+                    String carrierGroupName = userFilterCarr.getCarrierGroupName();
+                    String[] carrierIdCsvLArr = userFilterCarr.getCarrierIdCSV().split("#@#");
+                    String[] carrierNameCsvLArr = userFilterCarr.getCarrierName().split("#@#");
+                    String carriers = userFilterCarr.getCarrierIdCSV().replace("#@#",",");
+                    Long carrierGroupId = userFilterCarr.getCarrierGroupId();
+
+                    carGroupJson.put("name",carrierGroupName);
+
+                    boolean isGroupAllCarriersSelected = true;
+
+                    if(carrierIdCsvLArr.length>0)
+                    {
+
+
+                        for(int i=0;i<carrierIdCsvLArr.length;i++)
+                        {
+
+                            JSONObject carrObj = new JSONObject();
+
+                            boolean isCarrierSelected = isNew ? true : selectedCarrList != null && selectedCarrList.contains(Long.valueOf(carrierIdCsvLArr[i])) ;
+                            carrObj.put("id", Long.parseLong(carrierIdCsvLArr[i]));
+                            carrObj.put("name", carrierNameCsvLArr[i]);
+
+                            carrObj.put("checked", isCarrierSelected);
+                            carrObj.put("selected", isCarrierSelected);
+                            carrObj.put("isParcel", isParcelDashlettes);
+
+                            if( ! isCarrierSelected)
+                                isGroupAllCarriersSelected = false;
+
+                            childJsonArr.put(carrObj);
+
+
+                        }
+
+                    }
+
+                    if(carrierIdCsvLArr.length>1 || carrierGroupId!=null)
+                    {
+
+                        carGroupJson.put("id", "");
+                        carGroupJson.put("children",childJsonArr);
+                        carGroupJson.put("carriers",carriers);
+                        carGroupJson.put("isParcel", isParcelDashlettes);
+
+
+                        carGroupJson.put("checked", isGroupAllCarriersSelected);
+                        carGroupJson.put("selected", isGroupAllCarriersSelected);
+                    }
+
+                    else if(carrierIdCsvLArr.length==1  )
+                    {
+                        carGroupJson.put("id",carrierIdCsvLArr[0]);
+                        carGroupJson.put("children",new JSONArray());
+                        carGroupJson.put("carriers","");
+                        carGroupJson.put("isParcel", isParcelDashlettes);
+                        carGroupJson.put("checked", isNew ? true : selectedCarrList != null && selectedCarrList.contains(Long.valueOf(userFilterCarr.getCarrierIdCSV())));
+                        carGroupJson.put("selected", isNew ? true : selectedCarrList != null && selectedCarrList.contains(Long.valueOf(userFilterCarr.getCarrierIdCSV())));
+
+
+                    }
+
+                }
+
+                if(isParcelDashlettes){
+                    parcelCarJsonArr.put(carGroupJson);
+                }else {
+                    freightCarrJsonArr.put(carGroupJson);
+                }
+            }
+        }
+        /*carrJson.put("parcelCarriers", parcelCarJsonArr);
+        carrJson.put("freightCarriers", freightCarrJsonArr);*/
+        if(isParcelDashlettes){
+            return  parcelCarJsonArr;
+        }else {
+            return freightCarrJsonArr;
+        }
+
+    }
+
+
+
+    public static JSONObject prepareReportForModesJson(List<ReportModesDto> reportModeDtoList) throws JSONException {
+
+        JSONObject reportModesJSON = new JSONObject();
+
+        JSONObject parcelJSON = new JSONObject();
+        JSONObject customReportJSON = new JSONObject();
+
+        JSONArray allModesJsonArr = new JSONArray();
+        JSONArray freightJsonArr = new JSONArray();
+
+        JSONArray auditParcelJsonArr = new JSONArray();
+        JSONArray deliveryParcelJsonArr = new JSONArray();
+        JSONArray invoiceParcelJsonArr = new JSONArray();
+
+        JSONArray allModesCustRepJsonArr = new JSONArray();
+        JSONArray freightCustRepJsonArr = new JSONArray();
+        JSONArray parcelCustRepJsonArr = new JSONArray();
+
+
+        if (reportModeDtoList != null && !reportModeDtoList.isEmpty()) {
+            for (ReportModesDto reportModesDto : reportModeDtoList) {
+
+                if (reportModesDto != null) {
+
+                      if("All Modes".equalsIgnoreCase(reportModesDto.getGroupName())) {
+                          allModesJsonArr.put(reportModesDto);
+                      } else if("Freight".equalsIgnoreCase(reportModesDto.getGroupName())) {
+                          freightJsonArr.put(reportModesDto);
+                      } else if("Custom Reports".equalsIgnoreCase(reportModesDto.getGroupName())) {
+
+                         if("All Modes".equalsIgnoreCase(reportModesDto.getGroupUnderName()))
+                             allModesCustRepJsonArr.put(reportModesDto);
+                         else if("Freight".equalsIgnoreCase(reportModesDto.getGroupUnderName()))
+                             freightCustRepJsonArr.put(reportModesDto);
+                         else if("Parcel".equalsIgnoreCase(reportModesDto.getGroupUnderName()))
+                             parcelCustRepJsonArr.put(reportModesDto);
+
+                     } else if("Parcel".equalsIgnoreCase(reportModesDto.getGroupUnderName())) {
+                         if("Audit".equalsIgnoreCase(reportModesDto.getGroupName()))
+                             auditParcelJsonArr.put(reportModesDto);
+                         else if("Delivery & Tracking".equalsIgnoreCase(reportModesDto.getGroupName()))
+                             deliveryParcelJsonArr.put(reportModesDto);
+                         else if("Invoice & GL Coding".equalsIgnoreCase(reportModesDto.getGroupName()))
+                             invoiceParcelJsonArr.put(reportModesDto);
+
+                     }
+
+                }
+
+            } // List For End
+
+        }
+        parcelJSON.put("audit",auditParcelJsonArr);
+        parcelJSON.put("delivery",deliveryParcelJsonArr);
+        parcelJSON.put("invoice",invoiceParcelJsonArr);
+
+        customReportJSON.put("allModes",allModesCustRepJsonArr);
+        customReportJSON.put("freight",freightCustRepJsonArr);
+        customReportJSON.put("parcel",parcelCustRepJsonArr);
+
+        reportModesJSON.put("allModes",allModesJsonArr);
+        reportModesJSON.put("freight",freightJsonArr);
+        reportModesJSON.put("parcel",parcelJSON);
+        reportModesJSON.put("customReports",customReportJSON);
+
+
+        return reportModesJSON;
+    }
 
     public static JSONObject prepareFilterCarrierJson(List<UserFilterUtilityDataDto> carrierList, List<Long> selectedCarrList, boolean isNew) throws JSONException {
         JSONObject carrJson = new JSONObject();
@@ -2527,9 +2743,14 @@ public class JSONUtil {
                     carrObj.put("name", userFilterCarr.getCarrierName());
                     carrObj.put("checked", isNew ? true : selectedCarrList != null && selectedCarrList.contains(userFilterCarr.getCarrierId()));
 
-                    if("parcel".equalsIgnoreCase(userFilterCarr.getCarrierType())){
+                    if("parcel".equalsIgnoreCase(userFilterCarr.getCarrierGroupName())){
                         parcelCarJsonArr.put(carrObj);
-                    }else if("freight".equalsIgnoreCase(userFilterCarr.getCarrierType())){
+                    }else if("freight".equalsIgnoreCase(userFilterCarr.getCarrierGroupName())){
+
+                        if  ( userFilterCarr.getCarrierName().contains("#") ) {
+
+                        }
+
                         freightCarrJsonArr.put(carrObj);
                     }
                 }
@@ -2538,6 +2759,26 @@ public class JSONUtil {
         carrJson.put("parcelCarriers", parcelCarJsonArr);
         carrJson.put("freightCarriers", freightCarrJsonArr);
         return carrJson;
+    }
+
+    public static JSONArray prepareFilterCarrierJsonForParcel(List<UserFilterUtilityDataDto> carrierList, List<Long> selectedCarrList, boolean isNew) throws JSONException {
+        JSONObject carrJson = new JSONObject();
+        JSONArray parcelCarJsonArr = new JSONArray();
+
+        if (carrierList != null && !carrierList.isEmpty()) {
+            for (UserFilterUtilityDataDto userFilterCarr : carrierList) {
+                if (userFilterCarr != null) {
+                    JSONObject carrObj = new JSONObject();
+                    carrObj.put("id", userFilterCarr.getCarrierIdCSV());
+                    carrObj.put("name", userFilterCarr.getCarrierName());
+                    carrObj.put("checked", isNew ? true : selectedCarrList != null && selectedCarrList.contains(Long.valueOf(userFilterCarr.getCarrierIdCSV())));
+                    carrObj.put("selected",isNew ? true : selectedCarrList != null && selectedCarrList.contains(Long.valueOf(userFilterCarr.getCarrierIdCSV())));
+                    parcelCarJsonArr.put(carrObj);
+                }
+            }
+        }
+
+        return parcelCarJsonArr;
     }
 
     public static JSONArray prepareFilterModesJson(List<UserFilterUtilityDataDto> modes, Map<String, String> modeWiseCarriers, boolean isParcelDashlettes) throws JSONException {
@@ -2550,7 +2791,6 @@ public class JSONUtil {
             List<String> modesList = new ArrayList<String>();
             for (UserFilterUtilityDataDto userFilterMode : modes) {
                 if (userFilterMode != null) {
-                    if (!isParcelDashlettes && modeWiseCarriers.containsKey("freightCarrier")) {
                         if (!modesList.contains(userFilterMode.getId())) {
                             modesList.add(String.valueOf(userFilterMode.getId()));
                             JSONObject jsonObject = new JSONObject();
@@ -2558,17 +2798,16 @@ public class JSONUtil {
                             jsonObject.put("name", userFilterMode.getName());
                             jsonObject.put("checked", isNew ? true : savedModes != null && savedModes.contains(userFilterMode.getId()));
                             modesDetailsArray.put(jsonObject);
-                        }
                     }
                 }
             }
-            if (modeWiseCarriers.containsKey("parcelCarrier")) {
+            /*if (modeWiseCarriers.containsKey("parcelCarrier") && needToAddSmallPackage) {
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("id", WebConstants.SMALL_PACKAGE_CODE_VALUE_ID);
                 jsonObject.put("name", WebConstants.SMALL_PACKAGE_CARRIER_MODES);
                 jsonObject.put("checked", isNew ? true : savedModes != null && savedModes.contains(Long.valueOf(WebConstants.SMALL_PACKAGE_CODE_VALUE_ID)));
                 modesDetailsArray.put(jsonObject);
-            }
+            }*/
         }
         return modesDetailsArray;
     }
@@ -2942,7 +3181,7 @@ public class JSONUtil {
         return finalObject;
     }
 
-    public static JSONObject prepareJsonForAverageChartByWeekly(List<CommonWeekChartDto> weekChartList) throws JSONException {
+    public static JSONObject prepareJsonForAverageChartByWeekly(List<CommonWeekChartDto> weekChartList, boolean isWeight, boolean isSpend, boolean manipulate) throws JSONException {
         JSONObject returnJson = new JSONObject();
         JSONArray returnArray = new JSONArray();
         int count = 0;
@@ -2952,7 +3191,6 @@ public class JSONUtil {
         long totalCount = 0;
         int previousWeekNo = 0;
         String previousWeekLastDay = null;
-        DecimalFormat decimalformat = new DecimalFormat("##.##");
 
         for (CommonWeekChartDto weekChart : weekChartList) {
             if (weekChart != null) {
@@ -2972,7 +3210,13 @@ public class JSONUtil {
                 } else {
                     previousWeekNo = currentWeekNo;
                     returnArray.getJSONArray(count - 1).put(0, previousWeekLastDay);
-                    returnArray.getJSONArray(count - 1).put(1, decimalformat.format(totalAmount / totalCount));
+                    if(isWeight && manipulate){
+                        returnArray.getJSONArray(count - 1).put(1, CommonUtil.round(totalAmount / totalCount, 1));
+                    }else if(isSpend && manipulate){
+                        returnArray.getJSONArray(count - 1).put(1, CommonUtil.round(totalAmount / totalCount, 2));
+                    }else{
+                        returnArray.getJSONArray(count - 1).put(1, totalAmount / totalCount);
+                    }
 
                     totalAmount = weekChart.getAmount();
                     totalCount = weekChart.getCount();
@@ -2989,7 +3233,13 @@ public class JSONUtil {
         }
         if (returnArray.length() > 0) {
             returnArray.getJSONArray(count - 1).put(0, previousWeekLastDay);
-            returnArray.getJSONArray(count - 1).put(1, totalCount != 0 ? decimalformat.format(totalAmount / totalCount) : 0);
+            if(isWeight && manipulate){
+                returnArray.getJSONArray(count - 1).put(1, totalCount != 0 ? CommonUtil.round(totalAmount / totalCount, 1) : 0);
+            }else if(isSpend && manipulate){
+                returnArray.getJSONArray(count - 1).put(1, totalCount != 0 ? CommonUtil.round(totalAmount / totalCount, 2) : 0);
+            }else{
+                returnArray.getJSONArray(count - 1).put(1, totalCount != 0 ? totalAmount / totalCount : 0);
+            }
         }
         returnJson.put("values", returnArray);
         returnJson.put("fromDate", fromDate);
@@ -2997,7 +3247,7 @@ public class JSONUtil {
         return returnJson;
     }
 
-    public static JSONObject prepareJsonForAverageChartByPeriod(List<CommonPeriodChartDto> commonPeriodChartList, String unit) throws JSONException {
+    public static JSONObject prepareJsonForAverageChartByPeriod(List<CommonPeriodChartDto> commonPeriodChartList, String unit, boolean isWeight, boolean isSpend, boolean manipulate) throws JSONException {
         JSONObject returnJson = new JSONObject();
         JSONArray returnArray = new JSONArray();
         int count = 0;
@@ -3005,7 +3255,6 @@ public class JSONUtil {
         String toDate = null;
         double totalAmount =0;
         long totalCount =0;
-        DecimalFormat decimalformat =new DecimalFormat("##.##");
 
         if (commonPeriodChartList != null && !commonPeriodChartList.isEmpty()) {
             for (CommonPeriodChartDto periodChart : commonPeriodChartList) {
@@ -3016,7 +3265,13 @@ public class JSONUtil {
                     String date = DateUtil.format(periodChart.getBillDate(), "yyyy-MM-dd");
                     dataArray.put(date);
                     if (unit.equalsIgnoreCase("day")) {
-                        dataArray.put(decimalformat.format(null == periodChart.getAverageAmount() ? 0d : periodChart.getAverageAmount()));
+                        if(isWeight && manipulate){
+                            dataArray.put(null == periodChart.getAverageAmount() ? 0d : CommonUtil.round(periodChart.getAverageAmount(), 1));
+                        }else if(isSpend && manipulate){
+                            dataArray.put(null == periodChart.getAverageAmount() ? 0d : CommonUtil.round(periodChart.getAverageAmount(), 2));
+                        }else{
+                            dataArray.put(null == periodChart.getAverageAmount() ? 0d : periodChart.getAverageAmount());
+                        }
                     } else {
                         dataArray.put(0);
                     }
@@ -3031,7 +3286,13 @@ public class JSONUtil {
 
                 if (!unit.equalsIgnoreCase("day") && returnArray.length() > 0) {
                     returnArray.getJSONArray(0).put(0, fromDate);
-                    returnArray.getJSONArray(0).put(1, totalCount != 0 ? decimalformat.format(totalAmount / totalCount) : 0);
+                    if(isWeight && manipulate){
+                        returnArray.getJSONArray(0).put(1, totalCount != 0 ? CommonUtil.round(totalAmount / totalCount, 1) : 0);
+                    }else if(isSpend && manipulate){
+                        returnArray.getJSONArray(0).put(1, totalCount != 0 ? CommonUtil.round(totalAmount / totalCount, 2) : 0);
+                    }else{
+                        returnArray.getJSONArray(0).put(1, totalCount != 0 ? totalAmount / totalCount : 0);
+                    }
                 }
 
                 returnJson.put("values", returnArray);
