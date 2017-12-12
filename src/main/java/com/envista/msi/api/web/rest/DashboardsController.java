@@ -3773,6 +3773,7 @@ public class DashboardsController extends DashboardBaseController {
     @RequestMapping(value = "/serviceLevAnalysis", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<String> getServiceLevAnalysis() throws Exception {
         JSONObject nspData = null;
+
         UserProfileDto user = getUserProfile();
         DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
         List<ServiceLevelDto> serviceLevelList = dashboardsService.getServiceLevAnalysis(filter, false);

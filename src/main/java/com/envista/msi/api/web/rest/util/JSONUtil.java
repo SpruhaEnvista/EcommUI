@@ -3681,7 +3681,17 @@ public class JSONUtil {
                 if(i==spendAnalysisList.size()-1)
                 {
 
+                    Double totalPercSpendDbl = NonothersSpendDbl+ othersSpendDbl ;
+                    Double totalPercShipmentsDbl = NonothersNoOfShipmentsDbl+ othersNoOfShipmentsDbl ;
+
+                    if(totalPercSpendDbl==0)
+                        othersPercSpendDbl = 0d ;
+                    else
                     othersPercSpendDbl =((othersSpendDbl/(NonothersSpendDbl+ othersSpendDbl))*100) ;
+
+                    if(totalPercShipmentsDbl==0)
+                        othersPercShipmentsDbl = 0d ;
+                    else
                     othersPercShipmentsDbl =  ((othersNoOfShipmentsDbl/(NonothersNoOfShipmentsDbl+ othersNoOfShipmentsDbl))*100) ;
 
                     statusJson = new JSONObject();
@@ -3766,6 +3776,7 @@ public class JSONUtil {
 
 
 
+
             for (int i=0;i<serviceLevelDtoList.size();i++) {
                 ServiceLevelDto analysisDto = serviceLevelDtoList.get(i);
 
@@ -3814,8 +3825,19 @@ public class JSONUtil {
                 if(i==serviceLevelDtoList.size()-1)
                 {
 
-                    othersPercSpendDbl =((othersSpendDbl/(NonothersSpendDbl+ othersSpendDbl))*100) ;
-                    othersPercPckgsDbl =  ((othersNoOfPckgsDbl/(NonothersNoOfPckgsDbl+ othersNoOfPckgsDbl))*100) ;
+                    Double totalPercSpendDbl = NonothersSpendDbl+ othersSpendDbl ;
+                    Double totalNoOfPckgsDbl = NonothersNoOfPckgsDbl+ othersNoOfPckgsDbl ;
+
+                    if(totalPercSpendDbl==0)
+                        othersPercSpendDbl = 0d ;
+                    else
+                    othersPercSpendDbl =((othersSpendDbl/totalPercSpendDbl)*100) ;
+
+                    if(totalNoOfPckgsDbl == 0)
+                    othersPercPckgsDbl =  0d ;
+                    else
+                        othersPercPckgsDbl =  ((othersNoOfPckgsDbl/totalNoOfPckgsDbl)*100) ;
+
 
                     statusJson = new JSONObject();
                     //statusJson.put("id", 0);
