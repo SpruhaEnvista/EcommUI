@@ -259,7 +259,7 @@ public class DashboardsController extends DashboardBaseController {
     @RequestMapping(value = "/costShptByServByMnth", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE}, consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<String> getCostShpmntByServByMonth(@RequestBody ServiceLevelDto serviceLevelDto) throws Exception{
         UserProfileDto user = getUserProfile();
-        String servicelevel = serviceLevelDto.getServicelevel();
+        String servicelevel = serviceLevelDto.getServiceLevel();
         //String carrierDetails = serviceLevelDto.getCarrierDetails();
         String billDate = serviceLevelDto.getBillingDate();
         DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
@@ -1846,12 +1846,12 @@ public class DashboardsController extends DashboardBaseController {
 
     private JSONObject loadCostShpmntByServByMonthJson(DashboardsFilterCriteria filter,boolean isTopTenAccessorial,String serviceLevel,Double isWeight) throws Exception {
         JSONObject shpmntByServJson = null;
-        List<ServiceLevelDto> serviceLevelDtoList = dashboardsService.getCostPerShipmentByService(filter, false, serviceLevel,new Double("0"));
+        List<ServiceLevelDto> serviceLevelDtoList = dashboardsService.getCostShpmntByServByMonth(filter, false, serviceLevel,new Double("0"));
         if(serviceLevelDtoList != null && !serviceLevelDtoList.isEmpty()){
             List<CommonMonthlyChartDto> commonMonthlyChartDtoList= new ArrayList<CommonMonthlyChartDto>();
             for (ServiceLevelDto serviceLevelDto: serviceLevelDtoList ) {
                 CommonMonthlyChartDto commonMonthlyChartDto= new CommonMonthlyChartDto();
-               // commonMonthlyChartDto.setBillDate(serviceLevelDto.getBillingDate());
+                commonMonthlyChartDto.setBillDate(serviceLevelDto.getBillDate());
                 commonMonthlyChartDto.setAmount(serviceLevelDto.getCostPerPackage());
                 commonMonthlyChartDtoList.add(commonMonthlyChartDto);
             }

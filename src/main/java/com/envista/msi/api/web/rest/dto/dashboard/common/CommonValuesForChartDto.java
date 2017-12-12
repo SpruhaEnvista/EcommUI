@@ -38,7 +38,7 @@ public class CommonValuesForChartDto implements Serializable{
 
     public CommonValuesForChartDto(ServiceLevelDto serviceLevelDto ,boolean isSpend ){
         this.id = 0l;
-        this.name = serviceLevelDto.getServicelevel();
+        this.name = serviceLevelDto.getServiceLevel();
         if(isSpend)
             this.value = serviceLevelDto.getSpend();
         else

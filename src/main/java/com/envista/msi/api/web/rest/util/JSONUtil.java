@@ -299,7 +299,7 @@ public class JSONUtil {
             for (ServiceLevelDto serviceLevelDto : serviceLevelDtoList) {
                 if (serviceLevelDto != null) {
                     String billDate = serviceLevelDto.getBillingDate();
-                    String serviceLevel = serviceLevelDto.getServicelevel();
+                    String serviceLevel = serviceLevelDto.getServiceLevel();
                     //long carrierId = overTimeDto.getCarrierId();
                     //Double spend = Math.rint(serviceLevelDto.getNetCharges());
                     Double costPerPackage = Math.rint(serviceLevelDto.getCostPerPackage());
@@ -3780,7 +3780,7 @@ public class JSONUtil {
                 {
                     if (analysisDto != null) {
                         statusJson = new JSONObject();
-                        statusJson.put("ServiceLevel", analysisDto.getServicelevel());
+                        statusJson.put("ServiceLevel", analysisDto.getServiceLevel());
                         statusJson.put("Spend", commaSeperatedDecimalFormat.format(analysisDto.getSpend()));
                         statusJson.put("% of Total Spend", commaSeperatedDecimalFormat.format(analysisDto.getPercSpend())+"%");
                         statusJson.put("# of Packages", commaSeperatedDecimalFormat.format(analysisDto.getNoOfPackages()));

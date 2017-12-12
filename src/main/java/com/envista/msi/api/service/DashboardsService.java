@@ -111,6 +111,11 @@ public class DashboardsService {
         return  dashboardsDao.getCostPerShipmentByService(filter, isTopTenAccessorial,serviceLevel,isWeight);
     }
 
+    @Transactional(readOnly = true)
+    public List<ServiceLevelDto> getCostShpmntByServByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial,String serviceLevel,Double isWeight) {
+        return  dashboardsDao.getCostShpmntByServByMonth(filter, isTopTenAccessorial,serviceLevel,isWeight);
+    }
+
     /**
      *
      * @param filter
