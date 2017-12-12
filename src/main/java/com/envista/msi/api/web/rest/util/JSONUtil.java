@@ -3683,31 +3683,35 @@ public class JSONUtil {
 
                     Double totalPercSpendDbl = NonothersSpendDbl+ othersSpendDbl ;
                     Double totalPercShipmentsDbl = NonothersNoOfShipmentsDbl+ othersNoOfShipmentsDbl ;
-
                     if(totalPercSpendDbl==0)
                         othersPercSpendDbl = 0d ;
                     else
-                    othersPercSpendDbl =((othersSpendDbl/(NonothersSpendDbl+ othersSpendDbl))*100) ;
+                        othersPercSpendDbl =((othersSpendDbl/(NonothersSpendDbl+ othersSpendDbl))*100) ;
 
                     if(totalPercShipmentsDbl==0)
                         othersPercShipmentsDbl = 0d ;
                     else
-                    othersPercShipmentsDbl =  ((othersNoOfShipmentsDbl/(NonothersNoOfShipmentsDbl+ othersNoOfShipmentsDbl))*100) ;
+                        othersPercShipmentsDbl =  ((othersNoOfShipmentsDbl/(NonothersNoOfShipmentsDbl+ othersNoOfShipmentsDbl))*100) ;
 
-                    statusJson = new JSONObject();
-                    statusJson.put("id", 0);
-                    statusJson.put("Carrier", "Others");
-                    statusJson.put("Spend", commaSeperatedDecimalFormat.format(othersSpendDbl));
-                    statusJson.put("% of Total Spend", commaSeperatedDecimalFormat.format( othersPercSpendDbl)+"%");
-                    statusJson.put("# of Shipments", commaSeperatedDecimalFormat.format(othersNoOfShipmentsDbl));
-                    statusJson.put("% of Total Shpts", commaSeperatedDecimalFormat.format( othersPercShipmentsDbl)+"%");
-                    statusJson.put("Total Weight", commaSeperatedDecimalFormat.format(othersTotalWeightDbl));
-                    statusJson.put("Cost/Shipment", commaSeperatedDecimalFormat2.format(othersCostPerShpmntDbl));
-                    statusJson.put("Weight/Shipment", commaSeperatedDecimalFormat1.format(othersWeightPerShmntDbl));
-                    statusJson.put("Cost/Weight", commaSeperatedDecimalFormat2.format(othersCostWeightDbl));
+                    if(i>=10)
+                    {
+                        statusJson = new JSONObject();
+                        statusJson.put("id", 0);
+                        statusJson.put("Carrier", "Others");
+                        statusJson.put("Spend", commaSeperatedDecimalFormat.format(othersSpendDbl));
+                        statusJson.put("% of Total Spend", commaSeperatedDecimalFormat.format( othersPercSpendDbl)+"%");
+                        statusJson.put("# of Shipments", commaSeperatedDecimalFormat.format(othersNoOfShipmentsDbl));
+                        statusJson.put("% of Total Shpts", commaSeperatedDecimalFormat.format( othersPercShipmentsDbl)+"%");
+                        statusJson.put("Total Weight", commaSeperatedDecimalFormat.format(othersTotalWeightDbl));
+                        statusJson.put("Cost/Shipment", commaSeperatedDecimalFormat2.format(othersCostPerShpmntDbl));
+                        statusJson.put("Weight/Shipment", commaSeperatedDecimalFormat1.format(othersWeightPerShmntDbl));
+                        statusJson.put("Cost/Weight", commaSeperatedDecimalFormat2.format(othersCostWeightDbl));
 
-                    returnArray.put(statusJson);
-                    statusJson = null;
+                        returnArray.put(statusJson);
+                        statusJson = null;
+
+                    }
+
 
                     // Add Total row of Pivot Table
                     statusJson = new JSONObject();
@@ -3831,28 +3835,34 @@ public class JSONUtil {
                     if(totalPercSpendDbl==0)
                         othersPercSpendDbl = 0d ;
                     else
-                    othersPercSpendDbl =((othersSpendDbl/totalPercSpendDbl)*100) ;
+                        othersPercSpendDbl =((othersSpendDbl/totalPercSpendDbl)*100) ;
 
                     if(totalNoOfPckgsDbl == 0)
-                    othersPercPckgsDbl =  0d ;
+                        othersPercPckgsDbl =  0d ;
                     else
                         othersPercPckgsDbl =  ((othersNoOfPckgsDbl/totalNoOfPckgsDbl)*100) ;
 
 
-                    statusJson = new JSONObject();
-                    //statusJson.put("id", 0);
-                    statusJson.put("ServiceLevel", "Remaining");
-                    statusJson.put("Spend", commaSeperatedDecimalFormat.format(othersSpendDbl));
-                    statusJson.put("% of Total Spend", commaSeperatedDecimalFormat.format(othersPercSpendDbl)+"%");
-                    statusJson.put("# of Packages", commaSeperatedDecimalFormat.format(othersNoOfPckgsDbl));
-                    statusJson.put("% of Total Packages", commaSeperatedDecimalFormat.format(othersPercPckgsDbl)+"%");
-                    statusJson.put("Total Weight", commaSeperatedDecimalFormat.format(othersTotalWeightDbl));
-                    statusJson.put("Cost/Package", commaSeperatedDecimalFormat2.format(othersCostPerPckgsDbl));
-                    statusJson.put("Weight/Package", commaSeperatedDecimalFormat1.format(othersWeightPerPckgsDbl));
-                    statusJson.put("Cost/Weight", commaSeperatedDecimalFormat2.format(othersCostWeightDbl));
+                    if(i>=15)
+                    {
 
-                    returnArray.put(statusJson);
-                    statusJson = null;
+                        statusJson = new JSONObject();
+                        //statusJson.put("id", 0);
+                        statusJson.put("ServiceLevel", "Remaining");
+                        statusJson.put("Spend", commaSeperatedDecimalFormat.format(othersSpendDbl));
+                        statusJson.put("% of Total Spend", commaSeperatedDecimalFormat.format(othersPercSpendDbl)+"%");
+                        statusJson.put("# of Packages", commaSeperatedDecimalFormat.format(othersNoOfPckgsDbl));
+                        statusJson.put("% of Total Packages", commaSeperatedDecimalFormat.format(othersPercPckgsDbl)+"%");
+                        statusJson.put("Total Weight", commaSeperatedDecimalFormat.format(othersTotalWeightDbl));
+                        statusJson.put("Cost/Package", commaSeperatedDecimalFormat2.format(othersCostPerPckgsDbl));
+                        statusJson.put("Weight/Package", commaSeperatedDecimalFormat1.format(othersWeightPerPckgsDbl));
+                        statusJson.put("Cost/Weight", commaSeperatedDecimalFormat2.format(othersCostWeightDbl));
+
+                        returnArray.put(statusJson);
+                        statusJson = null;
+                    }
+
+
 
                     // Add Total row of Pivot Table
                     statusJson = new JSONObject();
