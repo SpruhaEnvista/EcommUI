@@ -13,6 +13,7 @@ import javax.persistence.Query;
 import javax.persistence.StoredProcedureQuery;
 
 import com.envista.msi.api.dao.type.GenericObject;
+import com.envista.msi.api.web.rest.dto.glom.GlmGenericTypeBean;
 import com.envista.msi.api.web.rest.dto.invoicing.CreditResponseDto;
 import oracle.sql.STRUCT;
 import oracle.sql.StructDescriptor;
@@ -316,6 +317,126 @@ public class StoredProcedureContext extends EntityManagerImpl implements Persist
                                     Field[] objParams = CreditResponseDto.class.getDeclaredFields();
                                     for (int index = 0; index < paramsList.size(); index++) {
                                         CreditResponseDto genericObject = paramsList.get(index);
+                                        int i = 0;
+                                        Object[] sqlParams = new Object[objParams.length];
+                                        for (Field field : objParams) {
+                                            field.setAccessible(true);
+                                            sqlParams[i++] = field.get(genericObject);
+                                        }
+
+                                        STRUCT struct = new STRUCT(structDescriptor, st.getConnection(), sqlParams);
+                                        structs[index] = struct;
+                                    }
+                                }
+
+                                ArrayDescriptor desc = ArrayDescriptor.createDescriptor(objectArray.toUpperCase(), st.getConnection());
+                                ARRAY oracleArray = new ARRAY(desc, st.getConnection(), structs);
+                                st.setArray(storedParameter.position, oracleArray);
+                            } else {
+                                st.setObject(storedParameter.position, storedParameter.value);
+                            }
+                            break;
+                        case INOUT:
+                            throw new SQLException("Only IN and REF_CURSOR modes are supported");
+                        case OUT:
+                            throw new SQLException("Only IN and REF_CURSOR modes are supported");
+                        case REF_CURSOR:
+                            outCount++;
+                            st.registerOutParameter(storedParameter.position, OracleTypes.CURSOR);
+                            if (outCount > 1) {
+                                throw new SQLException("Unknown parameter name");
+                            }
+                            outPos = storedParameter.position;
+                            break;
+
+                    }
+                }
+            }
+
+            st.execute();
+            if (outCount > 0) {
+                rs = (ResultSet) st.getObject(outPos);
+                ResultSetMetaData rsmd = rs.getMetaData();
+                int columnCount = rsmd.getColumnCount();
+                while (rs.next()) {
+                    List record = new ArrayList();
+                    ;
+                    for (int i = 1; i <= columnCount; i++) {
+                        record.add(rs.getObject(i));
+                    }
+                    if (record != null && !record.isEmpty())
+                        returnList.add(record);
+                }
+            }
+        } catch (Exception e) {
+            throw new SQLException(e);
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    ;
+                }
+            }
+            if (st != null) {
+                try {
+                    st.close();
+                } catch (SQLException e) {
+                    ;
+                }
+            }
+        }
+
+        return returnList;
+    }
+
+    @SuppressWarnings("rawtypes")
+    @Override
+    public <T> List<T> executeStoredProcedureGlmGeneric(String storedProcedureName, QueryParameter parameters, String object, String objectArray)
+            throws SQLException {
+        if (null == storedProcedureName) {
+            throw new SQLException("Unknown Procedure name");
+        }
+
+        if (null == parameters) {
+            throw new SQLException("Unknown Procedure name");
+        }
+
+        String params = "";
+
+        List<StoredParameter> a = parameters.positionParameters();
+        for (int i = 0; i < a.size(); i++) {
+            params = params + "?,";
+        }
+
+        params = storedProcedureName + "(" + (params.endsWith(",") ? params.substring(0, params.length() - 1) : params)
+                + ")";
+        CallableStatement st = null;
+        List returnList = new ArrayList();
+        ResultSet rs = null;
+        OracleConnection connection = null;
+        try {
+            connection = getNativeConnection();
+            st = connection.prepareCall("call " + params);
+
+            int outCount = 0;
+            int outPos = 0;
+            if (parameters != null && parameters.positionParameters() != null) {
+                for (StoredParameter storedParameter : a) {
+                    switch (storedParameter.mode) {
+                        case IN:
+                            if (storedParameter.type.equals(String[].class)) {
+                                st.setArray(storedParameter.position,
+                                        createOracleArray(connection, (String[]) storedParameter.value));
+                            } else if (storedParameter.type.equals(GlmGenericTypeBean[].class)) {
+                                STRUCT[] structs = null;
+                                if (null != storedParameter.value) {
+                                    List<GlmGenericTypeBean> paramsList = (List<GlmGenericTypeBean>) storedParameter.value;
+                                    StructDescriptor structDescriptor = StructDescriptor.createDescriptor(object.toUpperCase(), st.getConnection());
+                                    structs = new STRUCT[paramsList.size()];
+                                    Field[] objParams = GlmGenericTypeBean.class.getDeclaredFields();
+                                    for (int index = 0; index < paramsList.size(); index++) {
+                                        GlmGenericTypeBean genericObject = paramsList.get(index);
                                         int i = 0;
                                         Object[] sqlParams = new Object[objParams.length];
                                         for (Field field : objParams) {
