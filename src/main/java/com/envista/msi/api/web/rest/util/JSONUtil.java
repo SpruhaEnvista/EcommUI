@@ -283,7 +283,7 @@ public class JSONUtil {
         return returnObject;
     }
 
-    public static JSONObject prepareCostPerShipmentByServiceJson(List<ServiceLevelDto> serviceLevelDtoList) throws JSONException {
+    public static JSONObject prepareCostPerShipmentByServiceJson(List<ServiceLevelDto> serviceLevelDtoList,Double weight) throws JSONException {
         JSONObject returnObject = new JSONObject();
         JSONArray valuesArray = null;
         JSONArray seriesArray = null;
@@ -300,9 +300,11 @@ public class JSONUtil {
                 if (serviceLevelDto != null) {
                     String billDate = serviceLevelDto.getBillingDate();
                     String serviceLevel = serviceLevelDto.getServiceLevel();
-                    //long carrierId = overTimeDto.getCarrierId();
-                    //Double spend = Math.rint(serviceLevelDto.getNetCharges());
-                    Double costPerPackage = Math.rint(serviceLevelDto.getCostPerPackage());
+                    Double costPerPackage ;
+                    if(weight.doubleValue()==0)
+                        costPerPackage = Math.rint(serviceLevelDto.getCostPerPackage());
+                    else
+                        costPerPackage = Math.rint(serviceLevelDto.getCostWeight());
 
                     if (costPerPackage != 0) {
 
@@ -341,18 +343,9 @@ public class JSONUtil {
                 while (serviceFlagIterator.hasNext()) {
                     String serviceFlag = serviceFlagIterator.next();
                     double costPerPackage = serviceLevelMap.get(serviceFlag);
-                    /*if ( noofServices <=15) {
-                        jsonObject.put(serviceFlag, costPerPackage);
-                    } else {
-                        othersSum += costPerPackage;
-                    }*/
                     jsonObject.put(serviceFlag, costPerPackage);
                     noofServices++;
                 }
-
-                /*if ( noofServices > 15 ) {
-                    jsonObject.put("Remaining", othersSum);
-                }*/
 
                 valuesArray.put(jsonObject);
                 counter++;

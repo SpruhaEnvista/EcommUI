@@ -256,6 +256,28 @@ public class DashboardsController extends DashboardBaseController {
     }
 
 
+    @RequestMapping(value = "/costWghtByServByMnth", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE}, consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getCostWeightByServByMonth(@RequestBody ServiceLevelDto serviceLevelDto) throws Exception{
+        UserProfileDto user = getUserProfile();
+        String servicelevel = serviceLevelDto.getServiceLevel();
+        //String carrierDetails = serviceLevelDto.getCarrierDetails();
+        String billDate = serviceLevelDto.getBillingDate();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if(filter != null){
+            if(servicelevel != null && !servicelevel.isEmpty())
+            {
+                filter.setServiceNames(servicelevel);
+            }
+
+            if (billDate != null) {
+                DashboardUtil.setDatesFromMonth(filter, billDate);
+            }
+        }
+        Double isWeight = new Double("1");
+        JSONObject nspData = loadCostShpmntByServByMonthJson( filter, false, servicelevel, isWeight);
+        return new ResponseEntity<String>(nspData != null ? nspData.toString() : new JSONObject().toString(), HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/costShptByServByMnth", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE}, consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<String> getCostShpmntByServByMonth(@RequestBody ServiceLevelDto serviceLevelDto) throws Exception{
         UserProfileDto user = getUserProfile();
@@ -264,18 +286,6 @@ public class DashboardsController extends DashboardBaseController {
         String billDate = serviceLevelDto.getBillingDate();
         DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
         if(filter != null){
-            /*if (carrierName != null && !carrierName.isEmpty() && carrierDetails != null && !carrierDetails.isEmpty()) {
-                JSONArray carrierDetailsArr = new JSONArray(carrierDetails);
-                int carriersLen = carrierDetailsArr.length();
-                for ( int i = 0; i < carriersLen; i++) {
-                    JSONObject carrierInfo = carrierDetailsArr.getJSONObject(i);
-                    if ( carrierName.equalsIgnoreCase(carrierInfo.getString("carrierName") ) ) {
-                        filter.setCarriers(carrierInfo.getString("carrierId"));
-                        break;
-                    }
-                }
-            }*/
-
             if(servicelevel != null && !servicelevel.isEmpty())
             {
                 filter.setServiceNames(servicelevel);
@@ -303,6 +313,15 @@ public class DashboardsController extends DashboardBaseController {
         DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
         String serviceLevel = "";
         JSONObject nspData = loadCostPerShipmentByServiceJson( filter,serviceLevel);
+        return new ResponseEntity<String>(nspData != null ? nspData.toString() : new JSONObject().toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/costWghtByServLev" , method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getCostPerWeightByService() throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        String serviceLevel = "";
+        JSONObject nspData = loadCostPerWeightByServiceJson( filter,serviceLevel);
         return new ResponseEntity<String>(nspData != null ? nspData.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
@@ -1837,12 +1856,24 @@ public class DashboardsController extends DashboardBaseController {
 
     private JSONObject loadCostPerShipmentByServiceJson(DashboardsFilterCriteria filter,String serviceLevel) throws JSONException {
         JSONObject netSpendJsonData = null;
-        List<ServiceLevelDto> serviceLevelDtoList = dashboardsService.getCostPerShipmentByService(filter, false, serviceLevel,new Double("0"));
+        Double isWeight = new Double("0") ;
+        List<ServiceLevelDto> serviceLevelDtoList = dashboardsService.getCostPerShipmentByService(filter, false, serviceLevel,isWeight);
         if(serviceLevelDtoList != null){
-            netSpendJsonData = JSONUtil.prepareCostPerShipmentByServiceJson(serviceLevelDtoList);
+            netSpendJsonData = JSONUtil.prepareCostPerShipmentByServiceJson(serviceLevelDtoList,isWeight);
         }
         return netSpendJsonData;
     }
+
+    private JSONObject loadCostPerWeightByServiceJson(DashboardsFilterCriteria filter,String serviceLevel) throws JSONException {
+        JSONObject netSpendJsonData = null;
+        Double isWeight = new Double("1") ;
+        List<ServiceLevelDto> serviceLevelDtoList = dashboardsService.getCostPerShipmentByService(filter, false, serviceLevel,isWeight);
+        if(serviceLevelDtoList != null){
+            netSpendJsonData = JSONUtil.prepareCostPerShipmentByServiceJson(serviceLevelDtoList ,isWeight);
+        }
+        return netSpendJsonData;
+    }
+
 
     private JSONObject loadCostShpmntByServByMonthJson(DashboardsFilterCriteria filter,boolean isTopTenAccessorial,String serviceLevel,Double isWeight) throws Exception {
         JSONObject shpmntByServJson = null;
@@ -1852,7 +1883,11 @@ public class DashboardsController extends DashboardBaseController {
             for (ServiceLevelDto serviceLevelDto: serviceLevelDtoList ) {
                 CommonMonthlyChartDto commonMonthlyChartDto= new CommonMonthlyChartDto();
                 commonMonthlyChartDto.setBillDate(serviceLevelDto.getBillDate());
+                if(isWeight==0)
                 commonMonthlyChartDto.setAmount(serviceLevelDto.getCostPerPackage());
+                else
+                    commonMonthlyChartDto.setAmount(serviceLevelDto.getCostWeight());
+
                 commonMonthlyChartDtoList.add(commonMonthlyChartDto);
             }
             shpmntByServJson = JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList);
