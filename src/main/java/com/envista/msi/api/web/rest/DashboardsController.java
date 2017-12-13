@@ -2744,18 +2744,23 @@ public class DashboardsController extends DashboardBaseController {
 
         Workbook workbook = null;
 
-        JSONArray dataJSONArray = (JSONArray) nspData.get("values");
+        JSONArray dataJSONArray =new JSONArray();
         String fileName="CarrierSpendAnalysis";
-
-        workbook = dashboardsService.getExportCarrSpendAnalysis(dataJSONArray,fileName);
-
-        response.setContentType("application/text");
-        response.setHeader("Content-Disposition", "attachment; filename="+fileName+".xlsx");
-
-        if (workbook != null) {
-            workbook.write(response.getOutputStream());
-            workbook.close();
+        if(nspData!=null)
+        {
+             dataJSONArray = (JSONArray) nspData.get("values");
         }
+            workbook = dashboardsService.getExportCarrSpendAnalysis(dataJSONArray,fileName);
+
+            response.setContentType("application/text");
+            response.setHeader("Content-Disposition", "attachment; filename="+fileName+".xlsx");
+
+            if (workbook != null) {
+                workbook.write(response.getOutputStream());
+                workbook.close();
+            }
+
+
 
     }
 
@@ -3766,7 +3771,9 @@ public class DashboardsController extends DashboardBaseController {
         if(spendAnalysisList != null && !spendAnalysisList.isEmpty()){
             nspData = JSONUtil.prepareCarrSpendAnalysisJson(spendAnalysisList);
         }
-        return new ResponseEntity<String>(nspData != null ? nspData.toString() : new JSONObject().toString(), HttpStatus.OK);
+        JSONObject emptyJson =  new JSONObject();
+        emptyJson.put("values", new JSONArray());
+        return new ResponseEntity<String>(nspData != null ? nspData.toString() : emptyJson.toString(), HttpStatus.OK);
     }
 
 
@@ -3780,7 +3787,9 @@ public class DashboardsController extends DashboardBaseController {
         if(serviceLevelList != null && !serviceLevelList.isEmpty()){
             nspData = JSONUtil.prepareServiceLevelAnalysisJson(serviceLevelList);
         }
-        return new ResponseEntity<String>(nspData != null ? nspData.toString() : new JSONObject().toString(), HttpStatus.OK);
+        JSONObject emptyJson =  new JSONObject();
+        emptyJson.put("values", new JSONArray());
+        return new ResponseEntity<String>(nspData != null ? nspData.toString() : emptyJson.toString(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/exportServiceLevAnalysis", method = {RequestMethod.GET}, produces = "application/text")
@@ -3800,8 +3809,12 @@ public class DashboardsController extends DashboardBaseController {
 
         Workbook workbook = null;
 
-        JSONArray dataJSONArray = (JSONArray) nspData.get("values");
+        JSONArray dataJSONArray = new JSONArray();
         String fileName="ServiceLevelAnalysis";
+
+        if(nspData!=null)
+         dataJSONArray = (JSONArray) nspData.get("values");
+
 
         workbook = dashboardsService.getExportServiceLevAnalysis(dataJSONArray,fileName);
 
