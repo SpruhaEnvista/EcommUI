@@ -64,4 +64,9 @@ public class DataObjectService {
 
         return dao.delete(dataObjectId);
     }
+
+    public List<DataObjectDto> getActiveDataObjects() {
+
+        return dao.getActiveDataObjects();
+    }
 }
