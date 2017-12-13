@@ -2,7 +2,18 @@ package com.envista.msi.api.web.rest.dto.dashboard.servicelevel;
 
 import com.envista.msi.api.domain.util.DashboardStoredProcParam;
 
-import javax.persistence.*;
+import javax.persistence.NamedStoredProcedureQueries;
+import javax.persistence.NamedStoredProcedureQuery;
+import javax.persistence.StoredProcedureParameter;
+
+import javax.persistence.SqlResultSetMappings;
+import javax.persistence.SqlResultSetMapping;
+import javax.persistence.ConstructorResult;
+import javax.persistence.ColumnResult;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Column;
+import javax.persistence.ParameterMode;
 import java.io.Serializable;
 import java.util.Date;
 
