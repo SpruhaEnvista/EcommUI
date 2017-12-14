@@ -5,6 +5,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.AccessorialSpendDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.NetSpendByModeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.netspend.TaxSpendDto;
+import com.envista.msi.api.web.rest.dto.dashboard.servicelevel.ServiceLevelDto;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -25,6 +26,26 @@ public class CommonValuesForChartDto implements Serializable{
         this.name = netSpend.getCarrierName();
         this.value = netSpend.getSpend();
     }
+
+    public CommonValuesForChartDto(NetSpendByModeDto netSpend ,boolean isOverallSpend ){
+        this.id = netSpend.getCarrierId();
+        if(netSpend.getBillingDate()!=null && !"".equalsIgnoreCase(netSpend.getBillingDate()))
+        this.name = netSpend.getBillingDate();
+        else
+            this.name = netSpend.getCarrierName();
+        this.value = netSpend.getAmount();
+    }
+
+    public CommonValuesForChartDto(ServiceLevelDto serviceLevelDto ,boolean isSpend ){
+        this.id = 0l;
+        this.name = serviceLevelDto.getServiceLevel();
+        if(isSpend)
+            this.value = serviceLevelDto.getSpend();
+        else
+            this.value = serviceLevelDto.getNoOfPackages();
+    }
+
+
 
     public CommonValuesForChartDto(TaxSpendDto taxSpend){
         this.id = taxSpend.getCarrierId();
