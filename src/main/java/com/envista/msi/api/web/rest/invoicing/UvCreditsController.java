@@ -10,6 +10,7 @@ import com.envista.msi.api.web.rest.dto.invoicing.UvCreditsDto;
 import com.envista.msi.api.web.rest.dto.invoicing.UvVoiceUpdateBean;
 import com.envista.msi.api.web.rest.util.DateUtil;
 import com.envista.msi.api.web.rest.util.InvoicingUtilities;
+import com.envista.msi.api.web.rest.util.pagination.PaginationBean;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -71,12 +72,13 @@ public class UvCreditsController {
     @RequestMapping(value = "/search", params = {"businessPartnerId", "customerIds", "savedFilter", "invStatusId", "invCatagoryId", "invWeekEndId", "invoiceModeId",
             "carrierId", "creditClassId", "claimFlag", "reviewFlag", "createDate", "invoiceDate", "closeDate", "invoiceNumbers", "trackingNumbers", "internalKeyIds", "invoiceMethodId",
             "payRunNos", "controlNums", "adjReasons", "invComments"}, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
-    public ResponseEntity<List<UvCreditsDto>> search(@RequestParam Long businessPartnerId, @RequestParam String customerIds, @RequestParam String savedFilter
+    public ResponseEntity<PaginationBean> search(@RequestParam Long businessPartnerId, @RequestParam String customerIds, @RequestParam String savedFilter
             , @RequestParam Long invStatusId, @RequestParam Long invCatagoryId, @RequestParam Long invWeekEndId, @RequestParam Long invoiceModeId
             , @RequestParam Long carrierId, @RequestParam Long creditClassId, @RequestParam String claimFlag, @RequestParam String reviewFlag
             , @RequestParam String createDate, @RequestParam String invoiceDate, @RequestParam String closeDate, @RequestParam String invoiceNumbers
             , @RequestParam String trackingNumbers, @RequestParam String internalKeyIds, @RequestParam Long invoiceMethodId, @RequestParam String payRunNos
-            , @RequestParam String controlNums, @RequestParam String adjReasons, @RequestParam String invComments) {
+            , @RequestParam String controlNums, @RequestParam String adjReasons, @RequestParam String invComments
+            , @RequestParam(required = false, defaultValue = "0") Integer offset, @RequestParam(required = false, defaultValue = "10") Integer limit) throws Exception {
         log.info("***search method started****");
 
         CreditsPRSearchBean bean = new CreditsPRSearchBean();
@@ -110,10 +112,10 @@ public class UvCreditsController {
         bean.setInvComments(invComments);
 
 
-        List<UvCreditsDto> dtos = service.search(bean);
+        PaginationBean paginationData = service.getSearchPaginationData(bean, offset, limit);
 
 
-        return new ResponseEntity<List<UvCreditsDto>>(dtos, HttpStatus.OK);
+        return new ResponseEntity<PaginationBean>(paginationData, HttpStatus.OK);
     }
 
 

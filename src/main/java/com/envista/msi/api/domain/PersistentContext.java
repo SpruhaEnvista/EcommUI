@@ -87,4 +87,7 @@ public interface PersistentContext extends EntityManager {
 
 	public <T> List<T> executeStoredProcedureListType(String storedProcedureName, QueryParameter parameters, String object, String objectArray)
 			throws SQLException;
+
+	public <T> List<T> executeStoredProcedureGlmGeneric(String storedProcedureName, QueryParameter parameters, String object, String objectArray)
+			throws SQLException;
 }

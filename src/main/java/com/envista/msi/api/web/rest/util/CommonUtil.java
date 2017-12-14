@@ -21,7 +21,7 @@ import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
 
 /**
  * This utility class is specially designed to keep all methods which are commonly used/to be used over different module in Avatar project.
@@ -341,4 +341,8 @@ public class CommonUtil {
         return workbook;
     }
 
+    public static double round (double value, int precision) {
+        int scale = (int) Math.pow(10, precision);
+        return (double) Math.round(value * scale) / scale;
+    }
 }
