@@ -44,6 +44,7 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_IDENTITY_NAME", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_COMMENTS", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_EXECUTE_FUNC_NAME", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_COLUMN_1", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_COLUMN_2", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_COLUMN_3", type = String.class),
@@ -153,6 +154,9 @@ public class RulesDto implements Serializable {
 
     @Column(name = "ROW_NUM")
     private Long rowNumber;
+
+    @Column(name = "EXECUTE_FUNC_NAME")
+    private String executeFuncName;
 
 
     public RulesDto() {
@@ -337,5 +341,13 @@ public class RulesDto implements Serializable {
 
     public void setRowNumber(Long rowNumber) {
         this.rowNumber = rowNumber;
+    }
+
+    public String getExecuteFuncName() {
+        return executeFuncName;
+    }
+
+    public void setExecuteFuncName(String executeFuncName) {
+        this.executeFuncName = executeFuncName;
     }
 }
