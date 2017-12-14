@@ -3718,9 +3718,9 @@ public class JSONUtil {
                     statusJson.put("id", -1);
                     statusJson.put("Carrier", "Total");
                     statusJson.put("Spend", commaSeperatedDecimalFormat.format(NonothersSpendDbl+ othersSpendDbl));
-                    statusJson.put("% of Total Spend", commaSeperatedDecimalFormat.format(NonothersPercSpendDbl+othersPercSpendDbl)+"%");
+                    statusJson.put("% of Total Spend", commaSeperatedDecimalFormat.format(100)+"%");
                     statusJson.put("# of Shipments", commaSeperatedDecimalFormat.format(NonothersNoOfShipmentsDbl+othersNoOfShipmentsDbl));
-                    statusJson.put("% of Total Shpts", commaSeperatedDecimalFormat.format(NonothersPercShipmentsDbl+othersPercShipmentsDbl)+"%");
+                    statusJson.put("% of Total Shpts", commaSeperatedDecimalFormat.format(100)+"%");
                     statusJson.put("Total Weight", commaSeperatedDecimalFormat.format(NonothersTotalWeightDbl+othersTotalWeightDbl));
                     statusJson.put("Cost/Shipment", commaSeperatedDecimalFormat2.format(NonothersCostPerShpmntDbl+othersCostPerShpmntDbl));
                     statusJson.put("Weight/Shipment", commaSeperatedDecimalFormat1.format(NonothersWeightPerShmntDbl+othersWeightPerShmntDbl));
@@ -3869,9 +3869,9 @@ public class JSONUtil {
                     //statusJson.put("id", -1);
                     statusJson.put("ServiceLevel", "Total");
                     statusJson.put("Spend", commaSeperatedDecimalFormat.format(NonothersSpendDbl+ othersSpendDbl));
-                    statusJson.put("% of Total Spend", commaSeperatedDecimalFormat.format(NonothersPercSpendDbl+othersPercSpendDbl)+"%");
+                    statusJson.put("% of Total Spend", commaSeperatedDecimalFormat.format(100)+"%");
                     statusJson.put("# of Packages", commaSeperatedDecimalFormat.format(NonothersNoOfPckgsDbl+othersNoOfPckgsDbl));
-                    statusJson.put("% of Total Packages", commaSeperatedDecimalFormat.format(NonothersPercPckgsDbl+othersPercPckgsDbl)+"%");
+                    statusJson.put("% of Total Packages", commaSeperatedDecimalFormat.format(100)+"%");
                     statusJson.put("Total Weight", commaSeperatedDecimalFormat.format(NonothersTotalWeightDbl+othersTotalWeightDbl));
                     statusJson.put("Cost/Package", commaSeperatedDecimalFormat2.format(NonothersCostPerPckgDbl+othersCostPerPckgsDbl));
                     statusJson.put("Weight/Package", commaSeperatedDecimalFormat1.format(NonothersWeightPerPckgDbl+othersWeightPerPckgsDbl));
