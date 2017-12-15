@@ -2,6 +2,7 @@ package com.envista.msi.api.web.rest.glom;
 
 import com.envista.msi.api.service.glom.DataObjectService;
 import com.envista.msi.api.web.rest.dto.glom.DataObjectBean;
+import com.envista.msi.api.web.rest.dto.glom.DataObjectDto;
 import com.envista.msi.api.web.rest.util.pagination.PaginationBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * Created by KRISHNAREDDYM on 11/29/2017.
@@ -81,5 +83,19 @@ public class DataObjectController {
         int count = service.delete(dataObjectId);
 
         return new ResponseEntity<Integer>(count, HttpStatus.OK);
+    }
+
+    /**
+     * HTTP GET - Get all active data objects
+     */
+    @RequestMapping(value = "/getActiveDataObjects", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+    public ResponseEntity<List<DataObjectDto>> getActiveDataObjects() throws Exception {
+
+        log.info("***getActiveDataObjects method started****");
+
+
+        List<DataObjectDto> dataObjectDtos = service.getActiveDataObjects();
+
+        return ResponseEntity.status(HttpStatus.OK).body(dataObjectDtos);
     }
 }
