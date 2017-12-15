@@ -72,6 +72,7 @@ import java.io.Serializable;
                 resultClasses = RulesDto.class,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_RULE_IDS", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_RULES_INFO", type = Void.class)
                 })
 })
