@@ -96,9 +96,9 @@ public class RulesDao {
 
     }
 
-    public int delete(String ruleIds) {
+    public int delete(String ruleIds,String actionType) {
 
-        QueryParameter queryParameter = StoredProcedureParameter.with("P_RULE_IDS", ruleIds);
+        QueryParameter queryParameter = StoredProcedureParameter.with("P_RULE_IDS", ruleIds).and("P_ACTION_TYPE", actionType);
 
         List<RulesDto> dtos = persistentContext.findEntities("RulesDto.delete", queryParameter);
 

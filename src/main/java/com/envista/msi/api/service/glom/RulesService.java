@@ -60,9 +60,9 @@ public class RulesService {
         return dao.findByRuleName(ruleName, prevRuleName, scriptId);
     }
 
-    public int delete(String scriptIds) {
+    public int delete(String ruleIds,String actionType) {
 
-        return dao.delete(scriptIds);
+        return dao.delete(ruleIds,actionType);
     }
 
     public PaginationBean getAllPaginationData(RulesBean bean) throws Exception {
