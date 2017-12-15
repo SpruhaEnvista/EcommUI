@@ -157,6 +157,9 @@ public class DashboardUtil {
                 case DashboardStoredProcParam.DashboardFilterParams.POD:
                     queryParameter = prepareQueryParam(DashboardStoredProcParam.DashboardFilterParams.POD, filter.getPod(), queryParameter);
                     break;
+                case DashboardStoredProcParam.DashboardFilterParams.SERVICE_NAME:
+                    queryParameter = prepareQueryParam(DashboardStoredProcParam.DashboardFilterParams.SERVICE_NAME, filter.getPod(), queryParameter);
+                    break;
                 default:
                     throw new RuntimeException("Invalid stored procedure param name.");
             }

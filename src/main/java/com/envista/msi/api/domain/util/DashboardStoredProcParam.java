@@ -37,10 +37,17 @@ public class DashboardStoredProcParam {
         public static final String ACC_DESC_PARAM = "p_acc_desc";
         public static final String DELIVERY_FLAG_DESC_PARAM = "p_delivery_flag_desc";
         public static final String BOUND_TYPE_PARAM = "p_bound_type";
+        public static final String SERVICE_NAME = "p_service_name";
+        public static final String IS_WEIGHT = "p_is_weight";
+
+
     }
 
     public static class NetSpendParams extends DashboardFilterParams {
         public static final String NET_SPEND_PARAM = "p_net_spend";
+    }
+    public static class RelSpendParams extends DashboardFilterParams {
+        public static final String REL_SPEND_PARAM = "p_cursor";
     }
 
     public static class TaxSpendParams extends DashboardFilterParams {

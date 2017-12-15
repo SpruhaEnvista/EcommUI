@@ -13,6 +13,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AnnualSummaryDto
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.CarrierWiseMonthlySpendDto;
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.MonthlySpendByModeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
+import com.envista.msi.api.web.rest.dto.dashboard.carrierspend.CarrierSpendAnalysisDto;
 import com.envista.msi.api.web.rest.dto.dashboard.common.*;
 import com.envista.msi.api.web.rest.dto.dashboard.filter.DashSavedFilterDto;
 import com.envista.msi.api.web.rest.dto.dashboard.filter.UserFilterUtilityDataDto;
@@ -21,6 +22,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.PortLanesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentRegionDto;
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShippingLanesDto;
+import com.envista.msi.api.web.rest.dto.dashboard.servicelevel.ServiceLevelDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.*;
 import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
 import com.envista.msi.api.web.rest.dto.reports.SavedSchedReportDto;
@@ -76,7 +78,12 @@ public class DashboardsController extends DashboardBaseController {
         NET_SPEND_OVER_TIME_BY_MONTH,
         NET_SPEND_BY_OVER_TIME,
         NET_SPEND_BY_CARRIER,
-        NET_SPEND_BY_MONTH;
+        NET_SPEND_BY_MONTH,
+        OVERALL_SPEND_BY_MONTH;
+    }
+
+    enum CarrierSpendConstant{
+        CARRIER_SPEND_BY_MONTH;
     }
 
     enum AccessorialSpendConstant{
@@ -248,11 +255,73 @@ public class DashboardsController extends DashboardBaseController {
         return new ResponseEntity<String>(nspData != null ? nspData.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
+
+    @RequestMapping(value = "/costWghtByServByMnth", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE}, consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getCostWeightByServByMonth(@RequestBody ServiceLevelDto serviceLevelDto) throws Exception{
+        UserProfileDto user = getUserProfile();
+        String servicelevel = serviceLevelDto.getServiceLevel();
+        //String carrierDetails = serviceLevelDto.getCarrierDetails();
+        String billDate = serviceLevelDto.getBillingDate();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if(filter != null){
+            if(servicelevel != null && !servicelevel.isEmpty())
+            {
+                filter.setServiceNames(servicelevel);
+            }
+
+            if (billDate != null) {
+                DashboardUtil.setDatesFromMonth(filter, billDate);
+            }
+        }
+        Double isWeight = new Double("1");
+        JSONObject nspData = loadCostShpmntByServByMonthJson( filter, false, servicelevel, isWeight);
+        return new ResponseEntity<String>(nspData != null ? nspData.toString() : new JSONObject().toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/costShptByServByMnth", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE}, consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getCostShpmntByServByMonth(@RequestBody ServiceLevelDto serviceLevelDto) throws Exception{
+        UserProfileDto user = getUserProfile();
+        String servicelevel = serviceLevelDto.getServiceLevel();
+        //String carrierDetails = serviceLevelDto.getCarrierDetails();
+        String billDate = serviceLevelDto.getBillingDate();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if(filter != null){
+            if(servicelevel != null && !servicelevel.isEmpty())
+            {
+                filter.setServiceNames(servicelevel);
+            }
+
+            if (billDate != null) {
+                DashboardUtil.setDatesFromMonth(filter, billDate);
+            }
+        }
+        JSONObject nspData = loadCostShpmntByServByMonthJson( filter, false, servicelevel, new Double("0"));
+        return new ResponseEntity<String>(nspData != null ? nspData.toString() : new JSONObject().toString(), HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/netSpendByOverTime", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<String> getNetSpendByOverTime() throws Exception {
         UserProfileDto user = getUserProfile();
         DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
         JSONObject nspData = loadNetSpendJsonData(NetSpendConstant.NET_SPEND_BY_OVER_TIME, filter);
+        return new ResponseEntity<String>(nspData != null ? nspData.toString() : new JSONObject().toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/costShpmntByServLev" , method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getCostPerShipmentByService() throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        String serviceLevel = "";
+        JSONObject nspData = loadCostPerShipmentByServiceJson( filter,serviceLevel);
+        return new ResponseEntity<String>(nspData != null ? nspData.toString() : new JSONObject().toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/costWghtByServLev" , method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getCostPerWeightByService() throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        String serviceLevel = "";
+        JSONObject nspData = loadCostPerWeightByServiceJson( filter,serviceLevel);
         return new ResponseEntity<String>(nspData != null ? nspData.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
@@ -264,6 +333,26 @@ public class DashboardsController extends DashboardBaseController {
             filter.setModeNames(mode);
         }
         JSONObject nspData = loadNetSpendJsonData(NetSpendConstant.NET_SPEND_BY_CARRIER, filter);
+        return new ResponseEntity<String>(nspData != null ? nspData.toString() : new JSONObject().toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/overallSpendByMnth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getOverallSpendByMnth() throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+       /* if(filter != null && mode != null){
+            filter.setModeNames(mode);
+        }*/
+        JSONObject nspData = loadNetSpendJsonData(NetSpendConstant.OVERALL_SPEND_BY_MONTH, filter);
+        return new ResponseEntity<String>(nspData != null ? nspData.toString() : new JSONObject().toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/RelSpendByCarrier", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getRelSpendByCarrier() throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+
+        JSONObject nspData = loadRelSpendByCarrierJson(filter);
         return new ResponseEntity<String>(nspData != null ? nspData.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
@@ -282,6 +371,8 @@ public class DashboardsController extends DashboardBaseController {
         JSONObject nspData = loadNetSpendJsonData(NetSpendConstant.NET_SPEND_BY_MONTH, filter);
         return new ResponseEntity<String>(nspData != null ? nspData.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
+
+
 
     @RequestMapping(value = "/taxSpend", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<String> getTaxSpend() throws Exception {
@@ -1630,11 +1721,16 @@ public class DashboardsController extends DashboardBaseController {
             case NET_SPEND_BY_MONTH:
                 netSpendJson = loadNetSpendByMonthJson(filter);
                 break;
+            case OVERALL_SPEND_BY_MONTH:
+                netSpendJson = loadOverallSpendByMonthJson(filter);
+                break;
             default:
                 throw new MethodNotFoundException("Method param value not matched");
         }
         return netSpendJson;
     }
+
+
 
     private JSONObject loadNetSpendByMonthJson(DashboardsFilterCriteria filter) throws Exception {
         JSONObject netSpendJson = null;
@@ -1648,6 +1744,22 @@ public class DashboardsController extends DashboardBaseController {
                 commonMonthlyChartDtoList.add(commonMonthlyChartDto);
             }
             netSpendJson = JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList, true);
+        }
+        return netSpendJson;
+    }
+
+    private JSONObject loadCarrierSpendByMonthJson(DashboardsFilterCriteria filter) throws Exception {
+        JSONObject netSpendJson = null;
+        List<NetSpendByModeDto> netSpendByMonthDtoList = dashboardsService.getNetSpendByMonth(filter, false);
+        if(netSpendByMonthDtoList != null && !netSpendByMonthDtoList.isEmpty()){
+            List<CommonMonthlyChartDto> commonMonthlyChartDtoList= new ArrayList<CommonMonthlyChartDto>();
+            for (NetSpendByModeDto netSpend : netSpendByMonthDtoList ) {
+                CommonMonthlyChartDto commonMonthlyChartDto= new CommonMonthlyChartDto();
+                commonMonthlyChartDto.setBillDate(netSpend.getBillDate());
+                commonMonthlyChartDto.setAmount(netSpend.getAmount());
+                commonMonthlyChartDtoList.add(commonMonthlyChartDto);
+            }
+            netSpendJson = JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList);
         }
         return netSpendJson;
     }
@@ -1668,6 +1780,71 @@ public class DashboardsController extends DashboardBaseController {
         return netSpendJsonData;
     }
 
+    private JSONObject loadOverallSpendByMonthJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject netSpendJsonData = null;
+
+        List<NetSpendByModeDto> netSpendList = dashboardsService.getOverallSpendByMonth(filter, false);
+        if(netSpendList != null && !netSpendList.isEmpty()){
+            List<CommonValuesForChartDto> commonValueList = new ArrayList<CommonValuesForChartDto>();
+            for(NetSpendByModeDto netSpend : netSpendList){
+                if(netSpend != null){
+                    commonValueList.add(new CommonValuesForChartDto(netSpend,true));
+                }
+            }
+            netSpendJsonData = JSONUtil.prepareOverallSpendJsonForChart(commonValueList);
+        }
+        return netSpendJsonData;
+    }
+
+    private JSONObject loadRelSpendByCarrierJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject netSpendJsonData = null;
+
+        List<NetSpendByModeDto> netSpendList = dashboardsService.getRelSpendByCarrier(filter, false);
+        if(netSpendList != null && !netSpendList.isEmpty()){
+            List<CommonValuesForChartDto> commonValueList = new ArrayList<CommonValuesForChartDto>();
+            for(NetSpendByModeDto netSpend : netSpendList){
+                if(netSpend != null){
+                    commonValueList.add(new CommonValuesForChartDto(netSpend,true));
+                }
+            }
+            netSpendJsonData = JSONUtil.prepareRelSpendByCarrierChart(commonValueList);
+        }
+        return netSpendJsonData;
+    }
+
+
+    private JSONObject loadTotalSpendByServiceJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject netSpendJsonData = null;
+
+        List<ServiceLevelDto> totalSpendList = dashboardsService.getTotalSpendByService(filter, false);
+        if(totalSpendList != null && !totalSpendList.isEmpty()){
+            List<CommonValuesForChartDto> commonValueList = new ArrayList<CommonValuesForChartDto>();
+            for(ServiceLevelDto totalSpend : totalSpendList){
+                if(totalSpend != null){
+                    commonValueList.add(new CommonValuesForChartDto(totalSpend,true));
+                }
+            }
+            netSpendJsonData = JSONUtil.prepareTotalSpendByServiceChart(commonValueList);
+        }
+        return netSpendJsonData;
+    }
+
+    private JSONObject loadTotalPckgsByServiceJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject netSpendJsonData = null;
+
+        List<ServiceLevelDto> totalPckgsList = dashboardsService.getTotalPckgsByService(filter, false);
+        if(totalPckgsList != null && !totalPckgsList.isEmpty()){
+            List<CommonValuesForChartDto> commonValueList = new ArrayList<CommonValuesForChartDto>();
+            for(ServiceLevelDto totalPckg : totalPckgsList){
+                if(totalPckg != null){
+                    commonValueList.add(new CommonValuesForChartDto(totalPckg,false));
+                }
+            }
+            netSpendJsonData = JSONUtil.prepareTotalSpendByServiceChart(commonValueList);
+        }
+        return netSpendJsonData;
+    }
+
     private JSONObject loadNetSpendByOverTimeJson(DashboardsFilterCriteria filter) throws JSONException {
         JSONObject netSpendJsonData = null;
         List<NetSpendOverTimeDto> netSpendDtoList = dashboardsService.getNetSpendByOverTime(filter, false);
@@ -1675,6 +1852,47 @@ public class DashboardsController extends DashboardBaseController {
             netSpendJsonData = JSONUtil.prepareNetSpendOverTimeJson(netSpendDtoList);
         }
         return netSpendJsonData;
+    }
+
+    private JSONObject loadCostPerShipmentByServiceJson(DashboardsFilterCriteria filter,String serviceLevel) throws JSONException {
+        JSONObject netSpendJsonData = null;
+        Double isWeight = new Double("0") ;
+        List<ServiceLevelDto> serviceLevelDtoList = dashboardsService.getCostPerShipmentByService(filter, false, serviceLevel,isWeight);
+        if(serviceLevelDtoList != null){
+            netSpendJsonData = JSONUtil.prepareCostPerShipmentByServiceJson(serviceLevelDtoList,isWeight);
+        }
+        return netSpendJsonData;
+    }
+
+    private JSONObject loadCostPerWeightByServiceJson(DashboardsFilterCriteria filter,String serviceLevel) throws JSONException {
+        JSONObject netSpendJsonData = null;
+        Double isWeight = new Double("1") ;
+        List<ServiceLevelDto> serviceLevelDtoList = dashboardsService.getCostPerShipmentByService(filter, false, serviceLevel,isWeight);
+        if(serviceLevelDtoList != null){
+            netSpendJsonData = JSONUtil.prepareCostPerShipmentByServiceJson(serviceLevelDtoList ,isWeight);
+        }
+        return netSpendJsonData;
+    }
+
+
+    private JSONObject loadCostShpmntByServByMonthJson(DashboardsFilterCriteria filter,boolean isTopTenAccessorial,String serviceLevel,Double isWeight) throws Exception {
+        JSONObject shpmntByServJson = null;
+        List<ServiceLevelDto> serviceLevelDtoList = dashboardsService.getCostShpmntByServByMonth(filter, false, serviceLevel,new Double("0"));
+        if(serviceLevelDtoList != null && !serviceLevelDtoList.isEmpty()){
+            List<CommonMonthlyChartDto> commonMonthlyChartDtoList= new ArrayList<CommonMonthlyChartDto>();
+            for (ServiceLevelDto serviceLevelDto: serviceLevelDtoList ) {
+                CommonMonthlyChartDto commonMonthlyChartDto= new CommonMonthlyChartDto();
+                commonMonthlyChartDto.setBillDate(serviceLevelDto.getBillDate());
+                if(isWeight==0)
+                commonMonthlyChartDto.setAmount(serviceLevelDto.getCostPerPackage());
+                else
+                    commonMonthlyChartDto.setAmount(serviceLevelDto.getCostWeight());
+
+                commonMonthlyChartDtoList.add(commonMonthlyChartDto);
+            }
+            shpmntByServJson = JSONUtil.prepareMonthlyChartJson(commonMonthlyChartDtoList);
+        }
+        return shpmntByServJson;
     }
 
     private JSONObject loadNetSpendOverTimeByMonthJson(DashboardsFilterCriteria filter) throws Exception {
@@ -2506,6 +2724,43 @@ public class DashboardsController extends DashboardBaseController {
                 workbook.write(response.getOutputStream());
                 workbook.close();
             }
+
+    }
+
+    @RequestMapping(value = "/exportCarrSpendAnalysis", method = {RequestMethod.GET}, produces = "application/text")
+    public @ResponseBody void exportCarrSpendAnalysis(@RequestParam(required = false) String invoiceDate, @RequestParam(required = false) String dashletteName, @RequestParam(required = false) String carrierId,
+                                                      @RequestParam(required = false) String mode, @RequestParam(required = false) String carscoretype, @RequestParam(required = false) String service,
+                                                      @RequestParam(required = false, defaultValue = "0") Integer offset, @RequestParam(required = false, defaultValue = "1000") Integer limit,
+                                                      @RequestParam(required = false, defaultValue = "1000") Integer totalRecordCount,
+                                                      @RequestParam(required = false) String filter, HttpServletResponse response) throws Exception {
+
+        JSONObject nspData = null;
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filterCriteria = loadAppliedFilters(user.getUserId());
+        List<CarrierSpendAnalysisDto> spendAnalysisList = dashboardsService.getcarrSpendAnalysis(filterCriteria, false);
+        if(spendAnalysisList != null && !spendAnalysisList.isEmpty()){
+            nspData = JSONUtil.prepareCarrSpendAnalysisJson(spendAnalysisList);
+        }
+
+        Workbook workbook = null;
+
+        JSONArray dataJSONArray =new JSONArray();
+        String fileName="CarrierSpendAnalysis";
+        if(nspData!=null)
+        {
+             dataJSONArray = (JSONArray) nspData.get("values");
+        }
+            workbook = dashboardsService.getExportCarrSpendAnalysis(dataJSONArray,fileName);
+
+            response.setContentType("application/text");
+            response.setHeader("Content-Disposition", "attachment; filename="+fileName+".xlsx");
+
+            if (workbook != null) {
+                workbook.write(response.getOutputStream());
+                workbook.close();
+            }
+
+
 
     }
 
@@ -3505,4 +3760,90 @@ public class DashboardsController extends DashboardBaseController {
         }
         return new ResponseEntity<String>(nspData != null ? nspData.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
+
+
+    @RequestMapping(value = "/carrSpendAnalysis", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getcarrSpendAnalysis() throws Exception {
+        JSONObject nspData = null;
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        List<CarrierSpendAnalysisDto> spendAnalysisList = dashboardsService.getcarrSpendAnalysis(filter, false);
+        if(spendAnalysisList != null && !spendAnalysisList.isEmpty()){
+            nspData = JSONUtil.prepareCarrSpendAnalysisJson(spendAnalysisList);
+        }
+        JSONObject emptyJson =  new JSONObject();
+        emptyJson.put("values", new JSONArray());
+        return new ResponseEntity<String>(nspData != null ? nspData.toString() : emptyJson.toString(), HttpStatus.OK);
+    }
+
+
+    @RequestMapping(value = "/serviceLevAnalysis", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getServiceLevAnalysis() throws Exception {
+        JSONObject nspData = null;
+
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        List<ServiceLevelDto> serviceLevelList = dashboardsService.getServiceLevAnalysis(filter, false);
+        if(serviceLevelList != null && !serviceLevelList.isEmpty()){
+            nspData = JSONUtil.prepareServiceLevelAnalysisJson(serviceLevelList);
+        }
+        JSONObject emptyJson =  new JSONObject();
+        emptyJson.put("values", new JSONArray());
+        return new ResponseEntity<String>(nspData != null ? nspData.toString() : emptyJson.toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/exportServiceLevAnalysis", method = {RequestMethod.GET}, produces = "application/text")
+    public @ResponseBody void exportServiceLevAnalysis(@RequestParam(required = false) String invoiceDate, @RequestParam(required = false) String dashletteName, @RequestParam(required = false) String carrierId,
+                                                      @RequestParam(required = false) String mode, @RequestParam(required = false) String carscoretype, @RequestParam(required = false) String service,
+                                                      @RequestParam(required = false, defaultValue = "0") Integer offset, @RequestParam(required = false, defaultValue = "1000") Integer limit,
+                                                      @RequestParam(required = false, defaultValue = "1000") Integer totalRecordCount,
+                                                      @RequestParam(required = false) String filter, HttpServletResponse response) throws Exception {
+
+        JSONObject nspData = null;
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filterCriteria = loadAppliedFilters(user.getUserId());
+        List<ServiceLevelDto> serviceLevelList = dashboardsService.getServiceLevAnalysis(filterCriteria, false);
+        if(serviceLevelList != null && !serviceLevelList.isEmpty()){
+            nspData = JSONUtil.prepareServiceLevelAnalysisJson(serviceLevelList);
+        }
+
+        Workbook workbook = null;
+
+        JSONArray dataJSONArray = new JSONArray();
+        String fileName="ServiceLevelAnalysis";
+
+        if(nspData!=null)
+         dataJSONArray = (JSONArray) nspData.get("values");
+
+
+        workbook = dashboardsService.getExportServiceLevAnalysis(dataJSONArray,fileName);
+
+        response.setContentType("application/text");
+        response.setHeader("Content-Disposition", "attachment; filename="+fileName+".xlsx");
+
+        if (workbook != null) {
+            workbook.write(response.getOutputStream());
+            workbook.close();
+        }
+
+    }
+
+    @RequestMapping(value = "/totalSpendByService", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getTotalSpendByService() throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+
+        JSONObject nspData = loadTotalSpendByServiceJson(filter);
+        return new ResponseEntity<String>(nspData != null ? nspData.toString() : new JSONObject().toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/totalPckgByService", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getTotalPckgByService() throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+
+        JSONObject nspData = loadTotalPckgsByServiceJson(filter);
+        return new ResponseEntity<String>(nspData != null ? nspData.toString() : new JSONObject().toString(), HttpStatus.OK);
+    }
+
 }
