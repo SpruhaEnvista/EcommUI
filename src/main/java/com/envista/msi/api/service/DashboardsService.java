@@ -16,6 +16,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.AnnualSummaryDto
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.CarrierWiseMonthlySpendDto;
 import com.envista.msi.api.web.rest.dto.dashboard.annualsummary.MonthlySpendByModeDto;
 import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.*;
+import com.envista.msi.api.web.rest.dto.dashboard.carrierspend.CarrierSpendAnalysisDto;
 import com.envista.msi.api.web.rest.dto.dashboard.common.DashCustomColumnConfigDto;
 import com.envista.msi.api.web.rest.dto.dashboard.filter.DashSavedFilterDto;
 import com.envista.msi.api.web.rest.dto.dashboard.filter.UserFilterUtilityDataDto;
@@ -26,6 +27,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShipmentRegion
 import com.envista.msi.api.web.rest.dto.dashboard.networkanalysis.ShippingLanesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.report.DashboardReportDto;
 import com.envista.msi.api.web.rest.dto.dashboard.report.DashboardReportUtilityDataDto;
+import com.envista.msi.api.web.rest.dto.dashboard.servicelevel.ServiceLevelDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.*;
 import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
 import com.envista.msi.api.web.rest.util.CommonUtil;
@@ -104,6 +106,16 @@ public class DashboardsService {
         return  dashboardsDao.getNetSpendByOverTime(filter, isTopTenAccessorial);
     }
 
+    @Transactional(readOnly = true)
+    public List<ServiceLevelDto> getCostPerShipmentByService(DashboardsFilterCriteria filter, boolean isTopTenAccessorial,String serviceLevel,Double isWeight) {
+        return  dashboardsDao.getCostPerShipmentByService(filter, isTopTenAccessorial,serviceLevel,isWeight);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ServiceLevelDto> getCostShpmntByServByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial,String serviceLevel,Double isWeight) {
+        return  dashboardsDao.getCostShpmntByServByMonth(filter, isTopTenAccessorial,serviceLevel,isWeight);
+    }
+
     /**
      *
      * @param filter
@@ -114,6 +126,22 @@ public class DashboardsService {
         return dashboardsDao.getNetSpendByCarrier(filter, isTopTenAccessorial);
     }
 
+    public List<NetSpendByModeDto> getOverallSpendByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        return dashboardsDao.getOverallSpendByMonth(filter, isTopTenAccessorial);
+    }
+
+    public List<NetSpendByModeDto> getRelSpendByCarrier(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        return dashboardsDao.getRelSpendByCarrier(filter, isTopTenAccessorial);
+    }
+
+    public List<ServiceLevelDto> getTotalSpendByService(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        return dashboardsDao.getTotalSpendByService(filter, isTopTenAccessorial);
+    }
+
+    public List<ServiceLevelDto> getTotalPckgsByService(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        return dashboardsDao.getTotalPckgsByService(filter, isTopTenAccessorial);
+    }
+
     /**
      *
      * @param filter
@@ -121,6 +149,10 @@ public class DashboardsService {
      * @return
      */
     public List<NetSpendByModeDto> getNetSpendByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        return dashboardsDao.getNetSpendByMonth(filter, isTopTenAccessorial);
+    }
+
+    public List<NetSpendByModeDto> getCarrierSpendByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
         return dashboardsDao.getNetSpendByMonth(filter, isTopTenAccessorial);
     }
 
@@ -733,7 +765,70 @@ public class DashboardsService {
         }
 
 
+    public Workbook getExportServiceLevAnalysis(JSONArray dataJSONArray,String fileName) throws Exception {
 
+        Map<String,String> headersDtMap = new LinkedHashMap(); // Headers and Dtataypes
+        Map<String,String> headersPropMap = new LinkedHashMap();
+
+        //headersDtMap.put("id","NUMBER"); // Long
+        headersDtMap.put("Service Level","String");
+        headersDtMap.put("Spend","String");
+        headersDtMap.put("% of Total Spend","String");
+        headersDtMap.put("# of Packages","String");
+        headersDtMap.put("% of Total Packages","String");
+        headersDtMap.put("Total Weight","String");
+        headersDtMap.put("Cost/Package","String");
+        headersDtMap.put("Weight/Package","String");
+        headersDtMap.put("Cost/Weight","String");
+
+        //headersPropMap.put("id","id"); // Long
+        headersPropMap.put("Service Level","ServiceLevel");
+        headersPropMap.put("Spend","Spend");
+        headersPropMap.put("% of Total Spend","% of Total Spend");
+        headersPropMap.put("# of Packages","# of Packages");
+        headersPropMap.put("% of Total Packages","% of Total Packages");
+        headersPropMap.put("Total Weight","Total Weight");
+        headersPropMap.put("Cost/Package","Cost/Package");
+        headersPropMap.put("Weight/Package","Weight/Package");
+        headersPropMap.put("Cost/Weight","Cost/Weight");
+
+
+        return CommonUtil. generateXlsxFromJson(dataJSONArray,headersDtMap,headersPropMap,fileName);
+    }
+
+    public Workbook getExportCarrSpendAnalysis(JSONArray dataJSONArray,String fileName) throws Exception {
+
+        Map<String,String> headersDtMap = new LinkedHashMap(); // Headers and Dtataypes
+        Map<String,String> headersPropMap = new LinkedHashMap();
+
+        //headersDtMap.put("id","NUMBER"); // Long
+        headersDtMap.put("Carrier","String");
+        headersDtMap.put("Spend","String");
+        headersDtMap.put("% of Total Spend","String");
+        headersDtMap.put("# of Shipments","String");
+        headersDtMap.put("% of Total Shpts","String");
+        headersDtMap.put("Total Weight","String");
+        headersDtMap.put("Cost/Shipment","String");
+        headersDtMap.put("Weight/Shipment","String");
+        headersDtMap.put("Cost/Weight","String");
+
+        //headersPropMap.put("id","id"); // Long
+        headersPropMap.put("Carrier","Carrier");
+        headersPropMap.put("Spend","Spend");
+        headersPropMap.put("% of Total Spend","% of Total Spend");
+        headersPropMap.put("# of Shipments","# of Shipments");
+        headersPropMap.put("% of Total Shpts","% of Total Shpts");
+        headersPropMap.put("Total Weight","Total Weight");
+        headersPropMap.put("Cost/Shipment","Cost/Shipment");
+        headersPropMap.put("Weight/Shipment","Weight/Shipment");
+        headersPropMap.put("Cost/Weight","Cost/Weight");
+
+
+        return CommonUtil. generateXlsxFromJson(dataJSONArray,headersDtMap,headersPropMap,fileName);
+
+
+
+    }
 
     /**
      * Get Dashboard report for Parcel and Freight.
@@ -1261,4 +1356,11 @@ public class DashboardsService {
     public List<CarrierWiseMonthlySpendDto> getCarrierWiseMonthlySpend(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
         return dashboardsDao.getCarrierWiseMonthlySpend(filter, isTopTenAccessorial);
     }
+    public List<CarrierSpendAnalysisDto> getcarrSpendAnalysis(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        return dashboardsDao.getcarrSpendAnalysis(filter, isTopTenAccessorial);
+    }
+    public List<ServiceLevelDto> getServiceLevAnalysis(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        return dashboardsDao.getServiceLevAnalysis(filter, isTopTenAccessorial);
+    }
+
 }
