@@ -2737,8 +2737,8 @@ public class JSONUtil {
                 if (weightDto != null) {
                     JSONObject monthWiseObj = new JSONObject();
                     monthWiseObj.put("name", weightDto.getBillingDate());
-                    monthWiseObj.put("Actual Weight", Math.round(weightDto.getActualWeight()));
-                    monthWiseObj.put("Bill Weight", Math.round(weightDto.getBilledWeight()));
+                    monthWiseObj.put("Actual Weight", weightDto.getActualWeight() != null ? Math.round(weightDto.getActualWeight()) : 0);
+                    monthWiseObj.put("Bill Weight", weightDto.getBilledWeight() != null ? Math.round(weightDto.getBilledWeight()) : 0);
                     valuesArray.put(monthWiseObj);
                 }
             }
@@ -2768,8 +2768,8 @@ public class JSONUtil {
                     JSONObject wtJson = new JSONObject();
                     wtJson.put("id", weightDto.getCarrierId());
                     wtJson.put("name", weightDto.getCarrierName());
-                    wtJson.put("Actual", Math.round(weightDto.getActualWeight()));
-                    wtJson.put("Billed", Math.round(weightDto.getBilledWeight()));
+                    wtJson.put("Actual", weightDto.getActualWeight() !=null ? Math.round(weightDto.getActualWeight()) : 0);
+                    wtJson.put("Billed", weightDto.getBilledWeight() != null ? Math.round(weightDto.getBilledWeight()) : 0);
                     weightJsonArr.put(wtJson);
                 }
             }
@@ -2791,8 +2791,8 @@ public class JSONUtil {
                     JSONArray dataArray = new JSONArray();
                     long dateInMilliSecs = weightDto.getBillDate() != null ? weightDto.getBillDate().getTime() : 0L;
                     dataArray.put(dateInMilliSecs);
-                    dataArray.put(Math.round(weightDto.getActualWeight()));
-                    dataArray.put(Math.round(weightDto.getBilledWeight()));
+                    dataArray.put(weightDto.getActualWeight() != null ? Math.round(weightDto.getActualWeight()) : 0);
+                    dataArray.put(weightDto.getBilledWeight() != null ? Math.round(weightDto.getBilledWeight()) : 0);
 
                     returnArray.put(dataArray);
                     if (count == 0) {
