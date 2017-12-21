@@ -159,6 +159,9 @@ public class RulesDto implements Serializable {
     @Column(name = "EXECUTE_FUNC_NAME")
     private String executeFuncName;
 
+    @Column(name = "DATA_OBJECT_NAME")
+    private String dataObjectName;
+
 
     public RulesDto() {
     }
@@ -350,5 +353,13 @@ public class RulesDto implements Serializable {
 
     public void setExecuteFuncName(String executeFuncName) {
         this.executeFuncName = executeFuncName;
+    }
+
+    public String getDataObjectName() {
+        return dataObjectName;
+    }
+
+    public void setDataObjectName(String dataObjectName) {
+        this.dataObjectName = dataObjectName;
     }
 }

@@ -40,28 +40,42 @@ public class GlomUtilities {
 
         String ruleName = "";
 
-        if (bean.getAction() != null)
+        if (bean.getAction() != null) {
+
+            if (bean.getColumn1() == null)
+                bean.setColumn1("");
+            if (bean.getColumn2() == null)
+                bean.setColumn2("");
+            if (bean.getColumn3() == null)
+                bean.setColumn3("");
+            if (bean.getColumn4() == null)
+                bean.setColumn4("");
+            if (bean.getColumn5() == null)
+                bean.setColumn5("");
+            if (bean.getColumn6() == null)
+                bean.setColumn6("");
+
             switch (bean.getAction()) {
 
                 case "CREATE":
-                    ruleName = "Create a user defined column named " + bean.getColumn1();
+                    ruleName = "Create a user defined column named " + bean.getColumn1().toUpperCase();
                     break;
                 case "SET":
-                    ruleName = "When " + bean.getColumn3() + " then populate the column " + bean.getColumn1() + " with the value " + "" + bean.getColumn5() + "";
+                    ruleName = "When " + bean.getColumn3().toUpperCase() + " then populate the column " + bean.getColumn1().toUpperCase() + " with the value " + "" + bean.getColumn5().toUpperCase() + "";
                     break;
                 case "ALIAS":
-                    ruleName = "Alias column " + bean.getColumn1() + " and rename it as " + bean.getColumn2() + " if it exists";
+                    ruleName = "Alias column " + bean.getColumn1().toUpperCase() + " and rename it as " + bean.getColumn2().toUpperCase() + " if it exists";
                     break;
                 case "IDENTIFY":
-                    ruleName = "Create an identity named " + bean.getColumn2() + " when a column header " + bean.getColumn1() + " exists";
+                    ruleName = "Create an identity named " + bean.getColumn2().toUpperCase() + " when a column header " + bean.getColumn1().toUpperCase() + " exists";
                     break;
                 case "EXECUTE":
 
                     if (StringUtils.equalsIgnoreCase("PAD VALUE", bean.getExecuteFuncName()))
-                        ruleName = "Pad Value ( " + bean.getColumn1() + ", " + bean.getColumn2() + ", " + bean.getColumn3() + ", " + bean.getColumn4() + " )";
+                        ruleName = "Pad Value ( " + bean.getColumn1().toUpperCase() + ", " + bean.getColumn2().toUpperCase() + ", " + bean.getColumn3().toUpperCase() + ", " + bean.getColumn4().toUpperCase() + " )";
                     break;
             }
-
+        }
         bean.setRuleName(ruleName);
 
         return ruleName;
