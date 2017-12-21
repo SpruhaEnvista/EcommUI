@@ -919,10 +919,14 @@ public class DashboardsService {
         //List<UserFilterUtilityDataDto> carriers = getCarrierByCustomer(String.valueOf(userFilter.getCustomerIds()), isParcelDashlettes);
         List<UserFilterUtilityDataDto> carriers = new ArrayList<>();
         List<UserFilterUtilityDataDto> carrListParcel = getCarrierByCustomer(String.valueOf(userFilter.getCustomerIds()), true);
-        List<UserFilterUtilityDataDto> carrListFreight = getCarrierByCustomer(String.valueOf(userFilter.getCustomerIds()), false);
+        List<UserFilterUtilityDataDto> carrListFreight =  null;
+        if ( !isParcelDashlettes ) {
+            carrListFreight = getCarrierByCustomer(String.valueOf(userFilter.getCustomerIds()), false);
+            carriers.addAll(carrListFreight);
+        }
 
         carriers.addAll(carrListParcel);
-        carriers.addAll(carrListFreight);
+
 
         StringJoiner carrierCSV = new StringJoiner(",");
         for(UserFilterUtilityDataDto car : carriers){
@@ -975,7 +979,11 @@ public class DashboardsService {
 
         JSONObject carrJson = new JSONObject();
         JSONArray parcelCarrJsonArr = JSONUtil.prepareCarriersByGroupJson(carrListParcel,carrList,true,true);
-        JSONArray freightCarrJsonArr = JSONUtil.prepareCarriersByGroupJson(carrListFreight,carrList, true,false);
+        JSONArray freightCarrJsonArr = new JSONArray() ;
+
+        if ( !isParcelDashlettes ) {
+            JSONUtil.prepareCarriersByGroupJson(carrListFreight, carrList, true, false);
+        }
 
         carrJson.put("parcelCarriers", parcelCarrJsonArr);
         carrJson.put("freightCarriers", freightCarrJsonArr);
@@ -1002,10 +1010,14 @@ public class DashboardsService {
 
         if(userFilter != null){
             List<Long> carrList = new ArrayList<Long>();
+            List<UserFilterUtilityDataDto> carrListParcel = null;
+            List<UserFilterUtilityDataDto> carrListFreight = null;
 
 
-            List<UserFilterUtilityDataDto> carrListParcel = getCarrierByCustomer(String.valueOf(userFilter.getCustomerIds()), true);
-            List<UserFilterUtilityDataDto> carrListFreight = getCarrierByCustomer(String.valueOf(userFilter.getCustomerIds()), false);
+            carrListParcel = getCarrierByCustomer(String.valueOf(userFilter.getCustomerIds()), true);
+            if ( !isParcelDashlettes ) {
+                carrListFreight = getCarrierByCustomer(String.valueOf(userFilter.getCustomerIds()), false);
+            }
 
 
             List<Long> servicesList = new ArrayList<Long>();
@@ -1049,7 +1061,11 @@ public class DashboardsService {
             JSONObject carrJson = new JSONObject();
             //JSONArray parcelCarrJsonArr = JSONUtil.prepareFilterCarrierJsonForParcel(carrListParcel,carrList,false);
             JSONArray parcelCarrJsonArr = JSONUtil.prepareCarriersByGroupJson(carrListParcel,carrList,false,true);
-            JSONArray freightCarrJsonArr = JSONUtil.prepareCarriersByGroupJson(carrListFreight,carrList, false,false);
+            JSONArray freightCarrJsonArr = new JSONArray();
+
+            if ( !isParcelDashlettes ) {
+                 freightCarrJsonArr = JSONUtil.prepareCarriersByGroupJson(carrListFreight, carrList, false, false);
+            }
 
             carrJson.put("parcelCarriers", parcelCarrJsonArr);
             carrJson.put("freightCarriers", freightCarrJsonArr);
