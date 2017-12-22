@@ -3,6 +3,7 @@ package com.envista.msi.api.service.glom;
 import com.envista.msi.api.dao.glom.RulesDao;
 import com.envista.msi.api.web.rest.dto.glom.RulesBean;
 import com.envista.msi.api.web.rest.dto.glom.RulesDto;
+import com.envista.msi.api.web.rest.util.GlomUtilities;
 import com.envista.msi.api.web.rest.util.pagination.EnspirePagination;
 import com.envista.msi.api.web.rest.util.pagination.PaginationBean;
 import org.slf4j.Logger;
@@ -48,6 +49,9 @@ public class RulesService {
 
     public RulesDto insertOrUpdate(RulesBean bean) {
 
+        String ruleName = GlomUtilities.prepareRuleName(bean);
+        bean.setRuleName(ruleName);
+
         return dao.insertOrUpdate(bean);
     }
 
@@ -56,9 +60,9 @@ public class RulesService {
         return dao.findByRuleName(ruleName, prevRuleName, scriptId);
     }
 
-    public int delete(String scriptIds) {
+    public int delete(String ruleIds,String actionType) {
 
-        return dao.delete(scriptIds);
+        return dao.delete(ruleIds,actionType);
     }
 
     public PaginationBean getAllPaginationData(RulesBean bean) throws Exception {

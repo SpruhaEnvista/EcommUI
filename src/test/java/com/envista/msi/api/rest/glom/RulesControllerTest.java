@@ -47,7 +47,7 @@ public class RulesControllerTest extends WebappTestEnvironment {
     public void insert() throws Exception {
 
         String inputJson = "{\"ruleId\":2,\"scriptId\":142,\"ruleName\":\"testing from junit\",\"dataObjectId\":-1,\"sequence\":1,\"scope\":null,\"identity\":null" +
-                ",\"comments\":\"Test Comments\",\"action\":null,\"column1\":null,\"column2\":null,\"column3\":null,\"column4\":null,\"column5\":null,\"column6\":null" +
+                ",\"comments\":\"Test Comments\",\"action\":null,\"executeFuncName\":null,\"column1\":null,\"column2\":null,\"column3\":null,\"column4\":null,\"column5\":null,\"column6\":null" +
                 ",\"column7\":null,\"column8\":null,\"column9\":null,\"column10\":null,\"isActive\":1}";
 
 
@@ -64,7 +64,7 @@ public class RulesControllerTest extends WebappTestEnvironment {
     public void update() throws Exception {
 
         String inputJson = "{\"ruleId\":2,\"scriptId\":142,\"ruleName\":\"testing from junit update\",\"dataObjectId\":-1,\"sequence\":1,\"scope\":null,\"identity\":null" +
-                ",\"comments\":\"Test Comments update\",\"action\":null,\"column1\":null,\"column2\":null,\"column3\":null,\"column4\":null,\"column5\":null,\"column6\":null" +
+                ",\"comments\":\"Test Comments update\",\"action\":\"CREATE\",\"executeFuncName\":null,\"column1\":\"test_column\",\"column2\":null,\"column3\":null,\"column4\":null,\"column5\":null,\"column6\":null" +
                 ",\"column7\":null,\"column8\":null,\"column9\":null,\"column10\":null,\"isActive\":1}";
 
 
@@ -94,7 +94,7 @@ public class RulesControllerTest extends WebappTestEnvironment {
     public void insertAbove() throws Exception {
 
         String inputJson = "{\"ruleId\":6,\"scriptId\":142,\"ruleName\":\"testing from junit INSERT ABOVE\",\"dataObjectId\":-1,\"sequence\":1,\"scope\":null,\"identity\":null" +
-                ",\"comments\":\"Test Comments INSERT ABOVE\",\"action\":null,\"column1\":null,\"column2\":null,\"column3\":null,\"column4\":null,\"column5\":null,\"column6\":null" +
+                ",\"comments\":\"Test Comments INSERT ABOVE\",\"action\":null,\"executeFuncName\":null,\"column1\":null,\"column2\":null,\"column3\":null,\"column4\":null,\"column5\":null,\"column6\":null" +
                 ",\"column7\":null,\"column8\":null,\"column9\":null,\"column10\":null,\"isActive\":1,\"insertType\":\"INSERTABOVE\"}";
 
 
@@ -111,7 +111,7 @@ public class RulesControllerTest extends WebappTestEnvironment {
     public void insertBelow() throws Exception {
 
         String inputJson = "{\"ruleId\":12,\"scriptId\":142,\"ruleName\":\"testing from junit INSERT BELOW\",\"dataObjectId\":-1,\"sequence\":1,\"scope\":null,\"identity\":null" +
-                ",\"comments\":\"Test Comments INSERT BELOW\",\"action\":null,\"column1\":null,\"column2\":null,\"column3\":null,\"column4\":null,\"column5\":null,\"column6\":null" +
+                ",\"comments\":\"Test Comments INSERT BELOW\",\"action\":null,\"executeFuncName\":null,\"column1\":null,\"column2\":null,\"column3\":null,\"column4\":null,\"column5\":null,\"column6\":null" +
                 ",\"column7\":null,\"column8\":null,\"column9\":null,\"column10\":null,\"isActive\":1,\"insertType\":\"INSERTBELOW\"}";
 
 

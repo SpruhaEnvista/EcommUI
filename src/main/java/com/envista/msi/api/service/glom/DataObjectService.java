@@ -3,8 +3,7 @@ package com.envista.msi.api.service.glom;
 import com.envista.msi.api.dao.glom.DataObjectDao;
 import com.envista.msi.api.web.rest.dto.glom.DataObjectBean;
 import com.envista.msi.api.web.rest.dto.glom.DataObjectDto;
-import com.envista.msi.api.web.rest.dto.glom.GlmGenericTypeBean;
-import com.envista.msi.api.web.rest.util.InvoicingUtilities;
+import com.envista.msi.api.web.rest.util.GlomUtilities;
 import com.envista.msi.api.web.rest.util.pagination.EnspirePagination;
 import com.envista.msi.api.web.rest.util.pagination.PaginationBean;
 import org.slf4j.Logger;
@@ -42,7 +41,7 @@ public class DataObjectService {
 
     public void insertOrUpdate(DataObjectBean bean) throws SQLException {
 
-        dao.insertOrUpdate(bean, InvoicingUtilities.prepareDataCriteria(bean.getCriteriaDtos()));
+        dao.insertOrUpdate(bean, GlomUtilities.prepareDataCriteria(bean.getCriteriaDtos()));
     }
 
     public PaginationBean getAllPaginationData(int offSet, int pageSize, int isActive, String sortColumn) throws Exception {
@@ -63,5 +62,10 @@ public class DataObjectService {
     public int delete(String dataObjectId) {
 
         return dao.delete(dataObjectId);
+    }
+
+    public List<DataObjectDto> getActiveDataObjects() {
+
+        return dao.getActiveDataObjects();
     }
 }
