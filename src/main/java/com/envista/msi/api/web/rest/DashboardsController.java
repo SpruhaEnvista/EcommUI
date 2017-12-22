@@ -3375,8 +3375,12 @@ public class DashboardsController extends DashboardBaseController {
     @RequestMapping(value = "/carrsByCustomer", method = {RequestMethod.GET, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<Map<String, Object>>  getCarriersByCustomer(@RequestParam String customerIds, @RequestParam boolean isParcelDashlettes) throws JSONException {
         Map<String, Object> userFilterData = new HashMap();
-        List<UserFilterUtilityDataDto> carrListFreight = dashboardsService.getCarrierByCustomer(customerIds, false);
+        List<UserFilterUtilityDataDto> carrListFreight = null;
         List<UserFilterUtilityDataDto> carrListParcel = dashboardsService.getCarrierByCustomer(customerIds, true);
+
+        if ( !isParcelDashlettes ) {
+           carrListFreight = dashboardsService.getCarrierByCustomer(customerIds, false);
+        }
 
         JSONArray freightCarrJsonArr = new JSONArray();
         if (carrListFreight != null && !carrListFreight.isEmpty()) {
