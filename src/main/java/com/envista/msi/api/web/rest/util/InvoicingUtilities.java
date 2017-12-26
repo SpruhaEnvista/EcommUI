@@ -324,23 +324,4 @@ public final class InvoicingUtilities {
         return beans;
     }
 
-    public static List<GlmGenericTypeBean> prepareDataCriteria(List<DataCriteriaDto> dtos) {
-
-        List<GlmGenericTypeBean> genericTypeBeans = new ArrayList<GlmGenericTypeBean>();
-        GlmGenericTypeBean bean;
-        if (dtos != null)
-            for (DataCriteriaDto dto : dtos) {
-                bean = new GlmGenericTypeBean();
-                bean.setParam1(String.valueOf(dto.getCodeValueId()));
-                bean.setParam2(dto.getColumnName());
-                bean.setParam3(dto.getCriOperator());
-                bean.setParam4(dto.getAndOrCondition());
-                bean.setParam5(dto.getCriValue());
-
-                genericTypeBeans.add(bean);
-            }
-
-        return genericTypeBeans;
-    }
-
 }

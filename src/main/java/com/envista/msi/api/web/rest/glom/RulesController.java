@@ -103,11 +103,11 @@ public class RulesController {
     /**
      * HTTP DELETE - Delete Rule
      */
-    @RequestMapping(value = "/delete", params = {"ruleIds"}, method = RequestMethod.PUT)
-    public ResponseEntity<Integer> delete(@RequestParam String ruleIds) {
+    @RequestMapping(value = "/delete", params = {"ruleIds","actionType"}, method = RequestMethod.PUT)
+    public ResponseEntity<Integer> delete(@RequestParam String ruleIds,@RequestParam String actionType) {
 
 
-        int count = service.delete(ruleIds);
+        int count = service.delete(ruleIds,actionType);
 
         return new ResponseEntity<Integer>(count, HttpStatus.OK);
     }
