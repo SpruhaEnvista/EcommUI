@@ -1,6 +1,7 @@
 package com.envista.msi.api.service.invoicing;
 
 import com.envista.msi.api.dao.invoicing.CodeValueDao;
+import com.envista.msi.api.web.rest.dto.glom.DataObjectDto;
 import com.envista.msi.api.web.rest.dto.invoicing.CodeValueDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,5 +31,10 @@ public class CodeValueService {
     public String getClaimFlagByVoiceId(Long voiceId) {
 
         return dao.getClaimFlagByVoiceId(voiceId);
+    }
+
+    public List<CodeValueDto> getDataObjectFilter() {
+
+        return dao.getDataObjectFilter();
     }
 }

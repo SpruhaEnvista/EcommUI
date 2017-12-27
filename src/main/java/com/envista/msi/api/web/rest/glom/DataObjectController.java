@@ -1,8 +1,10 @@
 package com.envista.msi.api.web.rest.glom;
 
 import com.envista.msi.api.service.glom.DataObjectService;
+import com.envista.msi.api.service.invoicing.CodeValueService;
 import com.envista.msi.api.web.rest.dto.glom.DataObjectBean;
 import com.envista.msi.api.web.rest.dto.glom.DataObjectDto;
+import com.envista.msi.api.web.rest.dto.invoicing.CodeValueDto;
 import com.envista.msi.api.web.rest.util.pagination.PaginationBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +28,8 @@ public class DataObjectController {
 
     @Inject
     private DataObjectService service;
+    @Inject
+    private CodeValueService codeValueService;
 
 
     /**
@@ -97,5 +101,11 @@ public class DataObjectController {
         List<DataObjectDto> dataObjectDtos = service.getActiveDataObjects();
 
         return ResponseEntity.status(HttpStatus.OK).body(dataObjectDtos);
+    }
+    @RequestMapping(value = "/getDataObjectFilter", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+    public ResponseEntity<List<CodeValueDto>> getDataObjectFilter() throws Exception {
+        log.info("***getDataObjectFilter method started****");
+        List<CodeValueDto> codeValueDtos = codeValueService.getDataObjectFilter();
+        return ResponseEntity.status(HttpStatus.OK).body(codeValueDtos);
     }
 }
