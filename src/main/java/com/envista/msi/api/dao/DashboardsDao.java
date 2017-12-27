@@ -41,6 +41,9 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.*;
 
+import static com.envista.msi.api.domain.util.DashboardStoredProcParam.DashboardReportParams.PAGE_OFFSET_PARAM;
+import static com.envista.msi.api.domain.util.DashboardStoredProcParam.DashboardReportParams.REPORT_TOTAL_ROW_COUNT_PARAM;
+
 /**
  * Created by Sarvesh on 1/19/2017.
  */
@@ -1305,9 +1308,9 @@ public class DashboardsDao {
                     .and(DashboardStoredProcParam.DashboardReportParams.RECEIVER_COUNTRY_PARAM, "");
         }
         queryParameter.and(DashboardStoredProcParam.DashboardReportParams.REPORT_FOR_DASHLETTE_PARAM, filter.getReportForDashlette())
-                .and(DashboardStoredProcParam.DashboardReportParams.PAGE_OFFSET_PARAM, filter.getOffset())
+                .and(PAGE_OFFSET_PARAM, filter.getOffset())
                 .and(DashboardStoredProcParam.DashboardReportParams.PAGE_SIZE_PARAM, filter.getPageSize())
-                .and(DashboardStoredProcParam.DashboardReportParams.REPORT_TOTAL_ROW_COUNT_PARAM, forCount ? 1 : 0);
+                .and(REPORT_TOTAL_ROW_COUNT_PARAM, forCount ? 1 : 0);
 
         boolean searchFilterConditionAdded = false;
         if(paginationFilterMap != null){
@@ -1323,6 +1326,12 @@ public class DashboardsDao {
     }
 
     public List<DashboardReportDto> getLineItemReportDetails(DashboardsFilterCriteria filter){
+       if (filter.getIsCount()==null )
+       {
+           filter.setIsCount(0);
+           System.out.println("**************************setIsCount is hardcoded");
+       }
+
         QueryParameter queryParameter = StoredProcedureParameter.with(DashboardStoredProcParam.DashboardReportParams.DATE_TYPE_PARAM, filter.getDateType())
                 .and(DashboardStoredProcParam.DashboardReportParams.CARRIER_IDS_PARAM, filter.getCarriers())
                 .and(DashboardStoredProcParam.DashboardReportParams.CONVERTED_CURRENCY_ID_PARAM, filter.getConvertCurrencyId())
@@ -1335,8 +1344,11 @@ public class DashboardsDao {
                 .and(DashboardStoredProcParam.DashboardReportParams.SERVICES_PARAM, filter.getServices())
                 .and(DashboardStoredProcParam.DashboardReportParams.TAX_PARAM, filter.getTax())
                 .and(DashboardStoredProcParam.DashboardReportParams.ACC_DESC_PARAM, filter.getAccDesc())
-                .and(DashboardStoredProcParam.DashboardReportParams.PAGE_OFFSET_PARAM, filter.getOffset())
-                .and(DashboardStoredProcParam.DashboardReportParams.PAGE_SIZE_PARAM, filter.getPageSize());
+                .and(PAGE_OFFSET_PARAM, filter.getOffset())
+                .and(DashboardStoredProcParam.DashboardReportParams.PAGE_SIZE_PARAM, filter.getPageSize())
+                .and(DashboardStoredProcParam.DashboardReportParams.REPORT_TOTAL_ROW_COUNT_PARAM, filter.getIsCount())
+                .and(DashboardStoredProcParam.DashboardReportParams.SEARCH_FILTER_CONDITION_PARAM, filter.getSearchFilter())
+        ;
 
         return persistentContext.findEntities(DashboardReportDto.Config.StoredProcedureQueryName.LINE_ITEM_REPORT, queryParameter);
     }

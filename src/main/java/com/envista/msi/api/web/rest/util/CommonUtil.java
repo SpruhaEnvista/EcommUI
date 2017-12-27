@@ -7,10 +7,7 @@ import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -125,6 +122,61 @@ public class CommonUtil {
         }
         DecimalFormat df = new DecimalFormat("#,###.00");
         return df.format(value);
+    }
+
+    public static void generateCSVFromJson (JSONArray resultsArray ,PrintStream out) throws Exception
+    {
+        String lineSeprator = "\n" ;
+        String strDelimeter = "," ;
+        String optionalDelimeter = "\"" ;
+
+        JSONArray firstRowData = resultsArray.getJSONArray(0);
+        int noOfColumns = firstRowData.length();
+
+        // Setting headers
+        StringBuffer headerInfo = new StringBuffer();
+        for(int i=0; i< noOfColumns; i++){
+            JSONObject columnInfo = firstRowData.getJSONObject(i);
+            boolean isColumnExist = false;
+
+                headerInfo.append(columnInfo.getString("header"));
+                if (i < noOfColumns-1)
+                    headerInfo.append(strDelimeter);
+                else
+                    headerInfo.append(lineSeprator);
+
+        }
+        out.print(headerInfo.toString());
+
+        int noOfRows = resultsArray.length();
+
+        for( int i=0 ;i < noOfRows ; i++ ) {
+
+            JSONArray eachRowData = resultsArray.getJSONArray(i);
+            StringBuffer dataInfo = new StringBuffer();
+            for (int j = 0; j < noOfColumns; j++) {
+                Object object = null;
+                JSONObject columnInfo = eachRowData.getJSONObject(j);
+                if(columnInfo.has("value"))
+                    object = columnInfo.get("value");
+                else
+                object = "";
+
+                dataInfo.append(optionalDelimeter+"\t").append(object.toString().replaceAll("\"", "")).append(optionalDelimeter);
+                if (j < noOfColumns-1)
+                    dataInfo.append(strDelimeter);
+                else
+                    dataInfo.append(lineSeprator);
+
+
+                //break;
+            }
+            out.print(dataInfo.toString());
+            out.flush();
+        }
+
+
+
     }
 
     public static Workbook generateXlsxFromJson (JSONArray resultsArray ) throws Exception {

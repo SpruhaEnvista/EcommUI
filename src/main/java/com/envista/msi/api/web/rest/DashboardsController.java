@@ -26,6 +26,7 @@ import com.envista.msi.api.web.rest.dto.dashboard.servicelevel.ServiceLevelDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.*;
 import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
 import com.envista.msi.api.web.rest.dto.reports.SavedSchedReportDto;
+import com.envista.msi.api.web.rest.util.CommonUtil;
 import com.envista.msi.api.web.rest.util.DateUtil;
 import com.envista.msi.api.web.rest.util.JSONUtil;
 import com.envista.msi.api.web.rest.util.pagination.PaginationBean;
@@ -45,6 +46,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.el.MethodNotFoundException;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.net.InetAddress;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -2692,7 +2695,85 @@ public class DashboardsController extends DashboardBaseController {
         }
     }
 
+
     @RequestMapping(value = "/exportReport", method = {RequestMethod.GET}, produces = "application/text")
+    public @ResponseBody void exportDashboardReport(@RequestParam(required = false) String invoiceDate, @RequestParam(required = false) String dashletteName, @RequestParam(required = false) String carrierId,
+                                                    @RequestParam(required = false) String mode, @RequestParam(required = false) String carscoretype, @RequestParam(required = false) String service,
+                                                    @RequestParam(required = false, defaultValue = "0") Integer offset, @RequestParam(required = false, defaultValue = "1000") Integer limit,
+                                                    @RequestParam(required = false, defaultValue = "1000") Integer totalRecordCount,
+                                                    @RequestParam(required = false) String filter,@RequestParam(required = false) String exportTo, HttpServletResponse response) throws Exception {
+
+        UserProfileDto userProfileDto = getUserProfile();
+        DashboardsFilterCriteria appliedFilter = getDashboardsFilterCriteria(invoiceDate, dashletteName, carrierId, mode, carscoretype, service, userProfileDto);
+
+        Workbook workbook = null;
+        boolean isSelectedAll = exportTo.contains("All") ? true : false ;
+        JSONArray dashboardReportJson ;
+
+        if (filter != null && !filter.isEmpty()) {
+            dashboardReportJson = dashboardsService.getReportForExport(appliedFilter, offset, 1000, DashboardUtil.prepareSearchFilterCriteria(filter),isSelectedAll,exportTo);
+
+        } else {
+            dashboardReportJson =dashboardsService.getReportForExport(appliedFilter, offset, 1000, null,isSelectedAll,exportTo);
+        }
+        String fileName = "Dashboards_Export";
+        if(! exportTo.contains("CSV"))
+        {
+            workbook =  CommonUtil.generateXlsxFromJson(dashboardReportJson);
+
+
+
+            if (appliedFilter.getDashletteName()!= null) {
+                fileName = appliedFilter.getDashletteName().trim().replaceAll("&gt;", ">").replaceAll(" ", "_");
+                fileName = fileName.replaceAll(">", "_").replaceAll("\\|", "_").replaceAll("_+", "_");
+            }
+
+
+            response.setContentType("application/text");
+            response.setHeader("Content-Disposition", "attachment; filename="+fileName+".xlsx");
+
+            if (workbook != null) {
+                workbook.write(response.getOutputStream());
+                workbook.close();
+            }
+        }
+        else if(exportTo.contains("CSV"))
+        {
+            if (appliedFilter.getDashletteName()!= null) {
+                fileName = appliedFilter.getDashletteName().trim().replaceAll("&gt;", ">").replaceAll(" ", "_");
+                fileName = fileName.replaceAll(">", "_").replaceAll("\\|", "_").replaceAll("_+", "_");
+            }
+
+
+            /*response.setContentType("application/text");
+            response.setHeader("Content-Disposition", "attachment; filename="+fileName+".csv");*/
+
+            OutputStream outputStream = response.getOutputStream();
+            response.setContentType("text/csv");
+            response.setHeader("content-Disposition", "attachment; filename=InvoiceList.csv");
+            PrintStream printStream = new PrintStream(outputStream,false,"UTF-8");
+            CommonUtil.generateCSVFromJson(dashboardReportJson,printStream);
+
+        }
+
+        /*String fileName = "Dashboards_Export";
+
+        if (appliedFilter.getDashletteName()!= null) {
+            fileName = appliedFilter.getDashletteName().trim().replaceAll("&gt;", ">").replaceAll(" ", "_");
+            fileName = fileName.replaceAll(">", "_").replaceAll("\\|", "_").replaceAll("_+", "_");
+        }
+
+        response.setContentType("application/text");
+        response.setHeader("Content-Disposition", "attachment; filename="+fileName+".xlsx");
+
+        if (workbook != null) {
+            workbook.write(response.getOutputStream());
+            workbook.close();
+        }*/
+
+    }
+
+   /* @RequestMapping(value = "/exportReport", method = {RequestMethod.GET}, produces = "application/text")
     public @ResponseBody void exportDashboardReport(@RequestParam(required = false) String invoiceDate, @RequestParam(required = false) String dashletteName, @RequestParam(required = false) String carrierId,
                                                     @RequestParam(required = false) String mode, @RequestParam(required = false) String carscoretype, @RequestParam(required = false) String service,
                                                     @RequestParam(required = false, defaultValue = "0") Integer offset, @RequestParam(required = false, defaultValue = "1000") Integer limit,
@@ -2725,7 +2806,7 @@ public class DashboardsController extends DashboardBaseController {
                 workbook.close();
             }
 
-    }
+    }*/
 
     @RequestMapping(value = "/exportCarrSpendAnalysis", method = {RequestMethod.GET}, produces = "application/text")
     public @ResponseBody void exportCarrSpendAnalysis(@RequestParam(required = false) String invoiceDate, @RequestParam(required = false) String dashletteName, @RequestParam(required = false) String carrierId,

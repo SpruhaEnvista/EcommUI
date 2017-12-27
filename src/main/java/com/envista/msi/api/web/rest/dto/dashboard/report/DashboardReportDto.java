@@ -83,6 +83,9 @@ public class DashboardReportDto implements Serializable {
     @Column(name = "INVOICE_NUMBER")
     private String invoiceNumber;
 
+  /*  @Column(name = "RN")
+    private String rowNum;*/
+
     @Column(name = "CARRIER_NAME")
     private String carrierName;
 
@@ -106,6 +109,10 @@ public class DashboardReportDto implements Serializable {
 
     @Column(name = "INVOICE_MODE")
     private String invoiceMode;
+
+    /*@Column(name = "MODE1")
+    private String invoiceMode;*/
+
 
     @Column(name = "INVOICE_METHOD")
     private String invoiceMethod;
@@ -244,6 +251,158 @@ public class DashboardReportDto implements Serializable {
 
     @Column(name = "CUSTOM_DEFINED_10")
     private String customDefined10;
+
+   /* @Column(name = "LINE_ITEM_NUM")
+    private String lineItemNum;
+
+    @Column(name = "CARRIER_QTY")
+    private String carrierQty;
+
+    @Column(name = "UOM")
+    private String uom;
+
+    @Column(name = "CARRIER_WEIGHT")
+    private String carrierWeight;
+
+    @Column(name = "CARRIER_CHARGE_DESC")
+    private String carrierChargeDesc;
+
+    @Column(name = "CARRIER_FRT_CLASS")
+    private String carrierFreightClass;
+
+    @Column(name = "CARRIER_RATE")
+    private String carrierRate;
+
+    @Column(name = "RATING_METHOD")
+    private String ratingMethod;
+
+    @Column(name = "LINE_GL_CODE")
+    private String lineGlCode;
+
+    @Column(name = "CARRIER_CHARGES")
+    private String carrierCharges;
+
+
+    @Column(name = "AUDIT_APPROVED_CHARGES")
+    private String auditApprovedCharges;
+
+    @Column(name = "AUDIT_CHARGE_CODE")
+    private String auditChargeCode;
+
+    @Column(name = "MSI_CHRG_DESC")
+    private String msiChargeDesc;*/
+
+    /*public String getLineItemNum() {
+        return lineItemNum;
+    }
+
+    public void setLineItemNum(String lineItemNum) {
+        this.lineItemNum = lineItemNum;
+    }
+
+    public String getCarrierQty() {
+        return carrierQty;
+    }
+
+    public void setCarrierQty(String carrierQty) {
+        this.carrierQty = carrierQty;
+    }
+
+    public String getUom() {
+        return uom;
+    }
+
+    public void setUom(String uom) {
+        this.uom = uom;
+    }
+
+    public String getCarrierWeight() {
+        return carrierWeight;
+    }
+
+    public void setCarrierWeight(String carrierWeight) {
+        this.carrierWeight = carrierWeight;
+    }
+
+    public String getCarrierChargeDesc() {
+        return carrierChargeDesc;
+    }
+
+    public void setCarrierChargeDesc(String carrierChargeDesc) {
+        this.carrierChargeDesc = carrierChargeDesc;
+    }
+
+    public String getCarrierFreightClass() {
+        return carrierFreightClass;
+    }
+
+    public void setCarrierFreightClass(String carrierFreightClass) {
+        this.carrierFreightClass = carrierFreightClass;
+    }
+
+    public String getCarrierRate() {
+        return carrierRate;
+    }
+
+    public void setCarrierRate(String carrierRate) {
+        this.carrierRate = carrierRate;
+    }
+
+    public String getRatingMethod() {
+        return ratingMethod;
+    }
+
+    public void setRatingMethod(String ratingMethod) {
+        this.ratingMethod = ratingMethod;
+    }
+
+    public String getLineGlCode() {
+        return lineGlCode;
+    }
+
+    public void setLineGlCode(String lineGlCode) {
+        this.lineGlCode = lineGlCode;
+    }
+
+    public String getCarrierCharges() {
+        return carrierCharges;
+    }
+
+    public void setCarrierCharges(String carrierCharges) {
+        this.carrierCharges = carrierCharges;
+    }
+
+    public String getAuditApprovedCharges() {
+        return auditApprovedCharges;
+    }
+
+    public void setAuditApprovedCharges(String auditApprovedCharges) {
+        this.auditApprovedCharges = auditApprovedCharges;
+    }
+
+    public String getAuditChargeCode() {
+        return auditChargeCode;
+    }
+
+    public void setAuditChargeCode(String auditChargeCode) {
+        this.auditChargeCode = auditChargeCode;
+    }
+
+    public String getMsiChargeDesc() {
+        return msiChargeDesc;
+    }
+
+    public void setMsiChargeDesc(String msiChargeDesc) {
+        this.msiChargeDesc = msiChargeDesc;
+    }
+
+    public String getRowNum() {
+        return rowNum;
+    }
+
+    public void setRowNum(String rowNum) {
+        this.rowNum = rowNum;
+    }*/
 
     public String getInvoiceNumber() {
         return invoiceNumber;

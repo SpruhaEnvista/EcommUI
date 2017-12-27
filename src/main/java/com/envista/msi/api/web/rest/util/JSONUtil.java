@@ -2318,7 +2318,7 @@ public class JSONUtil {
         return returnJson;
     }
 
-    public static JSONArray prepareExportReportDataJson ( List<DashboardReportDto> reportDataList , JSONArray reportColumnDetails ) throws Exception  {
+    public static JSONArray prepareExportReportDataJson ( List<DashboardReportDto> reportDataList , JSONArray reportColumnDetails ,boolean isSelectedAll ,List<String> savedColumns) throws Exception  {
         JSONArray  finalJsonArray  = new JSONArray();
         int counter = 0;
         for (DashboardReportDto reportData : reportDataList) {
@@ -2327,7 +2327,13 @@ public class JSONUtil {
 
                 JSONObject eachColumnData = new JSONObject();
                 JSONObject columnInfo = reportColumnDetails.getJSONObject(i);
+
+
                 String selectClause = columnInfo.getString("selectClause");
+
+                boolean isPresent = false ;
+               if( ! isSelectedAll )
+                 isPresent = savedColumns.contains(columnInfo.getString("header").toUpperCase());
 
                 if ( counter == 0 ) {
                     eachColumnData.put("header", columnInfo.getString("header"));
@@ -2502,7 +2508,9 @@ public class JSONUtil {
                         eachColumnData.put("value", reportData.getCustomDefined10());
                         break;
                 }
-                eachRowInfoArray.put(eachColumnData);
+                //if ( !isSelected || ( isSelected &&  columnInfo.getString("Header").toLowerCase().contains(listofColumns)
+                if( isSelectedAll || isPresent)
+                  eachRowInfoArray.put(eachColumnData);
 
             }
             counter++;
