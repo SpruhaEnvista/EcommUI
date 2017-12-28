@@ -2697,7 +2697,7 @@ public class DashboardsController extends DashboardBaseController {
 
 
     @RequestMapping(value = "/exportReport", method = {RequestMethod.GET}, produces = "application/text")
-    public @ResponseBody void exportDashboardReport(@RequestParam(required = false) String invoiceDate, @RequestParam(required = false) String dashletteName, @RequestParam(required = false) String carrierId,
+    public @ResponseBody void exportDashboardReport(@RequestParam Map<String, Object> reqMap ,@RequestParam(required = false) String invoiceDate, @RequestParam(required = false) String dashletteName, @RequestParam(required = false) String carrierId,
                                                     @RequestParam(required = false) String mode, @RequestParam(required = false) String carscoretype, @RequestParam(required = false) String service,
                                                     @RequestParam(required = false, defaultValue = "0") Integer offset, @RequestParam(required = false, defaultValue = "1000") Integer limit,
                                                     @RequestParam(required = false, defaultValue = "1000") Integer totalRecordCount,
@@ -2705,6 +2705,12 @@ public class DashboardsController extends DashboardBaseController {
 
         UserProfileDto userProfileDto = getUserProfile();
         DashboardsFilterCriteria appliedFilter = getDashboardsFilterCriteria(invoiceDate, dashletteName, carrierId, mode, carscoretype, service, userProfileDto);
+
+        if(appliedFilter != null){
+            setReportRequestParamsValues(reqMap, appliedFilter);
+            appliedFilter.setOffset(offset);
+            appliedFilter.setPageSize(limit);
+        }
 
         Workbook workbook = null;
         boolean isSelectedAll = exportTo.contains("All") ? true : false ;
@@ -2750,7 +2756,7 @@ public class DashboardsController extends DashboardBaseController {
 
             OutputStream outputStream = response.getOutputStream();
             response.setContentType("text/csv");
-            response.setHeader("content-Disposition", "attachment; filename=InvoiceList.csv");
+            response.setHeader("content-Disposition", "attachment; filename="+fileName+".CSV");
             PrintStream printStream = new PrintStream(outputStream,false,"UTF-8");
             CommonUtil.generateCSVFromJson(dashboardReportJson,printStream);
 
