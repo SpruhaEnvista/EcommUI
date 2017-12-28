@@ -2872,7 +2872,7 @@ public class DashboardsController extends DashboardBaseController {
 
 
     @RequestMapping(value = "/pushDashboardReport", method = {RequestMethod.GET}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> pushDashboardReport(@RequestParam(required = false) String invoiceDate, @RequestParam(required = false) String dashletteName, @RequestParam(required = false) String carrierId,
+    public ResponseEntity<String> pushDashboardReport(@RequestParam Map<String, Object> reqMap,@RequestParam(required = false) String invoiceDate, @RequestParam(required = false) String dashletteName, @RequestParam(required = false) String carrierId,
                                                     @RequestParam(required = false) String mode, @RequestParam(required = false) String carscoretype, @RequestParam(required = false) String service,
                                                     @RequestParam(required = false, defaultValue = "0") Integer offset, @RequestParam(required = false, defaultValue = "1000") Integer limit,
                                                     @RequestParam(required = false, defaultValue = "1000") Integer totalRecordCount,
@@ -2880,6 +2880,12 @@ public class DashboardsController extends DashboardBaseController {
 
         UserProfileDto userProfileDto = getUserProfile();
         DashboardsFilterCriteria appliedFilter = getDashboardsFilterCriteria(invoiceDate, dashletteName, carrierId, mode, carscoretype, service, userProfileDto);
+
+        if(appliedFilter != null){
+            setReportRequestParamsValues(reqMap, appliedFilter);
+            appliedFilter.setOffset(offset);
+            appliedFilter.setPageSize(limit);
+        }
 
         SavedSchedReportDto savedSchedReportDto = prepareReportsObject(appliedFilter, userProfileDto);
         reportsService.saveSchedReport(savedSchedReportDto);
@@ -3248,7 +3254,7 @@ public class DashboardsController extends DashboardBaseController {
             selectedBeansArray.put(selectedBeanCountry);
         }
 
-       /* if ( Constants.FINISH_LINE_CUSTOMER_ID.equals(appliedFilter.getCustomerIdsCSV()) && appliedFilter.getShipperGroupIdsCSV() != null  ) {
+        /*if ( Constants.FINISH_LINE_CUSTOMER_ID.equals(appliedFilter.getCustomerIdsCSV()) && appliedFilter.getShipperGroupIdsCSV() != null  ) {
 
 
             JSONObject selectedBeanCountry = new JSONObject();
@@ -3261,8 +3267,8 @@ public class DashboardsController extends DashboardBaseController {
             selectedBeansArray.put(selectedBeanCountry);
         }*/
 
-/*
-        if ( appliedFilter.getLanesJson() != null && !appliedFilter.getLanesJson().isEmpty() ) {
+
+       /* if ( appliedFilter.getLanesJson() != null && !appliedFilter.getLanesJson().isEmpty() ) {
             JSONArray laneDetails = new JSONObject(appliedFilter.getLanesJson()).getJSONArray("LaneDetails");
             for ( int i=0 ; i < laneDetails.length() ; i++ ) {
                 JSONObject laneInfoObj = laneDetails.getJSONObject(i);
