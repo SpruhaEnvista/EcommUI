@@ -2546,6 +2546,14 @@ public class DashboardsController extends DashboardBaseController {
                 }
             }
 
+
+            if(reqMap.containsKey("orderMatchValue") && reqMap.get("orderMatchValue") != null){
+                Object orderMatch = reqMap.get("orderMatchValue");
+                if(orderMatch != null){
+                    appliedFilter.setOrderMatch(orderMatch.toString());
+                }
+            }
+
             if(reqMap.containsKey("carscoretype")){
                 Object carScoreType = reqMap.get("carscoretype");
                 if(carScoreType != null){
