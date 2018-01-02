@@ -1,9 +1,12 @@
 package com.envista.msi.api.service.glom;
 
 import com.envista.msi.api.dao.glom.ScriptDao;
+import com.envista.msi.api.dao.glom.RunScriptDao;
 import com.envista.msi.api.web.rest.dto.CustomerDto;
 import com.envista.msi.api.web.rest.dto.glom.ScriptBean;
+import com.envista.msi.api.web.rest.dto.glom.RunScriptBean;
 import com.envista.msi.api.web.rest.dto.glom.ScriptDto;
+import com.envista.msi.api.web.rest.dto.glom.RunScriptDto;
 import com.envista.msi.api.web.rest.util.pagination.EnspirePagination;
 import com.envista.msi.api.web.rest.util.pagination.PaginationBean;
 import org.slf4j.Logger;
@@ -27,6 +30,9 @@ public class ScriptService {
 
     @Inject
     private ScriptDao dao;
+
+    @Inject
+    private RunScriptDao runScriptDao;
 
     public List<ScriptDto> getAll(ScriptBean bean) {
 
@@ -82,5 +88,10 @@ public class ScriptService {
     public List<CustomerDto> getAllCustomers(int userId) {
 
         return dao.getAllCustomers(userId);
+    }
+
+    public RunScriptDto insertRunScript(RunScriptBean bean) {
+
+        return runScriptDao.insertRunScript(bean);
     }
 }

@@ -48,8 +48,8 @@ import java.io.Serializable;
                 @ConstructorResult(
                         targetClass = CodeValueDto.class,
                         columns = {
-                                @ColumnResult(name = "PROPERTY_1", type = String.class),
-                                @ColumnResult(name = "PROPERTY_2", type = String.class)
+                                @ColumnResult(name = "NSP_CODE_VALUE_ID", type = Long.class),
+                                @ColumnResult(name = "CODE_VALUE", type = String.class),@ColumnResult(name = "PROPERTY_2", type = String.class)
                         }
                 )
         }
@@ -82,8 +82,9 @@ public class CodeValueDto implements Serializable {
     public CodeValueDto() {
     }
 
-    public CodeValueDto(String property1, String property2) {
-        this.property1 = property1;
+    public CodeValueDto(Long id, String codeValue,String property2) {
+        this.id = id;
+        this.codeValue = codeValue;
         this.property2 = property2;
     }
 
