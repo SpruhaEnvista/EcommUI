@@ -2770,57 +2770,9 @@ public class DashboardsController extends DashboardBaseController {
 
         }
 
-        /*String fileName = "Dashboards_Export";
-
-        if (appliedFilter.getDashletteName()!= null) {
-            fileName = appliedFilter.getDashletteName().trim().replaceAll("&gt;", ">").replaceAll(" ", "_");
-            fileName = fileName.replaceAll(">", "_").replaceAll("\\|", "_").replaceAll("_+", "_");
-        }
-
-        response.setContentType("application/text");
-        response.setHeader("Content-Disposition", "attachment; filename="+fileName+".xlsx");
-
-        if (workbook != null) {
-            workbook.write(response.getOutputStream());
-            workbook.close();
-        }*/
 
     }
 
-   /* @RequestMapping(value = "/exportReport", method = {RequestMethod.GET}, produces = "application/text")
-    public @ResponseBody void exportDashboardReport(@RequestParam(required = false) String invoiceDate, @RequestParam(required = false) String dashletteName, @RequestParam(required = false) String carrierId,
-                                                    @RequestParam(required = false) String mode, @RequestParam(required = false) String carscoretype, @RequestParam(required = false) String service,
-                                                    @RequestParam(required = false, defaultValue = "0") Integer offset, @RequestParam(required = false, defaultValue = "1000") Integer limit,
-                                                    @RequestParam(required = false, defaultValue = "1000") Integer totalRecordCount,
-                                                    @RequestParam(required = false) String filter, HttpServletResponse response) throws Exception {
-
-        UserProfileDto userProfileDto = getUserProfile();
-        DashboardsFilterCriteria appliedFilter = getDashboardsFilterCriteria(invoiceDate, dashletteName, carrierId, mode, carscoretype, service, userProfileDto);
-
-            Workbook workbook = null;
-
-            if (filter != null && !filter.isEmpty()) {
-                workbook = dashboardsService.getReportForExport(appliedFilter, offset, 1000, DashboardUtil.prepareSearchFilterCriteria(filter));
-            } else {
-                workbook = dashboardsService.getReportForExport(appliedFilter, offset, 1000, null);
-            }
-
-            String fileName = "Dashboards_Export";
-
-            if (appliedFilter.getDashletteName()!= null) {
-                fileName = appliedFilter.getDashletteName().trim().replaceAll("&gt;", ">").replaceAll(" ", "_");
-                fileName = fileName.replaceAll(">", "_").replaceAll("\\|", "_").replaceAll("_+", "_");
-            }
-
-            response.setContentType("application/text");
-            response.setHeader("Content-Disposition", "attachment; filename="+fileName+".xlsx");
-
-            if (workbook != null) {
-                workbook.write(response.getOutputStream());
-                workbook.close();
-            }
-
-    }*/
 
     @RequestMapping(value = "/exportCarrSpendAnalysis", method = {RequestMethod.GET}, produces = "application/text")
     public @ResponseBody void exportCarrSpendAnalysis(@RequestParam(required = false) String invoiceDate, @RequestParam(required = false) String dashletteName, @RequestParam(required = false) String carrierId,

@@ -732,32 +732,7 @@ public class DashboardsService {
         return dashboardReportJson;
     }
 
-       /* public Workbook getReportForExport(DashboardsFilterCriteria filter, int offset, int limit, String searchFilter ) throws Exception {
-            JSONArray dashboardReportJson = null;
 
-            Map<String, Object> paginationFilterMap = new HashMap<String, Object>();
-            filter.setOffset(offset);
-            filter.setPageSize(limit);
-            paginationFilterMap.put("filter", filter);
-
-            if(searchFilter != null && !searchFilter.isEmpty()){
-                paginationFilterMap.put(WebConstants.SEARCH_FILTER_CONDITION, searchFilter);
-            }
-
-            List<DashboardReportDto> reportDataList = null;
-            if(filter.isLineItemReport()){
-                reportDataList = getLineItemReportDetails(filter);
-            }else{
-                reportDataList = getDashboardReport(filter, paginationFilterMap);
-            }
-
-            if(reportDataList != null && !reportDataList.isEmpty()){
-                JSONArray reportColumnDetails = getReportColumnDetailsJson(filter);
-                dashboardReportJson = JSONUtil.prepareExportReportDataJson(reportDataList, reportColumnDetails);
-            }
-
-            return CommonUtil.generateXlsxFromJson(dashboardReportJson);
-        }*/
 
     public JSONArray getReportForExport(DashboardsFilterCriteria filter, int offset, int limit, String searchFilter,boolean isSelectedAll ,String toExport) throws Exception {
         JSONArray dashboardReportJson = null;

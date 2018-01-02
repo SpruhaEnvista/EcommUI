@@ -2508,7 +2508,6 @@ public class JSONUtil {
                         eachColumnData.put("value", reportData.getCustomDefined10());
                         break;
                 }
-                //if ( !isSelected || ( isSelected &&  columnInfo.getString("Header").toLowerCase().contains(listofColumns)
                 if( isSelectedAll || isPresent)
                   eachRowInfoArray.put(eachColumnData);
 

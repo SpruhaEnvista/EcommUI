@@ -1329,7 +1329,6 @@ public class DashboardsDao {
        if (filter.getIsCount()==null )
        {
            filter.setIsCount(0);
-           System.out.println("**************************setIsCount is hardcoded");
        }
 
         QueryParameter queryParameter = StoredProcedureParameter.with(DashboardStoredProcParam.DashboardReportParams.DATE_TYPE_PARAM, filter.getDateType())
