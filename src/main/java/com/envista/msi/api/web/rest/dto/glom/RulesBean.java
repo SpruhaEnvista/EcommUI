@@ -57,6 +57,8 @@ public class RulesBean {
 
     private String insertType;
 
+    private String executeFuncName;
+
 
     public Long getRuleId() {
         return ruleId;
@@ -265,5 +267,13 @@ public class RulesBean {
 
     public void setInsertType(String insertType) {
         this.insertType = insertType;
+    }
+
+    public String getExecuteFuncName() {
+        return executeFuncName;
+    }
+
+    public void setExecuteFuncName(String executeFuncName) {
+        this.executeFuncName = executeFuncName;
     }
 }

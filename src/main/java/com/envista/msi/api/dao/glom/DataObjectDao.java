@@ -75,4 +75,15 @@ public class DataObjectDao {
 
     }
 
+    public List<DataObjectDto> getActiveDataObjects() {
+
+        QueryParameter queryParameter = StoredProcedureParameter.with("P_DATA_OBJECT_ID", 0L)
+                .and("P_OFFSET", 0).and("P_PAGE_SIZE", 0)
+                .and("P_SORT_COLUMN", null).and("P_IS_ACTIVE", 1).and("P_ACTION_TYPE", "getactivedataobjects");
+
+        List<DataObjectDto> dataObjectDtos = persistentContext.findEntities("DataObjectDto.getAll", queryParameter);
+
+        return dataObjectDtos;
+    }
+
 }

@@ -67,6 +67,7 @@ public class RulesDao {
                 .and("P_DATA_OBJECT_ID", bean.getDataObjectId()).and("P_SEQUENCE_ID", bean.getSequenceId())
                 .and("P_SCOPE_NAME", bean.getScopeName()).and("P_IDENTITY_NAME", bean.getIdentityName())
                 .and("P_COMMENTS", bean.getComments()).and("P_ACTION", bean.getAction())
+                .and("P_EXECUTE_FUNC_NAME", bean.getExecuteFuncName())
                 .and("P_COLUMN_1", bean.getColumn1()).and("P_COLUMN_2", bean.getColumn2())
                 .and("P_COLUMN_3", bean.getColumn3()).and("P_COLUMN_4", bean.getColumn4())
                 .and("P_COLUMN_5", bean.getColumn5()).and("P_COLUMN_6", bean.getColumn6())
@@ -95,9 +96,9 @@ public class RulesDao {
 
     }
 
-    public int delete(String ruleIds) {
+    public int delete(String ruleIds,String actionType) {
 
-        QueryParameter queryParameter = StoredProcedureParameter.with("P_RULE_IDS", ruleIds);
+        QueryParameter queryParameter = StoredProcedureParameter.with("P_RULE_IDS", ruleIds).and("P_ACTION_TYPE", actionType);
 
         List<RulesDto> dtos = persistentContext.findEntities("RulesDto.delete", queryParameter);
 

@@ -44,6 +44,7 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_IDENTITY_NAME", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_COMMENTS", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_EXECUTE_FUNC_NAME", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_COLUMN_1", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_COLUMN_2", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_COLUMN_3", type = String.class),
@@ -72,6 +73,7 @@ import java.io.Serializable;
                 resultClasses = RulesDto.class,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_RULE_IDS", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_RULES_INFO", type = Void.class)
                 })
 })
@@ -153,6 +155,12 @@ public class RulesDto implements Serializable {
 
     @Column(name = "ROW_NUM")
     private Long rowNumber;
+
+    @Column(name = "EXECUTE_FUNC_NAME")
+    private String executeFuncName;
+
+    @Column(name = "DATA_OBJECT_NAME")
+    private String dataObjectName;
 
 
     public RulesDto() {
@@ -337,5 +345,21 @@ public class RulesDto implements Serializable {
 
     public void setRowNumber(Long rowNumber) {
         this.rowNumber = rowNumber;
+    }
+
+    public String getExecuteFuncName() {
+        return executeFuncName;
+    }
+
+    public void setExecuteFuncName(String executeFuncName) {
+        this.executeFuncName = executeFuncName;
+    }
+
+    public String getDataObjectName() {
+        return dataObjectName;
+    }
+
+    public void setDataObjectName(String dataObjectName) {
+        this.dataObjectName = dataObjectName;
     }
 }
