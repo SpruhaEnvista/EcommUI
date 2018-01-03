@@ -1,11 +1,7 @@
 package com.envista.msi.api.service;
 
 import com.envista.msi.api.dao.DashboardsDao;
-import com.envista.msi.api.dao.type.GenericObject;
 import com.envista.msi.api.domain.util.DashboardUtil;
-import com.envista.msi.api.geocode.AddressConverter;
-import com.envista.msi.api.geocode.GoogleResponse;
-import com.envista.msi.api.geocode.Result;
 import com.envista.msi.api.web.rest.dto.MapCoordinatesDto;
 import com.envista.msi.api.web.rest.dto.ZipCodesTimeZonesDto;
 import com.envista.msi.api.web.rest.dto.dashboard.CodeValueDto;
@@ -46,7 +42,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import java.sql.SQLException;
 import java.util.*;
 
 /**
@@ -710,7 +705,15 @@ public class DashboardsService {
         return new EnspirePagination() {
             @Override
             protected int getTotalRowCount(Map<String, Object> paginationFilterMap) {
-                return dashboardsDao.getDashboardReportTotalRecordCount(filter, paginationFilterMap);
+                try{
+                    return getDashboardReportTotalRecordCount(filter, paginationFilterMap);
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                    return 0;
+                }
+
             }
 
             @Override
@@ -720,6 +723,38 @@ public class DashboardsService {
         }.preparePaginationData(paginationFilterMap, offset, limit);
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    private int getDashboardReportTotalRecordCount(DashboardsFilterCriteria filter, Map<String, Object> paginationFilterMap) throws JSONException {
+
+        if(filter.isLineItemReport()){
+           return  dashboardsDao.getLineItemReportTotalRecordCount(filter, paginationFilterMap);
+        }else{
+            return   dashboardsDao.getDashboardReportTotalRecordCount(filter, paginationFilterMap);
+        }
+
+    }
 
 
     private JSONArray loadDashboardReportJson(DashboardsFilterCriteria filter, Map<String, Object> paginationFilterMap) throws JSONException {
@@ -737,32 +772,44 @@ public class DashboardsService {
         return dashboardReportJson;
     }
 
-        public Workbook getReportForExport(DashboardsFilterCriteria filter, int offset, int limit, String searchFilter ) throws Exception {
-            JSONArray dashboardReportJson = null;
 
-            Map<String, Object> paginationFilterMap = new HashMap<String, Object>();
-            filter.setOffset(offset);
-            filter.setPageSize(limit);
-            paginationFilterMap.put("filter", filter);
 
-            if(searchFilter != null && !searchFilter.isEmpty()){
-                paginationFilterMap.put(WebConstants.SEARCH_FILTER_CONDITION, searchFilter);
-            }
+    public JSONArray getReportForExport(DashboardsFilterCriteria filter, int offset, int limit, String searchFilter,boolean isSelectedAll ,String toExport) throws Exception {
+        JSONArray dashboardReportJson = null;
 
-            List<DashboardReportDto> reportDataList = null;
-            if(filter.isLineItemReport()){
-                reportDataList = getLineItemReportDetails(filter);
-            }else{
-                reportDataList = getDashboardReport(filter, paginationFilterMap);
-            }
+        Map<String, Object> paginationFilterMap = new HashMap<String, Object>();
+        filter.setOffset(offset);
+        filter.setPageSize(limit);
+        paginationFilterMap.put("filter", filter);
 
-            if(reportDataList != null && !reportDataList.isEmpty()){
-                JSONArray reportColumnDetails = getReportColumnDetailsJson(filter);
-                dashboardReportJson = JSONUtil.prepareExportReportDataJson(reportDataList, reportColumnDetails);
-            }
-
-            return CommonUtil.generateXlsxFromJson(dashboardReportJson);
+        if(searchFilter != null && !searchFilter.isEmpty()){
+            paginationFilterMap.put(WebConstants.SEARCH_FILTER_CONDITION, searchFilter);
         }
+
+        List<DashboardReportDto> reportDataList = null;
+        Long reportId= null;
+        if(filter.isLineItemReport()){
+            reportDataList = getLineItemReportDetails(filter);
+            reportId = 197l;
+        }else{
+            reportDataList = getDashboardReport(filter, paginationFilterMap);
+            reportId = 100l;
+        }
+
+        if(reportDataList != null && !reportDataList.isEmpty()){
+            JSONArray reportColumnDetails = getReportColumnDetailsJson(filter);
+
+            List<String> savedColumns = null ;
+
+            if( ! isSelectedAll)
+                savedColumns = getColumnConfigByUser(filter.getUserId(), reportId);
+
+            dashboardReportJson = JSONUtil.prepareExportReportDataJson(reportDataList, reportColumnDetails,isSelectedAll,savedColumns);
+        }
+
+      return  dashboardReportJson ;
+        //return CommonUtil.generateXlsxFromJson(dashboardReportJson);
+    }
 
 
     public Workbook getExportServiceLevAnalysis(JSONArray dataJSONArray,String fileName) throws Exception {

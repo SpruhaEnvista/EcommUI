@@ -60,6 +60,9 @@ public class DashboardsFilterCriteria implements Serializable {
     private boolean isTopTenAccessorial;
     private Integer offset;
     private Integer pageSize;
+    private Integer isCount;
+    private String searchFilter;
+
     private String customisedDisplayUnit;
 
     public String getCustomerIdsCSV() {
@@ -164,6 +167,22 @@ public class DashboardsFilterCriteria implements Serializable {
 
     public void setUserId(long userId) {
         this.userId = userId;
+    }
+
+    public Integer getIsCount() {
+        return isCount;
+    }
+
+    public void setIsCount(Integer isCount) {
+        this.isCount = isCount;
+    }
+
+    public String getSearchFilter() {
+        return searchFilter;
+    }
+
+    public void setSearchFilter(String searchFilter) {
+        this.searchFilter = searchFilter;
     }
 
     public FreightDashboardsDataBean getFreightDashboardsDataBean() {
