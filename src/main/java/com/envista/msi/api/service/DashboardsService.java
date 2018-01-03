@@ -705,7 +705,15 @@ public class DashboardsService {
         return new EnspirePagination() {
             @Override
             protected int getTotalRowCount(Map<String, Object> paginationFilterMap) {
-                return dashboardsDao.getDashboardReportTotalRecordCount(filter, paginationFilterMap);
+                try{
+                    return getDashboardReportTotalRecordCount(filter, paginationFilterMap);
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                    return 0;
+                }
+
             }
 
             @Override
@@ -715,6 +723,38 @@ public class DashboardsService {
         }.preparePaginationData(paginationFilterMap, offset, limit);
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    private int getDashboardReportTotalRecordCount(DashboardsFilterCriteria filter, Map<String, Object> paginationFilterMap) throws JSONException {
+
+        if(filter.isLineItemReport()){
+           return  dashboardsDao.getLineItemReportTotalRecordCount(filter, paginationFilterMap);
+        }else{
+            return   dashboardsDao.getDashboardReportTotalRecordCount(filter, paginationFilterMap);
+        }
+
+    }
 
 
     private JSONArray loadDashboardReportJson(DashboardsFilterCriteria filter, Map<String, Object> paginationFilterMap) throws JSONException {

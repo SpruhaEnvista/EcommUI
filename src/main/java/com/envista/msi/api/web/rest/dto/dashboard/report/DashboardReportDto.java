@@ -83,7 +83,7 @@ public class DashboardReportDto implements Serializable {
     @Column(name = "INVOICE_NUMBER")
     private String invoiceNumber;
 
-  /*  @Column(name = "RN")
+    /*@Column(name = "RN")
     private String rowNum;*/
 
     @Column(name = "CARRIER_NAME")
@@ -403,6 +403,7 @@ public class DashboardReportDto implements Serializable {
     public void setRowNum(String rowNum) {
         this.rowNum = rowNum;
     }*/
+
 
     public String getInvoiceNumber() {
         return invoiceNumber;
