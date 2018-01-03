@@ -764,6 +764,89 @@ public class DashboardsService {
             return CommonUtil.generateXlsxFromJson(dashboardReportJson);
         }
 
+    public Workbook getExportMonthlySpendTable(JSONArray dataJSONArray,JSONArray headersArray,String fileName) throws Exception {
+
+        Map<String,String> headersDtMap = new LinkedHashMap(); // Headers and Dtataypes
+        Map<String,String> headersPropMap = new LinkedHashMap();
+
+        if("monthlySpendByMode".equalsIgnoreCase(fileName)) {
+            headersDtMap.put("MODES", "String");
+            headersPropMap.put("MODES", "name");
+        }else if("monthlySpendByService".equalsIgnoreCase(fileName)){
+            headersDtMap.put("SERVICES", "String");
+            headersPropMap.put("SERVICES", "name");
+        }else if("monthlySpendByCarrier".equalsIgnoreCase(fileName)){
+            headersDtMap.put("CARRIERS", "String");
+            headersPropMap.put("CARRIERS", "name");
+        }else if("accountSummary".equalsIgnoreCase(fileName)){
+            headersDtMap.put(" ", "String");
+            headersPropMap.put(" ", "name");
+        }
+
+        //JSONArray array =  dataJSONObject.getJSONArray("quaters");
+        int length=headersArray.length();
+
+        for(int i=0;i<length;i++){
+
+            headersDtMap.put(headersArray.getString(i),"String");
+            if("accountSummary".equalsIgnoreCase(fileName)){
+                headersPropMap.put(headersArray.getString(i),"spend"+headersArray.getString(i));
+            }else{
+                headersPropMap.put(headersArray.getString(i),headersArray.getString(i));
+            }
+
+        }
+
+        return CommonUtil. generateXlsxFromJson(dataJSONArray,headersDtMap,headersPropMap,fileName);
+    }
+
+    public Workbook getExportNetworkAnalysisTable(JSONArray dataJSONArray,String fileName) throws Exception {
+
+        Map<String,String> headersDtMap = new LinkedHashMap(); // Headers and Dtataypes
+        Map<String,String> headersPropMap = new LinkedHashMap();
+
+        if("topShippingLanes".equalsIgnoreCase(fileName)) {
+            headersDtMap.put("NO", "String");
+            headersDtMap.put("SHIPPER", "String");
+            headersDtMap.put("RECEIVER", "String");
+            headersDtMap.put("TOTAL SPEND", "String");
+
+            headersPropMap.put("NO", "rank");
+            headersPropMap.put("SHIPPER", "shipperAddress");
+            headersPropMap.put("RECEIVER", "receiverAddress");
+            headersPropMap.put("TOTAL SPEND", "laneTotal");
+        }else if("topPortLanes".equalsIgnoreCase(fileName)){
+            headersDtMap.put("NO", "String");
+            headersDtMap.put("POL", "String");
+            headersDtMap.put("POD", "String");
+            headersDtMap.put("TOTAL SPEND", "String");
+
+            headersPropMap.put("NO", "rank");
+            headersPropMap.put("POL", "pol");
+            headersPropMap.put("POD", "pod");
+            headersPropMap.put("TOTAL SPEND", "laneTotal");
+        }
+
+        return CommonUtil. generateXlsxFromJson(dataJSONArray,headersDtMap,headersPropMap,fileName);
+    }
+
+    public Workbook getExportSpendByQuarterTable(JSONArray dataJSONArray,JSONArray headersArray,String fileName) throws Exception {
+
+        Map<String,String> headersDtMap = new LinkedHashMap(); // Headers and Dtataypes
+        //Map<String,String> headersPropMap = new LinkedHashMap();
+
+            headersDtMap.put(" ", "String");
+            int length=headersArray.length();
+
+            for(int i=0;i<length;i++) {
+
+                    headersDtMap.put(headersArray.getString(i), "String");
+                    //headersPropMap.put(headersArray.getString(i),  headersArray.getString(i));
+            }
+            headersDtMap.put("TOTAL", "String");
+
+        return CommonUtil. generateXlsxForSpendByQuarterFromJson(dataJSONArray,headersDtMap,fileName);
+    }
 
     public Workbook getExportServiceLevAnalysis(JSONArray dataJSONArray,String fileName) throws Exception {
 

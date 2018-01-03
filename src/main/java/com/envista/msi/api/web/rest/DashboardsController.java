@@ -29,6 +29,7 @@ import com.envista.msi.api.web.rest.dto.reports.SavedSchedReportDto;
 import com.envista.msi.api.web.rest.util.DateUtil;
 import com.envista.msi.api.web.rest.util.JSONUtil;
 import com.envista.msi.api.web.rest.util.pagination.PaginationBean;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.json.JSONArray;
@@ -3763,6 +3764,169 @@ public class DashboardsController extends DashboardBaseController {
             nspData = JSONUtil.prepareCarrierWiseMonthlySpendJson(spendList);
         }
         return new ResponseEntity<String>(nspData != null ? nspData.toString() : new JSONObject().toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/exportMonthlySpendTable", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = "application/text")
+    public @ResponseBody void getExportMonthlySpendTable(@RequestParam String dashletName,@RequestParam(required = false) String mode, HttpServletResponse response) throws Exception {
+        JSONObject nspData = null;
+        JSONArray dataJSONArray = new JSONArray();
+        JSONArray headersJSONArray = new JSONArray();
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filterCriteria = loadAppliedFilters(user.getUserId());
+        if(filterCriteria != null){
+            if(mode != null && !mode.isEmpty()){
+                filterCriteria.setService(mode);
+            }
+        }
+        if("monthlySpendByMode".equalsIgnoreCase(dashletName)){
+            List<MonthlySpendByModeDto> monthlySpendByModeList = dashboardsService.getMonthlySpendByMode(filterCriteria, false);
+            if(monthlySpendByModeList != null && !monthlySpendByModeList.isEmpty()){
+                nspData = JSONUtil.prepareMonthlySpendByModeJson(monthlySpendByModeList);
+            }
+
+            if(nspData!=null){
+                nspData =   nspData.getJSONObject("values");
+                dataJSONArray= (JSONArray) nspData.get("modes");
+                headersJSONArray=(JSONArray) nspData.get("quaters");
+            }
+        }else if("monthlySpendByService".equalsIgnoreCase(dashletName)){
+            List<MonthlySpendByModeDto> monthlySpendByModeList = dashboardsService.getMonthlySpendByModeByService(filterCriteria, false);
+            if(monthlySpendByModeList != null && !monthlySpendByModeList.isEmpty()){
+                nspData = JSONUtil.prepareMonthlySpendByModeByServiceJson(monthlySpendByModeList);
+            }
+            if(nspData!=null){
+                nspData =   nspData.getJSONObject("values");
+                dataJSONArray= (JSONArray) nspData.get("services");
+                headersJSONArray=(JSONArray) nspData.get("quaters");
+            }
+
+        }else if("monthlySpendByCarrier".equalsIgnoreCase(dashletName)){
+            List<CarrierWiseMonthlySpendDto> spendList = dashboardsService.getCarrierWiseMonthlySpend(filterCriteria, false);
+            if(spendList != null && !spendList.isEmpty()){
+                nspData = JSONUtil.prepareCarrierWiseMonthlySpendJson(spendList);
+            }
+            if(nspData!=null){
+                nspData =   nspData.getJSONObject("values");
+                dataJSONArray= (JSONArray) nspData.get("carriers");
+                headersJSONArray=(JSONArray) nspData.get("months");
+            }
+        }else if("accountSummary".equalsIgnoreCase(dashletName)){
+            List<AccountSummaryDto> accountSummaryList = dashboardsService.getAccountSummary(filterCriteria, false);
+            if(accountSummaryList != null && !accountSummaryList.isEmpty())
+             nspData =JSONUtil.prepareAccountSummaryJson(accountSummaryList, filterCriteria);
+            if(nspData!=null){
+                dataJSONArray=  nspData.getJSONArray("values");
+                headersJSONArray= nspData.getJSONArray("years");
+            }
+        }
+
+        Workbook workbook = null;
+
+        workbook = dashboardsService.getExportMonthlySpendTable(dataJSONArray,headersJSONArray,dashletName);
+
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        //response.setHeader("Content-Length", String.valueOf(workbook.length()));
+        response.setHeader("Content-Disposition", "attachment; filename="+dashletName+".xlsx");
+        response.flushBuffer();
+
+        if (workbook != null) {
+            workbook.write(response.getOutputStream());
+            workbook.close();
+        }
+    }
+
+    @RequestMapping(value = "/exportNetworkAnalysisTable", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = "application/text")
+    public @ResponseBody void getExportNetworkAnalysisTable(@RequestParam String dashletName, HttpServletResponse response) throws Exception {
+        JSONObject nspData = null;
+        JSONArray dataJSONArray = new JSONArray();
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filterCriteria = loadAppliedFilters(user.getUserId());
+
+        if("topShippingLanes".equalsIgnoreCase(dashletName)){
+            List<ShippingLanesDto> shippingLanesDtoList = dashboardsService.loadTopShippingLanes(filterCriteria);
+
+            if(shippingLanesDtoList != null && !shippingLanesDtoList.isEmpty()){
+                nspData = JSONUtil.prepareTopShippingLanesJson(shippingLanesDtoList);
+            }
+
+            if(nspData!=null){
+                dataJSONArray=  nspData.getJSONArray("data");
+            }
+        }else if("topPortLanes".equalsIgnoreCase(dashletName)){
+            List<PortLanesDto> portLanesDtoList = dashboardsService.loadTopPortLanes(filterCriteria);
+
+            if(portLanesDtoList != null && !portLanesDtoList.isEmpty()){
+                nspData = JSONUtil.prepareTopPortLanesJson(portLanesDtoList);
+            }
+            if(nspData!=null){
+                dataJSONArray=  nspData.getJSONArray("data");
+            }
+
+        }
+
+
+        Workbook workbook = null;
+
+        workbook = dashboardsService.getExportNetworkAnalysisTable(dataJSONArray,dashletName);
+
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        //response.setHeader("Content-Length", String.valueOf(workbook.length()));
+        response.setHeader("Content-Disposition", "attachment; filename="+dashletName+".xlsx");
+        response.flushBuffer();
+
+        if (workbook != null) {
+            workbook.write(response.getOutputStream());
+            workbook.close();
+        }
+    }
+
+    @RequestMapping(value = "/exportSpendByQuarterTable", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = "application/text")
+    public @ResponseBody void getExportSpendByQuarterTable(@RequestParam String dashletName,@RequestParam(required = false) String mode, HttpServletResponse response) throws Exception {
+        JSONObject nspData = null;
+        JSONArray dataJSONArray = new JSONArray();
+        JSONArray headersJSONArray = new JSONArray();
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filterCriteria = loadAppliedFilters(user.getUserId());
+        if(filterCriteria != null){
+            if(mode != null && !mode.isEmpty()){
+                filterCriteria.setService(mode);
+            }
+        }
+
+        if("modeSpendByQuarter".equalsIgnoreCase(dashletName)){
+            List<AnnualSummaryDto> annualSummaryList = dashboardsService.getAnnualSummary(filterCriteria, false);
+
+            if(annualSummaryList != null && !annualSummaryList.isEmpty()){
+                nspData = JSONUtil.prepareAnnualSummaryJson(annualSummaryList);;
+            }
+            if(nspData!=null){
+                nspData=nspData.getJSONObject("values");
+                dataJSONArray=(JSONArray) nspData.get("modes");
+                headersJSONArray=(JSONArray) nspData.get("quaters");
+            }
+        }else if("serviceSpendByQuarter".equalsIgnoreCase(dashletName)){
+            List<AnnualSummaryDto> annualSummaryList = dashboardsService.getAnnualSummaryByService(filterCriteria, false);
+            if(annualSummaryList != null && !annualSummaryList.isEmpty()){
+                nspData = JSONUtil.prepareAnnualSummaryByServiceJson(annualSummaryList);
+            }
+
+            if(nspData!=null){
+                nspData=nspData.getJSONObject("values");
+                dataJSONArray=(JSONArray) nspData.get("services");
+                headersJSONArray=(JSONArray) nspData.get("quaters");
+            }
+        }
+
+        Workbook workbook = null;
+        workbook = dashboardsService.getExportSpendByQuarterTable(dataJSONArray,headersJSONArray,dashletName);
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename="+dashletName+".xlsx");
+        response.flushBuffer();
+
+        if (workbook != null) {
+            workbook.write(response.getOutputStream());
+            workbook.close();
+        }
     }
 
 

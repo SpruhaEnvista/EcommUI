@@ -3,10 +3,12 @@ package com.envista.msi.api.web.rest.util;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import javax.swing.text.html.HTMLDocument;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -18,9 +20,7 @@ import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This utility class is specially designed to keep all methods which are commonly used/to be used over different module in Avatar project.
@@ -326,6 +326,166 @@ public class CommonUtil {
                     }//End of each Cell
 
                 }//End of carrJson
+
+            } // End Of ResultSet
+
+
+            //workbook.dispose(); // we have to check whether it will not cause problem when streaming to browser.
+        } catch (Exception e) {
+            throw e;
+        } finally {
+
+        }
+
+        return workbook;
+    }
+
+    public static Workbook generateXlsxForSpendByQuarterFromJson(JSONArray dataJSONArray, Map<String,String> headersDtMap, String sheetname ) throws Exception {
+
+        SXSSFWorkbook workbook = new SXSSFWorkbook(100);
+        Sheet sheet = null;
+        Row row = null;
+        Cell cell = null;
+
+        try {
+            CellStyle style = workbook.createCellStyle();//Create style
+            int rowCount = 0;
+            sheet = workbook.createSheet(sheetname);
+            row = sheet.createRow(rowCount++);
+            Set<String> headersSet =  headersDtMap.keySet();
+            String[] headerarray = new String[headersSet.size()];
+            headersSet.toArray(headerarray);
+            int prev=0;
+            for (int i = 0; i <headersDtMap.size(); i++) {
+
+                cell = row.createCell(prev);
+                Font font = workbook.createFont();//Create font
+                font.setBoldweight(Font.BOLDWEIGHT_BOLD);//Make font bold
+                style.setFont(font);//set it to bold
+                if (headersDtMap != null)
+                    cell.setCellValue(headerarray[i]);
+                cell.setCellStyle(style);
+                if (i > 0) {
+                    sheet.addMergedRegion(new CellRangeAddress(0, 0, prev, prev + 3));
+                    prev = prev + 4;
+                } else {
+                    prev = i + 1;
+                }
+                sheet.setDefaultColumnWidth(15);
+            }
+
+            row = sheet.createRow(rowCount++);
+            int headerCellIndex = 0;
+            cell = row.createCell(headerCellIndex++);
+
+            Font font = workbook.createFont();//Create font
+            font.setBoldweight(Font.BOLDWEIGHT_BOLD);//Make font bold
+            style.setFont(font);
+            if("modeSpendByQuarter".equalsIgnoreCase(sheetname)){
+                cell.setCellValue("Modes");
+            }else{
+                cell.setCellValue("Services");
+            }
+
+            cell.setCellStyle(style);
+            for(int h=0;h<headersDtMap.size()-1;h++){
+                cell = row.createCell(headerCellIndex++);
+                cell.setCellValue("spend");
+                cell.setCellStyle(style);
+                cell = row.createCell(headerCellIndex++);
+                cell.setCellValue("#shpts");
+                cell.setCellStyle(style);
+                cell = row.createCell(headerCellIndex++);
+                cell.setCellValue("$/Shpt");
+                cell.setCellStyle(style);
+                cell = row.createCell(headerCellIndex++);
+                cell.setCellValue("% of Total");
+                cell.setCellStyle(style);
+            }
+
+            for (int j = 1; j <=dataJSONArray.length(); j++)  {
+
+                JSONObject carrJson = (JSONObject)dataJSONArray.get(j-1);
+                Iterator<String> modeskeys = carrJson.sortedKeys();
+                String mode=modeskeys.next();
+
+                JSONObject quarterObj = carrJson.getJSONObject(mode).getJSONObject("quaters");
+                JSONObject quarterTotalObj = carrJson.getJSONObject(mode).getJSONObject("rowTotal");
+
+
+                int cellIndex = 0;
+                row = sheet.createRow(rowCount++);
+                cell = row.createCell(cellIndex++);
+                cell.setCellValue(mode);
+                Iterator<String> qtrItr = quarterObj.sortedKeys();
+                String spend="";
+                String noOfShipments="";
+                String total="";
+                String perc="";
+                while(qtrItr.hasNext()){
+                    JSONObject dataObj = (JSONObject) quarterObj.get(qtrItr.next());
+                    Iterator<String> dataValObj = dataObj.sortedKeys();
+                    JSONArray keys = dataObj.names ();
+
+                    for (int i = 0; i < keys.length (); ++i) {
+
+                        String key = keys.getString (i); // Here's your key
+                        if("spend".equalsIgnoreCase(keys.getString (i))){
+                            spend=(String) dataObj.get("spend");
+                        }else if("noOfShipments".equalsIgnoreCase(keys.getString (i))){
+                            noOfShipments=(String) dataObj.get("noOfShipments");
+                        }else if("total".equalsIgnoreCase(keys.getString (i))){
+                            total=(String) dataObj.get("total");
+                        } else if("perc".equalsIgnoreCase(keys.getString (i))){
+                            perc=(String) dataObj.get("perc");
+                        }
+
+                    }
+                    CellStyle cellStyle = workbook.createCellStyle();//Create style
+                    cell = row.createCell(cellIndex++);
+                    cell.setCellValue(spend);
+                    cellStyle.setAlignment(CellStyle.ALIGN_RIGHT);
+                    cellStyle.setVerticalAlignment(CellStyle.VERTICAL_TOP);
+                    cell.setCellStyle(cellStyle);
+                    cell = row.createCell(cellIndex++);
+                    cell.setCellValue(noOfShipments);
+                    cellStyle.setAlignment(CellStyle.ALIGN_RIGHT);
+                    cellStyle.setVerticalAlignment(CellStyle.VERTICAL_TOP);
+                    cell.setCellStyle(cellStyle);
+                    cell = row.createCell(cellIndex++);
+                    cell.setCellValue(total);
+                    cellStyle.setAlignment(CellStyle.ALIGN_RIGHT);
+                    cellStyle.setVerticalAlignment(CellStyle.VERTICAL_TOP);
+                    cell.setCellStyle(cellStyle);
+                    cell = row.createCell(cellIndex++);
+                    cell.setCellValue(perc);
+                    cellStyle.setAlignment(CellStyle.ALIGN_RIGHT);
+                    cellStyle.setVerticalAlignment(CellStyle.VERTICAL_TOP);
+                    cell.setCellStyle(cellStyle);
+                }
+
+                CellStyle cellStyle = workbook.createCellStyle();//Create style
+
+                cell = row.createCell(cellIndex++);
+                cell.setCellValue(quarterTotalObj.getString("totalSpend"));
+                cellStyle.setAlignment(CellStyle.ALIGN_RIGHT);
+                cellStyle.setVerticalAlignment(CellStyle.VERTICAL_TOP);
+                cell.setCellStyle(cellStyle);
+                cell = row.createCell(cellIndex++);
+                cell.setCellValue(quarterTotalObj.getString("totalShipments"));
+                cellStyle.setAlignment(CellStyle.ALIGN_RIGHT);
+                cellStyle.setVerticalAlignment(CellStyle.VERTICAL_TOP);
+                cell.setCellStyle(cellStyle);
+                cell = row.createCell(cellIndex++);
+                cell.setCellValue(quarterTotalObj.getString("totalAverage"));
+                cellStyle.setAlignment(CellStyle.ALIGN_RIGHT);
+                cellStyle.setVerticalAlignment(CellStyle.VERTICAL_TOP);
+                cell.setCellStyle(cellStyle);
+                cell = row.createCell(cellIndex++);
+                cell.setCellValue(quarterTotalObj.getString("totalPercentage"));
+                cellStyle.setAlignment(CellStyle.ALIGN_RIGHT);
+                cellStyle.setVerticalAlignment(CellStyle.VERTICAL_TOP);
+                cell.setCellStyle(cellStyle);
 
             } // End Of ResultSet
 
