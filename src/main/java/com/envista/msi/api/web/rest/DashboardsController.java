@@ -31,6 +31,7 @@ import com.envista.msi.api.web.rest.util.JSONUtil;
 import com.envista.msi.api.web.rest.util.pagination.PaginationBean;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -3826,7 +3827,7 @@ public class DashboardsController extends DashboardBaseController {
 
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         //response.setHeader("Content-Length", String.valueOf(workbook.length()));
-        response.setHeader("Content-Disposition", "attachment; filename="+dashletName+".xlsx");
+        response.setHeader("Content-Disposition", "attachment; filename="+ StringUtils.capitalize(dashletName)+".xlsx");
         response.flushBuffer();
 
         if (workbook != null) {
@@ -3871,7 +3872,7 @@ public class DashboardsController extends DashboardBaseController {
 
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         //response.setHeader("Content-Length", String.valueOf(workbook.length()));
-        response.setHeader("Content-Disposition", "attachment; filename="+dashletName+".xlsx");
+        response.setHeader("Content-Disposition", "attachment; filename="+StringUtils.capitalize(dashletName)+".xlsx");
         response.flushBuffer();
 
         if (workbook != null) {
@@ -3920,7 +3921,7 @@ public class DashboardsController extends DashboardBaseController {
         Workbook workbook = null;
         workbook = dashboardsService.getExportSpendByQuarterTable(dataJSONArray,headersJSONArray,dashletName);
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        response.setHeader("Content-Disposition", "attachment; filename="+dashletName+".xlsx");
+        response.setHeader("Content-Disposition", "attachment; filename="+StringUtils.capitalize(dashletName)+".xlsx");
         response.flushBuffer();
 
         if (workbook != null) {
