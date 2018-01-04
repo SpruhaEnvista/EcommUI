@@ -34,7 +34,7 @@ public class RunScriptDao {
 
         QueryParameter queryParameter = StoredProcedureParameter.with("P_RUN_SCRIPT_ID", runScriptId).and("P_ACTION_TYPE", null);
 
-        List<RunReportDto> dtos = persistentContext.findEntities("RunScriptDto.insertRunScript", queryParameter);
+        List<RunReportDto> dtos = persistentContext.findEntities("RunReportDto.runScript", queryParameter);
 
         return dtos;
     }
