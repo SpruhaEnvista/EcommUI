@@ -1,5 +1,6 @@
 package com.envista.msi.api.web.rest.util;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.ss.usermodel.*;
@@ -8,7 +9,6 @@ import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import javax.swing.text.html.HTMLDocument;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -20,7 +20,10 @@ import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * This utility class is specially designed to keep all methods which are commonly used/to be used over different module in Avatar project.
@@ -262,7 +265,7 @@ public class CommonUtil {
 
             int rowCount = 0;
 
-            sheet = workbook.createSheet(sheetname);
+            sheet = workbook.createSheet(StringUtils.capitalize(sheetname));
             CreationHelper createHelper = workbook.getCreationHelper();
             //CellStyle cellStyle[] = new CellStyle[headersDtMap.size()];
 
@@ -350,7 +353,7 @@ public class CommonUtil {
         try {
             CellStyle style = workbook.createCellStyle();//Create style
             int rowCount = 0;
-            sheet = workbook.createSheet(sheetname);
+            sheet = workbook.createSheet(StringUtils.capitalize(sheetname));
             row = sheet.createRow(rowCount++);
             Set<String> headersSet =  headersDtMap.keySet();
             String[] headerarray = new String[headersSet.size()];
