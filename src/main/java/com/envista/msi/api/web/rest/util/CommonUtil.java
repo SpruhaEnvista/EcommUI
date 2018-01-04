@@ -417,51 +417,33 @@ public class CommonUtil {
                 row = sheet.createRow(rowCount++);
                 cell = row.createCell(cellIndex++);
                 cell.setCellValue(mode);
-                Iterator<String> qtrItr = quarterObj.sortedKeys();
-                String spend="";
-                String noOfShipments="";
-                String total="";
-                String perc="";
-                while(qtrItr.hasNext()){
-                    JSONObject dataObj = (JSONObject) quarterObj.get(qtrItr.next());
-                    Iterator<String> dataValObj = dataObj.sortedKeys();
-                    JSONArray keys = dataObj.names ();
 
-                    for (int i = 0; i < keys.length (); ++i) {
+                for (int i = 1; i <headerarray.length-1; i++) {
+                    String quarter=headerarray[i];
+                    JSONObject data=quarterObj.getJSONObject(quarter);
 
-                        String key = keys.getString (i); // Here's your key
-                        if("spend".equalsIgnoreCase(keys.getString (i))){
-                            spend=(String) dataObj.get("spend");
-                        }else if("noOfShipments".equalsIgnoreCase(keys.getString (i))){
-                            noOfShipments=(String) dataObj.get("noOfShipments");
-                        }else if("total".equalsIgnoreCase(keys.getString (i))){
-                            total=(String) dataObj.get("total");
-                        } else if("perc".equalsIgnoreCase(keys.getString (i))){
-                            perc=(String) dataObj.get("perc");
-                        }
-
-                    }
                     CellStyle cellStyle = workbook.createCellStyle();//Create style
                     cell = row.createCell(cellIndex++);
-                    cell.setCellValue(spend);
+                    cell.setCellValue(data.get("spend").toString());
                     cellStyle.setAlignment(CellStyle.ALIGN_RIGHT);
                     cellStyle.setVerticalAlignment(CellStyle.VERTICAL_TOP);
                     cell.setCellStyle(cellStyle);
                     cell = row.createCell(cellIndex++);
-                    cell.setCellValue(noOfShipments);
+                    cell.setCellValue(data.get("noOfShipments").toString());
                     cellStyle.setAlignment(CellStyle.ALIGN_RIGHT);
                     cellStyle.setVerticalAlignment(CellStyle.VERTICAL_TOP);
                     cell.setCellStyle(cellStyle);
                     cell = row.createCell(cellIndex++);
-                    cell.setCellValue(total);
+                    cell.setCellValue(data.get("total").toString());
                     cellStyle.setAlignment(CellStyle.ALIGN_RIGHT);
                     cellStyle.setVerticalAlignment(CellStyle.VERTICAL_TOP);
                     cell.setCellStyle(cellStyle);
                     cell = row.createCell(cellIndex++);
-                    cell.setCellValue(perc);
+                    cell.setCellValue(data.get("perc").toString());
                     cellStyle.setAlignment(CellStyle.ALIGN_RIGHT);
                     cellStyle.setVerticalAlignment(CellStyle.VERTICAL_TOP);
                     cell.setCellStyle(cellStyle);
+
                 }
 
                 CellStyle cellStyle = workbook.createCellStyle();//Create style
