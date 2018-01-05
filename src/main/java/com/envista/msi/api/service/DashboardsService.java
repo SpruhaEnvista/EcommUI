@@ -1426,4 +1426,75 @@ public class DashboardsService {
         return dashboardsDao.getServiceLevAnalysis(filter, isTopTenAccessorial);
     }
 
+    public List<CustomisedFreightAuditSavingDto> getFreightAuditSavings(DashboardsFilterCriteria filter){
+        List<FreightAuditSavingDto> freightSavingList = dashboardsDao.getFreightAuditSavings(filter);
+        List<CustomisedFreightAuditSavingDto> customisedFreightAuditSavingList = null;
+        if(freightSavingList != null && !freightSavingList.isEmpty()){
+            customisedFreightAuditSavingList = new ArrayList<>();
+            CustomisedFreightAuditSavingDto totalSaving = new CustomisedFreightAuditSavingDto();
+            totalSaving.setCarrierName("Grand Total");
+            Double totalInvoicedAmount = 0.0;
+            Double totalApprovedAmount = 0.0;
+            Double totalFreightSaving = 0.0;
+            for(FreightAuditSavingDto saving : freightSavingList) {
+                if (saving != null) {
+                    totalInvoicedAmount += (saving.getInvoicedAmount() != null ? saving.getInvoicedAmount() : 0.0);
+                    totalApprovedAmount += (saving.getApprovedAmount() != null ? saving.getApprovedAmount() : 0.0);
+                    totalFreightSaving += (saving.getFreightSaving() != null ? saving.getFreightSaving() : 0.0);
+
+                    CustomisedFreightAuditSavingDto customisedFreightSaving = new CustomisedFreightAuditSavingDto();
+                    customisedFreightSaving.setCarrierName(saving.getCarrierName());
+                    customisedFreightSaving.setInvoicedAmount(saving.getInvoicedAmount() != null && saving.getInvoicedAmount() != 0 ? CommonUtil.decimalNumberToCommaReadableFormat(saving.getInvoicedAmount()) : "0.00");
+                    customisedFreightSaving.setApprovedAmount(saving.getApprovedAmount() != null && saving.getApprovedAmount() != 0 ? CommonUtil.decimalNumberToCommaReadableFormat(saving.getApprovedAmount()) : "0.00");
+                    customisedFreightSaving.setFreightSaving(saving.getFreightSaving() != null && saving.getFreightSaving() != 0 ? CommonUtil.decimalNumberToCommaReadableFormat(saving.getFreightSaving()) : "0.00");
+                    customisedFreightSaving.setSavingPercentage(saving.getSavingPercentage() != null && saving.getSavingPercentage() != 0 ? CommonUtil.decimalNumberToCommaReadableFormat(saving.getSavingPercentage(), "###.0") + "%" : "0.0%");
+                    customisedFreightAuditSavingList.add(customisedFreightSaving);
+                }
+            }
+            totalSaving.setInvoicedAmount(totalInvoicedAmount != 0.0 ? CommonUtil.decimalNumberToCommaReadableFormat(totalInvoicedAmount) : "0.00");
+            totalSaving.setApprovedAmount(totalApprovedAmount != 0.0 ? CommonUtil.decimalNumberToCommaReadableFormat(totalApprovedAmount) : "0.00");
+            totalSaving.setFreightSaving(totalFreightSaving != 0.0 ? CommonUtil.decimalNumberToCommaReadableFormat(totalFreightSaving) : "0.00");
+            totalSaving.setSavingPercentage(totalInvoicedAmount != 0.0 ? CommonUtil.decimalNumberToCommaReadableFormat(((totalFreightSaving / totalApprovedAmount) * 100), "###.0") + "%" : "0.0%");
+            customisedFreightAuditSavingList.add(totalSaving);
+        }
+        return customisedFreightAuditSavingList;
+    }
+
+    public Map<String, List<CustomisedFreightAuditSavingDto>> getFreightSavingsByCarrierByAdjustmentReason(DashboardsFilterCriteria filter){
+        List<FreightAuditSavingDto> freightSavings = dashboardsDao.getFreightSavingsByCarrierByAdjustmentReason(filter);
+        Map<String, List<CustomisedFreightAuditSavingDto>> freightSavingMap = null;
+        if(freightSavings != null && !freightSavings.isEmpty()){
+            freightSavingMap = new HashMap<>();
+            Integer totalAdjustedInvoiceCount = 0;
+            Double totalFreightSaving = 0.0;
+            CustomisedFreightAuditSavingDto totalCustomisedFreightSaving = new CustomisedFreightAuditSavingDto();
+            totalCustomisedFreightSaving.setCarrierName("Grand Total");
+            totalCustomisedFreightSaving.setAdjustmentReason("");
+            for(FreightAuditSavingDto saving : freightSavings){
+                if(saving != null){
+                    totalFreightSaving += (saving.getFreightSaving() != null ? saving.getFreightSaving() : 0.0);
+                    totalAdjustedInvoiceCount += (saving.getAdjustedInvoiceCount() != null ? saving.getAdjustedInvoiceCount() : 0);
+
+                    CustomisedFreightAuditSavingDto customisedFreightSaving = new CustomisedFreightAuditSavingDto();
+                    customisedFreightSaving.setCarrierName(saving.getCarrierName());
+                    customisedFreightSaving.setAdjustmentReason(saving.getAdjustmentReason());
+                    customisedFreightSaving.setAdjustedInvoiceCount(saving.getAdjustedInvoiceCount());
+                    customisedFreightSaving.setFreightSaving(saving.getFreightSaving() != null && saving.getFreightSaving() != 0 ? CommonUtil.decimalNumberToCommaReadableFormat(saving.getFreightSaving()) : "0.00");
+                    if(freightSavingMap.containsKey(saving.getCarrierName())){
+                        freightSavingMap.get(saving.getCarrierName()).add(customisedFreightSaving);
+                    }else{
+                        List<CustomisedFreightAuditSavingDto> savingsList = new ArrayList<>();
+                        savingsList.add(customisedFreightSaving);
+                        freightSavingMap.put(saving.getCarrierName(), savingsList);
+                    }
+                }
+            }
+            totalCustomisedFreightSaving.setFreightSaving(totalFreightSaving != 0.0 ? CommonUtil.decimalNumberToCommaReadableFormat(totalFreightSaving) : "0.00");
+            totalCustomisedFreightSaving.setAdjustedInvoiceCount(totalAdjustedInvoiceCount);
+            List<CustomisedFreightAuditSavingDto> tempList = new ArrayList<>();
+            tempList.add(totalCustomisedFreightSaving);
+            freightSavingMap.put("Grand Total", tempList);
+        }
+        return freightSavingMap;
+    }
 }
