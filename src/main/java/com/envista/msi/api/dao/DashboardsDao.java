@@ -1358,10 +1358,8 @@ public class DashboardsDao {
     }
 
     public List<DashboardReportDto> getLineItemReportDetails(DashboardsFilterCriteria filter){
-       if (filter.getIsCount()==null )
-       {
+
            filter.setIsCount(0);
-       }
 
         QueryParameter queryParameter = StoredProcedureParameter.with(DashboardStoredProcParam.DashboardReportParams.DATE_TYPE_PARAM, filter.getDateType())
                 .and(DashboardStoredProcParam.DashboardReportParams.CARRIER_IDS_PARAM, filter.getCarriers())
