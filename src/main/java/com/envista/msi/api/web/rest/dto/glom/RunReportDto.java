@@ -1,7 +1,5 @@
 package com.envista.msi.api.web.rest.dto.glom;
 
-import com.envista.msi.api.web.rest.dto.invoicing.InvoicingRuleDto;
-
 import javax.persistence.*;
 import java.io.Serializable;
 
@@ -10,7 +8,7 @@ import java.io.Serializable;
  */
 @NamedStoredProcedureQueries({
         @NamedStoredProcedureQuery(name = "RunReportDto.runScript", procedureName = "SHP_GLM_RUN_SCRIPT_PRO",
-                resultClasses = InvoicingRuleDto.class,
+                resultClasses = RunReportDto.class,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_RUN_SCRIPT_ID", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_ACTION_TYPE", type = String.class),
@@ -50,6 +48,12 @@ public class RunReportDto implements Serializable {
 
     @Column(name = "CARRIER_NAME")
     private String carrierName;
+
+    @Column(name = "SERVICE_CODE_ID")
+    private Long serviceCodeId;
+
+    @Column(name = "CUSTOMER_ID")
+    private Long customerId;
 
     public RunReportDto() {
     }
@@ -132,5 +136,21 @@ public class RunReportDto implements Serializable {
 
     public void setCarrierName(String carrierName) {
         this.carrierName = carrierName;
+    }
+
+    public Long getServiceCodeId() {
+        return serviceCodeId;
+    }
+
+    public void setServiceCodeId(Long serviceCodeId) {
+        this.serviceCodeId = serviceCodeId;
+    }
+
+    public Long getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
     }
 }
