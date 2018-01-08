@@ -120,4 +120,17 @@ public class ParcelRTRDao {
             throw new DaoException("Error while saving Invoice rtr status", e);
         }
     }
+
+    public void updateShipperCategory(String entityIds, String userName, String shipperCategory, String referenceTableName){
+        try{
+            QueryParameter queryParameter = StoredProcedureParameter.withPosition(1, ParameterMode.IN, String.class, entityIds)
+                    .andPosition(2, ParameterMode.IN, String.class, userName)
+                    .andPosition(3, ParameterMode.IN, String.class, shipperCategory)
+                    .andPosition(4, ParameterMode.IN, String.class, referenceTableName);
+            persistentContext.executeStoredProcedure("SHP_SAVE_SHIPPER_CATEGORY_PROC", queryParameter);
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new DaoException("Error while updating shipper category", e);
+        }
+    }
 }
