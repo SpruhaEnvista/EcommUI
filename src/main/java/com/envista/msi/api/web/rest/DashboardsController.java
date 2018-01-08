@@ -26,10 +26,13 @@ import com.envista.msi.api.web.rest.dto.dashboard.servicelevel.ServiceLevelDto;
 import com.envista.msi.api.web.rest.dto.dashboard.shipmentoverview.*;
 import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
 import com.envista.msi.api.web.rest.dto.reports.SavedSchedReportDto;
+import com.envista.msi.api.web.rest.util.CommonUtil;
 import com.envista.msi.api.web.rest.util.DateUtil;
 import com.envista.msi.api.web.rest.util.JSONUtil;
 import com.envista.msi.api.web.rest.util.pagination.PaginationBean;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -45,6 +48,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.el.MethodNotFoundException;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.net.InetAddress;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -2543,6 +2548,14 @@ public class DashboardsController extends DashboardBaseController {
                 }
             }
 
+
+            if(reqMap.containsKey("orderMatchValue") && reqMap.get("orderMatchValue") != null){
+                Object orderMatch = reqMap.get("orderMatchValue");
+                if(orderMatch != null){
+                    appliedFilter.setOrderMatch(orderMatch.toString());
+                }
+            }
+
             if(reqMap.containsKey("carscoretype")){
                 Object carScoreType = reqMap.get("carscoretype");
                 if(carScoreType != null){
@@ -2692,30 +2705,45 @@ public class DashboardsController extends DashboardBaseController {
         }
     }
 
+
     @RequestMapping(value = "/exportReport", method = {RequestMethod.GET}, produces = "application/text")
-    public @ResponseBody void exportDashboardReport(@RequestParam(required = false) String invoiceDate, @RequestParam(required = false) String dashletteName, @RequestParam(required = false) String carrierId,
+    public @ResponseBody void exportDashboardReport(@RequestParam Map<String, Object> reqMap ,@RequestParam(required = false) String invoiceDate, @RequestParam(required = false) String dashletteName, @RequestParam(required = false) String carrierId,
                                                     @RequestParam(required = false) String mode, @RequestParam(required = false) String carscoretype, @RequestParam(required = false) String service,
                                                     @RequestParam(required = false, defaultValue = "0") Integer offset, @RequestParam(required = false, defaultValue = "1000") Integer limit,
                                                     @RequestParam(required = false, defaultValue = "1000") Integer totalRecordCount,
-                                                    @RequestParam(required = false) String filter, HttpServletResponse response) throws Exception {
+                                                    @RequestParam(required = false) String filter,@RequestParam(required = false) String exportTo, HttpServletResponse response) throws Exception {
 
         UserProfileDto userProfileDto = getUserProfile();
         DashboardsFilterCriteria appliedFilter = getDashboardsFilterCriteria(invoiceDate, dashletteName, carrierId, mode, carscoretype, service, userProfileDto);
 
-            Workbook workbook = null;
+        if(appliedFilter != null){
+            setReportRequestParamsValues(reqMap, appliedFilter);
+            appliedFilter.setOffset(offset);
+            appliedFilter.setPageSize(limit);
+        }
 
-            if (filter != null && !filter.isEmpty()) {
-                workbook = dashboardsService.getReportForExport(appliedFilter, offset, 1000, DashboardUtil.prepareSearchFilterCriteria(filter));
-            } else {
-                workbook = dashboardsService.getReportForExport(appliedFilter, offset, 1000, null);
-            }
+        Workbook workbook = null;
+        boolean isSelectedAll = exportTo.contains("All") ? true : false ;
+        JSONArray dashboardReportJson ;
 
-            String fileName = "Dashboards_Export";
+        if (filter != null && !filter.isEmpty()) {
+            dashboardReportJson = dashboardsService.getReportForExport(appliedFilter, offset, 1000, DashboardUtil.prepareSearchFilterCriteria(filter),isSelectedAll,exportTo);
+
+        } else {
+            dashboardReportJson =dashboardsService.getReportForExport(appliedFilter, offset, 1000, null,isSelectedAll,exportTo);
+        }
+        String fileName = "Dashboards_Export";
+        if(! exportTo.contains("CSV") && dashboardReportJson!=null )
+        {
+            workbook =  CommonUtil.generateXlsxFromJson(dashboardReportJson);
+
+
 
             if (appliedFilter.getDashletteName()!= null) {
                 fileName = appliedFilter.getDashletteName().trim().replaceAll("&gt;", ">").replaceAll(" ", "_");
                 fileName = fileName.replaceAll(">", "_").replaceAll("\\|", "_").replaceAll("_+", "_");
             }
+
 
             response.setContentType("application/text");
             response.setHeader("Content-Disposition", "attachment; filename="+fileName+".xlsx");
@@ -2724,8 +2752,25 @@ public class DashboardsController extends DashboardBaseController {
                 workbook.write(response.getOutputStream());
                 workbook.close();
             }
+        }
+        else if(exportTo.contains("CSV") && dashboardReportJson!=null )
+        {
+            if (appliedFilter.getDashletteName()!= null) {
+                fileName = appliedFilter.getDashletteName().trim().replaceAll("&gt;", ">").replaceAll(" ", "_");
+                fileName = fileName.replaceAll(">", "_").replaceAll("\\|", "_").replaceAll("_+", "_");
+            }
+
+            OutputStream outputStream = response.getOutputStream();
+            response.setContentType("text/csv");
+            response.setHeader("content-Disposition", "attachment; filename="+fileName+".CSV");
+            PrintStream printStream = new PrintStream(outputStream,false,"UTF-8");
+            CommonUtil.generateCSVFromJson(dashboardReportJson,printStream);
+
+        }
+
 
     }
+
 
     @RequestMapping(value = "/exportCarrSpendAnalysis", method = {RequestMethod.GET}, produces = "application/text")
     public @ResponseBody void exportCarrSpendAnalysis(@RequestParam(required = false) String invoiceDate, @RequestParam(required = false) String dashletteName, @RequestParam(required = false) String carrierId,
@@ -2785,7 +2830,7 @@ public class DashboardsController extends DashboardBaseController {
 
 
     @RequestMapping(value = "/pushDashboardReport", method = {RequestMethod.GET}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> pushDashboardReport(@RequestParam(required = false) String invoiceDate, @RequestParam(required = false) String dashletteName, @RequestParam(required = false) String carrierId,
+    public ResponseEntity<String> pushDashboardReport(@RequestParam Map<String, Object> reqMap,@RequestParam(required = false) String invoiceDate, @RequestParam(required = false) String dashletteName, @RequestParam(required = false) String carrierId,
                                                     @RequestParam(required = false) String mode, @RequestParam(required = false) String carscoretype, @RequestParam(required = false) String service,
                                                     @RequestParam(required = false, defaultValue = "0") Integer offset, @RequestParam(required = false, defaultValue = "1000") Integer limit,
                                                     @RequestParam(required = false, defaultValue = "1000") Integer totalRecordCount,
@@ -2793,6 +2838,12 @@ public class DashboardsController extends DashboardBaseController {
 
         UserProfileDto userProfileDto = getUserProfile();
         DashboardsFilterCriteria appliedFilter = getDashboardsFilterCriteria(invoiceDate, dashletteName, carrierId, mode, carscoretype, service, userProfileDto);
+
+        if(appliedFilter != null){
+            setReportRequestParamsValues(reqMap, appliedFilter);
+            appliedFilter.setOffset(offset);
+            appliedFilter.setPageSize(limit);
+        }
 
         SavedSchedReportDto savedSchedReportDto = prepareReportsObject(appliedFilter, userProfileDto);
         reportsService.saveSchedReport(savedSchedReportDto);
@@ -3161,7 +3212,7 @@ public class DashboardsController extends DashboardBaseController {
             selectedBeansArray.put(selectedBeanCountry);
         }
 
-       /* if ( Constants.FINISH_LINE_CUSTOMER_ID.equals(appliedFilter.getCustomerIdsCSV()) && appliedFilter.getShipperGroupIdsCSV() != null  ) {
+        /*if ( Constants.FINISH_LINE_CUSTOMER_ID.equals(appliedFilter.getCustomerIdsCSV()) && appliedFilter.getShipperGroupIdsCSV() != null  ) {
 
 
             JSONObject selectedBeanCountry = new JSONObject();
@@ -3174,8 +3225,8 @@ public class DashboardsController extends DashboardBaseController {
             selectedBeansArray.put(selectedBeanCountry);
         }*/
 
-/*
-        if ( appliedFilter.getLanesJson() != null && !appliedFilter.getLanesJson().isEmpty() ) {
+
+       /* if ( appliedFilter.getLanesJson() != null && !appliedFilter.getLanesJson().isEmpty() ) {
             JSONArray laneDetails = new JSONObject(appliedFilter.getLanesJson()).getJSONArray("LaneDetails");
             for ( int i=0 ; i < laneDetails.length() ; i++ ) {
                 JSONObject laneInfoObj = laneDetails.getJSONObject(i);
@@ -3763,6 +3814,169 @@ public class DashboardsController extends DashboardBaseController {
             nspData = JSONUtil.prepareCarrierWiseMonthlySpendJson(spendList);
         }
         return new ResponseEntity<String>(nspData != null ? nspData.toString() : new JSONObject().toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/exportMonthlySpendTable", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = "application/text")
+    public @ResponseBody void getExportMonthlySpendTable(@RequestParam String dashletName,@RequestParam(required = false) String mode, HttpServletResponse response) throws Exception {
+        JSONObject nspData = null;
+        JSONArray dataJSONArray = new JSONArray();
+        JSONArray headersJSONArray = new JSONArray();
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filterCriteria = loadAppliedFilters(user.getUserId());
+        if(filterCriteria != null){
+            if(mode != null && !mode.isEmpty()){
+                filterCriteria.setService(mode);
+            }
+        }
+        if("monthlySpendByMode".equalsIgnoreCase(dashletName)){
+            List<MonthlySpendByModeDto> monthlySpendByModeList = dashboardsService.getMonthlySpendByMode(filterCriteria, false);
+            if(monthlySpendByModeList != null && !monthlySpendByModeList.isEmpty()){
+                nspData = JSONUtil.prepareMonthlySpendByModeJson(monthlySpendByModeList);
+            }
+
+            if(nspData!=null){
+                nspData =   nspData.getJSONObject("values");
+                dataJSONArray= (JSONArray) nspData.get("modes");
+                headersJSONArray=(JSONArray) nspData.get("quaters");
+            }
+        }else if("monthlySpendByService".equalsIgnoreCase(dashletName)){
+            List<MonthlySpendByModeDto> monthlySpendByModeList = dashboardsService.getMonthlySpendByModeByService(filterCriteria, false);
+            if(monthlySpendByModeList != null && !monthlySpendByModeList.isEmpty()){
+                nspData = JSONUtil.prepareMonthlySpendByModeByServiceJson(monthlySpendByModeList);
+            }
+            if(nspData!=null){
+                nspData =   nspData.getJSONObject("values");
+                dataJSONArray= (JSONArray) nspData.get("services");
+                headersJSONArray=(JSONArray) nspData.get("quaters");
+            }
+
+        }else if("monthlySpendByCarrier".equalsIgnoreCase(dashletName)){
+            List<CarrierWiseMonthlySpendDto> spendList = dashboardsService.getCarrierWiseMonthlySpend(filterCriteria, false);
+            if(spendList != null && !spendList.isEmpty()){
+                nspData = JSONUtil.prepareCarrierWiseMonthlySpendJson(spendList);
+            }
+            if(nspData!=null){
+                nspData =   nspData.getJSONObject("values");
+                dataJSONArray= (JSONArray) nspData.get("carriers");
+                headersJSONArray=(JSONArray) nspData.get("months");
+            }
+        }else if("accountSummary".equalsIgnoreCase(dashletName)){
+            List<AccountSummaryDto> accountSummaryList = dashboardsService.getAccountSummary(filterCriteria, false);
+            if(accountSummaryList != null && !accountSummaryList.isEmpty())
+             nspData =JSONUtil.prepareAccountSummaryJson(accountSummaryList, filterCriteria);
+            if(nspData!=null){
+                dataJSONArray=  nspData.getJSONArray("values");
+                headersJSONArray= nspData.getJSONArray("years");
+            }
+        }
+
+        Workbook workbook = null;
+
+        workbook = dashboardsService.getExportMonthlySpendTable(dataJSONArray,headersJSONArray,dashletName);
+
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        //response.setHeader("Content-Length", String.valueOf(workbook.length()));
+        response.setHeader("Content-Disposition", "attachment; filename="+ StringUtils.capitalize(dashletName)+".xlsx");
+        response.flushBuffer();
+
+        if (workbook != null) {
+            workbook.write(response.getOutputStream());
+            workbook.close();
+        }
+    }
+
+    @RequestMapping(value = "/exportNetworkAnalysisTable", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = "application/text")
+    public @ResponseBody void getExportNetworkAnalysisTable(@RequestParam String dashletName, HttpServletResponse response) throws Exception {
+        JSONObject nspData = null;
+        JSONArray dataJSONArray = new JSONArray();
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filterCriteria = loadAppliedFilters(user.getUserId());
+
+        if("topShippingLanes".equalsIgnoreCase(dashletName)){
+            List<ShippingLanesDto> shippingLanesDtoList = dashboardsService.loadTopShippingLanes(filterCriteria);
+
+            if(shippingLanesDtoList != null && !shippingLanesDtoList.isEmpty()){
+                nspData = JSONUtil.prepareTopShippingLanesJson(shippingLanesDtoList);
+            }
+
+            if(nspData!=null){
+                dataJSONArray=  nspData.getJSONArray("data");
+            }
+        }else if("topPortLanes".equalsIgnoreCase(dashletName)){
+            List<PortLanesDto> portLanesDtoList = dashboardsService.loadTopPortLanes(filterCriteria);
+
+            if(portLanesDtoList != null && !portLanesDtoList.isEmpty()){
+                nspData = JSONUtil.prepareTopPortLanesJson(portLanesDtoList);
+            }
+            if(nspData!=null){
+                dataJSONArray=  nspData.getJSONArray("data");
+            }
+
+        }
+
+
+        Workbook workbook = null;
+
+        workbook = dashboardsService.getExportNetworkAnalysisTable(dataJSONArray,dashletName);
+
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        //response.setHeader("Content-Length", String.valueOf(workbook.length()));
+        response.setHeader("Content-Disposition", "attachment; filename="+StringUtils.capitalize(dashletName)+".xlsx");
+        response.flushBuffer();
+
+        if (workbook != null) {
+            workbook.write(response.getOutputStream());
+            workbook.close();
+        }
+    }
+
+    @RequestMapping(value = "/exportSpendByQuarterTable", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = "application/text")
+    public @ResponseBody void getExportSpendByQuarterTable(@RequestParam String dashletName,@RequestParam(required = false) String mode, HttpServletResponse response) throws Exception {
+        JSONObject nspData = null;
+        JSONArray dataJSONArray = new JSONArray();
+        JSONArray headersJSONArray = new JSONArray();
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filterCriteria = loadAppliedFilters(user.getUserId());
+        if(filterCriteria != null){
+            if(mode != null && !mode.isEmpty()){
+                filterCriteria.setService(mode);
+            }
+        }
+
+        if("modeSpendByQuarter".equalsIgnoreCase(dashletName)){
+            List<AnnualSummaryDto> annualSummaryList = dashboardsService.getAnnualSummary(filterCriteria, false);
+
+            if(annualSummaryList != null && !annualSummaryList.isEmpty()){
+                nspData = JSONUtil.prepareAnnualSummaryJson(annualSummaryList);;
+            }
+            if(nspData!=null){
+                nspData=nspData.getJSONObject("values");
+                dataJSONArray=(JSONArray) nspData.get("modes");
+                headersJSONArray=(JSONArray) nspData.get("quaters");
+            }
+        }else if("serviceSpendByQuarter".equalsIgnoreCase(dashletName)){
+            List<AnnualSummaryDto> annualSummaryList = dashboardsService.getAnnualSummaryByService(filterCriteria, false);
+            if(annualSummaryList != null && !annualSummaryList.isEmpty()){
+                nspData = JSONUtil.prepareAnnualSummaryByServiceJson(annualSummaryList);
+            }
+
+            if(nspData!=null){
+                nspData=nspData.getJSONObject("values");
+                dataJSONArray=(JSONArray) nspData.get("services");
+                headersJSONArray=(JSONArray) nspData.get("quaters");
+            }
+        }
+
+        Workbook workbook = null;
+        workbook = dashboardsService.getExportSpendByQuarterTable(dataJSONArray,headersJSONArray,dashletName);
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename="+StringUtils.capitalize(dashletName)+".xlsx");
+        response.flushBuffer();
+
+        if (workbook != null) {
+            workbook.write(response.getOutputStream());
+            workbook.close();
+        }
     }
 
 
