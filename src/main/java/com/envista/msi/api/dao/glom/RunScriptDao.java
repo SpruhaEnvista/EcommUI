@@ -3,10 +3,13 @@ package com.envista.msi.api.dao.glom;
 import com.envista.msi.api.domain.PersistentContext;
 import com.envista.msi.api.domain.util.QueryParameter;
 import com.envista.msi.api.domain.util.StoredProcedureParameter;
+import com.envista.msi.api.web.rest.dto.glom.RunReportDto;
 import com.envista.msi.api.web.rest.dto.glom.RunScriptBean;
 import com.envista.msi.api.web.rest.dto.glom.RunScriptDto;
 import org.springframework.stereotype.Repository;
 import javax.inject.Inject;
+import java.util.List;
+
 /**
  * Created by Ramu Adepu on 29-12-2017.
  */
@@ -27,5 +30,13 @@ public class RunScriptDao {
         return persistentContext.findEntityAndMapFields("RunScriptDto.insertRunScript", queryParameter);
     }
 
+    public List<RunReportDto> getRunScriptInfo(Long runScriptId) {
+
+        QueryParameter queryParameter = StoredProcedureParameter.with("P_RUN_SCRIPT_ID", runScriptId).and("P_ACTION_TYPE", null);
+
+        List<RunReportDto> dtos = persistentContext.findEntities("RunReportDto.runScript", queryParameter);
+
+        return dtos;
+    }
 
 }
