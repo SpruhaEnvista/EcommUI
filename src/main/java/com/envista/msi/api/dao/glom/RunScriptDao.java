@@ -5,7 +5,7 @@ import com.envista.msi.api.domain.util.QueryParameter;
 import com.envista.msi.api.domain.util.StoredProcedureParameter;
 import com.envista.msi.api.web.rest.dto.glom.RunReportDto;
 import com.envista.msi.api.web.rest.dto.glom.RunScriptBean;
- import com.envista.msi.api.web.rest.dto.glom.RunScriptDto;
+import com.envista.msi.api.web.rest.dto.glom.RunScriptDto;
 import org.springframework.stereotype.Repository;
 import javax.inject.Inject;
 import java.util.List;

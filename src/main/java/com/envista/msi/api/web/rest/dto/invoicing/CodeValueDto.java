@@ -1,9 +1,8 @@
 package com.envista.msi.api.web.rest.dto.invoicing;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-
 import javax.persistence.*;
 import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
  * Created by KRISHNAREDDYM on 4/25/2017.
@@ -81,13 +80,11 @@ public class CodeValueDto implements Serializable {
 
     public CodeValueDto() {
     }
-
     public CodeValueDto(Long id, String codeValue,String property2) {
         this.id = id;
         this.codeValue = codeValue;
         this.property2 = property2;
     }
-
     public Long getId() {
         return id;
     }
@@ -135,7 +132,6 @@ public class CodeValueDto implements Serializable {
     public void setProperty3(String property3) {
         this.property3 = property3;
     }
-
     public static class Config{
         public static class DataObjectFilter {
             public static final String STORED_PROCEDURE_QUERY_NAME = "CodeValueDto.getDataObjectFilter";
