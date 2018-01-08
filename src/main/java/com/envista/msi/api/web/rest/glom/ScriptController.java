@@ -168,6 +168,7 @@ public class ScriptController {
 
         return new ResponseEntity<List<CustomerDto>>(service.getAllCustomers(userId), HttpStatus.OK);
     }
+
     @RequestMapping(value = "/insertRunScript", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
     public ResponseEntity<RunScriptDto> insertRunScript(@RequestBody RunScriptBean bean) {
 
