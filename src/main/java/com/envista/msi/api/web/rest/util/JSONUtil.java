@@ -2341,7 +2341,7 @@ public class JSONUtil {
                     eachColumnData.put("dataType", columnInfo.getString("dataType"));
                 }
 
-                switch (selectClause.toUpperCase()) {
+                switch (selectClause!=null?selectClause.trim().toUpperCase():"") {
                     case "CARRIER_NAME":
                         eachColumnData.put("value", reportData.getCarrierName());
                         break;
