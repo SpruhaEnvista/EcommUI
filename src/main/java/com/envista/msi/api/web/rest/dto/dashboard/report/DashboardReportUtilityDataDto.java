@@ -79,7 +79,29 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashboardReportParams.REPORT_TOTAL_ROW_COUNT_PARAM, type = Integer.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashboardReportParams.SEARCH_FILTER_CONDITION_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.DashboardReportParams.REPORT_DATA_PARAM, type = Void.class)
-                })
+                }),
+        @NamedStoredProcedureQuery(
+                name = DashboardReportUtilityDataDto.Config.StoredProcedureQueryName.LineItem_RECORD_COUNT,
+                procedureName = DashboardReportUtilityDataDto.Config.StoredProcedureName.LineItem_REPORT_TOTAL_RECORD_COUNT,
+                resultSetMappings = {DashboardReportUtilityDataDto.Config.ResultMappings.LineItem_RECORD_COUNT},
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashboardReportParams.DATE_TYPE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashboardReportParams.CARRIER_IDS_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashboardReportParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashboardReportParams.CONVERTED_CURRENCY_CODE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashboardReportParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashboardReportParams.FROM_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashboardReportParams.TO_DATE_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashboardReportParams.CONVERTED_WEIGHT_UNIT_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashboardReportParams.MODES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashboardReportParams.SERVICES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashboardReportParams.TAX_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashboardReportParams.ACC_DESC_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashboardReportParams.PAGE_OFFSET_PARAM, type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashboardReportParams.PAGE_SIZE_PARAM, type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashboardReportParams.REPORT_TOTAL_ROW_COUNT_PARAM, type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.DashboardReportParams.SEARCH_FILTER_CONDITION_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.DashboardReportParams.REPORT_DATA_PARAM, type = Void.class)                })
 })
 
 @SqlResultSetMappings({
@@ -128,6 +150,17 @@ import java.io.Serializable;
         ),
         @SqlResultSetMapping(
                 name = DashboardReportUtilityDataDto.Config.ResultMappings.RECORD_COUNT,
+                classes = {
+                        @ConstructorResult(
+                                targetClass = DashboardReportUtilityDataDto.class,
+                                columns = {
+                                        @ColumnResult(name = "RECORD_COUNT", type = Integer.class)
+                                }
+                        )
+                }
+        ),
+        @SqlResultSetMapping(
+                name = DashboardReportUtilityDataDto.Config.ResultMappings.LineItem_RECORD_COUNT,
                 classes = {
                         @ConstructorResult(
                                 targetClass = DashboardReportUtilityDataDto.class,
@@ -341,6 +374,8 @@ public class DashboardReportUtilityDataDto implements Serializable {
             static final String DASHBOARD_REPORT_CUST_DEF_LBL_MAPPING = "DashboardReportUtilityDataDto.CustomDefinedLabelByCustomerMapping";
             static final String DASHBOARD_REPORT_COL_CONFIG_BY_USER_MAPPING = "DashboardReportUtilityDataDto.ColumnConfigByUserMapping";
             static final String RECORD_COUNT = "DashboardReportUtilityDataDto.RecordCountMapping";
+            static final String LineItem_RECORD_COUNT = "DashboardReportUtilityDataDto.getLineItemRecordCount";
+
         }
 
         static class StoredProcedureName{
@@ -348,6 +383,9 @@ public class DashboardReportUtilityDataDto implements Serializable {
             static final String DASHBOARD_REPORT_CUST_DEF_LBL = "SHP_DB_CUST_DEF_LBL_CSTMR_PROC";
             static final String DASHBOARD_REPORT_COL_CONFIG_BY_USER = "SHP_DB_COL_CONFIG_BY_USER_PROC";
             static final String DASHBOARD_REPORT_TOTAL_RECORD_COUNT = "SHP_DB_PARCEL_FREIGHT_RPT_PROC";
+            static final String LineItem_REPORT_TOTAL_RECORD_COUNT = "SHP_DB_LINE_ITEM_REPORT_PROC";
+
+
         }
 
         public static class StoredProcedureQueryName{
@@ -355,6 +393,8 @@ public class DashboardReportUtilityDataDto implements Serializable {
             public static final String DASHBOARD_REPORT_CUST_DEF_LBL = "DashboardReportUtilityDataDto.getCustomDefinedLabelByCustomer";
             public static final String DASHBOARD_REPORT_COL_CONFIG_BY_USER = "DashboardReportUtilityDataDto.getColumnConfigByUser";
             public static final String RECORD_COUNT = "DashboardReportUtilityDataDto.getRecordCount";
+            public static final String LineItem_RECORD_COUNT = "DashboardReportUtilityDataDto.getLineItemRecordCount";
+
         }
     }
 }
