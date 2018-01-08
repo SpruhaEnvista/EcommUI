@@ -168,24 +168,6 @@ public class ScriptController {
 
         return new ResponseEntity<List<CustomerDto>>(service.getAllCustomers(userId), HttpStatus.OK);
     }
-
-    @RequestMapping(value = "/insertRunScript", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
-    public ResponseEntity<RunScriptDto> insertRunScript(@RequestBody RunScriptBean bean) {
-
-
-        bean.setActionType("INSERT");
-
-        if (bean.getFromDate() != null)
-            bean.setFromDate(DateUtil.format(new Date(Long.valueOf(bean.getFromDate())), "dd-MM-yyyy"));
-
-        if (bean.getToDate() != null)
-            bean.setToDate(DateUtil.format(new Date(Long.valueOf(bean.getToDate())), "dd-MM-yyyy"));
-
-        RunScriptDto dbDto = service.insertRunScript(bean);
-
-        return new ResponseEntity<RunScriptDto>(dbDto, HttpStatus.OK);
-    }
-
     @RequestMapping(value = "/insertRunScript", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
     public ResponseEntity<RunScriptDto> insertRunScript(@RequestBody RunScriptBean bean) {
 

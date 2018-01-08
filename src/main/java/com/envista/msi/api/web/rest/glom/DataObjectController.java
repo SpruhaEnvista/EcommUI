@@ -4,7 +4,6 @@ import com.envista.msi.api.service.glom.DataObjectService;
 import com.envista.msi.api.service.invoicing.CodeValueService;
 import com.envista.msi.api.web.rest.dto.glom.DataObjectBean;
 import com.envista.msi.api.web.rest.dto.glom.DataObjectDto;
-import com.envista.msi.api.web.rest.dto.invoicing.CodeValueDto;
 import com.envista.msi.api.web.rest.util.pagination.PaginationBean;
 import com.envista.msi.api.web.rest.dto.invoicing.CodeValueDto;
 import org.slf4j.Logger;
@@ -29,8 +28,6 @@ public class DataObjectController {
 
     @Inject
     private DataObjectService service;
-    @Inject
-    private CodeValueService codeValueService;
 
     @Inject
     private CodeValueService codeValueService;
