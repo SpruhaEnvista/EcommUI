@@ -2733,7 +2733,7 @@ public class DashboardsController extends DashboardBaseController {
             dashboardReportJson =dashboardsService.getReportForExport(appliedFilter, offset, 1000, null,isSelectedAll,exportTo);
         }
         String fileName = "Dashboards_Export";
-        if(! exportTo.contains("CSV"))
+        if(! exportTo.contains("CSV") && dashboardReportJson!=null )
         {
             workbook =  CommonUtil.generateXlsxFromJson(dashboardReportJson);
 
@@ -2753,16 +2753,12 @@ public class DashboardsController extends DashboardBaseController {
                 workbook.close();
             }
         }
-        else if(exportTo.contains("CSV"))
+        else if(exportTo.contains("CSV") && dashboardReportJson!=null )
         {
             if (appliedFilter.getDashletteName()!= null) {
                 fileName = appliedFilter.getDashletteName().trim().replaceAll("&gt;", ">").replaceAll(" ", "_");
                 fileName = fileName.replaceAll(">", "_").replaceAll("\\|", "_").replaceAll("_+", "_");
             }
-
-
-            /*response.setContentType("application/text");
-            response.setHeader("Content-Disposition", "attachment; filename="+fileName+".csv");*/
 
             OutputStream outputStream = response.getOutputStream();
             response.setContentType("text/csv");
