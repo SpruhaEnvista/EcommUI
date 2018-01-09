@@ -31,4 +31,8 @@ public class CodeValueService {
 
         return dao.getClaimFlagByVoiceId(voiceId);
     }
+    public List<CodeValueDto> getDataObjectFilter() {
+
+        return dao.getDataObjectFilter();
+    }
 }
