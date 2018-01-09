@@ -38,6 +38,13 @@ public class CodeValueDao {
 
         return claimFlag;
     }
+    public List<CodeValueDto> getDataObjectFilter() {
 
+        QueryParameter queryParameter = StoredProcedureParameter.with("P_CODE_GROUP_NAME", "GLOM Data Objects Modal Filter");
+
+        List<CodeValueDto> codeValueDtos = persistentContext.findEntities(CodeValueDto.Config.DataObjectFilter.STORED_PROCEDURE_QUERY_NAME, queryParameter);
+
+        return codeValueDtos;
+    }
 
 }

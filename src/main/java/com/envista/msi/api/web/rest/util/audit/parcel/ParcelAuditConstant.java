@@ -59,4 +59,7 @@ public class ParcelAuditConstant {
      * Multiple ids can be separated by comma.
      */
     public static final String NON_UPS_CARRIER_IDS = "22";
+
+    public static final String EBILL_MANIFEST_TABLE_NAME = "SHP_EBILL_MANIFEST_TB";
+    public static final String EBILL_GFF_TABLE_NAME = "SHP_EBILL_GFF_TB";
 }

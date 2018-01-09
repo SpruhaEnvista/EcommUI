@@ -108,6 +108,9 @@ public class ParcelRateResponse implements Serializable {
         @XmlElement(name="Service")
         private String service; // enum
 
+        @XmlElement(name="Category")
+        private String category;
+
         @XmlElement(name="Distance")
         private BigDecimal distance; // ####.#
 
@@ -252,6 +255,15 @@ public class ParcelRateResponse implements Serializable {
         public void setService(String service) {
             this.service = service;
         }
+
+        public String getCategory() {
+            return category;
+        }
+
+        public void setCategory(String category) {
+            this.category = category;
+        }
+
         public BigDecimal getDistance() {
             return distance;
         }
