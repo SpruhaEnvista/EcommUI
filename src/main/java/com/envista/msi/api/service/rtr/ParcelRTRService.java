@@ -189,6 +189,11 @@ public class ParcelRTRService{
 
                     //Considering first price sheet in the response as actual price sheet to compare the total amount.
                     ParcelRateResponse.PriceSheet firstPriceSheet = parcelRateResponse.getPriceSheets().get(0);
+                    String shipperCategory = firstPriceSheet.getCategory();
+                    if(shipperCategory != null && !shipperCategory.isEmpty()){
+                        updateShipperCategory(shipperCategory, parcelAuditDetails, ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME);
+                    }
+
                     if(firstPriceSheet != null && firstPriceSheet.getTotal() != null && firstPriceSheet.getTotal().compareTo(sumOfNetAmount) < 0){
                         status = updateAmountWithRTRResponseChargesForNonUpsCarrier(firstPriceSheet, parcelAuditDetails);
                     }else{
@@ -286,6 +291,10 @@ public class ParcelRTRService{
 
                     //Considering first price sheet in the response as actual price sheet to compare the total amount.
                     ParcelRateResponse.PriceSheet firstPriceSheet = parcelRateResponse.getPriceSheets().get(0);
+                    String shipperCategory = firstPriceSheet.getCategory();
+                    if(shipperCategory != null && !shipperCategory.isEmpty()){
+                        updateShipperCategory(shipperCategory, parcelAuditDetails, ParcelAuditConstant.EBILL_GFF_TABLE_NAME);
+                    }
                     if(firstPriceSheet != null && firstPriceSheet.getTotal() != null && firstPriceSheet.getTotal().compareTo(sumOfNetAmount) < 0){
                         status = updateAmountWithRTRResponseChargesForUps(firstPriceSheet, parcelAuditDetails);
                     }else{
@@ -306,6 +315,22 @@ public class ParcelRTRService{
         }
         return status;
     }
+
+    private void updateShipperCategory(String shipperCategory, List<ParcelAuditDetailsDto> parcelAuditDetails, String referenceTableName) {
+        if(parcelAuditDetails != null && !parcelAuditDetails.isEmpty()){
+            StringJoiner ids = new StringJoiner(",");
+            for(ParcelAuditDetailsDto auditDetails : parcelAuditDetails){
+                if(auditDetails != null && auditDetails.getId() != null){
+                    ids.add(auditDetails.getId().toString());
+                }
+            }
+            if(ids != null && ids.length() > 0){
+                parcelRTRDao.updateShipperCategory(ids.toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, shipperCategory, referenceTableName);
+            }
+        }
+    }
+
+
 
     private String updateAmountWithRTRResponseChargesForUps(ParcelRateResponse.PriceSheet priceSheet, List<ParcelAuditDetailsDto> parcelAuditDetails) throws Exception {
         boolean frtChargeFound = false;
