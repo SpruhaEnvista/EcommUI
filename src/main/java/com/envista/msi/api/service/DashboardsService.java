@@ -1444,17 +1444,17 @@ public class DashboardsService {
 
                     CustomisedFreightAuditSavingDto customisedFreightSaving = new CustomisedFreightAuditSavingDto();
                     customisedFreightSaving.setCarrierName(saving.getCarrierName());
-                    customisedFreightSaving.setInvoicedAmount(saving.getInvoicedAmount() != null && saving.getInvoicedAmount() != 0 ? CommonUtil.decimalNumberToCommaReadableFormat(saving.getInvoicedAmount()) : "0.00");
-                    customisedFreightSaving.setApprovedAmount(saving.getApprovedAmount() != null && saving.getApprovedAmount() != 0 ? CommonUtil.decimalNumberToCommaReadableFormat(saving.getApprovedAmount()) : "0.00");
-                    customisedFreightSaving.setFreightSaving(saving.getFreightSaving() != null && saving.getFreightSaving() != 0 ? CommonUtil.decimalNumberToCommaReadableFormat(saving.getFreightSaving()) : "0.00");
-                    customisedFreightSaving.setSavingPercentage(saving.getSavingPercentage() != null && saving.getSavingPercentage() != 0 ? CommonUtil.decimalNumberToCommaReadableFormat(saving.getSavingPercentage(), "###.0") + "%" : "0.0%");
+                    customisedFreightSaving.setInvoicedAmount(saving.getInvoicedAmount() != null && saving.getInvoicedAmount() != 0 ? (saving.getInvoicedAmount() > 1 ? CommonUtil.decimalNumberToCommaReadableFormat(saving.getInvoicedAmount()) : CommonUtil.decimalNumberToCommaReadableFormat(saving.getInvoicedAmount(), "0.00")) : "0.00");
+                    customisedFreightSaving.setApprovedAmount(saving.getApprovedAmount() != null && saving.getApprovedAmount() != 0 ? (saving.getApprovedAmount() > 1 ? CommonUtil.decimalNumberToCommaReadableFormat(saving.getApprovedAmount()) : CommonUtil.decimalNumberToCommaReadableFormat(saving.getApprovedAmount(), "0.00")) : "0.00");
+                    customisedFreightSaving.setFreightSaving(saving.getFreightSaving() != null && saving.getFreightSaving() != 0 ? (saving.getFreightSaving() > 1 ? CommonUtil.decimalNumberToCommaReadableFormat(saving.getFreightSaving()) : CommonUtil.decimalNumberToCommaReadableFormat(saving.getFreightSaving(), "0.00")) : "0.00");
+                    customisedFreightSaving.setSavingPercentage(saving.getSavingPercentage() != null && saving.getSavingPercentage() != 0 ? CommonUtil.decimalNumberToCommaReadableFormat(saving.getSavingPercentage(), "0.0") + "%" : "0.0%");
                     customisedFreightAuditSavingList.add(customisedFreightSaving);
                 }
             }
-            totalSaving.setInvoicedAmount(totalInvoicedAmount != 0.0 ? CommonUtil.decimalNumberToCommaReadableFormat(totalInvoicedAmount) : "0.00");
-            totalSaving.setApprovedAmount(totalApprovedAmount != 0.0 ? CommonUtil.decimalNumberToCommaReadableFormat(totalApprovedAmount) : "0.00");
-            totalSaving.setFreightSaving(totalFreightSaving != 0.0 ? CommonUtil.decimalNumberToCommaReadableFormat(totalFreightSaving) : "0.00");
-            totalSaving.setSavingPercentage(totalInvoicedAmount != 0.0 ? CommonUtil.decimalNumberToCommaReadableFormat(((totalFreightSaving / totalApprovedAmount) * 100), "###.0") + "%" : "0.0%");
+            totalSaving.setInvoicedAmount(totalInvoicedAmount != 0.0 ? (totalInvoicedAmount > 1 ? CommonUtil.decimalNumberToCommaReadableFormat(totalInvoicedAmount) : CommonUtil.decimalNumberToCommaReadableFormat(totalInvoicedAmount, "0.00")) : "0.00");
+            totalSaving.setApprovedAmount(totalApprovedAmount != 0.0 ? (totalApprovedAmount > 1 ? CommonUtil.decimalNumberToCommaReadableFormat(totalApprovedAmount) : CommonUtil.decimalNumberToCommaReadableFormat(totalApprovedAmount, "0.00")) : "0.00");
+            totalSaving.setFreightSaving(totalFreightSaving != 0.0 ? (totalFreightSaving > 1 ? CommonUtil.decimalNumberToCommaReadableFormat(totalFreightSaving) : CommonUtil.decimalNumberToCommaReadableFormat(totalFreightSaving, "0.00")) : "0.00");
+            totalSaving.setSavingPercentage(totalInvoicedAmount != 0.0 ? CommonUtil.decimalNumberToCommaReadableFormat(((totalFreightSaving / totalApprovedAmount) * 100), "0.0") + "%" : "0.0%");
             customisedFreightAuditSavingList.add(totalSaving);
         }
         return customisedFreightAuditSavingList;
@@ -1479,7 +1479,7 @@ public class DashboardsService {
                     customisedFreightSaving.setCarrierName(saving.getCarrierName());
                     customisedFreightSaving.setAdjustmentReason(saving.getAdjustmentReason());
                     customisedFreightSaving.setAdjustedInvoiceCount(saving.getAdjustedInvoiceCount());
-                    customisedFreightSaving.setFreightSaving(saving.getFreightSaving() != null && saving.getFreightSaving() != 0 ? CommonUtil.decimalNumberToCommaReadableFormat(saving.getFreightSaving()) : "0.00");
+                    customisedFreightSaving.setFreightSaving(saving.getFreightSaving() != null && saving.getFreightSaving() != 0 ? (saving.getFreightSaving() > 1 ? CommonUtil.decimalNumberToCommaReadableFormat(saving.getFreightSaving()) : CommonUtil.decimalNumberToCommaReadableFormat(saving.getFreightSaving(), "0.00")) : "0.00");
                     if(freightSavingMap.containsKey(saving.getCarrierName())){
                         freightSavingMap.get(saving.getCarrierName()).add(customisedFreightSaving);
                     }else{
@@ -1489,7 +1489,7 @@ public class DashboardsService {
                     }
                 }
             }
-            totalCustomisedFreightSaving.setFreightSaving(totalFreightSaving != 0.0 ? CommonUtil.decimalNumberToCommaReadableFormat(totalFreightSaving) : "0.00");
+            totalCustomisedFreightSaving.setFreightSaving(totalFreightSaving != 0.0 ? (totalFreightSaving > 1 ? CommonUtil.decimalNumberToCommaReadableFormat(totalFreightSaving) : CommonUtil.decimalNumberToCommaReadableFormat(totalFreightSaving, "0.00")) : "0.00");
             totalCustomisedFreightSaving.setAdjustedInvoiceCount(totalAdjustedInvoiceCount);
             List<CustomisedFreightAuditSavingDto> tempList = new ArrayList<>();
             tempList.add(totalCustomisedFreightSaving);
