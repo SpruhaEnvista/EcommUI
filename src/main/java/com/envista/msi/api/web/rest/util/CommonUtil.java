@@ -120,10 +120,14 @@ public class CommonUtil {
     }
 
     public static String decimalNumberToCommaReadableFormat(Double value){
+        return decimalNumberToCommaReadableFormat(value, "#,###.00");
+    }
+
+    public static String decimalNumberToCommaReadableFormat(Double value, String pattern){
         if(null == value){
             return "0.00";
         }
-        DecimalFormat df = new DecimalFormat("#,###.00");
+        DecimalFormat df = new DecimalFormat(pattern);
         return df.format(value);
     }
 
