@@ -1547,7 +1547,7 @@ public class DashboardsService {
         List<FreightAuditSavingDto> freightSavings = dashboardsDao.getFreightSavingsByCarrierByAdjustmentReason(filter);
         Map<String, List<CustomisedFreightAuditSavingDto>> freightSavingMap = null;
         if(freightSavings != null && !freightSavings.isEmpty()){
-            freightSavingMap = new HashMap<>();
+            freightSavingMap = new LinkedHashMap<>();
             Integer totalAdjustedInvoiceCount = 0;
             Double totalFreightSaving = 0.0;
             CustomisedFreightAuditSavingDto totalCustomisedFreightSaving = new CustomisedFreightAuditSavingDto();
