@@ -1,12 +1,9 @@
 package com.envista.msi.api.web.rest.invoicing;
 
 import com.envista.msi.api.service.invoicing.CodeValueService;
-import com.envista.msi.api.service.invoicing.CreditsPRService;
 import com.envista.msi.api.service.invoicing.UvCreditsService;
 import com.envista.msi.api.service.invoicing.VoiceService;
-import com.envista.msi.api.web.rest.dto.invoicing.CreditsPRDto;
 import com.envista.msi.api.web.rest.dto.invoicing.CreditsPRSearchBean;
-import com.envista.msi.api.web.rest.dto.invoicing.UvCreditsDto;
 import com.envista.msi.api.web.rest.dto.invoicing.UvVoiceUpdateBean;
 import com.envista.msi.api.web.rest.util.DateUtil;
 import com.envista.msi.api.web.rest.util.InvoicingUtilities;
@@ -97,11 +94,11 @@ public class UvCreditsController {
         bean.setClaimFlag(claimFlag);
         bean.setReviewFlag(reviewFlag);
         if (createDate != null && !StringUtils.equalsIgnoreCase(createDate, "null"))
-            bean.setCreateDate(DateUtil.format(new Date(Long.valueOf(createDate)), "dd-MM-yyyy"));
+            bean.setCreateDateFrom(DateUtil.format(new Date(Long.valueOf(createDate)), "dd-MM-yyyy"));
         if (invoiceDate != null && !StringUtils.equalsIgnoreCase(invoiceDate, "null"))
-            bean.setInvoiceDate(DateUtil.format(new Date(Long.valueOf(invoiceDate)), "dd-MM-yyyy"));
+            bean.setInvoiceDateFrom(DateUtil.format(new Date(Long.valueOf(invoiceDate)), "dd-MM-yyyy"));
         if (closeDate != null && !StringUtils.equalsIgnoreCase(closeDate, "null"))
-            bean.setCloseDate(DateUtil.format(new Date(Long.valueOf(closeDate)), "dd-MM-yyyy"));
+            bean.setCloseDateFrom(DateUtil.format(new Date(Long.valueOf(closeDate)), "dd-MM-yyyy"));
         bean.setInvoiceNumbers(invoiceNumbers);
         bean.setTrackingNumbers(trackingNumbers);
         bean.setInternalKeyIds(internalKeyIds);
