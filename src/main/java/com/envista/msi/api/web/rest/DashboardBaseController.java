@@ -50,7 +50,7 @@ public class DashboardBaseController {
 
     public ResponseEntity<CommonResponse> prepareCommonResponseEntity(Object data){
         CommonResponse response = new CommonResponse();
-        response.setData(data);
+        response.setData(data != null ? data : "{}");
         response.setStatusCode(HttpStatus.OK.value());
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
