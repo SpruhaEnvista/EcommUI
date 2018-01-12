@@ -163,7 +163,7 @@ public class CreditsPRController {
     void  searchAndExport(@RequestParam Long businessPartnerId, @RequestParam String customerIds, @RequestParam String savedFilter
             , @RequestParam Long invStatusId, @RequestParam Long invCatagoryId, @RequestParam Long invWeekEndId, @RequestParam Long invoiceModeId
             , @RequestParam Long carrierId, @RequestParam Long creditClassId, @RequestParam String claimFlag, @RequestParam String reviewFlag
-            , @RequestParam String createDate, @RequestParam String invoiceDate, @RequestParam String closeDate, @RequestParam String invoiceNumbers
+            , @RequestParam String createDateFrom, @RequestParam String invoiceDateFrom, @RequestParam String closeDateFrom, @RequestParam String invoiceNumbers
             , @RequestParam String trackingNumbers, @RequestParam String internalKeyIds, @RequestParam Long invoiceMethodId, @RequestParam String payRunNos
             , @RequestParam String controlNums, @RequestParam String adjReasons, @RequestParam String invComments, @RequestParam String exportType
             , @RequestParam(required = false, defaultValue = "10") Integer totalRecordsCount, @RequestParam String createDateTo, @RequestParam String invoiceDateTo
@@ -185,12 +185,12 @@ public class CreditsPRController {
         bean.setCreditClassId(creditClassId);
         bean.setClaimFlag(claimFlag);
         bean.setReviewFlag(reviewFlag);
-        if (createDate != null && !StringUtils.equalsIgnoreCase(createDate, "null"))
-            bean.setCreateDateFrom(DateUtil.format(new Date(Long.valueOf(createDate)), "dd-MM-yyyy"));
-        if (invoiceDate != null && !StringUtils.equalsIgnoreCase(invoiceDate, "null"))
-            bean.setInvoiceDateFrom(DateUtil.format(new Date(Long.valueOf(invoiceDate)), "dd-MM-yyyy"));
-        if (closeDate != null && !StringUtils.equalsIgnoreCase(closeDate, "null"))
-            bean.setCloseDateFrom(DateUtil.format(new Date(Long.valueOf(closeDate)), "dd-MM-yyyy"));
+        if (createDateFrom != null && !StringUtils.equalsIgnoreCase(createDateFrom, "null"))
+            bean.setCreateDateFrom(DateUtil.format(new Date(Long.valueOf(createDateFrom)), "dd-MM-yyyy"));
+        if (invoiceDateFrom != null && !StringUtils.equalsIgnoreCase(invoiceDateFrom, "null"))
+            bean.setInvoiceDateFrom(DateUtil.format(new Date(Long.valueOf(invoiceDateFrom)), "dd-MM-yyyy"));
+        if (closeDateFrom != null && !StringUtils.equalsIgnoreCase(closeDateFrom, "null"))
+            bean.setCloseDateFrom(DateUtil.format(new Date(Long.valueOf(closeDateFrom)), "dd-MM-yyyy"));
 
         if (createDateTo != null && !StringUtils.equalsIgnoreCase(createDateTo, "null"))
             bean.setCreateDateTo(DateUtil.format(new Date(Long.valueOf(createDateTo)), "dd-MM-yyyy"));
