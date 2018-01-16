@@ -3,6 +3,8 @@ package com.envista.msi.api.web.rest.dto.invoicing;
 import javax.persistence.*;
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 /**
  * Created by KRISHNAREDDYM on 4/25/2017.
  */
@@ -29,10 +31,33 @@ import java.io.Serializable;
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_VOICE_ID", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_CLAIM_INFO", type = Void.class)
+                }),
+        @NamedStoredProcedureQuery(
+                name = CodeValueDto.Config.DataObjectFilter.STORED_PROCEDURE_QUERY_NAME,
+                procedureName = CodeValueDto.Config.DataObjectFilter.STORED_PROCEDURE_NAME,
+                resultSetMappings = {CodeValueDto.Config.DataObjectFilter.STORED_PROCEDURE_QUERY_MAPPING},
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_CODE_GROUP_NAME", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_FILTER_INFO", type = Void.class)
                 })
 })
 
+@SqlResultSetMappings({@SqlResultSetMapping(
+        name = CodeValueDto.Config.DataObjectFilter.STORED_PROCEDURE_QUERY_MAPPING,
+        classes = {
+                @ConstructorResult(
+                        targetClass = CodeValueDto.class,
+                        columns = {
+                                @ColumnResult(name = "NSP_CODE_VALUE_ID", type = Long.class),
+                                @ColumnResult(name = "CODE_VALUE", type = String.class),@ColumnResult(name = "PROPERTY_2", type = String.class)
+                        }
+                )
+        }
+
+)})
+
 @Entity
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class CodeValueDto implements Serializable {
 
     @Id
@@ -56,7 +81,11 @@ public class CodeValueDto implements Serializable {
 
     public CodeValueDto() {
     }
-
+    public CodeValueDto(Long id, String codeValue,String property2) {
+        this.id = id;
+        this.codeValue = codeValue;
+        this.property2 = property2;
+    }
     public Long getId() {
         return id;
     }
@@ -103,5 +132,12 @@ public class CodeValueDto implements Serializable {
 
     public void setProperty3(String property3) {
         this.property3 = property3;
+    }
+    public static class Config{
+        public static class DataObjectFilter {
+            public static final String STORED_PROCEDURE_QUERY_NAME = "CodeValueDto.getDataObjectFilter";
+            public static final String STORED_PROCEDURE_NAME = "SHP_GLM_GET_DATA_FILTER_PRO";
+            public static final String STORED_PROCEDURE_QUERY_MAPPING = "CodeValueDto.getDataObjectFilterMapping";
+        }
     }
 }

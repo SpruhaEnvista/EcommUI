@@ -3,7 +3,9 @@ package com.envista.msi.api.web.rest.glom;
 import com.envista.msi.api.service.glom.ScriptService;
 import com.envista.msi.api.web.rest.dto.CustomerDto;
 import com.envista.msi.api.web.rest.dto.glom.ScriptBean;
+import com.envista.msi.api.web.rest.dto.glom.RunScriptBean;
 import com.envista.msi.api.web.rest.dto.glom.ScriptDto;
+import com.envista.msi.api.web.rest.dto.glom.RunScriptDto;
 import com.envista.msi.api.web.rest.util.DateUtil;
 import com.envista.msi.api.web.rest.util.pagination.PaginationBean;
 import org.slf4j.Logger;
@@ -165,6 +167,22 @@ public class ScriptController {
 
 
         return new ResponseEntity<List<CustomerDto>>(service.getAllCustomers(userId), HttpStatus.OK);
+    }
+    @RequestMapping(value = "/insertRunScript", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
+    public ResponseEntity<RunScriptDto> insertRunScript(@RequestBody RunScriptBean bean) {
+
+
+        bean.setActionType("INSERT");
+
+        if (bean.getFromDate() != null)
+            bean.setFromDate(DateUtil.format(new Date(Long.valueOf(bean.getFromDate())), "dd-MM-yyyy"));
+
+        if (bean.getToDate() != null)
+            bean.setToDate(DateUtil.format(new Date(Long.valueOf(bean.getToDate())), "dd-MM-yyyy"));
+
+        RunScriptDto dbDto = service.insertRunScript(bean);
+
+        return new ResponseEntity<RunScriptDto>(dbDto, HttpStatus.OK);
     }
 
 }
