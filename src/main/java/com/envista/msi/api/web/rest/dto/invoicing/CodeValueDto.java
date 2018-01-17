@@ -2,6 +2,7 @@ package com.envista.msi.api.web.rest.dto.invoicing;
 
 import javax.persistence.*;
 import java.io.Serializable;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**

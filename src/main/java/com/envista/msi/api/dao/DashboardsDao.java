@@ -1729,4 +1729,27 @@ public class DashboardsDao {
         return persistentContext.findEntities(ServiceLevelDto.Config.StoredProcedureQueryName.SERVICE_LEVEL_ANALYSIS, queryParameter);
     }
 
+    public List<FreightAuditSavingDto> getFreightAuditSavings(DashboardsFilterCriteria filter){
+        String[] paramNames = {DashboardStoredProcParam.DashboardFilterParams.DATE_TYPE_PARAM, DashboardStoredProcParam.DashboardFilterParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardStoredProcParam.DashboardFilterParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardStoredProcParam.DashboardFilterParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardStoredProcParam.DashboardFilterParams.CARRIER_IDS_PARAM, DashboardStoredProcParam.DashboardFilterParams.MODES_PARAM,
+                DashboardStoredProcParam.DashboardFilterParams.SERVICES_PARAM, DashboardStoredProcParam.DashboardFilterParams.LANES_PARAM,
+                DashboardStoredProcParam.DashboardFilterParams.FROM_DATE_PARAM, DashboardStoredProcParam.DashboardFilterParams.TO_DATE_PARAM,
+                DashboardStoredProcParam.DashboardFilterParams.MODE_NAMES_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(FreightAuditSavingDto.Config.FreightAuditSaving.STORED_PROCEDURE_QUERY_NAME, queryParameter);
+    }
+
+    public List<FreightAuditSavingDto> getFreightSavingsByCarrierByAdjustmentReason(DashboardsFilterCriteria filter){
+        String[] paramNames = {DashboardStoredProcParam.DashboardFilterParams.DATE_TYPE_PARAM, DashboardStoredProcParam.DashboardFilterParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardStoredProcParam.DashboardFilterParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardStoredProcParam.DashboardFilterParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardStoredProcParam.DashboardFilterParams.CARRIER_IDS_PARAM, DashboardStoredProcParam.DashboardFilterParams.MODES_PARAM,
+                DashboardStoredProcParam.DashboardFilterParams.SERVICES_PARAM, DashboardStoredProcParam.DashboardFilterParams.LANES_PARAM,
+                DashboardStoredProcParam.DashboardFilterParams.FROM_DATE_PARAM, DashboardStoredProcParam.DashboardFilterParams.TO_DATE_PARAM,
+                DashboardStoredProcParam.DashboardFilterParams.MODE_NAMES_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(FreightAuditSavingDto.Config.FreightAuditSavingStage2.STORED_PROCEDURE_QUERY_NAME, queryParameter);
+    }
 }

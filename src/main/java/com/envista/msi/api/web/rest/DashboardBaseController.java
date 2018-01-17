@@ -8,6 +8,7 @@ import com.envista.msi.api.web.rest.dto.UserProfileDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardAppliedFilterDto;
 import com.envista.msi.api.web.rest.dto.dashboard.DashboardsFilterCriteria;
 import com.envista.msi.api.web.rest.errors.InvalidUserException;
+import com.envista.msi.api.web.rest.response.CommonResponse;
 import com.envista.msi.api.web.rest.response.ErrorResponse;
 import com.envista.msi.api.web.rest.util.WebConstants;
 import org.json.JSONException;
@@ -45,6 +46,13 @@ public class DashboardBaseController {
 
     protected DashboardsFilterCriteria populateDashboardFilterCriteria(DashboardAppliedFilterDto dashboardAppliedFilterDto){
         return DashboardUtil.prepareDashboardFilterCriteria(dashboardAppliedFilterDto);
+    }
+
+    public ResponseEntity<CommonResponse> prepareCommonResponseEntity(Object data){
+        CommonResponse response = new CommonResponse();
+        response.setData(data != null ? data : "{}");
+        response.setStatusCode(HttpStatus.OK.value());
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @ExceptionHandler({JSONException.class, InvalidUserException.class, NoAppliedFilterFoundException.class, Exception.class})

@@ -1,7 +1,9 @@
 package com.envista.msi.api.web.rest.util;
 
 import com.envista.msi.api.dao.invoicing.DashBoardDao;
+import com.envista.msi.api.web.rest.dto.glom.RunReportDto;
 import com.envista.msi.api.web.rest.dto.invoicing.*;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
@@ -40,10 +42,10 @@ public class FileOperations {
     @Autowired
     DashBoardDao dao;
 
-    String fileNameForXLSX="";
-    String fileNameForCSV="";
-    FileWriter writer = null;
-    final String COMMA_SEPARATOR=",";
+    private String fileNameForXLSX = "";
+    private String fileNameForCSV = "";
+    private FileWriter writer = null;
+    private final String COMMA_SEPARATOR = ",";
 
     public static void main(String[] args) throws IOException {
 
@@ -52,7 +54,7 @@ public class FileOperations {
         fileOperations.customOmitFileUploadOperation(null, 0L,"Voids",1L);
     }
 
-    public String getFileServerAbsolutePath(String physicalFileName) throws FileNotFoundException {
+    private String getFileServerAbsolutePath(String physicalFileName) throws FileNotFoundException {
 
         String drive = physicalFileName.substring(physicalFileName.lastIndexOf('\\')+1, physicalFileName.length());
         physicalFileName = fileServer + drive;
@@ -589,4 +591,79 @@ public class FileOperations {
         in.close();
     }
 
+
+    /*
+    This method exports the GLOM report data
+ */
+    public void exportGlmReportData(List<RunReportDto> dtos) throws IOException {
+        LOG.info("***exportGlmReportData method started****");
+
+        FileOutputStream fOut = null;
+        BufferedOutputStream bOut = null;
+        String filePath = getFileServerAbsolutePath("GLOM");
+        File dir = new File(filePath);
+        if (!dir.exists())
+            dir.mkdirs();
+
+
+        LOG.info("***EXCEL type export****");
+        @SuppressWarnings("resource")
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        XSSFSheet sheet = workbook.createSheet("Voice");
+
+        Map<Integer, Object[]> data = new HashMap<Integer, Object[]>();
+        data.put(1, new Object[]{"INVOICE ID", "INVOICE NUMBER", "BOL NUMBER", "GL ACCOUNT CODE", "INVOICE MODE", "CUSTOMER NAME"
+                , "CARRIER NAME", "CUSTOMER ID", "SERVICE CODE ID", "PRO NUMBER"});
+        int count = 1;
+        for (RunReportDto dto : dtos) {
+            count++;
+            data.put(count, new Object[]{
+                    dto.getInvoiceId() != null ? dto.getInvoiceId() : "",
+                    dto.getInvoiceNumber() != null ? dto.getInvoiceNumber().toString() : "",
+                    dto.getBolNumber() != null ? dto.getBolNumber().toString() : "",
+                    dto.getGlAccountCode() != null ? dto.getGlAccountCode().toString() : "",
+                    dto.getInvoiceMode() != null ? dto.getInvoiceMode().toString() : "",
+                    dto.getCustomerName() != null ? dto.getCustomerName().toString() : "",
+                    dto.getCarrierName() != null ? dto.getCarrierName().toString() : "",
+                    dto.getCustomerId() != null ? dto.getCustomerId().toString() : "",
+                    dto.getServiceCodeId() != null ? dto.getServiceCodeId().toString() : "",
+                    dto.getProNumber() != null ? dto.getProNumber().toString() : ""
+            });
+        }
+
+        Set<Integer> keyset = data.keySet();
+        int rownum = 0;
+        //First row Font style
+        XSSFFont font = workbook.createFont();
+        font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+        XSSFCellStyle cellStyle = workbook.createCellStyle();
+        cellStyle.setFont(font);
+        cellStyle.setFillForegroundColor(HSSFColor.LIGHT_YELLOW.index);
+        cellStyle.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+
+        excelFileWriteAsPerColumnTypes(keyset, rownum, sheet, data, cellStyle);
+
+        try {
+            fileNameForXLSX = filePath + "/GLOMSCRIPT_REPORT_" + new SimpleDateFormat("yyyyMMddhhmmss").format(InvoicingUtilities.getCurrentTimeStamp()) + ".xlsx";
+
+                /*if(exportType.equalsIgnoreCase("XLSX")){*/
+            fOut = new FileOutputStream(new File(fileNameForXLSX));
+            bOut = new BufferedOutputStream(fOut);
+            LOG.info("***" + fileNameForXLSX + " File Created *** ");
+            //}
+            workbook.write(bOut);
+            //fileDownloadFromServer(response,new File(fileNameForXLSX));
+        } catch (Exception e) {
+            LOG.error("***Exception Occurred in the GLOMSCRIPT_REPORT_ EXCEL export ***" + fileNameForXLSX);
+            e.printStackTrace();
+        } finally {
+            if (fOut != null)
+                fOut.close();
+            if (bOut != null)
+                bOut.close();
+
+        }
+
+
+    }
 }
