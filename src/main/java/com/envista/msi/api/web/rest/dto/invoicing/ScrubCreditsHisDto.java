@@ -42,6 +42,15 @@ public class ScrubCreditsHisDto implements Serializable {
     @Column(name = "CREATE_DATE")
     private String createDate;
 
+    @Column(name = "ACTIVITY")
+    private String activity;
+
+    @Column(name = "STATUS")
+    private String status;
+
+    @Column(name = "COMPLETED_DATE")
+    private String completedDate;
+
 
     public ScrubCreditsHisDto() {
     }
@@ -124,5 +133,29 @@ public class ScrubCreditsHisDto implements Serializable {
 
     public void setCreateDate(String createDate) {
         this.createDate = createDate;
+    }
+
+    public String getActivity() {
+        return activity;
+    }
+
+    public void setActivity(String activity) {
+        this.activity = activity;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getCompletedDate() {
+        return completedDate;
+    }
+
+    public void setCompletedDate(String completedDate) {
+        this.completedDate = completedDate;
     }
 }
