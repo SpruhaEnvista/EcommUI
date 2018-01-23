@@ -1358,10 +1358,8 @@ public class DashboardsDao {
     }
 
     public List<DashboardReportDto> getLineItemReportDetails(DashboardsFilterCriteria filter){
-       if (filter.getIsCount()==null )
-       {
+
            filter.setIsCount(0);
-       }
 
         QueryParameter queryParameter = StoredProcedureParameter.with(DashboardStoredProcParam.DashboardReportParams.DATE_TYPE_PARAM, filter.getDateType())
                 .and(DashboardStoredProcParam.DashboardReportParams.CARRIER_IDS_PARAM, filter.getCarriers())
@@ -1634,6 +1632,22 @@ public class DashboardsDao {
         };
         QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
         return persistentContext.findEntities(ShipmentDto.Config.StoredProcedureQueryName.PACKAGE_DISTRIBUTION_COUNT, queryParameter);
+    }
+
+    public String[] getRptDetailsIDs(ArrayList<String> columns, int id) throws SQLException {
+        String[] stockArr = new String[columns.size()];
+        stockArr = columns.toArray(stockArr);
+
+        String[] repIds = null;
+        QueryParameter queryParameter = StoredProcedureParameter.withPosition(1, ParameterMode.IN, String[].class, stockArr)
+                    .andPosition(2, ParameterMode.IN, Long.class, id)
+                .andPosition(3, ParameterMode.REF_CURSOR, void.class, null);
+        List<List<Object>> rptDetailsList = persistentContext.executeStoredProcedure("SHP_DASH_RPT_INCL_COLS_PROC", queryParameter);
+        if(rptDetailsList != null && !rptDetailsList.isEmpty() && rptDetailsList.get(0) != null
+                && rptDetailsList.get(0).get(0) != null){
+            repIds = rptDetailsList.get(0).get(0).toString().split(",") ;
+        }
+        return repIds;
     }
 
     public List<AverageWeightModeShipmtDto> getAverageWeightModeByPeriod(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){

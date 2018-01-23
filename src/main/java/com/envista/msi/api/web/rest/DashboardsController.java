@@ -2834,7 +2834,7 @@ public class DashboardsController extends DashboardBaseController {
                                                     @RequestParam(required = false) String mode, @RequestParam(required = false) String carscoretype, @RequestParam(required = false) String service,
                                                     @RequestParam(required = false, defaultValue = "0") Integer offset, @RequestParam(required = false, defaultValue = "1000") Integer limit,
                                                     @RequestParam(required = false, defaultValue = "1000") Integer totalRecordCount,
-                                                    @RequestParam(required = false) String filter, HttpServletResponse response) throws Exception {
+                                                    @RequestParam(required = false) String filter,@RequestParam(required = false) String exportTo, HttpServletResponse response) throws Exception {
 
         UserProfileDto userProfileDto = getUserProfile();
         DashboardsFilterCriteria appliedFilter = getDashboardsFilterCriteria(invoiceDate, dashletteName, carrierId, mode, carscoretype, service, userProfileDto);
@@ -2844,15 +2844,16 @@ public class DashboardsController extends DashboardBaseController {
             appliedFilter.setOffset(offset);
             appliedFilter.setPageSize(limit);
         }
+        JSONObject savedColumns=dashboardsService.getDashboardReportCustomColumnNames(loadAppliedFilters(userProfileDto.getUserId()));
 
-        SavedSchedReportDto savedSchedReportDto = prepareReportsObject(appliedFilter, userProfileDto);
+        SavedSchedReportDto savedSchedReportDto = prepareReportsObject(appliedFilter, userProfileDto,savedColumns,exportTo);
         reportsService.saveSchedReport(savedSchedReportDto);
         return ResponseEntity.status(HttpStatus.OK).body(new JSONObject().put("status","success").toString());
 
 
     }
 
-    private SavedSchedReportDto prepareReportsObject ( DashboardsFilterCriteria appliedFilter , UserProfileDto userProfileDto) throws Exception {
+    private SavedSchedReportDto prepareReportsObject ( DashboardsFilterCriteria appliedFilter , UserProfileDto userProfileDto,JSONObject savedColumns, String exportTo) throws Exception {
 
         JSONObject reportObject = new JSONObject();
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
@@ -2878,7 +2879,11 @@ public class DashboardsController extends DashboardBaseController {
         }
 
         reportObject.put("scheduled", false);
-        reportObject.put("reportTypeId", 5);
+        if(exportTo.equalsIgnoreCase("Excel(AllFields)") ||exportTo.equalsIgnoreCase("Excel(Current)")){
+            reportObject.put("reportTypeId", 5);
+        }else{
+            reportObject.put("reportTypeId", 2);
+        }
         reportObject.put("dateSelectionFrequency", "dr");
         reportObject.put("reportFileName", fileName+ "_" + dateFormat.format(new Date()));
         reportObject.put("date1", dateFormat.parse(appliedFilter.getFromDate()).getTime());
@@ -2923,8 +2928,29 @@ public class DashboardsController extends DashboardBaseController {
             customerIdsObject.put("createUser",userProfileDto.getUserName());
             customersArray.put(customerIdsObject);
         }
+        ArrayList<String> listData = new ArrayList<String>();
+        JSONArray jArray=null;
+        int rptId=0;
+
+        if (appliedFilter.isLineItemReport()) {
+            jArray = savedColumns.getJSONArray("lineItemColumns");
+            rptId = 197;
+        } else {
+            jArray = savedColumns.getJSONArray("shipmentColumns");
+            rptId = 100;
+        }
+
+        if (jArray != null) {
+            for (int i = 0; i < jArray.length(); i++) {
+                if (jArray.getJSONObject(i).getBoolean("checked"))
+                    listData.add(jArray.getJSONObject(i).getString("originalColumnName"));
+            }
+        }
+
+        String[] rptDetailsIdsCsv = dashboardsService.getRptDetailsIDs(listData,rptId);
 
         JSONArray includedColsArray = new JSONArray();
+
         String[] shipmentDetailRptDetailsIds = { "2077", "2078", "2079", "2080", "2081", "2082", "2083", "2084", "2085", "2086", "2087", "2088", "2089", "2090", "2091", "2092", "2093", "2094",
                 "2095", "2096", "2097", "2098", "2099", "2100", "2101", "2102", "2103", "2104", "2105", "2106", "2107", "2108", "2109", "2110", "2111", "2112", "2114", "2115", "2116", "2117",
                 "6581", "6582", "6933", "2773", "2774", "2775", "4698", "4699", "4700", "4701", "4702", "4703", "4704", "5307", "11677", "11678", "11846" };
@@ -2935,11 +2961,21 @@ public class DashboardsController extends DashboardBaseController {
                 "5465", "5466", "5467", "5468", "5469", "5470", "5471", "5472", "5473", "5474", "5475", "5476", "5477", "5478", "5479", "5480", "5481", "5482", "5483", "5484", "5485", "6587",
                 "6588" };
 
-        for (String id : appliedFilter.isLineItemReport() ? lineItemDetailRptDetailsIds : shipmentDetailRptDetailsIds) {
-            JSONObject columnIds = new JSONObject();
-            columnIds.put("rptDetailsId", id);
-            includedColsArray.put(columnIds);
+        if(exportTo.equalsIgnoreCase("Excel(AllFields)") ||exportTo.equalsIgnoreCase("CSV(AllFields)")){
+            for (String id : appliedFilter.isLineItemReport() ? lineItemDetailRptDetailsIds : shipmentDetailRptDetailsIds) {
+                JSONObject columnIds = new JSONObject();
+                columnIds.put("rptDetailsId", id);
+                includedColsArray.put(columnIds);
+            }
+        }else{
+            for (String id : rptDetailsIdsCsv) {
+                JSONObject columnIds = new JSONObject();
+                columnIds.put("rptDetailsId", id);
+                includedColsArray.put(columnIds);
+            }
         }
+
+
 
         JSONArray selectedBeansArray = new JSONArray();
         if (appliedFilter.isHandleParcelServices() && appliedFilter.getService() != null && !"".equals(appliedFilter.getService())) {
