@@ -29,11 +29,17 @@ public class CreditsPRSearchBean implements Serializable {
 
     private String reviewFlag;
 
-    private String createDate;
+    private String createDateFrom;
 
-    private String invoiceDate;
+    private String createDateTo;
 
-    private String closeDate;
+    private String invoiceDateFrom;
+
+    private String invoiceDateTo;
+
+    private String closeDateFrom;
+
+    private String closeDateTo;
 
     private String invoiceNumbers;
 
@@ -141,28 +147,28 @@ public class CreditsPRSearchBean implements Serializable {
         this.reviewFlag = reviewFlag;
     }
 
-    public String getCreateDate() {
-        return createDate;
+    public String getCreateDateFrom() {
+        return createDateFrom;
     }
 
-    public void setCreateDate(String createDate) {
-        this.createDate = createDate;
+    public void setCreateDateFrom(String createDateFrom) {
+        this.createDateFrom = createDateFrom;
     }
 
-    public String getInvoiceDate() {
-        return invoiceDate;
+    public String getInvoiceDateFrom() {
+        return invoiceDateFrom;
     }
 
-    public void setInvoiceDate(String invoiceDate) {
-        this.invoiceDate = invoiceDate;
+    public void setInvoiceDateFrom(String invoiceDateFrom) {
+        this.invoiceDateFrom = invoiceDateFrom;
     }
 
-    public String getCloseDate() {
-        return closeDate;
+    public String getCloseDateFrom() {
+        return closeDateFrom;
     }
 
-    public void setCloseDate(String closeDate) {
-        this.closeDate = closeDate;
+    public void setCloseDateFrom(String closeDateFrom) {
+        this.closeDateFrom = closeDateFrom;
     }
 
     public String getInvoiceNumbers() {
@@ -235,5 +241,28 @@ public class CreditsPRSearchBean implements Serializable {
 
     public void setSort(String sort) {
         this.sort = sort;
+    }
+    public String getCreateDateTo() {
+        return createDateTo;
+    }
+
+    public void setCreateDateTo(String createDateTo) {
+        this.createDateTo = createDateTo;
+    }
+
+    public String getInvoiceDateTo() {
+        return invoiceDateTo;
+    }
+
+    public void setInvoiceDateTo(String invoiceDateTo) {
+        this.invoiceDateTo = invoiceDateTo;
+    }
+
+    public String getCloseDateTo() {
+        return closeDateTo;
+    }
+
+    public void setCloseDateTo(String closeDateTo) {
+        this.closeDateTo = closeDateTo;
     }
 }

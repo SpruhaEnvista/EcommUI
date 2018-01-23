@@ -31,13 +31,15 @@ public class UvCreditsDao {
                 .and("P_INV_WEEK_END_ID", bean.getInvWeekEnId()).and("P_INVOICE_MODE_ID", bean.getInvoiceModeId())
                 .and("P_CARRIER_ID", bean.getCarrierId()).and("P_CREDIT_CLASS_ID", bean.getCreditClassId())
                 .and("P_CLAIM_FLAG", bean.getClaimFlag()).and("P_REVIEW_FLAG", bean.getReviewFlag())
-                .and("P_CREATE_DATE", bean.getCreateDate()).and("P_INVOICE_DATE", bean.getInvoiceDate())
-                .and("P_CLOSE_DATE", bean.getCloseDate()).and("P_INVOICE_NUMBERS", bean.getInvoiceNumbers())
+                .and("P_CREATE_DATE_FROM", bean.getCreateDateFrom()).and("P_INVOICE_DATE_FROM", bean.getInvoiceDateFrom())
+                .and("P_CLOSE_DATE_FROM", bean.getCloseDateFrom()).and("P_INVOICE_NUMBERS", bean.getInvoiceNumbers())
                 .and("P_TRACKING_NUMBERS", bean.getTrackingNumbers()).and("P_INTERNAL_KEY_IDS", bean.getInternalKeyIds())
                 .and("P_INVOICE_METHOD_ID", bean.getInvoiceMethodId()).and("P_PAYRUN_NOS", bean.getPayRunNos())
                 .and("P_CONTROL_NUMS", bean.getControlNums()).and("P_ADJ_REASONS", bean.getAdjReasons())
                 .and("P_INV_COMMENTS", bean.getInvComments()).and("P_OFFSET", offset)
-                .and("P_PAGE_SIZE", limit).and("P_SORT_COLUMN", bean.getSort()).and("P_ACTION_TYPE", "search");
+                .and("P_PAGE_SIZE", limit).and("P_SORT_COLUMN", bean.getSort()).and("P_ACTION_TYPE", "search")
+                .and("P_CREATE_DATE_TO", bean.getCreateDateTo()).and("P_INVOICE_DATE_TO", bean.getInvoiceDateTo())
+                .and("P_CLOSE_DATE_TO", bean.getCloseDateTo());
 
         return persistentContext.findEntities("UvCreditsDto.getSearchInfo", queryParameter);
     }
@@ -50,13 +52,15 @@ public class UvCreditsDao {
                 .and("P_INV_WEEK_END_ID", bean.getInvWeekEnId()).and("P_INVOICE_MODE_ID", bean.getInvoiceModeId())
                 .and("P_CARRIER_ID", bean.getCarrierId()).and("P_CREDIT_CLASS_ID", bean.getCreditClassId())
                 .and("P_CLAIM_FLAG", bean.getClaimFlag()).and("P_REVIEW_FLAG", bean.getReviewFlag())
-                .and("P_CREATE_DATE", bean.getCreateDate()).and("P_INVOICE_DATE", bean.getInvoiceDate())
-                .and("P_CLOSE_DATE", bean.getCloseDate()).and("P_INVOICE_NUMBERS", bean.getInvoiceNumbers())
+                .and("P_CREATE_DATE_FROM", bean.getCreateDateFrom()).and("P_INVOICE_DATE_FROM", bean.getInvoiceDateFrom())
+                .and("P_CLOSE_DATE_FROM", bean.getCloseDateFrom()).and("P_INVOICE_NUMBERS", bean.getInvoiceNumbers())
                 .and("P_TRACKING_NUMBERS", bean.getTrackingNumbers()).and("P_INTERNAL_KEY_IDS", bean.getInternalKeyIds())
                 .and("P_INVOICE_METHOD_ID", bean.getInvoiceMethodId()).and("P_PAYRUN_NOS", bean.getPayRunNos())
                 .and("P_CONTROL_NUMS", bean.getControlNums()).and("P_ADJ_REASONS", bean.getAdjReasons())
                 .and("P_INV_COMMENTS", bean.getInvComments()).and("P_OFFSET", 0)
-                .and("P_PAGE_SIZE", 0).and("P_SORT_COLUMN", bean.getSort()).and("P_ACTION_TYPE", "getTotalCount");
+                .and("P_PAGE_SIZE", 0).and("P_SORT_COLUMN", bean.getSort()).and("P_ACTION_TYPE", "getTotalCount")
+                .and("P_CREATE_DATE_TO", bean.getCreateDateTo()).and("P_INVOICE_DATE_TO", bean.getInvoiceDateTo())
+                .and("P_CLOSE_DATE_TO", bean.getCloseDateTo());
 
         List<TotalCountDto> dtos = persistentContext.findEntities("UvCreditsDto.getSearCount", queryParameter);
 
