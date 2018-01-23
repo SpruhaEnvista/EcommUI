@@ -235,7 +235,7 @@ public class DashboardsService {
      * @return
      */
     public List<AccessorialSpendDto> getAccessorialSpendByCarrier(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
-        return dashboardsDao.getTopAccessorialSpendByCarrier(filter, isTopTenAccessorial);
+        return dashboardsDao.getAccessorialSpendByCarrier(filter, isTopTenAccessorial);
     }
 
     /**
@@ -245,7 +245,7 @@ public class DashboardsService {
      * @return
      */
     public List<AccessorialSpendDto> getAccessorialSpendByMonth(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
-        return dashboardsDao.getTopAccessorialSpendByMonth(filter, isTopTenAccessorial);
+        return dashboardsDao.getAccessorialSpendByMonth(filter, isTopTenAccessorial);
     }
 
     public List<AverageSpendPerShipmentDto> getAvgSpendPerShipment(DashboardsFilterCriteria filter , boolean isTopTenAccessorial){
