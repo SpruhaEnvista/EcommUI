@@ -90,6 +90,7 @@ public class FileOperations {
                 FileDefDto fileDefDto=null;
                 while ((line = br.readLine()) != null) {
                     if(count == 0){
+                        line=line.replaceAll("\"","");
                         if(fileType != null && fileType.equalsIgnoreCase("GSRs")){
                             line=line.replaceAll(",,,,,,,,,,,,,,,,","").replaceAll(",","*").concat("*");
 
@@ -106,7 +107,7 @@ public class FileOperations {
                         /*if (StringUtils.containsIgnoreCase(line, "\"")) {
                             line = StringUtils.remove(line, "\"");
                         }*/
-                        String[] lineArray = line.split(",(?=([^\"]|\"[^\"]*\")*$)");
+                        String[] lineArray = CommonUtil.parseDemilitedLineWithMutipleDoubleQuotesInBetween(line, ',');
 
                         if(lineArray != null && lineArray.length >0){
                             CreditResponseDto dto=null;
