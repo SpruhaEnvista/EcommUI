@@ -555,6 +555,7 @@ public class CommonUtil {
         try {
 
             int rowCount = 0;
+            int prev=0;
             sheet = workbook.createSheet(StringUtils.capitalize("FREIGHT SAVINGS BY CARRIER BY ADJUSTMENT REASON"));
             row=sheet.createRow(rowCount++);
            for(int i=0;i<headers.size();i++){
@@ -575,9 +576,11 @@ public class CommonUtil {
                 //Cell Merging
                 row=sheet.createRow(rowCount++);
                 cell=row.createCell(0);
-
+                prev=prev++;
                 // insert carrier Name into cell
                 cell.setCellValue(entry.getKey());
+                if(custFrtAudtSvngs.size()>1)
+                sheet.addMergedRegion(new CellRangeAddress(prev,custFrtAudtSvngs.size(),0,0));
                 for (int cellIndex=0;cellIndex<custFrtAudtSvngs.size();cellIndex++){
                     if(cellIndex!=0)
                         row = sheet.createRow(rowCount++);
