@@ -3,7 +3,6 @@ package com.envista.msi.api.web.rest.util;
 import com.envista.msi.api.dao.invoicing.DashBoardDao;
 import com.envista.msi.api.web.rest.dto.glom.RunReportDto;
 import com.envista.msi.api.web.rest.dto.invoicing.*;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
@@ -26,6 +25,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 /**
  * Created by KRISHNAREDDYM on 5/11/2017.
@@ -85,8 +86,32 @@ public class FileOperations {
             outputStream.close();
             String line = "";
             //String cvsSplitBy = ",";
-
-            try (BufferedReader br = new BufferedReader(new FileReader(savedFilepath))) {
+            BufferedReader br = null;
+            try{
+             if(fileName.endsWith(".csv")) {
+                br = new BufferedReader(new FileReader(savedFilepath));
+            }
+            else if(fileName.endsWith(".zip")) {
+                ZipFile zipFile = new ZipFile(savedFilepath);
+                final Enumeration<? extends ZipEntry> entries = zipFile.entries();
+                int numberOfFilesCount = 0;
+                ZipEntry entry = null;
+                while (entries.hasMoreElements()) {
+                    if(numberOfFilesCount==0)
+                     entry = (ZipEntry)entries.nextElement();
+                    if (!entry.isDirectory()) {
+                        ++numberOfFilesCount;
+                    }
+                    if(numberOfFilesCount >= 2 ){
+                        break;
+                    }
+                }
+                if(numberOfFilesCount >=2){
+                    resObject.put("error","The number of files in archive is more than 1 ");
+                }
+                if(entry != null)
+                    br = new BufferedReader(new InputStreamReader(zipFile.getInputStream(entry)));
+            }
                 FileDefDto fileDefDto=null;
                 while ((line = br.readLine()) != null) {
                     if(count == 0){
