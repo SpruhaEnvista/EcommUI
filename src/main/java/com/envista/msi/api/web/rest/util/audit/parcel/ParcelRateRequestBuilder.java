@@ -43,9 +43,6 @@ public class ParcelRateRequestBuilder {
                     billOption = "TP";
                 }
 
-
-
-
                 batchShipment.setBilledMiles("0.0");
                 //ServiceFlags section
                 List<ParcelRateRequest.ServiceFlag> serviceFlagList = new ArrayList<>();
@@ -53,9 +50,14 @@ public class ParcelRateRequestBuilder {
                     if(auditDetails != null){
                         if(auditDetails.getChargeClassificationCode() != null
                                 && ParcelAuditConstant.ChargeClassificationCode.ACC.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())){
-                            ParcelRateRequest.ServiceFlag serviceFlag = new ParcelRateRequest.ServiceFlag();
-                            serviceFlag.setCode(auditDetails.getChargeDescriptionCode());
-                            serviceFlagList.add(serviceFlag);
+                            if(auditDetails.getChargeDescriptionCode() != null && !auditDetails.getChargeDescriptionCode().isEmpty()){
+                                ParcelRateRequest.ServiceFlag serviceFlag = new ParcelRateRequest.ServiceFlag();
+                                if(auditDetails.getChargeDescriptionCode().equalsIgnoreCase("RSC")){
+                                    auditDetails.setChargeDescriptionCode("RES");
+                                }
+                                serviceFlag.setCode(auditDetails.getChargeDescriptionCode());
+                                serviceFlagList.add(serviceFlag);
+                            }
                         }
                     }
                 }
@@ -208,7 +210,7 @@ public class ParcelRateRequestBuilder {
                         String [] dwFieldInfo = auditDetails.getDwFieldInformation().split(",");
                         if(dwFieldInfo != null && dwFieldInfo.length > 0){
                             auditDetails.setChargeClassificationCode(dwFieldInfo[1].trim());
-                            auditDetails.setChargeDescriptionCode(dwFieldInfo[2].trim());
+                            auditDetails.setChargeDescriptionCode(dwFieldInfo[2].trim().equalsIgnoreCase("RSC") ? "RES" : dwFieldInfo[2].trim());
                         }
                     }catch (Exception e){}
                 }
@@ -236,7 +238,7 @@ public class ParcelRateRequestBuilder {
                         if(auditDetails.getChargeClassificationCode() != null && ParcelAuditConstant.ChargeClassificationCode.ACS.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())
                                 && !Arrays.asList(ParcelAuditConstant.ChargeDescriptionCode.FSC.name(), ParcelAuditConstant.ChargeDescriptionCode.DSC.name()).contains(auditDetails.getChargeDescriptionCode())){
                             ParcelRateRequest.ServiceFlag serviceFlag = new ParcelRateRequest.ServiceFlag();
-                            serviceFlag.setCode(auditDetails.getChargeDescriptionCode());
+                            serviceFlag.setCode(auditDetails.getChargeDescriptionCode().equalsIgnoreCase("RSC") ? "RES" : auditDetails.getChargeDescriptionCode());
                             serviceFlagList.add(serviceFlag);
                         }
                     }
