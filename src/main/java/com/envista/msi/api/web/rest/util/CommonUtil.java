@@ -560,12 +560,14 @@ public class CommonUtil {
             row=sheet.createRow(rowCount++);
            for(int i=0;i<headers.size();i++){
                cell=row.createCell(i);
+
                CellStyle style = workbook.createCellStyle();//Create style
                Font font = workbook.createFont();//Create font
                font.setBoldweight(Font.BOLDWEIGHT_BOLD);//Make font bold
                style.setFont(font);//set it to bold
-               sheet.setDefaultColumnWidth(15);
                cell.setCellValue(headers.get(i));
+               cell.setCellStyle(style);
+               sheet.setDefaultColumnWidth(15);
            }//headers
 
           Set<Map.Entry<String,List<CustomisedFreightAuditSavingDto>>> entrys= data.entrySet();
