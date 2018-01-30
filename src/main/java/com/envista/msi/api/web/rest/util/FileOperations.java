@@ -107,7 +107,7 @@ public class FileOperations {
                     }
                 }
                 if(numberOfFilesCount >=2){
-                    resObject.put("error","The number of files in archive is more than 1 ");
+                    resObject.put("error","Please upload a single .csv file in archive.");
                     return resObject;
                 }
                 if(entry != null)
@@ -126,7 +126,7 @@ public class FileOperations {
 
                         fileDefDto= dao.validateFileType(fileTypeId,line);
                         if(fileDefDto == null){
-                            resObject.put("error","Invalid File Format");
+                            resObject.put("error","Invalid file format.");
                             break;
                         }
                     }else if (count != 0 && null != fileDefDto) {
