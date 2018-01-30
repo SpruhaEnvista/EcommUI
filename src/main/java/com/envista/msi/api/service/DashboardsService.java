@@ -1,6 +1,7 @@
 package com.envista.msi.api.service;
 
 import com.envista.msi.api.dao.DashboardsDao;
+import com.envista.msi.api.dao.type.GenericObject;
 import com.envista.msi.api.domain.util.DashboardUtil;
 import com.envista.msi.api.web.rest.dto.MapCoordinatesDto;
 import com.envista.msi.api.web.rest.dto.ZipCodesTimeZonesDto;
@@ -42,6 +43,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import java.sql.SQLException;
 import java.util.*;
 
 /**
@@ -1481,6 +1483,11 @@ public class DashboardsService {
      */
     public List<ShipmentDto> getPackageDistributionCount(DashboardsFilterCriteria filter){
         return dashboardsDao.getPackageDistributionCount(filter);
+    }
+
+    public String[] getRptDetailsIDs(ArrayList<String> columnsArray, int id )throws SQLException {
+        return dashboardsDao.getRptDetailsIDs(columnsArray,id);
+
     }
 
     public List<AverageWeightModeShipmtDto> getAverageWeightModeByPeriod(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
