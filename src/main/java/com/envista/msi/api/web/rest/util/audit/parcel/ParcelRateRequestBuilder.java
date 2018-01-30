@@ -52,8 +52,8 @@ public class ParcelRateRequestBuilder {
                                 && ParcelAuditConstant.ChargeClassificationCode.ACC.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())){
                             if(auditDetails.getChargeDescriptionCode() != null && !auditDetails.getChargeDescriptionCode().isEmpty()){
                                 ParcelRateRequest.ServiceFlag serviceFlag = new ParcelRateRequest.ServiceFlag();
-                                if(auditDetails.getChargeDescriptionCode().equalsIgnoreCase("RSC")){
-                                    auditDetails.setChargeDescriptionCode("RES");
+                                if(auditDetails.getChargeDescriptionCode().equalsIgnoreCase("RES")){
+                                    auditDetails.setChargeDescriptionCode("RSC");
                                 }
                                 serviceFlag.setCode(auditDetails.getChargeDescriptionCode());
                                 serviceFlagList.add(serviceFlag);
@@ -210,7 +210,7 @@ public class ParcelRateRequestBuilder {
                         String [] dwFieldInfo = auditDetails.getDwFieldInformation().split(",");
                         if(dwFieldInfo != null && dwFieldInfo.length > 0){
                             auditDetails.setChargeClassificationCode(dwFieldInfo[1].trim());
-                            auditDetails.setChargeDescriptionCode(dwFieldInfo[2].trim().equalsIgnoreCase("RSC") ? "RES" : dwFieldInfo[2].trim());
+                            auditDetails.setChargeDescriptionCode(dwFieldInfo[2].trim().equalsIgnoreCase("RES") ? "RSC" : dwFieldInfo[2].trim());
                         }
                     }catch (Exception e){}
                 }
@@ -238,7 +238,7 @@ public class ParcelRateRequestBuilder {
                         if(auditDetails.getChargeClassificationCode() != null && ParcelAuditConstant.ChargeClassificationCode.ACS.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())
                                 && !Arrays.asList(ParcelAuditConstant.ChargeDescriptionCode.FSC.name(), ParcelAuditConstant.ChargeDescriptionCode.DSC.name()).contains(auditDetails.getChargeDescriptionCode())){
                             ParcelRateRequest.ServiceFlag serviceFlag = new ParcelRateRequest.ServiceFlag();
-                            serviceFlag.setCode(auditDetails.getChargeDescriptionCode().equalsIgnoreCase("RSC") ? "RES" : auditDetails.getChargeDescriptionCode());
+                            serviceFlag.setCode(auditDetails.getChargeDescriptionCode().equalsIgnoreCase("RES") ? "RSC" : auditDetails.getChargeDescriptionCode());
                             serviceFlagList.add(serviceFlag);
                         }
                     }
