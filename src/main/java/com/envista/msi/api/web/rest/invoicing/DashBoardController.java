@@ -123,7 +123,12 @@ public class DashBoardController {
                     creditResponseService.insert(dtos, fileInfoDto.getId());
                     responseStr="File uploaded Successfully.";
             }else if(resObj != null && resObj.size() >0 && resObj.get("error") != null && !resObj.get("error").equals("")){
-                responseStr="Invalid file format.";
+                if("Invalid File Format".equalsIgnoreCase((String)resObj.get("error"))) {
+                    responseStr = "Invalid file format.";
+                }
+                else{
+                    responseStr = (String)resObj.get("error");
+                }
             }
             jsonObject.put("message",responseStr);
 
