@@ -133,5 +133,18 @@ public class DashBoardDao {
         return persistentContext.findEntities("ScrubCreditsHisDto.getScrubCreditsHistory", queryParameter);
 
     }
+    public int delete(Long fileInfoId) {
+
+        QueryParameter queryParameter = StoredProcedureParameter.with("P_FILE_INFO_ID", fileInfoId);
+
+        List<FileDefDto> dtos = persistentContext.findEntities("FileInfoDto.delete", queryParameter);
+
+        int count = 0;
+        if (dtos != null)
+            count = dtos.size();
+
+        return count;
+
+    }
 
 }

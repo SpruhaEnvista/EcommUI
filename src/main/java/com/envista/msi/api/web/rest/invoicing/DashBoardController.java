@@ -215,5 +215,11 @@ public class DashBoardController {
         log.info("***getWeekStatusByWeekendDate json***==== " + dto);
         return new ResponseEntity<WeekEndDto>(dto, HttpStatus.OK);
     }
+    @RequestMapping(value = "/delete", params = {"fileInfoId"}, method = RequestMethod.PUT)
+    public ResponseEntity<Integer> delete(@RequestParam Long fileInfoId) {
 
+        int count = service.delete(fileInfoId);
+
+        return new ResponseEntity<Integer>(count, HttpStatus.OK);
+    }
 }
