@@ -108,6 +108,7 @@ public class FileOperations {
                 }
                 if(numberOfFilesCount >=2){
                     resObject.put("error","The number of files in archive is more than 1 ");
+                    return resObject;
                 }
                 if(entry != null)
                     br = new BufferedReader(new InputStreamReader(zipFile.getInputStream(entry)));
