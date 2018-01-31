@@ -1,5 +1,6 @@
 package com.envista.msi.api.web.rest.util;
 
+import com.envista.msi.api.web.rest.dto.dashboard.auditactivity.CustomisedFreightAuditSavingDto;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
@@ -17,10 +18,7 @@ import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This utility class is specially designed to keep all methods which are commonly used/to be used over different module in Avatar project.
@@ -338,7 +336,7 @@ public class CommonUtil {
                 font.setBoldweight(Font.BOLDWEIGHT_BOLD);//Make font bold
                 style.setFont(font);//set it to bold
                 if(headersDtMap != null )
-                    cell.setCellValue(headerarray[i-1]);
+                    cell.setCellValue(headerarray[i - 1]);
                     cell.setCellStyle(style);
 
                     /*cellStyle[i - 1] = workbook.createCellStyle();
@@ -544,5 +542,72 @@ public class CommonUtil {
     public static double round (double value, int precision) {
         int scale = (int) Math.pow(10, precision);
         return (double) Math.round(value * scale) / scale;
+    }
+
+    public static Workbook generateXlsxForFreightSvngsByAdjustRsn(Map<String,List<CustomisedFreightAuditSavingDto>> data) throws Exception {
+        SXSSFWorkbook workbook = new SXSSFWorkbook(2);
+        Sheet sheet = null;
+        Row row = null;
+        Cell cell = null;
+        List<String> headers= Arrays.asList("Carrier Name","Adjustment Reason","Adjustment Invoices","Freight Savings");
+        List<String> columns= Arrays.asList("adjustmentReason","adjustedInvoiceCount","freightSaving");
+
+        try {
+
+            int rowCount = 0;
+            int prev=0;
+            sheet = workbook.createSheet(StringUtils.capitalize("FREIGHT SAVINGS BY CARRIER BY ADJUSTMENT REASON"));
+            row=sheet.createRow(rowCount++);
+           for(int i=0;i<headers.size();i++){
+               cell=row.createCell(i);
+
+               CellStyle style = workbook.createCellStyle();//Create style
+               Font font = workbook.createFont();//Create font
+               font.setBoldweight(Font.BOLDWEIGHT_BOLD);//Make font bold
+               style.setFont(font);//set it to bold
+               cell.setCellValue(headers.get(i));
+               cell.setCellStyle(style);
+               sheet.setDefaultColumnWidth(15);
+           }//headers
+
+          Set<Map.Entry<String,List<CustomisedFreightAuditSavingDto>>> entrys= data.entrySet();
+          Iterator<Map.Entry<String,List<CustomisedFreightAuditSavingDto>>> iterator=entrys.iterator();
+            while (iterator.hasNext()){
+            Map.Entry<String,List<CustomisedFreightAuditSavingDto>>  entry=   iterator.next();
+                List<CustomisedFreightAuditSavingDto> custFrtAudtSvngs=entry.getValue();
+                //Cell Merging
+                row=sheet.createRow(rowCount++);
+                cell=row.createCell(0);
+                prev=prev++;
+                // insert carrier Name into cell
+                cell.setCellValue(entry.getKey());
+                if(custFrtAudtSvngs.size()>1)
+                sheet.addMergedRegion(new CellRangeAddress(prev,custFrtAudtSvngs.size(),0,0));
+                for (int cellIndex=0;cellIndex<custFrtAudtSvngs.size();cellIndex++){
+                    if(cellIndex!=0)
+                        row = sheet.createRow(rowCount++);
+
+                    CustomisedFreightAuditSavingDto customisedFreightAuditSavingDto = custFrtAudtSvngs.get(cellIndex);
+                    if(customisedFreightAuditSavingDto!=null) {
+                        String jsonData = JSONUtil.ConvertObject2JSON(customisedFreightAuditSavingDto);
+                        JSONObject jsonObject=new JSONObject(jsonData);
+                        for(int i=0;i<columns.size();i++){
+                            CellStyle cellStyle = workbook.createCellStyle();//Create style
+                            cell=row.createCell(i+1);
+                            cell.setCellValue(jsonObject.getString(columns.get(i)));
+                            if("adjustedInvoiceCount".equalsIgnoreCase(columns.get(i))||"freightSaving".equalsIgnoreCase(columns.get(i))){
+                                cellStyle.setAlignment(CellStyle.ALIGN_RIGHT);
+                                cellStyle.setVerticalAlignment(CellStyle.VERTICAL_TOP);
+                                cell.setCellStyle(cellStyle);
+                            }//If
+                        }//End columns
+                    }//If
+                }//for
+            }// While
+
+        }catch (Exception e){
+           throw  e;
+        }
+    return workbook;
     }
 }

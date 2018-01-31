@@ -30,7 +30,6 @@ import com.envista.msi.api.web.rest.util.CommonUtil;
 import com.envista.msi.api.web.rest.util.DateUtil;
 import com.envista.msi.api.web.rest.util.JSONUtil;
 import com.envista.msi.api.web.rest.util.pagination.PaginationBean;
-import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -485,6 +484,7 @@ public class DashboardsController extends DashboardBaseController {
         UserProfileDto user = getUserProfile();
         DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
         if(filter != null && tax != null && !tax.isEmpty()){
+            filter.setAccessorialName(tax);
             filter.setAccDesc(tax);
         }
         JSONObject accSpendJson = loadAccessorialSpendJsonData(AccessorialSpendConstant.ACCESSORIAL_SPEND_BY_CARRIER, filter);
@@ -2059,7 +2059,8 @@ public class DashboardsController extends DashboardBaseController {
 
     private JSONObject loadAccessorialSpendByCarrierJson(DashboardsFilterCriteria filter) throws JSONException {
         JSONObject accSpendJson = null;
-        List<AccessorialSpendDto> accSpendList = dashboardsService.getTopAccessorialSpendByCarrier(filter, false);
+        List<AccessorialSpendDto> accSpendList = dashboardsService.getAccessorialSpendByCarrier(filter, false);
+
         if(accSpendList != null && accSpendList.size() > 0){
             List<CommonValuesForChartDto> commonValList = null;
             if(accSpendList != null && accSpendList.size() > 0){
