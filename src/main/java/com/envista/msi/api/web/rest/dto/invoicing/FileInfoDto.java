@@ -32,8 +32,8 @@ public class FileInfoDto {
     @Column(name = "FILE_TYPE")
     private String fileType;
 
-    @Column(name = "DELETE_FLAG")
-    private int deleteFlag;
+    @Column(name = "IS_SCRUB")
+    private int isScrub;
 
     public FileInfoDto() {
     }
@@ -89,11 +89,12 @@ public class FileInfoDto {
     public void setFileType(String fileType) {
         this.fileType = fileType;
     }
-    public int getDeleteFlag() {
-        return deleteFlag;
+    public int getIsScrub() {
+        return isScrub;
     }
 
-    public void setDeleteFlag(int deleteFlag) {
-        this.deleteFlag = deleteFlag;
+    public void setIsScrub(int isScrub) {
+        this.isScrub = isScrub;
     }
+
 }
