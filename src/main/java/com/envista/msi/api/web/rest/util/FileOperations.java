@@ -126,7 +126,7 @@ public class FileOperations {
 
                         fileDefDto= dao.validateFileType(fileTypeId,line);
                         if(fileDefDto == null){
-                            resObject.put("error","Invalid file format.");
+                            resObject.put("error","Please upload a valid file format.");
                             break;
                         }
                     }else if (count != 0 && null != fileDefDto) {
