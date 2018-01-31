@@ -110,8 +110,8 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.LANES_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.FROM_DATE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.TO_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.MODE_NAMES_PARAM, type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.ACCESSORIAL_DESC_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.MODE_NAMES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.ACCESSORIAL_DESC_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.AccessorialSpendParams.ACCESSORIAL_SPEND_PARAM, type = Void.class)
                 }),
         @NamedStoredProcedureQuery(name = AccessorialSpendDto.Config.StoredProcedureQueryName.ACCESSORIAL_SPEND_BY_MONTH,
@@ -127,8 +127,8 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.LANES_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.FROM_DATE_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.TO_DATE_PARAM, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.MODE_NAMES_PARAM, type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.ACCESSORIAL_DESC_PARAM, type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.MODE_NAMES_PARAM, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.AccessorialSpendParams.ACCESSORIAL_DESC_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.AccessorialSpendParams.ACCESSORIAL_SPEND_PARAM, type = Void.class)
                 })
 })
@@ -176,6 +176,7 @@ import java.util.Date;
                 @ConstructorResult(
                         targetClass = AccessorialSpendDto.class,
                         columns = {
+
                                 @ColumnResult(name = "SPEND", type = Double.class),
                                 @ColumnResult(name = "RANK", type = Long.class),
                                 @ColumnResult(name = "ACC_DESC", type = String.class)
