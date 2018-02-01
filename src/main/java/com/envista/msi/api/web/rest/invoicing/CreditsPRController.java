@@ -9,6 +9,7 @@ import com.envista.msi.api.web.rest.dto.invoicing.CreditsPRSearchBean;
 import com.envista.msi.api.web.rest.dto.invoicing.WeekEndDto;
 import com.envista.msi.api.web.rest.util.DateUtil;
 import com.envista.msi.api.web.rest.util.FileOperations;
+import com.envista.msi.api.web.rest.util.InvConstants;
 import com.envista.msi.api.web.rest.util.InvoicingUtilities;
 import com.envista.msi.api.web.rest.util.pagination.PaginationBean;
 import org.apache.commons.lang.StringUtils;
@@ -141,7 +142,8 @@ public class CreditsPRController {
         List<WeekEndDto> weekEndDtos = weekEndService.getAll();
         jsonObject.put("weekEndIfo", weekEndDtos);
 
-        jsonObject.put("bpList", InvoicingUtilities.getBuissnessPartnersList());
+        List<CodeValueDto> codeValueDtos = codeValueService.getBusinessPartners(InvConstants.BUSINESSPARTNERS_GROUP_NAME,InvConstants.BUSINESSPARTNERS_PROPERTY_2);
+        jsonObject.put("bpList", codeValueDtos);
 
         jsonObject.put("flagList", InvoicingUtilities.getFlagValueList());
 

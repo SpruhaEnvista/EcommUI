@@ -35,4 +35,9 @@ public class CodeValueService {
 
         return dao.getDataObjectFilter();
     }
+
+    public List<CodeValueDto> getBusinessPartners(String businessPartnersGroupName,String businessPartnersProperty_2) {
+
+        return dao.getBusinessPartners(businessPartnersGroupName,businessPartnersProperty_2);
+    }
 }

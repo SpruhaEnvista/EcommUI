@@ -13,4 +13,6 @@ public final class InvConstants {
     }
 
     public static final String filePath = "E:/Invoicing/Custom_Omit_uploads";
+    public static final String BUSINESSPARTNERS_GROUP_NAME = "LABELVALUEGROUP";
+    public static final String BUSINESSPARTNERS_PROPERTY_2 = "LABEL_VALUE_BUSINESS_PARTNERS_LIST";
 }
