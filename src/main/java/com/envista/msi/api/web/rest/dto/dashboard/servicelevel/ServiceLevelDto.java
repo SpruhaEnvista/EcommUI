@@ -39,6 +39,23 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.NetSpendParams.CONVERTED_WEIGHT_UNIT_PARAM, type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.RelSpendParams.REL_SPEND_PARAM, type = Void.class)
                 }),
+        @NamedStoredProcedureQuery(name = ServiceLevelDto.Config.StoredProcedureQueryName.MODE_LEVEL_ANALYSIS,
+        procedureName = ServiceLevelDto.Config.StoredProcedureName.MODE_LEVEL_ANALYSIS,
+        resultSetMappings = {ServiceLevelDto.Config.ResultMappings.SERVICE_LEVEL_ANALYSIS_MAPPING},
+        parameters = {
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.NetSpendParams.DATE_TYPE_PARAM, type = String.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.NetSpendParams.CONVERTED_CURRENCY_ID_PARAM, type = Long.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.NetSpendParams.CONVERTED_CURRENCY_CODE_PARAM, type = String.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.NetSpendParams.CUSTOMER_IDS_CSV_PARAM, type = String.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.NetSpendParams.CARRIER_IDS_PARAM, type = String.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.NetSpendParams.MODES_PARAM, type = String.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.NetSpendParams.SERVICES_PARAM, type = String.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.NetSpendParams.LANES_PARAM, type = String.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.NetSpendParams.FROM_DATE_PARAM, type = String.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.NetSpendParams.TO_DATE_PARAM, type = String.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = DashboardStoredProcParam.NetSpendParams.CONVERTED_WEIGHT_UNIT_PARAM, type = String.class),
+                @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = DashboardStoredProcParam.RelSpendParams.REL_SPEND_PARAM, type = Void.class)
+        }),
         @NamedStoredProcedureQuery(name = ServiceLevelDto.Config.StoredProcedureQueryName.TOTAL_SPEND_SERVICE_LEVEL,
                 procedureName = ServiceLevelDto.Config.StoredProcedureName.TOTAL_SPEND_SERVICE_LEVEL,
                 resultSetMappings = {ServiceLevelDto.Config.ResultMappings.TOTAL_SPEND_SERVICE_LEVEL_MAPPING},
@@ -368,6 +385,7 @@ public class ServiceLevelDto implements Serializable {
 
         static class StoredProcedureName{
             static final String SERVICE_LEVEL_ANALYSIS = "SHP_DB_SERV_LVL_Analysis_PROC";
+            static final String MODE_LEVEL_ANALYSIS = "SHP_DB_Mode_LVL_Analysis_PROC";
             static final String TOTAL_SPEND_SERVICE_LEVEL = "SHP_DB_SERV_LVL_PERC_PROC";
             static final String TOTAL_PCKG_SERVICE_LEVEL = "SHP_DB_SERV_LVL_PERC_PROC";
             static final String COST_SHIPMENT_SERVICE_LEVEL = "SHP_DB_SERV_LVL_COST_WGT_PROC";
@@ -378,6 +396,7 @@ public class ServiceLevelDto implements Serializable {
 
         public static class StoredProcedureQueryName{
             public static final String SERVICE_LEVEL_ANALYSIS = "ServiceLevelDto.getServiceLevAnalysis";
+            public static final String MODE_LEVEL_ANALYSIS = "ServiceLevelDto.getModeLevAnalysis";
             public static final String TOTAL_SPEND_SERVICE_LEVEL = "ServiceLevelDto.getTotalSpendByService";
             public static final String TOTAL_PCKG_SERVICE_LEVEL = "ServiceLevelDto.getTotalPckgsByService";
             public static final String COST_SHIPMENT_SERVICE_LEVEL = "ServiceLevelDto.getCostPerShipmentByService";

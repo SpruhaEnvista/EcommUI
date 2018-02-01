@@ -4047,6 +4047,21 @@ public class DashboardsController extends DashboardBaseController {
         return new ResponseEntity<String>(nspData != null ? nspData.toString() : emptyJson.toString(), HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/modeLevAnalysis", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getModeLevAnalysis() throws Exception {
+        JSONObject nspData = null;
+
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        List<ServiceLevelDto> serviceLevelList = dashboardsService.getModeLevAnalysis(filter, false);
+        if(serviceLevelList != null && !serviceLevelList.isEmpty()){
+            nspData = JSONUtil.prepareModeSpendAnalysisJson(serviceLevelList);
+        }
+        JSONObject emptyJson =  new JSONObject();
+        emptyJson.put("values", new JSONArray());
+        return new ResponseEntity<String>(nspData != null ? nspData.toString() : emptyJson.toString(), HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/exportServiceLevAnalysis", method = {RequestMethod.GET}, produces = "application/text")
     public @ResponseBody void exportServiceLevAnalysis(@RequestParam(required = false) String invoiceDate, @RequestParam(required = false) String dashletteName, @RequestParam(required = false) String carrierId,
                                                       @RequestParam(required = false) String mode, @RequestParam(required = false) String carscoretype, @RequestParam(required = false) String service,

@@ -1,7 +1,6 @@
 package com.envista.msi.api.service;
 
 import com.envista.msi.api.dao.DashboardsDao;
-import com.envista.msi.api.dao.type.GenericObject;
 import com.envista.msi.api.domain.util.DashboardUtil;
 import com.envista.msi.api.web.rest.dto.MapCoordinatesDto;
 import com.envista.msi.api.web.rest.dto.ZipCodesTimeZonesDto;
@@ -1515,7 +1514,9 @@ public class DashboardsService {
     public List<ServiceLevelDto> getServiceLevAnalysis(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
         return dashboardsDao.getServiceLevAnalysis(filter, isTopTenAccessorial);
     }
-
+    public List<ServiceLevelDto> getModeLevAnalysis(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        return dashboardsDao.getModeLevAnalysis(filter, isTopTenAccessorial);
+    }
     public List<CustomisedFreightAuditSavingDto> getFreightAuditSavings(DashboardsFilterCriteria filter){
         List<FreightAuditSavingDto> freightSavingList = dashboardsDao.getFreightAuditSavings(filter);
         List<CustomisedFreightAuditSavingDto> customisedFreightAuditSavingList = null;
