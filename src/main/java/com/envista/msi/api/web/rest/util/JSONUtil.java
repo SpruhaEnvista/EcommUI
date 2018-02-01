@@ -3789,9 +3789,14 @@ public class JSONUtil {
                     statusJson.put("# of Shipments", commaSeperatedDecimalFormat.format(NonothersNoOfShipmentsDbl+othersNoOfShipmentsDbl));
                     statusJson.put("% of Total Shpts", commaSeperatedDecimalFormat.format(100)+"%");
                     statusJson.put("Total Weight", commaSeperatedDecimalFormat.format(NonothersTotalWeightDbl+othersTotalWeightDbl));
-                    statusJson.put("Cost/Shipment", commaSeperatedDecimalFormat2.format(NonothersCostPerShpmntDbl+othersCostPerShpmntDbl));
+
+                    statusJson.put("Cost/Shipment", commaSeperatedDecimalFormat2.format((NonothersSpendDbl+ othersSpendDbl) / (NonothersNoOfShipmentsDbl+othersNoOfShipmentsDbl) ));
+                    statusJson.put("Weight/Shipment", commaSeperatedDecimalFormat1.format((NonothersTotalWeightDbl+othersTotalWeightDbl) / (NonothersNoOfShipmentsDbl+othersNoOfShipmentsDbl) ));
+                    statusJson.put("Cost/Weight", commaSeperatedDecimalFormat2.format( (NonothersSpendDbl+ othersSpendDbl) / (NonothersTotalWeightDbl+othersTotalWeightDbl) ));
+
+                    /*statusJson.put("Cost/Shipment", commaSeperatedDecimalFormat2.format(NonothersCostPerShpmntDbl+othersCostPerShpmntDbl));
                     statusJson.put("Weight/Shipment", commaSeperatedDecimalFormat1.format(NonothersWeightPerShmntDbl+othersWeightPerShmntDbl));
-                    statusJson.put("Cost/Weight", commaSeperatedDecimalFormat2.format(NonothersCostWeightDbl+othersCostWeightDbl));
+                    statusJson.put("Cost/Weight", commaSeperatedDecimalFormat2.format(NonothersCostWeightDbl+othersCostWeightDbl));*/
 
                     returnArray.put(statusJson);
                     statusJson = null;
@@ -3929,20 +3934,23 @@ public class JSONUtil {
                         statusJson = null;
                     }
 
-
-
                     // Add Total row of Pivot Table
                     statusJson = new JSONObject();
                     //statusJson.put("id", -1);
+
                     statusJson.put("ServiceLevel", "Total");
                     statusJson.put("Spend", commaSeperatedDecimalFormat.format(NonothersSpendDbl+ othersSpendDbl));
                     statusJson.put("% of Total Spend", commaSeperatedDecimalFormat.format(100)+"%");
                     statusJson.put("# of Packages", commaSeperatedDecimalFormat.format(NonothersNoOfPckgsDbl+othersNoOfPckgsDbl));
                     statusJson.put("% of Total Packages", commaSeperatedDecimalFormat.format(100)+"%");
                     statusJson.put("Total Weight", commaSeperatedDecimalFormat.format(NonothersTotalWeightDbl+othersTotalWeightDbl));
-                    statusJson.put("Cost/Package", commaSeperatedDecimalFormat2.format(NonothersCostPerPckgDbl+othersCostPerPckgsDbl));
+
+                    statusJson.put("Cost/Package", commaSeperatedDecimalFormat2.format((NonothersSpendDbl+ othersSpendDbl) / (NonothersNoOfPckgsDbl+othersNoOfPckgsDbl) ));
+                    statusJson.put("Weight/Package", commaSeperatedDecimalFormat1.format((NonothersTotalWeightDbl+othersTotalWeightDbl) / (NonothersNoOfPckgsDbl+othersNoOfPckgsDbl) ));
+                    statusJson.put("Cost/Weight", commaSeperatedDecimalFormat2.format( (NonothersSpendDbl+ othersSpendDbl) / (NonothersTotalWeightDbl+othersTotalWeightDbl) ) );
+                    /*statusJson.put("Cost/Package", commaSeperatedDecimalFormat2.format(NonothersCostPerPckgDbl+othersCostPerPckgsDbl));
                     statusJson.put("Weight/Package", commaSeperatedDecimalFormat1.format(NonothersWeightPerPckgDbl+othersWeightPerPckgsDbl));
-                    statusJson.put("Cost/Weight", commaSeperatedDecimalFormat2.format(NonothersCostWeightDbl+othersCostWeightDbl));
+                    statusJson.put("Cost/Weight", commaSeperatedDecimalFormat2.format(NonothersCostWeightDbl+othersCostWeightDbl));*/
 
                     returnArray.put(statusJson);
                     statusJson = null;
