@@ -107,7 +107,7 @@ public class FileOperations {
                     }
                 }
                 if(numberOfFilesCount >=2){
-                    resObject.put("error","Please upload a single .csv file in archive.");
+                    resObject.put("error","Please upload a single file.");
                     return resObject;
                 }
                 if(entry != null)
