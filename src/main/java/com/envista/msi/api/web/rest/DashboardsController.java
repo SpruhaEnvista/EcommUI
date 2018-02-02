@@ -4047,7 +4047,7 @@ public class DashboardsController extends DashboardBaseController {
         return new ResponseEntity<String>(nspData != null ? nspData.toString() : emptyJson.toString(), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/modeLevAnalysis", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/modeAnalysis", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<String> getModeLevAnalysis() throws Exception {
         JSONObject nspData = null;
 
@@ -4087,6 +4087,43 @@ public class DashboardsController extends DashboardBaseController {
 
 
         workbook = dashboardsService.getExportServiceLevAnalysis(dataJSONArray,fileName);
+
+        response.setContentType("application/text");
+        response.setHeader("Content-Disposition", "attachment; filename="+fileName+".xlsx");
+
+        if (workbook != null) {
+            workbook.write(response.getOutputStream());
+            workbook.close();
+        }
+
+    }
+
+
+    @RequestMapping(value = "/exportModeAnalysis", method = {RequestMethod.GET}, produces = "application/text")
+    public @ResponseBody void exportModeLevAnalysis(@RequestParam(required = false) String invoiceDate, @RequestParam(required = false) String dashletteName, @RequestParam(required = false) String carrierId,
+                                                       @RequestParam(required = false) String mode, @RequestParam(required = false) String carscoretype, @RequestParam(required = false) String service,
+                                                       @RequestParam(required = false, defaultValue = "0") Integer offset, @RequestParam(required = false, defaultValue = "1000") Integer limit,
+                                                       @RequestParam(required = false, defaultValue = "1000") Integer totalRecordCount,
+                                                       @RequestParam(required = false) String filter, HttpServletResponse response) throws Exception {
+
+        JSONObject nspData = null;
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filterCriteria = loadAppliedFilters(user.getUserId());
+        List<ServiceLevelDto> serviceLevelList = dashboardsService.getModeLevAnalysis(filterCriteria, false);
+        if(serviceLevelList != null && !serviceLevelList.isEmpty()){
+            nspData = JSONUtil.prepareModeSpendAnalysisJson(serviceLevelList);
+        }
+
+        Workbook workbook = null;
+
+        JSONArray dataJSONArray = new JSONArray();
+        String fileName="ModeLevelAnalysis";
+
+        if(nspData!=null)
+            dataJSONArray = (JSONArray) nspData.get("values");
+
+
+        workbook = dashboardsService.getExportModeLevAnalysis(dataJSONArray,fileName);
 
         response.setContentType("application/text");
         response.setHeader("Content-Disposition", "attachment; filename="+fileName+".xlsx");
