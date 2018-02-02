@@ -1757,6 +1757,19 @@ public class DashboardsDao {
         return persistentContext.findEntities(ServiceLevelDto.Config.StoredProcedureQueryName.MODE_LEVEL_ANALYSIS, queryParameter);
     }
 
+
+    public List<ServiceLevelDto> getTotalSpendByMode(DashboardsFilterCriteria filter, boolean isTopTenAccessorial) {
+        String[] paramNames = {DashboardStoredProcParam.DashboardFilterParams.DATE_TYPE_PARAM, DashboardStoredProcParam.DashboardFilterParams.CONVERTED_CURRENCY_ID_PARAM,
+                DashboardStoredProcParam.DashboardFilterParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardStoredProcParam.DashboardFilterParams.CUSTOMER_IDS_CSV_PARAM,
+                DashboardStoredProcParam.DashboardFilterParams.CARRIER_IDS_PARAM, DashboardStoredProcParam.DashboardFilterParams.MODES_PARAM,
+                DashboardStoredProcParam.DashboardFilterParams.SERVICES_PARAM, DashboardStoredProcParam.DashboardFilterParams.LANES_PARAM,
+                DashboardStoredProcParam.DashboardFilterParams.FROM_DATE_PARAM, DashboardStoredProcParam.DashboardFilterParams.TO_DATE_PARAM,
+                DashboardStoredProcParam.DashboardFilterParams.CONVERTED_WEIGHT_UNIT_PARAM
+        };
+        QueryParameter queryParameter = DashboardUtil.prepareDashboardFilterStoredProcParam(paramNames, filter);
+        return persistentContext.findEntities(ServiceLevelDto.Config.StoredProcedureQueryName.TOTAL_SPEND_BY_MODE, queryParameter);
+    }
+
     public List<FreightAuditSavingDto> getFreightAuditSavings(DashboardsFilterCriteria filter){
         String[] paramNames = {DashboardStoredProcParam.DashboardFilterParams.DATE_TYPE_PARAM, DashboardStoredProcParam.DashboardFilterParams.CONVERTED_CURRENCY_ID_PARAM,
                 DashboardStoredProcParam.DashboardFilterParams.CONVERTED_CURRENCY_CODE_PARAM, DashboardStoredProcParam.DashboardFilterParams.CUSTOMER_IDS_CSV_PARAM,

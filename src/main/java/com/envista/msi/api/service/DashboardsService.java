@@ -134,6 +134,10 @@ public class DashboardsService {
         return dashboardsDao.getTotalSpendByService(filter, isTopTenAccessorial);
     }
 
+    public List<ServiceLevelDto> getTotalSpendByMode(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        return dashboardsDao.getTotalSpendByMode(filter, isTopTenAccessorial);
+    }
+
     public List<ServiceLevelDto> getTotalPckgsByService(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
         return dashboardsDao.getTotalPckgsByService(filter, isTopTenAccessorial);
     }
@@ -315,6 +319,8 @@ public class DashboardsService {
     public List<InvoiceStatusCountDto> getInvoiceStatusCount(DashboardsFilterCriteria filter){
         return dashboardsDao.getInvoiceStatusCount(filter);
     }
+
+
 
     /**
      * Method to get Invoice Status Count By Carrier

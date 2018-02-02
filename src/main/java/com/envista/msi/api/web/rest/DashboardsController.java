@@ -762,6 +762,14 @@ public class DashboardsController extends DashboardBaseController {
         return new ResponseEntity<String>(stsCntJson != null ? stsCntJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/TotalSpendByMode", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getTotalSpendByMode() throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        JSONObject stsCntJson = loadTotalSpendByModeJson( filter);
+        return new ResponseEntity<String>(stsCntJson != null ? stsCntJson.toString() : new JSONObject().toString(), HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/invStsCntByCarr", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<String> getInvoiceStatusCountByCarrier(@RequestParam String invoiceStatusId) throws Exception {
         UserProfileDto user = getUserProfile();
@@ -1707,6 +1715,23 @@ public class DashboardsController extends DashboardBaseController {
         }
         return invStsJson;
     }
+
+    private JSONObject loadTotalSpendByModeJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject invStsJson = null;
+        List<ServiceLevelDto> totalSpendByModeList = dashboardsService.getTotalSpendByMode(filter,false);
+        List<CommonValuesForChartDto> chartValueList = null;
+        if(totalSpendByModeList != null && totalSpendByModeList.size() > 0){
+            chartValueList = new ArrayList<CommonValuesForChartDto>();
+            for(ServiceLevelDto totalSpendByMode : totalSpendByModeList){
+                if(totalSpendByMode != null){
+                    chartValueList.add(new CommonValuesForChartDto(totalSpendByMode,true));
+                }
+            }
+            invStsJson = JSONUtil.prepareCommonJsonForChart(chartValueList, true);
+        }
+        return invStsJson;
+    }
+
 
     private JSONObject loadNetSpendJsonData(NetSpendConstant netSpendType, DashboardsFilterCriteria filter) throws Exception {
         JSONObject netSpendJson = null;
