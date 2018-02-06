@@ -123,7 +123,7 @@ public class DashBoardController {
                     creditResponseService.insert(dtos, fileInfoDto.getId());
                     responseStr="File uploaded Successfully.";
             }else if(resObj != null && resObj.size() >0 && resObj.get("error") != null && !resObj.get("error").equals("")){
-                responseStr="Invalid file format.";
+                responseStr = (String)resObj.get("error");
             }
             jsonObject.put("message",responseStr);
 
@@ -215,5 +215,11 @@ public class DashBoardController {
         log.info("***getWeekStatusByWeekendDate json***==== " + dto);
         return new ResponseEntity<WeekEndDto>(dto, HttpStatus.OK);
     }
+    @RequestMapping(value = "/delete", params = {"fileInfoId"}, method = RequestMethod.PUT)
+    public ResponseEntity<Integer> delete(@RequestParam Long fileInfoId) {
 
+        int count = service.delete(fileInfoId);
+
+        return new ResponseEntity<Integer>(count, HttpStatus.OK);
+    }
 }

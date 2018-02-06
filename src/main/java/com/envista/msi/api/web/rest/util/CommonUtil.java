@@ -610,4 +610,67 @@ public class CommonUtil {
         }
     return workbook;
     }
+
+    public static String[] parseDemilitedLineWithMutipleDoubleQuotesInBetween(String line, char separator) throws Exception {
+        Vector<String> values = new Vector<String>();
+        boolean inQuotedString = false;
+        String value = "";
+        String orgLine = line;
+        int currentPos = 0;
+        int fullLine = 0;
+
+        while (fullLine == 0) {
+            currentPos = 0;
+            line += separator;
+            while (currentPos < line.length()) {
+                char currentChar = line.charAt(currentPos);
+                if (value.length() == 0 && currentChar == '"' && !inQuotedString) {
+                    currentPos++;
+                    inQuotedString = true;
+                    continue;
+                }
+                if (currentChar == '"') {
+                    char nextChar = line.charAt(currentPos + 1);
+                    if (nextChar == '"' || nextChar != separator) {
+                        value += currentChar;
+                        // currentPos++;
+                    } else {
+                        if (!inQuotedString) {
+                            throw new Exception("Unexpected '\"' in position " + currentPos + ". Line=" + orgLine);
+                        }
+                        if (inQuotedString && nextChar != separator) {
+                            throw new Exception("Expecting " + separator + " in position " + (currentPos + 1) + ". Line=" + orgLine);
+                        }
+                        values.add(value);
+                        value = "";
+                        inQuotedString = false;
+                        currentPos++;
+                    }
+                } else {
+                    if (currentChar == separator) { // seperator
+                        if (inQuotedString) { // if delimeter and inside quoted string, then append delimeter
+                            value += currentChar;
+                        } else { // if delimeter then split it.
+                            values.add(value);
+                            value = "";
+                        }
+                    } else { // append character
+                        value += currentChar;
+                    }
+                }
+                currentPos++;
+            }
+            if (inQuotedString) {
+                throw new Exception("Expecting \" in position " + (currentPos + 1) + ". Line=" + orgLine);
+            } else {
+                fullLine = 1;
+            }
+
+        }
+        String[] retVal;
+        retVal = new String[values.size()];
+        values.copyInto(retVal);
+        return retVal;
+    }
+
 }
