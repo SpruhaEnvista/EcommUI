@@ -30,7 +30,9 @@ import java.io.Serializable;
                                 @ColumnResult(name = "group_under_name", type = String.class),
                                 @ColumnResult(name = "rpt_descr", type = String.class),
                                 @ColumnResult(name = "is_fav", type = Boolean.class),
-                                @ColumnResult(name = "is_popular_report", type = Boolean.class)
+                                @ColumnResult(name = "is_popular_report", type = Boolean.class),
+                                @ColumnResult(name = "show_criteria_tab", type = Integer.class)
+
                         }
                 )
         })
@@ -76,10 +78,14 @@ public class ReportModesDto implements Serializable {
     @Column(name="is_popular_report")
     private boolean isPopularReport;
 
+    @Column(name = "show_criteria_tab")
+    private Integer showCriteriaTab;
+
+
     public ReportModesDto() {  }
 
     public ReportModesDto(Long rptId, String reportFileName, Integer category, Integer isConsolidated, Integer reportGroupId, String groupName,
-                          Integer groupUnder,Boolean isSupportsCarriers, String groupUnderName,String reportDescr, Boolean isFavourite,Boolean isPopularReport) {
+                             Integer groupUnder,Boolean isSupportsCarriers, String groupUnderName,String reportDescr, Boolean isFavourite,Boolean isPopularReport) {
         this.rptId = rptId;
         this.reportFileName = reportFileName;
         this.category = category;
@@ -95,12 +101,39 @@ public class ReportModesDto implements Serializable {
 
     }
 
+    public ReportModesDto(Long rptId, String reportFileName, Integer category, Integer isConsolidated, Integer reportGroupId, String groupName,
+                          Integer groupUnder,Boolean isSupportsCarriers, String groupUnderName,String reportDescr, Boolean isFavourite,
+                          Boolean isPopularReport,Integer showCriteriaTab) {
+        this.rptId = rptId;
+        this.reportFileName = reportFileName;
+        this.category = category;
+        this.isConsolidated = isConsolidated;
+        this.reportGroupId = reportGroupId;
+        this.groupName = groupName;
+        this.groupUnder = groupUnder;
+        this.isSupportsCarriers = isSupportsCarriers;
+        this.groupUnderName = groupUnderName;
+        this.reportDescr= reportDescr;
+        this.isFavourite = isFavourite;
+        this.isPopularReport=isPopularReport;
+        this.showCriteriaTab=showCriteriaTab;
+
+    }
+
     public Long getRptId() {
         return rptId;
     }
 
     public void setRptId(Long rptId) {
         this.rptId = rptId;
+    }
+
+    public Integer getShowCriteriaTab() {
+        return showCriteriaTab;
+    }
+
+    public void setShowCriteriaTab(Integer showCriteriaTab) {
+        this.showCriteriaTab = showCriteriaTab;
     }
 
     public String getReportFileName() {
