@@ -71,4 +71,8 @@ public class DashBoardService {
 
         return dao.getScrubCreditsHistory(weekEndId);
     }
+    public int delete(Long fileInfoId) {
+
+        return dao.delete(fileInfoId);
+    }
 }
