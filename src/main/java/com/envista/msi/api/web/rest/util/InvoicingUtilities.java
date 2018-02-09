@@ -2,6 +2,7 @@ package com.envista.msi.api.web.rest.util;
 
 import com.envista.msi.api.web.rest.dto.glom.DataCriteriaDto;
 import com.envista.msi.api.web.rest.dto.glom.GlmGenericTypeBean;
+import com.envista.msi.api.web.rest.dto.invoicing.CreditResponseDto;
 import com.envista.msi.api.web.rest.dto.invoicing.UvVoiceUpdateBean;
 import com.envista.msi.api.web.rest.dto.invoicing.VoiceDto;
 import org.apache.commons.lang.StringUtils;
@@ -12,9 +13,18 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.text.ParseException;
+
+import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import java.io.FileInputStream;
 
 /**
  * Created by KRISHNAREDDYM on 5/1/2017.
@@ -270,5 +280,204 @@ public final class InvoicingUtilities {
 
         return beans;
     }
+    public static Map<String,Object> processXlsxFile(File file,Long fileInfoId) throws Exception{
+        List<CreditResponseDto> dtos = new ArrayList<CreditResponseDto>();
+        Map<String,Object> resObject=new HashMap<String,Object>();
+        FileInputStream fis = new FileInputStream(file);
+        XSSFWorkbook w = new XSSFWorkbook(fis);
+        int numberOfsheets=0;
+        CreditResponseDto dto = null;
+        XSSFSheet	sheet,ResiCommAdjustmentSheet,dupsSheet;
 
+        try {
+            int totalRowsProcessed = 0;
+            int totalRowsUpdated = 0;
+            LinkedHashMap<String, Integer> headerLocations;
+
+             numberOfsheets = w.getNumberOfSheets();
+            if(numberOfsheets>0)
+                for (int i=0;i< numberOfsheets;i++) {
+                    sheet = w.getSheetAt(i);
+                     if (sheet.getSheetName().equalsIgnoreCase("Voids") || sheet.getSheetName().equalsIgnoreCase("Rate Errors") || sheet.getSheetName().equalsIgnoreCase("Resi Comm Adjustment")
+                            || sheet.getSheetName().equalsIgnoreCase("Dups")){
+                        headerLocations = returnHeaderLocations(sheet);
+                        for (int row = headerLocations.get("STARTFROM") + 1; row < sheet.getLastRowNum(); row++) {
+
+                            if (totalRowsProcessed % 100 == 0) {
+                                // bw.newLine();
+                                // bw.write("Breakpoint " + totalRowsProcessed);
+                            }
+                            totalRowsProcessed++;
+                            try {
+                                dto = operationsOnEachSalesOrderRow(sheet, headerLocations, row, sheet.getSheetName(), fileInfoId);
+                                if(dto!= null)
+                                dtos.add(dto);
+                                totalRowsUpdated++;
+                            } catch (Exception e) {
+                                if (e.getMessage() != null
+                                        && "Tracking number for this row is null".equalsIgnoreCase(e.getMessage())) {
+                                    totalRowsProcessed--;
+                                    break;
+                                }
+                                e.printStackTrace();
+                            }
+                        }
+                }
+
+                }
+            resObject.put("dtos",dtos);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return resObject;
+    }
+    private static CreditResponseDto operationsOnEachSalesOrderRow(XSSFSheet sheet, HashMap<String, Integer> headerLocations, int row, String sheetName,Long fileInfoId) throws Exception {
+        CreditResponseDto dto = null;
+        String trackingNumber =  (String) getValueForRowAndColumns(sheet, headerLocations, row, "Tracking Number", "String");
+        String invoiceNumber = (String) getValueForRowAndColumns(sheet, headerLocations, row, "Invoice #", "String");
+        String invoiceDate =  (String) getValueForRowAndColumns(sheet, headerLocations, row, "Invoice Date", "date");
+        String shipperAccount = (String) getValueForRowAndColumns(sheet, headerLocations, row, "Shipper #", "String");
+        String netBilled = (String) getValueForRowAndColumns(sheet, headerLocations, row, "Net Billed", "double");
+        String reasonCredit = (String) getValueForRowAndColumns(sheet, headerLocations, row, "Reason for Credit", "String");
+        String creditRequestAmount = (String) getValueForRowAndColumns(sheet, headerLocations, row, "Credit Request Amount", "double");
+        String creditORdenial = (String) getValueForRowAndColumns(sheet, headerLocations, row, "Credit / Denial", "String");
+        String adjustmentAmount = (String) getValueForRowAndColumns(sheet, headerLocations, row, "Adjustment Amount", "double");
+        String adjustmentMessage = (String) getValueForRowAndColumns(sheet, headerLocations, row, "Adjustment Message", "String");
+        String eBillManifestID = (String) getValueForRowAndColumns(sheet, headerLocations, row, "E-Bill Manifest ID", "double");
+
+        if(trackingNumber != null && reasonCredit != null && adjustmentMessage != null) {
+            dto = new CreditResponseDto();
+            dto.setFileInfoId(fileInfoId);
+            dto.setTrackingNumber(trackingNumber);
+            dto.setNotes(reasonCredit + ";" + adjustmentMessage);
+
+            if(sheetName.equalsIgnoreCase("Voids"))
+            dto.setCreditClass("Voids");
+            else if(sheetName.equalsIgnoreCase("Resi Comm Adjustment"))
+                dto.setCreditClass("Resi");
+            else if(sheetName.equalsIgnoreCase("Dups"))
+                dto.setCreditClass("DUP");
+            else if(sheetName.equalsIgnoreCase("Rate Errors"))
+                dto.setCreditClass("Rate Errors");
+            else if(sheetName.equalsIgnoreCase("Accessorial Errors"))
+                dto.setCreditClass("Accessorial Errors");
+        }
+        return dto;
+
+     }
+
+    private static Object getValueForRowAndColumns(XSSFSheet sheet, HashMap<String, Integer> headerLocations, int rowNum,
+                                            String columnHeader, String type) throws  ParseException {
+        if (type == null || type.isEmpty()) {
+            return null;
+        }
+
+        int column = headerLocations.get(columnHeader);
+        XSSFRow row = sheet.getRow(rowNum);
+        String value=null;
+        if (column > -1) {
+            if ("String".equalsIgnoreCase(type)) {
+
+                XSSFCell cell =  row.getCell(column) ;//sheet.get.getCell(column, row);
+               if(cell != null)
+                  value = cell.getStringCellValue().replaceAll("[^\\p{Print}]", " ").replaceAll("\\s+", " ").trim();
+                if(value != null)
+                   return value;
+                else
+                    return null;
+            } else if ("double".equalsIgnoreCase(type)) {
+                XSSFCell cell =  row.getCell(column) ;
+                DataFormatter fmt = new DataFormatter();
+
+
+                  value= fmt.formatCellValue(cell);
+                double netChargesCell = 0.0;
+                try {
+                    netChargesCell =  cell.getNumericCellValue();
+                } catch (Exception ex) {
+                    //bw.newLine();
+                    // bw.write(getLogStatement(row, sheetName, "The '" + columnHeader + "' column value is not a number.", true));
+                    return null;
+                }
+
+                //double netCharges = Math.round(netChargesCell * 100) / 100.0;
+                if(value != null)
+                    return value;
+                else
+                    return null;
+             }
+			else if ("date".equalsIgnoreCase(type)) {
+                XSSFCell cell =  row.getCell(column) ;
+                //Cell cell = sheet.getCell(column, row);
+                Date date = cell.getDateCellValue();
+                DataFormatter fmt = new DataFormatter();
+                 String valueAsSeenInExcel = fmt.formatCellValue(cell);
+                if(valueAsSeenInExcel != null)
+                    return valueAsSeenInExcel;
+                else
+                    return null;
+             } else {
+                //bw.newLine();
+               // bw.write("Type :  " + type + " not supported.");
+                return null;
+            }
+        }
+
+        return null;
+    }
+        private static LinkedHashMap<String, Integer> returnHeaderLocations(XSSFSheet sheet) throws Exception {
+
+            LinkedHashMap<String, Integer> headerLocations = new LinkedHashMap<String, Integer>();
+
+            headerLocations.put("Tracking Number", 0);
+            headerLocations.put("Invoice #", 1);
+            headerLocations.put("Invoice Date", 2);
+            headerLocations.put("Shipper #", 3);
+            headerLocations.put("Net Billed", 4);
+            headerLocations.put("Reason for Credit", 5);
+            headerLocations.put("Credit Request Amount", 6);
+            headerLocations.put("Credit / Denial", 7);
+            headerLocations.put("Adjustment Amount", 8);
+            headerLocations.put("Adjustment Message", 9);
+            headerLocations.put("E-Bill Manifest ID", 10);
+
+            int row = -1;// rowAndColumn[0];
+            headerLocations.put("STARTFROM", row + 1);
+
+            for (int i = 0; i < headerLocations.size(); i++) {
+                XSSFCell headerCell = null;
+                String headerContents;
+                try {
+                    XSSFRow row1 = sheet.getRow(row + 1);
+                    headerContents = headerCell.getStringCellValue().replaceAll("[^\\p{Print}]", " ").replaceAll("\\s+", " ")
+                            .trim();
+                } catch (Exception e) {
+                    continue;
+                }
+                if (checkIfNullOrEmpty(headerContents)) {
+                    continue;
+                } else {
+                    if (headerLocations.get(headerContents) != null) {
+                        if (headerLocations.get(headerContents) == -1) {
+                            headerLocations.put(headerContents, i);
+                        } else {
+                            headerLocations.put(headerContents + "-" + i, i);
+                            // throw new Exception(getLogStatement(-1, sheet.getName(), "The column : " + headerContents + " is defined more than once.", true));
+                        }
+                    } else {
+                        // Here, we have to identify the special charges and their headings.
+                        headerLocations.put(headerContents, i);
+                    }
+                }
+            }
+
+            return headerLocations;
+        }
+    private static boolean checkIfNullOrEmpty(String contents) {
+        if (contents == null || contents.trim().isEmpty()) {
+            return true;
+        }
+        return false;
+    }
 }

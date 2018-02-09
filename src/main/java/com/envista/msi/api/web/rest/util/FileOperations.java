@@ -87,96 +87,102 @@ public class FileOperations {
             String line = "";
             //String cvsSplitBy = ",";
             BufferedReader br = null;
+            FileDefDto fileDefDto = null;
             try{
-             if(fileName.endsWith(".csv")) {
-                br = new BufferedReader(new FileReader(savedFilepath));
+                boolean wisoFlag=false;
+            if(!fileName.startsWith("WISO") || !fileName.startsWith("Wiso")){
+                wisoFlag = true;
             }
-            else if(fileName.endsWith(".zip")) {
-                ZipFile zipFile = new ZipFile(savedFilepath);
-                final Enumeration<? extends ZipEntry> entries = zipFile.entries();
-                int numberOfFilesCount = 0;
-                ZipEntry entry = null;
-                while (entries.hasMoreElements()) {
-                    if(numberOfFilesCount==0)
-                     entry = (ZipEntry)entries.nextElement();
-                    if (!entry.isDirectory()) {
-                        ++numberOfFilesCount;
-                    }
-                    if(numberOfFilesCount >= 2 ){
-                        break;
-                    }
-                }
-                if(numberOfFilesCount >=2){
-                    resObject.put("error","Please upload a single file.");
-                    return resObject;
-                }
-                if(entry != null)
-                    br = new BufferedReader(new InputStreamReader(zipFile.getInputStream(entry)));
-            }
-                FileDefDto fileDefDto=null;
-                while ((line = br.readLine()) != null) {
-                    if(count == 0){
-                        line=line.replaceAll("\"","");
-                        if(fileType != null && fileType.equalsIgnoreCase("GSRs")){
-                            line=line.replaceAll(",,,,,,,,,,,,,,,,","").replaceAll(",","*").concat("*");
-
-                        }else{
-                            line=line.replaceAll(",","*").concat("*");
+            if(!wisoFlag) {
+                if (fileName.endsWith(".csv")) {
+                    br = new BufferedReader(new FileReader(savedFilepath));
+                } else if (fileName.endsWith(".zip")) {
+                    ZipFile zipFile = new ZipFile(savedFilepath);
+                    final Enumeration<? extends ZipEntry> entries = zipFile.entries();
+                    int numberOfFilesCount = 0;
+                    ZipEntry entry = null;
+                    while (entries.hasMoreElements()) {
+                        if (numberOfFilesCount == 0)
+                            entry = (ZipEntry) entries.nextElement();
+                        if (!entry.isDirectory()) {
+                            ++numberOfFilesCount;
                         }
-
-                        fileDefDto= dao.validateFileType(fileTypeId,line);
-                        if(fileDefDto == null){
-                            resObject.put("error","Please upload a valid file format.");
+                        if (numberOfFilesCount >= 2) {
                             break;
                         }
-                    }else if (count != 0 && null != fileDefDto) {
-                        /*if (StringUtils.containsIgnoreCase(line, "\"")) {
-                            line = StringUtils.remove(line, "\"");
-                        }*/
+                    }
+                    if (numberOfFilesCount >= 2) {
+                        resObject.put("error", "Please upload a single file.");
+                        return resObject;
+                    }
+                    if (entry != null)
+                        br = new BufferedReader(new InputStreamReader(zipFile.getInputStream(entry)));
+                }
+
+                while ((line = br.readLine()) != null) {
+                    if (count == 0) {
+                        line = line.replaceAll("\"", "");
+                        if (fileType != null && fileType.equalsIgnoreCase("GSRs")) {
+                            line = line.replaceAll(",,,,,,,,,,,,,,,,", "").replaceAll(",", "*").concat("*");
+
+                        } else {
+                            line = line.replaceAll(",", "*").concat("*");
+                        }
+
+                        fileDefDto = dao.validateFileType(fileTypeId, line);
+                        if (fileDefDto == null) {
+                            resObject.put("error", "Please upload a valid file format.");
+                            break;
+                        }
+                    } else if (count != 0 && null != fileDefDto) {
                         String[] lineArray = CommonUtil.parseDemilitedLineWithMutipleDoubleQuotesInBetween(line, ',');
 
-                        if(lineArray != null && lineArray.length >0){
-                            CreditResponseDto dto=null;
-                            if(fileType != null && fileType.equalsIgnoreCase("Voids")){
-                                if( lineArray[3] != null && !lineArray[3].trim().equals("") ){
+                        if (lineArray != null && lineArray.length > 0) {
+                            CreditResponseDto dto = null;
+                            if (fileType != null && fileType.equalsIgnoreCase("Voids")) {
+                                if (lineArray[3] != null && !lineArray[3].trim().equals("")) {
                                     dto = new CreditResponseDto();
                                     dto.setFileInfoId(fileInfoId);
                                     dto.setCustomerCode(lineArray[1]);
-                                    dto.setTrackingNumber(lineArray[3] != null?lineArray[3].replace("\'",""):"");
-                                    dto.setNotes(lineArray[10] != null ?lineArray[10].replace("\'","").replaceAll("\"",""):"");
+                                    dto.setTrackingNumber(lineArray[3] != null ? lineArray[3].replace("\'", "") : "");
+                                    dto.setNotes(lineArray[10] != null ? lineArray[10].replace("\'", "").replaceAll("\"", "") : "");
                                     dto.setStatus(lineArray[16]);
+                                    dto.setCreditClass("Void");
                                 }
 
 
-                            }else if(fileType != null && fileType.equalsIgnoreCase("GSRs")){
-                                if( lineArray[0] != null  && !lineArray[0].trim().equals("")) {
+                            } else if (fileType != null && fileType.equalsIgnoreCase("GSRs")) {
+                                if (lineArray[0] != null && !lineArray[0].trim().equals("")) {
                                     dto = new CreditResponseDto();
                                     dto.setFileInfoId(fileInfoId);
                                     dto.setTrackingNumber(lineArray[0] != null ? lineArray[0].replace("\'", "") : "");
                                     dto.setNotes(lineArray[6] != null ? lineArray[6].replaceAll("\"", "") : "");
                                     dto.setStatus("Approved");
+                                    dto.setCreditClass("GSRs");
                                 }
 
-                            }else if(fileType != null && fileType.equalsIgnoreCase("Address Corrections and Residentials")){
-                                if( lineArray[0] != null  && !lineArray[0].trim().equals("")) {
+                            } else if (fileType != null && fileType.equalsIgnoreCase("Address Corrections and Residentials")) {
+                                if (lineArray[0] != null && !lineArray[0].trim().equals("")) {
                                     dto = new CreditResponseDto();
                                     dto.setFileInfoId(fileInfoId);
                                     dto.setTrackingNumber(lineArray[0] != null ? lineArray[0].replace("\'", "") : "");
                                     dto.setNotes(lineArray[6] != null ? lineArray[6].replaceAll("\"", "") : "");
                                     dto.setStatus("Approved");
+                                    dto.setCreditClass("Resi,ADDY");
                                 }
 
-                            }else if(fileType != null && fileType.equalsIgnoreCase("Hazmat")){
-                                if( lineArray[0] != null  && !lineArray[0].trim().equals("")) {
+                            } else if (fileType != null && fileType.equalsIgnoreCase("Hazmat")) {
+                                if (lineArray[0] != null && !lineArray[0].trim().equals("")) {
                                     dto = new CreditResponseDto();
                                     dto.setFileInfoId(fileInfoId);
                                     dto.setTrackingNumber(lineArray[0] != null ? lineArray[0].replace("\'", "") : "");
                                     dto.setNotes(lineArray[4] != null ? lineArray[4].replaceAll("\"", "") : "");
                                     dto.setStatus("Approved");
+                                    dto.setCreditClass("Hazmat");
                                 }
 
                             }
-                            if(dto != null){
+                            if (dto != null) {
                                 dtos.add(dto);
                             }
 
@@ -186,9 +192,37 @@ public class FileOperations {
                     count++;
 
                 }
-                if(fileDefDto != null) {
-                    resObject.put("dtos", dtos);
+
+            }else if(wisoFlag) {
+                if (fileName.endsWith(".xlsx")) {
+                    //br = new BufferedReader(new FileReader(savedFilepath));
+                   //File xlsxFile = new File(savedFilepath);
+                    resObject = InvoicingUtilities.processXlsxFile(new File(savedFilepath),fileInfoId);
+                } else if (fileName.endsWith(".zip")) {
+                    ZipFile zipFile = new ZipFile(savedFilepath);
+                    final Enumeration<? extends ZipEntry> entries = zipFile.entries();
+                    int numberOfFilesCount = 0;
+                    ZipEntry entry = null;
+                    while (entries.hasMoreElements()) {
+                        if (numberOfFilesCount == 0)
+                            entry = (ZipEntry) entries.nextElement();
+                        if (!entry.isDirectory()) {
+                            ++numberOfFilesCount;
+                        }
+                        if (numberOfFilesCount >= 2) {
+                            break;
+                        }
+                    }
+                    if (numberOfFilesCount >= 2) {
+                        resObject.put("error", "Please upload a single file.");
+                        return resObject;
+                    }
+                    if (entry != null) {
+                         br = new BufferedReader(new InputStreamReader(zipFile.getInputStream(entry)));
+
+                     }
                 }
+            }
 
             } catch (IOException e) {
                 System.out.println(count);
