@@ -335,16 +335,16 @@ public final class InvoicingUtilities {
     private static CreditResponseDto operationsOnEachSalesOrderRow(XSSFSheet sheet, HashMap<String, Integer> headerLocations, int row, String sheetName,Long fileInfoId) throws Exception {
         CreditResponseDto dto = null;
         String trackingNumber =  (String) getValueForRowAndColumns(sheet, headerLocations, row, "Tracking Number", "String");
-        String invoiceNumber = (String) getValueForRowAndColumns(sheet, headerLocations, row, "Invoice #", "String");
+        /*String invoiceNumber = (String) getValueForRowAndColumns(sheet, headerLocations, row, "Invoice #", "String");
         String invoiceDate =  (String) getValueForRowAndColumns(sheet, headerLocations, row, "Invoice Date", "date");
         String shipperAccount = (String) getValueForRowAndColumns(sheet, headerLocations, row, "Shipper #", "String");
-        String netBilled = (String) getValueForRowAndColumns(sheet, headerLocations, row, "Net Billed", "double");
+        String netBilled = (String) getValueForRowAndColumns(sheet, headerLocations, row, "Net Billed", "double");*/
         String reasonCredit = (String) getValueForRowAndColumns(sheet, headerLocations, row, "Reason for Credit", "String");
-        String creditRequestAmount = (String) getValueForRowAndColumns(sheet, headerLocations, row, "Credit Request Amount", "double");
+        /*String creditRequestAmount = (String) getValueForRowAndColumns(sheet, headerLocations, row, "Credit Request Amount", "double");
         String creditORdenial = (String) getValueForRowAndColumns(sheet, headerLocations, row, "Credit / Denial", "String");
-        String adjustmentAmount = (String) getValueForRowAndColumns(sheet, headerLocations, row, "Adjustment Amount", "double");
+        String adjustmentAmount = (String) getValueForRowAndColumns(sheet, headerLocations, row, "Adjustment Amount", "double");*/
         String adjustmentMessage = (String) getValueForRowAndColumns(sheet, headerLocations, row, "Adjustment Message", "String");
-        String eBillManifestID = (String) getValueForRowAndColumns(sheet, headerLocations, row, "E-Bill Manifest ID", "double");
+        //String eBillManifestID = (String) getValueForRowAndColumns(sheet, headerLocations, row, "E-Bill Manifest ID", "double");
 
         if(trackingNumber != null && reasonCredit != null && adjustmentMessage != null) {
             dto = new CreditResponseDto();
@@ -353,7 +353,7 @@ public final class InvoicingUtilities {
             dto.setNotes(reasonCredit + ";" + adjustmentMessage);
 
             if(sheetName.equalsIgnoreCase("Voids"))
-            dto.setCreditClass("Voids");
+            dto.setCreditClass("Void");
             else if(sheetName.equalsIgnoreCase("Resi Comm Adjustment"))
                 dto.setCreditClass("Resi");
             else if(sheetName.equalsIgnoreCase("Dups"))
