@@ -90,27 +90,17 @@ public class FileOperations {
             FileDefDto fileDefDto = null;
             try{
                 boolean wisoFlag=false;
-            if(!fileName.startsWith("WISO") || !fileName.startsWith("Wiso")){
+            if(fileName.startsWith("WISO") || fileName.startsWith("Wiso")){
                 wisoFlag = true;
             }
             if(!wisoFlag) {
                 if (fileName.endsWith(".csv")) {
                     br = new BufferedReader(new FileReader(savedFilepath));
                 } else if (fileName.endsWith(".zip")) {
-                    ZipFile zipFile = new ZipFile(savedFilepath);
-                    final Enumeration<? extends ZipEntry> entries = zipFile.entries();
-                    int numberOfFilesCount = 0;
-                    ZipEntry entry = null;
-                    while (entries.hasMoreElements()) {
-                        if (numberOfFilesCount == 0)
-                            entry = (ZipEntry) entries.nextElement();
-                        if (!entry.isDirectory()) {
-                            ++numberOfFilesCount;
-                        }
-                        if (numberOfFilesCount >= 2) {
-                            break;
-                        }
-                    }
+                    Object []nameAndCount = zipFileCount(savedFilepath);
+                    ZipEntry entry =(ZipEntry) nameAndCount[0];
+                    int numberOfFilesCount = ((Integer) nameAndCount[1]).intValue();
+                     ZipFile zipFile = new ZipFile(savedFilepath);
                     if (numberOfFilesCount >= 2) {
                         resObject.put("error", "Please upload a single file.");
                         return resObject;
@@ -188,36 +178,23 @@ public class FileOperations {
 
                         }
                     }
-
                     count++;
-
+                }
+                if(fileDefDto != null) {
+                    resObject.put("dtos", dtos);
                 }
 
             }else if(wisoFlag) {
                 if (fileName.endsWith(".xlsx")) {
-                    //br = new BufferedReader(new FileReader(savedFilepath));
-                   //File xlsxFile = new File(savedFilepath);
-                    resObject = InvoicingUtilities.processXlsxFile(new File(savedFilepath),fileInfoId);
+                     resObject = InvoicingUtilities.processXlsxFile(new File(savedFilepath),fileInfoId);
                 } else if (fileName.endsWith(".zip")) {
-                    ZipFile zipFile = new ZipFile(savedFilepath);
-                    final Enumeration<? extends ZipEntry> entries = zipFile.entries();
-                    int numberOfFilesCount = 0;
-                    ZipEntry entry = null;
-                    while (entries.hasMoreElements()) {
-                        if (numberOfFilesCount == 0)
-                            entry = (ZipEntry) entries.nextElement();
-                        if (!entry.isDirectory()) {
-                            ++numberOfFilesCount;
-                        }
-                        if (numberOfFilesCount >= 2) {
-                            break;
-                        }
-                    }
+                   Object []nameAndCount = zipFileCount(savedFilepath);
+                    //ZipEntry entry =(ZipEntry) nameAndCount[0];
+                    int numberOfFilesCount = ((Integer) nameAndCount[1]).intValue();
                     if (numberOfFilesCount >= 2) {
                         resObject.put("error", "Please upload a single file.");
                         return resObject;
                     }
-
                     String OUTPUT_FOLDER =savedFilepath.substring(0,savedFilepath.length()-4);
                     InvoicingUtilities.unZipIt(savedFilepath,OUTPUT_FOLDER);
                     File[] files = new File(OUTPUT_FOLDER).listFiles();
@@ -735,6 +712,27 @@ public class FileOperations {
 
         }
 
+
+    }
+    public Object[] zipFileCount(String savedFilepath)throws IOException{
+        ZipFile zipFile = new ZipFile(savedFilepath);
+        final Enumeration<? extends ZipEntry> entries = zipFile.entries();
+        int numberOfFilesCount = 0;
+        Object nameAndCount[]= new Object[2];
+        ZipEntry entry = null;
+        while (entries.hasMoreElements()) {
+            if (numberOfFilesCount == 0)
+                entry = (ZipEntry) entries.nextElement();
+            if (!entry.isDirectory()) {
+                ++numberOfFilesCount;
+            }
+            if (numberOfFilesCount >= 2) {
+                break;
+            }
+        }
+        nameAndCount[0]=entry;
+        nameAndCount[1]=numberOfFilesCount;
+        return nameAndCount;
 
     }
 }
