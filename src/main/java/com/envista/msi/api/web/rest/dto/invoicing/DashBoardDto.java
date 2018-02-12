@@ -61,6 +61,11 @@ import java.io.Serializable;
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_WEEK_END_ID", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_SCRUBHIS_INFO", type = Void.class)
+                }),
+        @NamedStoredProcedureQuery(name = "FileInfoDto.delete", procedureName = "SHP_INV_DEL_FILE_PRO",
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "P_FILE_INFO_ID", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "P_REFCUR_FILE_INFO", type = Void.class)
                 })
 })
 @SqlResultSetMappings({

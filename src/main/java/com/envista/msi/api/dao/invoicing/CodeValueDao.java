@@ -47,4 +47,13 @@ public class CodeValueDao {
         return codeValueDtos;
     }
 
+    public List<CodeValueDto> getBusinessPartners(String businessPartnersGroupName,String businessPartnersProperty_2) {
+
+        QueryParameter queryParameter = StoredProcedureParameter.with("P_CODE_GROUP_NAME", businessPartnersGroupName).and("P_PROPERTY_2", businessPartnersProperty_2);
+
+        List<CodeValueDto> codeValueDtos = persistentContext.findEntities(CodeValueDto.Config.BusinessPartners.STORED_PROCEDURE_QUERY_NAME, queryParameter);
+
+        return codeValueDtos;
+    }
+
 }

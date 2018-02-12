@@ -32,6 +32,9 @@ public class FileInfoDto {
     @Column(name = "FILE_TYPE")
     private String fileType;
 
+    @Column(name = "IS_SCRUB")
+    private int isScrub;
+
     public FileInfoDto() {
     }
 
@@ -86,4 +89,12 @@ public class FileInfoDto {
     public void setFileType(String fileType) {
         this.fileType = fileType;
     }
+    public int getIsScrub() {
+        return isScrub;
+    }
+
+    public void setIsScrub(int isScrub) {
+        this.isScrub = isScrub;
+    }
+
 }

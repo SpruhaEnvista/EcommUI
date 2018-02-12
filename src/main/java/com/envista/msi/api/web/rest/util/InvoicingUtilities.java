@@ -108,59 +108,6 @@ public final class InvoicingUtilities {
 
     }
 
-    public static JSONArray getBuissnessPartnersList() throws JSONException {
-        JSONArray jsonArray = new JSONArray();
-
-        JSONObject object = new JSONObject();
-
-        object.put("id", 10); //MSI business Partner id changed from 0 to 10,because of angularJS is treating 0 as empty in some cases
-        object.put("name", "MSI");
-        jsonArray.put(object);
-
-        object = new JSONObject();
-        object.put("id", 1);
-        object.put("name", "Lojistic");
-        jsonArray.put(object);
-
-        object = new JSONObject();
-        object.put("id", 2);
-        object.put("name", "Trans Audit");
-        jsonArray.put(object);
-
-        object = new JSONObject();
-        object.put("id", 3);
-        object.put("name", "PC Synergy");
-        jsonArray.put(object);
-
-        object = new JSONObject();
-        object.put("id", 4);
-        object.put("name", "RAF Logistics");
-        jsonArray.put(object);
-
-        object = new JSONObject();
-        object.put("id", 5);
-        object.put("name", "First One Management");
-        jsonArray.put(object);
-
-        object = new JSONObject();
-        object.put("id", 6);
-        object.put("name", "Compete Consulting");
-        jsonArray.put(object);
-
-        object = new JSONObject();
-        object.put("id", 7);
-        object.put("name", "iDrive");
-        jsonArray.put(object);
-
-        object = new JSONObject();
-        object.put("id", 8);
-        object.put("name", "Kenco Logistic Services");
-        jsonArray.put(object);
-
-
-        return jsonArray;
-
-    }
 
     public static JSONArray getFlagValueList() throws JSONException {
         JSONArray jsonArray = new JSONArray();

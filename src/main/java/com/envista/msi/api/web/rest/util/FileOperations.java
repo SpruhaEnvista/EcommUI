@@ -3,7 +3,6 @@ package com.envista.msi.api.web.rest.util;
 import com.envista.msi.api.dao.invoicing.DashBoardDao;
 import com.envista.msi.api.web.rest.dto.glom.RunReportDto;
 import com.envista.msi.api.web.rest.dto.invoicing.*;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
@@ -26,6 +25,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 /**
  * Created by KRISHNAREDDYM on 5/11/2017.
@@ -85,11 +86,37 @@ public class FileOperations {
             outputStream.close();
             String line = "";
             //String cvsSplitBy = ",";
-
-            try (BufferedReader br = new BufferedReader(new FileReader(savedFilepath))) {
+            BufferedReader br = null;
+            try{
+             if(fileName.endsWith(".csv")) {
+                br = new BufferedReader(new FileReader(savedFilepath));
+            }
+            else if(fileName.endsWith(".zip")) {
+                ZipFile zipFile = new ZipFile(savedFilepath);
+                final Enumeration<? extends ZipEntry> entries = zipFile.entries();
+                int numberOfFilesCount = 0;
+                ZipEntry entry = null;
+                while (entries.hasMoreElements()) {
+                    if(numberOfFilesCount==0)
+                     entry = (ZipEntry)entries.nextElement();
+                    if (!entry.isDirectory()) {
+                        ++numberOfFilesCount;
+                    }
+                    if(numberOfFilesCount >= 2 ){
+                        break;
+                    }
+                }
+                if(numberOfFilesCount >=2){
+                    resObject.put("error","Please upload a single file.");
+                    return resObject;
+                }
+                if(entry != null)
+                    br = new BufferedReader(new InputStreamReader(zipFile.getInputStream(entry)));
+            }
                 FileDefDto fileDefDto=null;
                 while ((line = br.readLine()) != null) {
                     if(count == 0){
+                        line=line.replaceAll("\"","");
                         if(fileType != null && fileType.equalsIgnoreCase("GSRs")){
                             line=line.replaceAll(",,,,,,,,,,,,,,,,","").replaceAll(",","*").concat("*");
 
@@ -99,14 +126,14 @@ public class FileOperations {
 
                         fileDefDto= dao.validateFileType(fileTypeId,line);
                         if(fileDefDto == null){
-                            resObject.put("error","Invalid File Format");
+                            resObject.put("error","Please upload a valid file format.");
                             break;
                         }
                     }else if (count != 0 && null != fileDefDto) {
                         /*if (StringUtils.containsIgnoreCase(line, "\"")) {
                             line = StringUtils.remove(line, "\"");
                         }*/
-                        String[] lineArray = line.split(",(?=([^\"]|\"[^\"]*\")*$)");
+                        String[] lineArray = CommonUtil.parseDemilitedLineWithMutipleDoubleQuotesInBetween(line, ',');
 
                         if(lineArray != null && lineArray.length >0){
                             CreditResponseDto dto=null;

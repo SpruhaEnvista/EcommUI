@@ -2739,22 +2739,26 @@ public class JSONUtil {
         if (weightList != null && !weightList.isEmpty()) {
             valuesArray = new JSONArray();
             seriesArray = new JSONArray();
+            int counter = 1;
             for (ActualVsBilledWeightDto weightDto : weightList) {
                 if (weightDto != null) {
                     JSONObject monthWiseObj = new JSONObject();
                     monthWiseObj.put("name", weightDto.getBillingDate());
                     monthWiseObj.put("Actual Weight", weightDto.getActualWeight() != null ? Math.round(weightDto.getActualWeight()) : 0);
                     monthWiseObj.put("Bill Weight", weightDto.getBilledWeight() != null ? Math.round(weightDto.getBilledWeight()) : 0);
+                    monthWiseObj.put("counter", counter);
                     valuesArray.put(monthWiseObj);
+                    counter++;
                 }
+
             }
 
-            String object = "{\"id\":S1,\"name\":\"Actual Weight\",\"data\": {\"field\":\"Actual Weight\"},\"type\":\"line\",\"stack\":\"s1\",\"style\":{\"lineWidth\": 2,smoothing: true, marker: {shape: \"circle\", width: 5},";
+            String object = "{\"id\":s1,\"name\":\"Actual Weight\",\"data\": {\"field\":\"Actual Weight\"},\"type\":\"line\",\"style\":{ marker: {shape: \"circle\", width: 5},";
             object = object + "lineColor: \"red\"";
             object = object + "}}";
             seriesArray.put(new JSONObject(object));
 
-            object = "{\"id\":S2,\"name\":\"Bill Weight\",\"data\": {\"field\":\"Bill Weight\"},\"type\":\"line\",\"stack\":\"s1\",\"style\":{\"lineWidth\": 2,smoothing: true,fillColor:\"lightBlue\", marker: {shape: \"circle\", width: 5},";
+            object = "{\"id\":s2,\"name\":\"Bill Weight\",\"data\": {\"field\":\"Bill Weight\"},\"type\":\"line\",\"style\":{\"lineWidth\": 2,smoothing: true, marker: {shape: \"circle\", width: 5},";
             object = object + "lineColor: \"blue\"";
             object = object + "}}";
             seriesArray.put(new JSONObject(object));
