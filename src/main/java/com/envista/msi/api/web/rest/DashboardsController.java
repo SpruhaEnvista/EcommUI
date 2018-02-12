@@ -340,6 +340,17 @@ public class DashboardsController extends DashboardBaseController {
         return new ResponseEntity<String>(nspData != null ? nspData.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/totalSpendByCarr", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getTotalSpendByCarrier(@RequestParam String mode) throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        if(filter != null && mode != null){
+            filter.setModeNames(mode);
+        }
+        JSONObject nspData = loadNetSpendJsonData(NetSpendConstant.NET_SPEND_BY_CARRIER, filter);
+        return new ResponseEntity<String>(nspData != null ? nspData.toString() : new JSONObject().toString(), HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/overallSpendByMnth", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<String> getOverallSpendByMnth() throws Exception {
         UserProfileDto user = getUserProfile();
@@ -759,6 +770,14 @@ public class DashboardsController extends DashboardBaseController {
         UserProfileDto user = getUserProfile();
         DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
         JSONObject stsCntJson = loadInvoiceStatusCountJsonData(InvoiceStatusCountConstant.INVOICE_STATUS_COUNT, filter);
+        return new ResponseEntity<String>(stsCntJson != null ? stsCntJson.toString() : new JSONObject().toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/TotalSpendByMode", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getTotalSpendByMode() throws Exception {
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        JSONObject stsCntJson = loadTotalSpendByModeJson( filter);
         return new ResponseEntity<String>(stsCntJson != null ? stsCntJson.toString() : new JSONObject().toString(), HttpStatus.OK);
     }
 
@@ -1707,6 +1726,23 @@ public class DashboardsController extends DashboardBaseController {
         }
         return invStsJson;
     }
+
+    private JSONObject loadTotalSpendByModeJson(DashboardsFilterCriteria filter) throws JSONException {
+        JSONObject invStsJson = null;
+        List<ServiceLevelDto> totalSpendByModeList = dashboardsService.getTotalSpendByMode(filter,false);
+        List<CommonValuesForChartDto> chartValueList = null;
+        if(totalSpendByModeList != null && totalSpendByModeList.size() > 0){
+            chartValueList = new ArrayList<CommonValuesForChartDto>();
+            for(ServiceLevelDto totalSpendByMode : totalSpendByModeList){
+                if(totalSpendByMode != null){
+                    chartValueList.add(new CommonValuesForChartDto(totalSpendByMode,true));
+                }
+            }
+            invStsJson = JSONUtil.prepareCommonJsonForChart(chartValueList, true);
+        }
+        return invStsJson;
+    }
+
 
     private JSONObject loadNetSpendJsonData(NetSpendConstant netSpendType, DashboardsFilterCriteria filter) throws Exception {
         JSONObject netSpendJson = null;
@@ -4047,6 +4083,21 @@ public class DashboardsController extends DashboardBaseController {
         return new ResponseEntity<String>(nspData != null ? nspData.toString() : emptyJson.toString(), HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/modeAnalysis", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> getModeLevAnalysis() throws Exception {
+        JSONObject nspData = null;
+
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filter = loadAppliedFilters(user.getUserId());
+        List<ServiceLevelDto> serviceLevelList = dashboardsService.getModeLevAnalysis(filter, false);
+        if(serviceLevelList != null && !serviceLevelList.isEmpty()){
+            nspData = JSONUtil.prepareModeSpendAnalysisJson(serviceLevelList);
+        }
+        JSONObject emptyJson =  new JSONObject();
+        emptyJson.put("values", new JSONArray());
+        return new ResponseEntity<String>(nspData != null ? nspData.toString() : emptyJson.toString(), HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/exportServiceLevAnalysis", method = {RequestMethod.GET}, produces = "application/text")
     public @ResponseBody void exportServiceLevAnalysis(@RequestParam(required = false) String invoiceDate, @RequestParam(required = false) String dashletteName, @RequestParam(required = false) String carrierId,
                                                       @RequestParam(required = false) String mode, @RequestParam(required = false) String carscoretype, @RequestParam(required = false) String service,
@@ -4072,6 +4123,43 @@ public class DashboardsController extends DashboardBaseController {
 
 
         workbook = dashboardsService.getExportServiceLevAnalysis(dataJSONArray,fileName);
+
+        response.setContentType("application/text");
+        response.setHeader("Content-Disposition", "attachment; filename="+fileName+".xlsx");
+
+        if (workbook != null) {
+            workbook.write(response.getOutputStream());
+            workbook.close();
+        }
+
+    }
+
+
+    @RequestMapping(value = "/exportModeAnalysis", method = {RequestMethod.GET}, produces = "application/text")
+    public @ResponseBody void exportModeLevAnalysis(@RequestParam(required = false) String invoiceDate, @RequestParam(required = false) String dashletteName, @RequestParam(required = false) String carrierId,
+                                                       @RequestParam(required = false) String mode, @RequestParam(required = false) String carscoretype, @RequestParam(required = false) String service,
+                                                       @RequestParam(required = false, defaultValue = "0") Integer offset, @RequestParam(required = false, defaultValue = "1000") Integer limit,
+                                                       @RequestParam(required = false, defaultValue = "1000") Integer totalRecordCount,
+                                                       @RequestParam(required = false) String filter, HttpServletResponse response) throws Exception {
+
+        JSONObject nspData = null;
+        UserProfileDto user = getUserProfile();
+        DashboardsFilterCriteria filterCriteria = loadAppliedFilters(user.getUserId());
+        List<ServiceLevelDto> serviceLevelList = dashboardsService.getModeLevAnalysis(filterCriteria, false);
+        if(serviceLevelList != null && !serviceLevelList.isEmpty()){
+            nspData = JSONUtil.prepareModeSpendAnalysisJson(serviceLevelList);
+        }
+
+        Workbook workbook = null;
+
+        JSONArray dataJSONArray = new JSONArray();
+        String fileName="ModeLevelAnalysis";
+
+        if(nspData!=null)
+            dataJSONArray = (JSONArray) nspData.get("values");
+
+
+        workbook = dashboardsService.getExportModeLevAnalysis(dataJSONArray,fileName);
 
         response.setContentType("application/text");
         response.setHeader("Content-Disposition", "attachment; filename="+fileName+".xlsx");
