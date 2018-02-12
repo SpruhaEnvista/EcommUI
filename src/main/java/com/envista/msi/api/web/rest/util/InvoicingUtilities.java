@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.*;
 import java.text.ParseException;
@@ -24,6 +25,10 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import java.io.FileOutputStream;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.io.FileInputStream;
 
 /**
@@ -479,5 +484,54 @@ public final class InvoicingUtilities {
             return true;
         }
         return false;
+    }
+
+    public static void unZipIt(String zipFile, String OUTPUT_FOLDER) throws IOException{
+
+        byte[] buffer = new byte[1024];
+
+        try{
+
+            //create output directory is not exists
+            File folder = new File(OUTPUT_FOLDER);
+            if(!folder.exists()){
+                folder.mkdir();
+            }
+
+            //get the zip file content
+            ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile));
+            //get the zipped file list entry
+            ZipEntry ze = zis.getNextEntry();
+
+            while(ze!=null){
+
+                String fileName = ze.getName();
+                File newFile = new File(OUTPUT_FOLDER + File.separator + fileName);
+
+               // System.out.println("file unzip : "+ newFile.getAbsoluteFile());
+
+                //create all non exists folders
+                //else you will hit FileNotFoundException for compressed folder
+                new File(newFile.getParent()).mkdirs();
+
+                FileOutputStream fos = new FileOutputStream(newFile);
+
+                int len;
+                while ((len = zis.read(buffer)) > 0) {
+                    fos.write(buffer, 0, len);
+                }
+
+                fos.close();
+                ze = zis.getNextEntry();
+            }
+
+            zis.closeEntry();
+            zis.close();
+
+           // System.out.println("Done");
+
+        }catch(IOException ex){
+            ex.printStackTrace();
+        }
     }
 }

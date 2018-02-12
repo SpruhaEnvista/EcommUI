@@ -217,10 +217,20 @@ public class FileOperations {
                         resObject.put("error", "Please upload a single file.");
                         return resObject;
                     }
-                    if (entry != null) {
-                         br = new BufferedReader(new InputStreamReader(zipFile.getInputStream(entry)));
 
-                     }
+                    String OUTPUT_FOLDER =savedFilepath.substring(0,savedFilepath.length()-4);
+                    InvoicingUtilities.unZipIt(savedFilepath,OUTPUT_FOLDER);
+                    File[] files = new File(OUTPUT_FOLDER).listFiles();
+                    for (File fi : files) {
+                        if (fi.isFile()) {
+                           // System.out.println  ("---->"+fi.getName());
+                            savedFilepath = OUTPUT_FOLDER+"/"+fi.getName();
+                            resObject = InvoicingUtilities.processXlsxFile(new File(savedFilepath),fileInfoId);
+                            break;
+                        }
+                    }
+
+
                 }
             }
 
