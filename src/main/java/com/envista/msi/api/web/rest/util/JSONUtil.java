@@ -3798,9 +3798,6 @@ public class JSONUtil {
                     statusJson.put("Weight/Shipment", commaSeperatedDecimalFormat1.format((NonothersTotalWeightDbl+othersTotalWeightDbl) / (NonothersNoOfShipmentsDbl+othersNoOfShipmentsDbl) ));
                     statusJson.put("Cost/Weight", commaSeperatedDecimalFormat2.format( (NonothersSpendDbl+ othersSpendDbl) / (NonothersTotalWeightDbl+othersTotalWeightDbl) ));
 
-                    /*statusJson.put("Cost/Shipment", commaSeperatedDecimalFormat2.format(NonothersCostPerShpmntDbl+othersCostPerShpmntDbl));
-                    statusJson.put("Weight/Shipment", commaSeperatedDecimalFormat1.format(NonothersWeightPerShmntDbl+othersWeightPerShmntDbl));
-                    statusJson.put("Cost/Weight", commaSeperatedDecimalFormat2.format(NonothersCostWeightDbl+othersCostWeightDbl));*/
 
                     returnArray.put(statusJson);
                     statusJson = null;
@@ -3953,10 +3950,6 @@ public class JSONUtil {
                     statusJson.put("Cost/Shipment", commaSeperatedDecimalFormat2.format((NonothersSpendDbl+ othersSpendDbl) / (NonothersNoOfShipmentsDbl+othersNoOfShipmentsDbl) ));
                     statusJson.put("Weight/Shipment", commaSeperatedDecimalFormat1.format((NonothersTotalWeightDbl+othersTotalWeightDbl) / (NonothersNoOfShipmentsDbl+othersNoOfShipmentsDbl) ));
                     statusJson.put("Cost/Weight", commaSeperatedDecimalFormat2.format( (NonothersSpendDbl+ othersSpendDbl) / (NonothersTotalWeightDbl+othersTotalWeightDbl) ));
-
-                    /*statusJson.put("Cost/Shipment", commaSeperatedDecimalFormat2.format(NonothersCostPerShpmntDbl+othersCostPerShpmntDbl));
-                    statusJson.put("Weight/Shipment", commaSeperatedDecimalFormat1.format(NonothersWeightPerShmntDbl+othersWeightPerShmntDbl));
-                    statusJson.put("Cost/Weight", commaSeperatedDecimalFormat2.format(NonothersCostWeightDbl+othersCostWeightDbl));*/
 
                     returnArray.put(statusJson);
                     statusJson = null;
