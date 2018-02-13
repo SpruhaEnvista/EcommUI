@@ -105,8 +105,12 @@ public class FileOperations {
                         resObject.put("error", "Please upload a single file.");
                         return resObject;
                     }
-                    if (entry != null)
+                    if (entry != null && entry.getName().endsWith(".csv"))
                         br = new BufferedReader(new InputStreamReader(zipFile.getInputStream(entry)));
+                    else{
+                        resObject.put("error", "Please upload a valid file format.");
+                        return resObject;
+                    }
                 }
 
                 while ((line = br.readLine()) != null) {
@@ -202,12 +206,15 @@ public class FileOperations {
                         if (fi.isFile()) {
                            // System.out.println  ("---->"+fi.getName());
                             savedFilepath = OUTPUT_FOLDER+"/"+fi.getName();
-                            resObject = InvoicingUtilities.processXlsxFile(new File(savedFilepath),fileInfoId,fileTypeId,dao);
-                            break;
+                            if(savedFilepath.endsWith(".xlsx")) {
+                                resObject = InvoicingUtilities.processXlsxFile(new File(savedFilepath), fileInfoId, fileTypeId, dao);
+                                break;
+                            }else{
+                                resObject.put("error", "Please upload a valid file format.");
+                                return resObject;
+                            }
                         }
                     }
-
-
                 }
             }
 

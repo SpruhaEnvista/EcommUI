@@ -453,7 +453,7 @@ public final class InvoicingUtilities {
             LinkedHashMap<String, Integer> headerLocations = new LinkedHashMap<String, Integer>();
 
             headerLocations.put("Tracking Number", -1);
-            headerLocations.put("Invoice #", -1);
+           /* headerLocations.put("Invoice #", -1);
             headerLocations.put("Invoice Date", -1);
             headerLocations.put("Shipper #", -1);
             headerLocations.put("Net Billed", -1);
@@ -462,7 +462,7 @@ public final class InvoicingUtilities {
             headerLocations.put("Credit / Denial", -1);
             headerLocations.put("Adjustment Amount", -1);
             headerLocations.put("Adjustment Message", -1);
-            headerLocations.put("E-Bill Manifest ID", -1);
+            headerLocations.put("E-Bill Manifest ID", -1);*/
 
             int row = -1;// rowAndColumn[0];
             headerLocations.put("STARTFROM", row + 1);
