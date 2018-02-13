@@ -314,14 +314,14 @@ public final class InvoicingUtilities {
                             for (String k : keys) {
                                 if(!"STARTFROM".equalsIgnoreCase(k)) {
                                     line = line.concat(k).concat("*");
-                                    System.out.println(k + " -- " + headerLocations.get(k));
+                                   // System.out.println(k + " -- " + headerLocations.get(k));
                                 }
                             }
                         }
                         fileDefDto = dao.validateFileType(fileTypeId, line);
                         if (fileDefDto == null) {
                             resObject.put("error", "Please upload a valid file format.");
-                            break;
+                            return resObject;
                         }
 
                         for (int row = headerLocations.get("STARTFROM") + 1; row < sheet.getLastRowNum(); row++) {
@@ -452,8 +452,8 @@ public final class InvoicingUtilities {
 
             LinkedHashMap<String, Integer> headerLocations = new LinkedHashMap<String, Integer>();
 
-            headerLocations.put("Tracking Number", -1);
-           /* headerLocations.put("Invoice #", -1);
+           /* headerLocations.put("Tracking Number", -1);
+            headerLocations.put("Invoice #", -1);
             headerLocations.put("Invoice Date", -1);
             headerLocations.put("Shipper #", -1);
             headerLocations.put("Net Billed", -1);
