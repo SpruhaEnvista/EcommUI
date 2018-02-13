@@ -1,8 +1,8 @@
 package com.envista.msi.api.web.rest.util;
 
-import com.envista.msi.api.web.rest.dto.glom.DataCriteriaDto;
-import com.envista.msi.api.web.rest.dto.glom.GlmGenericTypeBean;
+import com.envista.msi.api.dao.invoicing.DashBoardDao;
 import com.envista.msi.api.web.rest.dto.invoicing.CreditResponseDto;
+import com.envista.msi.api.web.rest.dto.invoicing.FileDefDto;
 import com.envista.msi.api.web.rest.dto.invoicing.UvVoiceUpdateBean;
 import com.envista.msi.api.web.rest.dto.invoicing.VoiceDto;
 import org.apache.commons.lang.StringUtils;
@@ -285,14 +285,14 @@ public final class InvoicingUtilities {
 
         return beans;
     }
-    public static Map<String,Object> processXlsxFile(File file,Long fileInfoId) throws Exception{
+    public static Map<String,Object> processXlsxFile(File file,Long fileInfoId,Long fileTypeId,DashBoardDao dao) throws Exception{
         List<CreditResponseDto> dtos = new ArrayList<CreditResponseDto>();
         Map<String,Object> resObject=new HashMap<String,Object>();
         FileInputStream fis = new FileInputStream(file);
         XSSFWorkbook w = new XSSFWorkbook(fis);
         int numberOfsheets=0;
         CreditResponseDto dto = null;
-        XSSFSheet	sheet,ResiCommAdjustmentSheet,dupsSheet;
+        XSSFSheet	sheet;
 
         try {
             int totalRowsProcessed = 0;
@@ -300,12 +300,30 @@ public final class InvoicingUtilities {
             LinkedHashMap<String, Integer> headerLocations;
 
              numberOfsheets = w.getNumberOfSheets();
-            if(numberOfsheets>0)
-                for (int i=0;i< numberOfsheets;i++) {
+            if(numberOfsheets>0) {
+                FileDefDto fileDefDto = null;
+                String line="";
+                for (int i = 0; i < numberOfsheets; i++) {
                     sheet = w.getSheetAt(i);
-                     if (sheet.getSheetName().equalsIgnoreCase("Voids") || sheet.getSheetName().equalsIgnoreCase("Rate Errors") || sheet.getSheetName().equalsIgnoreCase("Resi Comm Adjustment")
-                            || sheet.getSheetName().equalsIgnoreCase("Dups")){
+                    if (sheet.getSheetName().equalsIgnoreCase("Voids") || sheet.getSheetName().equalsIgnoreCase("Rate Errors") || sheet.getSheetName().equalsIgnoreCase("Resi Comm Adjustment")
+                            || sheet.getSheetName().equalsIgnoreCase("Dups")) {
                         headerLocations = returnHeaderLocations(sheet);
+                        if(headerLocations != null && headerLocations.size()>0) {
+                            Set<String> keys = headerLocations.keySet();
+                            line="";
+                            for (String k : keys) {
+                                if(!"STARTFROM".equalsIgnoreCase(k)) {
+                                    line = line.concat(k).concat("*");
+                                    System.out.println(k + " -- " + headerLocations.get(k));
+                                }
+                            }
+                        }
+                        fileDefDto = dao.validateFileType(fileTypeId, line);
+                        if (fileDefDto == null) {
+                            resObject.put("error", "Please upload a valid file format.");
+                            break;
+                        }
+
                         for (int row = headerLocations.get("STARTFROM") + 1; row < sheet.getLastRowNum(); row++) {
 
                             if (totalRowsProcessed % 100 == 0) {
@@ -315,8 +333,8 @@ public final class InvoicingUtilities {
                             totalRowsProcessed++;
                             try {
                                 dto = operationsOnEachSalesOrderRow(sheet, headerLocations, row, sheet.getSheetName(), fileInfoId);
-                                if(dto!= null)
-                                dtos.add(dto);
+                                if (dto != null)
+                                    dtos.add(dto);
                                 totalRowsUpdated++;
                             } catch (Exception e) {
                                 if (e.getMessage() != null
@@ -327,10 +345,13 @@ public final class InvoicingUtilities {
                                 e.printStackTrace();
                             }
                         }
-                }
+                    }
 
                 }
-            resObject.put("dtos",dtos);
+                if(fileDefDto != null) {
+                    resObject.put("dtos", dtos);
+                }
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -384,7 +405,7 @@ public final class InvoicingUtilities {
         if (column > -1) {
             if ("String".equalsIgnoreCase(type)) {
 
-                XSSFCell cell =  row.getCell(column) ;//sheet.get.getCell(column, row);
+                XSSFCell cell =  row.getCell(column) ;
                if(cell != null)
                   value = cell.getStringCellValue().replaceAll("[^\\p{Print}]", " ").replaceAll("\\s+", " ").trim();
                 if(value != null)
@@ -413,7 +434,6 @@ public final class InvoicingUtilities {
              }
 			else if ("date".equalsIgnoreCase(type)) {
                 XSSFCell cell =  row.getCell(column) ;
-                //Cell cell = sheet.getCell(column, row);
                 Date date = cell.getDateCellValue();
                 DataFormatter fmt = new DataFormatter();
                  String valueAsSeenInExcel = fmt.formatCellValue(cell);
@@ -466,10 +486,8 @@ public final class InvoicingUtilities {
                             headerLocations.put(headerContents, i);
                         } else {
                             headerLocations.put(headerContents + "-" + i, i);
-                            // throw new Exception(getLogStatement(-1, sheet.getName(), "The column : " + headerContents + " is defined more than once.", true));
                         }
                     } else {
-                        // Here, we have to identify the special charges and their headings.
                         headerLocations.put(headerContents, i);
                     }
                 }
@@ -514,9 +532,7 @@ public final class InvoicingUtilities {
             }
             zis.closeEntry();
             zis.close();
-
            // System.out.println("Done");
-
         }catch(IOException ex){
             ex.printStackTrace();
         }

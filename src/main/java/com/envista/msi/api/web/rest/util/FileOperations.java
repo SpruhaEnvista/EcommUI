@@ -186,7 +186,7 @@ public class FileOperations {
 
             }else if(wisoFlag) {
                 if (fileName.endsWith(".xlsx")) {
-                     resObject = InvoicingUtilities.processXlsxFile(new File(savedFilepath),fileInfoId);
+                     resObject = InvoicingUtilities.processXlsxFile(new File(savedFilepath),fileInfoId,fileTypeId,dao);
                 } else if (fileName.endsWith(".zip")) {
                    Object []nameAndCount = zipFileCount(savedFilepath);
                     //ZipEntry entry =(ZipEntry) nameAndCount[0];
@@ -202,7 +202,7 @@ public class FileOperations {
                         if (fi.isFile()) {
                            // System.out.println  ("---->"+fi.getName());
                             savedFilepath = OUTPUT_FOLDER+"/"+fi.getName();
-                            resObject = InvoicingUtilities.processXlsxFile(new File(savedFilepath),fileInfoId);
+                            resObject = InvoicingUtilities.processXlsxFile(new File(savedFilepath),fileInfoId,fileTypeId,dao);
                             break;
                         }
                     }
