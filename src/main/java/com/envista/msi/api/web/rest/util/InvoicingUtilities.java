@@ -401,8 +401,7 @@ public final class InvoicingUtilities {
                 try {
                     netChargesCell =  cell.getNumericCellValue();
                 } catch (Exception ex) {
-                    //bw.newLine();
-                    // bw.write(getLogStatement(row, sheetName, "The '" + columnHeader + "' column value is not a number.", true));
+                    ex.printStackTrace();
                     return null;
                 }
 
@@ -423,9 +422,7 @@ public final class InvoicingUtilities {
                 else
                     return null;
              } else {
-                //bw.newLine();
-               // bw.write("Type :  " + type + " not supported.");
-                return null;
+                 return null;
             }
         }
 
@@ -435,17 +432,17 @@ public final class InvoicingUtilities {
 
             LinkedHashMap<String, Integer> headerLocations = new LinkedHashMap<String, Integer>();
 
-            headerLocations.put("Tracking Number", 0);
-            headerLocations.put("Invoice #", 1);
-            headerLocations.put("Invoice Date", 2);
-            headerLocations.put("Shipper #", 3);
-            headerLocations.put("Net Billed", 4);
-            headerLocations.put("Reason for Credit", 5);
-            headerLocations.put("Credit Request Amount", 6);
-            headerLocations.put("Credit / Denial", 7);
-            headerLocations.put("Adjustment Amount", 8);
-            headerLocations.put("Adjustment Message", 9);
-            headerLocations.put("E-Bill Manifest ID", 10);
+            headerLocations.put("Tracking Number", -1);
+            headerLocations.put("Invoice #", -1);
+            headerLocations.put("Invoice Date", -1);
+            headerLocations.put("Shipper #", -1);
+            headerLocations.put("Net Billed", -1);
+            headerLocations.put("Reason for Credit", -1);
+            headerLocations.put("Credit Request Amount", -1);
+            headerLocations.put("Credit / Denial", -1);
+            headerLocations.put("Adjustment Amount", -1);
+            headerLocations.put("Adjustment Message", -1);
+            headerLocations.put("E-Bill Manifest ID", -1);
 
             int row = -1;// rowAndColumn[0];
             headerLocations.put("STARTFROM", row + 1);
@@ -455,6 +452,7 @@ public final class InvoicingUtilities {
                 String headerContents;
                 try {
                     XSSFRow row1 = sheet.getRow(row + 1);
+                    headerCell = row1.getCell(i);
                     headerContents = headerCell.getStringCellValue().replaceAll("[^\\p{Print}]", " ").replaceAll("\\s+", " ")
                             .trim();
                 } catch (Exception e) {
@@ -492,30 +490,20 @@ public final class InvoicingUtilities {
 
         try{
 
-            //create output directory is not exists
             File folder = new File(OUTPUT_FOLDER);
             if(!folder.exists()){
                 folder.mkdir();
             }
-
-            //get the zip file content
             ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile));
-            //get the zipped file list entry
             ZipEntry ze = zis.getNextEntry();
 
             while(ze!=null){
 
                 String fileName = ze.getName();
                 File newFile = new File(OUTPUT_FOLDER + File.separator + fileName);
-
                // System.out.println("file unzip : "+ newFile.getAbsoluteFile());
-
-                //create all non exists folders
-                //else you will hit FileNotFoundException for compressed folder
                 new File(newFile.getParent()).mkdirs();
-
                 FileOutputStream fos = new FileOutputStream(newFile);
-
                 int len;
                 while ((len = zis.read(buffer)) > 0) {
                     fos.write(buffer, 0, len);
@@ -524,7 +512,6 @@ public final class InvoicingUtilities {
                 fos.close();
                 ze = zis.getNextEntry();
             }
-
             zis.closeEntry();
             zis.close();
 
