@@ -67,7 +67,8 @@ import java.io.Serializable;
                                 @ColumnResult(name = "assign_operator", type = String.class),
                                 @ColumnResult(name = "value", type = String.class),
                                 @ColumnResult(name = "and_or_operator", type =  String.class),
-                                @ColumnResult(name = "selected", type = Boolean.class)
+                                @ColumnResult(name = "selected", type = Boolean.class),
+                                @ColumnResult(name= "saved_criteria_id", type= Long.class )
                         })
         }),
         @SqlResultSetMapping(name = "InclExclSortCol", classes = {
@@ -201,6 +202,9 @@ public class ReportColumnDto implements Serializable {
     @Column(name="selected")
     private Boolean selected;
 
+    @Column(name="saved_criteria_id")
+    private Long savedCriteriaId;
+
     @Column(name="is_sub_total")
     private Boolean subTotal;
 
@@ -231,7 +235,7 @@ public class ReportColumnDto implements Serializable {
     }
 
     public ReportColumnDto(Integer sno, Long rptDetailsId, Long rptId, String columnName, String columnDataType, Boolean sortColumn, Boolean selectCriteria, String selectCluse, String query, String carrierId, Long sequence,
-                           Boolean excludable, Boolean inner, String specialTypeOptions, Boolean defaultExcluded, String aggregateType, String format, String showWhenNoInclColmns, String assignOperator, String value, String andOrOperator, Boolean selected) {
+                           Boolean excludable, Boolean inner, String specialTypeOptions, Boolean defaultExcluded, String aggregateType, String format, String showWhenNoInclColmns, String assignOperator, String value, String andOrOperator, Boolean selected, Long savedCriteriaId) {
         this.rptDetailsId = rptDetailsId;
         this.rptId = rptId;
         this.columnName = columnName;
@@ -254,6 +258,7 @@ public class ReportColumnDto implements Serializable {
         this.andOrOperator = andOrOperator;
         this.selected = selected;
         this.sno=sno;
+        this.savedCriteriaId = savedCriteriaId;
     }
 
     public ReportColumnDto(Integer sno, Long rptDetailsId, Long rptId, String columnName, String columnDataType, Boolean sortColumn, Boolean selectCriteria, String selectCluse, String query, String carrierId, Long sequence,
@@ -447,4 +452,12 @@ public class ReportColumnDto implements Serializable {
     public String getCreateUser() { return createUser; }
 
     public void setCreateUser(String createUser) { this.createUser = createUser; }
+
+    public Long getSavedCriteriaId() {
+        return savedCriteriaId;
+    }
+
+    public void setSavedCriteriaId(Long savedCriteriaId) {
+        this.savedCriteriaId = savedCriteriaId;
+    }
 }
