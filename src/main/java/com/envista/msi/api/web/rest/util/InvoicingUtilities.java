@@ -305,7 +305,10 @@ public final class InvoicingUtilities {
                 String line="";
                 for (int i = 0; i < numberOfsheets; i++) {
                     sheet = w.getSheetAt(i);
-                    if (sheet.getSheetName().equalsIgnoreCase("Voids") || sheet.getSheetName().equalsIgnoreCase("Rate Errors") || sheet.getSheetName().equalsIgnoreCase("Resi Comm Adjustment")
+                    if (sheet.getSheetName().equalsIgnoreCase("Voids")
+                            || sheet.getSheetName().equalsIgnoreCase("Rate Errors")
+                            || sheet.getSheetName().equalsIgnoreCase("Accessorial Errors")
+                            || sheet.getSheetName().equalsIgnoreCase("Resi Comm Adjustment")
                             || sheet.getSheetName().equalsIgnoreCase("Dups")) {
                         headerLocations = returnHeaderLocations(sheet);
                         if(headerLocations != null && headerLocations.size()>0) {
@@ -372,7 +375,7 @@ public final class InvoicingUtilities {
         String adjustmentMessage = (String) getValueForRowAndColumns(sheet, headerLocations, row, "Adjustment Message", "String");
         //String eBillManifestID = (String) getValueForRowAndColumns(sheet, headerLocations, row, "E-Bill Manifest ID", "double");
 
-        if(trackingNumber != null && reasonCredit != null && adjustmentMessage != null) {
+        if(trackingNumber != null && trackingNumber.trim().length()>0 && reasonCredit != null && adjustmentMessage != null) {
             dto = new CreditResponseDto();
             dto.setFileInfoId(fileInfoId);
             dto.setTrackingNumber(trackingNumber);
