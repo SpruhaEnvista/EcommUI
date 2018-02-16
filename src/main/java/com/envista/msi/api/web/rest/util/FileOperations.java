@@ -190,24 +190,22 @@ public class FileOperations {
 
             }else if(wisoFlag) {
                 if (fileName.endsWith(".xlsx")) {
-                     resObject = InvoicingUtilities.processXlsxFile(new File(savedFilepath),fileInfoId,fileTypeId,dao);
+                     resObject = InvoicingUtilities.processXLSXFile(new File(savedFilepath),fileInfoId,fileTypeId,dao);
                 } else if (fileName.endsWith(".zip")) {
                    Object []nameAndCount = zipFileCount(savedFilepath);
-                    //ZipEntry entry =(ZipEntry) nameAndCount[0];
-                    int numberOfFilesCount = ((Integer) nameAndCount[1]).intValue();
+                     int numberOfFilesCount = ((Integer) nameAndCount[1]).intValue();
                     if (numberOfFilesCount >= 2) {
                         resObject.put("error", "Please upload a single file.");
                         return resObject;
                     }
                     String OUTPUT_FOLDER =savedFilepath.substring(0,savedFilepath.length()-4);
-                    InvoicingUtilities.unZipIt(savedFilepath,OUTPUT_FOLDER);
+                    InvoicingUtilities.unZip(savedFilepath,OUTPUT_FOLDER);
                     File[] files = new File(OUTPUT_FOLDER).listFiles();
                     for (File fi : files) {
                         if (fi.isFile()) {
-                           // System.out.println  ("---->"+fi.getName());
-                            savedFilepath = OUTPUT_FOLDER+"/"+fi.getName();
+                             savedFilepath = OUTPUT_FOLDER+"/"+fi.getName();
                             if(savedFilepath.endsWith(".xlsx")) {
-                                resObject = InvoicingUtilities.processXlsxFile(new File(savedFilepath), fileInfoId, fileTypeId, dao);
+                                resObject = InvoicingUtilities.processXLSXFile(new File(savedFilepath), fileInfoId, fileTypeId, dao);
                                 break;
                             }else{
                                 resObject.put("error", "Please upload a valid file format.");

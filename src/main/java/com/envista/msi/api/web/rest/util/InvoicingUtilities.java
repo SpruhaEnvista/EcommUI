@@ -285,12 +285,12 @@ public final class InvoicingUtilities {
 
         return beans;
     }
-    public static Map<String,Object> processXlsxFile(File file,Long fileInfoId,Long fileTypeId,DashBoardDao dao) throws Exception{
+    public static Map<String,Object> processXLSXFile(File file,Long fileInfoId,Long fileTypeId,DashBoardDao dao) throws Exception{
         List<CreditResponseDto> dtos = new ArrayList<CreditResponseDto>();
         Map<String,Object> resObject=new HashMap<String,Object>();
         FileInputStream fis = new FileInputStream(file);
         XSSFWorkbook w = new XSSFWorkbook(fis);
-        int numberOfsheets=0;
+        int numberOfSheets=0;
         CreditResponseDto dto = null;
         XSSFSheet	sheet;
 
@@ -299,11 +299,11 @@ public final class InvoicingUtilities {
             int totalRowsUpdated = 0;
             LinkedHashMap<String, Integer> headerLocations;
 
-             numberOfsheets = w.getNumberOfSheets();
-            if(numberOfsheets>0) {
+            numberOfSheets = w.getNumberOfSheets();
+            if(numberOfSheets>0) {
                 FileDefDto fileDefDto = null;
                 String line="";
-                for (int i = 0; i < numberOfsheets; i++) {
+                for (int i = 0; i < numberOfSheets; i++) {
                     sheet = w.getSheetAt(i);
                     if (sheet.getSheetName().equalsIgnoreCase("Voids")
                             || sheet.getSheetName().equalsIgnoreCase("Rate Errors")
@@ -317,8 +317,7 @@ public final class InvoicingUtilities {
                             for (String k : keys) {
                                 if(!"STARTFROM".equalsIgnoreCase(k)) {
                                     line = line.concat(k).concat("*");
-                                   // System.out.println(k + " -- " + headerLocations.get(k));
-                                }
+                                 }
                             }
                         }
                         fileDefDto = dao.validateFileType(fileTypeId, line);
@@ -330,12 +329,11 @@ public final class InvoicingUtilities {
                         for (int row = headerLocations.get("STARTFROM") + 1; row < sheet.getLastRowNum(); row++) {
 
                             if (totalRowsProcessed % 100 == 0) {
-                                // bw.newLine();
-                                // bw.write("Breakpoint " + totalRowsProcessed);
+                                 // System.out.println("Breakpoint " + totalRowsProcessed);
                             }
                             totalRowsProcessed++;
                             try {
-                                dto = operationsOnEachSalesOrderRow(sheet, headerLocations, row, sheet.getSheetName(), fileInfoId);
+                                dto = processEachRow(sheet, headerLocations, row, sheet.getSheetName(), fileInfoId);
                                 if (dto != null)
                                     dtos.add(dto);
                                 totalRowsUpdated++;
@@ -361,19 +359,19 @@ public final class InvoicingUtilities {
 
         return resObject;
     }
-    private static CreditResponseDto operationsOnEachSalesOrderRow(XSSFSheet sheet, HashMap<String, Integer> headerLocations, int row, String sheetName,Long fileInfoId) throws Exception {
+    private static CreditResponseDto processEachRow(XSSFSheet sheet, HashMap<String, Integer> headerLocations, int row, String sheetName,Long fileInfoId) throws Exception {
         CreditResponseDto dto = null;
-        String trackingNumber =  (String) getValueForRowAndColumns(sheet, headerLocations, row, "Tracking Number", "String");
-        /*String invoiceNumber = (String) getValueForRowAndColumns(sheet, headerLocations, row, "Invoice #", "String");
-        String invoiceDate =  (String) getValueForRowAndColumns(sheet, headerLocations, row, "Invoice Date", "date");
-        String shipperAccount = (String) getValueForRowAndColumns(sheet, headerLocations, row, "Shipper #", "String");
-        String netBilled = (String) getValueForRowAndColumns(sheet, headerLocations, row, "Net Billed", "double");*/
-        String reasonCredit = (String) getValueForRowAndColumns(sheet, headerLocations, row, "Reason for Credit", "String");
-        /*String creditRequestAmount = (String) getValueForRowAndColumns(sheet, headerLocations, row, "Credit Request Amount", "double");
-        String creditORdenial = (String) getValueForRowAndColumns(sheet, headerLocations, row, "Credit / Denial", "String");
-        String adjustmentAmount = (String) getValueForRowAndColumns(sheet, headerLocations, row, "Adjustment Amount", "double");*/
-        String adjustmentMessage = (String) getValueForRowAndColumns(sheet, headerLocations, row, "Adjustment Message", "String");
-        //String eBillManifestID = (String) getValueForRowAndColumns(sheet, headerLocations, row, "E-Bill Manifest ID", "double");
+        String trackingNumber =  (String) getValueFromColumn(sheet, headerLocations, row, "Tracking Number", "String");
+        /*String invoiceNumber = (String) getValueFromColumn(sheet, headerLocations, row, "Invoice #", "String");
+        String invoiceDate =  (String) getValueFromColumn(sheet, headerLocations, row, "Invoice Date", "date");
+        String shipperAccount = (String) getValueFromColumn(sheet, headerLocations, row, "Shipper #", "String");
+        String netBilled = (String) getValueFromColumn(sheet, headerLocations, row, "Net Billed", "double");*/
+        String reasonCredit = (String) getValueFromColumn(sheet, headerLocations, row, "Reason for Credit", "String");
+        /*String creditRequestAmount = (String) getValueFromColumn(sheet, headerLocations, row, "Credit Request Amount", "double");
+        String creditORdenial = (String) getValueFromColumn(sheet, headerLocations, row, "Credit / Denial", "String");
+        String adjustmentAmount = (String) getValueFromColumn(sheet, headerLocations, row, "Adjustment Amount", "double");*/
+        String adjustmentMessage = (String) getValueFromColumn(sheet, headerLocations, row, "Adjustment Message", "String");
+        //String eBillManifestID = (String) getValueFromColumn(sheet, headerLocations, row, "E-Bill Manifest ID", "double");
 
         if(trackingNumber != null && trackingNumber.trim().length()>0 && reasonCredit != null && adjustmentMessage != null) {
             dto = new CreditResponseDto();
@@ -396,7 +394,7 @@ public final class InvoicingUtilities {
 
      }
 
-    private static Object getValueForRowAndColumns(XSSFSheet sheet, HashMap<String, Integer> headerLocations, int rowNum,
+    private static Object getValueFromColumn(XSSFSheet sheet, HashMap<String, Integer> headerLocations, int rowNum,
                                             String columnHeader, String type) throws  ParseException {
         if (type == null || type.isEmpty()) {
             return null;
@@ -428,9 +426,7 @@ public final class InvoicingUtilities {
                     ex.printStackTrace();
                     return null;
                 }
-
-                //double netCharges = Math.round(netChargesCell * 100) / 100.0;
-                if(value != null)
+                 if(value != null)
                     return value;
                 else
                     return null;
@@ -505,10 +501,8 @@ public final class InvoicingUtilities {
         return false;
     }
 
-    public static void unZipIt(String zipFile, String OUTPUT_FOLDER) throws IOException{
-
+    public static void unZip(String zipFile, String OUTPUT_FOLDER) throws IOException{
         byte[] buffer = new byte[1024];
-
         try{
 
             File folder = new File(OUTPUT_FOLDER);
@@ -519,24 +513,20 @@ public final class InvoicingUtilities {
             ZipEntry ze = zis.getNextEntry();
 
             while(ze!=null){
-
                 String fileName = ze.getName();
                 File newFile = new File(OUTPUT_FOLDER + File.separator + fileName);
-               // System.out.println("file unzip : "+ newFile.getAbsoluteFile());
-                new File(newFile.getParent()).mkdirs();
+                 new File(newFile.getParent()).mkdirs();
                 FileOutputStream fos = new FileOutputStream(newFile);
                 int len;
                 while ((len = zis.read(buffer)) > 0) {
                     fos.write(buffer, 0, len);
                 }
-
                 fos.close();
                 ze = zis.getNextEntry();
             }
             zis.closeEntry();
             zis.close();
-           // System.out.println("Done");
-        }catch(IOException ex){
+         }catch(IOException ex){
             ex.printStackTrace();
         }
     }
