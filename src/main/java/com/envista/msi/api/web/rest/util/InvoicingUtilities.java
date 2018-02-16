@@ -385,10 +385,10 @@ public final class InvoicingUtilities {
                 dto.setCreditClass("Resi");
             else if(sheetName.equalsIgnoreCase("Dups"))
                 dto.setCreditClass("DUP");
-           /* else if(sheetName.equalsIgnoreCase("Rate Errors"))
-                dto.setCreditClass("Rate Errors");
-            else if(sheetName.equalsIgnoreCase("Accessorial Errors"))
-                dto.setCreditClass("Accessorial Errors");*/
+            else if(sheetName.equalsIgnoreCase("Rate Errors") && reasonCredit==null)
+                dto.setCreditClass("Other");
+            else if(sheetName.equalsIgnoreCase("Accessorial Errors") && reasonCredit==null)
+                dto.setCreditClass("Other");
         }
         return dto;
 
