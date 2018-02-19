@@ -225,6 +225,9 @@ public class FileOperations {
             System.out.println(count);
             LOG.error("***Exception Occurred in the Custom omits File upload ***");
             e.printStackTrace();
+            resObject.put("error", "Please upload a valid data file.");
+            return resObject;
+
         }
 
         return resObject;
