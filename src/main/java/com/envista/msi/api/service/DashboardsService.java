@@ -1,7 +1,6 @@
 package com.envista.msi.api.service;
 
 import com.envista.msi.api.dao.DashboardsDao;
-import com.envista.msi.api.dao.type.GenericObject;
 import com.envista.msi.api.domain.util.DashboardUtil;
 import com.envista.msi.api.web.rest.dto.MapCoordinatesDto;
 import com.envista.msi.api.web.rest.dto.ZipCodesTimeZonesDto;
@@ -133,6 +132,10 @@ public class DashboardsService {
 
     public List<ServiceLevelDto> getTotalSpendByService(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
         return dashboardsDao.getTotalSpendByService(filter, isTopTenAccessorial);
+    }
+
+    public List<ServiceLevelDto> getTotalSpendByMode(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        return dashboardsDao.getTotalSpendByMode(filter, isTopTenAccessorial);
     }
 
     public List<ServiceLevelDto> getTotalPckgsByService(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
@@ -316,6 +319,8 @@ public class DashboardsService {
     public List<InvoiceStatusCountDto> getInvoiceStatusCount(DashboardsFilterCriteria filter){
         return dashboardsDao.getInvoiceStatusCount(filter);
     }
+
+
 
     /**
      * Method to get Invoice Status Count By Carrier
@@ -928,6 +933,37 @@ public class DashboardsService {
         return CommonUtil. generateXlsxFromJson(dataJSONArray,headersDtMap,headersPropMap,fileName);
     }
 
+    public Workbook getExportModeLevAnalysis(JSONArray dataJSONArray,String fileName) throws Exception {
+
+        Map<String,String> headersDtMap = new LinkedHashMap(); // Headers and Dtataypes
+        Map<String,String> headersPropMap = new LinkedHashMap();
+
+        //headersDtMap.put("id","NUMBER"); // Long
+        headersDtMap.put("Mode","String");
+        headersDtMap.put("Spend","String");
+        headersDtMap.put("% of Total Spend","String");
+        headersDtMap.put("# of Shipments","String");
+        headersDtMap.put("% of Total Shpts","String");
+        headersDtMap.put("Total Weight","String");
+        headersDtMap.put("Cost/Shipment","String");
+        headersDtMap.put("Weight/Shipment","String");
+        headersDtMap.put("Cost/Weight","String");
+
+        //headersPropMap.put("id","id"); // Long
+        headersPropMap.put("Mode","Mode");
+        headersPropMap.put("Spend","Spend");
+        headersPropMap.put("% of Total Spend","% of Total Spend");
+        headersPropMap.put("# of Shipments","# of Shipments");
+        headersPropMap.put("% of Total Shpts","% of Total Shpts");
+        headersPropMap.put("Total Weight","Total Weight");
+        headersPropMap.put("Cost/Shipment","Cost/Shipment");
+        headersPropMap.put("Weight/Shipment","Weight/Shipment");
+        headersPropMap.put("Cost/Weight","Cost/Weight");
+
+
+        return CommonUtil. generateXlsxFromJson(dataJSONArray,headersDtMap,headersPropMap,fileName);
+    }
+
     public Workbook getExportCarrSpendAnalysis(JSONArray dataJSONArray,String fileName) throws Exception {
 
         Map<String,String> headersDtMap = new LinkedHashMap(); // Headers and Dtataypes
@@ -1515,7 +1551,9 @@ public class DashboardsService {
     public List<ServiceLevelDto> getServiceLevAnalysis(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
         return dashboardsDao.getServiceLevAnalysis(filter, isTopTenAccessorial);
     }
-
+    public List<ServiceLevelDto> getModeLevAnalysis(DashboardsFilterCriteria filter, boolean isTopTenAccessorial){
+        return dashboardsDao.getModeLevAnalysis(filter, isTopTenAccessorial);
+    }
     public List<CustomisedFreightAuditSavingDto> getFreightAuditSavings(DashboardsFilterCriteria filter){
         List<FreightAuditSavingDto> freightSavingList = dashboardsDao.getFreightAuditSavings(filter);
         List<CustomisedFreightAuditSavingDto> customisedFreightAuditSavingList = null;
