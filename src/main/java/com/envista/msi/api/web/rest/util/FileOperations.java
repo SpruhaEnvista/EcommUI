@@ -134,7 +134,7 @@ public class FileOperations {
                         if (lineArray != null && lineArray.length > 0) {
                             CreditResponseDto dto = null;
                             if (fileType != null && fileType.equalsIgnoreCase("Voids")) {
-                                if (lineArray[3] != null && !lineArray[3].trim().equals("")) {
+                                if (lineArray.length >= 2 && lineArray[3] != null && !lineArray[3].trim().equals("")) {
                                     dto = new CreditResponseDto();
                                     dto.setFileInfoId(fileInfoId);
                                     dto.setCustomerCode(lineArray[1]);
@@ -146,7 +146,7 @@ public class FileOperations {
 
 
                             } else if (fileType != null && fileType.equalsIgnoreCase("GSRs")) {
-                                if (lineArray[0] != null && !lineArray[0].trim().equals("")) {
+                                if (lineArray.length >= 1 && lineArray[0] != null && !lineArray[0].trim().equals("")) {
                                     dto = new CreditResponseDto();
                                     dto.setFileInfoId(fileInfoId);
                                     dto.setTrackingNumber(lineArray[0] != null ? lineArray[0].replace("\'", "") : "");
@@ -156,7 +156,7 @@ public class FileOperations {
                                 }
 
                             } else if (fileType != null && fileType.equalsIgnoreCase("Address Corrections and Residentials")) {
-                                if (lineArray[0] != null && !lineArray[0].trim().equals("")) {
+                                if (lineArray.length >= 1 && lineArray[0] != null && !lineArray[0].trim().equals("")) {
                                     dto = new CreditResponseDto();
                                     dto.setFileInfoId(fileInfoId);
                                     dto.setTrackingNumber(lineArray[0] != null ? lineArray[0].replace("\'", "") : "");
@@ -166,7 +166,7 @@ public class FileOperations {
                                 }
 
                             } else if (fileType != null && fileType.equalsIgnoreCase("Hazmat")) {
-                                if (lineArray[0] != null && !lineArray[0].trim().equals("")) {
+                                if (lineArray.length >= 1 && lineArray[0] != null && !lineArray[0].trim().equals("")) {
                                     dto = new CreditResponseDto();
                                     dto.setFileInfoId(fileInfoId);
                                     dto.setTrackingNumber(lineArray[0] != null ? lineArray[0].replace("\'", "") : "");
@@ -222,10 +222,11 @@ public class FileOperations {
             }
 
         } catch (Exception e) {
+            count++;
             System.out.println(count);
             LOG.error("***Exception Occurred in the Custom omits File upload ***");
             e.printStackTrace();
-            resObject.put("error", "Please upload a valid data file.");
+            resObject.put("error", "File failed to upload - issue found on line "+count+".");
             return resObject;
 
         }
