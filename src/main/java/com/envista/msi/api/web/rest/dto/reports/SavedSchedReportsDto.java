@@ -159,7 +159,7 @@ public class SavedSchedReportsDto implements Serializable{
     private Integer category;
 
     @Column(name="is_supports_carriers")
-    private boolean supportsCarriers;
+    private Boolean supportsCarriers;
 
     public SavedSchedReportsDto(){}
 
@@ -204,7 +204,7 @@ public class SavedSchedReportsDto implements Serializable{
     }
     public SavedSchedReportsDto(Long savedSchedRptId,Long rptId,Boolean scheduled,String reportFileName,String reportStatus,
                                 String createUser,Date createDate,String lastUpdateUser,Date lastUpdateDate,Integer usersCount,
-                                Long isFolder, Boolean packet,Boolean canEdit, Boolean shared,Integer packetsCount, Integer category, boolean supportsCarriers){
+                                Long isFolder, Boolean packet,Boolean canEdit, Boolean shared,Integer packetsCount, Integer category, Boolean supportsCarriers){
         this.savedSchedRptId = savedSchedRptId;
         this.rptId = rptId;
         this.scheduled = scheduled;
@@ -370,11 +370,11 @@ public class SavedSchedReportsDto implements Serializable{
         this.category = category;
     }
 
-    public boolean isSupportCarriers() {
+    public boolean isSupportsCarriers() {
         return supportsCarriers;
     }
 
-    public void setSupportCarriers(boolean supportsCarriers) {
+    public void setSupportsCarriers(Boolean supportsCarriers) {
         this.supportsCarriers = supportsCarriers;
     }
 }
