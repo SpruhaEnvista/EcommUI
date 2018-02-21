@@ -85,7 +85,10 @@ import java.util.Date;
                                 @ColumnResult(name = "is_packet",type = Boolean.class),
                                 @ColumnResult(name = "can_edit",type = Boolean.class),
                                 @ColumnResult(name = "is_shared",type = Boolean.class),
-                                @ColumnResult(name = "packets_count",type = Integer.class)
+                                @ColumnResult(name = "packets_count",type = Integer.class),
+                                @ColumnResult(name = "category",type = Integer.class),
+                                @ColumnResult(name = "is_supports_carriers",type = Boolean.class)
+
                         }
                 )
         })
@@ -152,6 +155,12 @@ public class SavedSchedReportsDto implements Serializable{
     @Column(name="packets_count")
     private Integer packetsCount;
 
+    @Column(name="category")
+    private Integer category;
+
+    @Column(name="is_supports_carriers")
+    private Boolean supportsCarriers;
+
     public SavedSchedReportsDto(){}
 
     public SavedSchedReportsDto(Long reportTbUpdatCount,Long reportUsersTbUpdateCount){
@@ -195,7 +204,7 @@ public class SavedSchedReportsDto implements Serializable{
     }
     public SavedSchedReportsDto(Long savedSchedRptId,Long rptId,Boolean scheduled,String reportFileName,String reportStatus,
                                 String createUser,Date createDate,String lastUpdateUser,Date lastUpdateDate,Integer usersCount,
-                                Long isFolder, Boolean packet,Boolean canEdit, Boolean shared,Integer packetsCount){
+                                Long isFolder, Boolean packet,Boolean canEdit, Boolean shared,Integer packetsCount, Integer category, Boolean supportsCarriers){
         this.savedSchedRptId = savedSchedRptId;
         this.rptId = rptId;
         this.scheduled = scheduled;
@@ -211,6 +220,8 @@ public class SavedSchedReportsDto implements Serializable{
         this.canEdit = canEdit;
         this.shared = shared;
         this.packetsCount = packetsCount;
+        this.category = category;
+        this.supportsCarriers = supportsCarriers;
     }
 
     public Long getReportTbUpdatCount() {
@@ -351,6 +362,21 @@ public class SavedSchedReportsDto implements Serializable{
         this.packetsCount = packetsCount;
     }
 
+    public Integer getCategory() {
+        return category;
+    }
+
+    public void setCategory(Integer category) {
+        this.category = category;
+    }
+
+    public boolean isSupportsCarriers() {
+        return supportsCarriers;
+    }
+
+    public void setSupportsCarriers(Boolean supportsCarriers) {
+        this.supportsCarriers = supportsCarriers;
+    }
 }
 
 
