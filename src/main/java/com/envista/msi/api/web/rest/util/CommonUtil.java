@@ -582,7 +582,7 @@ public class CommonUtil {
                 // insert carrier Name into cell
                 cell.setCellValue(entry.getKey());
                 if(custFrtAudtSvngs.size()>1)
-                sheet.addMergedRegion(new CellRangeAddress(prev,custFrtAudtSvngs.size(),0,0));
+                    sheet.addMergedRegion(new CellRangeAddress(rowCount-1,rowCount+custFrtAudtSvngs.size()-2,0,0));
                 for (int cellIndex=0;cellIndex<custFrtAudtSvngs.size();cellIndex++){
                     if(cellIndex!=0)
                         row = sheet.createRow(rowCount++);
