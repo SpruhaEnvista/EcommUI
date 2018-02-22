@@ -549,7 +549,7 @@ public class CommonUtil {
         Sheet sheet = null;
         Row row = null;
         Cell cell = null;
-        List<String> headers= Arrays.asList("Carrier Name","Adjustment Reason","Adjustment Invoices","Freight Savings");
+        List<String> headers= Arrays.asList("Carrier Name","Adjustment Reason","Adjusted Invoices","Freight Savings");
         List<String> columns= Arrays.asList("adjustmentReason","adjustedInvoiceCount","freightSaving");
 
         try {
@@ -580,7 +580,16 @@ public class CommonUtil {
                 cell=row.createCell(0);
                 prev=prev++;
                 // insert carrier Name into cell
-                cell.setCellValue(entry.getKey());
+
+                if("Grand Total".equals(entry.getKey())){
+                    CellStyle style = workbook.createCellStyle();
+                    Font font = workbook.createFont();//Create font
+                    font.setBoldweight(Font.BOLDWEIGHT_BOLD);//Make font bold
+                    style.setFont(font);//set it to bold
+                    cell.setCellValue(entry.getKey());
+                    cell.setCellStyle(style);
+                    sheet.setDefaultColumnWidth(15);
+                }else cell.setCellValue(entry.getKey());
                 if(custFrtAudtSvngs.size()>1)
                     sheet.addMergedRegion(new CellRangeAddress(rowCount-1,rowCount+custFrtAudtSvngs.size()-2,0,0));
                 for (int cellIndex=0;cellIndex<custFrtAudtSvngs.size();cellIndex++){
