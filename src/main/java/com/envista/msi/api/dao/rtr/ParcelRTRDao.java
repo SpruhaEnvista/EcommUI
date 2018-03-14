@@ -34,7 +34,9 @@ public class ParcelRTRDao {
         }else{
             queryParameter.and("p_customer_CSV", "");
         }
-        return persistentContext.findEntitiesAndMapFields(ParcelAuditDetailsDto.Config.StoredProcedureQueryName.AUDIT_UPS_PARCEL_DETAILS, queryParameter);
+        List<ParcelAuditDetailsDto> parcelAuditDetailsList = persistentContext.findEntitiesAndMapFields(ParcelAuditDetailsDto.Config.StoredProcedureQueryName.AUDIT_UPS_PARCEL_DETAILS, queryParameter);
+        parcelAuditDetailsList.forEach(auditDetails -> persistentContext.getHibernateSession().evict(auditDetails));
+        return parcelAuditDetailsList;
     }
 
     public List<ParcelAuditDetailsDto> loadUpsParcelAuditDetails(String fromDate, String toDate, String trackingNumber){
@@ -52,7 +54,9 @@ public class ParcelRTRDao {
         }else{
             queryParameter.and("p_customer_CSV", "");
         }
-        return persistentContext.findEntitiesAndMapFields(ParcelAuditDetailsDto.Config.StoredProcedureQueryName.AUDIT_NOT_UPS_PARCEL_DETAILS, queryParameter);
+        List<ParcelAuditDetailsDto> parcelAuditDetailsList = persistentContext.findEntitiesAndMapFields(ParcelAuditDetailsDto.Config.StoredProcedureQueryName.AUDIT_NOT_UPS_PARCEL_DETAILS, queryParameter);
+        parcelAuditDetailsList.forEach(auditDetails -> persistentContext.getHibernateSession().evict(auditDetails));
+        return parcelAuditDetailsList;
     }
 
     public List<ParcelAuditDetailsDto> loadNonUpsParcelAuditDetails(String fromDate, String toDate, String carrierIds, String trackingNumbers){
@@ -106,7 +110,9 @@ public class ParcelRTRDao {
                 .and("p_to_date", toDate)
                 .and("p_customer_id", customerId)
                 .and("p_limit", limit);
-        return persistentContext.findEntities(ParcelAuditDetailsDto.Config.StoredProcedureQueryName.LOAD_INVOICE_IDS, queryParameter);
+        List<ParcelAuditDetailsDto> parcelAuditDetailsList = persistentContext.findEntities(ParcelAuditDetailsDto.Config.StoredProcedureQueryName.LOAD_INVOICE_IDS, queryParameter);
+        parcelAuditDetailsList.forEach(auditDetails -> persistentContext.getHibernateSession().evict(auditDetails));
+        return parcelAuditDetailsList;
     }
 
     public void updateInvoiceRtrStatus(Long invoiceId, String rtrStatus, String userName){
