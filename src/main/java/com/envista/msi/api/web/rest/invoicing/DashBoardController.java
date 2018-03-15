@@ -120,7 +120,24 @@ public class DashBoardController {
             if(resObj != null && resObj.size() >0 && resObj.get("dtos") != null){
                 dtos=(List<CreditResponseDto>)resObj.get("dtos");
                     FileInfoDto fileInfoDto = service.insertFileInfo(files.get(0).getOriginalFilename(), weekEndId, userName,fileTypeId);
+                int numDtos = dtos.size();
+                if (numDtos > 100000) {
+                    int numLack = (int) numDtos / 100000;
+                    int startInd = 0;
+                    int endInd = 100000;
+                    for (int i = 1; i <= numLack; i++) {
+                        endInd = 100000 * i;
+                        List<CreditResponseDto> subDTOList = dtos.subList(startInd, endInd);
+                        creditResponseService.insert(subDTOList, fileInfoDto.getId());
+                        startInd = endInd;
+                    }
+                    if (endInd != numDtos) {
+                        List<CreditResponseDto> subDTOList = dtos.subList( endInd,  numDtos);
+                        creditResponseService.insert(subDTOList, fileInfoDto.getId());
+                    }
+                }else{
                     creditResponseService.insert(dtos, fileInfoDto.getId());
+                }
                     responseStr="File uploaded Successfully.";
             }else if(resObj != null && resObj.size() >0 && resObj.get("error") != null && !resObj.get("error").equals("")){
                 responseStr = (String)resObj.get("error");
