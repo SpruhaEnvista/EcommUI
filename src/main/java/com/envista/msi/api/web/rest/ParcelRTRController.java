@@ -55,13 +55,14 @@ public class ParcelRTRController {
 
     @RequestMapping(value = "/auditParcelInv", method = {RequestMethod.GET}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<CommonResponse> auditParcelInvoice(@RequestParam(required = false) String fromDate, @RequestParam(required = false) String toDate,
-                                                             @RequestParam(required = false) String customerId, @RequestParam(required = false, defaultValue = "0") Integer limit) {
+                                                             @RequestParam(required = false) String customerId, @RequestParam(required = false) String invoiceIds,
+                                                             @RequestParam(required = false) String trackingNumbers, @RequestParam(required = false, defaultValue = "0") Integer limit) {
         String message = "Parcel Audit completed successfully";
-        List<ParcelAuditDetailsDto> invoiceList = parcelRTRService.loadInvoiceIds(fromDate, toDate, customerId, limit);
+        List<ParcelAuditDetailsDto> invoiceList = parcelRTRService.loadInvoiceIds(fromDate, toDate, customerId, invoiceIds, limit);
         Map<String, Object> respMap = new HashMap<>();
         if(invoiceList != null && !invoiceList.isEmpty()){
             respMap.put("invoiceIds", invoiceList);
-            parcelRTRService.doParcelAuditingInvoiceNumberWise(invoiceList);
+            parcelRTRService.doParcelAuditingInvoiceNumberWise(invoiceList, trackingNumbers);
         }else{
             message = "No Invoice found!";
         }

@@ -63,7 +63,7 @@ public class ParcelRTRDao {
         try{
             QueryParameter queryParameter = StoredProcedureParameter.withPosition(1, ParameterMode.IN, Long.class, id)
                     .andPosition(2, ParameterMode.IN, String.class, userName)
-                    .andPosition(3, ParameterMode.IN, Long.class, rtrAmount)
+                    .andPosition(3, ParameterMode.IN, Double.class, rtrAmount)
                     .andPosition(4, ParameterMode.IN, String.class, rtrStatus)
                     .andPosition(5, ParameterMode.IN, Long.class, carrierId);
             persistentContext.executeStoredProcedure("SHP_UPDATE_RTR_INV_AMT_PROC", queryParameter);
@@ -101,10 +101,11 @@ public class ParcelRTRDao {
         }
     }
 
-    public List<ParcelAuditDetailsDto> loadInvoiceIds(String fromDate, String toDate, String customerId, int limit){
+    public List<ParcelAuditDetailsDto> loadInvoiceIds(String fromDate, String toDate, String customerId, String invoiceIds, int limit){
         QueryParameter queryParameter = StoredProcedureParameter.with("p_from_date", fromDate)
                 .and("p_to_date", toDate)
                 .and("p_customer_id", customerId)
+                .and("p_invoice_ids", invoiceIds)
                 .and("p_limit", limit);
         return persistentContext.findEntities(ParcelAuditDetailsDto.Config.StoredProcedureQueryName.LOAD_INVOICE_IDS, queryParameter);
     }

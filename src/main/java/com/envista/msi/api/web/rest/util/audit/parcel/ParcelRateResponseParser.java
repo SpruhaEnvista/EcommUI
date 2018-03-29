@@ -57,4 +57,16 @@ public class ParcelRateResponseParser {
         }
         return null;
     }
+
+    public static int getRatedDiscountCount(ParcelRateResponse.PriceSheet priceSheet){
+        int ratedDiscountCount = 0;
+        if(priceSheet != null && priceSheet.getCharges() != null){
+            for(ParcelRateResponse.Charge charge : priceSheet.getCharges()){
+                if(charge != null && ParcelRateResponse.ChargeType.DISCOUNT.name().equalsIgnoreCase(charge.getType())){
+                    ratedDiscountCount++;
+                }
+            }
+        }
+        return ratedDiscountCount;
+    }
 }
