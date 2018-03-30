@@ -134,4 +134,18 @@ public class ParcelRTRDao {
             throw new DaoException("Error while updating shipper category", e);
         }
     }
+
+    public void updateInvoiceRateDetails(String entityIds, String userName, Double dimDivisor, String referenceTableName,String shipperCategory){
+        try{
+            QueryParameter queryParameter = StoredProcedureParameter.withPosition(1, ParameterMode.IN, String.class, referenceTableName)
+                    .andPosition(2, ParameterMode.IN, String.class, entityIds)
+                    .andPosition(3, ParameterMode.IN, String.class, userName)
+                    .andPosition(4, ParameterMode.IN, Double.class, dimDivisor)
+                    .andPosition(5, ParameterMode.IN, String.class, shipperCategory);
+            persistentContext.executeStoredProcedure("SHP_SAVE_RATE_DETAILS_PROC", queryParameter);
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new DaoException("Error while updating Rate Details", e);
+        }
+    }
 }
