@@ -378,6 +378,9 @@ public class ParcelRateResponse implements Serializable {
         @XmlElement(name="DimWeight")
         private BigDecimal dimWeight = new BigDecimal("0.0"); // ###.#
 
+        @XmlElement(name="DimDivisor")
+        private BigDecimal dimDivisor = new BigDecimal("0.000"); // ###.#
+
         @XmlElement(name="FreightClass")
         private String freightClass = "0.0"; // ###.#
 
@@ -476,6 +479,14 @@ public class ParcelRateResponse implements Serializable {
         }
         public void setName(String name) {
             this.name = name;
+        }
+
+        public BigDecimal getDimDivisor() {
+            return dimDivisor;
+        }
+
+        public void setDimDivisor(BigDecimal dimDivisor) {
+            this.dimDivisor = dimDivisor;
         }
     }
 
