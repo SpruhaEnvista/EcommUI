@@ -484,8 +484,8 @@ public class ParcelRTRService{
         return parcelRTRDao.loadInvoiceIds(fromDate, toDate, customerId, invoiceIds, limit);
     }
 
-    public void doParcelAuditingInvoiceNumberWise(List<ParcelAuditDetailsDto> invoiceList, String trackingNumbers){
-        if(invoiceList != null && !invoiceList.isEmpty()){
+    public void doParcelAuditingInvoiceNumberWise(List<ParcelAuditDetailsDto> invoiceList, String trackingNumbers, String rateTo) {
+        if (invoiceList != null && !invoiceList.isEmpty()) {
             String licenseKey = messageSource.getMessage("RateRequest-LicenseKey", null, null);
             String strProtocol = messageSource.getMessage("RTRprotocol", null, null);
             String strHostName = messageSource.getMessage("RTRHostName", null, null);
@@ -493,21 +493,29 @@ public class ParcelRTRService{
             String url = strProtocol + "://" + strHostName + "/" + strPrefix;
 
             Map<String, String> shipmentStatusMap = null;
-            for(ParcelAuditDetailsDto inv : invoiceList){
-                if(inv != null && inv.getInvoiceId() != null){
+            for (ParcelAuditDetailsDto inv : invoiceList) {
+                if (inv != null && inv.getInvoiceId() != null) {
                     shipmentStatusMap = new HashMap<>();
-                    Map<String, String> upsShipmentRateStatus = doParcelRating(loadUpsParcelAuditDetails(inv.getInvoiceId().toString(), trackingNumbers), url, licenseKey, RateTo.UPS);
-                    Map<String, String> nonUpsShipmentRateStatus = doParcelRating(loadNonUpsParcelAuditDetails(inv.getInvoiceId().toString(), trackingNumbers), url, licenseKey, RateTo.NON_UPS);
+                    Map<String, String> upsShipmentRateStatus = null;
+                    Map<String, String> nonUpsShipmentRateStatus = null;
+                    if (rateTo == null || rateTo.isEmpty()) {
+                        upsShipmentRateStatus = doParcelRating(loadUpsParcelAuditDetails(inv.getInvoiceId().toString(), trackingNumbers), url, licenseKey, RateTo.UPS);
+                        nonUpsShipmentRateStatus = doParcelRating(loadNonUpsParcelAuditDetails(inv.getInvoiceId().toString(), trackingNumbers), url, licenseKey, RateTo.NON_UPS);
+                    } else if ("UPS".equalsIgnoreCase(rateTo)) {
+                        upsShipmentRateStatus = doParcelRating(loadUpsParcelAuditDetails(inv.getInvoiceId().toString(), trackingNumbers), url, licenseKey, RateTo.UPS);
+                    } else if ("FEDEX".equalsIgnoreCase(rateTo)) {
+                        nonUpsShipmentRateStatus = doParcelRating(loadNonUpsParcelAuditDetails(inv.getInvoiceId().toString(), trackingNumbers), url, licenseKey, RateTo.NON_UPS);
+                    }
 
-                    if(upsShipmentRateStatus != null) shipmentStatusMap.putAll(upsShipmentRateStatus);
-                    if(nonUpsShipmentRateStatus != null) shipmentStatusMap.putAll(nonUpsShipmentRateStatus);
+                    if (upsShipmentRateStatus != null) shipmentStatusMap.putAll(upsShipmentRateStatus);
+                    if (nonUpsShipmentRateStatus != null) shipmentStatusMap.putAll(nonUpsShipmentRateStatus);
 
-                    updateInvoiceRtrStatus(inv.getInvoiceId(), shipmentStatusMap);
+                    if (shipmentStatusMap != null)
+                        updateInvoiceRtrStatus(inv.getInvoiceId(), shipmentStatusMap);
                 }
             }
         }
     }
-
     private void updateInvoiceRtrStatus(Long invoiceId, Map<String, String> shipmentStatusMap) {
         String userName = "ParcelRTRRating";
         if(shipmentStatusMap != null && !shipmentStatusMap.isEmpty()){
