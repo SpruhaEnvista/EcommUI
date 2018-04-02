@@ -32,7 +32,9 @@ public class ParcelAuditConstant {
         CONTESTED("Contested"),
         CLOSED("Closed"),
         RATING_EXCEPTION("RatingException"),
-        NO_PRICE_SHEET("NoPriceSheet");
+        NO_PRICE_SHEET("NoPriceSheet"),
+        OVER_CHARGED("OverCharged"),
+        UNDER_CHARGED("UnderCharged");
 
         public final String value;
 
