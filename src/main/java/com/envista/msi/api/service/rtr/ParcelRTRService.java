@@ -255,8 +255,8 @@ public class ParcelRTRService{
     private BigDecimal findTotalRateAmountFromResponseForNonUpsCarrier(List<ParcelAuditDetailsDto> parcelAuditDetails, ParcelRateResponse.PriceSheet priceSheet) {
         BigDecimal totalRateAmount = new BigDecimal("0.0");
         boolean frtChargeFound = false;
+        boolean isDiscountApplied = false;
         for(ParcelAuditDetailsDto auditDetails : parcelAuditDetails){
-
             if(auditDetails != null && auditDetails.getChargeClassificationCode() != null && !auditDetails.getChargeClassificationCode().isEmpty()){
                 ParcelRateResponse.Charge charge = null;
                 if(!frtChargeFound && ParcelAuditConstant.ChargeClassificationCode.FRT.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())
@@ -271,13 +271,23 @@ public class ParcelRTRService{
                     charge = ParcelRateResponseParser.findChargeByType(ParcelRateResponse.ChargeType.ACCESSORIAL_FUEL.name(), priceSheet);
                 }else if(ParcelAuditConstant.ChargeClassificationCode.ACS.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())
                         && ParcelAuditConstant.ChargeDescriptionCode.DSC.name().equalsIgnoreCase(auditDetails.getChargeDescriptionCode())){
-                    charge = ParcelRateResponseParser.findChargeByType(ParcelRateResponse.ChargeType.DISCOUNT.name(), priceSheet);
+                    isDiscountApplied = true;
                 }else {
                     charge = ParcelRateResponseParser.findChargeByEDICodeInResponse(auditDetails.getChargeClassificationCode(), priceSheet);
                 }
 
                 if(charge != null){
                     totalRateAmount = totalRateAmount.add(charge.getAmount());
+                }
+            }
+            if(isDiscountApplied){
+                List<ParcelRateResponse.Charge> discountCharges = ParcelRateResponseParser.getAllRatedDiscountForFedEx(priceSheet);
+                if(discountCharges != null && !discountCharges.isEmpty()){
+                    for(ParcelRateResponse.Charge discount : discountCharges){
+                        if(discount != null && discount.getAmount() != null){
+                            totalRateAmount = totalRateAmount.add(discount.getAmount());
+                        }
+                    }
                 }
             }
         }
@@ -331,25 +341,33 @@ public class ParcelRTRService{
         }
 
         if(hasDiscount){ //if discounts applied at shipment level.
-            int ratedDiscountCount = ParcelRateResponseParser.getRatedDiscountCount(priceSheet);
+            List<ParcelRateResponse.Charge> ratedDiscountForFedExList = ParcelRateResponseParser.getRatedDiscountForFedEx(priceSheet);
             int billedDiscountCount =  billedDiscountCharges.size();
+            int ratedDiscountCount = ratedDiscountForFedExList == null ? 0 : ratedDiscountForFedExList.size();
 
             if(ratedDiscountCount > billedDiscountCount){
                 Long carrierId = billedDiscountCharges.get(0).getCarrierId();
                 for(int i = 0; i < billedDiscountCount - 1; i++){
-                    parcelRTRDao.updateRTRInvoiceAmount(billedDiscountCharges.get(i).getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, priceSheet.getCharges().get(i).getAmount(), rtrStatus.value, carrierId);
+                    parcelRTRDao.updateRTRInvoiceAmount(billedDiscountCharges.get(i).getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, ratedDiscountForFedExList.get(i).getAmount(), rtrStatus.value, carrierId);
                 }
                 BigDecimal remainingDiscount = new BigDecimal("0.0");
                 for(int j = billedDiscountCount - 1; j < ratedDiscountCount; j++){
-                    remainingDiscount = remainingDiscount.add(priceSheet.getCharges().get(j).getAmount());
+                    remainingDiscount = remainingDiscount.add(ratedDiscountForFedExList.get(j).getAmount());
                 }
                 ParcelAuditDetailsDto lestBilledDiscount = billedDiscountCharges.get(billedDiscountCount - 1);
                 parcelRTRDao.updateRTRInvoiceAmount(lestBilledDiscount.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, remainingDiscount, rtrStatus.value, carrierId);
             }else{
+                int index = 0;
                 for(ParcelAuditDetailsDto auditDetails : parcelAuditDetails){
                    if(auditDetails != null && ParcelAuditConstant.ChargeClassificationCode.ACS.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())
                            && ParcelAuditConstant.ChargeDescriptionCode.DSC.name().equalsIgnoreCase(auditDetails.getChargeDescriptionCode())){
-                       ParcelRateResponse.Charge discountCharge = ParcelRateResponseParser.findChargeByType(ParcelRateResponse.ChargeType.ACCESSORIAL_FUEL.name(), priceSheet);
+                       ParcelRateResponse.Charge discountCharge = null;
+                       try{
+                           discountCharge = ratedDiscountForFedExList != null ? ratedDiscountForFedExList.get(index++) : null;
+                       }catch (Exception e){
+                           discountCharge = null;
+                           //Nothing
+                       }
                        if(discountCharge != null){
                            parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, discountCharge.getAmount(), rtrStatus.value, auditDetails.getCarrierId());
                        }else{

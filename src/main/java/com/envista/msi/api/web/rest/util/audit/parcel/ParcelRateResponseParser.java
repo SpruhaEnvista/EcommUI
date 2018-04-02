@@ -3,6 +3,8 @@ package com.envista.msi.api.web.rest.util.audit.parcel;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class is used to parse parcel audit response and having utility method to find charges etc.
@@ -68,5 +70,32 @@ public class ParcelRateResponseParser {
             }
         }
         return ratedDiscountCount;
+    }
+
+    public static List<ParcelRateResponse.Charge> getAllRatedDiscountForFedEx(ParcelRateResponse.PriceSheet priceSheet){
+        List<ParcelRateResponse.Charge> ratedDiscounts = null;
+        if(priceSheet != null && priceSheet.getCharges() != null){
+            ratedDiscounts = new ArrayList<>();
+            for(ParcelRateResponse.Charge charge : priceSheet.getCharges()){
+                if(charge != null && ParcelRateResponse.ChargeType.DISCOUNT.name().equalsIgnoreCase(charge.getType())){
+                    ratedDiscounts.add(charge);
+                }
+            }
+        }
+        return ratedDiscounts;
+    }
+
+    public static List<ParcelRateResponse.Charge> getRatedDiscountForFedEx(ParcelRateResponse.PriceSheet priceSheet){
+        List<ParcelRateResponse.Charge> ratedDiscounts = null;
+        if(priceSheet != null && priceSheet.getCharges() != null){
+            ratedDiscounts = new ArrayList<>();
+            for(ParcelRateResponse.Charge charge : priceSheet.getCharges()){
+                if(charge != null && ParcelRateResponse.ChargeType.DISCOUNT.name().equalsIgnoreCase(charge.getType())
+                        && !"Fuel Surcharge Discount".equalsIgnoreCase(charge.getName())){
+                    ratedDiscounts.add(charge);
+                }
+            }
+        }
+        return ratedDiscounts;
     }
 }
