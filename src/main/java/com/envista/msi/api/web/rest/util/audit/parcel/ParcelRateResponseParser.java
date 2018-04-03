@@ -93,7 +93,7 @@ public class ParcelRateResponseParser {
             ratedDiscounts = new ArrayList<>();
             for(ParcelRateResponse.Charge charge : priceSheet.getCharges()){
                 if(charge != null && ParcelRateResponse.ChargeType.DISCOUNT.name().equalsIgnoreCase(charge.getType())
-                        && !Arrays.asList("Fuel Surcharge Discount", "Custom Fuel Surcharge Discount").contains(charge.getName())){
+                        && !"Fuel Surcharge Discount".equalsIgnoreCase(charge.getName()) && !"Custom Fuel Surcharge Discount".equalsIgnoreCase(charge.getName())){
                     ratedDiscounts.add(charge);
                 }
             }
@@ -105,9 +105,9 @@ public class ParcelRateResponseParser {
         BigDecimal ratedSurchargeDiscount =new BigDecimal("0.000");
         if(priceSheet != null && priceSheet.getCharges() != null){
             for(ParcelRateResponse.Charge charge : priceSheet.getCharges()){
-                if(charge != null && ParcelRateResponse.ChargeType.DISCOUNT.name().equalsIgnoreCase(charge.getType()) && "Fuel Surcharge Discount".equalsIgnoreCase(charge.getName())){
-                    ratedSurchargeDiscount=charge.getAmount();
-                    break;
+                if(charge != null && ParcelRateResponse.ChargeType.DISCOUNT.name().equalsIgnoreCase(charge.getType())
+                        && ("Fuel Surcharge Discount".equalsIgnoreCase(charge.getName()) || "Custom Fuel Surcharge Discount".equalsIgnoreCase(charge.getName()))){
+                    ratedSurchargeDiscount = ratedSurchargeDiscount.add(charge.getAmount());
                 }
             }
         }
@@ -117,16 +117,15 @@ public class ParcelRateResponseParser {
 
     public static BigDecimal getFuelTablePercentage(ParcelRateResponse.PriceSheet priceSheet){
         BigDecimal fuelTablePerc = new BigDecimal("0.000");
-
         if(priceSheet != null && priceSheet.getComments() != null){
             String comments = priceSheet.getComments();
             if(comments != null && comments != null){
                 if(comments.contains("Gross fuel surcharge is")){
                     comments = comments.substring(comments.indexOf("Gross fuel surcharge is"));
                     if(comments.contains("at")){
-                        comments = comments.substring(comments.indexOf("at")+2, comments.indexOf("%"));
+                        comments = comments.substring(comments.indexOf("at") + 2, comments.indexOf("%"));
                     }
-                    fuelTablePerc=new BigDecimal(comments.trim());
+                    fuelTablePerc = new BigDecimal(comments.trim());
                 }
             }
         }
