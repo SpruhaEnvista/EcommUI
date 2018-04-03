@@ -5,6 +5,7 @@ import javax.xml.bind.JAXBException;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -92,7 +93,7 @@ public class ParcelRateResponseParser {
             ratedDiscounts = new ArrayList<>();
             for(ParcelRateResponse.Charge charge : priceSheet.getCharges()){
                 if(charge != null && ParcelRateResponse.ChargeType.DISCOUNT.name().equalsIgnoreCase(charge.getType())
-                        && !"Fuel Surcharge Discount".equalsIgnoreCase(charge.getName())){
+                        && !Arrays.asList("Fuel Surcharge Discount", "Custom Fuel Surcharge Discount").contains(charge.getName())){
                     ratedDiscounts.add(charge);
                 }
             }
