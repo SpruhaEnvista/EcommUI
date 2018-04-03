@@ -128,13 +128,17 @@ public class ParcelRTRDao {
         }
     }
 
-    public void updateShipmentRateDetails(String referenceTableName, String entityIds, String userName, BigDecimal dimDivisor, String shipperCategory){
+    public void updateShipmentRateDetails(String referenceTableName, String entityIds, String userName, BigDecimal dimDivisor, String shipperCategory,BigDecimal ratedWeight,String contractName,BigDecimal fuelTablePerc,BigDecimal ratedSurchargeDisc){
         try{
             QueryParameter queryParameter = StoredProcedureParameter.withPosition(1, ParameterMode.IN, String.class, referenceTableName)
                     .andPosition(2, ParameterMode.IN, String.class, entityIds)
                     .andPosition(3, ParameterMode.IN, String.class, userName)
                     .andPosition(4, ParameterMode.IN, BigDecimal.class, dimDivisor)
-                    .andPosition(5, ParameterMode.IN, String.class, shipperCategory);
+                    .andPosition(5, ParameterMode.IN, String.class, shipperCategory)
+                    .andPosition(6, ParameterMode.IN, BigDecimal.class, ratedWeight)
+                    .andPosition(7, ParameterMode.IN, String.class, contractName)
+                    .andPosition(8, ParameterMode.IN, BigDecimal.class, fuelTablePerc)
+                    .andPosition(9, ParameterMode.IN, BigDecimal.class, ratedSurchargeDisc);
             persistentContext.executeStoredProcedure("SHP_SAVE_RATE_DETAILS_PROC", queryParameter);
         }catch (Exception e){
             e.printStackTrace();

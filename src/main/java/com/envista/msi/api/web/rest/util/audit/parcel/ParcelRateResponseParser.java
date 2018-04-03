@@ -3,6 +3,7 @@ package com.envista.msi.api.web.rest.util.audit.parcel;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import java.io.StringReader;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -98,4 +99,37 @@ public class ParcelRateResponseParser {
         }
         return ratedDiscounts;
     }
+
+    public static BigDecimal getRatedSurchargeDiscount(ParcelRateResponse.PriceSheet priceSheet){
+        BigDecimal ratedSurchargeDiscount =new BigDecimal("0.000");
+        if(priceSheet != null && priceSheet.getCharges() != null){
+            for(ParcelRateResponse.Charge charge : priceSheet.getCharges()){
+                if(charge != null && ParcelRateResponse.ChargeType.DISCOUNT.name().equalsIgnoreCase(charge.getType()) && "Fuel Surcharge Discount".equalsIgnoreCase(charge.getName())){
+                    ratedSurchargeDiscount=charge.getAmount();
+                    break;
+                }
+            }
+        }
+        return ratedSurchargeDiscount;
+    }
+
+
+    public static BigDecimal getFuelTablePercentage(ParcelRateResponse.PriceSheet priceSheet){
+        BigDecimal fuelTablePerc = new BigDecimal("0.000");
+
+        if(priceSheet != null && priceSheet.getComments() != null){
+            String comments = priceSheet.getComments();
+            if(comments != null && comments != null){
+                if(comments.contains("Gross fuel surcharge is")){
+                    comments = comments.substring(comments.indexOf("Gross fuel surcharge is"));
+                    if(comments.contains("at")){
+                        comments = comments.substring(comments.indexOf("at")+2, comments.indexOf("%"));
+                    }
+                    fuelTablePerc=new BigDecimal(comments.trim());
+                }
+            }
+        }
+        return fuelTablePerc;
+    }
+
 }
