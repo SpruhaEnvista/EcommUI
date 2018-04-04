@@ -10,7 +10,7 @@ public class BigDecimalCurrencyAdapter extends XmlAdapter<String, BigDecimal> {
     @Override
     public String marshal(BigDecimal bd) throws Exception {
         if (bd != null) {
-            return bd.setScale(2, BigDecimal.ROUND_HALF_EVEN).toString();
+            return bd.setScale(3, BigDecimal.ROUND_HALF_EVEN).toString();
         }
         return null;
     }
@@ -18,7 +18,7 @@ public class BigDecimalCurrencyAdapter extends XmlAdapter<String, BigDecimal> {
     @Override
     public BigDecimal unmarshal(String s) throws Exception {
         try {
-            return new BigDecimal(s).setScale(2, BigDecimal.ROUND_HALF_EVEN);
+            return new BigDecimal(s).setScale(3, BigDecimal.ROUND_HALF_EVEN);
         } catch (NumberFormatException ex) {}
         return null;
     }
