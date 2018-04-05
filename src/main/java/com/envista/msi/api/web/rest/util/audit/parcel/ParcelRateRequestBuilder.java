@@ -28,7 +28,6 @@ public class ParcelRateRequestBuilder {
         parcelRateRequest.setLicenseKey(licenseKey);
 
         if(parcelAuditDetailsList != null && !parcelAuditDetailsList.isEmpty()){
-            boolean isWisoCustomer = parcelAuditDetailsList.get(0).getCustomerCode().equalsIgnoreCase("WISO");
             ParcelRateRequest.BatchShipment batchShipment = new ParcelRateRequest.BatchShipment();
             batchShipment.setId("1");
             String mode = "PCL";
@@ -64,16 +63,10 @@ public class ParcelRateRequestBuilder {
 
                 //Constraints section
                 ParcelRateRequest.Constraints constraints = new ParcelRateRequest.Constraints();
-                String contractNumber = (null == parcelAuditDetails.getContractNumber() ? "" : parcelAuditDetails.getContractNumber());
+                //String contractNumber = (null == parcelAuditDetails.getContractNumber() ? "" : parcelAuditDetails.getContractNumber());
                 //having doubt on SCAC code
                 String scacCode = (null == parcelAuditDetails.getRtrScacCode() ? "" : "FDEG".equals(parcelAuditDetails.getRtrScacCode()) ? "FDE" : parcelAuditDetails.getRtrScacCode());
                 String currency = (null == parcelAuditDetails.getCurrency() || parcelAuditDetails.getCurrency().isEmpty() ? "USD" : parcelAuditDetails.getCurrency());
-
-                if(!isWisoCustomer) {
-                    ParcelRateRequest.Contract contract = new ParcelRateRequest.Contract();
-                    contract.setName(contractNumber);
-                    constraints.setContract(contract);
-                }
 
                 ParcelRateRequest.Carrier carrier = new ParcelRateRequest.Carrier();
                 carrier.setScac(scacCode);
@@ -82,17 +75,19 @@ public class ParcelRateRequestBuilder {
                 constraints.setBillOption(billOption);
                 constraints.setCurrency(currency);
                 constraints.setMode(mode);
+
                 String serviceLevel = findServiceLevel(parcelAuditDetailsList);
-                constraints.setService(null == serviceLevel ? "" : serviceLevel);
+                if(serviceLevel == null || serviceLevel.trim().isEmpty())
+                    throw new RuntimeException("Invalid Service Level for " + parcelAuditDetailsList.get(0).getTrackingNumber());
+
+                constraints.setService(serviceLevel);
                 constraints.setCustomerCode(parcelAuditDetails.getCustomerCode());
                 constraints.setServiceFlags(serviceFlagList);
                 batchShipment.setConstraints(constraints);
 
-                if(isWisoCustomer){
-                    ParcelRateRequest.Shipper shipper = new ParcelRateRequest.Shipper();
-                    shipper.setNumber(parcelAuditDetailsList.get(0).getShipperNumber());
-                    batchShipment.setShipper(shipper);
-                }
+                ParcelRateRequest.Shipper shipper = new ParcelRateRequest.Shipper();
+                shipper.setNumber(parcelAuditDetailsList.get(0).getShipperNumber());
+                batchShipment.setShipper(shipper);
 
                 List<ParcelRateRequest.Item> items = new ArrayList<>();
                 int itemSequence = 1;
@@ -100,7 +95,7 @@ public class ParcelRateRequestBuilder {
                     if (auditDetails != null) {
                         if (auditDetails.getChargeClassificationCode() != null
                                 && ParcelAuditConstant.ChargeClassificationCode.FRT.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())) {
-                            String weight = (null == auditDetails.getPackageWeight() || auditDetails.getPackageWeight().isEmpty() ? "" : auditDetails.getPackageWeight());
+                            String weight = (null == auditDetails.getPackageWeight() || auditDetails.getPackageWeight().isEmpty() ? "1" : auditDetails.getPackageWeight());
                             String weightUnit = (null == auditDetails.getWeightUnit() || auditDetails.getWeightUnit().isEmpty() || "L".equalsIgnoreCase(auditDetails.getWeightUnit()) ? "LBS" : auditDetails.getWeightUnit());
                             String quantity = (null == auditDetails.getItemQuantity() || auditDetails.getItemQuantity().isEmpty() ? "1" : auditDetails.getItemQuantity());
                             String quantityUnit = (null == auditDetails.getQuantityUnit() || auditDetails.getQuantityUnit().isEmpty() ? "PCS" : auditDetails.getQuantityUnit());
@@ -200,7 +195,6 @@ public class ParcelRateRequestBuilder {
         parcelRateRequest.setLicenseKey(licenseKey);
 
         if(parcelAuditDetailsList != null && !parcelAuditDetailsList.isEmpty()){
-            boolean isWisoCustomer = parcelAuditDetailsList.get(0).getCustomerCode().equalsIgnoreCase("WISO");
             ParcelRateRequest.BatchShipment batchShipment = new ParcelRateRequest.BatchShipment();
             batchShipment.setId("1");
 
@@ -246,16 +240,10 @@ public class ParcelRateRequestBuilder {
 
                 //Constraints section
                 ParcelRateRequest.Constraints constraints = new ParcelRateRequest.Constraints();
-                String contractNumber = (null == parcelAuditDetails.getContractNumber() ? "" : parcelAuditDetails.getContractNumber());
+                //String contractNumber = (null == parcelAuditDetails.getContractNumber() ? "" : parcelAuditDetails.getContractNumber());
                 //having doubt on SCAC code
                 String rtrScacCode = (null == parcelAuditDetails.getRtrScacCode() ? "" : "FDEG".equals(parcelAuditDetails.getRtrScacCode()) ? "FDE" : parcelAuditDetails.getRtrScacCode());
                 String currency = (null == parcelAuditDetails.getCurrency() || parcelAuditDetails.getCurrency().isEmpty() ? "USD" : parcelAuditDetails.getCurrency());
-
-                if(!isWisoCustomer) {
-                    ParcelRateRequest.Contract contract = new ParcelRateRequest.Contract();
-                    contract.setName(contractNumber);
-                    constraints.setContract(contract);
-                }
 
                 ParcelRateRequest.Carrier carrier = new ParcelRateRequest.Carrier();
                 carrier.setScac(rtrScacCode);
@@ -264,16 +252,19 @@ public class ParcelRateRequestBuilder {
                 constraints.setBillOption(billOption);
                 constraints.setCurrency(currency);
                 constraints.setMode(mode);
-                constraints.setService(findServiceLevel(parcelAuditDetailsList));
+
+                String serviceLevel = findServiceLevel(parcelAuditDetailsList);
+                if(serviceLevel == null || serviceLevel.trim().isEmpty())
+                    throw new RuntimeException("Invalid Service Level for " + parcelAuditDetailsList.get(0).getTrackingNumber());
+
+                constraints.setService(serviceLevel);
                 constraints.setCustomerCode(parcelAuditDetails.getCustomerCode());
                 constraints.setServiceFlags(serviceFlagList);
                 batchShipment.setConstraints(constraints);
 
-                if(isWisoCustomer){
-                    ParcelRateRequest.Shipper shipper = new ParcelRateRequest.Shipper();
-                    shipper.setNumber(parcelAuditDetailsList.get(0).getShipperNumber());
-                    batchShipment.setShipper(shipper);
-                }
+                ParcelRateRequest.Shipper shipper = new ParcelRateRequest.Shipper();
+                shipper.setNumber(parcelAuditDetailsList.get(0).getShipperNumber());
+                batchShipment.setShipper(shipper);
 
                 List<ParcelRateRequest.Item> items = new ArrayList<>();
                 int itemSequence = 1;
@@ -379,8 +370,10 @@ public class ParcelRateRequestBuilder {
         if(parcelAuditDetails != null && !parcelAuditDetails.isEmpty()){
             for(ParcelAuditDetailsDto auditDetails : parcelAuditDetails){
                 if(auditDetails != null && auditDetails.getChargeClassificationCode() != null
-                        && ParcelAuditConstant.ChargeClassificationCode.FRT.name().equals(auditDetails.getChargeClassificationCode())){
-                    return auditDetails.getServiceLevel();
+                        && ParcelAuditConstant.ChargeClassificationCode.FRT.name().equals(auditDetails.getChargeClassificationCode())
+                        && auditDetails.getNetAmount() != null && !auditDetails.getNetAmount().isEmpty()){
+                    double netAmount = Double.parseDouble(auditDetails.getNetAmount());
+                    if(netAmount > 0) return auditDetails.getServiceLevel();
                 }
             }
         }

@@ -34,7 +34,9 @@ public class ParcelRTRDao {
         }else{
             queryParameter.and("p_customer_CSV", "");
         }
-        return persistentContext.findEntitiesAndMapFields(ParcelAuditDetailsDto.Config.StoredProcedureQueryName.AUDIT_UPS_PARCEL_DETAILS, queryParameter);
+        List<ParcelAuditDetailsDto> parcelAuditDetailsList = persistentContext.findEntitiesAndMapFields(ParcelAuditDetailsDto.Config.StoredProcedureQueryName.AUDIT_UPS_PARCEL_DETAILS, queryParameter);
+        parcelAuditDetailsList.forEach(auditDetails -> persistentContext.getHibernateSession().evict(auditDetails));
+        return parcelAuditDetailsList;
     }
 
     public List<ParcelAuditDetailsDto> loadUpsParcelAuditDetails(String fromDate, String toDate, String trackingNumber){
@@ -52,7 +54,9 @@ public class ParcelRTRDao {
         }else{
             queryParameter.and("p_customer_CSV", "");
         }
-        return persistentContext.findEntitiesAndMapFields(ParcelAuditDetailsDto.Config.StoredProcedureQueryName.AUDIT_NOT_UPS_PARCEL_DETAILS, queryParameter);
+        List<ParcelAuditDetailsDto> parcelAuditDetailsList = persistentContext.findEntitiesAndMapFields(ParcelAuditDetailsDto.Config.StoredProcedureQueryName.AUDIT_NOT_UPS_PARCEL_DETAILS, queryParameter);
+        parcelAuditDetailsList.forEach(auditDetails -> persistentContext.getHibernateSession().evict(auditDetails));
+        return parcelAuditDetailsList;
     }
 
     public List<ParcelAuditDetailsDto> loadNonUpsParcelAuditDetails(String fromDate, String toDate, String carrierIds, String trackingNumbers){
@@ -63,7 +67,7 @@ public class ParcelRTRDao {
         try{
             QueryParameter queryParameter = StoredProcedureParameter.withPosition(1, ParameterMode.IN, Long.class, id)
                     .andPosition(2, ParameterMode.IN, String.class, userName)
-                    .andPosition(3, ParameterMode.IN, Long.class, rtrAmount)
+                    .andPosition(3, ParameterMode.IN, BigDecimal.class, rtrAmount)
                     .andPosition(4, ParameterMode.IN, String.class, rtrStatus)
                     .andPosition(5, ParameterMode.IN, Long.class, carrierId);
             persistentContext.executeStoredProcedure("SHP_UPDATE_RTR_INV_AMT_PROC", queryParameter);
@@ -101,12 +105,15 @@ public class ParcelRTRDao {
         }
     }
 
-    public List<ParcelAuditDetailsDto> loadInvoiceIds(String fromDate, String toDate, String customerId, int limit){
+    public List<ParcelAuditDetailsDto> loadInvoiceIds(String fromDate, String toDate, String customerId, String invoiceIds, int limit){
         QueryParameter queryParameter = StoredProcedureParameter.with("p_from_date", fromDate)
                 .and("p_to_date", toDate)
                 .and("p_customer_id", customerId)
+                .and("p_invoice_ids", invoiceIds)
                 .and("p_limit", limit);
-        return persistentContext.findEntities(ParcelAuditDetailsDto.Config.StoredProcedureQueryName.LOAD_INVOICE_IDS, queryParameter);
+        List<ParcelAuditDetailsDto> parcelAuditDetailsList = persistentContext.findEntities(ParcelAuditDetailsDto.Config.StoredProcedureQueryName.LOAD_INVOICE_IDS, queryParameter);
+        parcelAuditDetailsList.forEach(auditDetails -> persistentContext.getHibernateSession().evict(auditDetails));
+        return parcelAuditDetailsList;
     }
 
     public void updateInvoiceRtrStatus(Long invoiceId, String rtrStatus, String userName){
@@ -121,16 +128,21 @@ public class ParcelRTRDao {
         }
     }
 
-    public void updateShipperCategory(String entityIds, String userName, String shipperCategory, String referenceTableName){
+    public void updateShipmentRateDetails(String referenceTableName, String entityIds, String userName, BigDecimal dimDivisor, String shipperCategory,BigDecimal ratedWeight,String contractName,BigDecimal fuelTablePerc,BigDecimal ratedSurchargeDisc){
         try{
-            QueryParameter queryParameter = StoredProcedureParameter.withPosition(1, ParameterMode.IN, String.class, entityIds)
-                    .andPosition(2, ParameterMode.IN, String.class, userName)
-                    .andPosition(3, ParameterMode.IN, String.class, shipperCategory)
-                    .andPosition(4, ParameterMode.IN, String.class, referenceTableName);
-            persistentContext.executeStoredProcedure("SHP_SAVE_SHIPPER_CATEGORY_PROC", queryParameter);
+            QueryParameter queryParameter = StoredProcedureParameter.withPosition(1, ParameterMode.IN, String.class, referenceTableName)
+                    .andPosition(2, ParameterMode.IN, String.class, entityIds)
+                    .andPosition(3, ParameterMode.IN, String.class, userName)
+                    .andPosition(4, ParameterMode.IN, BigDecimal.class, dimDivisor)
+                    .andPosition(5, ParameterMode.IN, String.class, shipperCategory)
+                    .andPosition(6, ParameterMode.IN, BigDecimal.class, ratedWeight)
+                    .andPosition(7, ParameterMode.IN, String.class, contractName)
+                    .andPosition(8, ParameterMode.IN, BigDecimal.class, fuelTablePerc)
+                    .andPosition(9, ParameterMode.IN, BigDecimal.class, ratedSurchargeDisc);
+            persistentContext.executeStoredProcedure("SHP_SAVE_RATE_DETAILS_PROC", queryParameter);
         }catch (Exception e){
             e.printStackTrace();
-            throw new DaoException("Error while updating shipper category", e);
+            throw new DaoException("Error while updating Rate Details", e);
         }
     }
 }
