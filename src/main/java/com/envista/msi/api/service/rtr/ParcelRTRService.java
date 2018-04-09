@@ -32,6 +32,10 @@ public class ParcelRTRService{
     @org.springframework.beans.factory.annotation.Qualifier(value = "rtrRateResource")
     private MessageSource messageSource;
 
+    public Map<String, List<ParcelAuditDetailsDto>> loadUpsParcelAuditDetails(String customerId, String fromDate, String toDate, String trackingNumbers, String invoiceIds){
+        return prepareTrackingNumberWiseAuditDetails(parcelRTRDao.loadUpsParcelAuditDetails(customerId, fromDate, toDate, trackingNumbers, invoiceIds));
+    }
+
     /**
      * Returns tracking number wise UPS parcel audit details.
      * @param fromDate
@@ -50,6 +54,10 @@ public class ParcelRTRService{
      */
     public Map<String, List<ParcelAuditDetailsDto>> loadNonUpsParcelAuditDetails(String customerId, String fromDate, String toDate, String trackingNumbers){
         return prepareTrackingNumberWiseAuditDetails(parcelRTRDao.loadNonUpsParcelAuditDetails(customerId, fromDate, toDate, ParcelAuditConstant.NON_UPS_CARRIER_IDS, trackingNumbers, null));
+    }
+
+    public Map<String, List<ParcelAuditDetailsDto>> loadNonUpsParcelAuditDetails(String customerId, String fromDate, String toDate, String trackingNumbers, String invoiceIds){
+        return prepareTrackingNumberWiseAuditDetails(parcelRTRDao.loadNonUpsParcelAuditDetails(customerId, fromDate, toDate, ParcelAuditConstant.NON_UPS_CARRIER_IDS, trackingNumbers, invoiceIds));
     }
 
     /**
@@ -447,7 +455,7 @@ public class ParcelRTRService{
         return parcelRTRDao.loadInvoiceIds(fromDate, toDate, customerId, invoiceIds, limit);
     }
 
-    public void doParcelAuditingInvoiceNumberWise(List<ParcelAuditDetailsDto> invoiceList, String trackingNumbers, String rateTo) {
+    public void doParcelAuditingInvoiceNumberWise(List<ParcelAuditDetailsDto> invoiceList, String trackingNumbers, String rateTo, String fromShipDate, String toShipDate, String customerIds) {
         if (invoiceList != null && !invoiceList.isEmpty()) {
             String licenseKey = messageSource.getMessage("RateRequest-LicenseKey", null, null);
             String strProtocol = messageSource.getMessage("RTRprotocol", null, null);
@@ -462,12 +470,12 @@ public class ParcelRTRService{
                     Map<String, String> upsShipmentRateStatus = null;
                     Map<String, String> nonUpsShipmentRateStatus = null;
                     if (rateTo == null || rateTo.isEmpty()) {
-                        upsShipmentRateStatus = doParcelRating(loadUpsParcelAuditDetails(inv.getInvoiceId().toString(), trackingNumbers), url, licenseKey, RateTo.UPS);
-                        nonUpsShipmentRateStatus = doParcelRating(loadNonUpsParcelAuditDetails(inv.getInvoiceId().toString(), trackingNumbers), url, licenseKey, RateTo.NON_UPS);
+                        upsShipmentRateStatus = doParcelRating(loadUpsParcelAuditDetails(customerIds, fromShipDate, toShipDate, trackingNumbers, inv.getInvoiceId().toString()), url, licenseKey, RateTo.UPS);
+                        nonUpsShipmentRateStatus = doParcelRating(loadNonUpsParcelAuditDetails(customerIds, fromShipDate, toShipDate, trackingNumbers, inv.getInvoiceId().toString()), url, licenseKey, RateTo.NON_UPS);
                     } else if ("UPS".equalsIgnoreCase(rateTo)) {
-                        upsShipmentRateStatus = doParcelRating(loadUpsParcelAuditDetails(inv.getInvoiceId().toString(), trackingNumbers), url, licenseKey, RateTo.UPS);
+                        upsShipmentRateStatus = doParcelRating(loadUpsParcelAuditDetails(customerIds, fromShipDate, toShipDate, trackingNumbers, inv.getInvoiceId().toString()), url, licenseKey, RateTo.UPS);
                     } else if ("FEDEX".equalsIgnoreCase(rateTo)) {
-                        nonUpsShipmentRateStatus = doParcelRating(loadNonUpsParcelAuditDetails(inv.getInvoiceId().toString(), trackingNumbers), url, licenseKey, RateTo.NON_UPS);
+                        nonUpsShipmentRateStatus = doParcelRating(loadNonUpsParcelAuditDetails(customerIds, fromShipDate, toShipDate, trackingNumbers, inv.getInvoiceId().toString()), url, licenseKey, RateTo.NON_UPS);
                     }
 
                     if (upsShipmentRateStatus != null) shipmentStatusMap.putAll(upsShipmentRateStatus);
