@@ -46,6 +46,7 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_customer_id", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_invoice_ids", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_limit", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_rate_to", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_inv_list", type = Void.class)
                 }
         )

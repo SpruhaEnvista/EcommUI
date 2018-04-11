@@ -60,7 +60,7 @@ public class ParcelRTRController {
                                                              @RequestParam(required = false) String trackingNumbers, @RequestParam(required = false, defaultValue = "0") Integer limit,
                                                              @RequestParam(required = false) String rateTo) {
         String message = "Parcel Audit completed successfully";
-        List<ParcelAuditDetailsDto> invoiceList = parcelRTRService.loadInvoiceIds(fromDate, toDate, customerId, invoiceIds, limit);
+        List<ParcelAuditDetailsDto> invoiceList = parcelRTRService.loadInvoiceIds(fromDate, toDate, customerId, invoiceIds, limit, rateTo);
         Map<String, Object> respMap = new HashMap<>();
         if(invoiceList != null && !invoiceList.isEmpty()){
             respMap.put("invoiceIds", invoiceList);
