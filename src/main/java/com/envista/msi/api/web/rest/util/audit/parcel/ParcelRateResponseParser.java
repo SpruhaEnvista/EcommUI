@@ -146,7 +146,7 @@ public class ParcelRateResponseParser {
         BigDecimal freightDiscount = new BigDecimal("0.000");
         if(priceSheet != null && priceSheet.getCharges() != null){
             for(ParcelRateResponse.Charge charge : priceSheet.getCharges()){
-                if(charge != null && ParcelRateResponse.ChargeType.DISCOUNT.name().equalsIgnoreCase(charge.getType()) && !"Spend Discount".equalsIgnoreCase(charge.getName())
+                if(charge != null && ParcelRateResponse.ChargeType.DISCOUNT.name().equalsIgnoreCase(charge.getType()) && charge.getName() != null && !"Spend Discount".equalsIgnoreCase(charge.getName())
                         && charge.getName() != null && charge.getName().contains("Base")){
                     freightDiscount = freightDiscount.add(charge.getAmount());
                 }
