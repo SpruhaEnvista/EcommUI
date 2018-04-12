@@ -127,19 +127,42 @@ public class ParcelRateResponseParser {
 
     public static BigDecimal getFuelTablePercentage(ParcelRateResponse.PriceSheet priceSheet){
         BigDecimal fuelTablePerc = new BigDecimal("0.000");
-        if(priceSheet != null && priceSheet.getComments() != null){
-            String comments = priceSheet.getComments();
-            if(comments != null && comments != null){
-                if(comments.contains("Gross fuel surcharge is")){
-                    comments = comments.substring(comments.indexOf("Gross fuel surcharge is"));
-                    if(comments.contains("at")){
-                        comments = comments.substring(comments.indexOf("at") + 2, comments.indexOf("%"));
+        try{
+            if(priceSheet != null && priceSheet.getComments() != null){
+                String comments = priceSheet.getComments();
+                if(comments != null && comments != null){
+                    if(comments.contains("Gross fuel surcharge is")){
+                        comments = comments.substring(comments.indexOf("Gross fuel surcharge is"));
+                        if(comments.contains("at")){
+                            comments = comments.substring(comments.indexOf("at") + 2, comments.indexOf("%"));
+                            fuelTablePerc = new BigDecimal(comments.trim());
+                        }
+
                     }
-                    fuelTablePerc = new BigDecimal(comments.trim());
                 }
             }
-        }
+        }catch (Exception e){}
         return fuelTablePerc;
+    }
+
+    public static BigDecimal getRatedGrossFuel(ParcelRateResponse.PriceSheet priceSheet){
+        BigDecimal ratedGrossFuel = new BigDecimal("0.000");
+        try{
+            if(priceSheet != null && priceSheet.getComments() != null){
+                String comments = priceSheet.getComments();
+                if(comments != null && comments != null){
+                    if(comments.contains("Gross fuel surcharge is")){
+                        comments = comments.substring(comments.indexOf("Gross fuel surcharge is"));
+                        if(comments.contains("at")){
+                            comments = comments.substring(comments.indexOf("$"), comments.indexOf("at"));
+                            comments = comments.replace("$", "");
+                            ratedGrossFuel = new BigDecimal(comments.trim());
+                        }
+                    }
+                }
+            }
+        }catch (Exception e){}
+        return ratedGrossFuel;
     }
 
     public static BigDecimal getSumOfFreightDiscount(ParcelRateResponse.PriceSheet priceSheet){
