@@ -46,6 +46,7 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_customer_id", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_invoice_ids", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_limit", type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_rate_to", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_inv_list", type = Void.class)
                 }
         )
@@ -181,6 +182,9 @@ public class ParcelAuditDetailsDto {
 
     @Column(name = "SHIPPER_NUMBER")
     private String shipperNumber;
+
+    @Column(name = "PARENT_ID")
+    private Long parentId;
 
     public ParcelAuditDetailsDto() {
     }
@@ -491,6 +495,14 @@ public class ParcelAuditDetailsDto {
 
     public void setShipperNumber(String shipperNumber) {
         this.shipperNumber = shipperNumber;
+    }
+
+    public Long getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Long parentId) {
+        this.parentId = parentId;
     }
 
     public static class Config{
