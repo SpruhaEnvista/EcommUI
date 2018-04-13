@@ -92,7 +92,11 @@ public class ParcelRateResponseParser {
             ratedDiscounts = new ArrayList<>();
             for(ParcelRateResponse.Charge charge : priceSheet.getCharges()){
                 if(charge != null && ParcelRateResponse.ChargeType.DISCOUNT.name().equalsIgnoreCase(charge.getType())
-                        && !"Fuel Surcharge Discount".equalsIgnoreCase(charge.getName()) && !"Custom Fuel Surcharge Discount".equalsIgnoreCase(charge.getName())){
+                        && !"Residential Surcharge Discount".equalsIgnoreCase(charge.getName())
+                        && !"Fuel Surcharge Discount".equalsIgnoreCase(charge.getName())
+                        && !"Custom Fuel Surcharge Discount".equalsIgnoreCase(charge.getName())
+                        && !"Spend Discount".equalsIgnoreCase(charge.getName())
+                        && !charge.getName().contains("Base")){
                     ratedDiscounts.add(charge);
                 }
             }
@@ -165,12 +169,17 @@ public class ParcelRateResponseParser {
         return ratedGrossFuel;
     }
 
+    /**
+     * This method is used to get the base discount applied for a shipment.
+     * @param priceSheet
+     * @return
+     */
     public static BigDecimal getSumOfFreightDiscount(ParcelRateResponse.PriceSheet priceSheet){
         BigDecimal freightDiscount = new BigDecimal("0.000");
         if(priceSheet != null && priceSheet.getCharges() != null){
             for(ParcelRateResponse.Charge charge : priceSheet.getCharges()){
-                if(charge != null && ParcelRateResponse.ChargeType.DISCOUNT.name().equalsIgnoreCase(charge.getType()) && charge.getName() != null && !"Spend Discount".equalsIgnoreCase(charge.getName())
-                        && charge.getName() != null && charge.getName().contains("Base")){
+                if(charge != null && ParcelRateResponse.ChargeType.DISCOUNT.name().equalsIgnoreCase(charge.getType()) && charge.getName() != null && charge.getName() != null
+                        && !"Spend Discount".equalsIgnoreCase(charge.getName()) && (charge.getName().contains("Base")|| "Custom Net Rate Discount".equalsIgnoreCase(charge.getName()))){
                     freightDiscount = freightDiscount.add(charge.getAmount());
                 }
             }
@@ -200,5 +209,48 @@ public class ParcelRateResponseParser {
             }
         }
         return minMaxAjd;
+    }
+
+    public static ParcelRateResponse.Charge getResidentialSurcharge(ParcelRateResponse.PriceSheet priceSheet){
+        if(priceSheet != null && priceSheet.getCharges() != null){
+            for(ParcelRateResponse.Charge charge : priceSheet.getCharges()){
+                if(charge != null && "ACCESSORIAL".equalsIgnoreCase(charge.getType())
+                    && charge.getName() != null && "Residential Surcharge".equalsIgnoreCase(charge.getName())){
+                    return charge;
+                }
+            }
+        }
+        return null;
+    }
+
+    public static ParcelRateResponse.Charge getResidentialSurchargeDiscount(ParcelRateResponse.PriceSheet priceSheet){
+        if(priceSheet != null && priceSheet.getCharges() != null){
+            for(ParcelRateResponse.Charge charge : priceSheet.getCharges()){
+                if(charge != null && "DISCOUNT".equalsIgnoreCase(charge.getType())
+                        && charge.getName() != null && "Residential Surcharge Discount".equalsIgnoreCase(charge.getName())){
+                    return charge;
+                }
+            }
+        }
+        return null;
+    }
+
+    public static List<ParcelRateResponse.Charge> getAllOtherDiscountsForUPSCarrier(ParcelRateResponse.PriceSheet priceSheet){
+        List<ParcelRateResponse.Charge> discountCharges = null;
+        if(priceSheet != null && priceSheet.getCharges() != null){
+            discountCharges = new ArrayList<>();
+            for(ParcelRateResponse.Charge charge : priceSheet.getCharges()){
+                if(charge != null && "DISCOUNT".equalsIgnoreCase(charge.getType()) && charge.getName() != null
+                        && !"Residential Surcharge Discount".equalsIgnoreCase(charge.getName())
+                        && !"Fuel Surcharge Discount".equalsIgnoreCase(charge.getName())
+                        && !"Custom Fuel Surcharge Discount".equalsIgnoreCase(charge.getName())
+                        && !"Spend Discount".equalsIgnoreCase(charge.getName())
+                        && !charge.getName().contains("Base")
+                        ){
+                    discountCharges.add(charge);
+                }
+            }
+        }
+        return discountCharges;
     }
 }

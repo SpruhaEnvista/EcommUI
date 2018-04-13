@@ -21,7 +21,9 @@ public class ParcelAuditConstant {
      */
     public enum ChargeDescriptionCode{
         DSC, // Discount
-        FSC
+        FSC,
+        RES,
+        RSC
     }
 
     /**

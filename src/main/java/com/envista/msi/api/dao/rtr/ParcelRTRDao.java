@@ -93,12 +93,14 @@ public class ParcelRTRDao {
 
     public void saveParcelAuditRequestAndResponseLog(ParcelAuditRequestResponseLog requestResponseLog){
         try{
-            QueryParameter queryParameter = StoredProcedureParameter.withPosition(1, ParameterMode.IN, String.class, requestResponseLog.getRequestXml())
-                    .andPosition(2, ParameterMode.IN, String.class, requestResponseLog.getRequestXml1())
-                    .andPosition(3, ParameterMode.IN, String.class, requestResponseLog.getResponseXml())
-                    .andPosition(4, ParameterMode.IN, String.class, requestResponseLog.getResponseXml1())
-                    .andPosition(5, ParameterMode.IN, String.class, requestResponseLog.getResponseXml2())
-                    .andPosition(6, ParameterMode.IN, String.class, requestResponseLog.getCreateUser());
+            QueryParameter queryParameter = StoredProcedureParameter.withPosition(1, ParameterMode.IN, String.class, requestResponseLog.getTableName())
+                    .andPosition(2, ParameterMode.IN, String.class, requestResponseLog.getEntityIds())
+                    .andPosition(3, ParameterMode.IN, String.class, requestResponseLog.getRequestXml1())
+                    .andPosition(4, ParameterMode.IN, String.class, requestResponseLog.getRequestXml2())
+                    .andPosition(5, ParameterMode.IN, String.class, requestResponseLog.getResponseXml1())
+                    .andPosition(6, ParameterMode.IN, String.class, requestResponseLog.getResponseXml2())
+                    .andPosition(7, ParameterMode.IN, String.class, requestResponseLog.getResponseXml3())
+                    .andPosition(8, ParameterMode.IN, String.class, requestResponseLog.getCreateUser());
             persistentContext.executeStoredProcedure("SHP_FRT_SAVE_XML_RATING_PROC", queryParameter);
         }catch (Exception e){
             e.printStackTrace();
@@ -145,8 +147,27 @@ public class ParcelRTRDao {
                     .andPosition(11, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getRatedBaseDiscount() != null ? rateDetails.getRatedBaseDiscount() : new BigDecimal("0"))
                     .andPosition(12, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getRatedEarnedDiscount() != null ? rateDetails.getRatedEarnedDiscount() : new BigDecimal("0"))
                     .andPosition(13, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getRatedMinMaxAdjustment() != null ? rateDetails.getRatedMinMaxAdjustment() : new BigDecimal("0"))
-                    .andPosition(14, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getRatedGrossFuel() != null ? rateDetails.getRatedGrossFuel() : new BigDecimal("0"));
+                    .andPosition(14, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getRatedGrossFuel() != null ? rateDetails.getRatedGrossFuel() : new BigDecimal("0"))
+                    .andPosition(15, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getResidentialSurchargeDiscount() != null ? rateDetails.getResidentialSurchargeDiscount() : new BigDecimal("0"))
+                    .andPosition(16, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getResidentialSurchargeDiscountPercentage() != null ? rateDetails.getResidentialSurchargeDiscountPercentage() : new BigDecimal("0"));
             persistentContext.executeStoredProcedure("SHP_SAVE_RATE_DETAILS_PROC", queryParameter);
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new DaoException("Error while updating Rate Details", e);
+        }
+    }
+
+    public void updateOtherDiscountShipmentRateDetails(String referenceTableName, String entityIds, String userName, ParcelRateDetailsDto rateDetails){
+        try{
+            QueryParameter queryParameter = StoredProcedureParameter.withPosition(1, ParameterMode.IN, String.class, referenceTableName)
+                    .andPosition(2, ParameterMode.IN, String.class, entityIds)
+                    .andPosition(3, ParameterMode.IN, String.class, userName)
+                    .andPosition(4, ParameterMode.IN, String.class, rateDetails != null && rateDetails.getContractName() != null ? rateDetails.getContractName() : new BigDecimal("0"))
+                    .andPosition(5, ParameterMode.IN, String.class, rateDetails != null && rateDetails.getShipperCategory() != null ? rateDetails.getShipperCategory() : new BigDecimal("0"))
+                    .andPosition(6, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getOtherDiscount1() != null ? rateDetails.getOtherDiscount1() : new BigDecimal("0"))
+                    .andPosition(7, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getOtherDiscount2() != null ? rateDetails.getOtherDiscount2() : new BigDecimal("0"))
+                    .andPosition(8, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getOtherDiscount3() != null ? rateDetails.getOtherDiscount3() : new BigDecimal("0"));
+            persistentContext.executeStoredProcedure("SHP_UPDATE_OTHER_DSC_PROC", queryParameter);
         }catch (Exception e){
             e.printStackTrace();
             throw new DaoException("Error while updating Rate Details", e);

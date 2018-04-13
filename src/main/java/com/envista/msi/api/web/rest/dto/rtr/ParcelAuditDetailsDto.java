@@ -183,6 +183,9 @@ public class ParcelAuditDetailsDto {
     @Column(name = "SHIPPER_NUMBER")
     private String shipperNumber;
 
+    @Column(name = "PARENT_ID")
+    private Long parentId;
+
     public ParcelAuditDetailsDto() {
     }
 
@@ -492,6 +495,14 @@ public class ParcelAuditDetailsDto {
 
     public void setShipperNumber(String shipperNumber) {
         this.shipperNumber = shipperNumber;
+    }
+
+    public Long getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Long parentId) {
+        this.parentId = parentId;
     }
 
     public static class Config{

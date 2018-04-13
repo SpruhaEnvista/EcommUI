@@ -18,6 +18,11 @@ public class ParcelRateDetailsDto implements Serializable {
     private BigDecimal ratedFuelSurchargeDiscount;
     private BigDecimal ratedCustomFuelSurchargeDiscount;
     private BigDecimal ratedGrossFuel;
+    private BigDecimal residentialSurchargeDiscount;
+    private BigDecimal residentialSurchargeDiscountPercentage;
+    private BigDecimal otherDiscount1;
+    private BigDecimal otherDiscount2;
+    private BigDecimal otherDiscount3;
 
     public static ParcelRateDetailsDto getInstance(){
         return new ParcelRateDetailsDto();
@@ -109,5 +114,45 @@ public class ParcelRateDetailsDto implements Serializable {
 
     public void setRatedGrossFuel(BigDecimal ratedGrossFuel) {
         this.ratedGrossFuel = ratedGrossFuel;
+    }
+
+    public BigDecimal getResidentialSurchargeDiscount() {
+        return residentialSurchargeDiscount;
+    }
+
+    public void setResidentialSurchargeDiscount(BigDecimal residentialSurchargeDiscount) {
+        this.residentialSurchargeDiscount = residentialSurchargeDiscount;
+    }
+
+    public BigDecimal getResidentialSurchargeDiscountPercentage() {
+        return residentialSurchargeDiscountPercentage;
+    }
+
+    public void setResidentialSurchargeDiscountPercentage(BigDecimal residentialSurchargeDiscountPercentage) {
+        this.residentialSurchargeDiscountPercentage = residentialSurchargeDiscountPercentage;
+    }
+
+    public BigDecimal getOtherDiscount1() {
+        return otherDiscount1;
+    }
+
+    public void setOtherDiscount1(BigDecimal otherDiscount1) {
+        this.otherDiscount1 = otherDiscount1;
+    }
+
+    public BigDecimal getOtherDiscount2() {
+        return otherDiscount2;
+    }
+
+    public void setOtherDiscount2(BigDecimal otherDiscount2) {
+        this.otherDiscount2 = otherDiscount2;
+    }
+
+    public BigDecimal getOtherDiscount3() {
+        return otherDiscount3;
+    }
+
+    public void setOtherDiscount3(BigDecimal otherDiscount3) {
+        this.otherDiscount3 = otherDiscount3;
     }
 }
