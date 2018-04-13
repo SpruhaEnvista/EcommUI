@@ -96,6 +96,7 @@ public class ParcelRateResponseParser {
                         && !"Fuel Surcharge Discount".equalsIgnoreCase(charge.getName())
                         && !"Custom Fuel Surcharge Discount".equalsIgnoreCase(charge.getName())
                         && !"Spend Discount".equalsIgnoreCase(charge.getName())
+                        && !"Custom Net Rate Discount".equalsIgnoreCase(charge.getName())
                         && !charge.getName().contains("Base")){
                     ratedDiscounts.add(charge);
                 }
@@ -245,6 +246,7 @@ public class ParcelRateResponseParser {
                         && !"Fuel Surcharge Discount".equalsIgnoreCase(charge.getName())
                         && !"Custom Fuel Surcharge Discount".equalsIgnoreCase(charge.getName())
                         && !"Spend Discount".equalsIgnoreCase(charge.getName())
+                        && !"Custom Net Rate Discount".equalsIgnoreCase(charge.getName())
                         && !charge.getName().contains("Base")
                         ){
                     discountCharges.add(charge);
