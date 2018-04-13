@@ -7,11 +7,13 @@ import java.io.Serializable;
  */
 public class ParcelAuditRequestResponseLog implements Serializable {
     private Long id;
-    private String requestXml;
+    private String entityIds;
+    private String tableName;
     private String requestXml1;
-    private String responseXml;
+    private String requestXml2;
     private String responseXml1;
     private String responseXml2;
+    private String responseXml3;
     private String createUser;
 
     public Long getId() {
@@ -22,12 +24,28 @@ public class ParcelAuditRequestResponseLog implements Serializable {
         this.id = id;
     }
 
-    public String getRequestXml() {
-        return requestXml;
+    public String getEntityIds() {
+        return entityIds;
     }
 
-    public void setRequestXml(String requestXml) {
-        this.requestXml = requestXml;
+    public void setEntityIds(String entityIds) {
+        this.entityIds = entityIds;
+    }
+
+    public String getTableName() {
+        return tableName;
+    }
+
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
+    }
+
+    public String getRequestXml2() {
+        return requestXml2;
+    }
+
+    public void setRequestXml2(String requestXml2) {
+        this.requestXml2 = requestXml2;
     }
 
     public String getRequestXml1() {
@@ -38,12 +56,12 @@ public class ParcelAuditRequestResponseLog implements Serializable {
         this.requestXml1 = requestXml1;
     }
 
-    public String getResponseXml() {
-        return responseXml;
+    public String getResponseXml3() {
+        return responseXml3;
     }
 
-    public void setResponseXml(String responseXml) {
-        this.responseXml = responseXml;
+    public void setResponseXml3(String responseXml3) {
+        this.responseXml3 = responseXml3;
     }
 
     public String getResponseXml1() {
