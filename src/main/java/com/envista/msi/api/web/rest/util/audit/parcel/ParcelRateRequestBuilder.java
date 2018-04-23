@@ -1,5 +1,6 @@
 package com.envista.msi.api.web.rest.util.audit.parcel;
 
+import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditDASChargeDetailsDto;
 import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditDetailsDto;
 import com.envista.msi.api.web.rest.util.DateUtil;
 
@@ -7,6 +8,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Sujit kumar on 21/06/2017.
@@ -23,7 +25,7 @@ public class ParcelRateRequestBuilder {
      * @param licenseKey
      * @return
      */
-    public static ParcelRateRequest buildParcelRateRequestForUps(List<ParcelAuditDetailsDto> parcelAuditDetailsList, String licenseKey){
+    public static ParcelRateRequest buildParcelRateRequestForUps(List<ParcelAuditDetailsDto> parcelAuditDetailsList, String licenseKey,Map<String, String> dasChargeList){
         ParcelRateRequest parcelRateRequest = new ParcelRateRequest();
         parcelRateRequest.setLicenseKey(licenseKey);
 
@@ -53,6 +55,8 @@ public class ParcelRateRequestBuilder {
                                 ParcelRateRequest.ServiceFlag serviceFlag = new ParcelRateRequest.ServiceFlag();
                                 if(auditDetails.getChargeDescriptionCode().equalsIgnoreCase("RES")){
                                     auditDetails.setChargeDescriptionCode("RSC");
+                                }else if(dasChargeList.containsKey(auditDetails.getChargeClassificationCode())) {
+                                    auditDetails.setChargeDescriptionCode(dasChargeList.get(auditDetails.getChargeClassificationCode()));
                                 }
                                 serviceFlag.setCode(auditDetails.getChargeDescriptionCode());
                                 serviceFlagList.add(serviceFlag);
@@ -190,7 +194,7 @@ public class ParcelRateRequestBuilder {
      * @param licenseKey
      * @return
      */
-    public static ParcelRateRequest buildParcelRateRequestForNonUpsCarrier(List<ParcelAuditDetailsDto> parcelAuditDetailsList, String licenseKey){
+    public static ParcelRateRequest buildParcelRateRequestForNonUpsCarrier(List<ParcelAuditDetailsDto> parcelAuditDetailsList, String licenseKey,Map<String, String> DASChargeList){
         ParcelRateRequest parcelRateRequest = new ParcelRateRequest();
         parcelRateRequest.setLicenseKey(licenseKey);
 
@@ -232,9 +236,15 @@ public class ParcelRateRequestBuilder {
                         if(auditDetails.getChargeClassificationCode() != null && ParcelAuditConstant.ChargeClassificationCode.ACS.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())
                                 && !Arrays.asList(ParcelAuditConstant.ChargeDescriptionCode.FSC.name(), ParcelAuditConstant.ChargeDescriptionCode.DSC.name()).contains(auditDetails.getChargeDescriptionCode())){
                             ParcelRateRequest.ServiceFlag serviceFlag = new ParcelRateRequest.ServiceFlag();
-                            serviceFlag.setCode(auditDetails.getChargeDescriptionCode().equalsIgnoreCase("RES") ? "RSC" : auditDetails.getChargeDescriptionCode());
+                            if(auditDetails.getChargeDescriptionCode().equalsIgnoreCase("RES")){
+                                auditDetails.setChargeDescriptionCode("RSC");
+                            }else if(DASChargeList.containsKey(auditDetails.getChargeDescriptionCode())){
+                                auditDetails.setChargeDescriptionCode(DASChargeList.get(auditDetails.getChargeDescriptionCode()));
+                            }
+                            serviceFlag.setCode(auditDetails.getChargeDescriptionCode());
                             serviceFlagList.add(serviceFlag);
                         }
+
                     }
                 }
 

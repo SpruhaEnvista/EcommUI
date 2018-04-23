@@ -255,4 +255,16 @@ public class ParcelRateResponseParser {
         }
         return discountCharges;
     }
+
+    public static ParcelRateResponse.Charge getDeliveryAreaSurcharge(ParcelRateResponse.PriceSheet priceSheet){
+        if(priceSheet != null && priceSheet.getCharges() != null){
+            for(ParcelRateResponse.Charge charge : priceSheet.getCharges()){
+                if(charge != null && "ACCESSORIAL".equalsIgnoreCase(charge.getType())
+                        && charge.getName() != null && "Delivery Area Surcharge".equalsIgnoreCase(charge.getName())){
+                    return charge;
+                }
+            }
+        }
+        return null;
+    }
 }
