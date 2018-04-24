@@ -23,6 +23,10 @@ public class ParcelRateDetailsDto implements Serializable {
     private BigDecimal otherDiscount1;
     private BigDecimal otherDiscount2;
     private BigDecimal otherDiscount3;
+    private BigDecimal accessorial1;
+    private BigDecimal accessorial2;
+    private BigDecimal accessorial3;
+    private BigDecimal deliveryAreaSurchargeDiscount;
 
     public static ParcelRateDetailsDto getInstance(){
         return new ParcelRateDetailsDto();
@@ -154,5 +158,37 @@ public class ParcelRateDetailsDto implements Serializable {
 
     public void setOtherDiscount3(BigDecimal otherDiscount3) {
         this.otherDiscount3 = otherDiscount3;
+    }
+
+    public BigDecimal getAccessorial1() {
+        return accessorial1;
+    }
+
+    public void setAccessorial1(BigDecimal accessorial1) {
+        this.accessorial1 = accessorial1;
+    }
+
+    public BigDecimal getAccessorial2() {
+        return accessorial2;
+    }
+
+    public void setAccessorial2(BigDecimal accessorial2) {
+        this.accessorial2 = accessorial2;
+    }
+
+    public BigDecimal getAccessorial3() {
+        return accessorial3;
+    }
+
+    public void setAccessorial3(BigDecimal accessorial3) {
+        this.accessorial3 = accessorial3;
+    }
+
+    public BigDecimal getDeliveryAreaSurchargeDiscount() {
+        return deliveryAreaSurchargeDiscount;
+    }
+
+    public void setDeliveryAreaSurchargeDiscount(BigDecimal deliveryAreaSurchargeDiscount) {
+        this.deliveryAreaSurchargeDiscount = deliveryAreaSurchargeDiscount;
     }
 }

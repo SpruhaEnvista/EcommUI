@@ -186,6 +186,9 @@ public class ParcelAuditDetailsDto {
     @Column(name = "PARENT_ID")
     private Long parentId;
 
+    @Column(name="PACKAGE_TYPE")
+    private String packageType;
+
     public ParcelAuditDetailsDto() {
     }
 
@@ -503,6 +506,14 @@ public class ParcelAuditDetailsDto {
 
     public void setParentId(Long parentId) {
         this.parentId = parentId;
+    }
+
+    public String getPackageType() {
+        return packageType;
+    }
+
+    public void setPackageType(String packageType) {
+        this.packageType = packageType;
     }
 
     public static class Config{

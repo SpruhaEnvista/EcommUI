@@ -86,6 +86,8 @@ public class ParcelRateRequest implements Serializable {
         @XmlElement(name="Event", required=true)
         private List<Event> events = new ArrayList<Event>();
 
+
+
         public String getId() {
             return id;
         }

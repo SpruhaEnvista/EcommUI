@@ -267,4 +267,43 @@ public class ParcelRateResponseParser {
         }
         return null;
     }
+
+    public static List<ParcelRateResponse.Charge> getAccessorialChargesForUps(ParcelRateResponse.PriceSheet priceSheet){
+        List<ParcelRateResponse.Charge> accessorialCharges = null;
+        if(priceSheet != null && priceSheet.getCharges() != null) {
+            accessorialCharges = new ArrayList<>();
+            for (ParcelRateResponse.Charge charge : priceSheet.getCharges()) {
+                if(charge != null && charge.getType() != null && ParcelRateResponse.ChargeType.ACCESSORIAL.name().equalsIgnoreCase(charge.getType())){
+                    accessorialCharges.add(charge);
+                }
+            }
+        }
+        return accessorialCharges;
+    }
+
+    public static List<ParcelRateResponse.Charge> getAccessorialChargesForFedEx(ParcelRateResponse.PriceSheet priceSheet){
+        List<ParcelRateResponse.Charge> accessorialCharges = null;
+        if(priceSheet != null && priceSheet.getCharges() != null) {
+            accessorialCharges = new ArrayList<>();
+            for (ParcelRateResponse.Charge charge : priceSheet.getCharges()) {
+                if(charge != null && charge.getType() != null && ParcelRateResponse.ChargeType.ACCESSORIAL.name().equalsIgnoreCase(charge.getType())){
+                    accessorialCharges.add(charge);
+                }
+            }
+        }
+        return accessorialCharges;
+    }
+
+    public static ParcelRateResponse.Charge getRatedDasDiscount(ParcelRateResponse.PriceSheet priceSheet){
+        if(priceSheet != null && priceSheet.getCharges() != null) {
+            for (ParcelRateResponse.Charge charge : priceSheet.getCharges()) {
+                if(charge != null && charge.getType() != null && ParcelRateResponse.ChargeType.ACCESSORIAL.name().equalsIgnoreCase(charge.getType()) && charge.getName() != null && "Delivery Area Surcharge".equalsIgnoreCase(charge.getName())){
+                    return charge;
+                }
+            }
+        }
+        return null;
+    }
+
+
 }
