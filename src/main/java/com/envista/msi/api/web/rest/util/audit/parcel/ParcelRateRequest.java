@@ -60,6 +60,9 @@ public class ParcelRateRequest implements Serializable {
         @XmlElement(name="Constraints", required=true)
         private Constraints constraints = new Constraints();
 
+        @XmlElement(name="RevenueTier")
+        private RevenueTier revenueTier = new RevenueTier();
+
         @XmlElement(name = "Shipper")
         private Shipper shipper = new Shipper();
 
@@ -141,6 +144,13 @@ public class ParcelRateRequest implements Serializable {
 
         public void setShipper(Shipper shipper) {
             this.shipper = shipper;
+        }
+
+        public RevenueTier getRevenueTier() {
+            return revenueTier;
+        }
+        public void setRevenueTier(RevenueTier revenueTier) {
+            this.revenueTier = revenueTier;
         }
 
         @Override
@@ -903,6 +913,22 @@ public class ParcelRateRequest implements Serializable {
 
         public void setNumber(String number) {
             this.number = number;
+        }
+    }
+
+    @XmlAccessorType(XmlAccessType.NONE)
+    public static class RevenueTier implements Serializable {
+        private static final long serialVersionUID = 1L;
+
+        @XmlValue
+        private String revenueTier = "";
+
+        public String getRevenueTier() {
+            return revenueTier;
+        }
+
+        public void setRevenueTier(String revenueTier) {
+            this.revenueTier = revenueTier;
         }
     }
 }
