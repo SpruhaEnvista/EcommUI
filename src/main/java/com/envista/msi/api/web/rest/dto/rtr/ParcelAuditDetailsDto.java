@@ -3,6 +3,7 @@ package com.envista.msi.api.web.rest.dto.rtr;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -185,6 +186,12 @@ public class ParcelAuditDetailsDto {
 
     @Column(name = "PARENT_ID")
     private Long parentId;
+
+    @Column(name = "PACKAGE_DIMENSION")
+    private String packageDimension;
+
+    @Column(name = "ACTUAL_WEIGHT")
+    private BigDecimal actualWeight;
 
     public ParcelAuditDetailsDto() {
     }
@@ -503,6 +510,22 @@ public class ParcelAuditDetailsDto {
 
     public void setParentId(Long parentId) {
         this.parentId = parentId;
+    }
+
+    public String getPackageDimension() {
+        return packageDimension;
+    }
+
+    public void setPackageDimension(String packageDimension) {
+        this.packageDimension = packageDimension;
+    }
+
+    public BigDecimal getActualWeight() {
+        return actualWeight;
+    }
+
+    public void setActualWeight(BigDecimal actualWeight) {
+        this.actualWeight = actualWeight;
     }
 
     public static class Config{

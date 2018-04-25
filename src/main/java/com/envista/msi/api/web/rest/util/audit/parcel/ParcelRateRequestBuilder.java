@@ -1,5 +1,6 @@
 package com.envista.msi.api.web.rest.util.audit.parcel;
 
+import com.envista.msi.api.domain.util.ParcelRatingUtil;
 import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditDetailsDto;
 import com.envista.msi.api.web.rest.util.DateUtil;
 
@@ -28,6 +29,19 @@ public class ParcelRateRequestBuilder {
         parcelRateRequest.setLicenseKey(licenseKey);
 
         if(parcelAuditDetailsList != null && !parcelAuditDetailsList.isEmpty()){
+            for(ParcelAuditDetailsDto auditDetails : parcelAuditDetailsList) {
+                if (auditDetails != null && auditDetails.getPackageDimension() != null && !auditDetails.getPackageDimension().isEmpty()) {
+                    try{
+                        String [] dimension = auditDetails.getPackageDimension().toLowerCase().split("x");
+                        if(dimension != null && dimension.length > 0){
+                            auditDetails.setDimLength(dimension[0]);
+                            auditDetails.setDimWidth(dimension[1]);
+                            auditDetails.setDimHeight(dimension[2]);
+                        }
+                    }catch (Exception e){}
+                }
+            }
+
             ParcelRateRequest.BatchShipment batchShipment = new ParcelRateRequest.BatchShipment();
             batchShipment.setId("1");
             String mode = "PCL";
@@ -90,44 +104,47 @@ public class ParcelRateRequestBuilder {
                 batchShipment.setShipper(shipper);
 
                 List<ParcelRateRequest.Item> items = new ArrayList<>();
-                int itemSequence = 1;
-                for(ParcelAuditDetailsDto auditDetails : parcelAuditDetailsList) {
-                    if (auditDetails != null) {
-                        if (auditDetails.getChargeClassificationCode() != null
-                                && ParcelAuditConstant.ChargeClassificationCode.FRT.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())) {
-                            String weight = (null == auditDetails.getPackageWeight() || auditDetails.getPackageWeight().isEmpty() ? "1" : auditDetails.getPackageWeight());
-                            String weightUnit = (null == auditDetails.getWeightUnit() || auditDetails.getWeightUnit().isEmpty() || "L".equalsIgnoreCase(auditDetails.getWeightUnit()) ? "LBS" : auditDetails.getWeightUnit());
-                            String quantity = (null == auditDetails.getItemQuantity() || auditDetails.getItemQuantity().isEmpty() ? "1" : auditDetails.getItemQuantity());
-                            String quantityUnit = (null == auditDetails.getQuantityUnit() || auditDetails.getQuantityUnit().isEmpty() ? "PCS" : auditDetails.getQuantityUnit());
-                            String dimLenght = (null == auditDetails.getDimLength() || auditDetails.getDimLength().isEmpty() ? "" : auditDetails.getDimLength());
-                            String dimWidth = (null == auditDetails.getDimWidth() || auditDetails.getDimWidth().isEmpty()? "" : auditDetails.getDimWidth());
-                            String dimHeight = (null == auditDetails.getDimHeight() || auditDetails.getDimHeight().isEmpty() ? "" : auditDetails.getDimHeight());
-                            String dimUnit = (null == auditDetails.getUnitOfDim() || auditDetails.getUnitOfDim().isEmpty() ? "" : auditDetails.getUnitOfDim());
 
-                            ParcelRateRequest.Weight weightObj = new ParcelRateRequest.Weight();
-                            if(!weight.isEmpty()){
-                                weightObj.setWeight(new BigDecimal(weight.trim()));
-                            }
-                            weightObj.setUnits(weightUnit);
-
-                            ParcelRateRequest.Quantity quantityObj = new ParcelRateRequest.Quantity();
-                            quantityObj.setQuantity(new BigDecimal(quantity));
-                            quantityObj.setUnits(quantityUnit);
-
-                            ParcelRateRequest.Dimensions dimensionsObj = new ParcelRateRequest.Dimensions();
-                            try{ if(!dimLenght.isEmpty()) dimensionsObj.setLength(new BigDecimal(dimLenght)); }catch (Exception e){}
-                            try{ if(!dimWidth.isEmpty()) dimensionsObj.setWidth(new BigDecimal(dimWidth)); }catch (Exception e){}
-                            try{ if(!dimHeight.isEmpty()) dimensionsObj.setHeight(new BigDecimal(dimHeight)); }catch (Exception e){}
-                            dimensionsObj.setUnits(dimUnit);
-
-                            ParcelRateRequest.Item item = new ParcelRateRequest.Item();
-                            item.setSequence(itemSequence++);
-                            item.setWeight(weightObj);
-                            item.setQuantity(quantityObj);
-                            item.setDimensions(dimensionsObj);
-                            items.add(item);
-                        }
+                ParcelAuditDetailsDto latestFreightCharge = ParcelRatingUtil.getLatestFrightCharge(parcelAuditDetailsList);
+                if(latestFreightCharge != null){
+                    String weight = (null == latestFreightCharge.getPackageWeight() || latestFreightCharge.getPackageWeight().isEmpty() ? "1" : latestFreightCharge.getPackageWeight());
+                    String weightUnit = (null == latestFreightCharge.getWeightUnit() || latestFreightCharge.getWeightUnit().isEmpty() || "L".equalsIgnoreCase(latestFreightCharge.getWeightUnit()) ? "LBS" : latestFreightCharge.getWeightUnit());
+                    String quantity = (null == latestFreightCharge.getItemQuantity() || latestFreightCharge.getItemQuantity().isEmpty() ? "1" : latestFreightCharge.getItemQuantity());
+                    String quantityUnit = (null == latestFreightCharge.getQuantityUnit() || latestFreightCharge.getQuantityUnit().isEmpty() ? "PCS" : latestFreightCharge.getQuantityUnit());
+                    String dimLenght = (null == latestFreightCharge.getDimLength() || latestFreightCharge.getDimLength().isEmpty() ? "" : latestFreightCharge.getDimLength());
+                    String dimWidth = (null == latestFreightCharge.getDimWidth() || latestFreightCharge.getDimWidth().isEmpty()? "" : latestFreightCharge.getDimWidth());
+                    String dimHeight = (null == latestFreightCharge.getDimHeight() || latestFreightCharge.getDimHeight().isEmpty() ? "" : latestFreightCharge.getDimHeight());
+                    String dimUnit = (null == latestFreightCharge.getUnitOfDim() || latestFreightCharge.getUnitOfDim().isEmpty() ? "" : latestFreightCharge.getUnitOfDim());
+                    BigDecimal actualWeight = (null == latestFreightCharge.getActualWeight() ? null : latestFreightCharge.getActualWeight());
+                    ParcelRateRequest.Weight weightObj = new ParcelRateRequest.Weight();
+                    if(!weight.isEmpty()){
+                        weightObj.setWeight(new BigDecimal(weight.trim()));
                     }
+                    weightObj.setUnits(weightUnit);
+
+                    ParcelRateRequest.Weight actualWeightElement = new ParcelRateRequest.Weight();
+                    actualWeightElement.setWeight(actualWeight);
+                    actualWeightElement.setUnits(weightUnit);
+
+                    ParcelRateRequest.Quantity quantityObj = new ParcelRateRequest.Quantity();
+                    quantityObj.setQuantity(new BigDecimal(quantity));
+                    quantityObj.setUnits(quantityUnit);
+
+                    ParcelRateRequest.Dimensions dimensionsObj = new ParcelRateRequest.Dimensions();
+                    try{ if(!dimLenght.isEmpty()) dimensionsObj.setLength(new BigDecimal(dimLenght)); }catch (Exception e){}
+                    try{ if(!dimWidth.isEmpty()) dimensionsObj.setWidth(new BigDecimal(dimWidth)); }catch (Exception e){}
+                    try{ if(!dimHeight.isEmpty()) dimensionsObj.setHeight(new BigDecimal(dimHeight)); }catch (Exception e){}
+                    dimensionsObj.setUnits(dimUnit);
+
+                    ParcelRateRequest.Item item = new ParcelRateRequest.Item();
+                    item.setSequence(latestFreightCharge.getParentId().intValue());
+                    item.setWeight(weightObj);
+                    item.setActualWeight(actualWeightElement);
+                    item.setQuantity(quantityObj);
+                    item.setDimensions(dimensionsObj);
+                    items.add(item);
+                } else{
+                    throw new RuntimeException("Freight Item not found");
                 }
                 batchShipment.setItems(items);
 

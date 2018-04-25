@@ -44,6 +44,10 @@ public class ParcelRTRDao {
         return loadUpsParcelAuditDetails(null, fromDate, toDate, trackingNumber, null);
     }
 
+    public List<ParcelAuditDetailsDto> loadUpsParcelAuditDetails(String customerIds, String trackingNumber){
+        return loadUpsParcelAuditDetails(customerIds, null, null, trackingNumber, null);
+    }
+
     public List<ParcelAuditDetailsDto> loadNonUpsParcelAuditDetails(String customerIds, String fromDate, String toDate, String carrierIds, String trackingNumbers, String invoiceId){
         QueryParameter queryParameter = QueryParameter.with("p_from_date", fromDate)
                 .and("p_to_date", toDate).and("p_carrier_ids", carrierIds)
@@ -62,6 +66,10 @@ public class ParcelRTRDao {
 
     public List<ParcelAuditDetailsDto> loadNonUpsParcelAuditDetails(String fromDate, String toDate, String carrierIds, String trackingNumbers){
         return loadNonUpsParcelAuditDetails(null, fromDate, toDate, carrierIds, trackingNumbers, null);
+    }
+
+    public List<ParcelAuditDetailsDto> loadNonUpsParcelAuditDetails(String trackingNumbers){
+        return loadNonUpsParcelAuditDetails(null, null, null, null, trackingNumbers, null);
     }
 
     public void updateRTRInvoiceAmount(Long id, String userName, BigDecimal rtrAmount, String rtrStatus, Long carrierId){
@@ -168,6 +176,23 @@ public class ParcelRTRDao {
                     .andPosition(7, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getOtherDiscount2() != null ? rateDetails.getOtherDiscount2() : new BigDecimal("0"))
                     .andPosition(8, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getOtherDiscount3() != null ? rateDetails.getOtherDiscount3() : new BigDecimal("0"));
             persistentContext.executeStoredProcedure("SHP_UPDATE_OTHER_DSC_PROC", queryParameter);
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new DaoException("Error while updating Rate Details", e);
+        }
+    }
+
+    public void updateAccessorialShipmentRateDetails(String referenceTableName, String entityIds, String userName, ParcelRateDetailsDto rateDetails){
+        try{
+            QueryParameter queryParameter = StoredProcedureParameter.withPosition(1, ParameterMode.IN, String.class, referenceTableName)
+                    .andPosition(2, ParameterMode.IN, String.class, entityIds)
+                    .andPosition(3, ParameterMode.IN, String.class, userName)
+                    .andPosition(4, ParameterMode.IN, String.class, rateDetails != null && rateDetails.getContractName() != null ? rateDetails.getContractName() : new BigDecimal("0"))
+                    .andPosition(5, ParameterMode.IN, String.class, rateDetails != null && rateDetails.getShipperCategory() != null ? rateDetails.getShipperCategory() : new BigDecimal("0"))
+                    .andPosition(6, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getAccessorial1() != null ? rateDetails.getAccessorial1() : new BigDecimal("0"))
+                    .andPosition(7, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getAccessorial2() != null ? rateDetails.getAccessorial2() : new BigDecimal("0"))
+                    .andPosition(8, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getAccessorial3() != null ? rateDetails.getAccessorial3() : new BigDecimal("0"));
+            persistentContext.executeStoredProcedure("SHP_RATE_UPDATE_ACC_PROC", queryParameter);
         }catch (Exception e){
             e.printStackTrace();
             throw new DaoException("Error while updating Rate Details", e);
