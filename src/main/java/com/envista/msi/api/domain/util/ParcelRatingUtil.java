@@ -1,7 +1,10 @@
 package com.envista.msi.api.domain.util;
 
 import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditDetailsDto;
+import com.envista.msi.api.web.rest.dto.rtr.ParcelRateDetailsDto;
+import com.envista.msi.api.web.rest.dto.rtr.RatedChargeDetailsDto;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -75,4 +78,68 @@ public class ParcelRatingUtil {
         }
         return false;
     }
+
+    public static BigDecimal findAmountByChargeClassificationCodeType(String chargeType, List<ParcelAuditDetailsDto> shipmentCharges){
+        BigDecimal amount = new BigDecimal("0");
+        if(chargeType != null && !chargeType.isEmpty() && shipmentCharges != null && !shipmentCharges.isEmpty()){
+            for(ParcelAuditDetailsDto ratedCharge : shipmentCharges){
+                if(ratedCharge != null){
+                    if(chargeType.equalsIgnoreCase(ratedCharge.getChargeClassificationCode())){
+                        if(ratedCharge.getRtrAmount() != null) {
+                            amount = amount.add(ratedCharge.getRtrAmount());
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        return amount;
+    }
+
+    public static BigDecimal findAmountByChargeDescriptionCodeType(String chargeType, List<ParcelAuditDetailsDto> shipmentCharges){
+        BigDecimal amount = new BigDecimal("0");
+        if(chargeType != null && !chargeType.isEmpty() && shipmentCharges != null && !shipmentCharges.isEmpty()){
+            for(ParcelAuditDetailsDto ratedCharge : shipmentCharges){
+                if(ratedCharge != null){
+                    if(chargeType.equalsIgnoreCase(ratedCharge.getChargeDescriptionCode())){
+                        if(ratedCharge.getRtrAmount() != null) {
+                            amount = amount.add(ratedCharge.getRtrAmount());
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        return amount;
+    }
+
+    /*public static BigDecimal getRatedBaseDiscount(List<ParcelRateDetailsDto> ratedCharges){
+        BigDecimal amount = new BigDecimal("0");
+        if(ratedCharges != null && !ratedCharges.isEmpty()){
+            for(RatedChargeDetailsDto ratedCharge : ratedCharges){
+                if(ratedCharge != null){
+                    if("FRT".equalsIgnoreCase(ratedCharge.getChargeClassificationCode())){
+                        if(ratedCharge.getBaseDiscount() != null) amount = ratedCharge.getBaseDiscount();
+                        break;
+                    }
+                }
+            }
+        }
+        return amount;
+    }
+
+    public static BigDecimal getRatedEarnedDiscount(List<ParcelRateDetailsDto> ratedCharges){
+        BigDecimal amount = new BigDecimal("0");
+        if(ratedCharges != null && !ratedCharges.isEmpty()){
+            for(RatedChargeDetailsDto ratedCharge : ratedCharges){
+                if(ratedCharge != null){
+                    if("FRT".equalsIgnoreCase(ratedCharge.getChargeClassificationCode())){
+                        if(ratedCharge.() != null) amount = ratedCharge.getBaseDiscount();
+                        break;
+                    }
+                }
+            }
+        }
+        return amount;
+    }*/
 }

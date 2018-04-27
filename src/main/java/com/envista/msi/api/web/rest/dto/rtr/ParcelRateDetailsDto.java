@@ -1,38 +1,121 @@
 package com.envista.msi.api.web.rest.dto.rtr;
 
+import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * Created by Sujit kumar on 11/04/2018.
  */
+@NamedStoredProcedureQuery(
+        name = "ParcelRateDetailsDto.getRateDetails",
+        procedureName = "SHP_GET_RATE_DETAILS_PROC",
+        resultClasses = {ParcelRateDetailsDto.class},
+        parameters = {
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_entity_name", type = String.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_entity_ids", type = String.class),
+                @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_rated_charges", type = Void.class)
+        }
+)
+
+@Entity
 public class ParcelRateDetailsDto implements Serializable {
+    @Id
+    @Column(name = "AUDIT_RATE_DETAILS_ID")
+    private Long id;
+
+    @Column(name = "CREATE_USER")
+    private String createUser;
+
+    @Column(name = "CREATE_DATE")
+    private Date createDate;
+
+    @Column(name = "LAST_UPDATE_USER")
+    private String lastUpdateUser;
+
+    @Column(name = "LAST_UPDATE_DATE")
+    private Date lastUpdateDate;
+
+    @Column(name = "DIM_DIVISOR")
     private BigDecimal dimDivisor;
+
+    @Column(name = "SHIPPER_CATEGORY")
     private String shipperCategory;
+
+    @Column(name = "RATED_WEIGHT")
     private BigDecimal ratedWeight;
+
+    @Column(name = "CONTRACT_NAME")
     private String contractName;
+
+    @Column(name = "FUEL_TABLE_PERC")
     private BigDecimal fuelTablePercentage;
+
+    @Column(name = "RATED_BASE_DISCOUNT")
     private BigDecimal ratedBaseDiscount;
+
+    @Column(name = "RATED_EARNED_DISCOUNT")
     private BigDecimal ratedEarnedDiscount;
+
+    @Column(name = "RATED_MIN_MAX_ADJ")
     private BigDecimal ratedMinMaxAdjustment;
+
+    @Column(name = "RATED_FUEL_SURCHARGE_DISC")
     private BigDecimal ratedFuelSurchargeDiscount;
+
+    @Column(name = "RATED_CUST_FUEL_SURCHARGE_DISC")
     private BigDecimal ratedCustomFuelSurchargeDiscount;
+
+    @Column(name = "RATED_GROSS_FUEL")
     private BigDecimal ratedGrossFuel;
+
+    @Column(name = "RES_SURCHARGE_DSC")
     private BigDecimal residentialSurchargeDiscount;
+
+    @Column(name = "RES_SURCHARGE_DSC_PERC")
     private BigDecimal residentialSurchargeDiscountPercentage;
+
+    @Column(name = "OTHER_DSC_1")
     private BigDecimal otherDiscount1;
+
+    @Column(name = "OTHER_DSC_2")
     private BigDecimal otherDiscount2;
+
+    @Column(name = "OTHER_DSC_3")
     private BigDecimal otherDiscount3;
+
+    @Column(name = "ACCESSORIAL_1")
     private BigDecimal accessorial1;
+
+    @Column(name = "ACCESSORIAL_2")
     private BigDecimal accessorial2;
+
+    @Column(name = "ACCESSORIAL_3")
     private BigDecimal accessorial3;
+
+    @Column(name = "ACCESSORIAL_4")
     private BigDecimal accessorial4;
+
+    @Column(name = "RATED_DAS_DSC")
     private BigDecimal deliveryAreaSurchargeDiscount;
+
+    @Column(name = "ACCESSORIAL_1_CODE")
     private String accessorial1Code;
+
+    @Column(name = "ACCESSORIAL_2_CODE")
     private String accessorial2Code;
+
+    @Column(name = "ACCESSORIAL_3_CODE")
     private String accessorial3Code;
+
+    @Column(name = "ACCESSORIAL_4_CODE")
     private String accessorial4Code;
+
+    @Column(name = "FRT_CHARGE")
     private BigDecimal freightCharge;
+
+    @Column(name = "FSC_CHARGE")
     private BigDecimal fuelSurcharge;
 
     public static ParcelRateDetailsDto getInstance(){

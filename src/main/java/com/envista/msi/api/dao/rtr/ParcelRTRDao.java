@@ -24,12 +24,13 @@ public class ParcelRTRDao {
     @Inject
     private PersistentContext persistentContext;
 
-    public List<ParcelAuditDetailsDto> loadUpsParcelAuditDetails(String customerIds, String fromDate, String toDate, String trackingNumbers, String invoiceId, Integer ignoreRtrStatus){
+    public List<ParcelAuditDetailsDto> loadUpsParcelAuditDetails(String customerIds, String fromDate, String toDate, String trackingNumbers, String invoiceId, Integer ignoreRtrStatus, Long parentId){
         QueryParameter queryParameter = QueryParameter.with("p_from_date", fromDate)
                 .and("p_to_date", toDate)
                 .and("p_tracking_numbers", trackingNumbers)
                 .and("p_invoice_id", invoiceId)
-                .and("p_ignore_rtr_status", ignoreRtrStatus);
+                .and("p_ignore_rtr_status", ignoreRtrStatus)
+                .and("p_parent_id", parentId);
 
         if(customerIds != null && !customerIds.isEmpty()){
             queryParameter.and("p_customer_CSV", customerIds);
@@ -41,12 +42,20 @@ public class ParcelRTRDao {
         return parcelAuditDetailsList;
     }
 
+    public List<ParcelAuditDetailsDto> loadUpsParcelAuditDetails(String customerId, String trackingNumber, Integer ignoreRtrStatus, Long parentId){
+        return loadUpsParcelAuditDetails(customerId, null, null, trackingNumber, null, ignoreRtrStatus, parentId);
+    }
+
     public List<ParcelAuditDetailsDto> loadUpsParcelAuditDetails(String fromDate, String toDate, String trackingNumber){
-        return loadUpsParcelAuditDetails(null, fromDate, toDate, trackingNumber, null, 0);
+        return loadUpsParcelAuditDetails(null, fromDate, toDate, trackingNumber, null, 0, null);
     }
 
     public List<ParcelAuditDetailsDto> loadUpsParcelAuditDetails(String customerIds, String trackingNumber, Integer ignoreRtrStatus){
-        return loadUpsParcelAuditDetails(customerIds, null, null, trackingNumber, null, ignoreRtrStatus);
+        return loadUpsParcelAuditDetails(customerIds, null, null, trackingNumber, null, ignoreRtrStatus, null);
+    }
+
+    public List<ParcelAuditDetailsDto> loadUpsParcelAuditDetails(String customerIds, Integer ignoreRtrStatus, Long parentId){
+        return loadUpsParcelAuditDetails(customerIds, null, null, null, null, ignoreRtrStatus, parentId);
     }
 
     public List<ParcelAuditDetailsDto> loadNonUpsParcelAuditDetails(String customerIds, String fromDate, String toDate, String carrierIds, String trackingNumbers, String invoiceId){
