@@ -4,10 +4,7 @@ import com.envista.msi.api.dao.DaoException;
 import com.envista.msi.api.domain.PersistentContext;
 import com.envista.msi.api.domain.util.QueryParameter;
 import com.envista.msi.api.domain.util.StoredProcedureParameter;
-import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditDASChargeDetailsDto;
-import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditDetailsDto;
-import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditRequestResponseLog;
-import com.envista.msi.api.web.rest.dto.rtr.ParcelRateDetailsDto;
+import com.envista.msi.api.web.rest.dto.rtr.*;
 import org.springframework.stereotype.Repository;
 
 import javax.inject.Inject;
@@ -27,11 +24,12 @@ public class ParcelRTRDao {
     @Inject
     private PersistentContext persistentContext;
 
-    public List<ParcelAuditDetailsDto> loadUpsParcelAuditDetails(String customerIds, String fromDate, String toDate, String trackingNumbers, String invoiceId){
+    public List<ParcelAuditDetailsDto> loadUpsParcelAuditDetails(String customerIds, String fromDate, String toDate, String trackingNumbers, String invoiceId, Integer ignoreRtrStatus){
         QueryParameter queryParameter = QueryParameter.with("p_from_date", fromDate)
                 .and("p_to_date", toDate)
                 .and("p_tracking_numbers", trackingNumbers)
-                .and("p_invoice_id", invoiceId);
+                .and("p_invoice_id", invoiceId)
+                .and("p_ignore_rtr_status", ignoreRtrStatus);
 
         if(customerIds != null && !customerIds.isEmpty()){
             queryParameter.and("p_customer_CSV", customerIds);
@@ -39,16 +37,16 @@ public class ParcelRTRDao {
             queryParameter.and("p_customer_CSV", "");
         }
         List<ParcelAuditDetailsDto> parcelAuditDetailsList = persistentContext.findEntitiesAndMapFields(ParcelAuditDetailsDto.Config.StoredProcedureQueryName.AUDIT_UPS_PARCEL_DETAILS, queryParameter);
-        parcelAuditDetailsList.forEach(auditDetails -> persistentContext.getHibernateSession().evict(auditDetails));
+        if(parcelAuditDetailsList != null) parcelAuditDetailsList.forEach(auditDetails -> persistentContext.getHibernateSession().evict(auditDetails));
         return parcelAuditDetailsList;
     }
 
     public List<ParcelAuditDetailsDto> loadUpsParcelAuditDetails(String fromDate, String toDate, String trackingNumber){
-        return loadUpsParcelAuditDetails(null, fromDate, toDate, trackingNumber, null);
+        return loadUpsParcelAuditDetails(null, fromDate, toDate, trackingNumber, null, 0);
     }
 
-    public List<ParcelAuditDetailsDto> loadUpsParcelAuditDetails(String customerIds, String trackingNumber){
-        return loadUpsParcelAuditDetails(customerIds, null, null, trackingNumber, null);
+    public List<ParcelAuditDetailsDto> loadUpsParcelAuditDetails(String customerIds, String trackingNumber, Integer ignoreRtrStatus){
+        return loadUpsParcelAuditDetails(customerIds, null, null, trackingNumber, null, ignoreRtrStatus);
     }
 
     public List<ParcelAuditDetailsDto> loadNonUpsParcelAuditDetails(String customerIds, String fromDate, String toDate, String carrierIds, String trackingNumbers, String invoiceId){
@@ -63,7 +61,7 @@ public class ParcelRTRDao {
             queryParameter.and("p_customer_CSV", "");
         }
         List<ParcelAuditDetailsDto> parcelAuditDetailsList = persistentContext.findEntitiesAndMapFields(ParcelAuditDetailsDto.Config.StoredProcedureQueryName.AUDIT_NOT_UPS_PARCEL_DETAILS, queryParameter);
-        parcelAuditDetailsList.forEach(auditDetails -> persistentContext.getHibernateSession().evict(auditDetails));
+        if (parcelAuditDetailsList != null) parcelAuditDetailsList.forEach(auditDetails -> persistentContext.getHibernateSession().evict(auditDetails));
         return parcelAuditDetailsList;
     }
 
@@ -71,8 +69,8 @@ public class ParcelRTRDao {
         return loadNonUpsParcelAuditDetails(null, fromDate, toDate, carrierIds, trackingNumbers, null);
     }
 
-    public List<ParcelAuditDetailsDto> loadNonUpsParcelAuditDetails(String trackingNumbers){
-        return loadNonUpsParcelAuditDetails(null, null, null, null, trackingNumbers, null);
+    public List<ParcelAuditDetailsDto> loadNonUpsParcelAuditDetails(String customerIds, String trackingNumbers, String carrierId){
+        return loadNonUpsParcelAuditDetails(customerIds, null, null, carrierId, trackingNumbers, null);
     }
 
     public void updateRTRInvoiceAmount(Long id, String userName, BigDecimal rtrAmount, String rtrStatus, Long carrierId){
@@ -127,7 +125,7 @@ public class ParcelRTRDao {
                 .and("p_limit", limit)
                 .and("p_rate_to", rateTo);
         List<ParcelAuditDetailsDto> parcelAuditDetailsList = persistentContext.findEntities(ParcelAuditDetailsDto.Config.StoredProcedureQueryName.LOAD_INVOICE_IDS, queryParameter);
-        parcelAuditDetailsList.forEach(auditDetails -> persistentContext.getHibernateSession().evict(auditDetails));
+        if(parcelAuditDetailsList != null) parcelAuditDetailsList.forEach(auditDetails -> persistentContext.getHibernateSession().evict(auditDetails));
         return parcelAuditDetailsList;
     }
 
@@ -194,7 +192,7 @@ public class ParcelRTRDao {
             QueryParameter queryParameter = StoredProcedureParameter.with("p_module_name", ModuleName);
 
             List<ParcelAuditDASChargeDetailsDto> parcelAuditDASChargeList = persistentContext.findEntitiesAndMapFields(ParcelAuditDASChargeDetailsDto.Config.StoredProcedureQueryName.AUDIT_LOAD_DAS_CHARGE_DETAILS, queryParameter);
-            parcelAuditDASChargeList.forEach(DASChargeDetails -> persistentContext.getHibernateSession().evict(DASChargeDetails));
+            if(parcelAuditDASChargeList != null) parcelAuditDASChargeList.forEach(DASChargeDetails -> persistentContext.getHibernateSession().evict(DASChargeDetails));
             Map<String, String> resultsMap = new HashMap<String, String>();
             for(ParcelAuditDASChargeDetailsDto dto:parcelAuditDASChargeList){
                 resultsMap.put(dto.getLookupCode(),dto.getLookupValue());
@@ -223,5 +221,12 @@ public class ParcelRTRDao {
             e.printStackTrace();
             throw new DaoException("Error while updating Rate Details", e);
         }
+    }
+
+    public List<RatedChargeDetailsDto> getRatedChargeAmount(Long parentId){
+        QueryParameter queryParameter = QueryParameter.with("p_parent_id", parentId);
+        List<RatedChargeDetailsDto> ratedChargeDetails = persistentContext.findEntitiesAndMapFields("RatedChargeDetailsDto.getRatedChargeAmount", queryParameter);
+        if(ratedChargeDetails != null) ratedChargeDetails.forEach(auditDetails -> persistentContext.getHibernateSession().evict(auditDetails));
+        return ratedChargeDetails;
     }
 }

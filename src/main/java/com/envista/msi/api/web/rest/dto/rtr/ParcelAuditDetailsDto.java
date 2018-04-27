@@ -20,6 +20,7 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_to_date", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_tracking_numbers", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_invoice_id", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_ignore_rtr_status", type = Integer.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_audit_parcel_details", type = Void.class)
                 }
         ),

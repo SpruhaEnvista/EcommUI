@@ -66,4 +66,7 @@ public class ParcelAuditConstant {
 
     public static final String EBILL_MANIFEST_TABLE_NAME = "SHP_EBILL_MANIFEST_TB";
     public static final String EBILL_GFF_TABLE_NAME = "SHP_EBILL_GFF_TB";
+
+    public static final String COMMERCIAL_ADJUSTMENT_CHARGE_TYPE = "COMMERCIAL ADJUSTMENT";
+    public static final String RESIDENTIAL_ADJUSTMENT_CHARGE_TYPE = "RESIDENTIAL ADJUSTMENT";
 }

@@ -26,7 +26,14 @@ public class ParcelRateDetailsDto implements Serializable {
     private BigDecimal accessorial1;
     private BigDecimal accessorial2;
     private BigDecimal accessorial3;
+    private BigDecimal accessorial4;
     private BigDecimal deliveryAreaSurchargeDiscount;
+    private String accessorial1Code;
+    private String accessorial2Code;
+    private String accessorial3Code;
+    private String accessorial4Code;
+    private BigDecimal freightCharge;
+    private BigDecimal fuelSurcharge;
 
     public static ParcelRateDetailsDto getInstance(){
         return new ParcelRateDetailsDto();
@@ -184,11 +191,67 @@ public class ParcelRateDetailsDto implements Serializable {
         this.accessorial3 = accessorial3;
     }
 
+    public BigDecimal getAccessorial4() {
+        return accessorial4;
+    }
+
+    public void setAccessorial4(BigDecimal accessorial4) {
+        this.accessorial4 = accessorial4;
+    }
+
     public BigDecimal getDeliveryAreaSurchargeDiscount() {
         return deliveryAreaSurchargeDiscount;
     }
 
     public void setDeliveryAreaSurchargeDiscount(BigDecimal deliveryAreaSurchargeDiscount) {
         this.deliveryAreaSurchargeDiscount = deliveryAreaSurchargeDiscount;
+    }
+
+    public String getAccessorial1Code() {
+        return accessorial1Code;
+    }
+
+    public void setAccessorial1Code(String accessorial1Code) {
+        this.accessorial1Code = accessorial1Code;
+    }
+
+    public String getAccessorial2Code() {
+        return accessorial2Code;
+    }
+
+    public void setAccessorial2Code(String accessorial2Code) {
+        this.accessorial2Code = accessorial2Code;
+    }
+
+    public String getAccessorial3Code() {
+        return accessorial3Code;
+    }
+
+    public void setAccessorial3Code(String accessorial3Code) {
+        this.accessorial3Code = accessorial3Code;
+    }
+
+    public String getAccessorial4Code() {
+        return accessorial4Code;
+    }
+
+    public void setAccessorial4Code(String accessorial4Code) {
+        this.accessorial4Code = accessorial4Code;
+    }
+
+    public BigDecimal getFreightCharge() {
+        return freightCharge;
+    }
+
+    public void setFreightCharge(BigDecimal freightCharge) {
+        this.freightCharge = freightCharge;
+    }
+
+    public BigDecimal getFuelSurcharge() {
+        return fuelSurcharge;
+    }
+
+    public void setFuelSurcharge(BigDecimal fuelSurcharge) {
+        this.fuelSurcharge = fuelSurcharge;
     }
 }
