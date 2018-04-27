@@ -256,6 +256,18 @@ public class ParcelRateResponseParser {
         return discountCharges;
     }
 
+    public static ParcelRateResponse.Charge getDeliveryAreaSurcharge(ParcelRateResponse.PriceSheet priceSheet){
+        if(priceSheet != null && priceSheet.getCharges() != null){
+            for(ParcelRateResponse.Charge charge : priceSheet.getCharges()){
+                if(charge != null && "ACCESSORIAL".equalsIgnoreCase(charge.getType())
+                        && charge.getName() != null && "Delivery Area Surcharge".equalsIgnoreCase(charge.getName())){
+                    return charge;
+                }
+            }
+        }
+        return null;
+    }
+
     public static List<ParcelRateResponse.Charge> getAccessorialChargesForUps(ParcelRateResponse.PriceSheet priceSheet){
         List<ParcelRateResponse.Charge> accessorialCharges = null;
         if(priceSheet != null && priceSheet.getCharges() != null) {
@@ -281,4 +293,17 @@ public class ParcelRateResponseParser {
         }
         return accessorialCharges;
     }
+
+    public static ParcelRateResponse.Charge getRatedDasDiscount(ParcelRateResponse.PriceSheet priceSheet){
+        if(priceSheet != null && priceSheet.getCharges() != null) {
+            for (ParcelRateResponse.Charge charge : priceSheet.getCharges()) {
+                if(charge != null && charge.getType() != null && ParcelRateResponse.ChargeType.ACCESSORIAL.name().equalsIgnoreCase(charge.getType()) && charge.getName() != null && "Delivery Area Surcharge".equalsIgnoreCase(charge.getName())){
+                    return charge;
+                }
+            }
+        }
+        return null;
+    }
+
+
 }

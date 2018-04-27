@@ -4,6 +4,7 @@ import com.envista.msi.api.dao.DaoException;
 import com.envista.msi.api.domain.PersistentContext;
 import com.envista.msi.api.domain.util.QueryParameter;
 import com.envista.msi.api.domain.util.StoredProcedureParameter;
+import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditDASChargeDetailsDto;
 import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditDetailsDto;
 import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditRequestResponseLog;
 import com.envista.msi.api.web.rest.dto.rtr.ParcelRateDetailsDto;
@@ -12,7 +13,9 @@ import org.springframework.stereotype.Repository;
 import javax.inject.Inject;
 import javax.persistence.ParameterMode;
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Sujit kumar on 08/06/2017.
@@ -157,7 +160,8 @@ public class ParcelRTRDao {
                     .andPosition(13, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getRatedMinMaxAdjustment() != null ? rateDetails.getRatedMinMaxAdjustment() : new BigDecimal("0"))
                     .andPosition(14, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getRatedGrossFuel() != null ? rateDetails.getRatedGrossFuel() : new BigDecimal("0"))
                     .andPosition(15, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getResidentialSurchargeDiscount() != null ? rateDetails.getResidentialSurchargeDiscount() : new BigDecimal("0"))
-                    .andPosition(16, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getResidentialSurchargeDiscountPercentage() != null ? rateDetails.getResidentialSurchargeDiscountPercentage() : new BigDecimal("0"));
+                    .andPosition(16, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getResidentialSurchargeDiscountPercentage() != null ? rateDetails.getResidentialSurchargeDiscountPercentage() : new BigDecimal("0"))
+                    .andPosition(17, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getDeliveryAreaSurchargeDiscount() != null ? rateDetails.getDeliveryAreaSurchargeDiscount() : new BigDecimal("0"));
             persistentContext.executeStoredProcedure("SHP_SAVE_RATE_DETAILS_PROC", queryParameter);
         }catch (Exception e){
             e.printStackTrace();
@@ -180,6 +184,28 @@ public class ParcelRTRDao {
             e.printStackTrace();
             throw new DaoException("Error while updating Rate Details", e);
         }
+    }
+
+
+    public Map<String, String>  loadDASChargeDetails() {
+        String ModuleName = "DAS Charge Mapping";
+        try{
+
+            QueryParameter queryParameter = StoredProcedureParameter.with("p_module_name", ModuleName);
+
+            List<ParcelAuditDASChargeDetailsDto> parcelAuditDASChargeList = persistentContext.findEntitiesAndMapFields(ParcelAuditDASChargeDetailsDto.Config.StoredProcedureQueryName.AUDIT_LOAD_DAS_CHARGE_DETAILS, queryParameter);
+            parcelAuditDASChargeList.forEach(DASChargeDetails -> persistentContext.getHibernateSession().evict(DASChargeDetails));
+            Map<String, String> resultsMap = new HashMap<String, String>();
+            for(ParcelAuditDASChargeDetailsDto dto:parcelAuditDASChargeList){
+                resultsMap.put(dto.getLookupCode(),dto.getLookupValue());
+            }
+            return resultsMap;
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new DaoException("Error while loading DAS charge Details", e);
+        }
+
+
     }
 
     public void updateAccessorialShipmentRateDetails(String referenceTableName, String entityIds, String userName, ParcelRateDetailsDto rateDetails){

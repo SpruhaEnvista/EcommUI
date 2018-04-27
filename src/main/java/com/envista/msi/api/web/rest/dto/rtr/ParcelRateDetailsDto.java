@@ -26,6 +26,7 @@ public class ParcelRateDetailsDto implements Serializable {
     private BigDecimal accessorial1;
     private BigDecimal accessorial2;
     private BigDecimal accessorial3;
+    private BigDecimal deliveryAreaSurchargeDiscount;
 
     public static ParcelRateDetailsDto getInstance(){
         return new ParcelRateDetailsDto();
@@ -181,5 +182,13 @@ public class ParcelRateDetailsDto implements Serializable {
 
     public void setAccessorial3(BigDecimal accessorial3) {
         this.accessorial3 = accessorial3;
+    }
+
+    public BigDecimal getDeliveryAreaSurchargeDiscount() {
+        return deliveryAreaSurchargeDiscount;
+    }
+
+    public void setDeliveryAreaSurchargeDiscount(BigDecimal deliveryAreaSurchargeDiscount) {
+        this.deliveryAreaSurchargeDiscount = deliveryAreaSurchargeDiscount;
     }
 }
