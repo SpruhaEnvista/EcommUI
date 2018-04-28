@@ -9,7 +9,7 @@ import java.math.BigDecimal;
  */
 @NamedStoredProcedureQuery(
         name = "RatedChargeDetailsDto.getRatedChargeAmount",
-        procedureName = "SHP_GET_RATED_AMOUNT_PROC",
+        procedureName = "SHP_GET_UPS_RATED_AMOUNT_PROC",
         resultClasses = {RatedChargeDetailsDto.class},
         parameters = {
                 @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_parent_id", type = Long.class),

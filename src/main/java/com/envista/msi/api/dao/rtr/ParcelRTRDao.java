@@ -24,13 +24,12 @@ public class ParcelRTRDao {
     @Inject
     private PersistentContext persistentContext;
 
-    public List<ParcelAuditDetailsDto> loadUpsParcelAuditDetails(String customerIds, String fromDate, String toDate, String trackingNumbers, String invoiceId, Integer ignoreRtrStatus, Long parentId){
+    public List<ParcelAuditDetailsDto> loadUpsParcelAuditDetails(String customerIds, String fromDate, String toDate, String trackingNumbers, String invoiceId, Integer ignoreRtrStatus){
         QueryParameter queryParameter = QueryParameter.with("p_from_date", fromDate)
                 .and("p_to_date", toDate)
                 .and("p_tracking_numbers", trackingNumbers)
                 .and("p_invoice_id", invoiceId)
-                .and("p_ignore_rtr_status", ignoreRtrStatus)
-                .and("p_parent_id", parentId);
+                .and("p_ignore_rtr_status", ignoreRtrStatus);
 
         if(customerIds != null && !customerIds.isEmpty()){
             queryParameter.and("p_customer_CSV", customerIds);
@@ -42,20 +41,16 @@ public class ParcelRTRDao {
         return parcelAuditDetailsList;
     }
 
-    public List<ParcelAuditDetailsDto> loadUpsParcelAuditDetails(String customerId, String trackingNumber, Integer ignoreRtrStatus, Long parentId){
-        return loadUpsParcelAuditDetails(customerId, null, null, trackingNumber, null, ignoreRtrStatus, parentId);
+    public List<ParcelAuditDetailsDto> loadUpsParcelAuditDetails(String customerId, String trackingNumber, Integer ignoreRtrStatus){
+        return loadUpsParcelAuditDetails(customerId, null, null, trackingNumber, null, ignoreRtrStatus);
     }
 
     public List<ParcelAuditDetailsDto> loadUpsParcelAuditDetails(String fromDate, String toDate, String trackingNumber){
-        return loadUpsParcelAuditDetails(null, fromDate, toDate, trackingNumber, null, 0, null);
+        return loadUpsParcelAuditDetails(null, fromDate, toDate, trackingNumber, null, 0);
     }
 
-    public List<ParcelAuditDetailsDto> loadUpsParcelAuditDetails(String customerIds, String trackingNumber, Integer ignoreRtrStatus){
-        return loadUpsParcelAuditDetails(customerIds, null, null, trackingNumber, null, ignoreRtrStatus, null);
-    }
-
-    public List<ParcelAuditDetailsDto> loadUpsParcelAuditDetails(String customerIds, Integer ignoreRtrStatus, Long parentId){
-        return loadUpsParcelAuditDetails(customerIds, null, null, null, null, ignoreRtrStatus, parentId);
+    public List<ParcelAuditDetailsDto> loadUpsParcelAuditDetails(String customerIds, Integer ignoreRtrStatus){
+        return loadUpsParcelAuditDetails(customerIds, null, null, null, null, ignoreRtrStatus);
     }
 
     public List<ParcelAuditDetailsDto> loadNonUpsParcelAuditDetails(String customerIds, String fromDate, String toDate, String carrierIds, String trackingNumbers, String invoiceId){
@@ -156,9 +151,9 @@ public class ParcelRTRDao {
                     .andPosition(2, ParameterMode.IN, String.class, entityIds)
                     .andPosition(3, ParameterMode.IN, String.class, userName)
                     .andPosition(4, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getDimDivisor() != null ? rateDetails.getDimDivisor() : new BigDecimal("0"))
-                    .andPosition(5, ParameterMode.IN, String.class, rateDetails != null && rateDetails.getShipperCategory() != null ? rateDetails.getShipperCategory() : new BigDecimal("0"))
+                    .andPosition(5, ParameterMode.IN, String.class, rateDetails != null && rateDetails.getShipperCategory() != null ? rateDetails.getShipperCategory() : "")
                     .andPosition(6, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getRatedWeight() != null ? rateDetails.getRatedWeight() : new BigDecimal("0"))
-                    .andPosition(7, ParameterMode.IN, String.class, rateDetails != null && rateDetails.getContractName() != null ? rateDetails.getContractName() : new BigDecimal("0"))
+                    .andPosition(7, ParameterMode.IN, String.class, rateDetails != null && rateDetails.getContractName() != null ? rateDetails.getContractName() : "")
                     .andPosition(8, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getFuelTablePercentage() != null ? rateDetails.getFuelTablePercentage() : new BigDecimal("0"))
                     .andPosition(9, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getRatedFuelSurchargeDiscount() != null ? rateDetails.getRatedFuelSurchargeDiscount() : new BigDecimal("0"))
                     .andPosition(10, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getRatedCustomFuelSurchargeDiscount() != null ? rateDetails.getRatedCustomFuelSurchargeDiscount() : new BigDecimal("0"))
@@ -181,8 +176,8 @@ public class ParcelRTRDao {
             QueryParameter queryParameter = StoredProcedureParameter.withPosition(1, ParameterMode.IN, String.class, referenceTableName)
                     .andPosition(2, ParameterMode.IN, String.class, entityIds)
                     .andPosition(3, ParameterMode.IN, String.class, userName)
-                    .andPosition(4, ParameterMode.IN, String.class, rateDetails != null && rateDetails.getContractName() != null ? rateDetails.getContractName() : new BigDecimal("0"))
-                    .andPosition(5, ParameterMode.IN, String.class, rateDetails != null && rateDetails.getShipperCategory() != null ? rateDetails.getShipperCategory() : new BigDecimal("0"))
+                    .andPosition(4, ParameterMode.IN, String.class, rateDetails != null && rateDetails.getContractName() != null ? rateDetails.getContractName() : "")
+                    .andPosition(5, ParameterMode.IN, String.class, rateDetails != null && rateDetails.getShipperCategory() != null ? rateDetails.getShipperCategory() : "")
                     .andPosition(6, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getOtherDiscount1() != null ? rateDetails.getOtherDiscount1() : new BigDecimal("0"))
                     .andPosition(7, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getOtherDiscount2() != null ? rateDetails.getOtherDiscount2() : new BigDecimal("0"))
                     .andPosition(8, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getOtherDiscount3() != null ? rateDetails.getOtherDiscount3() : new BigDecimal("0"));
@@ -194,22 +189,21 @@ public class ParcelRTRDao {
     }
 
 
-    public Map<String, String>  loadDASChargeDetails() {
-        String ModuleName = "DAS Charge Mapping";
+    public Map<String, String> loadMappedARChargeCodes(String moduleName, String chargeDescription) {
         try{
+            QueryParameter queryParameter = StoredProcedureParameter.with("p_module_name", moduleName)
+                    .and("p_custom_defined_1", chargeDescription);
 
-            QueryParameter queryParameter = StoredProcedureParameter.with("p_module_name", ModuleName);
-
-            List<ParcelAuditDASChargeDetailsDto> parcelAuditDASChargeList = persistentContext.findEntitiesAndMapFields(ParcelAuditDASChargeDetailsDto.Config.StoredProcedureQueryName.AUDIT_LOAD_DAS_CHARGE_DETAILS, queryParameter);
-            if(parcelAuditDASChargeList != null) parcelAuditDASChargeList.forEach(DASChargeDetails -> persistentContext.getHibernateSession().evict(DASChargeDetails));
+            List<ParcelARChargeCodeMappingDto> chargeCodes = persistentContext.findEntitiesAndMapFields(ParcelARChargeCodeMappingDto.Config.StoredProcedureQueryName.AUDIT_LOAD_MAPPED_AR_CHARGE_DETAILS, queryParameter);
+            if(chargeCodes != null) chargeCodes.forEach(DASChargeDetails -> persistentContext.getHibernateSession().evict(DASChargeDetails));
             Map<String, String> resultsMap = new HashMap<String, String>();
-            for(ParcelAuditDASChargeDetailsDto dto:parcelAuditDASChargeList){
-                resultsMap.put(dto.getLookupCode(),dto.getLookupValue());
+            for(ParcelARChargeCodeMappingDto dto : chargeCodes){
+                resultsMap.put(dto.getLookupCode(), dto.getCodeValue());
             }
             return resultsMap;
         }catch (Exception e){
             e.printStackTrace();
-            throw new DaoException("Error while loading DAS charge Details", e);
+            throw new DaoException("Error while loading MSI-AR charge Details", e);
         }
 
 
@@ -220,11 +214,16 @@ public class ParcelRTRDao {
             QueryParameter queryParameter = StoredProcedureParameter.withPosition(1, ParameterMode.IN, String.class, referenceTableName)
                     .andPosition(2, ParameterMode.IN, String.class, entityIds)
                     .andPosition(3, ParameterMode.IN, String.class, userName)
-                    .andPosition(4, ParameterMode.IN, String.class, rateDetails != null && rateDetails.getContractName() != null ? rateDetails.getContractName() : new BigDecimal("0"))
-                    .andPosition(5, ParameterMode.IN, String.class, rateDetails != null && rateDetails.getShipperCategory() != null ? rateDetails.getShipperCategory() : new BigDecimal("0"))
+                    .andPosition(4, ParameterMode.IN, String.class, rateDetails != null && rateDetails.getContractName() != null ? rateDetails.getContractName() : "")
+                    .andPosition(5, ParameterMode.IN, String.class, rateDetails != null && rateDetails.getShipperCategory() != null ? rateDetails.getShipperCategory() : "")
                     .andPosition(6, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getAccessorial1() != null ? rateDetails.getAccessorial1() : new BigDecimal("0"))
                     .andPosition(7, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getAccessorial2() != null ? rateDetails.getAccessorial2() : new BigDecimal("0"))
-                    .andPosition(8, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getAccessorial3() != null ? rateDetails.getAccessorial3() : new BigDecimal("0"));
+                    .andPosition(8, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getAccessorial3() != null ? rateDetails.getAccessorial3() : new BigDecimal("0"))
+                    .andPosition(9, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getAccessorial4() != null ? rateDetails.getAccessorial4() : new BigDecimal("0"))
+                    .andPosition(10, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getAccessorial1Code() != null ? rateDetails.getAccessorial1Code() : "")
+                    .andPosition(11, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getAccessorial2Code() != null ? rateDetails.getAccessorial2Code() : "")
+                    .andPosition(12, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getAccessorial3Code() != null ? rateDetails.getAccessorial3Code() : "")
+                    .andPosition(13, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getAccessorial4Code() != null ? rateDetails.getAccessorial4Code() : "");
             persistentContext.executeStoredProcedure("SHP_RATE_UPDATE_ACC_PROC", queryParameter);
         }catch (Exception e){
             e.printStackTrace();
@@ -237,5 +236,41 @@ public class ParcelRTRDao {
         List<RatedChargeDetailsDto> ratedChargeDetails = persistentContext.findEntitiesAndMapFields("RatedChargeDetailsDto.getRatedChargeAmount", queryParameter);
         if(ratedChargeDetails != null) ratedChargeDetails.forEach(auditDetails -> persistentContext.getHibernateSession().evict(auditDetails));
         return ratedChargeDetails;
+    }
+
+    public void updateAllShipmentRateDetails(String referenceTableName, String entityIds, String userName, ParcelRateDetailsDto rateDetails){
+        try{
+            QueryParameter queryParameter = StoredProcedureParameter.withPosition(1, ParameterMode.IN, String.class, referenceTableName)
+                    .andPosition(2, ParameterMode.IN, String.class, entityIds)
+                    .andPosition(3, ParameterMode.IN, String.class, userName)
+                    .andPosition(4, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getDimDivisor() != null ? rateDetails.getDimDivisor() : new BigDecimal("0"))
+                    .andPosition(5, ParameterMode.IN, String.class, rateDetails != null && rateDetails.getShipperCategory() != null ? rateDetails.getShipperCategory() : "")
+                    .andPosition(6, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getRatedWeight() != null ? rateDetails.getRatedWeight() : new BigDecimal("0"))
+                    .andPosition(7, ParameterMode.IN, String.class, rateDetails != null && rateDetails.getContractName() != null ? rateDetails.getContractName() : "")
+                    .andPosition(8, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getFuelTablePercentage() != null ? rateDetails.getFuelTablePercentage() : new BigDecimal("0"))
+                    .andPosition(9, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getRatedFuelSurchargeDiscount() != null ? rateDetails.getRatedFuelSurchargeDiscount() : new BigDecimal("0"))
+                    .andPosition(10, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getRatedCustomFuelSurchargeDiscount() != null ? rateDetails.getRatedCustomFuelSurchargeDiscount() : new BigDecimal("0"))
+                    .andPosition(11, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getRatedBaseDiscount() != null ? rateDetails.getRatedBaseDiscount() : new BigDecimal("0"))
+                    .andPosition(12, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getRatedEarnedDiscount() != null ? rateDetails.getRatedEarnedDiscount() : new BigDecimal("0"))
+                    .andPosition(13, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getRatedMinMaxAdjustment() != null ? rateDetails.getRatedMinMaxAdjustment() : new BigDecimal("0"))
+                    .andPosition(14, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getRatedGrossFuel() != null ? rateDetails.getRatedGrossFuel() : new BigDecimal("0"))
+                    .andPosition(15, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getResidentialSurchargeDiscount() != null ? rateDetails.getResidentialSurchargeDiscount() : new BigDecimal("0"))
+                    .andPosition(16, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getResidentialSurchargeDiscountPercentage() != null ? rateDetails.getResidentialSurchargeDiscountPercentage() : new BigDecimal("0"))
+                    .andPosition(17, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getDeliveryAreaSurchargeDiscount() != null ? rateDetails.getDeliveryAreaSurchargeDiscount() : new BigDecimal("0"))
+                    .andPosition(18, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getFreightCharge() != null ? rateDetails.getFreightCharge() : new BigDecimal("0"))
+                    .andPosition(19, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getFuelSurcharge() != null ? rateDetails.getFuelSurcharge() : new BigDecimal("0"))
+                    .andPosition(20, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getAccessorial1() != null ? rateDetails.getAccessorial1() : new BigDecimal("0"))
+                    .andPosition(21, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getAccessorial2() != null ? rateDetails.getAccessorial2() : new BigDecimal("0"))
+                    .andPosition(22, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getAccessorial3() != null ? rateDetails.getAccessorial3() : new BigDecimal("0"))
+                    .andPosition(23, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getAccessorial4() != null ? rateDetails.getAccessorial4() : new BigDecimal("0"))
+                    .andPosition(24, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getAccessorial1Code() != null ? rateDetails.getAccessorial1Code() : "")
+                    .andPosition(25, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getAccessorial2Code() != null ? rateDetails.getAccessorial2Code() : "")
+                    .andPosition(26, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getAccessorial3Code() != null ? rateDetails.getAccessorial3Code() : "")
+                    .andPosition(27, ParameterMode.IN, BigDecimal.class, rateDetails != null && rateDetails.getAccessorial4Code() != null ? rateDetails.getAccessorial4Code() : "");
+            persistentContext.executeStoredProcedure("SHP_SAVE_ALL_RATE_DETAILS_PROC", queryParameter);
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new DaoException("Error while updating Rate Details", e);
+        }
     }
 }

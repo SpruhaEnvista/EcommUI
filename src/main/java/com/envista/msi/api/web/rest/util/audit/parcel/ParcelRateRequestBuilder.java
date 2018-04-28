@@ -1,6 +1,7 @@
 package com.envista.msi.api.web.rest.util.audit.parcel;
 
 import com.envista.msi.api.domain.util.ParcelRatingUtil;
+import com.envista.msi.api.web.rest.dto.rtr.MsiARChargeCodesDto;
 import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditDetailsDto;
 import com.envista.msi.api.web.rest.util.DateUtil;
 
@@ -25,19 +26,21 @@ public class ParcelRateRequestBuilder {
      * @param licenseKey
      * @return
      */
-    public static ParcelRateRequest buildParcelRateRequestForUps(List<ParcelAuditDetailsDto> parcelAuditDetailsList, String licenseKey,Map<String, String> dasChargeList){
+    public static ParcelRateRequest buildParcelRateRequestForUps(List<ParcelAuditDetailsDto> parcelAuditDetailsList, String licenseKey, MsiARChargeCodesDto msiARChargeCodes){
         ParcelRateRequest parcelRateRequest = new ParcelRateRequest();
         parcelRateRequest.setLicenseKey(licenseKey);
 
+        Map<String, String> dasChargeList = msiARChargeCodes.getDasChargeCodes();
+        Map<String, String> lpsCharges = msiARChargeCodes.getLpsChargeCodes();
         if(parcelAuditDetailsList != null && !parcelAuditDetailsList.isEmpty()){
             for(ParcelAuditDetailsDto auditDetails : parcelAuditDetailsList) {
                 if (auditDetails != null && auditDetails.getPackageDimension() != null && !auditDetails.getPackageDimension().isEmpty()) {
                     try{
                         String [] dimension = auditDetails.getPackageDimension().toLowerCase().split("x");
                         if(dimension != null && dimension.length > 0){
-                            auditDetails.setDimLength(dimension[0]);
-                            auditDetails.setDimWidth(dimension[1]);
-                            auditDetails.setDimHeight(dimension[2]);
+                            auditDetails.setDimLength(dimension[0] != null ? dimension[0].trim() : "");
+                            auditDetails.setDimWidth(dimension[1] != null ? dimension[1].trim() : "");
+                            auditDetails.setDimHeight(dimension[2] != null ? dimension[2].trim() : "");
                         }
                     }catch (Exception e){}
                 }
@@ -70,6 +73,8 @@ public class ParcelRateRequestBuilder {
                                     serviceFlag.setCode("RSC");
                                 }else if(dasChargeList.containsKey(auditDetails.getChargeDescriptionCode())) {
                                     serviceFlag.setCode(dasChargeList.get(auditDetails.getChargeDescriptionCode()));
+                                } else {
+                                    serviceFlag.setCode(auditDetails.getChargeDescriptionCode());
                                 }
                                 serviceFlagList.add(serviceFlag);
                             }
@@ -210,9 +215,10 @@ public class ParcelRateRequestBuilder {
      * @param licenseKey
      * @return
      */
-    public static ParcelRateRequest buildParcelRateRequestForNonUpsCarrier(List<ParcelAuditDetailsDto> parcelAuditDetailsList, String licenseKey,Map<String, String> dasChargeList){
+    public static ParcelRateRequest buildParcelRateRequestForNonUpsCarrier(List<ParcelAuditDetailsDto> parcelAuditDetailsList, String licenseKey, MsiARChargeCodesDto msiARChargeCodes){
         ParcelRateRequest parcelRateRequest = new ParcelRateRequest();
         parcelRateRequest.setLicenseKey(licenseKey);
+        Map<String, String> dasChargeList = msiARChargeCodes.getDasChargeCodes();
 
         if(parcelAuditDetailsList != null && !parcelAuditDetailsList.isEmpty()){
             ParcelRateRequest.BatchShipment batchShipment = new ParcelRateRequest.BatchShipment();
@@ -255,9 +261,10 @@ public class ParcelRateRequestBuilder {
                             if(auditDetails.getChargeDescriptionCode().equalsIgnoreCase("RES")){
                                 auditDetails.setChargeDescriptionCode("RSC");
                             }else if(dasChargeList.containsKey(auditDetails.getChargeDescriptionCode())){
-                                auditDetails.setChargeDescriptionCode(dasChargeList.get(auditDetails.getChargeDescriptionCode()));
+                                serviceFlag.setCode(dasChargeList.get(auditDetails.getChargeDescriptionCode()));
+                            } else {
+                                serviceFlag.setCode(auditDetails.getChargeDescriptionCode());
                             }
-                            serviceFlag.setCode(auditDetails.getChargeDescriptionCode());
                             serviceFlagList.add(serviceFlag);
                         }
                     }
@@ -397,8 +404,7 @@ public class ParcelRateRequestBuilder {
                 if(auditDetails != null && auditDetails.getChargeClassificationCode() != null
                         && ParcelAuditConstant.ChargeClassificationCode.FRT.name().equals(auditDetails.getChargeClassificationCode())
                         && auditDetails.getNetAmount() != null && !auditDetails.getNetAmount().isEmpty()){
-                    double netAmount = Double.parseDouble(auditDetails.getNetAmount());
-                    if(netAmount > 0) return auditDetails.getServiceLevel();
+                    return auditDetails.getServiceLevel();
                 }
             }
         }
