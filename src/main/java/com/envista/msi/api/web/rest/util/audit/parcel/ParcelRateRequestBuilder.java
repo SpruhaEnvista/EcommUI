@@ -85,6 +85,13 @@ public class ParcelRateRequestBuilder {
                 constraints.setServiceFlags(serviceFlagList);
                 batchShipment.setConstraints(constraints);
 
+                ParcelRateRequest.RevenueTier revenueTier = new ParcelRateRequest.RevenueTier();
+                String revenueValue=parcelAuditDetailsList.get(0).getRevenueTier();
+                if(revenueValue==null || revenueValue.equals("0"))
+                    revenueValue="";
+                revenueTier.setRevenueTier(revenueValue);
+                batchShipment.setRevenueTier(revenueTier);
+
                 ParcelRateRequest.Shipper shipper = new ParcelRateRequest.Shipper();
                 shipper.setNumber(parcelAuditDetailsList.get(0).getShipperNumber());
                 batchShipment.setShipper(shipper);
@@ -261,6 +268,13 @@ public class ParcelRateRequestBuilder {
                 constraints.setCustomerCode(parcelAuditDetails.getCustomerCode());
                 constraints.setServiceFlags(serviceFlagList);
                 batchShipment.setConstraints(constraints);
+
+                ParcelRateRequest.RevenueTier revenueTier = new ParcelRateRequest.RevenueTier();
+                String revenueValue=parcelAuditDetailsList.get(0).getRevenueTier();
+                if(revenueValue==null || revenueValue.equals("0"))
+                    revenueValue="";
+                revenueTier.setRevenueTier(revenueValue);
+                batchShipment.setRevenueTier(revenueTier);
 
                 ParcelRateRequest.Shipper shipper = new ParcelRateRequest.Shipper();
                 shipper.setNumber(parcelAuditDetailsList.get(0).getShipperNumber());

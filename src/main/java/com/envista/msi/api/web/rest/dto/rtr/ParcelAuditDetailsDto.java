@@ -186,6 +186,9 @@ public class ParcelAuditDetailsDto {
     @Column(name = "PARENT_ID")
     private Long parentId;
 
+    @Column(name="REVENUE_TIER")
+    private String revenueTier;
+
     public ParcelAuditDetailsDto() {
     }
 
@@ -503,6 +506,12 @@ public class ParcelAuditDetailsDto {
 
     public void setParentId(Long parentId) {
         this.parentId = parentId;
+    }
+
+    public String getRevenueTier() { return revenueTier; }
+
+    public void setRevenueTier(String revenueTier) {
+        this.revenueTier = revenueTier;
     }
 
     public static class Config{
