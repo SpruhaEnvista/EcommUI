@@ -306,5 +306,15 @@ public class ParcelRateResponseParser {
         return null;
     }
 
-
+    public static ParcelRateResponse.Charge getLargePachageSurcharge(ParcelRateResponse.PriceSheet priceSheet){
+        if(priceSheet != null && priceSheet.getCharges() != null){
+            for(ParcelRateResponse.Charge charge : priceSheet.getCharges()){
+                if(charge != null && "ACCESSORIAL".equalsIgnoreCase(charge.getType())
+                        && charge.getName() != null && "Large Package Surcharge".equalsIgnoreCase(charge.getName())){
+                    return charge;
+                }
+            }
+        }
+        return null;
+    }
 }

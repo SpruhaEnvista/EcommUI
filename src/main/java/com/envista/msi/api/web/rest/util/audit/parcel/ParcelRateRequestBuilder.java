@@ -71,8 +71,10 @@ public class ParcelRateRequestBuilder {
                                 ParcelRateRequest.ServiceFlag serviceFlag = new ParcelRateRequest.ServiceFlag();
                                 if(auditDetails.getChargeDescriptionCode().equalsIgnoreCase("RES")){
                                     serviceFlag.setCode("RSC");
-                                }else if(dasChargeList.containsKey(auditDetails.getChargeDescriptionCode())) {
+                                } else if(dasChargeList.containsKey(auditDetails.getChargeDescriptionCode())) {
                                     serviceFlag.setCode(dasChargeList.get(auditDetails.getChargeDescriptionCode()));
+                                } else if(lpsCharges != null && lpsCharges.containsKey(auditDetails.getChargeDescriptionCode())) {
+                                    serviceFlag.setCode(lpsCharges.get(auditDetails.getChargeDescriptionCode()));
                                 } else {
                                     serviceFlag.setCode(auditDetails.getChargeDescriptionCode());
                                 }
@@ -116,6 +118,7 @@ public class ParcelRateRequestBuilder {
                 if(latestFreightCharge != null){
                     String weight = (null == latestFreightCharge.getPackageWeight() || latestFreightCharge.getPackageWeight().isEmpty() ? "1" : latestFreightCharge.getPackageWeight());
                     String weightUnit = (null == latestFreightCharge.getWeightUnit() || latestFreightCharge.getWeightUnit().isEmpty() || "L".equalsIgnoreCase(latestFreightCharge.getWeightUnit()) ? "LBS" : latestFreightCharge.getWeightUnit());
+                    String actualWeightUnit = (null == latestFreightCharge.getActualWeightUnit() || latestFreightCharge.getActualWeightUnit().isEmpty() || "L".equalsIgnoreCase(latestFreightCharge.getActualWeightUnit()) ? "LBS" : latestFreightCharge.getActualWeightUnit());
                     String quantity = (null == latestFreightCharge.getItemQuantity() || latestFreightCharge.getItemQuantity().isEmpty() ? "1" : latestFreightCharge.getItemQuantity());
                     String quantityUnit = (null == latestFreightCharge.getQuantityUnit() || latestFreightCharge.getQuantityUnit().isEmpty() ? "PCS" : latestFreightCharge.getQuantityUnit());
                     String dimLenght = (null == latestFreightCharge.getDimLength() || latestFreightCharge.getDimLength().isEmpty() ? "" : latestFreightCharge.getDimLength());
@@ -131,7 +134,7 @@ public class ParcelRateRequestBuilder {
 
                     ParcelRateRequest.Weight actualWeightElement = new ParcelRateRequest.Weight();
                     actualWeightElement.setWeight(actualWeight);
-                    actualWeightElement.setUnits(weightUnit);
+                    actualWeightElement.setUnits(actualWeightUnit);
 
                     ParcelRateRequest.Quantity quantityObj = new ParcelRateRequest.Quantity();
                     quantityObj.setQuantity(new BigDecimal(quantity));
@@ -219,7 +222,7 @@ public class ParcelRateRequestBuilder {
         ParcelRateRequest parcelRateRequest = new ParcelRateRequest();
         parcelRateRequest.setLicenseKey(licenseKey);
         Map<String, String> dasChargeList = msiARChargeCodes.getDasChargeCodes();
-
+        Map<String, String> lpsCharges = msiARChargeCodes.getLpsChargeCodes();
         if(parcelAuditDetailsList != null && !parcelAuditDetailsList.isEmpty()){
             ParcelRateRequest.BatchShipment batchShipment = new ParcelRateRequest.BatchShipment();
             batchShipment.setId("1");
@@ -260,8 +263,10 @@ public class ParcelRateRequestBuilder {
                             ParcelRateRequest.ServiceFlag serviceFlag = new ParcelRateRequest.ServiceFlag();
                             if(auditDetails.getChargeDescriptionCode().equalsIgnoreCase("RES")){
                                 auditDetails.setChargeDescriptionCode("RSC");
-                            }else if(dasChargeList.containsKey(auditDetails.getChargeDescriptionCode())){
+                            } else if(dasChargeList.containsKey(auditDetails.getChargeDescriptionCode())){
                                 serviceFlag.setCode(dasChargeList.get(auditDetails.getChargeDescriptionCode()));
+                            } else if(lpsCharges != null && lpsCharges.containsKey(auditDetails.getChargeDescriptionCode())) {
+                                serviceFlag.setCode(lpsCharges.get(auditDetails.getChargeDescriptionCode()));
                             } else {
                                 serviceFlag.setCode(auditDetails.getChargeDescriptionCode());
                             }
@@ -306,18 +311,24 @@ public class ParcelRateRequestBuilder {
                             && ParcelAuditConstant.ChargeClassificationCode.FRT.name().equalsIgnoreCase(firstBaseCharge.getChargeClassificationCode())) {
                         String weight = (null == firstBaseCharge.getPackageWeight() || firstBaseCharge.getPackageWeight().isEmpty() ? "" : firstBaseCharge.getPackageWeight());
                         String weightUnit = (null == firstBaseCharge.getWeightUnit() || firstBaseCharge.getWeightUnit().isEmpty() || "L".equalsIgnoreCase(firstBaseCharge.getWeightUnit()) ? "LBS" : firstBaseCharge.getWeightUnit());
+                        String actualWeightUnit = (null == firstBaseCharge.getActualWeightUnit() || firstBaseCharge.getActualWeightUnit().isEmpty() || "L".equalsIgnoreCase(firstBaseCharge.getActualWeightUnit()) ? "LBS" : firstBaseCharge.getActualWeightUnit());
                         String quantity = (null == firstBaseCharge.getItemQuantity() || firstBaseCharge.getItemQuantity().isEmpty() ? "1" : firstBaseCharge.getItemQuantity());
                         String quantityUnit = (null == firstBaseCharge.getQuantityUnit() || firstBaseCharge.getQuantityUnit().isEmpty() ? "PCS" : firstBaseCharge.getQuantityUnit());
                         String dimLenght = (null == firstBaseCharge.getDimLength() || firstBaseCharge.getDimLength().isEmpty() ? "" : firstBaseCharge.getDimLength());
                         String dimWidth = (null == firstBaseCharge.getDimWidth() || firstBaseCharge.getDimWidth().isEmpty()? "" : firstBaseCharge.getDimWidth());
                         String dimHeight = (null == firstBaseCharge.getDimHeight() || firstBaseCharge.getDimHeight().isEmpty() ? "" : firstBaseCharge.getDimHeight());
                         String dimUnit = (null == firstBaseCharge.getUnitOfDim() || firstBaseCharge.getUnitOfDim().isEmpty() ? "" : firstBaseCharge.getUnitOfDim().equalsIgnoreCase("I") ? "in" : firstBaseCharge.getUnitOfDim());
+                        BigDecimal actualWeight = (null == firstBaseCharge.getActualWeight() ? null : firstBaseCharge.getActualWeight());
 
                         ParcelRateRequest.Weight weightObj = new ParcelRateRequest.Weight();
                         if(!weight.isEmpty()){
                             weightObj.setWeight(new BigDecimal(weight.trim()));
                         }
                         weightObj.setUnits(weightUnit);
+
+                        ParcelRateRequest.Weight actualWeightElement = new ParcelRateRequest.Weight();
+                        actualWeightElement.setWeight(actualWeight);
+                        actualWeightElement.setUnits(actualWeightUnit);
 
                         ParcelRateRequest.Quantity quantityObj = new ParcelRateRequest.Quantity();
                         quantityObj.setQuantity(new BigDecimal(quantity));
@@ -330,8 +341,9 @@ public class ParcelRateRequestBuilder {
                         dimensionsObj.setUnits(dimUnit);
 
                         ParcelRateRequest.Item item = new ParcelRateRequest.Item();
-                        item.setSequence(itemSequence++);
+                        item.setSequence(firstBaseCharge.getParentId().intValue());
                         item.setWeight(weightObj);
+                        item.setActualWeight(actualWeightElement);
                         item.setQuantity(quantityObj);
                         item.setDimensions(dimensionsObj);
                         item.setContainer(firstBaseCharge.getPackageType());

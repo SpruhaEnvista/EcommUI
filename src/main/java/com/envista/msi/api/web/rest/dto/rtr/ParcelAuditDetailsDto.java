@@ -197,6 +197,9 @@ public class ParcelAuditDetailsDto {
     @Column(name = "ACTUAL_WEIGHT")
     private BigDecimal actualWeight;
 
+    @Column(name = "UNIT_OF_ACTUAL_WEIGHT")
+    private String actualWeightUnit;
+
     @Column(name = "RTR_AMOUNT")
     private BigDecimal rtrAmount;
 
@@ -541,6 +544,14 @@ public class ParcelAuditDetailsDto {
 
     public void setActualWeight(BigDecimal actualWeight) {
         this.actualWeight = actualWeight;
+    }
+
+    public String getActualWeightUnit() {
+        return actualWeightUnit;
+    }
+
+    public void setActualWeightUnit(String actualWeightUnit) {
+        this.actualWeightUnit = actualWeightUnit;
     }
 
     public BigDecimal getRtrAmount() {
