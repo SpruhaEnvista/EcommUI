@@ -203,6 +203,9 @@ public class ParcelAuditDetailsDto {
     @Column(name = "RTR_AMOUNT")
     private BigDecimal rtrAmount;
 
+    @Column(name="REVENUE_TIER")
+    private String revenueTier;
+
     public ParcelAuditDetailsDto() {
     }
 
@@ -560,6 +563,12 @@ public class ParcelAuditDetailsDto {
 
     public void setRtrAmount(BigDecimal rtrAmount) {
         this.rtrAmount = rtrAmount;
+    }
+
+    public String getRevenueTier() { return revenueTier; }
+
+    public void setRevenueTier(String revenueTier) {
+        this.revenueTier = revenueTier;
     }
 
     public static class Config{
