@@ -78,6 +78,8 @@ public class RatingQueueDAO {
                 ratingQBean.setCreateDate(rss.getDate("CREATE_DATE"));
                 ratingQBean.setCarrierId(rss.getLong("CARRIER_ID"));
                 ratingQBean.setParentId(rss.getLong("PARENT_ID"));
+                ratingQBean.setRateStatus(rss.getBoolean("RATE_STATUS"));
+                ratingQBean.setRatingStatus(rss.getString("ACCESSORIAL_INFO"));
                 }
 
         } catch (SQLException sqle) {
@@ -111,7 +113,7 @@ public class RatingQueueDAO {
         ResultSet rs = null;
 
         java.util.ArrayList<RatingQueueBean> beanList = null;
-        String selectQuery = "select * from SHP_RATING_QUEUE_TB where job_id="+jobId;
+        String selectQuery = "select * from SHP_RATING_QUEUE_TB where RATE_STATUS = 0 and job_id="+jobId;
 
         try {
             connection = ServiceLocator.getDatabaseConnection();
@@ -169,6 +171,8 @@ public class RatingQueueDAO {
                 ratingQueueBean.setCreateDate(rs.getDate("CREATE_DATE"));
                 ratingQueueBean.setCarrierId(rs.getLong("CARRIER_ID"));
                 ratingQueueBean.setParentId(rs.getLong("PARENT_ID"));
+                ratingQueueBean.setRateStatus(rs.getBoolean("RATE_STATUS"));
+                ratingQueueBean.setRatingStatus(rs.getString("ACCESSORIAL_INFO"));
 
                 beanList.add(ratingQueueBean);
             }

@@ -1,171 +1,61 @@
-package com.envista.msi.rating.entity;
+package com.envista.msi.rating.bean;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Column;
 import java.util.Date;
 
-@Entity
-@Table(name = "SHP_RATING_QUEUE_TB")
-public class RatingQueue {
+public class RatingQueueBean {
 
-    @Id
-    @Column(name="SHP_RATING_QUEUE_ID")
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long ratingQueueId;
-
-    @Column(name="MANIFEST_ID")
     private Long maniestId;
-
-    @Column(name="GFF_ID")
     private Long gffId;
-
-    @Column(name="CUSTOMER_CODE")
     private String customerCode;
-
-    @Column(name="SCAC_CODE")
     private String scacCode;
-
-    @Column(name="CONTRACT_NAME")
     private String contractName;
-
-    @Column(name="SERVICE")
     private String service;
-
-    @Column(name="ACCESORIAL1")
     private String accesorial1;
-
-    @Column(name="ACCESORIAL2")
     private String accesorial2;
-
-    @Column(name="ACCESORIAL3")
     private String accesorial3;
-
-    @Column(name="ACCESORIAL4")
     private String accesorial4;
-
-    @Column(name="ACCESORIAL5")
     private String accesorial5;
-
-    @Column(name="BILL_OPTION")
     private String billOption;
-
-    @Column(name="CURRENCY_CODE")
     private String currencyCode;
-
-    @Column(name="SHIPPER_NUMBER")
     private String shipperNumber;
-
-    @Column(name="TRANSIT_TIME")
     private int transitTime;
-
-    @Column(name="VERBOSE")
     private int verbose;
-
-    @Column(name="TOTAL_WEIGHT")
     private float totalWeight;
-
-    @Column(name="TOTAL_ACTUAL_WEIGHT")
     private float totalActualWeight;
-
-    @Column(name="TOTAL_QUANTITY")
     private float totalQuantity;
-
-    @Column(name="BILLED_MILES")
     private Long billedMiles;
-
-    @Column(name="FRT_WEIGHT")
     private float frtWeight;
-
-    @Column(name="FRT_WEIGHT_UNITS")
     private String frtWeightUnits;
-
-    @Column(name="FRT_ACTUAL_WEIGHT")
     private Long frtActualWeight;
-
-    @Column(name="FRT_ACTUAL_WEIGHT_UNITS")
     private String frtActualWeightUnits;
-
-    @Column(name="FRT_QUANTITY")
     private Long frtQyantity;
-
-    @Column(name="FRT_QUANTITY_UNITS")
     private String frtQuantityUnits;
-
-    @Column(name="DIM_UNITS")
     private String dimUnits;
-
-    @Column(name="DIM_LENGTH")
     private Long dimLength;
-
-    @Column(name="DIM_WIDTH")
     private Long dimWidth;
-
-    @Column(name="DIM_HEIGHT")
     private Long dimHeight;
-
-    @Column(name="SHIP_DATE")
     private Date shipDate;
-
-    @Column(name="SHIPPER_LOCATION_CODE")
     private String shipperLocationCode;
-
-    @Column(name="SHIPPER_CITY")
     private String shipperCity;
-
-    @Column(name="SHIPPER_STATE")
     private String shipperState;
-
-    @Column(name="SHIPPER_ZIP")
     private String shipperZip;
-
-    @Column(name="SHIPPER_COUNTRY")
     private String shipperCountry;
-
-    @Column(name = "RECEIVER_LOCATION_CODE")
     private String receiverLocationCode;
-
-    @Column(name="RECEIVER_CITY")
     private String receiverCity;
-
-    @Column(name="RECEIVER_STATE")
     private String receiverState;
-
-    @Column(name="RECEIVER_ZIP")
     private String receiverZip;
-
-    @Column(name="RECEIVER_COUNTRY")
     private String receiverCountry;
-
-    @Column(name="IS_HUNDRED_WEIGHT")
     private Boolean hundredWeight;
-
-    @Column(name="JOB_ID")
     private Long jobId;
-
-    @Column(name="RATING_STATUS")
     private String ratingStatus;
-
-    @Column(name="CREATE_USER")
     private String createUser;
-
-    @Column(name="CREATE_DATE")
     private Date createDate;
-
-    @Column(name="CARRIER_ID")
     private Long carrierId;
-
-    @Column(name="PARENT_ID")
     private Long parentId;
-
-    @Column(name="RATE_STATUS")
     private Boolean rateStatus;
-
-    @Column(name="ACCESSORIAL_INFO")
     private String accessorialInfo;
+    private String[] accessorialArray;
 
     public Long getRatingQueueId() {
         return ratingQueueId;
@@ -575,4 +465,10 @@ public class RatingQueue {
         this.accessorialInfo = accessorialInfo;
     }
 
+    public String[] getAccessorialArray(){
+        if(this.accessorialInfo!=null && this.accessorialInfo.length()>0){
+            this.accessorialArray = this.accessorialInfo.split(",");
+        }
+        return this.accessorialArray;
+    }
 }
