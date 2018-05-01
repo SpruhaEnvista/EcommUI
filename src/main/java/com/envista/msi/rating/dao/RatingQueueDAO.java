@@ -107,13 +107,13 @@ public class RatingQueueDAO {
         return ratingQBean;
     }
 
-    public ArrayList<RatingQueueBean> getRatingQueueByJobId(int jobId){
+    public ArrayList<RatingQueueBean> getRatingQueueByJobId(String jobIds){
         Connection connection = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
 
         java.util.ArrayList<RatingQueueBean> beanList = null;
-        String selectQuery = "select * from SHP_RATING_QUEUE_TB where RATE_STATUS = 0 and job_id="+jobId;
+        String selectQuery = "select * from SHP_RATING_QUEUE_TB where RATE_STATUS = 0 and job_id in ( "+jobIds+" ) ";
 
         try {
             connection = ServiceLocator.getDatabaseConnection();
@@ -202,6 +202,39 @@ public class RatingQueueDAO {
 
         return beanList;
     }
+    public void updateRateStatusinQueue(Long ratingQueueId) {
+        Connection connection = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
 
+        String updateQuery = "update SHP_RATING_QUEUE_TB set RATE_STATUS = 1 where SHP_RATING_QUEUE_ID = " + ratingQueueId;
+
+        try {
+            connection = ServiceLocator.getDatabaseConnection();
+            stmt = connection.prepareStatement(updateQuery);
+            stmt.executeUpdate();
+        } catch (SQLException sqle) {
+            System.out.println("Exception in updateRateStatusinQueue-- > " + sqle.getStackTrace());
+            sqle.printStackTrace();
+        } catch (ServiceLocatorException sle) {
+            System.out.println("Exception in updateRateStatusinQueue-- > " + sle.getStackTrace());
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (SQLException sqle) {
+            }
+            try {
+                if (stmt != null)
+                    stmt.close();
+            } catch (SQLException sqle) {
+            }
+            try {
+                if (connection != null)
+                    connection.close();
+            } catch (SQLException sqle) {
+            }
+        }
+    }
 
 }
