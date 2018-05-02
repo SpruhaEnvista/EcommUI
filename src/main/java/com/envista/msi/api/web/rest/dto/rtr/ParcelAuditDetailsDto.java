@@ -197,6 +197,15 @@ public class ParcelAuditDetailsDto {
     @Column(name = "ACTUAL_WEIGHT")
     private BigDecimal actualWeight;
 
+    @Column(name = "UNIT_OF_ACTUAL_WEIGHT")
+    private String actualWeightUnit;
+
+    @Column(name = "RTR_AMOUNT")
+    private BigDecimal rtrAmount;
+
+    @Column(name="REVENUE_TIER")
+    private String revenueTier;
+
     public ParcelAuditDetailsDto() {
     }
 
@@ -538,6 +547,28 @@ public class ParcelAuditDetailsDto {
 
     public void setActualWeight(BigDecimal actualWeight) {
         this.actualWeight = actualWeight;
+    }
+
+    public String getActualWeightUnit() {
+        return actualWeightUnit;
+    }
+
+    public void setActualWeightUnit(String actualWeightUnit) {
+        this.actualWeightUnit = actualWeightUnit;
+    }
+
+    public BigDecimal getRtrAmount() {
+        return rtrAmount;
+    }
+
+    public void setRtrAmount(BigDecimal rtrAmount) {
+        this.rtrAmount = rtrAmount;
+    }
+
+    public String getRevenueTier() { return revenueTier; }
+
+    public void setRevenueTier(String revenueTier) {
+        this.revenueTier = revenueTier;
     }
 
     public static class Config{
