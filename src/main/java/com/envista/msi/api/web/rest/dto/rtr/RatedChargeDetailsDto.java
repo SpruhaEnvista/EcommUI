@@ -3,39 +3,36 @@ package com.envista.msi.api.web.rest.dto.rtr;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Date;
 
 /**
- * Created by Sujit kumar on 11/04/2018.
+ * Created by Sujit kumar on 27/04/2018.
  */
 @NamedStoredProcedureQuery(
-        name = "ParcelRateDetailsDto.getRateDetails",
-        procedureName = "SHP_GET_RATE_DETAILS_PROC",
-        resultClasses = {ParcelRateDetailsDto.class},
+        name = "RatedChargeDetailsDto.getRatedChargeAmount",
+        procedureName = "SHP_GET_UPS_RATED_AMOUNT_PROC",
+        resultClasses = {RatedChargeDetailsDto.class},
         parameters = {
-                @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_entity_name", type = String.class),
-                @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_entity_ids", type = String.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_parent_id", type = Long.class),
                 @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_rated_charges", type = Void.class)
         }
 )
 
 @Entity
-public class ParcelRateDetailsDto implements Serializable {
+public class RatedChargeDetailsDto implements Serializable {
     @Id
-    @Column(name = "AUDIT_RATE_DETAILS_ID")
     private Long id;
 
-    @Column(name = "CREATE_USER")
-    private String createUser;
+    @Column(name = "charge_classification_code")
+    private String chargeClassificationCode;
 
-    @Column(name = "CREATE_DATE")
-    private Date createDate;
+    @Column(name = "charge_description_code")
+    private String chargeDescriptionCode;
 
-    @Column(name = "LAST_UPDATE_USER")
-    private String lastUpdateUser;
+    @Column(name = "net_amount")
+    private BigDecimal billedAmount;
 
-    @Column(name = "LAST_UPDATE_DATE")
-    private Date lastUpdateDate;
+    @Column(name = "rtr_amount")
+    private BigDecimal ratedAmount;
 
     @Column(name = "DIM_DIVISOR")
     private BigDecimal dimDivisor;
@@ -118,8 +115,44 @@ public class ParcelRateDetailsDto implements Serializable {
     @Column(name = "FSC_CHARGE")
     private BigDecimal fuelSurcharge;
 
-    public static ParcelRateDetailsDto getInstance(){
-        return new ParcelRateDetailsDto();
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getChargeClassificationCode() {
+        return chargeClassificationCode;
+    }
+
+    public void setChargeClassificationCode(String chargeClassificationCode) {
+        this.chargeClassificationCode = chargeClassificationCode;
+    }
+
+    public String getChargeDescriptionCode() {
+        return chargeDescriptionCode;
+    }
+
+    public void setChargeDescriptionCode(String chargeDescriptionCode) {
+        this.chargeDescriptionCode = chargeDescriptionCode;
+    }
+
+    public BigDecimal getBilledAmount() {
+        return billedAmount;
+    }
+
+    public void setBilledAmount(BigDecimal billedAmount) {
+        this.billedAmount = billedAmount;
+    }
+
+    public BigDecimal getRatedAmount() {
+        return ratedAmount;
+    }
+
+    public void setRatedAmount(BigDecimal ratedAmount) {
+        this.ratedAmount = ratedAmount;
     }
 
     public BigDecimal getDimDivisor() {
@@ -178,6 +211,14 @@ public class ParcelRateDetailsDto implements Serializable {
         this.ratedEarnedDiscount = ratedEarnedDiscount;
     }
 
+    public BigDecimal getRatedMinMaxAdjustment() {
+        return ratedMinMaxAdjustment;
+    }
+
+    public void setRatedMinMaxAdjustment(BigDecimal ratedMinMaxAdjustment) {
+        this.ratedMinMaxAdjustment = ratedMinMaxAdjustment;
+    }
+
     public BigDecimal getRatedFuelSurchargeDiscount() {
         return ratedFuelSurchargeDiscount;
     }
@@ -192,14 +233,6 @@ public class ParcelRateDetailsDto implements Serializable {
 
     public void setRatedCustomFuelSurchargeDiscount(BigDecimal ratedCustomFuelSurchargeDiscount) {
         this.ratedCustomFuelSurchargeDiscount = ratedCustomFuelSurchargeDiscount;
-    }
-
-    public BigDecimal getRatedMinMaxAdjustment() {
-        return ratedMinMaxAdjustment;
-    }
-
-    public void setRatedMinMaxAdjustment(BigDecimal ratedMinMaxAdjustment) {
-        this.ratedMinMaxAdjustment = ratedMinMaxAdjustment;
     }
 
     public BigDecimal getRatedGrossFuel() {

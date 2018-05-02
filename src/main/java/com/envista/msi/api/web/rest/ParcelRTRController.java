@@ -4,7 +4,6 @@ import com.envista.msi.api.service.rtr.ParcelRTRService;
 import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditDetailsDto;
 import com.envista.msi.api.web.rest.response.CommonResponse;
 import com.envista.msi.api.web.rest.response.ErrorResponse;
-import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

@@ -66,4 +66,11 @@ public class ParcelAuditConstant {
 
     public static final String EBILL_MANIFEST_TABLE_NAME = "SHP_EBILL_MANIFEST_TB";
     public static final String EBILL_GFF_TABLE_NAME = "SHP_EBILL_GFF_TB";
+
+    public static final String COMMERCIAL_ADJUSTMENT_CHARGE_TYPE = "COMMERCIAL ADJUSTMENT";
+    public static final String RESIDENTIAL_ADJUSTMENT_CHARGE_TYPE = "RESIDENTIAL ADJUSTMENT";
+
+    public static final String MSI_AR_CHARGE_CODE_MAPPING_MODELE_NAME = "Parcel_Rating_MSI_AR_Code_Mapping";
+    public static final String MSI_AR_DAS_CHARGE_CODE_NAME = "DeliveryAreaSurcharge";
+    public static final String MSI_AR_LPS_CHARGE_CODE_NAME = "LargePackageSurcharge";
 }
