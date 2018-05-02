@@ -4,12 +4,9 @@ import com.envista.msi.api.dao.rtr.ParcelRTRDao;
 import com.envista.msi.api.domain.util.ParcelRatingUtil;
 import com.envista.msi.api.web.rest.dto.rtr.*;
 import com.envista.msi.api.web.rest.util.CommonUtil;
-import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant;
+import com.envista.msi.api.web.rest.util.audit.parcel.*;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant.RTRStatus;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant.RateTo;
-import com.envista.msi.api.web.rest.util.audit.parcel.ParcelRateRequestBuilder;
-import com.envista.msi.api.web.rest.util.audit.parcel.ParcelRateResponse;
-import com.envista.msi.api.web.rest.util.audit.parcel.ParcelRateResponseParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
@@ -143,12 +140,42 @@ public class ParcelRTRService{
                             shipmentRecords = parcelRTRDao.loadNonUpsParcelAuditDetails(customerIds, trackingNumber, "22");
                             Map<Long, List<ParcelAuditDetailsDto>> shipments = ParcelRatingUtil.organiseShipmentsByParentId(shipmentRecords);
 
+                            List<ParcelAuditDetailsDto> previousShipment = null;
                             Iterator<Map.Entry<Long, List<ParcelAuditDetailsDto>>> shipmentIterator = shipments.entrySet().iterator();
                             while(shipmentIterator.hasNext()) {
                                 Map.Entry<Long, List<ParcelAuditDetailsDto>> shpEntry = shipmentIterator.next();
                                 if(shpEntry != null) {
-                                    callRTRAndPopulateRates(url, licenseKey, shpEntry.getValue(), RateTo.NON_UPS, msiARChargeCode);
+                                    boolean frtFound = false;
+                                    List<ParcelAuditDetailsDto> shipmentDetails = shpEntry.getValue();
+                                    for(ParcelAuditDetailsDto auditDetails : shipmentDetails) {
+                                        if (auditDetails != null && auditDetails.getDwFieldInformation() != null) {
+                                            try{
+                                                String [] dwFieldInfo = auditDetails.getDwFieldInformation().split(",");
+                                                if(dwFieldInfo != null && dwFieldInfo.length > 0){
+                                                    auditDetails.setChargeClassificationCode(dwFieldInfo[1].trim());
+                                                    auditDetails.setChargeDescriptionCode(dwFieldInfo[2].trim().equalsIgnoreCase("RES") ? "RSC" : dwFieldInfo[2].trim());
+                                                }
+                                            }catch (Exception e){}
+                                        }
+                                        if(auditDetails != null && "FRT".equalsIgnoreCase(auditDetails.getChargeClassificationCode())){
+                                            frtFound = true;
+                                        }
+                                    }
+                                    if(!frtFound){
+                                        if(previousShipment != null && !previousShipment.isEmpty()){
+                                            List<ParcelAuditDetailsDto> shipmentsWithPrevFrt = new ArrayList<>(shipmentDetails);
+                                            ParcelAuditDetailsDto prevFrtCharge = ParcelRatingUtil.getFirstFrightChargeForNonUpsCarrier(previousShipment);
+                                            if(prevFrtCharge != null){
+                                                shipmentsWithPrevFrt.add(prevFrtCharge);
+                                                callRTRAndPopulateRates(url, licenseKey, shipmentsWithPrevFrt, RateTo.NON_UPS, msiARChargeCode);
+                                            }
+                                        }
+                                    } else {
+                                        callRTRAndPopulateRates(url, licenseKey, shipmentDetails, RateTo.NON_UPS, msiARChargeCode);
+                                    }
+
                                     System.out.println("Shipment Count :: " + shipmentCount++ + " :: " +parcelAuditEntry.getValue().get(0).getTrackingNumber());
+                                    previousShipment = new ArrayList<>(shipmentDetails);
                                 }
                             }
                         }

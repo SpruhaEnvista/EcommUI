@@ -32,6 +32,7 @@ public class ParcelRateRequestBuilder {
 
         Map<String, String> dasChargeList = msiARChargeCodes.getDasChargeCodes();
         Map<String, String> lpsCharges = msiARChargeCodes.getLpsChargeCodes();
+        boolean hasRJ5Charge = false;
         if(parcelAuditDetailsList != null && !parcelAuditDetailsList.isEmpty()){
             for(ParcelAuditDetailsDto auditDetails : parcelAuditDetailsList) {
                 if (auditDetails != null && auditDetails.getPackageDimension() != null && !auditDetails.getPackageDimension().isEmpty()) {
@@ -43,6 +44,9 @@ public class ParcelRateRequestBuilder {
                             auditDetails.setDimHeight(dimension[2] != null ? dimension[2].trim() : "");
                         }
                     }catch (Exception e){}
+                }
+                if("RJ5".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())) {
+                    hasRJ5Charge = true;
                 }
             }
 
@@ -67,9 +71,10 @@ public class ParcelRateRequestBuilder {
                     if(auditDetails != null){
                         if(auditDetails.getChargeClassificationCode() != null
                                 && ParcelAuditConstant.ChargeClassificationCode.ACC.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())){
-                            if(auditDetails.getChargeDescriptionCode() != null && !auditDetails.getChargeDescriptionCode().isEmpty()){
+                            if(auditDetails.getChargeDescriptionCode() != null && !auditDetails.getChargeDescriptionCode().isEmpty()
+                                    && !"RJ5".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())){
                                 ParcelRateRequest.ServiceFlag serviceFlag = new ParcelRateRequest.ServiceFlag();
-                                if(auditDetails.getChargeDescriptionCode().equalsIgnoreCase("RES")){
+                                if(!hasRJ5Charge && auditDetails.getChargeDescriptionCode().equalsIgnoreCase("RES")){
                                     serviceFlag.setCode("RSC");
                                 } else if(dasChargeList.containsKey(auditDetails.getChargeDescriptionCode())) {
                                     serviceFlag.setCode(dasChargeList.get(auditDetails.getChargeDescriptionCode()));
@@ -233,19 +238,6 @@ public class ParcelRateRequestBuilder {
         if(parcelAuditDetailsList != null && !parcelAuditDetailsList.isEmpty()){
             ParcelRateRequest.BatchShipment batchShipment = new ParcelRateRequest.BatchShipment();
             batchShipment.setId("1");
-
-            for(ParcelAuditDetailsDto auditDetails : parcelAuditDetailsList) {
-                if (auditDetails != null && auditDetails.getDwFieldInformation() != null) {
-                    try{
-                        String [] dwFieldInfo = auditDetails.getDwFieldInformation().split(",");
-                        if(dwFieldInfo != null && dwFieldInfo.length > 0){
-                            auditDetails.setChargeClassificationCode(dwFieldInfo[1].trim());
-                            auditDetails.setChargeDescriptionCode(dwFieldInfo[2].trim().equalsIgnoreCase("RES") ? "RSC" : dwFieldInfo[2].trim());
-                        }
-                    }catch (Exception e){}
-                }
-            }
-
 
             String mode = "PCL";
             ParcelAuditDetailsDto parcelAuditDetails = parcelAuditDetailsList.get(0);
