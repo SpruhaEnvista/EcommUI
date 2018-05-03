@@ -647,10 +647,8 @@ public class ParcelRTRService{
                             BigDecimal ratedDiscount = ParcelRateResponseParser.getSumOfFreightDiscount(priceSheet);
 
                             //Start coding here
-                            BigDecimal prevBaseDiscount = ParcelRatingUtil.getRatedBaseDiscount(ratedCharges);
-                            rateDetails.setRatedBaseDiscount(ratedDiscount.subtract(prevBaseDiscount));
-
-                            //Need to check with Ashok
+                            //BigDecimal prevBaseDiscount = ParcelRatingUtil.getRatedBaseDiscount(ratedCharges);
+                            rateDetails.setRatedBaseDiscount(ratedDiscount);
                             rateDetails.setRatedEarnedDiscount(ParcelRateResponseParser.getSpendDiscount(priceSheet));
                             rateDetails.setRatedMinMaxAdjustment(ParcelRateResponseParser.getMinMaxAdjustment(priceSheet));
 
@@ -678,7 +676,6 @@ public class ParcelRTRService{
                                 }else{
                                     frtAmount = charge.getAmount();
                                 }
-
                             }
                             parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, frtAmount, rtrStatus.value, auditDetails.getCarrierId());
                             parcelRTRDao.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
