@@ -65,7 +65,25 @@ public class ParcelRTRDao {
             queryParameter.and("p_customer_CSV", "");
         }
         List<ParcelAuditDetailsDto> parcelAuditDetailsList = persistentContext.findEntitiesAndMapFields(ParcelAuditDetailsDto.Config.StoredProcedureQueryName.AUDIT_NOT_UPS_PARCEL_DETAILS, queryParameter);
-        if (parcelAuditDetailsList != null) parcelAuditDetailsList.forEach(auditDetails -> persistentContext.getHibernateSession().evict(auditDetails));
+
+        if (parcelAuditDetailsList != null){
+            for(ParcelAuditDetailsDto auditDetails : parcelAuditDetailsList) {
+                if(auditDetails != null) {
+                    persistentContext.getHibernateSession().evict(auditDetails);
+
+                    if(auditDetails.getDwFieldInformation() != null) {
+                        try {
+                            String[] dwFieldInfo = auditDetails.getDwFieldInformation().split(",");
+                            if (dwFieldInfo != null && dwFieldInfo.length > 0) {
+                                auditDetails.setChargeClassificationCode(dwFieldInfo[1].trim());
+                                auditDetails.setChargeDescriptionCode(dwFieldInfo[2].trim());
+                            }
+                        } catch (Exception e) {
+                        }
+                    }
+                }
+            }
+        }
         return parcelAuditDetailsList;
     }
 

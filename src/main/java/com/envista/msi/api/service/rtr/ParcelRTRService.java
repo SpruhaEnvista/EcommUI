@@ -148,15 +148,6 @@ public class ParcelRTRService{
                                     boolean frtFound = false;
                                     List<ParcelAuditDetailsDto> shipmentDetails = shpEntry.getValue();
                                     for(ParcelAuditDetailsDto auditDetails : shipmentDetails) {
-                                        if (auditDetails != null && auditDetails.getDwFieldInformation() != null) {
-                                            try{
-                                                String [] dwFieldInfo = auditDetails.getDwFieldInformation().split(",");
-                                                if(dwFieldInfo != null && dwFieldInfo.length > 0){
-                                                    auditDetails.setChargeClassificationCode(dwFieldInfo[1].trim());
-                                                    auditDetails.setChargeDescriptionCode(dwFieldInfo[2].trim().equalsIgnoreCase("RES") ? "RSC" : dwFieldInfo[2].trim());
-                                                }
-                                            }catch (Exception e){}
-                                        }
                                         if(auditDetails != null && "FRT".equalsIgnoreCase(auditDetails.getChargeClassificationCode())){
                                             frtFound = true;
                                         }
