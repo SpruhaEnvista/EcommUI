@@ -73,4 +73,12 @@ public class ParcelAuditConstant {
     public static final String MSI_AR_CHARGE_CODE_MAPPING_MODELE_NAME = "Parcel_Rating_MSI_AR_Code_Mapping";
     public static final String MSI_AR_DAS_CHARGE_CODE_NAME = "DeliveryAreaSurcharge";
     public static final String MSI_AR_LPS_CHARGE_CODE_NAME = "LargePackageSurcharge";
+
+    public static final String RATE_REQUEST_EVENT_DATE_FORMAT = "MM/dd/yyyy hh:mm";
+
+    public static final String AR_RATE_REQUEST_LICENSE_KEY = "FRT23A9DB63C39VM2A0C";
+    public static final String AR_RATE_REQUEST_PROTOCOL = "https";
+    public static final String AR_RATE_REQUEST_HOST_NAME = "rtr02.envistacorp.com";
+    public static final String AR_RATE_REQUEST_URI_PATH = "ws/freight/rate";
+
 }

@@ -1,13 +1,17 @@
 package com.envista.msi.rating.dao;
 
+import com.envista.msi.api.dao.DaoException;
+import com.envista.msi.api.web.rest.dto.rtr.ParcelARChargeCodeMappingDto;
 import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditRequestResponseLog;
 import com.envista.msi.api.web.rest.dto.rtr.ParcelRateDetailsDto;
 import com.envista.msi.rating.ServiceLocator;
 import com.envista.msi.rating.ServiceLocatorException;
-import com.envista.msi.rating.bean.RatingQueueBean;
+import oracle.jdbc.OracleTypes;
 
 import java.math.BigDecimal;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DirectJDBCDAO {
 
@@ -301,6 +305,52 @@ public class DirectJDBCDAO {
                     conn.close();
             } catch (SQLException sqle) {
             }
+        }
+    }
+
+    public List<ParcelARChargeCodeMappingDto> loadMappedARChargeCodes(String moduleName, String chargeDescription) {
+        try{
+            Connection conn = null;
+            CallableStatement cstmt =null;
+            ResultSet rs = null;
+            List<ParcelARChargeCodeMappingDto> chargeCodes = null;
+            try{
+                conn = ServiceLocator.getDatabaseConnection();
+                cstmt = conn.prepareCall("{ call SHP_GET_AR_CHARGE_CODES_PROC(?,?,?)}");
+                cstmt.setString(1, moduleName);
+                cstmt.setString(2, chargeDescription);
+                cstmt.registerOutParameter(3, OracleTypes.CURSOR);
+                cstmt.execute();
+
+                rs = (ResultSet) cstmt.getObject(3);
+                chargeCodes = new ArrayList<>();
+                while(rs.next()){
+                    ParcelARChargeCodeMappingDto mappedChargeType = new ParcelARChargeCodeMappingDto();
+                    mappedChargeType.setId(rs.getLong("lookup_id"));
+                    mappedChargeType.setLookupCode(rs.getString("lookup_code"));
+                    mappedChargeType.setCodeValue(rs.getString("custom_defined_2"));
+                    chargeCodes.add(mappedChargeType);
+                }
+            }catch (SQLException sqle) {
+                System.out.println("Exception in updateAccessorialShipmentRateDetails -- > "+sqle.getStackTrace());
+            }  catch (ServiceLocatorException sle) {
+                System.out.println("Exception in updateAccessorialShipmentRateDetails -- > "+sle.getStackTrace());
+            }finally {
+                try {
+                    if (cstmt != null)
+                        cstmt.close();
+                } catch (SQLException sqle) {
+                }
+                try {
+                    if (conn != null)
+                        conn.close();
+                } catch (SQLException sqle) {
+                }
+            }
+            return chargeCodes;
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new DaoException("Error while loading MSI-AR charge Details", e);
         }
     }
 }

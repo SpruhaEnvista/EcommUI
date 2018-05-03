@@ -416,7 +416,7 @@ public class ParcelRateRequestBuilder {
      * @param parcelAuditDetails
      * @return
      */
-    private static String findServiceLevel(List<ParcelAuditDetailsDto> parcelAuditDetails) {
+    public static String findServiceLevel(List<ParcelAuditDetailsDto> parcelAuditDetails) {
         if(parcelAuditDetails != null && !parcelAuditDetails.isEmpty()){
             for(ParcelAuditDetailsDto auditDetails : parcelAuditDetails){
                 if(auditDetails != null && auditDetails.getChargeClassificationCode() != null

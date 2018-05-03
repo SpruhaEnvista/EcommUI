@@ -1,0 +1,202 @@
+package com.envista.msi.rating.util;
+
+import com.envista.msi.api.domain.util.ParcelRatingUtil;
+import com.envista.msi.api.web.rest.dto.rtr.MsiARChargeCodesDto;
+import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditDetailsDto;
+import com.envista.msi.api.web.rest.util.DateUtil;
+import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant;
+import com.envista.msi.api.web.rest.util.audit.parcel.ParcelRateRequest;
+import com.envista.msi.rating.bean.RatingQueueBean;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Created by Sujit kumar on 02/05/2018.
+ */
+public class ParcelRateRequestBuilder {
+    private static final String RATE_REQUEST_EVENT_DATE_FORMAT = "MM/dd/yyyy hh:mm";
+
+    /*public static ParcelRateRequest buildParcelRateRequestForNonUpsCarrier(RatingQueueBean shipment, String licenseKey, MsiARChargeCodesDto msiARChargeCodes){
+        ParcelRateRequest parcelRateRequest = new ParcelRateRequest();
+        parcelRateRequest.setLicenseKey(licenseKey);
+        Map<String, String> dasChargeList = msiARChargeCodes.getDasChargeCodes();
+        Map<String, String> lpsCharges = msiARChargeCodes.getLpsChargeCodes();
+
+        ParcelRateRequest.BatchShipment batchShipment = new ParcelRateRequest.BatchShipment();
+        batchShipment.setId("1");
+        String mode = "PCL";
+
+
+        String billOption = (null == shipment.getBillOption() ? "" : shipment.getBillOption());
+        if(billOption.equalsIgnoreCase("Prepaid") || billOption.equals("1") || billOption.equalsIgnoreCase("Outbound")){
+            billOption = "PP";
+        }else if(billOption.equalsIgnoreCase("Collect") || billOption.equals("2")){
+            billOption = "FC";
+        }else if(billOption.equalsIgnoreCase("Third Party") || billOption.equals("3")){
+            billOption = "TP";
+        }
+
+        batchShipment.setBilledMiles("0.0");
+
+        List<ParcelRateRequest.ServiceFlag> serviceFlagList = new ArrayList<>();
+
+        if(parcelAuditDetailsList != null && !parcelAuditDetailsList.isEmpty()){
+
+                for(ParcelAuditDetailsDto auditDetails : parcelAuditDetailsList){
+                    if(auditDetails != null){
+                        if(auditDetails.getChargeClassificationCode() != null && ParcelAuditConstant.ChargeClassificationCode.ACS.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())
+                                && !Arrays.asList(ParcelAuditConstant.ChargeDescriptionCode.FSC.name(), ParcelAuditConstant.ChargeDescriptionCode.DSC.name()).contains(auditDetails.getChargeDescriptionCode())){
+                            ParcelRateRequest.ServiceFlag serviceFlag = new ParcelRateRequest.ServiceFlag();
+                            if(auditDetails.getChargeDescriptionCode().equalsIgnoreCase("RES")){
+                                auditDetails.setChargeDescriptionCode("RSC");
+                            } else if(dasChargeList.containsKey(auditDetails.getChargeDescriptionCode())){
+                                serviceFlag.setCode(dasChargeList.get(auditDetails.getChargeDescriptionCode()));
+                            } else if(lpsCharges != null && lpsCharges.containsKey(auditDetails.getChargeDescriptionCode())) {
+                                serviceFlag.setCode(lpsCharges.get(auditDetails.getChargeDescriptionCode()));
+                            } else {
+                                serviceFlag.setCode(auditDetails.getChargeDescriptionCode());
+                            }
+                            serviceFlagList.add(serviceFlag);
+                        }
+                    }
+                }
+
+                //Constraints section
+                ParcelRateRequest.Constraints constraints = new ParcelRateRequest.Constraints();
+                //String contractNumber = (null == parcelAuditDetails.getContractNumber() ? "" : parcelAuditDetails.getContractNumber());
+                //having doubt on SCAC code
+                String rtrScacCode = (null == parcelAuditDetails.getRtrScacCode() ? "" : "FDEG".equals(parcelAuditDetails.getRtrScacCode()) ? "FDE" : parcelAuditDetails.getRtrScacCode());
+                String currency = (null == parcelAuditDetails.getCurrency() || parcelAuditDetails.getCurrency().isEmpty() ? "USD" : parcelAuditDetails.getCurrency());
+
+                ParcelRateRequest.Carrier carrier = new ParcelRateRequest.Carrier();
+                carrier.setScac(rtrScacCode);
+                constraints.setCarrier(carrier);
+
+                constraints.setBillOption(billOption);
+                constraints.setCurrency(currency);
+                constraints.setMode(mode);
+
+                String serviceLevel = com.envista.msi.api.web.rest.util.audit.parcel.ParcelRateRequestBuilder.findServiceLevel(parcelAuditDetailsList);
+                if(serviceLevel == null || serviceLevel.trim().isEmpty())
+                    throw new RuntimeException("Invalid Service Level for " + parcelAuditDetailsList.get(0).getTrackingNumber());
+
+                constraints.setService(serviceLevel);
+                constraints.setCustomerCode(parcelAuditDetails.getCustomerCode());
+                constraints.setServiceFlags(serviceFlagList);
+                batchShipment.setConstraints(constraints);
+
+                ParcelRateRequest.RevenueTier revenueTier = new ParcelRateRequest.RevenueTier();
+                String revenueValue=parcelAuditDetailsList.get(0).getRevenueTier();
+                if(revenueValue==null || revenueValue.equals("0"))
+                    revenueValue="";
+                revenueTier.setRevenueTier(revenueValue);
+                batchShipment.setRevenueTier(revenueTier);
+
+                ParcelRateRequest.Shipper shipper = new ParcelRateRequest.Shipper();
+                shipper.setNumber(parcelAuditDetailsList.get(0).getShipperNumber());
+                batchShipment.setShipper(shipper);
+
+                List<ParcelRateRequest.Item> items = new ArrayList<>();
+                ParcelAuditDetailsDto firstBaseCharge = ParcelRatingUtil.getFirstFrightChargeForNonUpsCarrier(parcelAuditDetailsList);
+                int itemSequence = 1;
+                if (firstBaseCharge != null) {
+                    if (firstBaseCharge.getChargeClassificationCode() != null
+                            && ParcelAuditConstant.ChargeClassificationCode.FRT.name().equalsIgnoreCase(firstBaseCharge.getChargeClassificationCode())) {
+                        String weight = (null == firstBaseCharge.getPackageWeight() || firstBaseCharge.getPackageWeight().isEmpty() ? "" : firstBaseCharge.getPackageWeight());
+                        String weightUnit = (null == firstBaseCharge.getWeightUnit() || firstBaseCharge.getWeightUnit().isEmpty() || "L".equalsIgnoreCase(firstBaseCharge.getWeightUnit()) ? "LBS" : firstBaseCharge.getWeightUnit());
+                        String actualWeightUnit = (null == firstBaseCharge.getActualWeightUnit() || firstBaseCharge.getActualWeightUnit().isEmpty() || "L".equalsIgnoreCase(firstBaseCharge.getActualWeightUnit()) ? "LBS" : firstBaseCharge.getActualWeightUnit());
+                        String quantity = (null == firstBaseCharge.getItemQuantity() || firstBaseCharge.getItemQuantity().isEmpty() ? "1" : firstBaseCharge.getItemQuantity());
+                        String quantityUnit = (null == firstBaseCharge.getQuantityUnit() || firstBaseCharge.getQuantityUnit().isEmpty() ? "PCS" : firstBaseCharge.getQuantityUnit());
+                        String dimLenght = (null == firstBaseCharge.getDimLength() || firstBaseCharge.getDimLength().isEmpty() ? "" : firstBaseCharge.getDimLength());
+                        String dimWidth = (null == firstBaseCharge.getDimWidth() || firstBaseCharge.getDimWidth().isEmpty()? "" : firstBaseCharge.getDimWidth());
+                        String dimHeight = (null == firstBaseCharge.getDimHeight() || firstBaseCharge.getDimHeight().isEmpty() ? "" : firstBaseCharge.getDimHeight());
+                        String dimUnit = (null == firstBaseCharge.getUnitOfDim() || firstBaseCharge.getUnitOfDim().isEmpty() ? "" : firstBaseCharge.getUnitOfDim().equalsIgnoreCase("I") ? "in" : firstBaseCharge.getUnitOfDim());
+                        BigDecimal actualWeight = (null == firstBaseCharge.getActualWeight() ? null : firstBaseCharge.getActualWeight());
+
+                        ParcelRateRequest.Weight weightObj = new ParcelRateRequest.Weight();
+                        if(!weight.isEmpty()){
+                            weightObj.setWeight(new BigDecimal(weight.trim()));
+                        }
+                        weightObj.setUnits(weightUnit);
+
+                        ParcelRateRequest.Weight actualWeightElement = new ParcelRateRequest.Weight();
+                        actualWeightElement.setWeight(actualWeight);
+                        actualWeightElement.setUnits(actualWeightUnit);
+
+                        ParcelRateRequest.Quantity quantityObj = new ParcelRateRequest.Quantity();
+                        quantityObj.setQuantity(new BigDecimal(quantity));
+                        quantityObj.setUnits(quantityUnit);
+
+                        ParcelRateRequest.Dimensions dimensionsObj = new ParcelRateRequest.Dimensions();
+                        try{ if(!dimLenght.isEmpty()) dimensionsObj.setLength(new BigDecimal(dimLenght)); }catch (Exception e){}
+                        try{ if(!dimWidth.isEmpty()) dimensionsObj.setWidth(new BigDecimal(dimWidth)); }catch (Exception e){}
+                        try{ if(!dimHeight.isEmpty()) dimensionsObj.setHeight(new BigDecimal(dimHeight)); }catch (Exception e){}
+                        dimensionsObj.setUnits(dimUnit);
+
+                        ParcelRateRequest.Item item = new ParcelRateRequest.Item();
+                        item.setSequence(firstBaseCharge.getParentId().intValue());
+                        item.setWeight(weightObj);
+                        item.setActualWeight(actualWeightElement);
+                        item.setQuantity(quantityObj);
+                        item.setDimensions(dimensionsObj);
+                        item.setContainer(firstBaseCharge.getPackageType());
+                        items.add(item);
+                    }
+                }
+                batchShipment.setItems(items);
+
+                //Events section
+                String pickupDate = "", dropDate = "", locationCode = "";
+                if(parcelAuditDetails.getPickupDate() != null){
+                    pickupDate = DateUtil.format(parcelAuditDetails.getPickupDate(), RATE_REQUEST_EVENT_DATE_FORMAT);
+                }
+                String senderCountry =  (null == parcelAuditDetails.getSenderCountry() || parcelAuditDetails.getSenderCountry().isEmpty() ? "US" :  parcelAuditDetails.getSenderCountry());
+                String senderState =  (null == parcelAuditDetails.getSenderState() ? "" :  parcelAuditDetails.getSenderState());
+                String senderCity =  (null == parcelAuditDetails.getSenderCity() ? "" :  parcelAuditDetails.getSenderCity());
+                String senderZipCode =  (null == parcelAuditDetails.getSenderZipCode() ? "" :  parcelAuditDetails.getSenderZipCode());
+
+                ParcelRateRequest.Event pickupDateEvent = new ParcelRateRequest.Event();
+                pickupDateEvent.setSequence(1);
+                pickupDateEvent.setType(ParcelRateRequest.EventType.Pickup.getValue());
+                pickupDateEvent.setDate(pickupDate);
+
+                ParcelRateRequest.Location senderLocation = new ParcelRateRequest.Location();
+                senderLocation.setCity(senderCity);
+                senderLocation.setState(senderState);
+                senderLocation.setCountry(senderCountry);
+                senderLocation.setZip(senderZipCode);
+                senderLocation.setLocationCode(locationCode);
+                pickupDateEvent.setLocation(senderLocation);
+
+                if(parcelAuditDetails.getDeliveryDate() != null){
+                    dropDate = DateUtil.format(parcelAuditDetails.getDeliveryDate(), RATE_REQUEST_EVENT_DATE_FORMAT);
+                }else{
+                    dropDate = pickupDate;
+                }
+                String receiverCountry =  (null == parcelAuditDetails.getReceiverCountry() || parcelAuditDetails.getReceiverCountry().isEmpty() ? "US" :  parcelAuditDetails.getReceiverCountry());
+                String receiverState =  (null == parcelAuditDetails.getReceiverState() ? "" :  parcelAuditDetails.getReceiverState());
+                String receiverCity =  (null == parcelAuditDetails.getReceiverCity() ? "" :  parcelAuditDetails.getReceiverCity());
+                String receiverZipCode = (null == parcelAuditDetails.getReceiverZipCode() ? "" :  parcelAuditDetails.getReceiverZipCode());
+
+                ParcelRateRequest.Event dropDateEvent = new ParcelRateRequest.Event();
+                dropDateEvent.setSequence(2);
+                dropDateEvent.setType(ParcelRateRequest.EventType.Drop.getValue());
+                dropDateEvent.setDate(dropDate);
+
+                ParcelRateRequest.Location receiverLocation = new ParcelRateRequest.Location();
+                receiverLocation.setCity(receiverCity);
+                receiverLocation.setState(receiverState);
+                receiverLocation.setCountry(receiverCountry);
+                receiverLocation.setZip(receiverZipCode);
+                receiverLocation.setLocationCode(locationCode);
+                dropDateEvent.setLocation(receiverLocation);
+
+                batchShipment.setEvents(Arrays.asList(pickupDateEvent, dropDateEvent));
+                parcelRateRequest.getShipments().add(batchShipment);
+            }
+        }*/
+}

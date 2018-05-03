@@ -24,18 +24,19 @@ public class RatingQueueBean {
     private float totalWeight;
     private float totalActualWeight;
     private float totalQuantity;
-    private Long billedMiles;
-    private float frtWeight;
+    private Float billedMiles;
+    private Float frtWeight;
     private String frtWeightUnits;
-    private Long frtActualWeight;
+    private Float frtActualWeight;
     private String frtActualWeightUnits;
     private Long frtQyantity;
     private String frtQuantityUnits;
     private String dimUnits;
-    private Long dimLength;
-    private Long dimWidth;
-    private Long dimHeight;
+    private Float dimLength;
+    private Float dimWidth;
+    private Float dimHeight;
     private Date shipDate;
+    private Date deliveryDate;
     private String shipperLocationCode;
     private String shipperCity;
     private String shipperState;
@@ -56,6 +57,8 @@ public class RatingQueueBean {
     private Boolean rateStatus;
     private String accessorialInfo;
     private String[] accessorialArray;
+    private String revenueTier;
+    private String trackingNumber;
 
     public Long getRatingQueueId() {
         return ratingQueueId;
@@ -217,15 +220,15 @@ public class RatingQueueBean {
         this.totalQuantity = totalQuantity;
     }
 
-    public Long getBilledMiles() {
+    public Float getBilledMiles() {
         return billedMiles;
     }
 
-    public void setBilledMiles(Long billedMiles) {
+    public void setBilledMiles(Float billedMiles) {
         this.billedMiles = billedMiles;
     }
 
-    public float getFrtWeight() {
+    public Float getFrtWeight() {
         return frtWeight;
     }
 
@@ -241,11 +244,11 @@ public class RatingQueueBean {
         this.frtWeightUnits = frtWeightUnits;
     }
 
-    public Long getFrtActualWeight() {
+    public Float getFrtActualWeight() {
         return frtActualWeight;
     }
 
-    public void setFrtActualWeight(Long frtActualWeight) {
+    public void setFrtActualWeight(Float frtActualWeight) {
         this.frtActualWeight = frtActualWeight;
     }
 
@@ -281,28 +284,32 @@ public class RatingQueueBean {
         this.dimUnits = dimUnits;
     }
 
-    public Long getDimLength() {
+    public Float getDimLength() {
         return dimLength;
     }
 
-    public void setDimLength(Long dimLength) {
+    public void setDimLength(Float dimLength) {
         this.dimLength = dimLength;
     }
 
-    public Long getDimWidth() {
+    public Float getDimWidth() {
         return dimWidth;
     }
 
-    public void setDimWidth(Long dimWidth) {
+    public void setDimWidth(Float dimWidth) {
         this.dimWidth = dimWidth;
     }
 
-    public Long getDimHeight() {
+    public Float getDimHeight() {
         return dimHeight;
     }
 
-    public void setDimHeight(Long dimHeight) {
+    public void setDimHeight(Float dimHeight) {
         this.dimHeight = dimHeight;
+    }
+
+    public void setAccessorialArray(String[] accessorialArray) {
+        this.accessorialArray = accessorialArray;
     }
 
     public Date getShipDate() {
@@ -311,6 +318,14 @@ public class RatingQueueBean {
 
     public void setShipDate(Date shipDate) {
         this.shipDate = shipDate;
+    }
+
+    public Date getDeliveryDate() {
+        return deliveryDate;
+    }
+
+    public void setDeliveryDate(Date deliveryDate) {
+        this.deliveryDate = deliveryDate;
     }
 
     public String getShipperLocationCode() {
@@ -470,5 +485,21 @@ public class RatingQueueBean {
             this.accessorialArray = this.accessorialInfo.split(",");
         }
         return this.accessorialArray;
+    }
+
+    public String getRevenueTier() {
+        return revenueTier;
+    }
+
+    public void setRevenueTier(String revenueTier) {
+        this.revenueTier = revenueTier;
+    }
+
+    public String getTrackingNumber() {
+        return trackingNumber;
+    }
+
+    public void setTrackingNumber(String trackingNumber) {
+        this.trackingNumber = trackingNumber;
     }
 }
