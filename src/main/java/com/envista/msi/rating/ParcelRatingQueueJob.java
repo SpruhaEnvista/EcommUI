@@ -146,7 +146,7 @@ public class ParcelRatingQueueJob {
     }
 
     private void addShipmentEntryIntoQueue(List<ParcelAuditDetailsDto> shipmentsWithPrevFrt, MsiARChargeCodesDto msiARChargeCode) {
-        RatingQueueBean ratingQueueBean = ParcelRatingUtil.prepareShipmentEntryForUpsShipment(shipmentsWithPrevFrt, ParcelAuditConstant.AR_RATE_REQUEST_LICENSE_KEY, msiARChargeCode);
+        RatingQueueBean ratingQueueBean = ParcelRatingUtil.prepareShipmentEntryForNonUpsShipment(shipmentsWithPrevFrt, ParcelAuditConstant.AR_RATE_REQUEST_LICENSE_KEY, msiARChargeCode);
         if(ratingQueueBean != null){
             parcelRatingService.saveRatingQueueBean(ratingQueueBean);
         }

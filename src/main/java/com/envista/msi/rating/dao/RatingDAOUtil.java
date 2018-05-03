@@ -1,5 +1,6 @@
 package com.envista.msi.rating.dao;
 
+import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant;
 import com.envista.msi.rating.bean.RatingQueueBean;
 
 import java.lang.reflect.Type;
@@ -77,8 +78,15 @@ public class RatingDAOUtil {
         StringBuffer questionmark = new StringBuffer("SHP_RATING_QUEUE_S.NEXTVAL");
         sqlQuery.append(columnIterator.next());
         while (columnIterator.hasNext()) {
-            sqlQuery.append(" , " + columnIterator.next());
-            questionmark.append(",?");
+            String columnName = columnIterator.next();
+            sqlQuery.append(" , " + columnName);
+            if("JOB_ID".equalsIgnoreCase(columnName)){
+                questionmark.append("," + ParcelAuditConstant.RATE_JOB_ID_SEQUENCE_VALUE);
+            } else {
+                questionmark.append(",?");
+            }
+
+
         }
         sqlQuery.append(") values (").append(questionmark).append(")");
         return sqlQuery.toString();
@@ -213,41 +221,37 @@ public class RatingDAOUtil {
             } else if("IS_HUNDRED_WEIGHT".equalsIgnoreCase(columnName)) {
                 ps.setInt(42, queueBean.getHundredWeight() != null && queueBean.getHundredWeight() ? 1 : 0);
             } else if("JOB_ID".equalsIgnoreCase(columnName)) {
-                if(queueBean.getJobId() != null) {
-                    ps.setLong(43, queueBean.getJobId());
-                } else {
-                    ps.setNull(43, Types.INTEGER);
-                }
+                ;
             } else if("CREATE_USER".equalsIgnoreCase(columnName)) {
-                ps.setString(44, queueBean.getCreateUser());
+                ps.setString(43, queueBean.getCreateUser());
             } else if("CREATE_DATE".equalsIgnoreCase(columnName)) {
-                ps.setDate(45, new java.sql.Date(System.currentTimeMillis()));
+                ps.setDate(44, new java.sql.Date(System.currentTimeMillis()));
             } else if("CARRIER_ID".equalsIgnoreCase(columnName)) {
                 if(queueBean.getCarrierId() != null) {
-                    ps.setLong(46, queueBean.getCarrierId());
+                    ps.setLong(45, queueBean.getCarrierId());
                 } else {
-                    ps.setNull(46, Types.INTEGER);
+                    ps.setNull(45, Types.INTEGER);
                 }
             } else if("PARENT_ID".equalsIgnoreCase(columnName)) {
                 if(queueBean.getParentId() != null) {
-                    ps.setLong(47, queueBean.getParentId());
+                    ps.setLong(46, queueBean.getParentId());
                 } else {
-                    ps.setNull(47, Types.INTEGER);
+                    ps.setNull(46, Types.INTEGER);
                 }
             }  else if("RATE_STATUS".equalsIgnoreCase(columnName)) {
-                ps.setInt(48, queueBean.getRateStatus() != null && queueBean.getRateStatus() ? 1 : 0);
+                ps.setInt(47, queueBean.getRateStatus() != null && queueBean.getRateStatus() ? 1 : 0);
             } else if("ACCESSORIAL_INFO".equalsIgnoreCase(columnName)) {
-                ps.setString(49, queueBean.getAccessorialInfo());
+                ps.setString(48, queueBean.getAccessorialInfo());
             } else if("DALIVERY_DATE".equalsIgnoreCase(columnName)) {
                 if(queueBean.getDeliveryDate() != null) {
-                    ps.setDate(50, new java.sql.Date(queueBean.getDeliveryDate().getTime()));
+                    ps.setDate(49, new java.sql.Date(queueBean.getDeliveryDate().getTime()));
                 } else {
-                    ps.setNull(50, Types.DATE);
+                    ps.setNull(49, Types.DATE);
                 }
             } else if("TRACKING_NUMBER".equalsIgnoreCase(columnName)) {
-                ps.setString(51, queueBean.getTrackingNumber());
+                ps.setString(50, queueBean.getTrackingNumber());
             } else if("REVENUE_TIER".equalsIgnoreCase(columnName)) {
-                ps.setString(52, queueBean.getRevenueTier());
+                ps.setString(51, queueBean.getRevenueTier());
             } else {
                 throw new RuntimeException("Column name not mapped");
             }

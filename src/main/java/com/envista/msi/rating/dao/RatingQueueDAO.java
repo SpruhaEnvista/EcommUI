@@ -395,7 +395,7 @@ public class RatingQueueDAO {
                         String[] dwFieldInfo = shipmentDetails.getDwFieldInformation().split(",");
                         if (dwFieldInfo != null && dwFieldInfo.length > 0) {
                             shipmentDetails.setChargeClassificationCode(dwFieldInfo[1].trim());
-                            shipmentDetails.setChargeDescriptionCode(dwFieldInfo[2].trim().equalsIgnoreCase("RES") ? "RSC" : dwFieldInfo[2].trim());
+                            shipmentDetails.setChargeDescriptionCode(dwFieldInfo[2].trim());
                         }
                     } catch (Exception e) {
                     }
@@ -408,6 +408,7 @@ public class RatingQueueDAO {
                 shipmentDetails.setActualWeightUnit(rs.getString("UNIT_OF_ACTUAL_WEIGHT"));
                 shipmentDetails.setRtrAmount(rs.getBigDecimal("rtr_amount"));
                 shipmentDetails.setRevenueTier(rs.getString("REVENUE_TIER"));
+                //Need to add charge code here.
                 parcelUpsShipments.add(shipmentDetails);
             }
         }catch (Exception e){

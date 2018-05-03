@@ -81,4 +81,6 @@ public class ParcelAuditConstant {
     public static final String AR_RATE_REQUEST_HOST_NAME = "rtr02.envistacorp.com";
     public static final String AR_RATE_REQUEST_URI_PATH = "ws/freight/rate";
 
+    public static final String RATE_JOB_ID_SEQUENCE_NAME = "SHP_RATING_JOB_S";
+    public static final String RATE_JOB_ID_SEQUENCE_VALUE = "SHP_RATING_JOB_S.NEXTVAL";
 }
