@@ -251,7 +251,7 @@ public class ParcelRateRequestBuilder {
                                 && !Arrays.asList(ParcelAuditConstant.ChargeDescriptionCode.FSC.name(), ParcelAuditConstant.ChargeDescriptionCode.DSC.name()).contains(auditDetails.getChargeDescriptionCode())){
                             ParcelRateRequest.ServiceFlag serviceFlag = new ParcelRateRequest.ServiceFlag();
                             if(auditDetails.getChargeDescriptionCode().equalsIgnoreCase("RES")){
-                                auditDetails.setChargeDescriptionCode("RSC");
+                                serviceFlag.setCode("RSC");
                             } else if(dasChargeList.containsKey(auditDetails.getChargeDescriptionCode())){
                                 serviceFlag.setCode("A" + auditDetails.getChargeCode());
                             } else if(lpsCharges != null && lpsCharges.containsKey(auditDetails.getChargeDescriptionCode())) {
