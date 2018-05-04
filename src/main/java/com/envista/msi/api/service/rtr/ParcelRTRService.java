@@ -112,6 +112,32 @@ public class ParcelRTRService{
         return parcelAuditMap;
     }
 
+    private Map<String, List<ParcelAuditDetailsDto>> prepareMultiWeightNumberWiseAuditDetails(Map<String, List<ParcelAuditDetailsDto>> listMap) {
+
+        Map<String, List<ParcelAuditDetailsDto>> mwtDetailsMap = new HashMap<>();
+        Map<String, List<ParcelAuditDetailsDto>> tempMap = new HashMap<>(listMap);
+        for (Map.Entry<String, List<ParcelAuditDetailsDto>> entry : tempMap.entrySet()) {
+
+
+            for (ParcelAuditDetailsDto parcelAuditDetails : entry.getValue()) {
+                if (parcelAuditDetails != null) {
+
+                    if (parcelAuditDetails.getMultiWeightNumber() != null && !parcelAuditDetails.getMultiWeightNumber().isEmpty()) {
+                        if (mwtDetailsMap.containsKey(parcelAuditDetails.getMultiWeightNumber()))
+                            mwtDetailsMap.get(parcelAuditDetails.getMultiWeightNumber()).addAll(tempMap.get(parcelAuditDetails.getTrackingNumber()));
+                        else
+                            mwtDetailsMap.put(parcelAuditDetails.getMultiWeightNumber(), tempMap.get(parcelAuditDetails.getTrackingNumber()));
+
+                        listMap.remove(parcelAuditDetails.getTrackingNumber());
+                        break;
+                    }
+                }
+            }
+        }
+        tempMap = null;
+        return mwtDetailsMap;
+    }
+
     /**
      *
      * @param customerId
@@ -129,9 +155,12 @@ public class ParcelRTRService{
         //  doParcelRating(loadNonUpsParcelAuditDetails(customerId, fromDate, toDate, trackingNumbers), url, licenseKey, RateTo.NON_UPS);
     }
 
-    private void doParcelRatingForNonUpsCarrier(Map<String, List<ParcelAuditDetailsDto>> parcelAuditDetailsMap, String url, String licenseKey, String customerIds, MsiARChargeCodesDto msiARChargeCode){
+    private void doParcelRatingForNonUpsCarrier(Map<String, List<ParcelAuditDetailsDto>> parcelAuditDetailsMap, String url, String licenseKey, String customerIds, MsiARChargeCodesDto msiARChargeCode) throws Exception {
         if(parcelAuditDetailsMap != null && !parcelAuditDetailsMap.isEmpty()){
-            int shipmentCount = 1;
+
+            Map<String, List<ParcelAuditDetailsDto>> mwtDetailsMap = prepareMultiWeightNumberWiseAuditDetails(parcelAuditDetailsMap);
+
+           /* int shipmentCount = 1;
             Iterator<Map.Entry<String, List<ParcelAuditDetailsDto>>> entryIterator = parcelAuditDetailsMap.entrySet().iterator();
             while(entryIterator.hasNext()){
                 Map.Entry<String,List<ParcelAuditDetailsDto>> parcelAuditEntry = entryIterator.next();
@@ -147,7 +176,7 @@ public class ParcelRTRService{
                             while(shipmentIterator.hasNext()) {
                                 Map.Entry<Long, List<ParcelAuditDetailsDto>> shpEntry = shipmentIterator.next();
                                 if(shpEntry != null) {
-                                    callRTRAndPopulateRates(url, licenseKey, shpEntry.getValue(), RateTo.NON_UPS, msiARChargeCode);
+                                    callRTRAndPopulateRates(url, licenseKey, shpEntry.getValue(), RateTo.NON_UPS, msiARChargeCode,false);
                                     System.out.println("Shipment Count :: " + shipmentCount++ + " :: " +parcelAuditEntry.getValue().get(0).getTrackingNumber());
                                 }
                             }
@@ -155,6 +184,12 @@ public class ParcelRTRService{
                     }catch (Exception e){}
                     entryIterator.remove();
                 }
+            }
+*/
+            for (Map.Entry<String, List<ParcelAuditDetailsDto>> entry : mwtDetailsMap.entrySet()) {
+
+                callRTRAndPopulateRates(url, licenseKey, entry.getValue(), RateTo.NON_UPS, msiARChargeCode, true);
+
             }
         }
     }
@@ -184,12 +219,12 @@ public class ParcelRTRService{
                                 List<ParcelAuditDetailsDto> shipmentChargeList = shpEntry.getValue();
                                 if(shipmentChargeList != null){
                                     if(ParcelRatingUtil.containsCharge(ParcelAuditConstant.COMMERCIAL_ADJUSTMENT_CHARGE_TYPE, shipmentChargeList)){
-                                        callRTRAndPopulateRates(url, licenseKey, previousShipment, RateTo.UPS, msiARChargeCode, shipmentChargeList.get(0), previousShipment);
+                                        callRTRAndPopulateRates(url, licenseKey, previousShipment, RateTo.UPS, msiARChargeCode, shipmentChargeList.get(0), previousShipment, false);
                                     } else if(ParcelRatingUtil.containsCharge(ParcelAuditConstant.RESIDENTIAL_ADJUSTMENT_CHARGE_TYPE, shipmentChargeList)){
                                         //keeping it in separate if condition in order to handle few more scenarios in future.
-                                        callRTRAndPopulateRates(url, licenseKey, previousShipment, RateTo.UPS, msiARChargeCode, shipmentChargeList.get(0), previousShipment);
+                                        callRTRAndPopulateRates(url, licenseKey, previousShipment, RateTo.UPS, msiARChargeCode, shipmentChargeList.get(0), previousShipment, false);
                                     } else {
-                                        callRTRAndPopulateRates(url, licenseKey, shipmentChargeList, RateTo.UPS, msiARChargeCode, previousShipment);
+                                        callRTRAndPopulateRates(url, licenseKey, shipmentChargeList, RateTo.UPS, msiARChargeCode, previousShipment, false);
                                     }
                                 }
                                 previousShipment = new ArrayList<>(shipmentChargeList);
@@ -207,15 +242,15 @@ public class ParcelRTRService{
         }
     }
 
-    private String callRTRAndPopulateRates(String url, String licenseKey, List<ParcelAuditDetailsDto> parcelAuditDetails, RateTo rateTo, MsiARChargeCodesDto msiARChargeCode) throws Exception {
-        return callRTRAndPopulateRates(url, licenseKey, parcelAuditDetails, rateTo, msiARChargeCode, null, null);
+    private String callRTRAndPopulateRates(String url, String licenseKey, List<ParcelAuditDetailsDto> parcelAuditDetails, RateTo rateTo, MsiARChargeCodesDto msiARChargeCode, boolean isHwt) throws Exception {
+        return callRTRAndPopulateRates(url, licenseKey, parcelAuditDetails, rateTo, msiARChargeCode, null, null, isHwt);
     }
 
-    private String callRTRAndPopulateRates(String url, String licenseKey, List<ParcelAuditDetailsDto> parcelAuditDetails, RateTo rateTo, MsiARChargeCodesDto msiARChargeCode, List<ParcelAuditDetailsDto> previousShipment) throws Exception {
-        return callRTRAndPopulateRates(url, licenseKey, parcelAuditDetails, rateTo, msiARChargeCode, null, previousShipment);
+    private String callRTRAndPopulateRates(String url, String licenseKey, List<ParcelAuditDetailsDto> parcelAuditDetails, RateTo rateTo, MsiARChargeCodesDto msiARChargeCode, List<ParcelAuditDetailsDto> previousShipment, boolean isHwt) throws Exception {
+        return callRTRAndPopulateRates(url, licenseKey, parcelAuditDetails, rateTo, msiARChargeCode, null, previousShipment, isHwt);
     }
 
-    private String callRTRAndPopulateRates(String url, String licenseKey, List<ParcelAuditDetailsDto> parcelAuditDetails, RateTo rateTo, MsiARChargeCodesDto msiARChargeCode, ParcelAuditDetailsDto commercialCharge, List<ParcelAuditDetailsDto> previousShipment) throws Exception {
+    private String callRTRAndPopulateRates(String url, String licenseKey, List<ParcelAuditDetailsDto> parcelAuditDetails, RateTo rateTo, MsiARChargeCodesDto msiARChargeCode, ParcelAuditDetailsDto commercialCharge, List<ParcelAuditDetailsDto> previousShipment, boolean isHwt) throws Exception {
         String requestPayload = "";
         String response = "";
         String status = "";
@@ -264,8 +299,18 @@ public class ParcelRTRService{
                 }
                 break;
             case NON_UPS:
-                requestPayload = ParcelRateRequestBuilder.buildParcelRateRequestForNonUpsCarrier(parcelAuditDetails, licenseKey, msiARChargeCode).toXmlString();
+                if (!isHwt)
+                    requestPayload = ParcelRateRequestBuilder.buildParcelRateRequestForNonUpsCarrier(parcelAuditDetails, licenseKey, msiARChargeCode).toXmlString();
+                else
+                    requestPayload = ParcelRateRequestBuilder.buildMwtXmlRequestForNonUpsCarrier(parcelAuditDetails, licenseKey, msiARChargeCode).toXmlString();
+
+                System.out.println("requestPayload=======" + requestPayload);
+
+                // System.exit(1);
+
                 response = CommonUtil.connectAndGetResponseAsString(url, requestPayload);
+
+                System.out.println("response=======" + response);
                 if(response != null && !response.trim().isEmpty()) {
                     saveRequestResponse(requestPayload, response, parcelAuditDetails.get(0).getParentId(), ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME);
                     status = updateRateForNonUpsCarrier(ParcelRateResponseParser.parse(response), parcelAuditDetails, msiARChargeCode);
@@ -1170,7 +1215,7 @@ public class ParcelRTRService{
         return parcelRTRDao.loadInvoiceIds(fromDate, toDate, customerId, invoiceIds, limit, rateTo);
     }
 
-    public void doParcelAuditingInvoiceNumberWise(List<ParcelAuditDetailsDto> invoiceList, String trackingNumbers, String rateTo, String fromShipDate, String toShipDate, String customerIds) {
+    public void doParcelAuditingInvoiceNumberWise(List<ParcelAuditDetailsDto> invoiceList, String trackingNumbers, String rateTo, String fromShipDate, String toShipDate, String customerIds) throws Exception {
         if (invoiceList != null && !invoiceList.isEmpty()) {
             String licenseKey = messageSource.getMessage("RateRequest-LicenseKey", null, null);
             String strProtocol = messageSource.getMessage("RTRprotocol", null, null);

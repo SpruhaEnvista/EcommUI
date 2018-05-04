@@ -345,6 +345,9 @@ public class ParcelRateRequest implements Serializable {
         private static final long serialVersionUID = 1L;
 
         @XmlAttribute
+        private int sequence;
+
+        @XmlAttribute
         private String code = "";
 
         @XmlAttribute
@@ -361,6 +364,14 @@ public class ParcelRateRequest implements Serializable {
 
         @XmlAttribute
         private String quantityUnit;
+
+        public int getSequence() {
+            return sequence;
+        }
+
+        public void setSequence(int sequence) {
+            this.sequence = sequence;
+        }
 
         public String getCode() {
             return code;
@@ -398,6 +409,8 @@ public class ParcelRateRequest implements Serializable {
         public void setQuantityUnit(String quantityUnit) {
             this.quantityUnit = quantityUnit;
         }
+
+
     }
 
     @XmlAccessorType(XmlAccessType.NONE)
