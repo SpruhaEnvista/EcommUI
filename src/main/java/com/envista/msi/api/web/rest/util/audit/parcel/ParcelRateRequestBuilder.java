@@ -253,7 +253,11 @@ public class ParcelRateRequestBuilder {
                             if(auditDetails.getChargeDescriptionCode().equalsIgnoreCase("RES")){
                                 serviceFlag.setCode("RSC");
                             } else if(dasChargeList.containsKey(auditDetails.getChargeDescriptionCode())){
-                                serviceFlag.setCode("A" + auditDetails.getChargeCode());
+                                if(auditDetails.getChargeDescription() != null && (auditDetails.getChargeDescription().contains("EXTENDED") || auditDetails.getChargeDescription().contains("extended"))){
+                                    serviceFlag.setCode("DSX");
+                                } else {
+                                    serviceFlag.setCode(dasChargeList.get(auditDetails.getChargeDescriptionCode()));
+                                }
                             } else if(lpsCharges != null && lpsCharges.containsKey(auditDetails.getChargeDescriptionCode())) {
                                 serviceFlag.setCode(lpsCharges.get(auditDetails.getChargeDescriptionCode()));
                             } else {

@@ -453,17 +453,31 @@ public class ParcelRTRService{
                     }
                 }else if(ParcelAuditConstant.ChargeClassificationCode.ACS.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())
                         && ("DAS".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()) || dasChargeList.containsKey(auditDetails.getChargeDescriptionCode()))){
-                    charge = ParcelRateResponseParser.getDeliveryAreaSurcharge(priceSheet);
+                    if(auditDetails.getChargeDescription() != null && (auditDetails.getChargeDescription().contains("EXTENDED") || auditDetails.getChargeDescription().contains("extended"))){
+                        charge = ParcelRateResponseParser.findChargeByEDICodeInResponse("DSX" ,priceSheet);
+                    } else {
+                        charge = ParcelRateResponseParser.getDeliveryAreaSurcharge(priceSheet);
+                    }
+
                     if(charge != null){
                         mappedAccChanges.add(charge);
                         ParcelRateDetailsDto rateDetails = ParcelRateDetailsDto.getInstance();
                         rateDetails.setShipperCategory(shipperCategory);
                         rateDetails.setContractName(contractName);
-                        ParcelRateResponse.Charge dasDiscount = ParcelRateResponseParser.getRatedDasDiscount(priceSheet);
-                        if(dasDiscount != null){
-                            mappedDscChanges.add(dasDiscount);
-                            rateDetails.setDeliveryAreaSurchargeDiscount(dasDiscount.getAmount());
+                        if(auditDetails.getChargeDescription() != null && (auditDetails.getChargeDescription().contains("EXTENDED") || auditDetails.getChargeDescription().contains("extended"))){
+                            ParcelRateResponse.Charge extendedDasDiscount = ParcelRateResponseParser.getRatedExtendedDasDiscount(priceSheet);
+                            if(extendedDasDiscount != null){
+                                mappedDscChanges.add(extendedDasDiscount);
+                                rateDetails.setDeliveryAreaSurchargeDiscount(extendedDasDiscount.getAmount());
+                            }
+                        } else {
+                            ParcelRateResponse.Charge dasDiscount = ParcelRateResponseParser.getRatedDasDiscount(priceSheet);
+                            if(dasDiscount != null){
+                                mappedDscChanges.add(dasDiscount);
+                                rateDetails.setDeliveryAreaSurchargeDiscount(dasDiscount.getAmount());
+                            }
                         }
+
                         rateDetails.setFuelTablePercentage(fuelTablePerc);
                         rateDetails.setDimDivisor(charge.getDimDivisor() == null ? new BigDecimal("0") : charge.getDimDivisor());
                         rateDetails.setRatedWeight(charge.getWeight() == null ? new BigDecimal("0") : charge.getWeight());
