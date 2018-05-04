@@ -59,6 +59,7 @@ public class RatingQueueBean {
     private String[] accessorialArray;
     private String revenueTier;
     private String trackingNumber;
+    private String packageType;
 
     public Long getRatingQueueId() {
         return ratingQueueId;
@@ -232,7 +233,7 @@ public class RatingQueueBean {
         return frtWeight;
     }
 
-    public void setFrtWeight(float frtWeight) {
+    public void setFrtWeight(Float frtWeight) {
         this.frtWeight = frtWeight;
     }
 
@@ -501,5 +502,13 @@ public class RatingQueueBean {
 
     public void setTrackingNumber(String trackingNumber) {
         this.trackingNumber = trackingNumber;
+    }
+
+    public String getPackageType() {
+        return packageType;
+    }
+
+    public void setPackageType(String packageType) {
+        this.packageType = packageType;
     }
 }

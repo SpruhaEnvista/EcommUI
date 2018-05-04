@@ -201,7 +201,7 @@ public class RatingQueueDAO {
 
         return beanList;
     }
-    public void updateRateStatusinQueue(Long ratingQueueId) {
+    public void updateRateStatusInQueue(Long ratingQueueId) {
         Connection connection = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
