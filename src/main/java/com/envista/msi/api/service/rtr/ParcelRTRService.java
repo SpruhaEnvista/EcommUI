@@ -150,6 +150,7 @@ public class ParcelRTRService{
                                     for(ParcelAuditDetailsDto auditDetails : shipmentDetails) {
                                         if(auditDetails != null && "FRT".equalsIgnoreCase(auditDetails.getChargeClassificationCode())){
                                             frtFound = true;
+                                            break;
                                         }
                                     }
                                     if(!frtFound){
