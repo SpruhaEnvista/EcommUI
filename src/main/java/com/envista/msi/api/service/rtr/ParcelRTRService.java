@@ -180,7 +180,7 @@ public class ParcelRTRService{
     private void doParcelRatingForUpsCarrier(Map<String, List<ParcelAuditDetailsDto>> parcelAuditDetailsMap, String url, String licenseKey, String customerIds, MsiARChargeCodesDto msiARChargeCode){
         if(parcelAuditDetailsMap != null && !parcelAuditDetailsMap.isEmpty()){
             int shipmentCount = 1;
-            List<ParcelAuditDetailsDto> previousShipment = null;
+
             //Keeping this logic temporarily. When we start new design then we have to change this logic here.
             Iterator<Map.Entry<String, List<ParcelAuditDetailsDto>>> entryIterator = parcelAuditDetailsMap.entrySet().iterator();
             while(entryIterator.hasNext()){
@@ -196,6 +196,7 @@ public class ParcelRTRService{
                         Map<Long, List<ParcelAuditDetailsDto>> shipments = ParcelRatingUtil.organiseShipmentsByParentId(shipmentRecords);
                         Iterator<Map.Entry<Long, List<ParcelAuditDetailsDto>>> shipmentIterator = shipments.entrySet().iterator();
 
+                        List<ParcelAuditDetailsDto> previousShipment = null;
                         while(shipmentIterator.hasNext()){
                             Map.Entry<Long, List<ParcelAuditDetailsDto>> shpEntry = shipmentIterator.next();
                             if(shpEntry != null){
