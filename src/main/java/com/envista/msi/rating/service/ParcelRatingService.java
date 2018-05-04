@@ -88,6 +88,10 @@ public class ParcelRatingService {
         return getUpsParcelShipmentDetails(customerId, fromShipDate, toShipDate, null, null, false);
     }
 
+    public List<ParcelAuditDetailsDto> getUpsParcelShipmentDetails(String customerId, String trackingNumber, boolean ignoreRtrStatus){
+        return getUpsParcelShipmentDetails(customerId, null, null, trackingNumber, null, false);
+    }
+
     public List<ParcelAuditDetailsDto> getFedExParcelShipmentDetails(String customerId, String fromShipDate, String toShipDate, String trackingNumbers, String invoiceIds){
         return ratingQueueDAO.getNonUpsParcelShipmentDetails(customerId, "22", fromShipDate, toShipDate, trackingNumbers, invoiceIds);
     }

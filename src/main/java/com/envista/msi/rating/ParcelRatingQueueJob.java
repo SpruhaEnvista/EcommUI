@@ -84,7 +84,7 @@ public class ParcelRatingQueueJob {
             allShipmentDetails = parcelRatingService.getUpsParcelShipmentDetails(customerId, fromShipDate, toShipDate);
             if(allShipmentDetails != null && !allShipmentDetails.isEmpty()){
                 Map<String, List<ParcelAuditDetailsDto>> trackingNumberWiseShipments = ParcelRatingUtil.prepareTrackingNumberWiseAuditDetails(allShipmentDetails);
-
+                processUpsShipments(trackingNumberWiseShipments, parcelRatingService.getAllMappedARChargeCodes(), customerId);
             }
         } else if("fedex".equalsIgnoreCase(rateTo)) {
             allShipmentDetails =  parcelRatingService.getFedExParcelShipmentDetails(customerId, fromShipDate, toShipDate, trackingNumber, invoiceIds);
@@ -93,6 +93,58 @@ public class ParcelRatingQueueJob {
                 processFedExShipments(trackingNumberWiseShipments, parcelRatingService.getAllMappedARChargeCodes());
             }
         }
+    }
+
+    private void processUpsShipments(Map<String, List<ParcelAuditDetailsDto>> trackingNumberWiseShipments, MsiARChargeCodesDto allMappedARChargeCodes, String customerIds) {
+        /*Iterator<Map.Entry<String, List<ParcelAuditDetailsDto>>> entryIterator = trackingNumberWiseShipments.entrySet().iterator();
+
+        while(entryIterator.hasNext()){
+            Map.Entry<String,List<ParcelAuditDetailsDto>> parcelAuditEntry = entryIterator.next();
+            if(parcelAuditEntry != null){
+                try{
+                    String trackingNumber = parcelAuditEntry.getKey();
+                    List<ParcelAuditDetailsDto> shipmentRecords = null;
+                    if(trackingNumber != null && !trackingNumber.isEmpty()){
+                        shipmentRecords = parcelRatingService.getUpsParcelShipmentDetails(customerIds, trackingNumber, true);
+                    }
+
+                    Map<Long, List<ParcelAuditDetailsDto>> shipments = ParcelRatingUtil.organiseShipmentsByParentId(shipmentRecords);
+                    Iterator<Map.Entry<Long, List<ParcelAuditDetailsDto>>> shipmentIterator = shipments.entrySet().iterator();
+
+                    List<ParcelAuditDetailsDto> previousShipment = null;
+                    while(shipmentIterator.hasNext()){
+                        Map.Entry<Long, List<ParcelAuditDetailsDto>> shpEntry = shipmentIterator.next();
+                        if(shpEntry != null){
+                            List<ParcelAuditDetailsDto> shipmentChargeList = shpEntry.getValue();
+                            if(shipmentChargeList != null){
+                                if(ParcelRatingUtil.containsCharge(ParcelAuditConstant.COMMERCIAL_ADJUSTMENT_CHARGE_TYPE, shipmentChargeList)){
+                                    List<ParcelAuditDetailsDto> commercialShipment = new ArrayList<>();
+                                    commercialShipment.addAll(shipmentChargeList);
+                                    for(ParcelAuditDetailsDto commShipment : parcelAuditDetails){
+                                        if(commShipment != null && !"RES".equalsIgnoreCase(commShipment.getChargeDescriptionCode())
+                                                && !"RSC".equalsIgnoreCase(commShipment.getChargeDescriptionCode()) && !"FRT".equalsIgnoreCase(commShipment.getChargeClassificationCode())){
+                                            commercialShipment.add(commShipment);
+                                        }
+                                    }
+                                } else if(ParcelRatingUtil.containsCharge(ParcelAuditConstant.RESIDENTIAL_ADJUSTMENT_CHARGE_TYPE, shipmentChargeList)){
+                                    //keeping it in separate if condition in order to handle few more scenarios in future.
+                                    callRTRAndPopulateRates(url, licenseKey, previousShipment, RateTo.UPS, msiARChargeCode, shipmentChargeList.get(0), previousShipment);
+                                } else {
+                                    callRTRAndPopulateRates(url, licenseKey, shipmentChargeList, RateTo.UPS, msiARChargeCode, previousShipment);
+                                }
+                            }
+                            previousShipment = new ArrayList<>(shipmentChargeList);
+                        }
+                    }
+
+                    System.out.println("Shipment Count :: " + shipmentCount++ + " :: " + trackingNumber);
+                    entryIterator.remove();
+                }catch (Exception e){
+                    System.out.println(e.getMessage());
+                    //Do nothing
+                }
+            }
+        }*/
     }
 
     public void processFedExShipments(Map<String, List<ParcelAuditDetailsDto>> trackingNumberWiseShipments, MsiARChargeCodesDto msiARChargeCode) {
