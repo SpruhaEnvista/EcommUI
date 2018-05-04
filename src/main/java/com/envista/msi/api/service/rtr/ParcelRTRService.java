@@ -245,12 +245,15 @@ public class ParcelRTRService{
                         if(ParcelAuditConstant.COMMERCIAL_ADJUSTMENT_CHARGE_TYPE.equalsIgnoreCase(commercialCharge.getChargeDescription())){
                             List<ParcelAuditDetailsDto> commercialShipment = new ArrayList<>();
                             commercialShipment.add(commercialCharge);
-                            for(ParcelAuditDetailsDto commShipment : parcelAuditDetails){
-                                if(commShipment != null && !"RES".equalsIgnoreCase(commShipment.getChargeDescriptionCode())
-                                        && !"RSC".equalsIgnoreCase(commShipment.getChargeDescriptionCode()) && !"FRT".equalsIgnoreCase(commShipment.getChargeClassificationCode())){
-                                    commercialShipment.add(commShipment);
+                            if(parcelAuditDetails != null){
+                                for(ParcelAuditDetailsDto commShipment : parcelAuditDetails){
+                                    if(commShipment != null && !"RES".equalsIgnoreCase(commShipment.getChargeDescriptionCode())
+                                            && !"RSC".equalsIgnoreCase(commShipment.getChargeDescriptionCode()) && !"FRT".equalsIgnoreCase(commShipment.getChargeClassificationCode())){
+                                        commercialShipment.add(commShipment);
+                                    }
                                 }
                             }
+
                             requestPayload = ParcelRateRequestBuilder.buildParcelRateRequestForUps(commercialShipment, licenseKey, msiARChargeCode).toXmlString();
                             response = CommonUtil.connectAndGetResponseAsString(url, requestPayload);
                             if(response != null && !response.trim().isEmpty()){
@@ -260,9 +263,12 @@ public class ParcelRTRService{
                         } else if(ParcelAuditConstant.RESIDENTIAL_ADJUSTMENT_CHARGE_TYPE.equalsIgnoreCase(commercialCharge.getChargeDescription())){
                             List<ParcelAuditDetailsDto> residentialShipment = new ArrayList<>();
                             residentialShipment.add(commercialCharge);
-                            for(ParcelAuditDetailsDto commShipment : parcelAuditDetails){
-                                if(commShipment != null && !"FRT".equalsIgnoreCase(commShipment.getChargeClassificationCode())){
-                                    residentialShipment.add(commShipment);
+
+                            if(parcelAuditDetails != null) {
+                                for(ParcelAuditDetailsDto commShipment : parcelAuditDetails){
+                                    if(commShipment != null && !"FRT".equalsIgnoreCase(commShipment.getChargeClassificationCode())){
+                                        residentialShipment.add(commShipment);
+                                    }
                                 }
                             }
                             requestPayload = ParcelRateRequestBuilder.buildParcelRateRequestForUps(residentialShipment, licenseKey, msiARChargeCode).toXmlString();
