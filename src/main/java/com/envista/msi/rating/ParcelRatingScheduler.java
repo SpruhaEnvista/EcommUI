@@ -29,7 +29,7 @@ public class ParcelRatingScheduler {
         File file = new File("ParcelRatingScheduler");
         FileChannel channel = new RandomAccessFile(file, "rw").getChannel();
         FileLock lock = null;
-        int jobId=1;
+        String jobIds="1";
         try {
             lock = channel.tryLock();
         } catch (OverlappingFileLockException e) {
@@ -41,13 +41,13 @@ public class ParcelRatingScheduler {
             System.exit(0);
         }
         if(args!=null && args.length>0){
-            jobId = Integer.parseInt(args[0]);
+            jobIds = args[0];
         }
 
         // Get the scheduler
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         // Get a handle, starting now, with a 10 minutes delay
-        final ScheduledFuture<?> future = executor.scheduleWithFixedDelay(new ParcelRatingPollingService(jobId), 0, 10,TimeUnit.MINUTES);
+        final ScheduledFuture<?> future = executor.scheduleWithFixedDelay(new ParcelRatingPollingService(jobIds), 0, 10,TimeUnit.MINUTES);
         //future.cancel(false);
         //executor.shutdown();
     }
@@ -56,16 +56,16 @@ public class ParcelRatingScheduler {
 class ParcelRatingPollingService implements Runnable {
 
     private Log m_log = LogFactory.getLog(ParcelRatingPollingService.class);
-    private int jobId;
+    private String jobIds;
 
-    public ParcelRatingPollingService(int jobId) {
-        this.jobId=jobId;
+    public ParcelRatingPollingService(String jobIds) {
+        this.jobIds=jobIds;
     }
 
     public void run() {
         try {
             ParcelRating parcelRating = new ParcelRating();
-            parcelRating.processRating(this.jobId);
+            parcelRating.processRating(this.jobIds);
         } catch (Exception e) {
             m_log.error(e);
             e.printStackTrace();

@@ -53,10 +53,10 @@ public class ParcelRating implements Callable<String> {
         entitymanager.close();
     }*/
 
-    public void processRating(int jobId) throws Exception{
+    public void processRating(String jobIds) throws Exception{
 
         RatingQueueDAO ratingQueueDao = new RatingQueueDAO();
-        ArrayList<RatingQueueBean> beanList = ratingQueueDao.getRatingQueueByJobId(jobId);
+        ArrayList<RatingQueueBean> beanList = ratingQueueDao.getRatingQueueByJobId(jobIds);
 
 
         System.out.println("in processExcelUpload .....");
@@ -85,6 +85,9 @@ public class ParcelRating implements Callable<String> {
     public void processParcelRating(RatingQueueBean bean) throws Exception {
 
         //TO-DO rating logic needs to be here
+
+        RatingQueueDAO ratingQueueDAO = new RatingQueueDAO();
+        ratingQueueDAO.updateRateStatusinQueue(bean.getRatingQueueId());
     }
 
 }
