@@ -120,10 +120,13 @@ public class ParcelRatingQueueJob {
                                 if(ParcelRatingUtil.containsCharge(ParcelAuditConstant.COMMERCIAL_ADJUSTMENT_CHARGE_TYPE, shipmentChargeList)){
                                     List<ParcelAuditDetailsDto> commercialShipment = new ArrayList<>();
                                     commercialShipment.addAll(shipmentChargeList);
-                                    for(ParcelAuditDetailsDto commShipment : parcelAuditDetails){
-                                        if(commShipment != null && !"RES".equalsIgnoreCase(commShipment.getChargeDescriptionCode())
-                                                && !"RSC".equalsIgnoreCase(commShipment.getChargeDescriptionCode()) && !"FRT".equalsIgnoreCase(commShipment.getChargeClassificationCode())){
-                                            commercialShipment.add(commShipment);
+
+                                    if(previousShipment != null) {
+                                        for(ParcelAuditDetailsDto commShipment : previousShipment){
+                                            if(commShipment != null && !"RES".equalsIgnoreCase(commShipment.getChargeDescriptionCode())
+                                                    && !"RSC".equalsIgnoreCase(commShipment.getChargeDescriptionCode()) && !"FRT".equalsIgnoreCase(commShipment.getChargeClassificationCode())){
+                                                commercialShipment.add(commShipment);
+                                            }
                                         }
                                     }
                                 } else if(ParcelRatingUtil.containsCharge(ParcelAuditConstant.RESIDENTIAL_ADJUSTMENT_CHARGE_TYPE, shipmentChargeList)){
