@@ -206,6 +206,9 @@ public class ParcelAuditDetailsDto {
     @Column(name="REVENUE_TIER")
     private String revenueTier;
 
+    @Column(name = "CHARGE_CODE")
+    private String chargeCode;
+
     public ParcelAuditDetailsDto() {
     }
 
@@ -569,6 +572,14 @@ public class ParcelAuditDetailsDto {
 
     public void setRevenueTier(String revenueTier) {
         this.revenueTier = revenueTier;
+    }
+
+    public String getChargeCode() {
+        return chargeCode;
+    }
+
+    public void setChargeCode(String chargeCode) {
+        this.chargeCode = chargeCode;
     }
 
     public static class Config{

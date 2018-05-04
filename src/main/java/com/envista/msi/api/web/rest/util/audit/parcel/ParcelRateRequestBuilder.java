@@ -35,17 +35,7 @@ public class ParcelRateRequestBuilder {
         boolean hasRJ5Charge = false;
         if(parcelAuditDetailsList != null && !parcelAuditDetailsList.isEmpty()){
             for(ParcelAuditDetailsDto auditDetails : parcelAuditDetailsList) {
-                if (auditDetails != null && auditDetails.getPackageDimension() != null && !auditDetails.getPackageDimension().isEmpty()) {
-                    try{
-                        String [] dimension = auditDetails.getPackageDimension().toLowerCase().split("x");
-                        if(dimension != null && dimension.length > 0){
-                            auditDetails.setDimLength(dimension[0] != null ? dimension[0].trim() : "");
-                            auditDetails.setDimWidth(dimension[1] != null ? dimension[1].trim() : "");
-                            auditDetails.setDimHeight(dimension[2] != null ? dimension[2].trim() : "");
-                        }
-                    }catch (Exception e){}
-                }
-                if("RJ5".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())) {
+                if(auditDetails != null && "RJ5".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())) {
                     hasRJ5Charge = true;
                 }
             }
@@ -261,9 +251,13 @@ public class ParcelRateRequestBuilder {
                                 && !Arrays.asList(ParcelAuditConstant.ChargeDescriptionCode.FSC.name(), ParcelAuditConstant.ChargeDescriptionCode.DSC.name()).contains(auditDetails.getChargeDescriptionCode())){
                             ParcelRateRequest.ServiceFlag serviceFlag = new ParcelRateRequest.ServiceFlag();
                             if(auditDetails.getChargeDescriptionCode().equalsIgnoreCase("RES")){
-                                auditDetails.setChargeDescriptionCode("RSC");
+                                serviceFlag.setCode("RSC");
                             } else if(dasChargeList.containsKey(auditDetails.getChargeDescriptionCode())){
-                                serviceFlag.setCode(dasChargeList.get(auditDetails.getChargeDescriptionCode()));
+                                if(auditDetails.getChargeDescription() != null && (auditDetails.getChargeDescription().contains("EXTENDED") || auditDetails.getChargeDescription().contains("extended"))){
+                                    serviceFlag.setCode("DSX");
+                                } else {
+                                    serviceFlag.setCode(dasChargeList.get(auditDetails.getChargeDescriptionCode()));
+                                }
                             } else if(lpsCharges != null && lpsCharges.containsKey(auditDetails.getChargeDescriptionCode())) {
                                 serviceFlag.setCode(lpsCharges.get(auditDetails.getChargeDescriptionCode()));
                             } else {
