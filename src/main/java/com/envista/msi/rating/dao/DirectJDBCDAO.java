@@ -281,7 +281,7 @@ public class DirectJDBCDAO {
         CallableStatement cstmt =null;
         try{
             conn = ServiceLocator.getDatabaseConnection();
-            cstmt = conn.prepareCall("{ call SHP_RATE_UPDATE_ACC_PROC(?,?,?,?,?,?,?,?)}");
+            cstmt = conn.prepareCall("{ call SHP_RATE_UPDATE_ACC_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?)}");
             cstmt.setString(1, referenceTableName);
             cstmt.setString(2, entityIds);
             cstmt.setString(3, userName);
@@ -290,10 +290,17 @@ public class DirectJDBCDAO {
             cstmt.setBigDecimal(6, rateDetails != null && rateDetails.getAccessorial1() != null ? rateDetails.getAccessorial1() : new BigDecimal("0"));
             cstmt.setBigDecimal(7, rateDetails != null && rateDetails.getAccessorial2() != null ? rateDetails.getAccessorial2() : new BigDecimal("0"));
             cstmt.setBigDecimal(8, rateDetails != null && rateDetails.getAccessorial3() != null ? rateDetails.getAccessorial3() : new BigDecimal("0"));
+            cstmt.setBigDecimal(9, rateDetails != null && rateDetails.getAccessorial4() != null ? rateDetails.getAccessorial4() : new BigDecimal("0"));
+            cstmt.setString(10, rateDetails != null && rateDetails.getAccessorial1Code() != null ? rateDetails.getAccessorial1Code() : null);
+            cstmt.setString(11, rateDetails != null && rateDetails.getAccessorial2Code() != null ? rateDetails.getAccessorial2Code() : null);
+            cstmt.setString(12, rateDetails != null && rateDetails.getAccessorial3Code() != null ? rateDetails.getAccessorial3Code() : null);
+            cstmt.setString(13, rateDetails != null && rateDetails.getAccessorial4Code() != null ? rateDetails.getAccessorial4Code() : null);
             cstmt.executeUpdate();
         }catch (SQLException sqle) {
+            sqle.printStackTrace();
             System.out.println("Exception in updateAccessorialShipmentRateDetails -- > "+sqle.getStackTrace());
         }  catch (ServiceLocatorException sle) {
+            sle.printStackTrace();
             System.out.println("Exception in updateAccessorialShipmentRateDetails -- > "+sle.getStackTrace());
         }finally {
             try {
@@ -333,9 +340,9 @@ public class DirectJDBCDAO {
                     chargeCodes.add(mappedChargeType);
                 }
             }catch (SQLException sqle) {
-                System.out.println("Exception in updateAccessorialShipmentRateDetails -- > "+sqle.getStackTrace());
+                System.out.println("Exception in loadMappedARChargeCodes -- > "+sqle.getStackTrace());
             }  catch (ServiceLocatorException sle) {
-                System.out.println("Exception in updateAccessorialShipmentRateDetails -- > "+sle.getStackTrace());
+                System.out.println("Exception in loadMappedARChargeCodes -- > "+sle.getStackTrace());
             }finally {
                 try {
                     if (cstmt != null)
@@ -406,11 +413,11 @@ public class DirectJDBCDAO {
                 ratedChargeDetailsDtoList.add(ratedChargeDetailsDto);
             }
         }catch (SQLException sqle) {
-            System.out.println("Exception in fetching rate details -- > "+sqle.getStackTrace());
-            throw new RuntimeException("Exception in fetcjing rate details -- > "+sqle.getStackTrace());
+            System.out.println("Exception in fetching rate details in getRatedChargeAmount-- > "+sqle.getStackTrace());
+            throw new RuntimeException("Exception in fetching rate details in getRatedChargeAmount -- > "+sqle.getStackTrace());
         }  catch (ServiceLocatorException sle) {
-            System.out.println("Exception in updateAccessorialShipmentRateDetails -- > "+sle.getStackTrace());
-            throw new RuntimeException("Exception in getting connection -- > "+sle.getStackTrace());
+            System.out.println("Exception in getting connection in getRatedChargeAmount -- > "+sle.getStackTrace());
+            throw new RuntimeException("Exception in getting connection in getRatedChargeAmount -- > "+sle.getStackTrace());
         }finally {
             try {
                 if (rs != null)

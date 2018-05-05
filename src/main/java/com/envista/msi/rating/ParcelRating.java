@@ -77,8 +77,10 @@ public class ParcelRating implements Callable<String> {
         String status = null;
         if(bean.getCarrierId() == 21){
             status = parcelUpsRatingService.doParcelRatingForUpsCarrier(bean);
+            System.out.println("Rating : " + bean.getTrackingNumber() + " : Status : " + status);
         } else if(bean.getCarrierId() == 22) {
             status = nonUpsRatingService.doRatingForNonUpsShipment(bean);
+            System.out.println("Rating : " + bean.getTrackingNumber() + " : Status : " + status);
         }
 
         if(ParcelRatingUtil.isRatingDone(status)){
