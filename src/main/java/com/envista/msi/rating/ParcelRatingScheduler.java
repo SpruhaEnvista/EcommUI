@@ -29,7 +29,7 @@ public class ParcelRatingScheduler {
         File file = new File("ParcelRatingScheduler");
         FileChannel channel = new RandomAccessFile(file, "rw").getChannel();
         FileLock lock = null;
-        String jobIds="1";
+        String jobIds="1,2,3,4,5,6,7,8,9,10";
         try {
             lock = channel.tryLock();
         } catch (OverlappingFileLockException e) {

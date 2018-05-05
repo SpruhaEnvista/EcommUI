@@ -5,8 +5,8 @@ import com.envista.msi.api.web.rest.dto.rtr.MsiARChargeCodesDto;
 import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditDetailsDto;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant;
 import com.envista.msi.rating.bean.RatingQueueBean;
-import com.envista.msi.rating.dao.RatingQueueDAO;
-import com.envista.msi.rating.service.ParcelRatingService;
+import com.envista.msi.rating.service.ParcelNonUpsRatingService;
+import com.envista.msi.rating.service.ParcelUpsRatingService;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -18,7 +18,7 @@ import java.util.Map;
  */
 public class ParcelRatingQueueJob {
     public static ParcelRatingQueueJob getInstance(){return new ParcelRatingQueueJob();}
-    ParcelRatingService parcelRatingService = new ParcelRatingService();
+    ParcelNonUpsRatingService parcelRatingService = new ParcelNonUpsRatingService();
     public static void main(String[] args) {
         String customerId = null;
         String fromShipDate = null;
@@ -28,7 +28,7 @@ public class ParcelRatingQueueJob {
         String invoiceIds = null;
         if(args != null && args.length > 0){
             for (String s : args) {
-                String[] array = s.split("-");
+                String[] array = s.split("=");
 
                 if("customerId".equalsIgnoreCase(array[0].trim())) {
                     customerId = array[1].trim();
@@ -81,7 +81,7 @@ public class ParcelRatingQueueJob {
     private void processShipments(String customerId, String fromShipDate, String toShipDate, String trackingNumber, String invoiceIds, String rateTo) {
         List<ParcelAuditDetailsDto> allShipmentDetails = null;
         if("ups".equalsIgnoreCase(rateTo)){
-            allShipmentDetails = parcelRatingService.getUpsParcelShipmentDetails(customerId, fromShipDate, toShipDate, trackingNumber, invoiceIds);
+            allShipmentDetails = new ParcelUpsRatingService().getUpsParcelShipmentDetails(customerId, fromShipDate, toShipDate, trackingNumber, invoiceIds);
             if(allShipmentDetails != null && !allShipmentDetails.isEmpty()){
                 Map<String, List<ParcelAuditDetailsDto>> trackingNumberWiseShipments = ParcelRatingUtil.prepareTrackingNumberWiseAuditDetails(allShipmentDetails);
                 processUpsShipments(trackingNumberWiseShipments, parcelRatingService.getAllMappedARChargeCodes(), customerId);
@@ -104,7 +104,7 @@ public class ParcelRatingQueueJob {
                     String trackingNumber = parcelAuditEntry.getKey();
                     List<ParcelAuditDetailsDto> shipmentRecords = null;
                     if(trackingNumber != null && !trackingNumber.isEmpty()){
-                        shipmentRecords = parcelRatingService.getUpsParcelShipmentDetails(customerIds, trackingNumber, true);
+                        shipmentRecords = new ParcelUpsRatingService().getUpsParcelShipmentDetails(customerIds, trackingNumber, true);
                     }
 
                     Map<Long, List<ParcelAuditDetailsDto>> shipments = ParcelRatingUtil.organiseShipmentsByParentId(shipmentRecords);

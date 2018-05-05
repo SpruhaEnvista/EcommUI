@@ -70,6 +70,7 @@ public class RatingDAOUtil {
         RATING_QUEUE_COLUMN_NAMES.add("DALIVERY_DATE");
         RATING_QUEUE_COLUMN_NAMES.add("TRACKING_NUMBER");
         RATING_QUEUE_COLUMN_NAMES.add("REVENUE_TIER");
+        RATING_QUEUE_COLUMN_NAMES.add("PACKAGE_TYPE");
     }
 
     public static String prepareRatingQueueInsertQuery() {
@@ -252,6 +253,8 @@ public class RatingDAOUtil {
                 ps.setString(50, queueBean.getTrackingNumber());
             } else if("REVENUE_TIER".equalsIgnoreCase(columnName)) {
                 ps.setString(51, queueBean.getRevenueTier());
+            } else if("PACKAGE_TYPE".equalsIgnoreCase(columnName)) {
+                ps.setString(52, queueBean.getPackageType());
             } else {
                 throw new RuntimeException("Column name not mapped");
             }

@@ -31,7 +31,7 @@ public class RatingQueueDAO {
                 ratingQBean.setRatingQueueId(rss.getLong("SHP_RATING_QUEUE_ID"));
                 ratingQBean.setManiestId(rss.getLong("maniestId"));
                 ratingQBean.setGffId(rss.getLong("GFF_ID"));
-                ratingQBean.setCurrencyCode(rss.getString("CUSTOMERs_CODE"));
+                ratingQBean.setCustomerCode(rss.getString("CUSTOMER_CODE"));
                 ratingQBean.setScacCode(rss.getString("SCAC_CODE"));
                 ratingQBean.setContractName(rss.getString("CONTRACT_NAME"));
                 ratingQBean.setService(rss.getString("SERVICE"));
@@ -49,7 +49,7 @@ public class RatingQueueDAO {
                 ratingQBean.setTotalActualWeight(rss.getFloat("TOTAL_ACTUAL_WEIGHT"));
                 ratingQBean.setTotalQuantity(rss.getFloat("TOTAL_QUANTITY"));
                 ratingQBean.setBilledMiles(rss.getFloat("BILLED_MILES"));
-                ratingQBean.setFrtWeight(rss.getFloat("frtWeight"));
+                ratingQBean.setFrtWeight(rss.getFloat("FRT_WEIGHT"));
                 ratingQBean.setFrtWeightUnits(rss.getString("FRT_WEIGHT_UNITS"));
                 ratingQBean.setFrtActualWeight(rss.getFloat("FRT_ACTUAL_WEIGHT"));
                 ratingQBean.setFrtActualWeightUnits(rss.getString("FRT_ACTUAL_WEIGHT_UNITS"));
@@ -72,14 +72,16 @@ public class RatingQueueDAO {
                 ratingQBean.setReceiverCountry(rss.getString("RECEIVER_COUNTRY"));
                 ratingQBean.setHundredWeight(rss.getBoolean("IS_HUNDRED_WEIGHT"));
                 ratingQBean.setJobId(rss.getLong("JOB_ID"));
-                ratingQBean.setRatingStatus(rss.getString("RATING_STATUS"));
                 ratingQBean.setCreateUser(rss.getString("CREATE_USER"));
                 ratingQBean.setCreateDate(rss.getDate("CREATE_DATE"));
                 ratingQBean.setCarrierId(rss.getLong("CARRIER_ID"));
                 ratingQBean.setParentId(rss.getLong("PARENT_ID"));
                 ratingQBean.setRateStatus(rss.getBoolean("RATE_STATUS"));
-                ratingQBean.setRatingStatus(rss.getString("ACCESSORIAL_INFO"));
-                }
+                ratingQBean.setAccessorialInfo(rss.getString("ACCESSORIAL_INFO"));
+                ratingQBean.setRevenueTier(rss.getString("REVENUE_TIER"));
+                ratingQBean.setTrackingNumber(rss.getString("TRACKING_NUMBER"));
+                ratingQBean.setPackageType(rss.getString("PACKAGE_TYPE"));
+            }
 
         } catch (SQLException sqle) {
             System.out.println("Exception in getRatingBeanById -- > "+sqle.getStackTrace());
@@ -124,7 +126,7 @@ public class RatingQueueDAO {
                 ratingQueueBean.setRatingQueueId(rs.getLong("SHP_RATING_QUEUE_ID"));
                 ratingQueueBean.setManiestId(rs.getLong("MANIFEST_ID"));
                 ratingQueueBean.setGffId(rs.getLong("GFF_ID"));
-                ratingQueueBean.setCurrencyCode(rs.getString("CUSTOMER_CODE"));
+                ratingQueueBean.setCustomerCode(rs.getString("CUSTOMER_CODE"));
                 ratingQueueBean.setScacCode(rs.getString("SCAC_CODE"));
                 ratingQueueBean.setContractName(rs.getString("CONTRACT_NAME"));
                 ratingQueueBean.setService(rs.getString("SERVICE"));
@@ -165,14 +167,15 @@ public class RatingQueueDAO {
                 ratingQueueBean.setReceiverCountry(rs.getString("RECEIVER_COUNTRY"));
                 ratingQueueBean.setHundredWeight(rs.getBoolean("IS_HUNDRED_WEIGHT"));
                 ratingQueueBean.setJobId(rs.getLong("JOB_ID"));
-                ratingQueueBean.setRatingStatus(rs.getString("RATING_STATUS"));
                 ratingQueueBean.setCreateUser(rs.getString("CREATE_USER"));
                 ratingQueueBean.setCreateDate(rs.getDate("CREATE_DATE"));
                 ratingQueueBean.setCarrierId(rs.getLong("CARRIER_ID"));
                 ratingQueueBean.setParentId(rs.getLong("PARENT_ID"));
                 ratingQueueBean.setRateStatus(rs.getBoolean("RATE_STATUS"));
-                ratingQueueBean.setRatingStatus(rs.getString("ACCESSORIAL_INFO"));
-
+                ratingQueueBean.setAccessorialInfo(rs.getString("ACCESSORIAL_INFO"));
+                ratingQueueBean.setRevenueTier(rs.getString("REVENUE_TIER"));
+                ratingQueueBean.setTrackingNumber(rs.getString("TRACKING_NUMBER"));
+                ratingQueueBean.setPackageType(rs.getString("PACKAGE_TYPE"));
                 beanList.add(ratingQueueBean);
             }
 
@@ -338,6 +341,7 @@ public class RatingQueueDAO {
                 shipmentDetails.setActualWeightUnit(rs.getString("UNIT_OF_ACTUAL_WEIGHT"));
                 shipmentDetails.setRtrAmount(rs.getBigDecimal("rtr_amount"));
                 shipmentDetails.setRevenueTier(rs.getString("REVENUE_TIER"));
+                shipmentDetails.setPackageType(rs.getString("PACKAGE_TYPE"));
                 parcelUpsShipments.add(shipmentDetails);
             }
 
@@ -363,14 +367,14 @@ public class RatingQueueDAO {
         return parcelUpsShipments;
     }
 
-    public List<ParcelAuditDetailsDto> getNonUpsParcelShipmentDetails(String customerIds, String carrierIds, String fromDate, String toDate, String trackingNumbers, String invoiceId){
+    public List<ParcelAuditDetailsDto> getNonUpsParcelShipmentDetails(String customerIds, String carrierIds, String fromDate, String toDate, String trackingNumbers, String invoiceId, boolean ignoreRtrStatus){
         Connection conn = null;
         CallableStatement cstmt = null;
         ResultSet rs = null;
         List<ParcelAuditDetailsDto> parcelUpsShipments = null;
         try {
             conn = ServiceLocator.getDatabaseConnection();
-            cstmt = conn.prepareCall("{ call SHP_AUDIT_NON_UPS_PRCEL_PROC(?, ?, ?, ?, ?, ?, ?)}");
+            cstmt = conn.prepareCall("{ call SHP_AUDIT_NON_UPS_PRCEL_PROC(?, ?, ?, ?, ?, ?, ?, ?)}");
             parcelUpsShipments = new ArrayList<>();
 
             cstmt.setString(1,customerIds);
@@ -379,10 +383,11 @@ public class RatingQueueDAO {
             cstmt.setString(4, toDate);
             cstmt.setString(5, trackingNumbers);
             cstmt.setString(6, invoiceId);
-            cstmt.registerOutParameter(7, OracleTypes.CURSOR);
+            cstmt.setInt(7, ignoreRtrStatus ? 1 : 0);
+            cstmt.registerOutParameter(8, OracleTypes.CURSOR);
             cstmt.execute();
 
-            rs = (ResultSet) cstmt.getObject(7);
+            rs = (ResultSet) cstmt.getObject(8);
 
             while(rs.next()){
                 ParcelAuditDetailsDto shipmentDetails = new ParcelAuditDetailsDto();

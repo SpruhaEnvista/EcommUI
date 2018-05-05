@@ -1,9 +1,6 @@
 package com.envista.msi.api.domain.util;
 
-import com.envista.msi.api.web.rest.dto.rtr.MsiARChargeCodesDto;
-import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditDetailsDto;
-import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditRequestResponseLog;
-import com.envista.msi.api.web.rest.dto.rtr.RatedChargeDetailsDto;
+import com.envista.msi.api.web.rest.dto.rtr.*;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant;
 import com.envista.msi.rating.bean.RatingQueueBean;
 
@@ -575,5 +572,44 @@ public class ParcelRatingUtil {
             }
         }
         return frtFound;
+    }
+
+    public static ParcelAuditDetailsDto getPreviousShipmentBaseChargeDetails(Map<Long, List<ParcelAuditDetailsDto>> allSortedShipments, Long parentId) {
+        List<ParcelAuditDetailsDto> previousShipment = null;
+        if(allSortedShipments != null && !allSortedShipments.isEmpty()){
+            for(Map.Entry<Long, List<ParcelAuditDetailsDto>> shipmentEntry : allSortedShipments.entrySet()) {
+                if(shipmentEntry != null) {
+                    if(parentId.equals(shipmentEntry.getKey()) && previousShipment != null) {
+                        for(ParcelAuditDetailsDto charge : previousShipment){
+                            if(charge != null && "FRT".equalsIgnoreCase(charge.getChargeClassificationCode())){
+                                return charge;
+                            }
+                        }
+                    }
+                }
+                previousShipment = shipmentEntry.getValue();
+            }
+        }
+        return null;
+    }
+
+    public static List<ParcelAuditDetailsDto> getPreviousShipmentDetails(Map<Long, List<ParcelAuditDetailsDto>> allSortedShipments, Long parentId) {
+        List<ParcelAuditDetailsDto> previousShipment = null;
+        if(allSortedShipments != null && !allSortedShipments.isEmpty()){
+            for(Map.Entry<Long, List<ParcelAuditDetailsDto>> shipmentEntry : allSortedShipments.entrySet()) {
+                if(shipmentEntry != null) {
+                    if(parentId.equals(shipmentEntry.getKey()) && previousShipment != null) {
+                        return previousShipment;
+                    }
+                }
+                previousShipment = shipmentEntry.getValue();
+            }
+        }
+        return null;
+    }
+
+    public static boolean isRatingDone(String ratingStatus){
+        return ratingStatus != null
+                && Arrays.asList(ParcelAuditConstant.RTRStatus.CLOSED.value, ParcelAuditConstant.RTRStatus.UNDER_CHARGED.value, ParcelAuditConstant.RTRStatus.OVER_CHARGED.value).contains(ratingStatus);
     }
 }

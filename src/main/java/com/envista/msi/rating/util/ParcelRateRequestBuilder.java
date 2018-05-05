@@ -45,7 +45,6 @@ public class ParcelRateRequestBuilder {
 
             //Constraints section
             ParcelRateRequest.Constraints constraints = new ParcelRateRequest.Constraints();
-
             ParcelRateRequest.Carrier carrier = new ParcelRateRequest.Carrier();
             carrier.setScac(ratingQueueBean.getScacCode());
             constraints.setCarrier(carrier);
@@ -76,28 +75,31 @@ public class ParcelRateRequestBuilder {
             List<ParcelRateRequest.Item> items = new ArrayList<>();
             ParcelRateRequest.Weight weightObj = new ParcelRateRequest.Weight();
             if(ratingQueueBean.getFrtWeight() != null){
-                weightObj.setWeight(new BigDecimal(ratingQueueBean.getFrtWeight()));
+                weightObj.setWeight(BigDecimal.valueOf(ratingQueueBean.getFrtWeight()));
             }
             weightObj.setUnits(ratingQueueBean.getFrtWeightUnits());
 
             ParcelRateRequest.Weight actualWeightElement = new ParcelRateRequest.Weight();
             if(ratingQueueBean.getFrtActualWeight() != null) {
-                actualWeightElement.setWeight(new BigDecimal(ratingQueueBean.getFrtActualWeight()));
+                actualWeightElement.setWeight(new BigDecimal(ratingQueueBean.getFrtActualWeight().toString()));
             }
             actualWeightElement.setUnits(ratingQueueBean.getFrtActualWeightUnits());
 
             ParcelRateRequest.Quantity quantityObj = new ParcelRateRequest.Quantity();
-            quantityObj.setQuantity(new BigDecimal(ratingQueueBean.getFrtQyantity()));
+            if(ratingQueueBean.getFrtQyantity() != null){
+                quantityObj.setQuantity(new BigDecimal(ratingQueueBean.getFrtQyantity().toString()));
+            }
             quantityObj.setUnits(ratingQueueBean.getFrtQuantityUnits());
 
             ParcelRateRequest.Dimensions dimensionsObj = new ParcelRateRequest.Dimensions();
-            try{ if(ratingQueueBean.getDimLength() != null) dimensionsObj.setLength(new BigDecimal(ratingQueueBean.getDimLength())); }catch (Exception e){}
-            try{ if(ratingQueueBean.getDimWidth() != null) dimensionsObj.setWidth(new BigDecimal(ratingQueueBean.getDimWidth())); }catch (Exception e){}
-            try{ if(ratingQueueBean.getDimHeight() != null) dimensionsObj.setHeight(new BigDecimal(ratingQueueBean.getDimHeight())); }catch (Exception e){}
+            try{ if(ratingQueueBean.getDimLength() != null) dimensionsObj.setLength(new BigDecimal(ratingQueueBean.getDimLength().toString())); }catch (Exception e){}
+            try{ if(ratingQueueBean.getDimWidth() != null) dimensionsObj.setWidth(new BigDecimal(ratingQueueBean.getDimWidth().toString())); }catch (Exception e){}
+            try{ if(ratingQueueBean.getDimHeight() != null) dimensionsObj.setHeight(new BigDecimal(ratingQueueBean.getDimHeight().toString())); }catch (Exception e){}
             dimensionsObj.setUnits(ratingQueueBean.getDimUnits());
 
             ParcelRateRequest.Item item = new ParcelRateRequest.Item();
-            item.setSequence(ratingQueueBean.getParentId().intValue());
+            //removed parentid here in the sequence, because while making int value for sequence, it is generating some negating value.
+            item.setSequence(1);
             item.setWeight(weightObj);
             item.setActualWeight(actualWeightElement);
             item.setQuantity(quantityObj);
