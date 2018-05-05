@@ -96,15 +96,19 @@ public class ParcelUpsRatingService {
                         if(shipmentToRate != null && !shipmentToRate.isEmpty()) {
                             if(!ParcelRatingUtil.isShipmentRated(shipmentToRate)) {
                                 List<ParcelAuditDetailsDto> previousShipment = ParcelRatingUtil.getPreviousShipmentDetails(shipments, bean.getParentId());
-                                if(previousShipment!= null && !previousShipment.isEmpty() && ParcelRatingUtil.isShipmentRated(previousShipment)){
-                                    if (ParcelRatingUtil.containsCharge(ParcelAuditConstant.COMMERCIAL_ADJUSTMENT_CHARGE_TYPE, shipmentToRate)) {
-                                        status = callRTRAndPopulateRates(url, licenseKey, previousShipment, msiARChargeCode, shipmentToRate.get(0), previousShipment);
-                                    } else if (ParcelRatingUtil.containsCharge(ParcelAuditConstant.RESIDENTIAL_ADJUSTMENT_CHARGE_TYPE, shipmentToRate)) {
-                                        //keeping it in separate if condition in order to handle few more scenarios in future.
-                                        status = callRTRAndPopulateRates(url, licenseKey, previousShipment, msiARChargeCode, shipmentToRate.get(0), previousShipment);
-                                    } else {
-                                        status = callRTRAndPopulateRates(url, licenseKey, shipmentToRate, msiARChargeCode, previousShipment);
+                                if(previousShipment!= null && !previousShipment.isEmpty()){
+                                    if(ParcelRatingUtil.isShipmentRated(previousShipment)){
+                                        if (ParcelRatingUtil.containsCharge(ParcelAuditConstant.COMMERCIAL_ADJUSTMENT_CHARGE_TYPE, shipmentToRate)) {
+                                            status = callRTRAndPopulateRates(url, licenseKey, previousShipment, msiARChargeCode, shipmentToRate.get(0), previousShipment);
+                                        } else if (ParcelRatingUtil.containsCharge(ParcelAuditConstant.RESIDENTIAL_ADJUSTMENT_CHARGE_TYPE, shipmentToRate)) {
+                                            //keeping it in separate if condition in order to handle few more scenarios in future.
+                                            status = callRTRAndPopulateRates(url, licenseKey, previousShipment, msiARChargeCode, shipmentToRate.get(0), previousShipment);
+                                        } else {
+                                            status = callRTRAndPopulateRates(url, licenseKey, shipmentToRate, msiARChargeCode, null);
+                                        }
                                     }
+                                } else {
+                                    status = callRTRAndPopulateRates(url, licenseKey, shipmentToRate, msiARChargeCode, previousShipment);
                                 }
                             }
                         }

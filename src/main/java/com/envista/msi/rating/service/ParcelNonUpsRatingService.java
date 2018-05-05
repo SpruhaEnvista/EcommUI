@@ -91,16 +91,20 @@ public class ParcelNonUpsRatingService {
             if(shipmentToRate != null && !shipmentToRate.isEmpty()) {
                 if(!ParcelRatingUtil.isShipmentRated(shipmentToRate)) {
                     List<ParcelAuditDetailsDto> previousShipment = ParcelRatingUtil.getPreviousShipmentDetails(shipments, bean.getParentId());;
-                    if(previousShipment != null && !previousShipment.isEmpty() && ParcelRatingUtil.isShipmentRated(previousShipment)) {
-                        if(!ParcelRatingUtil.hasFrtCharge(shipmentToRate)) {
-                            ParcelAuditDetailsDto prevShipmentFrtCharge = ParcelRatingUtil.getPreviousShipmentBaseChargeDetails(shipments, bean.getParentId());
-                            if(prevShipmentFrtCharge != null) {
-                                shipmentToRate.add(prevShipmentFrtCharge);
+                    if(previousShipment != null && !previousShipment.isEmpty()) {
+                        if(ParcelRatingUtil.isShipmentRated(previousShipment)) {
+                            if(!ParcelRatingUtil.hasFrtCharge(shipmentToRate)) {
+                                ParcelAuditDetailsDto prevShipmentFrtCharge = ParcelRatingUtil.getPreviousShipmentBaseChargeDetails(shipments, bean.getParentId());
+                                if(prevShipmentFrtCharge != null) {
+                                    shipmentToRate.add(prevShipmentFrtCharge);
+                                    status = callRTRAndPopulateRates(shipmentToRate, bean);
+                                }
+                            }else {
                                 status = callRTRAndPopulateRates(shipmentToRate, bean);
                             }
-                        }else {
-                            status = callRTRAndPopulateRates(shipmentToRate, bean);
                         }
+                    }else {
+                        status = callRTRAndPopulateRates(shipmentToRate, bean);
                     }
                 }
             }
