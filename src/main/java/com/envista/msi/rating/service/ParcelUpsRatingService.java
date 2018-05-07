@@ -124,7 +124,7 @@ public class ParcelUpsRatingService {
                                                                 shipmentToRate.add(prevShpCharge);
                                                             }
                                                         }
-                                                        callRTRAndPopulateRates(url, licenseKey, shipmentToRate, msiARChargeCode, previousShipment, bean);
+                                                        status = callRTRAndPopulateRates(url, licenseKey, shipmentToRate, msiARChargeCode, previousShipment, bean);
                                                     }
                                                 }
                                             }
