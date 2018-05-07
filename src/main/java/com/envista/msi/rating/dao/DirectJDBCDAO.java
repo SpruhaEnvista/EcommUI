@@ -500,7 +500,7 @@ public class DirectJDBCDAO {
         try {
             if("UPS".equalsIgnoreCase(rateTo)) {
                 if(invoiceIds != null) {
-                    liveSqlQuery = " SELECT INVOICE_ID FROM SHP_EBILL_INVOICE_TB ";
+                    liveSqlQuery = " SELECT DISTINCT INVOICE_ID FROM SHP_EBILL_INVOICE_TB ";
                     liveSqlQuery += " WHERE INVOICE_ID IN (" + invoiceIds + ") ";
                 } else {
                     liveSqlQuery += " SELECT INVOICE_ID FROM SHP_EBILL_MANIFEST_TB ";
@@ -518,7 +518,7 @@ public class DirectJDBCDAO {
                 archiveQuery = liveSqlQuery.replace("SHP_EBILL_INVOICE_TB", "ARC_EBILL_INVOICE_TB");
                 archiveQuery = archiveQuery.replace("SHP_EBILL_MANIFEST_TB", "ARC_EBILL_MANIFEST_TB");
             } else if ("FEDEX".equalsIgnoreCase(rateTo)) {
-                liveSqlQuery += " SELECT INVOICE_ID FROM SHP_EBILL_MANIFEST_TB ";
+                liveSqlQuery += " SELECT DISTINCT INVOICE_ID FROM SHP_EBILL_MANIFEST_TB ";
                 liveSqlQuery += " WHERE 1 = 1 ";
 
                 if(invoiceIds != null) {
