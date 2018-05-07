@@ -329,8 +329,8 @@ public class RatingQueueDAO {
             }
 
             String archiveQuery = "";
-            archiveQuery = liveQuery.replace("SHP_EBILL_GFF_TB", "ARC_EBILL_GFF_TB");
-            archiveQuery = archiveQuery.replace("SHP_EBILL_INVOICE_TB", "ARC_EBILL_INVOICE_TB");
+            archiveQuery = liveQuery.replace("shp_ebill_gff_tb", "arc_ebill_gff_tb");
+            archiveQuery = archiveQuery.replace("shp_ebill_invoice_tb", "arc_ebill_invoice_tb");
 
             System.out.println(liveQuery + " UNION " + archiveQuery);
             ps = conn.prepareStatement(liveQuery + " UNION " + archiveQuery);
