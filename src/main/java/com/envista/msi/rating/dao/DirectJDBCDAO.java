@@ -1,10 +1,7 @@
 package com.envista.msi.rating.dao;
 
 import com.envista.msi.api.dao.DaoException;
-import com.envista.msi.api.web.rest.dto.rtr.ParcelARChargeCodeMappingDto;
-import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditRequestResponseLog;
-import com.envista.msi.api.web.rest.dto.rtr.ParcelRateDetailsDto;
-import com.envista.msi.api.web.rest.dto.rtr.RatedChargeDetailsDto;
+import com.envista.msi.api.web.rest.dto.rtr.*;
 import com.envista.msi.rating.ServiceLocator;
 import com.envista.msi.rating.ServiceLocatorException;
 import oracle.jdbc.OracleTypes;
@@ -490,5 +487,48 @@ public class DirectJDBCDAO {
             } catch (SQLException sqle) {
             }
         }
+    }
+
+    public List<Long> loadInvoiceIds(String fromDate, String toDate, String customerId, String invoiceIds, int limit, String rateTo){
+        System.out.println("Loading Invoices");
+        Connection conn = null;
+        CallableStatement cstmt = null;
+        ResultSet rs = null;
+        List<Long> invoiceList = new ArrayList<>();
+        try {
+            conn = ServiceLocator.getDatabaseConnection();
+            cstmt = conn.prepareCall("{ call SHP_AUDIT_GET_INVOICE_PROC(?,?,?,?,?,?,?)}");
+            cstmt.setString(1, fromDate);
+            cstmt.setString(2, toDate);
+            cstmt.setString(3, customerId);
+            cstmt.setString(4, invoiceIds);
+            cstmt.setInt(5, limit);
+            cstmt.setString(6, rateTo);
+            cstmt.registerOutParameter(7, OracleTypes.CURSOR);
+            cstmt.execute();
+            System.out.println("Got Invoices-->");
+            rs = (ResultSet) cstmt.getObject(7);
+
+            while(rs.next()) {
+                invoiceList.add(rs.getLong("INVOICE_ID"));
+            }
+        }catch (SQLException sqle) {
+            System.out.println("Exception in updateShipmentRateDetails -- > "+sqle.getStackTrace());
+        }  catch (ServiceLocatorException sle) {
+            System.out.println("Exception in updateShipmentRateDetails -- > "+sle.getStackTrace());
+        }finally {
+
+            try {
+                if (cstmt != null)
+                    cstmt.close();
+            } catch (SQLException sqle) {
+            }
+            try {
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException sqle) {
+            }
+        }
+        return invoiceList;
     }
 }
