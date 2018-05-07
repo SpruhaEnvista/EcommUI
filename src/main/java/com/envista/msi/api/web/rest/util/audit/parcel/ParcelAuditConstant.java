@@ -66,4 +66,23 @@ public class ParcelAuditConstant {
 
     public static final String EBILL_MANIFEST_TABLE_NAME = "SHP_EBILL_MANIFEST_TB";
     public static final String EBILL_GFF_TABLE_NAME = "SHP_EBILL_GFF_TB";
+
+    public static final String COMMERCIAL_ADJUSTMENT_CHARGE_TYPE = "COMMERCIAL ADJUSTMENT";
+    public static final String RESIDENTIAL_ADJUSTMENT_CHARGE_TYPE = "RESIDENTIAL ADJUSTMENT";
+    public static final String RESIDENTIAL_COMMERCIAL_ADJUSTMENT_CHARGE_TYPE = "RESIDENTIAL/COMMERCIAL ADJ";
+
+
+    public static final String MSI_AR_CHARGE_CODE_MAPPING_MODELE_NAME = "Parcel_Rating_MSI_AR_Code_Mapping";
+    public static final String MSI_AR_DAS_CHARGE_CODE_NAME = "DeliveryAreaSurcharge";
+    public static final String MSI_AR_LPS_CHARGE_CODE_NAME = "LargePackageSurcharge";
+
+    public static final String RATE_REQUEST_EVENT_DATE_FORMAT = "MM/dd/yyyy hh:mm";
+
+    public static final String AR_RATE_REQUEST_LICENSE_KEY = "FRT23A9DB63C39VM2A0C";
+    public static final String AR_RATE_REQUEST_PROTOCOL = "https";
+    public static final String AR_RATE_REQUEST_HOST_NAME = "rtr02.envistacorp.com";
+    public static final String AR_RATE_REQUEST_URI_PATH = "ws/freight/rate";
+
+    public static final String RATE_JOB_ID_SEQUENCE_NAME = "SHP_RATING_JOB_S";
+    public static final String RATE_JOB_ID_SEQUENCE_VALUE = "SHP_RATING_JOB_S.NEXTVAL";
 }

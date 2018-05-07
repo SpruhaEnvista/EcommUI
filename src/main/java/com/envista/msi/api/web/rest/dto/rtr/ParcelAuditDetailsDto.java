@@ -3,6 +3,7 @@ package com.envista.msi.api.web.rest.dto.rtr;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -19,6 +20,7 @@ import java.util.Date;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_to_date", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_tracking_numbers", type = String.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_invoice_id", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_ignore_rtr_status", type = Integer.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_audit_parcel_details", type = Void.class)
                 }
         ),
@@ -185,6 +187,30 @@ public class ParcelAuditDetailsDto {
 
     @Column(name = "PARENT_ID")
     private Long parentId;
+
+    @Column(name="PACKAGE_TYPE")
+    private String packageType;
+
+    @Column(name = "PACKAGE_DIMENSION")
+    private String packageDimension;
+
+    @Column(name = "ACTUAL_WEIGHT")
+    private BigDecimal actualWeight;
+
+    @Column(name = "UNIT_OF_ACTUAL_WEIGHT")
+    private String actualWeightUnit;
+
+    @Column(name = "RTR_AMOUNT")
+    private BigDecimal rtrAmount;
+
+    @Column(name="REVENUE_TIER")
+    private String revenueTier;
+
+    @Column(name = "CHARGE_CODE")
+    private String chargeCode;
+
+    @Column(name = "rtr_status")
+    private String rtrStatus;
 
     public ParcelAuditDetailsDto() {
     }
@@ -503,6 +529,68 @@ public class ParcelAuditDetailsDto {
 
     public void setParentId(Long parentId) {
         this.parentId = parentId;
+    }
+
+    public String getPackageType() {
+        return packageType;
+    }
+
+    public void setPackageType(String packageType) {
+        this.packageType = packageType;
+    }
+
+    public String getPackageDimension() {
+        return packageDimension;
+    }
+
+    public void setPackageDimension(String packageDimension) {
+        this.packageDimension = packageDimension;
+    }
+
+    public BigDecimal getActualWeight() {
+        return actualWeight;
+    }
+
+    public void setActualWeight(BigDecimal actualWeight) {
+        this.actualWeight = actualWeight;
+    }
+
+    public String getActualWeightUnit() {
+        return actualWeightUnit;
+    }
+
+    public void setActualWeightUnit(String actualWeightUnit) {
+        this.actualWeightUnit = actualWeightUnit;
+    }
+
+    public BigDecimal getRtrAmount() {
+        return rtrAmount;
+    }
+
+    public void setRtrAmount(BigDecimal rtrAmount) {
+        this.rtrAmount = rtrAmount;
+    }
+
+    public String getRevenueTier() { return revenueTier; }
+
+    public void setRevenueTier(String revenueTier) {
+        this.revenueTier = revenueTier;
+    }
+
+    public String getChargeCode() {
+        return chargeCode;
+    }
+
+    public void setChargeCode(String chargeCode) {
+        this.chargeCode = chargeCode;
+    }
+
+    public String getRtrStatus() {
+        return rtrStatus;
+    }
+
+    public void setRtrStatus(String rtrStatus) {
+        this.rtrStatus = rtrStatus;
     }
 
     public static class Config{

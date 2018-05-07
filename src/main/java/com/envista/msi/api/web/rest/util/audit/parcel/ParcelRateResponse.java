@@ -495,7 +495,8 @@ public class ParcelRateResponse implements Serializable {
         DISCOUNT("Discount"),
         ACCESSORIAL_FUEL("Fuel Surcharge"),
         MG_MINMAX_ADJ("Min/Max Adjustment"),
-        SMC_MIN_ADJ("Min/Max Adjustment");
+        SMC_MIN_ADJ("Min/Max Adjustment"),
+        ACCESSORIAL("ACCESSORIAL");
 
         private final String value;
         private ChargeType(String value) { this.value = value; }
