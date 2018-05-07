@@ -206,6 +206,9 @@ public class ParcelAuditDetailsDto {
     @Column(name="REVENUE_TIER")
     private String revenueTier;
 
+    @Column(name = "CHARGE_CODE")
+    private String chargeCode;
+
     @Column(name = "MULTI_WEIGHT_NUMBER")
     private String multiWeightNumber;
 
@@ -574,6 +577,14 @@ public class ParcelAuditDetailsDto {
         this.revenueTier = revenueTier;
     }
 
+    public String getChargeCode() {
+        return chargeCode;
+    }
+
+    public void setChargeCode(String chargeCode) {
+        this.chargeCode = chargeCode;
+    }
+
     public String getMultiWeightNumber() {
         return multiWeightNumber;
     }
@@ -584,8 +595,8 @@ public class ParcelAuditDetailsDto {
 
     public static class Config{
         public static class StoredProcedureName{
-            static final String AUDIT_UPS_PARCEL_DETAILS = "SHP_AUDIT_UPS_PARCEL_PROC_M";
-            static final String AUDIT_NOT_UPS_PARCEL_DETAILS = "SHP_AUDIT_NON_UPS_PRCEL_PROC_M";
+            static final String AUDIT_UPS_PARCEL_DETAILS = "SHP_AUDIT_UPS_PARCEL_PROC";
+            static final String AUDIT_NOT_UPS_PARCEL_DETAILS = "SHP_AUDIT_NON_UPS_PRCEL_PROC";
             static final String LOAD_INVOICE_IDS = "SHP_AUDIT_GET_INVOICE_PROC";
         }
 
