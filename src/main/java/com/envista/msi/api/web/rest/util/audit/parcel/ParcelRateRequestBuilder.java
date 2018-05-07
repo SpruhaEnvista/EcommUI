@@ -32,7 +32,7 @@ public class ParcelRateRequestBuilder {
         boolean hasRJ5Charge = false;
         if(parcelAuditDetailsList != null && !parcelAuditDetailsList.isEmpty()){
             for(ParcelAuditDetailsDto auditDetails : parcelAuditDetailsList) {
-                if(auditDetails != null && "RJ5".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())) {
+                if (auditDetails != null && "RJ5".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())) {
                     hasRJ5Charge = true;
                 }
             }
@@ -58,10 +58,10 @@ public class ParcelRateRequestBuilder {
                     if(auditDetails != null){
                         if(auditDetails.getChargeClassificationCode() != null
                                 && ParcelAuditConstant.ChargeClassificationCode.ACC.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())){
-                            if(auditDetails.getChargeDescriptionCode() != null && !auditDetails.getChargeDescriptionCode().isEmpty()
-                                    && !"RJ5".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())){
+                            if (auditDetails.getChargeDescriptionCode() != null && !auditDetails.getChargeDescriptionCode().isEmpty()
+                                    && !"RJ5".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())) {
                                 ParcelRateRequest.ServiceFlag serviceFlag = new ParcelRateRequest.ServiceFlag();
-                                if(!hasRJ5Charge && auditDetails.getChargeDescriptionCode().equalsIgnoreCase("RES")){
+                                if (!hasRJ5Charge && auditDetails.getChargeDescriptionCode().equalsIgnoreCase("RES")) {
                                     serviceFlag.setCode("RSC");
                                 } else if(dasChargeList.containsKey(auditDetails.getChargeDescriptionCode())) {
                                     serviceFlag.setCode(dasChargeList.get(auditDetails.getChargeDescriptionCode()));
@@ -250,7 +250,7 @@ public class ParcelRateRequestBuilder {
                             if(auditDetails.getChargeDescriptionCode().equalsIgnoreCase("RES")){
                                 serviceFlag.setCode("RSC");
                             } else if(dasChargeList.containsKey(auditDetails.getChargeDescriptionCode())){
-                                if(auditDetails.getChargeDescription() != null && (auditDetails.getChargeDescription().contains("EXTENDED") || auditDetails.getChargeDescription().contains("extended"))){
+                                if (auditDetails.getChargeDescription() != null && (auditDetails.getChargeDescription().contains("EXTENDED") || auditDetails.getChargeDescription().contains("extended"))) {
                                     serviceFlag.setCode("DSX");
                                 } else {
                                     serviceFlag.setCode(dasChargeList.get(auditDetails.getChargeDescriptionCode()));

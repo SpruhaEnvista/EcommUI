@@ -154,23 +154,23 @@ public class ParcelRTRService{
                                 if(shpEntry != null) {
                                     boolean frtFound = false;
                                     List<ParcelAuditDetailsDto> shipmentDetails = shpEntry.getValue();
-                                    for(ParcelAuditDetailsDto auditDetails : shipmentDetails) {
-                                        if(auditDetails != null && "FRT".equalsIgnoreCase(auditDetails.getChargeClassificationCode())){
+                                    for (ParcelAuditDetailsDto auditDetails : shipmentDetails) {
+                                        if (auditDetails != null && "FRT".equalsIgnoreCase(auditDetails.getChargeClassificationCode())) {
                                             frtFound = true;
                                             break;
                                         }
                                     }
-                                    if(!frtFound){
-                                        if(previousShipment != null && !previousShipment.isEmpty()){
+                                    if (!frtFound) {
+                                        if (previousShipment != null && !previousShipment.isEmpty()) {
                                             List<ParcelAuditDetailsDto> shipmentsWithPrevFrt = new ArrayList<>(shipmentDetails);
                                             ParcelAuditDetailsDto prevFrtCharge = ParcelRatingUtil.getFirstFrightChargeForNonUpsCarrier(previousShipment);
-                                            if(prevFrtCharge != null){
+                                            if (prevFrtCharge != null) {
                                                 shipmentsWithPrevFrt.add(prevFrtCharge);
-                                                callRTRAndPopulateRates(url, licenseKey, shipmentsWithPrevFrt, RateTo.NON_UPS, msiARChargeCode);
+                                                callRTRAndPopulateRates(url, licenseKey, shipmentsWithPrevFrt, RateTo.NON_UPS, msiARChargeCode, false);
                                             }
                                         }
                                     } else {
-                                        callRTRAndPopulateRates(url, licenseKey, shipmentDetails, RateTo.NON_UPS, msiARChargeCode);
+                                        callRTRAndPopulateRates(url, licenseKey, shipmentDetails, RateTo.NON_UPS, msiARChargeCode, false);
                                     }
 
                                     callRTRAndPopulateRates(url, licenseKey, shpEntry.getValue(), RateTo.NON_UPS, msiARChargeCode,false);
@@ -183,7 +183,7 @@ public class ParcelRTRService{
                     entryIterator.remove();
                 }
             }
-*/
+
             for (Map.Entry<String, List<ParcelAuditDetailsDto>> entry : mwtDetailsMap.entrySet()) {
 
                 callRTRAndPopulateRates(url, licenseKey, entry.getValue(), RateTo.NON_UPS, msiARChargeCode, true);
@@ -244,7 +244,7 @@ public class ParcelRTRService{
 
             for (Map.Entry<String, List<ParcelAuditDetailsDto>> entry : hwtDetailsMap.entrySet()) {
 
-                callRTRAndPopulateRates(url, licenseKey, entry.getValue(), RateTo.UPS, msiARChargeCode, previousShipment, true);
+                callRTRAndPopulateRates(url, licenseKey, entry.getValue(), RateTo.UPS, msiARChargeCode, null, true);
 
             }
         }
@@ -270,10 +270,10 @@ public class ParcelRTRService{
                         if(ParcelAuditConstant.COMMERCIAL_ADJUSTMENT_CHARGE_TYPE.equalsIgnoreCase(commercialCharge.getChargeDescription())){
                             List<ParcelAuditDetailsDto> commercialShipment = new ArrayList<>();
                             commercialShipment.add(commercialCharge);
-                            if(parcelAuditDetails != null){
-                                for(ParcelAuditDetailsDto commShipment : parcelAuditDetails){
-                                    if(commShipment != null && !"RES".equalsIgnoreCase(commShipment.getChargeDescriptionCode())
-                                            && !"RSC".equalsIgnoreCase(commShipment.getChargeDescriptionCode()) && !"FRT".equalsIgnoreCase(commShipment.getChargeClassificationCode())){
+                            if (parcelAuditDetails != null) {
+                                for (ParcelAuditDetailsDto commShipment : parcelAuditDetails) {
+                                    if (commShipment != null && !"RES".equalsIgnoreCase(commShipment.getChargeDescriptionCode())
+                                            && !"RSC".equalsIgnoreCase(commShipment.getChargeDescriptionCode()) && !"FRT".equalsIgnoreCase(commShipment.getChargeClassificationCode())) {
                                         commercialShipment.add(commShipment);
                                     }
                                 }
@@ -300,9 +300,9 @@ public class ParcelRTRService{
                             List<ParcelAuditDetailsDto> residentialShipment = new ArrayList<>();
                             residentialShipment.add(commercialCharge);
 
-                            if(parcelAuditDetails != null) {
-                                for(ParcelAuditDetailsDto commShipment : parcelAuditDetails){
-                                    if(commShipment != null && !"FRT".equalsIgnoreCase(commShipment.getChargeClassificationCode())){
+                            if (parcelAuditDetails != null) {
+                                for (ParcelAuditDetailsDto commShipment : parcelAuditDetails) {
+                                    if (commShipment != null && !"FRT".equalsIgnoreCase(commShipment.getChargeClassificationCode())) {
                                         residentialShipment.add(commShipment);
                                     }
                                 }
@@ -365,7 +365,7 @@ public class ParcelRTRService{
                 System.out.println("response=======" + response);
                 if(response != null && !response.trim().isEmpty()) {
                     saveRequestResponse(requestPayload, response, parcelAuditDetails.get(0).getParentId(), ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME);
-                    status = updateRateForNonUpsCarrier(ParcelRateResponseParser.parse(response), parcelAuditDetails, msiARChargeCode);
+                    status = updateRateForNonUpsCarrier(ParcelRateResponseParser.parse(response), parcelAuditDetails, msiARChargeCode, sumOfNetAmount);
                 }
                 break;
         }
@@ -544,8 +544,8 @@ public class ParcelRTRService{
                     }
                 }else if(ParcelAuditConstant.ChargeClassificationCode.ACS.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())
                         && ("DAS".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()) || dasChargeList.containsKey(auditDetails.getChargeDescriptionCode()))){
-                    if(auditDetails.getChargeDescription() != null && (auditDetails.getChargeDescription().contains("EXTENDED") || auditDetails.getChargeDescription().contains("extended"))){
-                        charge = ParcelRateResponseParser.findChargeByEDICodeInResponse("DSX" ,priceSheet);
+                    if (auditDetails.getChargeDescription() != null && (auditDetails.getChargeDescription().contains("EXTENDED") || auditDetails.getChargeDescription().contains("extended"))) {
+                        charge = ParcelRateResponseParser.findChargeByEDICodeInResponse("DSX", priceSheet);
                     } else {
                         charge = ParcelRateResponseParser.getDeliveryAreaSurcharge(priceSheet);
                     }
@@ -555,15 +555,15 @@ public class ParcelRTRService{
                         ParcelRateDetailsDto rateDetails = ParcelRateDetailsDto.getInstance();
                         rateDetails.setShipperCategory(shipperCategory);
                         rateDetails.setContractName(contractName);
-                        if(auditDetails.getChargeDescription() != null && (auditDetails.getChargeDescription().contains("EXTENDED") || auditDetails.getChargeDescription().contains("extended"))){
+                        if (auditDetails.getChargeDescription() != null && (auditDetails.getChargeDescription().contains("EXTENDED") || auditDetails.getChargeDescription().contains("extended"))) {
                             ParcelRateResponse.Charge extendedDasDiscount = ParcelRateResponseParser.getRatedExtendedDasDiscount(priceSheet);
-                            if(extendedDasDiscount != null){
+                            if (extendedDasDiscount != null) {
                                 mappedDscChanges.add(extendedDasDiscount);
                                 rateDetails.setDeliveryAreaSurchargeDiscount(extendedDasDiscount.getAmount());
                             }
                         } else {
                             ParcelRateResponse.Charge dasDiscount = ParcelRateResponseParser.getRatedDasDiscount(priceSheet);
-                            if(dasDiscount != null){
+                            if (dasDiscount != null) {
                                 mappedDscChanges.add(dasDiscount);
                                 rateDetails.setDeliveryAreaSurchargeDiscount(dasDiscount.getAmount());
                             }
@@ -1297,7 +1297,7 @@ public class ParcelRTRService{
         return parcelRTRDao.loadInvoiceIds(fromDate, toDate, customerId, invoiceIds, limit, rateTo);
     }
 
-    public void doParcelAuditingInvoiceNumberWise(List<ParcelAuditDetailsDto> invoiceList, String trackingNumbers, String rateTo, String fromShipDate, String toShipDate, String customerIds) {
+    public void doParcelAuditingInvoiceNumberWise(List<ParcelAuditDetailsDto> invoiceList, String trackingNumbers, String rateTo, String fromShipDate, String toShipDate, String customerIds) throws Exception {
         if (invoiceList != null && !invoiceList.isEmpty()) {
             String licenseKey = messageSource.getMessage("RateRequest-LicenseKey", null, null);
             String strProtocol = messageSource.getMessage("RTRprotocol", null, null);
@@ -1674,4 +1674,57 @@ public class ParcelRTRService{
         }
         return total;
     }
+
+    private Map<String, List<ParcelAuditDetailsDto>> prepareMultiWeightNumberWiseAuditDetails(Map<String, List<ParcelAuditDetailsDto>> listMap) {
+
+        Map<String, List<ParcelAuditDetailsDto>> mwtDetailsMap = new HashMap<>();
+        Map<String, List<ParcelAuditDetailsDto>> tempMap = new HashMap<>(listMap);
+        for (Map.Entry<String, List<ParcelAuditDetailsDto>> entry : tempMap.entrySet()) {
+
+
+            for (ParcelAuditDetailsDto parcelAuditDetails : entry.getValue()) {
+                if (parcelAuditDetails != null) {
+
+                    if (parcelAuditDetails.getMultiWeightNumber() != null && !parcelAuditDetails.getMultiWeightNumber().isEmpty()) {
+                        if (mwtDetailsMap.containsKey(parcelAuditDetails.getMultiWeightNumber()))
+                            mwtDetailsMap.get(parcelAuditDetails.getMultiWeightNumber()).addAll(tempMap.get(parcelAuditDetails.getTrackingNumber()));
+                        else
+                            mwtDetailsMap.put(parcelAuditDetails.getMultiWeightNumber(), tempMap.get(parcelAuditDetails.getTrackingNumber()));
+
+                        listMap.remove(parcelAuditDetails.getTrackingNumber());
+                        break;
+                    }
+                }
+            }
+        }
+        tempMap = null;
+        return mwtDetailsMap;
+    }
+
+    private Map<String, List<ParcelAuditDetailsDto>> prepareHwtNumberWiseAuditDetails(Map<String, List<ParcelAuditDetailsDto>> listMap) {
+
+        Map<String, List<ParcelAuditDetailsDto>> hwtDetailsMap = new HashMap<>();
+        Map<String, List<ParcelAuditDetailsDto>> tempMap = new HashMap<>(listMap);
+        for (Map.Entry<String, List<ParcelAuditDetailsDto>> entry : tempMap.entrySet()) {
+
+
+            for (ParcelAuditDetailsDto parcelAuditDetails : entry.getValue()) {
+                if (parcelAuditDetails != null) {
+
+                    if (parcelAuditDetails.getMultiWeightNumber() != null && !parcelAuditDetails.getMultiWeightNumber().isEmpty()) {
+                        if (hwtDetailsMap.containsKey(parcelAuditDetails.getMultiWeightNumber()))
+                            hwtDetailsMap.get(parcelAuditDetails.getMultiWeightNumber()).addAll(tempMap.get(parcelAuditDetails.getTrackingNumber()));
+                        else
+                            hwtDetailsMap.put(parcelAuditDetails.getMultiWeightNumber(), tempMap.get(parcelAuditDetails.getTrackingNumber()));
+
+                        listMap.remove(parcelAuditDetails.getTrackingNumber());
+                        break;
+                    }
+                }
+            }
+        }
+        tempMap = null;
+        return hwtDetailsMap;
+    }
+
 }

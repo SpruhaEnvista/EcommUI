@@ -37,15 +37,15 @@ public class ParcelRTRDao {
             queryParameter.and("p_customer_CSV", "");
         }
         List<ParcelAuditDetailsDto> parcelAuditDetailsList = persistentContext.findEntitiesAndMapFields(ParcelAuditDetailsDto.Config.StoredProcedureQueryName.AUDIT_UPS_PARCEL_DETAILS, queryParameter);
-        if(parcelAuditDetailsList != null && !parcelAuditDetailsList.isEmpty()) {
-            for(ParcelAuditDetailsDto auditDetails : parcelAuditDetailsList) {
-                if (auditDetails != null ) {
+        if (parcelAuditDetailsList != null && !parcelAuditDetailsList.isEmpty()) {
+            for (ParcelAuditDetailsDto auditDetails : parcelAuditDetailsList) {
+                if (auditDetails != null) {
                     persistentContext.getHibernateSession().evict(auditDetails);
 
-                    if(auditDetails.getPackageDimension() != null && !auditDetails.getPackageDimension().isEmpty()){
-                        try{
-                            String [] dimension = auditDetails.getPackageDimension().toLowerCase().split("x");
-                            if(dimension != null && dimension.length > 0){
+                    if (auditDetails.getPackageDimension() != null && !auditDetails.getPackageDimension().isEmpty()) {
+                        try {
+                            String[] dimension = auditDetails.getPackageDimension().toLowerCase().split("x");
+                            if (dimension != null && dimension.length > 0) {
                                 auditDetails.setDimLength(dimension[0] != null ? dimension[0].trim() : "");
                                 auditDetails.setDimWidth(dimension[1] != null ? dimension[1].trim() : "");
                                 auditDetails.setDimHeight(dimension[2] != null ? dimension[2].trim() : "");
@@ -83,12 +83,12 @@ public class ParcelRTRDao {
         }
         List<ParcelAuditDetailsDto> parcelAuditDetailsList = persistentContext.findEntitiesAndMapFields(ParcelAuditDetailsDto.Config.StoredProcedureQueryName.AUDIT_NOT_UPS_PARCEL_DETAILS, queryParameter);
 
-        if (parcelAuditDetailsList != null){
-            for(ParcelAuditDetailsDto auditDetails : parcelAuditDetailsList) {
-                if(auditDetails != null) {
+        if (parcelAuditDetailsList != null) {
+            for (ParcelAuditDetailsDto auditDetails : parcelAuditDetailsList) {
+                if (auditDetails != null) {
                     persistentContext.getHibernateSession().evict(auditDetails);
 
-                    if(auditDetails.getDwFieldInformation() != null) {
+                    if (auditDetails.getDwFieldInformation() != null) {
                         try {
                             String[] dwFieldInfo = auditDetails.getDwFieldInformation().split(",");
                             if (dwFieldInfo != null && dwFieldInfo.length > 0) {
