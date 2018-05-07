@@ -60,6 +60,7 @@ public class RatingQueueDAO {
                 ratingQBean.setDimWidth(rss.getFloat("DIM_WIDTH"));
                 ratingQBean.setDimHeight(rss.getFloat("DIM_HEIGHT"));
                 ratingQBean.setShipDate(rss.getDate("SHIP_DATE"));
+                ratingQBean.setDeliveryDate(rss.getDate("DALIVERY_DATE"));
                 ratingQBean.setShipperLocationCode(rss.getString("SHIPPER_LOCATION_CODE"));
                 ratingQBean.setShipperCity(rss.getString("SHIPPER_CITY"));
                 ratingQBean.setShipperState(rss.getString("SHIPPER_STATE"));
@@ -155,6 +156,7 @@ public class RatingQueueDAO {
                 ratingQueueBean.setDimWidth(rs.getFloat("DIM_WIDTH"));
                 ratingQueueBean.setDimHeight(rs.getFloat("DIM_HEIGHT"));
                 ratingQueueBean.setShipDate(rs.getDate("SHIP_DATE"));
+                ratingQueueBean.setDeliveryDate(rs.getDate("DALIVERY_DATE"));
                 ratingQueueBean.setShipperLocationCode(rs.getString("SHIPPER_LOCATION_CODE"));
                 ratingQueueBean.setShipperCity(rs.getString("SHIPPER_CITY"));
                 ratingQueueBean.setShipperState(rs.getString("SHIPPER_STATE"));
