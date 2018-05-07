@@ -84,32 +84,36 @@ public class ParcelNonUpsRatingService {
 
     public String doRatingForNonUpsShipment(RatingQueueBean bean) throws Exception {
         List<ParcelAuditDetailsDto> allShipmentCharges = getFedExParcelShipmentDetails(bean.getTrackingNumber(), true);
-        Map<Long, List<ParcelAuditDetailsDto>> shipments = ParcelRatingUtil.organiseShipmentsByParentId(allShipmentCharges);
         String status = null;
-        if(ParcelRatingUtil.hasMultipleParentIds(shipments)) {
+
+        if(allShipmentCharges != null && !allShipmentCharges.isEmpty()) {
+            Map<Long, List<ParcelAuditDetailsDto>> shipments = ParcelRatingUtil.organiseShipmentsByParentId(allShipmentCharges);
             List<ParcelAuditDetailsDto> shipmentToRate = shipments.get(bean.getParentId());
+
             if(shipmentToRate != null && !shipmentToRate.isEmpty()) {
-                if(!ParcelRatingUtil.isShipmentRated(shipmentToRate)) {
-                    List<ParcelAuditDetailsDto> previousShipment = ParcelRatingUtil.getPreviousShipmentDetails(shipments, bean.getParentId());;
-                    if(previousShipment != null && !previousShipment.isEmpty()) {
-                        if(ParcelRatingUtil.isShipmentRated(previousShipment)) {
-                            if(!ParcelRatingUtil.hasFrtCharge(shipmentToRate)) {
-                                ParcelAuditDetailsDto prevShipmentFrtCharge = ParcelRatingUtil.getPreviousShipmentBaseChargeDetails(shipments, bean.getParentId());
-                                if(prevShipmentFrtCharge != null) {
-                                    shipmentToRate.add(prevShipmentFrtCharge);
+                if(ParcelRatingUtil.isFirstShipmentToRate(shipments, bean.getParentId())) {
+                    if(!ParcelRatingUtil.isShipmentRated(shipmentToRate)) {
+                        status = callRTRAndPopulateRates(shipmentToRate, bean);
+                    }
+                } else {
+                    if(!ParcelRatingUtil.isShipmentRated(shipmentToRate)) {
+                        List<ParcelAuditDetailsDto> previousShipment = ParcelRatingUtil.getPreviousShipmentDetails(shipments, bean.getParentId());
+                        if(previousShipment!= null && !previousShipment.isEmpty()) {
+                            if (ParcelRatingUtil.isShipmentRated(previousShipment)) {
+                                if(!ParcelRatingUtil.hasFrtCharge(shipmentToRate)) {
+                                    ParcelAuditDetailsDto prevShipmentFrtCharge = ParcelRatingUtil.getPreviousShipmentBaseChargeDetails(shipments, bean.getParentId());
+                                    if(prevShipmentFrtCharge != null) {
+                                        shipmentToRate.add(prevShipmentFrtCharge);
+                                        status = callRTRAndPopulateRates(shipmentToRate, bean);
+                                    }
+                                }else {
                                     status = callRTRAndPopulateRates(shipmentToRate, bean);
                                 }
-                            }else {
-                                status = callRTRAndPopulateRates(shipmentToRate, bean);
                             }
                         }
-                    }else {
-                        status = callRTRAndPopulateRates(shipmentToRate, bean);
                     }
                 }
             }
-        } else {
-            status = callRTRAndPopulateRates(allShipmentCharges, bean);
         }
         return status;
     }

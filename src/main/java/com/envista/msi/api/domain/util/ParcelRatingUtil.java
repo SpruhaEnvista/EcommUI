@@ -612,4 +612,15 @@ public class ParcelRatingUtil {
         return ratingStatus != null
                 && Arrays.asList(ParcelAuditConstant.RTRStatus.CLOSED.value, ParcelAuditConstant.RTRStatus.UNDER_CHARGED.value, ParcelAuditConstant.RTRStatus.OVER_CHARGED.value).contains(ratingStatus);
     }
+
+    public static boolean isFirstShipmentToRate(Map<Long, List<ParcelAuditDetailsDto>> allSortedShipments, Long parentId){
+        boolean isFirstShipment = false;
+        if(allSortedShipments != null && !allSortedShipments.isEmpty()) {
+            Long firstShipmentParentId = allSortedShipments.keySet().iterator().next();
+            if(firstShipmentParentId != null && parentId != null && firstShipmentParentId.equals(parentId)) {
+                isFirstShipment = true;
+            }
+        }
+        return isFirstShipment;
+    }
 }

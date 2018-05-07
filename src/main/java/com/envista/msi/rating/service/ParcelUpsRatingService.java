@@ -89,31 +89,33 @@ public class ParcelUpsRatingService {
                 try{
                     MsiARChargeCodesDto msiARChargeCode = getAllMappedARChargeCodes();
                     shipmentRecords = getUpsParcelShipmentDetails(null, trackingNumber, true);
-                    Map<Long, List<ParcelAuditDetailsDto>> shipments = ParcelRatingUtil.organiseShipmentsByParentId(shipmentRecords);
-
-                    if(ParcelRatingUtil.hasMultipleParentIds(shipments)) {
+                    if(shipmentRecords != null && !shipmentRecords.isEmpty()) {
+                        Map<Long, List<ParcelAuditDetailsDto>> shipments = ParcelRatingUtil.organiseShipmentsByParentId(shipmentRecords);
                         List<ParcelAuditDetailsDto> shipmentToRate = shipments.get(bean.getParentId());
+
                         if(shipmentToRate != null && !shipmentToRate.isEmpty()) {
-                            if(!ParcelRatingUtil.isShipmentRated(shipmentToRate)) {
-                                List<ParcelAuditDetailsDto> previousShipment = ParcelRatingUtil.getPreviousShipmentDetails(shipments, bean.getParentId());
-                                if(previousShipment!= null && !previousShipment.isEmpty()){
-                                    if(ParcelRatingUtil.isShipmentRated(previousShipment)){
-                                        if (ParcelRatingUtil.containsCharge(ParcelAuditConstant.COMMERCIAL_ADJUSTMENT_CHARGE_TYPE, shipmentToRate)) {
-                                            status = callRTRAndPopulateRates(url, licenseKey, previousShipment, msiARChargeCode, shipmentToRate.get(0), previousShipment);
-                                        } else if (ParcelRatingUtil.containsCharge(ParcelAuditConstant.RESIDENTIAL_ADJUSTMENT_CHARGE_TYPE, shipmentToRate)) {
-                                            //keeping it in separate if condition in order to handle few more scenarios in future.
-                                            status = callRTRAndPopulateRates(url, licenseKey, previousShipment, msiARChargeCode, shipmentToRate.get(0), previousShipment);
-                                        } else {
-                                            status = callRTRAndPopulateRates(url, licenseKey, shipmentToRate, msiARChargeCode, null);
+                            if(ParcelRatingUtil.isFirstShipmentToRate(shipments, bean.getParentId())) {
+                                if(!ParcelRatingUtil.isShipmentRated(shipmentToRate)) {
+                                    status = callRTRAndPopulateRates(url, licenseKey, shipmentToRate, msiARChargeCode, null);
+                                }
+                            } else {
+                                if(!ParcelRatingUtil.isShipmentRated(shipmentToRate)) {
+                                    List<ParcelAuditDetailsDto> previousShipment = ParcelRatingUtil.getPreviousShipmentDetails(shipments, bean.getParentId());
+                                    if(previousShipment!= null && !previousShipment.isEmpty()){
+                                        if(ParcelRatingUtil.isShipmentRated(previousShipment)){
+                                            if (ParcelRatingUtil.containsCharge(ParcelAuditConstant.COMMERCIAL_ADJUSTMENT_CHARGE_TYPE, shipmentToRate)) {
+                                                status = callRTRAndPopulateRates(url, licenseKey, previousShipment, msiARChargeCode, shipmentToRate.get(0), previousShipment);
+                                            } else if (ParcelRatingUtil.containsCharge(ParcelAuditConstant.RESIDENTIAL_ADJUSTMENT_CHARGE_TYPE, shipmentToRate)) {
+                                                //keeping it in separate if condition in order to handle few more scenarios in future.
+                                                status = callRTRAndPopulateRates(url, licenseKey, previousShipment, msiARChargeCode, shipmentToRate.get(0), previousShipment);
+                                            } else {
+                                                status = callRTRAndPopulateRates(url, licenseKey, shipmentToRate, msiARChargeCode, previousShipment);
+                                            }
                                         }
                                     }
-                                } else {
-                                    status = callRTRAndPopulateRates(url, licenseKey, shipmentToRate, msiARChargeCode, previousShipment);
                                 }
                             }
                         }
-                    } else {
-                        status = callRTRAndPopulateRates(url, licenseKey, shipmentRecords, msiARChargeCode, null);
                     }
                 }catch (Exception e){
                     e.printStackTrace();
