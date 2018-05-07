@@ -313,7 +313,8 @@ public class RatingQueueDAO {
             liveQuery += " AND a.CHARGE_CLASSIFICATION_CODE IS NOT NULL ";
 
             if(trackingNumbers != null && !trackingNumbers.isEmpty()) {
-                liveQuery += " AND a.tracking_number IN (SELECT COLUMN_VALUE FROM TABLE ( CAST ( SHP_IN_LIST_FN ('" + trackingNumbers + "') AS SHP_INLIST_TABLE_TYPE) )) ";
+                //liveQuery += " AND a.tracking_number IN (SELECT COLUMN_VALUE FROM TABLE ( CAST ( SHP_IN_LIST_FN ('" + trackingNumbers + "') AS SHP_INLIST_TABLE_TYPE) )) ";
+                liveQuery += " AND a.tracking_number IN ('" + trackingNumbers + "') ";
             }
 
             if(customerIds != null && !customerIds.isEmpty()) {
@@ -452,7 +453,7 @@ public class RatingQueueDAO {
             }
 
             if(trackingNumbers != null && !trackingNumbers.isEmpty()) {
-                liveSqlQuery += " AND ebmf.tracking_number IN (SELECT COLUMN_VALUE FROM TABLE ( CAST ( SHP_IN_LIST_FN ('" + trackingNumbers +"') AS SHP_INLIST_TABLE_TYPE) )) ";
+                liveSqlQuery += " AND ebmf.tracking_number IN ('" + trackingNumbers +"') ";
             }
 
             if(invoiceId != null && !invoiceId.isEmpty()) {
