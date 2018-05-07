@@ -623,4 +623,17 @@ public class ParcelRatingUtil {
         }
         return isFirstShipment;
     }
+
+    public static boolean containsFuelSurcharge(List<ParcelAuditDetailsDto> shipment){
+        if(shipment != null) {
+            for(ParcelAuditDetailsDto charge : shipment){
+                if(charge != null){
+                    if("FSC".equalsIgnoreCase(charge.getChargeClassificationCode())){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
 }

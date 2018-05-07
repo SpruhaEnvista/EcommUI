@@ -150,6 +150,7 @@ public class ParcelRTRService{
                                     for(ParcelAuditDetailsDto auditDetails : shipmentDetails) {
                                         if(auditDetails != null && "FRT".equalsIgnoreCase(auditDetails.getChargeClassificationCode())){
                                             frtFound = true;
+                                            break;
                                         }
                                     }
                                     if(!frtFound){
@@ -208,7 +209,23 @@ public class ParcelRTRService{
                                         //keeping it in separate if condition in order to handle few more scenarios in future.
                                         callRTRAndPopulateRates(url, licenseKey, previousShipment, RateTo.UPS, msiARChargeCode, shipmentChargeList.get(0), previousShipment);
                                     } else {
-                                        callRTRAndPopulateRates(url, licenseKey, shipmentChargeList, RateTo.UPS, msiARChargeCode, previousShipment);
+                                        if(previousShipment != null){
+                                            List<ParcelAuditDetailsDto> shipmentsToRate = new ArrayList<>(shipmentChargeList);
+                                            if(shipmentsToRate != null) {
+                                                boolean hasFSCCharge = ParcelRatingUtil.containsFuelSurcharge(shipmentsToRate);
+                                                for(ParcelAuditDetailsDto prevShpCharge : previousShipment){
+                                                    if(prevShpCharge != null && ParcelAuditConstant.ChargeClassificationCode.ACC.name().equalsIgnoreCase(prevShpCharge.getChargeClassificationCode())) {
+                                                        shipmentsToRate.add(prevShpCharge);
+                                                    }
+                                                    if(!hasFSCCharge && ParcelAuditConstant.ChargeClassificationCode.ACC.name().equalsIgnoreCase(prevShpCharge.getChargeClassificationCode())) {
+                                                        shipmentsToRate.add(prevShpCharge);
+                                                    }
+                                                }
+                                                callRTRAndPopulateRates(url, licenseKey, shipmentsToRate, RateTo.UPS, msiARChargeCode, previousShipment);
+                                            }
+                                        } else {
+                                            callRTRAndPopulateRates(url, licenseKey, shipmentChargeList, RateTo.UPS, msiARChargeCode, null);
+                                        }
                                     }
                                 }
                                 previousShipment = new ArrayList<>(shipmentChargeList);
