@@ -213,11 +213,15 @@ public class ParcelRTRService{
                                             List<ParcelAuditDetailsDto> shipmentsToRate = new ArrayList<>(shipmentChargeList);
                                             if(shipmentsToRate != null) {
                                                 boolean hasFSCCharge = ParcelRatingUtil.containsFuelSurcharge(shipmentsToRate);
+                                                boolean hasFrtCharge = ParcelRatingUtil.containsFRTCharge(shipmentsToRate);
                                                 for(ParcelAuditDetailsDto prevShpCharge : previousShipment){
                                                     if(prevShpCharge != null && ParcelAuditConstant.ChargeClassificationCode.ACC.name().equalsIgnoreCase(prevShpCharge.getChargeClassificationCode())) {
                                                         shipmentsToRate.add(prevShpCharge);
                                                     }
                                                     if(!hasFSCCharge && ParcelAuditConstant.ChargeClassificationCode.ACC.name().equalsIgnoreCase(prevShpCharge.getChargeClassificationCode())) {
+                                                        shipmentsToRate.add(prevShpCharge);
+                                                    }
+                                                    if(!hasFrtCharge && ParcelAuditConstant.ChargeClassificationCode.FRT.name().equalsIgnoreCase(prevShpCharge.getChargeClassificationCode())) {
                                                         shipmentsToRate.add(prevShpCharge);
                                                     }
                                                 }

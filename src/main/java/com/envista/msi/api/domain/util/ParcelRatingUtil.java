@@ -636,4 +636,17 @@ public class ParcelRatingUtil {
         }
         return false;
     }
+
+    public static boolean containsFRTCharge(List<ParcelAuditDetailsDto> shipment){
+        if(shipment != null) {
+            for(ParcelAuditDetailsDto charge : shipment){
+                if(charge != null){
+                    if("FRT".equalsIgnoreCase(charge.getChargeClassificationCode())){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
 }

@@ -69,6 +69,8 @@ public class ParcelAuditConstant {
 
     public static final String COMMERCIAL_ADJUSTMENT_CHARGE_TYPE = "COMMERCIAL ADJUSTMENT";
     public static final String RESIDENTIAL_ADJUSTMENT_CHARGE_TYPE = "RESIDENTIAL ADJUSTMENT";
+    public static final String RESIDENTIAL_COMMERCIAL_ADJUSTMENT_CHARGE_TYPE = "RESIDENTIAL/COMMERCIAL ADJ";
+
 
     public static final String MSI_AR_CHARGE_CODE_MAPPING_MODELE_NAME = "Parcel_Rating_MSI_AR_Code_Mapping";
     public static final String MSI_AR_DAS_CHARGE_CODE_NAME = "DeliveryAreaSurcharge";
