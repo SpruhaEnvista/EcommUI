@@ -490,6 +490,7 @@ public class DirectJDBCDAO {
     }
 
     public List<Long> loadInvoiceIds(String fromDate, String toDate, String customerId, String invoiceIds, int limit, String rateTo){
+        System.out.println("Loading Invoices");
         Connection conn = null;
         CallableStatement cstmt = null;
         ResultSet rs = null;
@@ -505,7 +506,7 @@ public class DirectJDBCDAO {
             cstmt.setString(6, rateTo);
             cstmt.registerOutParameter(7, OracleTypes.CURSOR);
             cstmt.execute();
-
+            System.out.println("Got Invoices-->");
             rs = (ResultSet) cstmt.getObject(7);
 
             while(rs.next()) {

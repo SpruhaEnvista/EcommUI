@@ -279,6 +279,7 @@ public class RatingQueueDAO {
         Connection conn = null;
         CallableStatement cstmt = null;
         ResultSet rs = null;
+        System.out.println("Loading Shipment for " + invoiceIds+"<--Start time -->"+System.currentTimeMillis());
         List<ParcelAuditDetailsDto> parcelUpsShipments = null;
         try {
             conn = ServiceLocator.getDatabaseConnection();
@@ -347,6 +348,7 @@ public class RatingQueueDAO {
                 shipmentDetails.setRtrStatus(rs.getString("RTR_STATUS"));
                 parcelUpsShipments.add(shipmentDetails);
             }
+            System.out.println("Loading Shipment for " + invoiceIds+"<--End time -->"+System.currentTimeMillis());
 
         }catch (Exception e){
 
@@ -375,6 +377,7 @@ public class RatingQueueDAO {
         CallableStatement cstmt = null;
         ResultSet rs = null;
         List<ParcelAuditDetailsDto> parcelUpsShipments = null;
+        System.out.println("Loading Shipment for FedEx" + invoiceId+"<--Start time -->"+System.currentTimeMillis());
         try {
             conn = ServiceLocator.getDatabaseConnection();
             cstmt = conn.prepareCall("{ call SHP_AUDIT_NON_UPS_PRCEL_PROC(?, ?, ?, ?, ?, ?, ?, ?)}");
@@ -454,6 +457,7 @@ public class RatingQueueDAO {
                 //Need to add charge code here.
                 parcelUpsShipments.add(shipmentDetails);
             }
+            System.out.println("Loading Shipment for FedEx " + invoiceId+"<--End time -->"+System.currentTimeMillis());
         }catch (Exception e){
 
         }finally {
