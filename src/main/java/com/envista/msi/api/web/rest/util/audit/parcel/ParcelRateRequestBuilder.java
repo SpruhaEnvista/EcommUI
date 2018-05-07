@@ -6,7 +6,10 @@ import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditDetailsDto;
 import com.envista.msi.api.web.rest.util.DateUtil;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Sujit kumar on 21/06/2017.
@@ -32,7 +35,7 @@ public class ParcelRateRequestBuilder {
         boolean hasRJ5Charge = false;
         if(parcelAuditDetailsList != null && !parcelAuditDetailsList.isEmpty()){
             for(ParcelAuditDetailsDto auditDetails : parcelAuditDetailsList) {
-                if (auditDetails != null && "RJ5".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())) {
+                if(auditDetails != null && "RJ5".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())) {
                     hasRJ5Charge = true;
                 }
             }
@@ -58,10 +61,10 @@ public class ParcelRateRequestBuilder {
                     if(auditDetails != null){
                         if(auditDetails.getChargeClassificationCode() != null
                                 && ParcelAuditConstant.ChargeClassificationCode.ACC.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())){
-                            if (auditDetails.getChargeDescriptionCode() != null && !auditDetails.getChargeDescriptionCode().isEmpty()
-                                    && !"RJ5".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())) {
+                            if(auditDetails.getChargeDescriptionCode() != null && !auditDetails.getChargeDescriptionCode().isEmpty()
+                                    && !"RJ5".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())){
                                 ParcelRateRequest.ServiceFlag serviceFlag = new ParcelRateRequest.ServiceFlag();
-                                if (!hasRJ5Charge && auditDetails.getChargeDescriptionCode().equalsIgnoreCase("RES")) {
+                                if(!hasRJ5Charge && auditDetails.getChargeDescriptionCode().equalsIgnoreCase("RES")){
                                     serviceFlag.setCode("RSC");
                                 } else if(dasChargeList.containsKey(auditDetails.getChargeDescriptionCode())) {
                                     serviceFlag.setCode(dasChargeList.get(auditDetails.getChargeDescriptionCode()));
@@ -250,7 +253,7 @@ public class ParcelRateRequestBuilder {
                             if(auditDetails.getChargeDescriptionCode().equalsIgnoreCase("RES")){
                                 serviceFlag.setCode("RSC");
                             } else if(dasChargeList.containsKey(auditDetails.getChargeDescriptionCode())){
-                                if (auditDetails.getChargeDescription() != null && (auditDetails.getChargeDescription().contains("EXTENDED") || auditDetails.getChargeDescription().contains("extended"))) {
+                                if(auditDetails.getChargeDescription() != null && (auditDetails.getChargeDescription().contains("EXTENDED") || auditDetails.getChargeDescription().contains("extended"))){
                                     serviceFlag.setCode("DSX");
                                 } else {
                                     serviceFlag.setCode(dasChargeList.get(auditDetails.getChargeDescriptionCode()));
@@ -402,18 +405,17 @@ public class ParcelRateRequestBuilder {
         return parcelRateRequest;
     }
 
-
     /**
      * To find service-level for Freight type shipment.
      * @param parcelAuditDetails
      * @return
      */
-    private static String findServiceLevel(List<ParcelAuditDetailsDto> parcelAuditDetails) {
-        if (parcelAuditDetails != null && !parcelAuditDetails.isEmpty()) {
-            for (ParcelAuditDetailsDto auditDetails : parcelAuditDetails) {
-                if (auditDetails != null && auditDetails.getChargeClassificationCode() != null
+    public static String findServiceLevel(List<ParcelAuditDetailsDto> parcelAuditDetails) {
+        if(parcelAuditDetails != null && !parcelAuditDetails.isEmpty()){
+            for(ParcelAuditDetailsDto auditDetails : parcelAuditDetails){
+                if(auditDetails != null && auditDetails.getChargeClassificationCode() != null
                         && ParcelAuditConstant.ChargeClassificationCode.FRT.name().equals(auditDetails.getChargeClassificationCode())
-                        && auditDetails.getNetAmount() != null && !auditDetails.getNetAmount().isEmpty()) {
+                        && auditDetails.getNetAmount() != null && !auditDetails.getNetAmount().isEmpty()){
                     return auditDetails.getServiceLevel();
                 }
             }
