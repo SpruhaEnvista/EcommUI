@@ -342,6 +342,7 @@ public class RatingQueueDAO {
                 shipmentDetails.setRtrAmount(rs.getBigDecimal("rtr_amount"));
                 shipmentDetails.setRevenueTier(rs.getString("REVENUE_TIER"));
                 shipmentDetails.setPackageType(rs.getString("PACKAGE_TYPE"));
+                shipmentDetails.setRtrStatus(rs.getString("RTR_STATUS"));
                 parcelUpsShipments.add(shipmentDetails);
             }
 
@@ -446,6 +447,8 @@ public class RatingQueueDAO {
                 shipmentDetails.setActualWeightUnit(rs.getString("UNIT_OF_ACTUAL_WEIGHT"));
                 shipmentDetails.setRtrAmount(rs.getBigDecimal("rtr_amount"));
                 shipmentDetails.setRevenueTier(rs.getString("REVENUE_TIER"));
+                shipmentDetails.setPackageType(rs.getString("PACKAGE_TYPE"));
+                shipmentDetails.setRtrStatus(rs.getString("RTR_STATUS"));
                 //Need to add charge code here.
                 parcelUpsShipments.add(shipmentDetails);
             }
