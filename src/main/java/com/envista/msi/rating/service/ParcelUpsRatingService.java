@@ -109,7 +109,20 @@ public class ParcelUpsRatingService {
                                                 //keeping it in separate if condition in order to handle few more scenarios in future.
                                                 status = callRTRAndPopulateRates(url, licenseKey, previousShipment, msiARChargeCode, shipmentToRate.get(0), previousShipment);
                                             } else {
-                                                status = callRTRAndPopulateRates(url, licenseKey, shipmentToRate, msiARChargeCode, previousShipment);
+                                                if(previousShipment != null){
+                                                    if(shipmentToRate != null) {
+                                                        boolean hasFSCCharge = ParcelRatingUtil.containsFuelSurcharge(shipmentToRate);
+                                                        for(ParcelAuditDetailsDto prevShpCharge : previousShipment){
+                                                            if(prevShpCharge != null && ParcelAuditConstant.ChargeClassificationCode.ACC.name().equalsIgnoreCase(prevShpCharge.getChargeClassificationCode())) {
+                                                                shipmentToRate.add(prevShpCharge);
+                                                            }
+                                                            if(!hasFSCCharge && ParcelAuditConstant.ChargeClassificationCode.ACC.name().equalsIgnoreCase(prevShpCharge.getChargeClassificationCode())) {
+                                                                shipmentToRate.add(prevShpCharge);
+                                                            }
+                                                        }
+                                                        callRTRAndPopulateRates(url, licenseKey, shipmentToRate, msiARChargeCode, previousShipment);
+                                                    }
+                                                }
                                             }
                                         }
                                     }
