@@ -5,6 +5,7 @@ import com.envista.msi.api.web.rest.dto.rtr.MsiARChargeCodesDto;
 import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditDetailsDto;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant;
 import com.envista.msi.rating.bean.RatingQueueBean;
+import com.envista.msi.rating.dao.DirectJDBCDAO;
 import com.envista.msi.rating.service.ParcelNonUpsRatingService;
 import com.envista.msi.rating.service.ParcelUpsRatingService;
 
@@ -81,16 +82,31 @@ public class ParcelRatingQueueJob {
     private void processShipments(String customerId, String fromShipDate, String toShipDate, String trackingNumber, String invoiceIds, String rateTo) {
         List<ParcelAuditDetailsDto> allShipmentDetails = null;
         if("ups".equalsIgnoreCase(rateTo)){
-            allShipmentDetails = new ParcelUpsRatingService().getUpsParcelShipmentDetails(customerId, fromShipDate, toShipDate, trackingNumber, invoiceIds);
-            if(allShipmentDetails != null && !allShipmentDetails.isEmpty()){
-                Map<String, List<ParcelAuditDetailsDto>> trackingNumberWiseShipments = ParcelRatingUtil.prepareTrackingNumberWiseAuditDetails(allShipmentDetails);
-                processUpsShipments(trackingNumberWiseShipments, parcelRatingService.getAllMappedARChargeCodes(), customerId);
+            List<Long> invoiceList = new DirectJDBCDAO().loadInvoiceIds(fromShipDate, toShipDate, customerId, invoiceIds, 0, "UPS");
+            if(invoiceList != null && !invoiceList.isEmpty()) {
+                for(Long invId : invoiceList){
+                    if(invId != null) {
+                        allShipmentDetails = new ParcelUpsRatingService().getUpsParcelShipmentDetails(customerId, fromShipDate, toShipDate, trackingNumber, invId.toString());
+                        if(allShipmentDetails != null && !allShipmentDetails.isEmpty()){
+                            Map<String, List<ParcelAuditDetailsDto>> trackingNumberWiseShipments = ParcelRatingUtil.prepareTrackingNumberWiseAuditDetails(allShipmentDetails);
+                            processUpsShipments(trackingNumberWiseShipments, parcelRatingService.getAllMappedARChargeCodes(), customerId);
+                        }
+                    }
+                }
             }
+
         } else if("fedex".equalsIgnoreCase(rateTo)) {
-            allShipmentDetails =  parcelRatingService.getFedExParcelShipmentDetails(customerId, fromShipDate, toShipDate, trackingNumber, invoiceIds);
-            if(allShipmentDetails != null && !allShipmentDetails.isEmpty()){
-                Map<String, List<ParcelAuditDetailsDto>> trackingNumberWiseShipments = ParcelRatingUtil.prepareTrackingNumberWiseAuditDetails(allShipmentDetails);
-                processFedExShipments(trackingNumberWiseShipments, parcelRatingService.getAllMappedARChargeCodes());
+            List<Long> invoiceList = new DirectJDBCDAO().loadInvoiceIds(fromShipDate, toShipDate, customerId, invoiceIds, 0, "FEDEX");
+            if(invoiceList != null && !invoiceList.isEmpty()) {
+                for (Long invId : invoiceList) {
+                    if (invId != null) {
+                        allShipmentDetails =  parcelRatingService.getFedExParcelShipmentDetails(customerId, fromShipDate, toShipDate, trackingNumber, invId.toString());
+                        if(allShipmentDetails != null && !allShipmentDetails.isEmpty()){
+                            Map<String, List<ParcelAuditDetailsDto>> trackingNumberWiseShipments = ParcelRatingUtil.prepareTrackingNumberWiseAuditDetails(allShipmentDetails);
+                            processFedExShipments(trackingNumberWiseShipments, parcelRatingService.getAllMappedARChargeCodes());
+                        }
+                    }
+                }
             }
         }
     }
