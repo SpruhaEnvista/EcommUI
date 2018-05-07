@@ -333,7 +333,6 @@ public class RatingQueueDAO {
             archiveQuery = liveQuery.replace("shp_ebill_gff_tb", "arc_ebill_gff_tb");
             archiveQuery = archiveQuery.replace("shp_ebill_invoice_tb", "arc_ebill_invoice_tb");
 
-            System.out.println(liveQuery + " UNION " + archiveQuery);
             ps = conn.prepareStatement(liveQuery + " UNION " + archiveQuery);
             parcelUpsShipments = new ArrayList<>();
 
@@ -466,7 +465,6 @@ public class RatingQueueDAO {
 
             String archiveQuery = liveSqlQuery.replace("SHP_EBILL_MANIFEST_TB", "ARC_EBILL_MANIFEST_TB");
 
-            System.out.println(liveSqlQuery + " UNION " + archiveQuery);
             ps = conn.prepareStatement(liveSqlQuery + " UNION " + archiveQuery);
             parcelUpsShipments = new ArrayList<>();
 
