@@ -224,7 +224,7 @@ public class ParcelRTRService{
                                                 callRTRAndPopulateRates(url, licenseKey, shipmentsToRate, RateTo.UPS, msiARChargeCode, previousShipment);
                                             }
                                         } else {
-                                            callRTRAndPopulateRates(url, licenseKey, shipmentChargeList, RateTo.UPS, msiARChargeCode, previousShipment);
+                                            callRTRAndPopulateRates(url, licenseKey, shipmentChargeList, RateTo.UPS, msiARChargeCode, null);
                                         }
                                     }
                                 }
