@@ -4,13 +4,15 @@ import com.envista.msi.api.dao.rtr.ParcelRTRDao;
 import com.envista.msi.api.domain.util.ParcelRatingUtil;
 import com.envista.msi.api.web.rest.dto.rtr.*;
 import com.envista.msi.api.web.rest.util.CommonUtil;
-import com.envista.msi.api.web.rest.util.audit.parcel.*;
+import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant.RTRStatus;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant.RateTo;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelRateRequestBuilder;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelRateResponse;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelRateResponseParser;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,9 @@ import java.util.*;
 @Service
 @Transactional
 public class ParcelRTRService{
+
+    private final Logger log = LoggerFactory.getLogger(ParcelRTRService.class);
+
     @Inject
     private ParcelRTRDao parcelRTRDao;
 
@@ -130,7 +135,7 @@ public class ParcelRTRService{
         //  doParcelRating(loadNonUpsParcelAuditDetails(customerId, fromDate, toDate, trackingNumbers), url, licenseKey, RateTo.NON_UPS);
     }
 
-    private void doParcelRatingForNonUpsCarrier(Map<String, List<ParcelAuditDetailsDto>> parcelAuditDetailsMap, String url, String licenseKey, String customerIds, MsiARChargeCodesDto msiARChargeCode) throws Exception {
+    private void doParcelRatingForNonUpsCarrier(Map<String, List<ParcelAuditDetailsDto>> parcelAuditDetailsMap, String url, String licenseKey, String customerIds, MsiARChargeCodesDto msiARChargeCode) {
         if(parcelAuditDetailsMap != null && !parcelAuditDetailsMap.isEmpty()){
 
             Map<String, List<ParcelAuditDetailsDto>> mwtDetailsMap = prepareMultiWeightNumberWiseAuditDetails(parcelAuditDetailsMap);
@@ -186,13 +191,17 @@ public class ParcelRTRService{
 
             for (Map.Entry<String, List<ParcelAuditDetailsDto>> entry : mwtDetailsMap.entrySet()) {
 
-                callRTRAndPopulateRates(url, licenseKey, entry.getValue(), RateTo.NON_UPS, msiARChargeCode, true);
+                try {
+                    callRTRAndPopulateRates(url, licenseKey, entry.getValue(), RateTo.NON_UPS, msiARChargeCode, true);
+                } catch (Exception e) {
+                    log.error(e.getMessage());
+                }
 
             }
         }
     }
 
-    private void doParcelRatingForUpsCarrier(Map<String, List<ParcelAuditDetailsDto>> parcelAuditDetailsMap, String url, String licenseKey, String customerIds, MsiARChargeCodesDto msiARChargeCode) throws Exception {
+    private void doParcelRatingForUpsCarrier(Map<String, List<ParcelAuditDetailsDto>> parcelAuditDetailsMap, String url, String licenseKey, String customerIds, MsiARChargeCodesDto msiARChargeCode) {
         if(parcelAuditDetailsMap != null && !parcelAuditDetailsMap.isEmpty()){
 
             Map<String, List<ParcelAuditDetailsDto>> hwtDetailsMap = prepareHwtNumberWiseAuditDetails(parcelAuditDetailsMap);
@@ -264,7 +273,11 @@ public class ParcelRTRService{
 
             for (Map.Entry<String, List<ParcelAuditDetailsDto>> entry : hwtDetailsMap.entrySet()) {
 
-                callRTRAndPopulateRates(url, licenseKey, entry.getValue(), RateTo.UPS, msiARChargeCode, null, true);
+                try {
+                    callRTRAndPopulateRates(url, licenseKey, entry.getValue(), RateTo.UPS, msiARChargeCode, null, true);
+                } catch (Exception e) {
+                    log.error(e.getMessage());
+                }
 
             }
         }
@@ -324,12 +337,12 @@ public class ParcelRTRService{
                                 }
                             }
 
-                            sumOfNetAmount = findSumOfNetAmount(parcelAuditDetails);
-
                             requestPayload = ParcelRateRequestBuilder.buildParcelRateRequestForUps(residentialShipment, licenseKey, msiARChargeCode, isHwt).toXmlString();
 
                             if (isHwt)
                                 parcelAuditDetails = getLeadShipmentDetails(residentialShipment);
+
+                            sumOfNetAmount = findSumOfNetAmount(residentialShipment);
 
                             response = CommonUtil.connectAndGetResponseAsString(url, requestPayload);
                             if(response != null && !response.trim().isEmpty()){
@@ -353,8 +366,8 @@ public class ParcelRTRService{
                         status = updateRateForUps(ParcelRateResponseParser.parse(response), parcelAuditDetails, msiARChargeCode, previousShipment, sumOfNetAmount);
                     }
                 }
-                System.out.println("sumOfNetAmount=====" + sumOfNetAmount + "==requestPayload=======" + requestPayload);
-                System.out.println("response=======" + response);
+                log.debug("sumOfNetAmount=====" + sumOfNetAmount + "==requestPayload=======" + requestPayload);
+                log.debug("response=======" + response);
                 break;
             case NON_UPS:
                 sumOfNetAmount = findSumOfNetAmount(parcelAuditDetails);
@@ -364,11 +377,11 @@ public class ParcelRTRService{
                 if (isHwt)
                     parcelAuditDetails = getLeadShipmentDetails(parcelAuditDetails);
 
-                System.out.println("sumOfNetAmount=====" + sumOfNetAmount + "==requestPayload=======" + requestPayload);
+                log.debug("sumOfNetAmount=====" + sumOfNetAmount + "==requestPayload=======" + requestPayload);
 
                 response = CommonUtil.connectAndGetResponseAsString(url, requestPayload);
 
-                System.out.println("response=======" + response);
+                log.debug("response=======" + response);
 
                 if(response != null && !response.trim().isEmpty()) {
                     saveRequestResponse(requestPayload, response, parcelAuditDetails.get(0).getParentId(), ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME);
@@ -1285,7 +1298,7 @@ public class ParcelRTRService{
         return parcelRTRDao.loadInvoiceIds(fromDate, toDate, customerId, invoiceIds, limit, rateTo);
     }
 
-    public void doParcelAuditingInvoiceNumberWise(List<ParcelAuditDetailsDto> invoiceList, String trackingNumbers, String rateTo, String fromShipDate, String toShipDate, String customerIds) throws Exception {
+    public void doParcelAuditingInvoiceNumberWise(List<ParcelAuditDetailsDto> invoiceList, String trackingNumbers, String rateTo, String fromShipDate, String toShipDate, String customerIds) {
         if (invoiceList != null && !invoiceList.isEmpty()) {
             String licenseKey = messageSource.getMessage("RateRequest-LicenseKey", null, null);
             String strProtocol = messageSource.getMessage("RTRprotocol", null, null);
@@ -1663,6 +1676,12 @@ public class ParcelRTRService{
         return total;
     }
 
+    /**
+     * This method will prepare bundle number or multi weight id tracking number wise details
+     *
+     * @param listMap
+     * @return
+     */
     private Map<String, List<ParcelAuditDetailsDto>> prepareMultiWeightNumberWiseAuditDetails(Map<String, List<ParcelAuditDetailsDto>> listMap) {
 
         Map<String, List<ParcelAuditDetailsDto>> mwtDetailsMap = new HashMap<>();
@@ -1689,12 +1708,16 @@ public class ParcelRTRService{
         return mwtDetailsMap;
     }
 
+    /**
+     * This method will prepare Lead Shipment tracking number wise details
+     * @param listMap
+     * @return
+     */
     private Map<String, List<ParcelAuditDetailsDto>> prepareHwtNumberWiseAuditDetails(Map<String, List<ParcelAuditDetailsDto>> listMap) {
 
         Map<String, List<ParcelAuditDetailsDto>> hwtDetailsMap = new HashMap<>();
         Map<String, List<ParcelAuditDetailsDto>> tempMap = new HashMap<>(listMap);
         for (Map.Entry<String, List<ParcelAuditDetailsDto>> entry : tempMap.entrySet()) {
-
 
             for (ParcelAuditDetailsDto parcelAuditDetails : entry.getValue()) {
                 if (parcelAuditDetails != null) {
@@ -1715,6 +1738,11 @@ public class ParcelRTRService{
         return hwtDetailsMap;
     }
 
+    /**
+     * This method will return lead shipment details
+     * @param parcelAuditDetails
+     * @return
+     */
     private List<ParcelAuditDetailsDto> getLeadShipmentDetails(List<ParcelAuditDetailsDto> parcelAuditDetails) {
 
         List<ParcelAuditDetailsDto> detailsDtos = new ArrayList<>();

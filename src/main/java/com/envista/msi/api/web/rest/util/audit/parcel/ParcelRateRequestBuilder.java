@@ -30,18 +30,11 @@ public class ParcelRateRequestBuilder {
 
         Map<String, String> dasChargeList = msiARChargeCodes.getDasChargeCodes();
         Map<String, String> lpsCharges = msiARChargeCodes.getLpsChargeCodes();
+        boolean hasRJ5Charge = false;
         if (parcelAuditDetailsList != null && !parcelAuditDetailsList.isEmpty()) {
             for (ParcelAuditDetailsDto auditDetails : parcelAuditDetailsList) {
-                if (auditDetails != null && auditDetails.getPackageDimension() != null && !auditDetails.getPackageDimension().isEmpty()) {
-                    try {
-                        String[] dimension = auditDetails.getPackageDimension().toLowerCase().split("x");
-                        if (dimension != null && dimension.length > 0) {
-                            auditDetails.setDimLength(dimension[0] != null ? dimension[0].trim() : "");
-                            auditDetails.setDimWidth(dimension[1] != null ? dimension[1].trim() : "");
-                            auditDetails.setDimHeight(dimension[2] != null ? dimension[2].trim() : "");
-                        }
-                    } catch (Exception e) {
-                    }
+                if (auditDetails != null && "RJ5".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())) {
+                    hasRJ5Charge = true;
                 }
             }
 
@@ -108,12 +101,12 @@ public class ParcelRateRequestBuilder {
 
                     for (Map.Entry<String, List<ParcelAuditDetailsDto>> entry : listMap.entrySet()) {
 
-                        prepareUpsItems(entry.getValue(), items, serviceFlagList, itemSequence, dasChargeList, lpsCharges, parcelAuditDetails);
+                        prepareUpsItems(entry.getValue(), items, serviceFlagList, itemSequence, dasChargeList, lpsCharges, parcelAuditDetails, hasRJ5Charge);
                         itemSequence++;
 
                     }
                 } else {
-                    prepareUpsItems(parcelAuditDetailsList, items, serviceFlagList, itemSequence, dasChargeList, lpsCharges, parcelAuditDetails);
+                    prepareUpsItems(parcelAuditDetailsList, items, serviceFlagList, itemSequence, dasChargeList, lpsCharges, parcelAuditDetails, hasRJ5Charge);
                 }
 
 
@@ -190,20 +183,6 @@ public class ParcelRateRequestBuilder {
             if (parcelAuditDetailsList != null && !parcelAuditDetailsList.isEmpty()) {
                 ParcelRateRequest.BatchShipment batchShipment = new ParcelRateRequest.BatchShipment();
                 batchShipment.setId("1");
-
-                for (ParcelAuditDetailsDto auditDetails : parcelAuditDetailsList) {
-                    if (auditDetails != null && auditDetails.getDwFieldInformation() != null) {
-                        try {
-                            String[] dwFieldInfo = auditDetails.getDwFieldInformation().split(",");
-                            if (dwFieldInfo != null && dwFieldInfo.length > 0) {
-                                auditDetails.setChargeClassificationCode(dwFieldInfo[1].trim());
-                                auditDetails.setChargeDescriptionCode(dwFieldInfo[2].trim().equalsIgnoreCase("RES") ? "RSC" : dwFieldInfo[2].trim());
-                            }
-                        } catch (Exception e) {
-                        }
-                    }
-                }
-
 
                 String mode = "PCL";
                 ParcelAuditDetailsDto parcelAuditDetails = parcelAuditDetailsList.get(0);
@@ -374,13 +353,21 @@ public class ParcelRateRequestBuilder {
         return parcelAuditMap;
     }
 
-    private static void prepareUpsItems(List<ParcelAuditDetailsDto> parcelAuditDetailsList, List<ParcelRateRequest.Item> items, List<ParcelRateRequest.ServiceFlag> serviceFlagList, int itemSequence, Map<String, String> dasChargeList, Map<String, String> lpsCharges, ParcelAuditDetailsDto parcelAuditDetails) {
-
+    /**
+     * This method will prepare items for single shipment or HWT shipments
+     *
+     * @param parcelAuditDetailsList
+     * @param items
+     * @param serviceFlagList
+     * @param itemSequence
+     * @param dasChargeList
+     * @param lpsCharges
+     * @param parcelAuditDetails
+     */
+    private static void prepareUpsItems(List<ParcelAuditDetailsDto> parcelAuditDetailsList, List<ParcelRateRequest.Item> items, List<ParcelRateRequest.ServiceFlag> serviceFlagList, int itemSequence, Map<String, String> dasChargeList, Map<String, String> lpsCharges, ParcelAuditDetailsDto parcelAuditDetails, boolean hasRJ5Charge) {
 
         ParcelAuditDetailsDto latestFreightCharge = ParcelRatingUtil.getLatestFrightCharge(parcelAuditDetailsList);
-
-        if (latestFreightCharge != null) {
-
+        if (latestFreightCharge != null){
             String weight = (null == latestFreightCharge.getPackageWeight() || latestFreightCharge.getPackageWeight().isEmpty() ? "1" : latestFreightCharge.getPackageWeight());
             String weightUnit = (null == latestFreightCharge.getWeightUnit() || latestFreightCharge.getWeightUnit().isEmpty() || "L".equalsIgnoreCase(latestFreightCharge.getWeightUnit()) ? "LBS" : latestFreightCharge.getWeightUnit());
             String actualWeightUnit = (null == latestFreightCharge.getActualWeightUnit() || latestFreightCharge.getActualWeightUnit().isEmpty() || "L".equalsIgnoreCase(latestFreightCharge.getActualWeightUnit()) ? "LBS" : latestFreightCharge.getActualWeightUnit());
@@ -392,7 +379,7 @@ public class ParcelRateRequestBuilder {
             String dimUnit = (null == latestFreightCharge.getUnitOfDim() || latestFreightCharge.getUnitOfDim().isEmpty() ? "" : (latestFreightCharge.getUnitOfDim().equalsIgnoreCase("I") ? "in" : latestFreightCharge.getUnitOfDim()));
             BigDecimal actualWeight = (null == latestFreightCharge.getActualWeight() ? null : latestFreightCharge.getActualWeight());
             ParcelRateRequest.Weight weightObj = new ParcelRateRequest.Weight();
-            if (!weight.isEmpty()) {
+            if (!weight.isEmpty()){
                 weightObj.setWeight(new BigDecimal(weight.trim()));
             }
             weightObj.setUnits(weightUnit);
@@ -416,8 +403,7 @@ public class ParcelRateRequestBuilder {
             }
             try {
                 if (!dimHeight.isEmpty()) dimensionsObj.setHeight(new BigDecimal(dimHeight));
-            } catch (Exception e) {
-            }
+            } catch (Exception e){}
             dimensionsObj.setUnits(dimUnit);
 
             ParcelRateRequest.Item item = new ParcelRateRequest.Item();
@@ -434,9 +420,10 @@ public class ParcelRateRequestBuilder {
                 if (auditDetails != null) {
                     if (auditDetails.getChargeClassificationCode() != null
                             && ParcelAuditConstant.ChargeClassificationCode.ACC.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())) {
-                        if (auditDetails.getChargeDescriptionCode() != null && !auditDetails.getChargeDescriptionCode().isEmpty()) {
+                        if (auditDetails.getChargeDescriptionCode() != null && !auditDetails.getChargeDescriptionCode().isEmpty()
+                                && !"RJ5".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())){
                             ParcelRateRequest.ServiceFlag serviceFlag = new ParcelRateRequest.ServiceFlag();
-                            if (auditDetails.getChargeDescriptionCode().equalsIgnoreCase("RES")) {
+                            if (!hasRJ5Charge && auditDetails.getChargeDescriptionCode().equalsIgnoreCase("RES")){
                                 serviceFlag.setCode("RSC");
                             } else if (dasChargeList.containsKey(auditDetails.getChargeDescriptionCode())) {
                                 serviceFlag.setCode(dasChargeList.get(auditDetails.getChargeDescriptionCode()));
@@ -453,20 +440,28 @@ public class ParcelRateRequestBuilder {
                 }
             }
 
+
         } else {
             throw new RuntimeException("Freight Item not found");
         }
     }
 
 
+    /**
+     * This method will prepare items for single shipment or MWT shipments
+     * @param parcelAuditDetailsList
+     * @param items
+     * @param serviceFlagList
+     * @param itemSequence
+     * @param dasChargeList
+     * @param lpsCharges
+     */
     private static void prepareNonUpsItems(List<ParcelAuditDetailsDto> parcelAuditDetailsList, List<ParcelRateRequest.Item> items, List<ParcelRateRequest.ServiceFlag> serviceFlagList, int itemSequence, Map<String, String> dasChargeList, Map<String, String> lpsCharges) {
 
         ParcelAuditDetailsDto firstBaseCharge = ParcelRatingUtil.getFirstFrightChargeForNonUpsCarrier(parcelAuditDetailsList);
-
         if (firstBaseCharge != null) {
             if (firstBaseCharge.getChargeClassificationCode() != null
                     && ParcelAuditConstant.ChargeClassificationCode.FRT.name().equalsIgnoreCase(firstBaseCharge.getChargeClassificationCode())) {
-
                 String weight = (null == firstBaseCharge.getPackageWeight() || firstBaseCharge.getPackageWeight().isEmpty() ? "" : firstBaseCharge.getPackageWeight());
                 String weightUnit = (null == firstBaseCharge.getWeightUnit() || firstBaseCharge.getWeightUnit().isEmpty() || "L".equalsIgnoreCase(firstBaseCharge.getWeightUnit()) ? "LBS" : firstBaseCharge.getWeightUnit());
                 String actualWeightUnit = (null == firstBaseCharge.getActualWeightUnit() || firstBaseCharge.getActualWeightUnit().isEmpty() || "L".equalsIgnoreCase(firstBaseCharge.getActualWeightUnit()) ? "LBS" : firstBaseCharge.getActualWeightUnit());
@@ -479,7 +474,7 @@ public class ParcelRateRequestBuilder {
                 BigDecimal actualWeight = (null == firstBaseCharge.getActualWeight() ? null : firstBaseCharge.getActualWeight());
 
                 ParcelRateRequest.Weight weightObj = new ParcelRateRequest.Weight();
-                if (!weight.isEmpty()) {
+                if (!weight.isEmpty()){
                     weightObj.setWeight(new BigDecimal(weight.trim()));
                 }
                 weightObj.setUnits(weightUnit);
@@ -503,8 +498,7 @@ public class ParcelRateRequestBuilder {
                 }
                 try {
                     if (!dimHeight.isEmpty()) dimensionsObj.setHeight(new BigDecimal(dimHeight));
-                } catch (Exception e) {
-                }
+                } catch (Exception e){}
                 dimensionsObj.setUnits(dimUnit);
 
                 ParcelRateRequest.Item item = new ParcelRateRequest.Item();
@@ -521,20 +515,21 @@ public class ParcelRateRequestBuilder {
                 for (ParcelAuditDetailsDto auditDetails : parcelAuditDetailsList) {
                     if (auditDetails != null) {
                         if (auditDetails.getChargeClassificationCode() != null && ParcelAuditConstant.ChargeClassificationCode.ACS.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())
-                                && !Arrays.asList(ParcelAuditConstant.ChargeDescriptionCode.FSC.name(), ParcelAuditConstant.ChargeDescriptionCode.DSC.name()).contains(auditDetails.getChargeDescriptionCode())) {
+                                && !Arrays.asList(ParcelAuditConstant.ChargeDescriptionCode.FSC.name(), ParcelAuditConstant.ChargeDescriptionCode.DSC.name()).contains(auditDetails.getChargeDescriptionCode())){
                             ParcelRateRequest.ServiceFlag serviceFlag = new ParcelRateRequest.ServiceFlag();
                             if (auditDetails.getChargeDescriptionCode().equalsIgnoreCase("RES")) {
-                                auditDetails.setChargeDescriptionCode("RSC");
+                                serviceFlag.setCode("RSC");
                             } else if (dasChargeList.containsKey(auditDetails.getChargeDescriptionCode())) {
-                                serviceFlag.setCode(dasChargeList.get(auditDetails.getChargeDescriptionCode()));
+                                if (auditDetails.getChargeDescription() != null && (auditDetails.getChargeDescription().contains("EXTENDED") || auditDetails.getChargeDescription().contains("extended"))) {
+                                    serviceFlag.setCode("DSX");
+                                } else {
+                                    serviceFlag.setCode(dasChargeList.get(auditDetails.getChargeDescriptionCode()));
+                                }
                             } else if (lpsCharges != null && lpsCharges.containsKey(auditDetails.getChargeDescriptionCode())) {
                                 serviceFlag.setCode(lpsCharges.get(auditDetails.getChargeDescriptionCode()));
                             } else {
                                 serviceFlag.setCode(auditDetails.getChargeDescriptionCode());
                             }
-
-                            serviceFlag.setSequence(itemSequence);
-                            serviceFlag.setNetAmount(auditDetails.getNetAmount());
                             serviceFlagList.add(serviceFlag);
                         }
                     }
