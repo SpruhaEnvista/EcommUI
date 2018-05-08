@@ -529,6 +529,8 @@ public class ParcelRateRequestBuilder {
                             } else {
                                 serviceFlag.setCode(auditDetails.getChargeDescriptionCode());
                             }
+                            serviceFlag.setSequence(itemSequence);
+                            serviceFlag.setNetAmount(auditDetails.getNetAmount());
                             serviceFlagList.add(serviceFlag);
                         }
                     }
