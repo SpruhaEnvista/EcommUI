@@ -75,7 +75,7 @@ public class ParcelRTRDao {
                 .and("p_to_date", toDate).and("p_carrier_ids", carrierIds)
                 .and("p_tracking_numbers", trackingNumbers)
                 .and("p_invoice_id", invoiceId)
-                .and("p_ignore_rtr_status", 0);
+                .and("p_ignore_rtr_status", 1);
 
         if(customerIds != null && !customerIds.isEmpty()){
             queryParameter.and("p_customer_CSV", customerIds);
