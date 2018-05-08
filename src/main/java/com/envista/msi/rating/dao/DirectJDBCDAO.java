@@ -1,10 +1,7 @@
 package com.envista.msi.rating.dao;
 
 import com.envista.msi.api.dao.DaoException;
-import com.envista.msi.api.web.rest.dto.rtr.ParcelARChargeCodeMappingDto;
-import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditRequestResponseLog;
-import com.envista.msi.api.web.rest.dto.rtr.ParcelRateDetailsDto;
-import com.envista.msi.api.web.rest.dto.rtr.RatedChargeDetailsDto;
+import com.envista.msi.api.web.rest.dto.rtr.*;
 import com.envista.msi.rating.ServiceLocator;
 import com.envista.msi.rating.ServiceLocatorException;
 import oracle.jdbc.OracleTypes;
@@ -490,5 +487,83 @@ public class DirectJDBCDAO {
             } catch (SQLException sqle) {
             }
         }
+    }
+
+    public List<Long> loadInvoiceIds(String fromDate, String toDate, String customerId, String invoiceIds, int limit, String rateTo){
+        System.out.println("Loading Invoices");
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        String liveSqlQuery = "";
+        String archiveQuery = "";
+        List<Long> invoiceList = new ArrayList<>();
+        try {
+            if("UPS".equalsIgnoreCase(rateTo)) {
+                if(invoiceIds != null) {
+                    liveSqlQuery = " SELECT DISTINCT INVOICE_ID FROM SHP_EBILL_INVOICE_TB ";
+                    liveSqlQuery += " WHERE INVOICE_ID IN (" + invoiceIds + ") ";
+                } else {
+                    liveSqlQuery += " SELECT DISTINCT INVOICE_ID FROM SHP_EBILL_MANIFEST_TB ";
+                    liveSqlQuery += " WHERE INVOICE_ID IN ( ";
+                    liveSqlQuery += " SELECT invoice_id FROM SHP_EBILL_INVOICE_TB ";
+                    liveSqlQuery += " WHERE inv_contract_number IN (SELECT contract_number FROM SHP_EBILL_CONTRACT_TB ";
+                    liveSqlQuery += " WHERE customer_id in (" + customerId + ") and carrier_id = 21) and inv_carrier_id = 21) ";
+                    liveSqlQuery += " and trunc(pickup_date) between TRUNC(TO_DATE('"+ fromDate +"', 'DD-MON-YYYY')) AND TRUNC(TO_DATE('"+ toDate +"', 'DD-MON-YYYY')) ";
+                }
+
+                if(limit > 0) {
+                    liveSqlQuery += " AND ROWNUM <= " + limit;
+                }
+
+                archiveQuery = liveSqlQuery.replace("SHP_EBILL_INVOICE_TB", "ARC_EBILL_INVOICE_TB");
+                archiveQuery = archiveQuery.replace("SHP_EBILL_MANIFEST_TB", "ARC_EBILL_MANIFEST_TB");
+            } else if ("FEDEX".equalsIgnoreCase(rateTo)) {
+                liveSqlQuery += " SELECT DISTINCT INVOICE_ID FROM SHP_EBILL_MANIFEST_TB ";
+                liveSqlQuery += " WHERE 1 = 1 ";
+
+                if(invoiceIds != null) {
+                    liveSqlQuery += " AND INVOICE_ID IN (" + invoiceIds +") ";
+                } else {
+                    liveSqlQuery += " AND INVOICE_ID IN ( ";
+                    liveSqlQuery += " SELECT invoice_id ";
+                    liveSqlQuery += " FROM SHP_EBILL_INVOICE_TB ";
+                    liveSqlQuery += " WHERE inv_contract_number IN (SELECT contract_number FROM SHP_EBILL_CONTRACT_TB ";
+                    liveSqlQuery += " WHERE customer_id IN ("  + customerId + ") and carrier_id = 22) and inv_carrier_id = 22) ";
+                    liveSqlQuery += " and trunc(pickup_date) between TRUNC(TO_DATE('"+ fromDate +"', 'DD-MON-YYYY')) AND TRUNC(TO_DATE('"+ toDate +"', 'DD-MON-YYYY')) ";
+
+                    if(limit > 0) {
+                        liveSqlQuery += " AND ROWNUM <= " + limit;
+                    }
+                }
+                archiveQuery = liveSqlQuery.replace("SHP_EBILL_INVOICE_TB", "ARC_EBILL_INVOICE_TB");
+                archiveQuery = archiveQuery.replace("SHP_EBILL_MANIFEST_TB", "ARC_EBILL_MANIFEST_TB");
+            }
+            System.out.println("Sql Query --> " + liveSqlQuery + " UNION " + archiveQuery);
+            conn = ServiceLocator.getDatabaseConnection();
+            ps = conn.prepareStatement(liveSqlQuery + " UNION " + archiveQuery);
+            rs = ps.executeQuery();
+
+            System.out.println("Got Invoices-->");
+            while(rs.next()) {
+                invoiceList.add(rs.getLong("INVOICE_ID"));
+            }
+        }catch (SQLException sqle) {
+            System.out.println("Exception in loadInvoiceIds -- > "+sqle.getStackTrace());
+        }  catch (ServiceLocatorException sle) {
+            System.out.println("Exception in loadInvoiceIds -- > "+sle.getStackTrace());
+        }finally {
+
+            try {
+                if (ps != null)
+                    ps.close();
+            } catch (SQLException sqle) {
+            }
+            try {
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException sqle) {
+            }
+        }
+        return invoiceList;
     }
 }
