@@ -176,7 +176,6 @@ public class ParcelRateRequestBuilder {
      */
     public static ParcelRateRequest buildParcelRateRequestForNonUpsCarrier(List<ParcelAuditDetailsDto> parcelAuditDetailsList, String licenseKey, MsiARChargeCodesDto msiARChargeCodes, boolean isHwt) {
 
-        {
             ParcelRateRequest parcelRateRequest = new ParcelRateRequest();
             parcelRateRequest.setLicenseKey(licenseKey);
             Map<String, String> dasChargeList = msiARChargeCodes.getDasChargeCodes();
@@ -306,7 +305,6 @@ public class ParcelRateRequestBuilder {
                 }
             }
             return parcelRateRequest;
-        }
     }
 
     /**
