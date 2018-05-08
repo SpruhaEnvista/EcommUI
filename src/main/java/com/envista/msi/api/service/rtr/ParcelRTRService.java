@@ -299,22 +299,18 @@ public class ParcelRTRService{
                                 }
                             }
 
-                            requestPayload = ParcelRateRequestBuilder.buildParcelRateRequestForUps(commercialShipment, licenseKey, msiARChargeCode).toXmlString();
+                            requestPayload = ParcelRateRequestBuilder.buildParcelRateRequestForUps(commercialShipment, licenseKey, msiARChargeCode, isHwt).toXmlString();
 
-                            sumOfNetAmount = findSumOfNetAmount(parcelAuditDetails);
+                            sumOfNetAmount = findSumOfNetAmount(commercialShipment);
 
-                            if (!isHwt) {
-                                requestPayload = ParcelRateRequestBuilder.buildParcelRateRequestForUps(commercialShipment, licenseKey, msiARChargeCode).toXmlString();
+                            if (isHwt)
+                                parcelAuditDetails = getLeadShipmentDetails(commercialShipment);
 
-                            } else {
-                                requestPayload = ParcelRateRequestBuilder.buildHwtRateRequestForUps(commercialShipment, licenseKey, msiARChargeCode, true).toXmlString();
-                                parcelAuditDetails = getLeadShipmentDetails(parcelAuditDetails);
-                            }
 
                             response = CommonUtil.connectAndGetResponseAsString(url, requestPayload);
                             if(response != null && !response.trim().isEmpty()){
                                 saveRequestResponse(requestPayload, response, commercialCharge.getParentId(), ParcelAuditConstant.EBILL_GFF_TABLE_NAME);
-                                status = updateRateForUps(ParcelRateResponseParser.parse(response), commercialShipment, msiARChargeCode, commercialCharge, previousShipment);
+                                status = updateRateForUps(ParcelRateResponseParser.parse(response), commercialShipment, msiARChargeCode, commercialCharge, previousShipment, sumOfNetAmount);
                             }
                         } else if(ParcelAuditConstant.RESIDENTIAL_ADJUSTMENT_CHARGE_TYPE.equalsIgnoreCase(commercialCharge.getChargeDescription())){
                             List<ParcelAuditDetailsDto> residentialShipment = new ArrayList<>();
@@ -330,37 +326,31 @@ public class ParcelRTRService{
 
                             sumOfNetAmount = findSumOfNetAmount(parcelAuditDetails);
 
-                            if (!isHwt) {
-                                requestPayload = ParcelRateRequestBuilder.buildParcelRateRequestForUps(residentialShipment, licenseKey, msiARChargeCode).toXmlString();
+                            requestPayload = ParcelRateRequestBuilder.buildParcelRateRequestForUps(residentialShipment, licenseKey, msiARChargeCode, isHwt).toXmlString();
 
-                            } else {
-                                requestPayload = ParcelRateRequestBuilder.buildHwtRateRequestForUps(residentialShipment, licenseKey, msiARChargeCode, true).toXmlString();
-                                parcelAuditDetails = getLeadShipmentDetails(parcelAuditDetails);
-                            }
-
+                            if (isHwt)
+                                parcelAuditDetails = getLeadShipmentDetails(residentialShipment);
 
                             response = CommonUtil.connectAndGetResponseAsString(url, requestPayload);
                             if(response != null && !response.trim().isEmpty()){
                                 saveRequestResponse(requestPayload, response, commercialCharge.getParentId(), ParcelAuditConstant.EBILL_GFF_TABLE_NAME);
-                                status = updateRateForUps(ParcelRateResponseParser.parse(response), residentialShipment, msiARChargeCode, commercialCharge, previousShipment);
+                                status = updateRateForUps(ParcelRateResponseParser.parse(response), residentialShipment, msiARChargeCode, commercialCharge, previousShipment, sumOfNetAmount);
                             }
                         }
                     }
                 }else{
                     sumOfNetAmount = findSumOfNetAmount(parcelAuditDetails);
 
-                    if (!isHwt) {
-                        requestPayload = ParcelRateRequestBuilder.buildParcelRateRequestForUps(parcelAuditDetails, licenseKey, msiARChargeCode).toXmlString();
+                    requestPayload = ParcelRateRequestBuilder.buildParcelRateRequestForUps(parcelAuditDetails, licenseKey, msiARChargeCode, isHwt).toXmlString();
 
-                    } else {
-                        requestPayload = ParcelRateRequestBuilder.buildHwtRateRequestForUps(parcelAuditDetails, licenseKey, msiARChargeCode, true).toXmlString();
+                    if (isHwt)
                         parcelAuditDetails = getLeadShipmentDetails(parcelAuditDetails);
-                    }
+
 
                     response = CommonUtil.connectAndGetResponseAsString(url, requestPayload);
                     if(response != null && !response.trim().isEmpty()){
                         saveRequestResponse(requestPayload, response, parcelAuditDetails.get(0).getParentId(), ParcelAuditConstant.EBILL_GFF_TABLE_NAME);
-                        status = updateRateForUps(ParcelRateResponseParser.parse(response), parcelAuditDetails, msiARChargeCode, previousShipment);
+                        status = updateRateForUps(ParcelRateResponseParser.parse(response), parcelAuditDetails, msiARChargeCode, previousShipment, sumOfNetAmount);
                     }
                 }
                 System.out.println("sumOfNetAmount=====" + sumOfNetAmount + "==requestPayload=======" + requestPayload);
@@ -368,21 +358,18 @@ public class ParcelRTRService{
                 break;
             case NON_UPS:
                 sumOfNetAmount = findSumOfNetAmount(parcelAuditDetails);
-                if (!isHwt) {
-                    requestPayload = ParcelRateRequestBuilder.buildParcelRateRequestForNonUpsCarrier(parcelAuditDetails, licenseKey, msiARChargeCode).toXmlString();
 
-                } else {
-                    requestPayload = ParcelRateRequestBuilder.buildMwtXmlRequestForNonUpsCarrier(parcelAuditDetails, licenseKey, msiARChargeCode, true).toXmlString();
+                requestPayload = ParcelRateRequestBuilder.buildParcelRateRequestForNonUpsCarrier(parcelAuditDetails, licenseKey, msiARChargeCode, isHwt).toXmlString();
+
+                if (isHwt)
                     parcelAuditDetails = getLeadShipmentDetails(parcelAuditDetails);
-                }
 
                 System.out.println("sumOfNetAmount=====" + sumOfNetAmount + "==requestPayload=======" + requestPayload);
-
-                // System.exit(1);
 
                 response = CommonUtil.connectAndGetResponseAsString(url, requestPayload);
 
                 System.out.println("response=======" + response);
+
                 if(response != null && !response.trim().isEmpty()) {
                     saveRequestResponse(requestPayload, response, parcelAuditDetails.get(0).getParentId(), ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME);
                     status = updateRateForNonUpsCarrier(ParcelRateResponseParser.parse(response), parcelAuditDetails, msiARChargeCode, sumOfNetAmount);
@@ -636,22 +623,22 @@ public class ParcelRTRService{
         return rtrStatus.value;
     }
 
-    private String updateRateForUps(ParcelRateResponse parcelRateResponse, List<ParcelAuditDetailsDto> parcelAuditDetails, MsiARChargeCodesDto msiARChargeCodes, ParcelAuditDetailsDto commercialAdj) throws Exception {
-        return updateRateForUps(parcelRateResponse, parcelAuditDetails, msiARChargeCodes, commercialAdj, null);
+    private String updateRateForUps(ParcelRateResponse parcelRateResponse, List<ParcelAuditDetailsDto> parcelAuditDetails, MsiARChargeCodesDto msiARChargeCodes, ParcelAuditDetailsDto commercialAdj, BigDecimal sumOfNetAmount) throws Exception {
+        return updateRateForUps(parcelRateResponse, parcelAuditDetails, msiARChargeCodes, commercialAdj, null, sumOfNetAmount);
     }
 
-    private String updateRateForUps(ParcelRateResponse parcelRateResponse, List<ParcelAuditDetailsDto> parcelAuditDetails, MsiARChargeCodesDto msiARChargeCodes, List<ParcelAuditDetailsDto> previousShipment) throws Exception {
-        return updateRateForUps(parcelRateResponse, parcelAuditDetails, msiARChargeCodes, null, previousShipment);
+    private String updateRateForUps(ParcelRateResponse parcelRateResponse, List<ParcelAuditDetailsDto> parcelAuditDetails, MsiARChargeCodesDto msiARChargeCodes, List<ParcelAuditDetailsDto> previousShipment, BigDecimal sumOfNetAmount) throws Exception {
+        return updateRateForUps(parcelRateResponse, parcelAuditDetails, msiARChargeCodes, null, previousShipment, sumOfNetAmount);
     }
 
-    private String updateRateForUps(ParcelRateResponse parcelRateResponse, List<ParcelAuditDetailsDto> parcelAuditDetails, MsiARChargeCodesDto msiARChargeCodes, ParcelAuditDetailsDto commercialAdjCharge, List<ParcelAuditDetailsDto> previousShipment) throws Exception {
+    private String updateRateForUps(ParcelRateResponse parcelRateResponse, List<ParcelAuditDetailsDto> parcelAuditDetails, MsiARChargeCodesDto msiARChargeCodes, ParcelAuditDetailsDto commercialAdjCharge, List<ParcelAuditDetailsDto> previousShipment, BigDecimal sumOfNetAmount) throws Exception {
         String status = "";
         if(parcelRateResponse != null){
             if(parcelRateResponse.getStatusCode() != null && parcelRateResponse.getStatusCode().equals(0)){
                 if(parcelRateResponse.getPriceSheets() != null && !parcelRateResponse.getPriceSheets().isEmpty()){
                     //Taking the first price sheet, as per the discussion we finalised that the first price sheet will be be correct and rated based on the latest contract.
                     ParcelRateResponse.PriceSheet firstPriceSheet = parcelRateResponse.getPriceSheets().get(0);
-                    BigDecimal sumOfNetAmount = findSumOfNetAmount(parcelAuditDetails);
+
                     BigDecimal totalRateAmount = firstPriceSheet.getTotal().setScale(2, BigDecimal.ROUND_HALF_EVEN);
 
                     BigDecimal toleranceLowerBound = sumOfNetAmount.multiply(new BigDecimal("0.995"));
@@ -1733,7 +1720,6 @@ public class ParcelRTRService{
         List<ParcelAuditDetailsDto> detailsDtos = new ArrayList<>();
 
         ParcelAuditDetailsDto minDto = parcelAuditDetails.stream().min(Comparator.comparing(ParcelAuditDetailsDto::getId)).orElseThrow(NoSuchElementException::new);
-        ;
 
         if (minDto != null) {
             for (ParcelAuditDetailsDto dto : parcelAuditDetails) {
