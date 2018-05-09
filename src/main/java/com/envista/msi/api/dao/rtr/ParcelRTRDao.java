@@ -70,11 +70,12 @@ public class ParcelRTRDao {
         return loadUpsParcelAuditDetails(customerIds, null, null, null, null, ignoreRtrStatus);
     }
 
-    public List<ParcelAuditDetailsDto> loadNonUpsParcelAuditDetails(String customerIds, String fromDate, String toDate, String carrierIds, String trackingNumbers, String invoiceId){
+    public List<ParcelAuditDetailsDto> loadNonUpsParcelAuditDetails(String customerIds, String fromDate, String toDate, String carrierIds, String trackingNumbers, String invoiceId, boolean ignoreRtrStatus){
         QueryParameter queryParameter = QueryParameter.with("p_from_date", fromDate)
                 .and("p_to_date", toDate).and("p_carrier_ids", carrierIds)
                 .and("p_tracking_numbers", trackingNumbers)
-                .and("p_invoice_id", invoiceId);
+                .and("p_invoice_id", invoiceId)
+                .and("p_ignore_rtr_status", ignoreRtrStatus ? 1 : 0);
 
         if(customerIds != null && !customerIds.isEmpty()){
             queryParameter.and("p_customer_CSV", customerIds);
@@ -105,11 +106,11 @@ public class ParcelRTRDao {
     }
 
     public List<ParcelAuditDetailsDto> loadNonUpsParcelAuditDetails(String fromDate, String toDate, String carrierIds, String trackingNumbers){
-        return loadNonUpsParcelAuditDetails(null, fromDate, toDate, carrierIds, trackingNumbers, null);
+        return loadNonUpsParcelAuditDetails(null, fromDate, toDate, carrierIds, trackingNumbers, null, false);
     }
 
-    public List<ParcelAuditDetailsDto> loadNonUpsParcelAuditDetails(String customerIds, String trackingNumbers, String carrierId){
-        return loadNonUpsParcelAuditDetails(customerIds, null, null, carrierId, trackingNumbers, null);
+    public List<ParcelAuditDetailsDto> loadNonUpsParcelAuditDetails(String customerIds, String trackingNumbers, String carrierId, boolean idnoreRtrStatus){
+        return loadNonUpsParcelAuditDetails(customerIds, null, null, carrierId, trackingNumbers, null, idnoreRtrStatus);
     }
 
     public void updateRTRInvoiceAmount(Long id, String userName, BigDecimal rtrAmount, String rtrStatus, Long carrierId){
