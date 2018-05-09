@@ -210,6 +210,9 @@ public class ParcelAuditDetailsDto {
     @Column(name = "CHARGE_CODE")
     private String chargeCode;
 
+    @Column(name = "rtr_status")
+    private String rtrStatus;
+
     public ParcelAuditDetailsDto() {
     }
 
@@ -581,6 +584,14 @@ public class ParcelAuditDetailsDto {
 
     public void setChargeCode(String chargeCode) {
         this.chargeCode = chargeCode;
+    }
+
+    public String getRtrStatus() {
+        return rtrStatus;
+    }
+
+    public void setRtrStatus(String rtrStatus) {
+        this.rtrStatus = rtrStatus;
     }
 
     public static class Config{
