@@ -364,8 +364,8 @@ public class ParcelRTRService{
                         status = updateRateForUps(ParcelRateResponseParser.parse(response), parcelAuditDetails, msiARChargeCode, previousShipment, sumOfNetAmount);
                     }
                 }
-                System.out.println("sumOfNetAmount=====" + sumOfNetAmount + "==requestPayload=======" + requestPayload);
-                System.out.println("response=======" + response);
+                log.debug("sumOfNetAmount=====" + sumOfNetAmount + "==requestPayload=======" + requestPayload);
+                log.debug("response=======" + response);
                 break;
             case NON_UPS:
                 sumOfNetAmount = findSumOfNetAmount(parcelAuditDetails);
@@ -375,11 +375,11 @@ public class ParcelRTRService{
                 if (isHwt)
                     parcelAuditDetails = getLeadShipmentDetails(parcelAuditDetails);
 
-                System.out.println("sumOfNetAmount=====" + sumOfNetAmount + "==requestPayload=======" + requestPayload);
+                log.debug("sumOfNetAmount=====" + sumOfNetAmount + "==requestPayload=======" + requestPayload);
 
                 response = CommonUtil.connectAndGetResponseAsString(url, requestPayload);
 
-                System.out.println("response=======" + response);
+                log.debug("response=======" + response);
 
                 if(response != null && !response.trim().isEmpty()) {
                     saveRequestResponse(requestPayload, response, parcelAuditDetails.get(0).getParentId(), ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME);
