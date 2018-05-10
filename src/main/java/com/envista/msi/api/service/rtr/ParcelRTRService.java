@@ -177,8 +177,6 @@ public class ParcelRTRService{
                                     } else {
                                         callRTRAndPopulateRates(url, licenseKey, shipmentDetails, RateTo.NON_UPS, msiARChargeCode, false);
                                     }
-
-                                    callRTRAndPopulateRates(url, licenseKey, shpEntry.getValue(), RateTo.NON_UPS, msiARChargeCode,false);
                                     System.out.println("Shipment Count :: " + shipmentCount++ + " :: " +parcelAuditEntry.getValue().get(0).getTrackingNumber());
                                     previousShipment = new ArrayList<>(shipmentDetails);
                                 }
@@ -366,8 +364,8 @@ public class ParcelRTRService{
                         status = updateRateForUps(ParcelRateResponseParser.parse(response), parcelAuditDetails, msiARChargeCode, previousShipment, sumOfNetAmount);
                     }
                 }
-                log.debug("sumOfNetAmount=====" + sumOfNetAmount + "==requestPayload=======" + requestPayload);
-                log.debug("response=======" + response);
+                System.out.println("sumOfNetAmount=====" + sumOfNetAmount + "==requestPayload=======" + requestPayload);
+                System.out.println("response=======" + response);
                 break;
             case NON_UPS:
                 sumOfNetAmount = findSumOfNetAmount(parcelAuditDetails);
@@ -377,11 +375,11 @@ public class ParcelRTRService{
                 if (isHwt)
                     parcelAuditDetails = getLeadShipmentDetails(parcelAuditDetails);
 
-                log.debug("sumOfNetAmount=====" + sumOfNetAmount + "==requestPayload=======" + requestPayload);
+                System.out.println("sumOfNetAmount=====" + sumOfNetAmount + "==requestPayload=======" + requestPayload);
 
                 response = CommonUtil.connectAndGetResponseAsString(url, requestPayload);
 
-                log.debug("response=======" + response);
+                System.out.println("response=======" + response);
 
                 if(response != null && !response.trim().isEmpty()) {
                     saveRequestResponse(requestPayload, response, parcelAuditDetails.get(0).getParentId(), ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME);
