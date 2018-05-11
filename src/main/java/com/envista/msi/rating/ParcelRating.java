@@ -19,7 +19,7 @@ import org.apache.commons.logging.LogFactory;
 
 public class ParcelRating implements Callable<String> {
 
-    private static final int MAX_THREADS = 10;
+    private static final int MAX_THREADS = 5;
 
     private RatingQueueBean ratingQueueBean = null;
     private Log m_log = LogFactory.getLog(ParcelRating.class);
