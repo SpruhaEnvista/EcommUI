@@ -118,6 +118,12 @@ public class ParcelRateDetailsDto implements Serializable {
     @Column(name = "FSC_CHARGE")
     private BigDecimal fuelSurcharge;
 
+    @Column(name = "RTR_AMOUNT")
+    private BigDecimal rtrAmount;
+
+    @Column(name = "RTR_STATUS")
+    private String rtrStatus;
+
     public static ParcelRateDetailsDto getInstance(){
         return new ParcelRateDetailsDto();
     }
@@ -336,5 +342,61 @@ public class ParcelRateDetailsDto implements Serializable {
 
     public void setFuelSurcharge(BigDecimal fuelSurcharge) {
         this.fuelSurcharge = fuelSurcharge;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getCreateUser() {
+        return createUser;
+    }
+
+    public void setCreateUser(String createUser) {
+        this.createUser = createUser;
+    }
+
+    public Date getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
+    }
+
+    public String getLastUpdateUser() {
+        return lastUpdateUser;
+    }
+
+    public void setLastUpdateUser(String lastUpdateUser) {
+        this.lastUpdateUser = lastUpdateUser;
+    }
+
+    public Date getLastUpdateDate() {
+        return lastUpdateDate;
+    }
+
+    public void setLastUpdateDate(Date lastUpdateDate) {
+        this.lastUpdateDate = lastUpdateDate;
+    }
+
+    public BigDecimal getRtrAmount() {
+        return rtrAmount;
+    }
+
+    public void setRtrAmount(BigDecimal rtrAmount) {
+        this.rtrAmount = rtrAmount;
+    }
+
+    public String getRtrStatus() {
+        return rtrStatus;
+    }
+
+    public void setRtrStatus(String rtrStatus) {
+        this.rtrStatus = rtrStatus;
     }
 }

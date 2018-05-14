@@ -115,9 +115,10 @@ public class RatingQueueDAO {
         ResultSet rs = null;
 
         java.util.ArrayList<RatingQueueBean> beanList = null;
-        String selectQuery = "select * from SHP_RATING_QUEUE_TB where RATE_STATUS = 0 and job_id in ( "+jobIds+" ) ";
+        String selectQuery = "select * from SHP_RATING_QUEUE_TB where RATE_STATUS = 0 and job_id in ( "+jobIds+" ) and rownum < 1001";
 
         try {
+            System.out.println("Loading queue data for " + jobIds);
             connection = ServiceLocator.getDatabaseConnection();
             stmt = connection.prepareStatement(selectQuery);
             beanList = new ArrayList<RatingQueueBean>();
@@ -180,7 +181,7 @@ public class RatingQueueDAO {
                 ratingQueueBean.setPackageType(rs.getString("PACKAGE_TYPE"));
                 beanList.add(ratingQueueBean);
             }
-
+            System.out.println("Loaded queue data for " + jobIds);
         } catch (SQLException sqle) {
             System.out.println("Exception in getRatingQueueByJobId-- > "+sqle.getStackTrace());
             sqle.printStackTrace();
