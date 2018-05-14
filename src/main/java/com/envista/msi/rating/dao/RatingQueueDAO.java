@@ -240,6 +240,42 @@ public class RatingQueueDAO {
             }
         }
     }
+
+    public void updateARRateStatusInQueue(Long ratingQueueId) {
+        Connection connection = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        String updateQuery = "update SHP_RATING_QUEUE_TB set AR_RATE_STATUS = 1 where SHP_RATING_QUEUE_ID = " + ratingQueueId;
+
+        try {
+            connection = ServiceLocator.getDatabaseConnection();
+            stmt = connection.prepareStatement(updateQuery);
+            stmt.executeUpdate();
+        } catch (SQLException sqle) {
+            System.out.println("Exception in updateARRateStatusInQueue-- > " + sqle.getStackTrace());
+            sqle.printStackTrace();
+        } catch (ServiceLocatorException sle) {
+            System.out.println("Exception in updateARRateStatusInQueue-- > " + sle.getStackTrace());
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (SQLException sqle) {
+            }
+            try {
+                if (stmt != null)
+                    stmt.close();
+            } catch (SQLException sqle) {
+            }
+            try {
+                if (connection != null)
+                    connection.close();
+            } catch (SQLException sqle) {
+            }
+        }
+    }
+
     public void saveRatingQueueBean(RatingQueueBean ratingQueueBean){
         Connection connection = null;
         PreparedStatement ps = null;
