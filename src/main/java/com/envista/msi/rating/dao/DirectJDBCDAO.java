@@ -14,6 +14,7 @@ import java.util.List;
 
 public class DirectJDBCDAO {
 
+    @Deprecated
     public void updateRTRInvoiceAmount(Long id, String userName, BigDecimal rtrAmount, String rtrStatus, Long carrierId){
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -66,50 +67,28 @@ public class DirectJDBCDAO {
         }
     }
 
-    public void updateInvoiceAmountByIds(String entityIds, String userName, String rtrStatus, Long carrierId){
+    public void updateRtrStatusByIds(String entityIds, String userName, String rtrStatus, Long carrierId){
         Connection conn = null;
-        PreparedStatement prstmt = null;
-        PreparedStatement aprstmt = null;
-
-        String lUpdateQuery = "";
-        String aUpdateQuery = "";
-        if(carrierId==21){
-            lUpdateQuery = " UPDATE SHP_EBILL_GFF_TB SET RTR_STATUS = '"+rtrStatus+"', RTR_AMOUNT=NET_AMOUNT, LAST_UPDATE_DATE=sysdate, " +
-                    " LAST_UPDATE_USER = '"+userName+"' WHERE EBILL_GFF_ID in ("+entityIds+")";
-            aUpdateQuery = " UPDATE ARC_EBILL_GFF_TB SET RTR_STATUS = '"+rtrStatus+"', RTR_AMOUNT=NET_AMOUNT, LAST_UPDATE_DATE=sysdate, " +
-                    " LAST_UPDATE_USER = '"+userName+"' WHERE EBILL_GFF_ID in ("+entityIds+")";
-        }else{
-            lUpdateQuery = " UPDATE SHP_EBILL_MANIFEST_TB SET RTR_STATUS = '"+rtrStatus+"', RTR_AMOUNT=NET_CHARGES, LAST_UPDATE_DATE=sysdate, " +
-                    " LAST_UPDATE_USER = '"+userName+"' WHERE EBILL_MANIFEST_ID in ("+entityIds+")";
-            aUpdateQuery = " UPDATE ARC_EBILL_MANIFEST_TB SET RTR_STATUS = '"+rtrStatus+"', RTR_AMOUNT=NET_CHARGES, LAST_UPDATE_DATE=sysdate, " +
-                    " LAST_UPDATE_USER = '"+userName+"' WHERE EBILL_MANIFEST_ID in ("+entityIds+")";
-        }
-
-        try {
+        CallableStatement cstmt =null;
+        try{
             conn = ServiceLocator.getDatabaseConnection();
-            prstmt = conn.prepareStatement(lUpdateQuery);
-            prstmt.executeUpdate();
-            aprstmt = conn.prepareStatement(aUpdateQuery);
-            aprstmt.executeQuery();
+            cstmt = conn.prepareCall("{ call SHP_UPDATE_RTR_STATUS_PROC(?,?,?,?)}");
+            cstmt.setString(1, entityIds);
+            cstmt.setString(2, userName);
+            cstmt.setString(3, rtrStatus);
+            cstmt.setLong(4, carrierId);
+            cstmt.executeUpdate();
 
         }catch (SQLException sqle) {
-            System.out.println("Exception in updateInvoiceAmountByIds -- > "+sqle.getStackTrace());
+            System.out.println("Exception in updateRtrStatusByIds -- > "+sqle.getStackTrace());
         }  catch (ServiceLocatorException sle) {
-            System.out.println("Exception in updateInvoiceAmountByIds -- > "+sle.getStackTrace());
+            System.out.println("Exception in updateRtrStatusByIds -- > "+sle.getStackTrace());
         }finally {
-
             try {
-                if (prstmt != null)
-                    prstmt.close();
+                if (cstmt != null)
+                    cstmt.close();
             } catch (SQLException sqle) {
             }
-
-            try {
-                if (aprstmt != null)
-                    aprstmt.close();
-            } catch (SQLException sqle) {
-            }
-
             try {
                 if (conn != null)
                     conn.close();
@@ -197,122 +176,41 @@ public class DirectJDBCDAO {
             }
         }
     }
-    public void updateShipmentRateDetails(String referenceTableName, Long entityId, String userName, ParcelRateDetailsDto rateDetails) {
+    public void updateShipmentRateDetails(String referenceTableName, String entityId, String userName, ParcelRateDetailsDto rateDetails) {
         Connection conn = null;
-        Statement st = null;
+        CallableStatement cstmt = null;
         try{
             conn = ServiceLocator.getDatabaseConnection();
-            StringBuilder sqlQuery = new StringBuilder();
-            String dimDivisor = (rateDetails.getDimDivisor() != null ? rateDetails.getDimDivisor().toString() : "0.0");
-            String ratedWeight = (rateDetails.getRatedWeight() != null ? rateDetails.getRatedWeight().toString() : "0.0");
-            String fuelTablePercentage = (rateDetails.getFuelTablePercentage() != null ? rateDetails.getFuelTablePercentage().toString() : "0.0");
-            String ratedBaseDiscount = (rateDetails.getRatedBaseDiscount() != null ? rateDetails.getRatedBaseDiscount().toString() : "0.0");
-            String ratedEarnedDiscount = (rateDetails.getRatedEarnedDiscount() != null ? rateDetails.getRatedEarnedDiscount().toString() : "0.0");
-            String ratedMinMaxAdj = (rateDetails.getRatedMinMaxAdjustment() != null ? rateDetails.getRatedMinMaxAdjustment().toString() : "0.0");
-            String fuelSurchargeDsc = (rateDetails.getRatedFuelSurchargeDiscount() != null ? rateDetails.getRatedFuelSurchargeDiscount().toString() : "0.0");
-            String custFuelSurchargeDsc = (rateDetails.getRatedCustomFuelSurchargeDiscount() != null ? rateDetails.getRatedCustomFuelSurchargeDiscount().toString() : "0.0" );
-            String ratedGrossFuel = (rateDetails.getRatedGrossFuel() != null ? rateDetails.getRatedGrossFuel().toString() : "0.0");
-            String resDsc = (rateDetails.getResidentialSurchargeDiscount() != null ? rateDetails.getResidentialSurchargeDiscount().toString() : "0.0");
-            String resDscPerc = (rateDetails.getResidentialSurchargeDiscountPercentage() != null ? rateDetails.getResidentialSurchargeDiscountPercentage().toString() : "0.0");
-            String dasDsc = (rateDetails.getDeliveryAreaSurchargeDiscount() != null ? rateDetails.getDeliveryAreaSurchargeDiscount().toString() : "0.0");
-            String rtrAmount = (rateDetails.getRtrAmount() != null ? rateDetails.getRtrAmount().toString() : "0.0");
+            cstmt = conn.prepareCall("{ call SHP_SAVE_RATE_DETAILS_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
+            cstmt.setString(1,referenceTableName);
+            cstmt.setString(2,entityId);
+            cstmt.setString(3,userName);
+            cstmt.setBigDecimal(4,rateDetails != null && rateDetails.getDimDivisor() != null ? rateDetails.getDimDivisor() : new BigDecimal("0"));
+            cstmt.setString(5, rateDetails != null && rateDetails.getShipperCategory() != null ? rateDetails.getShipperCategory() : "");
+            cstmt.setBigDecimal(6, rateDetails != null && rateDetails.getRatedWeight() != null ? rateDetails.getRatedWeight() : new BigDecimal("0"));
+            cstmt.setString(7, rateDetails != null && rateDetails.getContractName() != null ? rateDetails.getContractName() : "");
+            cstmt.setBigDecimal(8, rateDetails != null && rateDetails.getFuelTablePercentage() != null ? rateDetails.getFuelTablePercentage() : new BigDecimal("0"));
+            cstmt.setBigDecimal(9, rateDetails != null && rateDetails.getRatedFuelSurchargeDiscount() != null ? rateDetails.getRatedFuelSurchargeDiscount() : new BigDecimal("0"));
+            cstmt.setBigDecimal(10, rateDetails != null && rateDetails.getRatedCustomFuelSurchargeDiscount() != null ? rateDetails.getRatedCustomFuelSurchargeDiscount() : new BigDecimal("0"));
+            cstmt.setBigDecimal(11, rateDetails != null && rateDetails.getRatedBaseDiscount() != null ? rateDetails.getRatedBaseDiscount() : new BigDecimal("0"));
+            cstmt.setBigDecimal(12, rateDetails != null && rateDetails.getRatedEarnedDiscount() != null ? rateDetails.getRatedEarnedDiscount() : new BigDecimal("0"));
+            cstmt.setBigDecimal(13, rateDetails != null && rateDetails.getRatedMinMaxAdjustment() != null ? rateDetails.getRatedMinMaxAdjustment() : new BigDecimal("0"));
+            cstmt.setBigDecimal(14, rateDetails != null && rateDetails.getRatedGrossFuel() != null ? rateDetails.getRatedGrossFuel() : new BigDecimal("0"));
+            cstmt.setBigDecimal(15, rateDetails != null && rateDetails.getResidentialSurchargeDiscount() != null ? rateDetails.getResidentialSurchargeDiscount() : new BigDecimal("0"));
+            cstmt.setBigDecimal(16, rateDetails != null && rateDetails.getResidentialSurchargeDiscountPercentage() != null ? rateDetails.getResidentialSurchargeDiscountPercentage() : new BigDecimal("0"));
+            cstmt.setBigDecimal(17, rateDetails != null && rateDetails.getDeliveryAreaSurchargeDiscount() != null ? rateDetails.getDeliveryAreaSurchargeDiscount() : new BigDecimal("0"));
+            cstmt.setBigDecimal(18, rateDetails != null && rateDetails.getRtrAmount() != null ? rateDetails.getRtrAmount() : new BigDecimal("0"));
+            cstmt.setString(19, rateDetails != null && rateDetails.getRtrStatus() != null ? rateDetails.getRtrStatus() : "");
+            cstmt.executeUpdate();
 
-            if(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME.equalsIgnoreCase(referenceTableName)) {
-                sqlQuery.append(" MERGE INTO SHP_AUDIT_RATE_DETAILS_TB ar USING ")
-                        .append(" (SELECT " + entityId + " AS manifest_id ")
-                        .append(" FROM DUAL ")
-                        .append(" ) b ON (ar.EBILL_MANIFEST_ID = b.manifest_id) ")
-                        .append(" WHEN MATCHED THEN ")
-                        .append(" UPDATE ")
-                        .append(" SET LAST_UPDATE_USER = " + userName + ", ")
-                        .append(" LAST_UPDATE_DATE = SYSDATE, ")
-                        .append(" DIM_DIVISOR    = " + dimDivisor + ", ")
-                        .append(" SHIPPER_CATEGORY = " + rateDetails.getShipperCategory() + ", ")
-                        .append(" RATED_WEIGHT  = " + ratedWeight + ", ")
-                        .append(" CONTRACT_NAME  = " + rateDetails.getContractName() + ", ")
-                        .append(" FUEL_TABLE_PERC = " + fuelTablePercentage + ", ")
-                        .append(" RATED_BASE_DISCOUNT = " + ratedBaseDiscount + ", ")
-                        .append(" RATED_EARNED_DISCOUNT = " + ratedEarnedDiscount + ", ")
-                        .append(" RATED_MIN_MAX_ADJ = " + ratedMinMaxAdj + ", ")
-                        .append(" RATED_FUEL_SURCHARGE_DISC = " + fuelSurchargeDsc + ", ")
-                        .append(" RATED_CUST_FUEL_SURCHARGE_DISC = " + custFuelSurchargeDsc + ", ")
-                        .append(" RATED_GROSS_FUEL = " + ratedGrossFuel + ", ")
-                        .append(" RES_SURCHARGE_DSC = " + resDsc + ", ")
-                        .append(" RES_SURCHARGE_DSC_PERC = " + resDscPerc + ", ")
-                        .append(" RATED_DAS_DSC = " + dasDsc + ", ")
-                        .append(" RTR_AMOUNT = " + rtrAmount + ", ")
-                        .append(" RTR_STATUS = " + rateDetails.getRtrStatus())
-                        .append(" WHEN NOT MATCHED THEN ")
-                        .append(" INSERT ")
-                        .append(" (AUDIT_RATE_DETAILS_ID, EBILL_MANIFEST_ID, CREATE_DATE, CREATE_USER, LAST_UPDATE_USER, LAST_UPDATE_DATE, ")
-                        .append(" DIM_DIVISOR, SHIPPER_CATEGORY, RATED_WEIGHT, CONTRACT_NAME, FUEL_TABLE_PERC, RATED_BASE_DISCOUNT, RATED_EARNED_DISCOUNT, ")
-                        .append(" RATED_MIN_MAX_ADJ, RATED_FUEL_SURCHARGE_DISC, RATED_CUST_FUEL_SURCHARGE_DISC, RATED_GROSS_FUEL, RES_SURCHARGE_DSC, ")
-                        .append(" RES_SURCHARGE_DSC_PERC, RATED_DAS_DSC, RTR_AMOUNT, RTR_STATUS) ")
-                        .append(" VALUES ")
-                        .append(" (SHP_AUDIT_RATE_DETAILS_S.NEXTVAL, b.manifest_id, SYSDATE, " + userName + ", " + userName + ", SYSDATE, ")
-                        .append(dimDivisor + ", " + rateDetails.getShipperCategory() + ", " + ratedWeight + ", " + rateDetails.getContractName() + ", ")
-                        .append(fuelTablePercentage + ", " + ratedBaseDiscount + ", " + ratedEarnedDiscount + ", " + ratedMinMaxAdj + ", ")
-                        .append(fuelSurchargeDsc + ", " + custFuelSurchargeDsc + ", " + ratedGrossFuel + ", " + resDsc + ", " + resDscPerc + ", ")
-                        .append(dasDsc + ", " + rtrAmount + ", " + rateDetails.getRtrStatus() + ") " );
-            } else if(ParcelAuditConstant.EBILL_GFF_TABLE_NAME.equalsIgnoreCase(referenceTableName)) {
-                sqlQuery.append(" MERGE INTO SHP_AUDIT_RATE_DETAILS_TB ar USING ")
-                        .append(" (SELECT " + entityId + " AS gff_id ")
-                        .append(" FROM DUAL ")
-                        .append(" ) b ON (ar.EBILL_GFF_ID = b.gff_id) ")
-                        .append(" WHEN MATCHED THEN ")
-                        .append(" UPDATE ")
-                        .append(" SET LAST_UPDATE_USER = " + userName + ", ")
-                        .append(" LAST_UPDATE_DATE = SYSDATE, ")
-                        .append(" DIM_DIVISOR    = " + dimDivisor + ", ")
-                        .append(" SHIPPER_CATEGORY = " + rateDetails.getShipperCategory() + ", ")
-                        .append(" RATED_WEIGHT  = " + ratedWeight + ", ")
-                        .append(" CONTRACT_NAME  = " + rateDetails.getContractName() + ", ")
-                        .append(" FUEL_TABLE_PERC = " + fuelTablePercentage + ", ")
-                        .append(" RATED_BASE_DISCOUNT = " + ratedBaseDiscount + ", ")
-                        .append(" RATED_EARNED_DISCOUNT = " + ratedEarnedDiscount + ", ")
-                        .append(" RATED_MIN_MAX_ADJ = " + ratedMinMaxAdj + ", ")
-                        .append(" RATED_FUEL_SURCHARGE_DISC = " + fuelSurchargeDsc + ", ")
-                        .append(" RATED_CUST_FUEL_SURCHARGE_DISC = " + custFuelSurchargeDsc + ", ")
-                        .append(" RATED_GROSS_FUEL = " + ratedGrossFuel + ", ")
-                        .append(" RES_SURCHARGE_DSC = " + resDsc + ", ")
-                        .append(" RES_SURCHARGE_DSC_PERC = " + resDscPerc + ", ")
-                        .append(" RATED_DAS_DSC = " + dasDsc + ", ")
-                        .append(" RTR_AMOUNT = " + rtrAmount + ", ")
-                        .append(" RTR_STATUS = " + rateDetails.getRtrStatus())
-                        .append(" WHEN NOT MATCHED THEN ")
-                        .append(" INSERT ")
-                        .append(" (AUDIT_RATE_DETAILS_ID, EBILL_MANIFEST_ID, CREATE_DATE, CREATE_USER, LAST_UPDATE_USER, LAST_UPDATE_DATE, ")
-                        .append(" DIM_DIVISOR, SHIPPER_CATEGORY, RATED_WEIGHT, CONTRACT_NAME, FUEL_TABLE_PERC, RATED_BASE_DISCOUNT, RATED_EARNED_DISCOUNT, ")
-                        .append(" RATED_MIN_MAX_ADJ, RATED_FUEL_SURCHARGE_DISC, RATED_CUST_FUEL_SURCHARGE_DISC, RATED_GROSS_FUEL, RES_SURCHARGE_DSC, ")
-                        .append(" RES_SURCHARGE_DSC_PERC, RATED_DAS_DSC, RTR_AMOUNT, RTR_STATUS) ")
-                        .append(" VALUES ")
-                        .append(" (SHP_AUDIT_RATE_DETAILS_S.NEXTVAL, b.manifest_id, SYSDATE, " + userName + ", " + userName + ", SYSDATE, ")
-                        .append(dimDivisor + ", " + rateDetails.getShipperCategory() + ", " + ratedWeight + ", " + rateDetails.getContractName() + ", ")
-                        .append(fuelTablePercentage + ", " + ratedBaseDiscount + ", " + ratedEarnedDiscount + ", " + ratedMinMaxAdj + ", ")
-                        .append(fuelSurchargeDsc + ", " + custFuelSurchargeDsc + ", " + ratedGrossFuel + ", " + resDsc + ", " + resDscPerc + ", ")
-                        .append(dasDsc + ", " + rtrAmount + ", " + rateDetails.getRtrStatus() + ") ");
-
-            }
-            st.executeUpdate(sqlQuery.toString());
-            conn.commit();
         }catch (SQLException sqle) {
-            try {
-                conn.rollback();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
             System.out.println("Exception in updateShipmentRateDetails -- > "+sqle.getStackTrace());
         }  catch (ServiceLocatorException sle) {
-            try {
-                conn.rollback();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
             System.out.println("Exception in updateShipmentRateDetails -- > "+sle.getStackTrace());
         }finally {
             try {
-                if (st != null)
-                    st.close();
+                if (cstmt != null)
+                    cstmt.close();
             } catch (SQLException sqle) {
             }
             try {
@@ -518,147 +416,52 @@ public class DirectJDBCDAO {
         return ratedChargeDetailsDtoList;
     }
 
-    public void updateAllShipmentRateDetails(String referenceTableName, Long entityId, String userName, ParcelRateDetailsDto rateDetails){
+    public void updateAllShipmentRateDetails(String referenceTableName, String entityIds, String userName, ParcelRateDetailsDto rateDetails){
         Connection conn = null;
-        Statement st = null;
+        CallableStatement cstmt =null;
         try{
             conn = ServiceLocator.getDatabaseConnection();
-            StringBuilder sqlQuery = new StringBuilder();
-            String dimDivisor = (rateDetails.getDimDivisor() != null ? rateDetails.getDimDivisor().toString() : "0.0");
-            String ratedWeight = (rateDetails.getRatedWeight() != null ? rateDetails.getRatedWeight().toString() : "0.0");
-            String fuelTablePercentage = (rateDetails.getFuelTablePercentage() != null ? rateDetails.getFuelTablePercentage().toString() : "0.0");
-            String ratedBaseDiscount = (rateDetails.getRatedBaseDiscount() != null ? rateDetails.getRatedBaseDiscount().toString() : "0.0");
-            String ratedEarnedDiscount = (rateDetails.getRatedEarnedDiscount() != null ? rateDetails.getRatedEarnedDiscount().toString() : "0.0");
-            String ratedMinMaxAdj = (rateDetails.getRatedMinMaxAdjustment() != null ? rateDetails.getRatedMinMaxAdjustment().toString() : "0.0");
-            String fuelSurchargeDsc = (rateDetails.getRatedFuelSurchargeDiscount() != null ? rateDetails.getRatedFuelSurchargeDiscount().toString() : "0.0");
-            String custFuelSurchargeDsc = (rateDetails.getRatedCustomFuelSurchargeDiscount() != null ? rateDetails.getRatedCustomFuelSurchargeDiscount().toString() : "0.0" );
-            String ratedGrossFuel = (rateDetails.getRatedGrossFuel() != null ? rateDetails.getRatedGrossFuel().toString() : "0.0");
-            String resDsc = (rateDetails.getResidentialSurchargeDiscount() != null ? rateDetails.getResidentialSurchargeDiscount().toString() : "0.0");
-            String resDscPerc = (rateDetails.getResidentialSurchargeDiscountPercentage() != null ? rateDetails.getResidentialSurchargeDiscountPercentage().toString() : "0.0");
-            String dasDsc = (rateDetails.getDeliveryAreaSurchargeDiscount() != null ? rateDetails.getDeliveryAreaSurchargeDiscount().toString() : "0.0");
-            String rtrAmount = (rateDetails.getRtrAmount() != null ? rateDetails.getRtrAmount().toString() : "0.0");
-            String freightCharge = rateDetails.getFreightCharge() != null ? rateDetails.getFreightCharge().toString() : "0.0";
-            String fuelSurcharge = rateDetails.getFuelSurcharge() != null ? rateDetails.getFuelSurcharge().toString() : "0.0";
-            String acc1 = rateDetails.getAccessorial1() != null ? rateDetails.getAccessorial1().toString() : "0.0";
-            String acc2 = rateDetails.getAccessorial1() != null ? rateDetails.getAccessorial2().toString() : "0.0";
-            String acc3 = rateDetails.getAccessorial1() != null ? rateDetails.getAccessorial3().toString() : "0.0";
-            String acc4 = rateDetails.getAccessorial1() != null ? rateDetails.getAccessorial4().toString() : "0.0";
+            cstmt = conn.prepareCall("{ call SHP_SAVE_ALL_RATE_DETAILS_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
+            cstmt.setString(1,referenceTableName);
+            cstmt.setString(2,entityIds);
+            cstmt.setString(3,userName);
+            cstmt.setBigDecimal(4,rateDetails != null && rateDetails.getDimDivisor() != null ? rateDetails.getDimDivisor() : new BigDecimal("0"));
+            cstmt.setString(5, rateDetails != null && rateDetails.getShipperCategory() != null ? rateDetails.getShipperCategory() : "");
+            cstmt.setBigDecimal(6, rateDetails != null && rateDetails.getRatedWeight() != null ? rateDetails.getRatedWeight() : new BigDecimal("0"));
+            cstmt.setString(7, rateDetails != null && rateDetails.getContractName() != null ? rateDetails.getContractName() : "");
+            cstmt.setBigDecimal(8, rateDetails != null && rateDetails.getFuelTablePercentage() != null ? rateDetails.getFuelTablePercentage() : new BigDecimal("0"));
+            cstmt.setBigDecimal(9, rateDetails != null && rateDetails.getRatedFuelSurchargeDiscount() != null ? rateDetails.getRatedFuelSurchargeDiscount() : new BigDecimal("0"));
+            cstmt.setBigDecimal(10, rateDetails != null && rateDetails.getRatedCustomFuelSurchargeDiscount() != null ? rateDetails.getRatedCustomFuelSurchargeDiscount() : new BigDecimal("0"));
+            cstmt.setBigDecimal(11, rateDetails != null && rateDetails.getRatedBaseDiscount() != null ? rateDetails.getRatedBaseDiscount() : new BigDecimal("0"));
+            cstmt.setBigDecimal(12, rateDetails != null && rateDetails.getRatedEarnedDiscount() != null ? rateDetails.getRatedEarnedDiscount() : new BigDecimal("0"));
+            cstmt.setBigDecimal(13, rateDetails != null && rateDetails.getRatedMinMaxAdjustment() != null ? rateDetails.getRatedMinMaxAdjustment() : new BigDecimal("0"));
+            cstmt.setBigDecimal(14, rateDetails != null && rateDetails.getRatedGrossFuel() != null ? rateDetails.getRatedGrossFuel() : new BigDecimal("0"));
+            cstmt.setBigDecimal(15, rateDetails != null && rateDetails.getResidentialSurchargeDiscount() != null ? rateDetails.getResidentialSurchargeDiscount() : new BigDecimal("0"));
+            cstmt.setBigDecimal(16, rateDetails != null && rateDetails.getResidentialSurchargeDiscountPercentage() != null ? rateDetails.getResidentialSurchargeDiscountPercentage() : new BigDecimal("0"));
+            cstmt.setBigDecimal(17, rateDetails != null && rateDetails.getDeliveryAreaSurchargeDiscount() != null ? rateDetails.getDeliveryAreaSurchargeDiscount() : new BigDecimal("0"));
+            cstmt.setBigDecimal(18 , rateDetails != null && rateDetails.getFreightCharge() != null ? rateDetails.getFreightCharge() : new BigDecimal("0"));
+            cstmt.setBigDecimal(19, rateDetails != null && rateDetails.getFuelSurcharge() != null ? rateDetails.getFuelSurcharge() : new BigDecimal("0"));
+            cstmt.setBigDecimal(20, rateDetails != null && rateDetails.getAccessorial1() != null ? rateDetails.getAccessorial1() : new BigDecimal("0"));
+            cstmt.setBigDecimal(21, rateDetails != null && rateDetails.getAccessorial2() != null ? rateDetails.getAccessorial2() : new BigDecimal("0"));
+            cstmt.setBigDecimal(22, rateDetails != null && rateDetails.getAccessorial3() != null ? rateDetails.getAccessorial3() : new BigDecimal("0"));
+            cstmt.setBigDecimal(23, rateDetails != null && rateDetails.getAccessorial4() != null ? rateDetails.getAccessorial4() : new BigDecimal("0"));
+            cstmt.setString(24, rateDetails != null && rateDetails.getAccessorial1Code() != null ? rateDetails.getAccessorial1Code() : "");
+            cstmt.setString(25, rateDetails != null && rateDetails.getAccessorial2Code() != null ? rateDetails.getAccessorial2Code() : "");
+            cstmt.setString(26, rateDetails != null && rateDetails.getAccessorial3Code() != null ? rateDetails.getAccessorial3Code() : "");
+            cstmt.setString(27, rateDetails != null && rateDetails.getAccessorial4Code() != null ? rateDetails.getAccessorial4Code() : "");
+            cstmt.setBigDecimal(28, rateDetails != null && rateDetails.getRtrAmount() != null ? rateDetails.getRtrAmount() : new BigDecimal("0"));
+            cstmt.setString(29, rateDetails != null && rateDetails.getRtrStatus() != null ? rateDetails.getRtrStatus() : "");
+            cstmt.executeUpdate();
 
-            if(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME.equalsIgnoreCase(referenceTableName)) {
-                sqlQuery.append(" MERGE INTO SHP_AUDIT_RATE_DETAILS_TB ar USING ")
-                        .append(" (SELECT " + entityId + " AS manifest_id ")
-                        .append(" FROM DUAL ")
-                        .append(" ) b ON (ar.EBILL_MANIFEST_ID = b.manifest_id) ")
-                        .append(" WHEN MATCHED THEN ")
-                        .append(" UPDATE ")
-                        .append(" SET LAST_UPDATE_USER = " + userName + ", ")
-                        .append(" LAST_UPDATE_DATE = SYSDATE, ")
-                        .append(" DIM_DIVISOR    = " + dimDivisor + ", ")
-                        .append(" SHIPPER_CATEGORY = " + rateDetails.getShipperCategory() + ", ")
-                        .append(" RATED_WEIGHT  = " + ratedWeight + ", ")
-                        .append(" CONTRACT_NAME  = " + rateDetails.getContractName() + ", ")
-                        .append(" FUEL_TABLE_PERC = " + fuelTablePercentage + ", ")
-                        .append(" RATED_BASE_DISCOUNT = " + ratedBaseDiscount + ", ")
-                        .append(" RATED_EARNED_DISCOUNT = " + ratedEarnedDiscount + ", ")
-                        .append(" RATED_MIN_MAX_ADJ = " + ratedMinMaxAdj + ", ")
-                        .append(" RATED_FUEL_SURCHARGE_DISC = " + fuelSurchargeDsc + ", ")
-                        .append(" RATED_CUST_FUEL_SURCHARGE_DISC = " + custFuelSurchargeDsc + ", ")
-                        .append(" RATED_GROSS_FUEL = " + ratedGrossFuel + ", ")
-                        .append(" RES_SURCHARGE_DSC = " + resDsc + ", ")
-                        .append(" RES_SURCHARGE_DSC_PERC = " + resDscPerc + ", ")
-                        .append(" RATED_DAS_DSC = " + dasDsc + ", ")
-                        .append(" RTR_AMOUNT = " + rtrAmount + ", ")
-                        .append(" RTR_STATUS = " + rateDetails.getRtrStatus() + ", ")
-                        .append(" FRT_CHARGE = " + freightCharge + ", ")
-                        .append(" FSC_CHARGE =  " + fuelSurcharge + ", ")
-                        .append(" ACCESSORIAL_1 = " + acc1 + ", ")
-                        .append(" ACCESSORIAL_2 = " + acc2 + ", ")
-                        .append(" ACCESSORIAL_3 = " + acc3 + ", ")
-                        .append(" ACCESSORIAL_4 = " + acc4 + ", ")
-                        .append(" ACCESSORIAL_1_CODE = " + rateDetails.getAccessorial1Code() + ", ")
-                        .append(" ACCESSORIAL_2_CODE =  " + rateDetails.getAccessorial2Code() + ", ")
-                        .append(" ACCESSORIAL_3_CODE = " + rateDetails.getAccessorial3Code() + ", ")
-                        .append(" ACCESSORIAL_4_CODE = " + rateDetails.getAccessorial4Code())
-                        .append(" WHEN NOT MATCHED THEN ")
-                        .append(" INSERT ")
-                        .append(" (AUDIT_RATE_DETAILS_ID, EBILL_MANIFEST_ID, CREATE_DATE, CREATE_USER, LAST_UPDATE_USER, LAST_UPDATE_DATE, ")
-                        .append(" DIM_DIVISOR, SHIPPER_CATEGORY, RATED_WEIGHT, CONTRACT_NAME, FUEL_TABLE_PERC, RATED_BASE_DISCOUNT, RATED_EARNED_DISCOUNT, ")
-                        .append(" RATED_MIN_MAX_ADJ, RATED_FUEL_SURCHARGE_DISC, RATED_CUST_FUEL_SURCHARGE_DISC, RATED_GROSS_FUEL, RES_SURCHARGE_DSC, ")
-                        .append(" RES_SURCHARGE_DSC_PERC, RATED_DAS_DSC, RTR_AMOUNT, RTR_STATUS, FRT_CHARGE, FSC_CHARGE, FRT_CHARGE, FSC_CHARGE ")
-                        .append(" ACCESSORIAL_1, ACCESSORIAL_2, ACCESSORIAL_3, ACCESSORIAL_4, ")
-                        .append(" ACCESSORIAL_1_CODE, ACCESSORIAL_2_CODE, ACCESSORIAL_3_CODE, ACCESSORIAL_4_CODE) ")
-                        .append(" VALUES ")
-                        .append(" (SHP_AUDIT_RATE_DETAILS_S.NEXTVAL, b.manifest_id, SYSDATE, " + userName + ", " + userName + ", SYSDATE, ")
-                        .append(dimDivisor + ", " + rateDetails.getShipperCategory() + ", " + ratedWeight + ", " + rateDetails.getContractName() + ", ")
-                        .append(fuelTablePercentage + ", " + ratedBaseDiscount + ", " + ratedEarnedDiscount + ", " + ratedMinMaxAdj + ", ")
-                        .append(fuelSurchargeDsc + ", " + custFuelSurchargeDsc + ", " + ratedGrossFuel + ", " + resDsc + ", " + resDscPerc + ", ")
-                        .append(dasDsc + ", " + rtrAmount + ", " + rateDetails.getRtrStatus() + ", " + freightCharge +", " + fuelSurcharge +", ")
-                        .append(acc1 + ", " + acc2 + ", " + acc3 + ", " + acc4)
-                        .append(rateDetails.getAccessorial1Code() + ", " + rateDetails.getAccessorial2Code() + ", " + rateDetails.getAccessorial3Code() + ", " + rateDetails.getAccessorial4Code() + ") ");
-            } else if(ParcelAuditConstant.EBILL_GFF_TABLE_NAME.equalsIgnoreCase(referenceTableName)) {
-                sqlQuery.append(" MERGE INTO SHP_AUDIT_RATE_DETAILS_TB ar USING ")
-                        .append(" (SELECT " + entityId + " AS gff_id ")
-                        .append(" FROM DUAL ")
-                        .append(" ) b ON (ar.EBILL_GFF_ID = b.gff_id) ")
-                        .append(" WHEN MATCHED THEN ")
-                        .append(" UPDATE ")
-                        .append(" SET LAST_UPDATE_USER = " + userName + ", ")
-                        .append(" LAST_UPDATE_DATE = SYSDATE, ")
-                        .append(" DIM_DIVISOR    = " + dimDivisor + ", ")
-                        .append(" SHIPPER_CATEGORY = " + rateDetails.getShipperCategory() + ", ")
-                        .append(" RATED_WEIGHT  = " + ratedWeight + ", ")
-                        .append(" CONTRACT_NAME  = " + rateDetails.getContractName() + ", ")
-                        .append(" FUEL_TABLE_PERC = " + fuelTablePercentage + ", ")
-                        .append(" RATED_BASE_DISCOUNT = " + ratedBaseDiscount + ", ")
-                        .append(" RATED_EARNED_DISCOUNT = " + ratedEarnedDiscount + ", ")
-                        .append(" RATED_MIN_MAX_ADJ = " + ratedMinMaxAdj + ", ")
-                        .append(" RATED_FUEL_SURCHARGE_DISC = " + fuelSurchargeDsc + ", ")
-                        .append(" RATED_CUST_FUEL_SURCHARGE_DISC = " + custFuelSurchargeDsc + ", ")
-                        .append(" RATED_GROSS_FUEL = " + ratedGrossFuel + ", ")
-                        .append(" RES_SURCHARGE_DSC = " + resDsc + ", ")
-                        .append(" RES_SURCHARGE_DSC_PERC = " + resDscPerc + ", ")
-                        .append(" RATED_DAS_DSC = " + dasDsc + ", ")
-                        .append(" RTR_AMOUNT = " + rtrAmount + ", ")
-                        .append(" RTR_STATUS = " + rateDetails.getRtrStatus())
-                        .append(" FRT_CHARGE = " + freightCharge + ", ")
-                        .append(" FSC_CHARGE =  " + fuelSurcharge + ", ")
-                        .append(" ACCESSORIAL_1 = " + acc1 + ", ")
-                        .append(" ACCESSORIAL_2 = " + acc2 + ", ")
-                        .append(" ACCESSORIAL_3 = " + acc3 + ", ")
-                        .append(" ACCESSORIAL_4 = " + acc4 + ", ")
-                        .append(" ACCESSORIAL_1_CODE = " + rateDetails.getAccessorial1Code() + ", ")
-                        .append(" ACCESSORIAL_2_CODE =  " + rateDetails.getAccessorial2Code() + ", ")
-                        .append(" ACCESSORIAL_3_CODE = " + rateDetails.getAccessorial3Code() + ", ")
-                        .append(" ACCESSORIAL_4_CODE = " + rateDetails.getAccessorial4Code())
-                        .append(" WHEN NOT MATCHED THEN ")
-                        .append(" INSERT ")
-                        .append(" (AUDIT_RATE_DETAILS_ID, EBILL_MANIFEST_ID, CREATE_DATE, CREATE_USER, LAST_UPDATE_USER, LAST_UPDATE_DATE, ")
-                        .append(" DIM_DIVISOR, SHIPPER_CATEGORY, RATED_WEIGHT, CONTRACT_NAME, FUEL_TABLE_PERC, RATED_BASE_DISCOUNT, RATED_EARNED_DISCOUNT, ")
-                        .append(" RATED_MIN_MAX_ADJ, RATED_FUEL_SURCHARGE_DISC, RATED_CUST_FUEL_SURCHARGE_DISC, RATED_GROSS_FUEL, RES_SURCHARGE_DSC, ")
-                        .append(" RES_SURCHARGE_DSC_PERC, RATED_DAS_DSC, RTR_AMOUNT, RTR_STATUS, FRT_CHARGE, FSC_CHARGE, FRT_CHARGE, FSC_CHARGE ")
-                        .append(" ACCESSORIAL_1, ACCESSORIAL_2, ACCESSORIAL_3, ACCESSORIAL_4, ")
-                        .append(" ACCESSORIAL_1_CODE, ACCESSORIAL_2_CODE, ACCESSORIAL_3_CODE, ACCESSORIAL_4_CODE) ")
-                        .append(" VALUES ")
-                        .append(" (SHP_AUDIT_RATE_DETAILS_S.NEXTVAL, b.manifest_id, SYSDATE, " + userName + ", " + userName + ", SYSDATE, ")
-                        .append(dimDivisor + ", " + rateDetails.getShipperCategory() + ", " + ratedWeight + ", " + rateDetails.getContractName() + ", ")
-                        .append(fuelTablePercentage + ", " + ratedBaseDiscount + ", " + ratedEarnedDiscount + ", " + ratedMinMaxAdj + ", ")
-                        .append(fuelSurchargeDsc + ", " + custFuelSurchargeDsc + ", " + ratedGrossFuel + ", " + resDsc + ", " + resDscPerc + ", ")
-                        .append(dasDsc + ", " + rtrAmount + ", " + rateDetails.getRtrStatus() + ", " + freightCharge +", " + fuelSurcharge +", ")
-                        .append(acc1 + ", " + acc2 + ", " + acc3 + ", " + acc4)
-                        .append(rateDetails.getAccessorial1Code() + ", " + rateDetails.getAccessorial2Code() + ", " + rateDetails.getAccessorial3Code() + ", " + rateDetails.getAccessorial4Code() + ") ");;
-
-            }
-            st.executeUpdate(sqlQuery.toString());
-            conn.commit();
         }catch (SQLException sqle) {
-            System.out.println("Exception in updateShipmentRateDetails -- > "+sqle.getStackTrace());
+            System.out.println("Exception in updateAllShipmentRateDetails -- > "+sqle.getStackTrace());
         }  catch (ServiceLocatorException sle) {
-            System.out.println("Exception in updateShipmentRateDetails -- > "+sle.getStackTrace());
+            System.out.println("Exception in updateAllShipmentRateDetails -- > "+sle.getStackTrace());
         }finally {
 
             try {
-                if (st != null)
-                    st.close();
+                if (cstmt != null)
+                    cstmt.close();
             } catch (SQLException sqle) {
             }
             try {

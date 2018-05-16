@@ -1274,7 +1274,7 @@ public class ParcelRTRService{
                 }
             }
             if(entityIds.length() > 0){
-                parcelRTRDao.updateInvoiceAmountByIds(entityIds.toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rtrStatus.value, parcelAuditDetails.get(0).getCarrierId());
+                parcelRTRDao.updateRtrStatusByIds(entityIds.toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rtrStatus.value, parcelAuditDetails.get(0).getCarrierId());
             }
         }
     }
@@ -1331,6 +1331,7 @@ public class ParcelRTRService{
         }
     }
 
+    @Deprecated
     private void updateInvoiceRtrStatus(Long invoiceId, Map<String, String> shipmentStatusMap) {
         String userName = "ParcelRTRRating";
         if(shipmentStatusMap != null && !shipmentStatusMap.isEmpty()){
