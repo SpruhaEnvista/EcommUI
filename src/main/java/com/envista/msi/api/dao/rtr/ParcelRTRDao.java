@@ -37,15 +37,15 @@ public class ParcelRTRDao {
             queryParameter.and("p_customer_CSV", "");
         }
         List<ParcelAuditDetailsDto> parcelAuditDetailsList = persistentContext.findEntitiesAndMapFields(ParcelAuditDetailsDto.Config.StoredProcedureQueryName.AUDIT_UPS_PARCEL_DETAILS, queryParameter);
-        if (parcelAuditDetailsList != null && !parcelAuditDetailsList.isEmpty()) {
-            for (ParcelAuditDetailsDto auditDetails : parcelAuditDetailsList) {
-                if (auditDetails != null) {
+        if(parcelAuditDetailsList != null && !parcelAuditDetailsList.isEmpty()) {
+            for(ParcelAuditDetailsDto auditDetails : parcelAuditDetailsList) {
+                if (auditDetails != null ) {
                     persistentContext.getHibernateSession().evict(auditDetails);
 
-                    if (auditDetails.getPackageDimension() != null && !auditDetails.getPackageDimension().isEmpty()) {
-                        try {
-                            String[] dimension = auditDetails.getPackageDimension().toLowerCase().split("x");
-                            if (dimension != null && dimension.length > 0) {
+                    if(auditDetails.getPackageDimension() != null && !auditDetails.getPackageDimension().isEmpty()){
+                        try{
+                            String [] dimension = auditDetails.getPackageDimension().toLowerCase().split("x");
+                            if(dimension != null && dimension.length > 0){
                                 auditDetails.setDimLength(dimension[0] != null ? dimension[0].trim() : "");
                                 auditDetails.setDimWidth(dimension[1] != null ? dimension[1].trim() : "");
                                 auditDetails.setDimHeight(dimension[2] != null ? dimension[2].trim() : "");
@@ -70,12 +70,12 @@ public class ParcelRTRDao {
         return loadUpsParcelAuditDetails(customerIds, null, null, null, null, ignoreRtrStatus);
     }
 
-    public List<ParcelAuditDetailsDto> loadNonUpsParcelAuditDetails(String customerIds, String fromDate, String toDate, String carrierIds, String trackingNumbers, String invoiceId){
+    public List<ParcelAuditDetailsDto> loadNonUpsParcelAuditDetails(String customerIds, String fromDate, String toDate, String carrierIds, String trackingNumbers, String invoiceId, boolean ignoreRtrStatus){
         QueryParameter queryParameter = QueryParameter.with("p_from_date", fromDate)
                 .and("p_to_date", toDate).and("p_carrier_ids", carrierIds)
                 .and("p_tracking_numbers", trackingNumbers)
                 .and("p_invoice_id", invoiceId)
-                .and("p_ignore_rtr_status", 1);
+                .and("p_ignore_rtr_status", ignoreRtrStatus ? 1 : 0);
 
         if(customerIds != null && !customerIds.isEmpty()){
             queryParameter.and("p_customer_CSV", customerIds);
@@ -84,12 +84,12 @@ public class ParcelRTRDao {
         }
         List<ParcelAuditDetailsDto> parcelAuditDetailsList = persistentContext.findEntitiesAndMapFields(ParcelAuditDetailsDto.Config.StoredProcedureQueryName.AUDIT_NOT_UPS_PARCEL_DETAILS, queryParameter);
 
-        if (parcelAuditDetailsList != null) {
-            for (ParcelAuditDetailsDto auditDetails : parcelAuditDetailsList) {
-                if (auditDetails != null) {
+        if (parcelAuditDetailsList != null){
+            for(ParcelAuditDetailsDto auditDetails : parcelAuditDetailsList) {
+                if(auditDetails != null) {
                     persistentContext.getHibernateSession().evict(auditDetails);
 
-                    if (auditDetails.getDwFieldInformation() != null) {
+                    if(auditDetails.getDwFieldInformation() != null) {
                         try {
                             String[] dwFieldInfo = auditDetails.getDwFieldInformation().split(",");
                             if (dwFieldInfo != null && dwFieldInfo.length > 0) {
@@ -106,11 +106,11 @@ public class ParcelRTRDao {
     }
 
     public List<ParcelAuditDetailsDto> loadNonUpsParcelAuditDetails(String fromDate, String toDate, String carrierIds, String trackingNumbers){
-        return loadNonUpsParcelAuditDetails(null, fromDate, toDate, carrierIds, trackingNumbers, null);
+        return loadNonUpsParcelAuditDetails(null, fromDate, toDate, carrierIds, trackingNumbers, null, false);
     }
 
-    public List<ParcelAuditDetailsDto> loadNonUpsParcelAuditDetails(String customerIds, String trackingNumbers, String carrierId){
-        return loadNonUpsParcelAuditDetails(customerIds, null, null, carrierId, trackingNumbers, null);
+    public List<ParcelAuditDetailsDto> loadNonUpsParcelAuditDetails(String customerIds, String trackingNumbers, String carrierId, boolean idnoreRtrStatus){
+        return loadNonUpsParcelAuditDetails(customerIds, null, null, carrierId, trackingNumbers, null, idnoreRtrStatus);
     }
 
     public void updateRTRInvoiceAmount(Long id, String userName, BigDecimal rtrAmount, String rtrStatus, Long carrierId){

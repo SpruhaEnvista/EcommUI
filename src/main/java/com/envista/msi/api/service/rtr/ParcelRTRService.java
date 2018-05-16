@@ -71,24 +71,11 @@ public class ParcelRTRService{
      * @return
      */
     public Map<String, List<ParcelAuditDetailsDto>> loadNonUpsParcelAuditDetails(String customerId, String fromDate, String toDate, String trackingNumbers){
-        return prepareTrackingNumberWiseAuditDetails(parcelRTRDao.loadNonUpsParcelAuditDetails(customerId, fromDate, toDate, ParcelAuditConstant.NON_UPS_CARRIER_IDS, trackingNumbers, null));
+        return prepareTrackingNumberWiseAuditDetails(parcelRTRDao.loadNonUpsParcelAuditDetails(customerId, fromDate, toDate, ParcelAuditConstant.NON_UPS_CARRIER_IDS, trackingNumbers, null, false));
     }
 
     public Map<String, List<ParcelAuditDetailsDto>> loadNonUpsParcelAuditDetails(String customerId, String fromDate, String toDate, String trackingNumbers, String invoiceIds){
-        return prepareTrackingNumberWiseAuditDetails(parcelRTRDao.loadNonUpsParcelAuditDetails(customerId, fromDate, toDate, ParcelAuditConstant.NON_UPS_CARRIER_IDS, trackingNumbers, invoiceIds));
-    }
-
-    /**
-     *
-     * @param invoiceId
-     * @return
-     */
-    public Map<String, List<ParcelAuditDetailsDto>> loadUpsParcelAuditDetails(String invoiceId, String trackingNumbers){
-        return prepareTrackingNumberWiseAuditDetails(parcelRTRDao.loadUpsParcelAuditDetails(null, null, null, trackingNumbers, invoiceId, 1));
-    }
-
-    public Map<String, List<ParcelAuditDetailsDto>> loadNonUpsParcelAuditDetails(String invoiceId, String trackingNumbers){
-        return prepareTrackingNumberWiseAuditDetails(parcelRTRDao.loadNonUpsParcelAuditDetails(null, null, null, ParcelAuditConstant.NON_UPS_CARRIER_IDS, trackingNumbers, invoiceId));
+        return prepareTrackingNumberWiseAuditDetails(parcelRTRDao.loadNonUpsParcelAuditDetails(customerId, fromDate, toDate, ParcelAuditConstant.NON_UPS_CARRIER_IDS, trackingNumbers, invoiceIds, false));
     }
 
     /**
@@ -149,7 +136,7 @@ public class ParcelRTRService{
                         String trackingNumber = parcelAuditEntry.getKey();
                         List<ParcelAuditDetailsDto> shipmentRecords = null;
                         if(trackingNumber != null && !trackingNumber.isEmpty()){
-                            shipmentRecords = parcelRTRDao.loadNonUpsParcelAuditDetails(customerIds, trackingNumber, "22");
+                            shipmentRecords = parcelRTRDao.loadNonUpsParcelAuditDetails(customerIds, trackingNumber, "22", true);
                             Map<Long, List<ParcelAuditDetailsDto>> shipments = ParcelRatingUtil.organiseShipmentsByParentId(shipmentRecords);
 
                             List<ParcelAuditDetailsDto> previousShipment = null;
