@@ -60,6 +60,7 @@ public class RatingQueueBean {
     private String revenueTier;
     private String trackingNumber;
     private String packageType;
+    private String hwtIdentifier;
 
     public Long getRatingQueueId() {
         return ratingQueueId;
@@ -510,5 +511,13 @@ public class RatingQueueBean {
 
     public void setPackageType(String packageType) {
         this.packageType = packageType;
+    }
+
+    public String getHwtIdentifier() {
+        return hwtIdentifier;
+    }
+
+    public void setHwtIdentifier(String hwtIdentifier) {
+        this.hwtIdentifier = hwtIdentifier;
     }
 }

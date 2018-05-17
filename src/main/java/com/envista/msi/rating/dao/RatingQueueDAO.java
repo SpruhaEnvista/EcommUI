@@ -4,14 +4,19 @@ import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditDetailsDto;
 import com.envista.msi.rating.ServiceLocator;
 import com.envista.msi.rating.ServiceLocatorException;
 import com.envista.msi.rating.bean.RatingQueueBean;
-import oracle.jdbc.OracleTypes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class RatingQueueDAO {
 
+    private final Logger log = LoggerFactory.getLogger(RatingQueueDAO.class);
 
     public RatingQueueBean getRatingBeanById(Long ratingQueueId){
         RatingQueueBean ratingQBean = null;
@@ -178,6 +183,7 @@ public class RatingQueueDAO {
                 ratingQueueBean.setRevenueTier(rs.getString("REVENUE_TIER"));
                 ratingQueueBean.setTrackingNumber(rs.getString("TRACKING_NUMBER"));
                 ratingQueueBean.setPackageType(rs.getString("PACKAGE_TYPE"));
+                ratingQueueBean.setHwtIdentifier(rs.getString("HWT_IDENTIFIER"));
                 beanList.add(ratingQueueBean);
             }
 
@@ -282,7 +288,7 @@ public class RatingQueueDAO {
         ResultSet rs = null;
         try {
             connection = ServiceLocator.getDatabaseConnection();
-            String insertQuery = RatingDAOUtil.prepareRatingQueueInsertQuery();
+            String insertQuery = RatingDAOUtil.prepareRatingQueueInsertQuery(false);
             ps = connection.prepareStatement(insertQuery);
             RatingDAOUtil.setSqlStatementPlaceHolderValues(ps, ratingQueueBean);
 
@@ -422,6 +428,7 @@ public class RatingQueueDAO {
                 shipmentDetails.setRevenueTier(rs.getString("REVENUE_TIER"));
                 shipmentDetails.setPackageType(rs.getString("PACKAGE_TYPE"));
                 shipmentDetails.setRtrStatus(rs.getString("RTR_STATUS"));
+                shipmentDetails.setMultiWeightNumber(rs.getString("MULTI_WEIGHT_NUMBER"));
                 parcelUpsShipments.add(shipmentDetails);
             }
             System.out.println("Loading Shipment for " + invoiceIds+"<--End time -->"+System.currentTimeMillis());
@@ -469,7 +476,7 @@ public class RatingQueueDAO {
             liveSqlQuery += " (select custom_defined_9 from shp_lookup_tb where lookup_id = ebmf.service_bucket) AS SERVICE_LEVEL, ebmf.DW_FIELD_INFORMATION, ";
             liveSqlQuery += " ebmf.SHIPPER_CODE AS SHIPPER_NUMBER, ebmf.PARENT_ID, DECODE (ebmf.bill_weight, 0, 'Letter', 'PKG') package_type, ";
             liveSqlQuery += " null AS PACKAGE_DIMENSION, ebmf.ACT_WEIGHT AS ACTUAL_WEIGHT, ebmf.UNIT_OF_ACTUAL_WEIGHT, RTR_AMOUNT , ";
-            liveSqlQuery += " ebmf.REVENUE_TIER AS REVENUE_TIER, ebmf.CHARGE_CODE, ebmf.rtr_status ";
+            liveSqlQuery += " ebmf.REVENUE_TIER AS REVENUE_TIER, ebmf.CHARGE_CODE, ebmf.rtr_status,Ebmf.Bundle_Number AS MULTI_WEIGHT_NUMBER ";
             liveSqlQuery += " FROM SHP_EBILL_MANIFEST_TB ebmf, SHP_EBILL_CONTRACT_TB ebc, SHP_CUSTOMER_PROFILE_TB cp, SHP_CARRIER_TB c, SHP_SHIPPER_TB s  ";
             liveSqlQuery += " WHERE ebmf.CONTRACT_NUMBER = ebc.CONTRACT_NUMBER ";
             liveSqlQuery += " AND ebc.CUSTOMER_ID = cp.CUSTOMER_ID ";
@@ -564,6 +571,7 @@ public class RatingQueueDAO {
                 shipmentDetails.setRevenueTier(rs.getString("REVENUE_TIER"));
                 shipmentDetails.setPackageType(rs.getString("PACKAGE_TYPE"));
                 shipmentDetails.setRtrStatus(rs.getString("RTR_STATUS"));
+                shipmentDetails.setMultiWeightNumber(rs.getString("MULTI_WEIGHT_NUMBER"));
                 //Need to add charge code here.
                 parcelUpsShipments.add(shipmentDetails);
             }
@@ -588,5 +596,36 @@ public class RatingQueueDAO {
             }
         }
         return parcelUpsShipments;
+    }
+
+    public void saveRatingQueueBean(List<RatingQueueBean> queueBeanList) throws SQLException {
+
+        Connection connection = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            connection = ServiceLocator.getDatabaseConnection();
+            connection.setAutoCommit(false);
+            String insertQuery = RatingDAOUtil.prepareRatingQueueInsertQuery(true);
+            ps = connection.prepareStatement(insertQuery);
+            for (RatingQueueBean bean : queueBeanList) {
+                RatingDAOUtil.setSqlStatementPlaceHolderValues(ps, bean);
+                ps.addBatch();
+            }
+            ps.executeBatch();
+            connection.commit();
+        } catch (SQLException sqle) {
+            connection.rollback();
+            log.error("Exception in getRatingQueueByJobId-- > " + sqle.getStackTrace());
+        } catch (ServiceLocatorException sle) {
+            log.error("Exception in getRatingQueueByJobId-- > " + sle.getStackTrace());
+        } finally {
+            if (rs != null)
+                rs.close();
+            if (ps != null)
+                ps.close();
+            if (connection != null)
+                connection.close();
+        }
     }
 }

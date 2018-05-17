@@ -15,6 +15,7 @@ import com.envista.msi.rating.dao.RatingQueueDAO;
 
 import javax.xml.bind.JAXBException;
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.util.*;
 
 /**
@@ -463,5 +464,11 @@ public class ParcelNonUpsRatingService {
                 }
             }
         }catch (Exception e){}
+    }
+
+    public void saveRatingQueueBean(List<RatingQueueBean> queueBeanList) throws SQLException {
+        if (queueBeanList != null) {
+            new RatingQueueDAO().saveRatingQueueBean(queueBeanList);
+        }
     }
 }

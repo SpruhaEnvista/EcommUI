@@ -3,6 +3,7 @@ package com.envista.msi.api.domain.util;
 import com.envista.msi.api.web.rest.dto.rtr.*;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant;
 import com.envista.msi.rating.bean.RatingQueueBean;
+import org.apache.commons.lang.StringUtils;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -495,6 +496,7 @@ public class ParcelRatingUtil {
         ratingQueueBean.setReceiverState(receiverState);
         ratingQueueBean.setReceiverCity(receiverCity);
         ratingQueueBean.setReceiverZip(receiverZipCode);
+        ratingQueueBean.setHwtIdentifier(firstCharge.getMultiWeightNumber());
 
         return ratingQueueBean;
     }
@@ -649,4 +651,92 @@ public class ParcelRatingUtil {
         }
         return false;
     }
+
+    /**
+     * This method will prepare bundle number or multi weight id tracking number wise details
+     *
+     * @param listMap
+     * @return
+     */
+    public static Map<String, List<ParcelAuditDetailsDto>> prepareMultiWeightNumberWiseAuditDetails(Map<String, List<ParcelAuditDetailsDto>> listMap) {
+
+        Map<String, List<ParcelAuditDetailsDto>> mwtDetailsMap = new HashMap<>();
+        Map<String, List<ParcelAuditDetailsDto>> tempMap = new HashMap<>(listMap);
+        for (Map.Entry<String, List<ParcelAuditDetailsDto>> entry : tempMap.entrySet()) {
+
+
+            for (ParcelAuditDetailsDto parcelAuditDetails : entry.getValue()) {
+                if (parcelAuditDetails != null) {
+
+                    if (parcelAuditDetails.getMultiWeightNumber() != null && !parcelAuditDetails.getMultiWeightNumber().isEmpty()) {
+                        if (mwtDetailsMap.containsKey(parcelAuditDetails.getMultiWeightNumber()))
+                            mwtDetailsMap.get(parcelAuditDetails.getMultiWeightNumber()).addAll(tempMap.get(parcelAuditDetails.getTrackingNumber()));
+                        else
+                            mwtDetailsMap.put(parcelAuditDetails.getMultiWeightNumber(), tempMap.get(parcelAuditDetails.getTrackingNumber()));
+
+                        listMap.remove(parcelAuditDetails.getTrackingNumber());
+                        break;
+                    }
+                }
+            }
+        }
+        tempMap = null;
+        return mwtDetailsMap;
+    }
+
+    /**
+     * This method will prepare Lead Shipment tracking number wise details
+     *
+     * @param listMap
+     * @return
+     */
+    public static Map<String, List<ParcelAuditDetailsDto>> prepareHwtNumberWiseAuditDetails(Map<String, List<ParcelAuditDetailsDto>> listMap) {
+
+        Map<String, List<ParcelAuditDetailsDto>> hwtDetailsMap = new HashMap<>();
+        Map<String, List<ParcelAuditDetailsDto>> tempMap = new HashMap<>(listMap);
+        for (Map.Entry<String, List<ParcelAuditDetailsDto>> entry : tempMap.entrySet()) {
+
+            for (ParcelAuditDetailsDto parcelAuditDetails : entry.getValue()) {
+                if (parcelAuditDetails != null) {
+
+                    if (parcelAuditDetails.getMultiWeightNumber() != null && !parcelAuditDetails.getMultiWeightNumber().isEmpty()) {
+                        if (hwtDetailsMap.containsKey(parcelAuditDetails.getMultiWeightNumber()))
+                            hwtDetailsMap.get(parcelAuditDetails.getMultiWeightNumber()).addAll(tempMap.get(parcelAuditDetails.getTrackingNumber()));
+                        else
+                            hwtDetailsMap.put(parcelAuditDetails.getMultiWeightNumber(), tempMap.get(parcelAuditDetails.getTrackingNumber()));
+
+                        listMap.remove(parcelAuditDetails.getTrackingNumber());
+                        break;
+                    }
+                }
+            }
+        }
+        tempMap = null;
+        return hwtDetailsMap;
+    }
+
+    /**
+     * This method will return lead shipment details
+     *
+     * @param parcelAuditDetails
+     * @return
+     */
+    public static List<ParcelAuditDetailsDto> getLeadShipmentDetails(List<ParcelAuditDetailsDto> parcelAuditDetails) {
+
+        List<ParcelAuditDetailsDto> detailsDtos = new ArrayList<>();
+
+        ParcelAuditDetailsDto minDto = parcelAuditDetails.stream().min(Comparator.comparing(ParcelAuditDetailsDto::getId)).orElseThrow(NoSuchElementException::new);
+
+        if (minDto != null) {
+            for (ParcelAuditDetailsDto dto : parcelAuditDetails) {
+
+                if (StringUtils.equalsIgnoreCase(dto.getTrackingNumber(), minDto.getTrackingNumber())) {
+
+                    detailsDtos.add(dto);
+                }
+            }
+        }
+        return detailsDtos;
+    }
+
 }

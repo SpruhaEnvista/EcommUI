@@ -19,7 +19,7 @@ import org.apache.commons.logging.LogFactory;
 
 public class ParcelRating implements Callable<String> {
 
-    private static final int MAX_THREADS = 5;
+    private static final int MAX_THREADS = 1;
 
     private RatingQueueBean ratingQueueBean = null;
     private Log m_log = LogFactory.getLog(ParcelRating.class);
@@ -45,7 +45,7 @@ public class ParcelRating implements Callable<String> {
     public void processRating(String jobIds) throws Exception{
 
         RatingQueueDAO ratingQueueDao = new RatingQueueDAO();
-        ArrayList<RatingQueueBean> beanList = ratingQueueDao.getRatingQueueByJobId(jobIds);
+        ArrayList<RatingQueueBean> beanList = ratingQueueDao.getRatingQueueByJobId("99");
 
 
         System.out.println("in process parcel rating .....");

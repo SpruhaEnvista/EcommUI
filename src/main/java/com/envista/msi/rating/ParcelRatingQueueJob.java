@@ -8,16 +8,26 @@ import com.envista.msi.rating.bean.RatingQueueBean;
 import com.envista.msi.rating.dao.DirectJDBCDAO;
 import com.envista.msi.rating.service.ParcelNonUpsRatingService;
 import com.envista.msi.rating.service.ParcelUpsRatingService;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 /**
  * Created by Sujit kumar on 01/05/2018.
  */
 public class ParcelRatingQueueJob {
+
+    private static final Logger log = LoggerFactory.getLogger(ParcelRatingQueueJob.class);
+
     public static ParcelRatingQueueJob getInstance(){return new ParcelRatingQueueJob();}
     ParcelNonUpsRatingService parcelRatingService = new ParcelNonUpsRatingService();
     public static void main(String[] args) {
@@ -74,12 +84,16 @@ public class ParcelRatingQueueJob {
             }*/
 
             if(isValidInput){
-                ParcelRatingQueueJob.getInstance().processShipments(customerId, fromShipDate, toShipDate, trackingNumbers, invoiceIds, rateTo);
+                try {
+                    ParcelRatingQueueJob.getInstance().processShipments(customerId, fromShipDate, toShipDate, trackingNumbers, invoiceIds, rateTo);
+                } catch (SQLException e) {
+                    log.error("SQLException-->" + e.getStackTrace());
+                }
             }
         }
     }
 
-    private void processShipments(String customerId, String fromShipDate, String toShipDate, String trackingNumber, String invoiceIds, String rateTo) {
+    private void processShipments(String customerId, String fromShipDate, String toShipDate, String trackingNumber, String invoiceIds, String rateTo) throws SQLException {
         List<ParcelAuditDetailsDto> allShipmentDetails = null;
         if("ups".equalsIgnoreCase(rateTo)){
             List<Long> invoiceList = new DirectJDBCDAO().loadInvoiceIds(fromShipDate, toShipDate, customerId, invoiceIds, 0, "UPS");
@@ -195,10 +209,12 @@ public class ParcelRatingQueueJob {
         }
     }
 
-    public void processFedExShipments(Map<String, List<ParcelAuditDetailsDto>> trackingNumberWiseShipments, MsiARChargeCodesDto msiARChargeCode) {
+    public void processFedExShipments(Map<String, List<ParcelAuditDetailsDto>> trackingNumberWiseShipments, MsiARChargeCodesDto msiARChargeCode) throws SQLException {
         if(trackingNumberWiseShipments != null && !trackingNumberWiseShipments.isEmpty()) {
-            if(trackingNumberWiseShipments != null && !trackingNumberWiseShipments.isEmpty()){
-                List<ParcelAuditDetailsDto> previousShipment = null;
+
+            Map<String, List<ParcelAuditDetailsDto>> mwtDetailsMap = ParcelRatingUtil.prepareMultiWeightNumberWiseAuditDetails(trackingNumberWiseShipments);
+
+            List<ParcelAuditDetailsDto> previousShipment = null;
                 Iterator<Map.Entry<String, List<ParcelAuditDetailsDto>>> entryIterator = trackingNumberWiseShipments.entrySet().iterator();
                 while(entryIterator.hasNext()){
                     Map.Entry<String,List<ParcelAuditDetailsDto>> parcelAuditEntry = entryIterator.next();
@@ -241,7 +257,7 @@ public class ParcelRatingQueueJob {
                         entryIterator.remove();
                     }
                 }
-            }
+            addMwtShipmentEntryIntoQueue(mwtDetailsMap, msiARChargeCode);
         }
     }
 
@@ -258,4 +274,28 @@ public class ParcelRatingQueueJob {
             parcelRatingService.saveRatingQueueBean(ratingQueueBean);
         }
     }
+
+
+    private void addMwtShipmentEntryIntoQueue(Map<String, List<ParcelAuditDetailsDto>> mwtDetailsMap, MsiARChargeCodesDto msiARChargeCode) throws SQLException {
+
+        List<RatingQueueBean> queueBeanList = null;
+        for (Map.Entry<String, List<ParcelAuditDetailsDto>> entry : mwtDetailsMap.entrySet()) {
+
+            Map<String, List<ParcelAuditDetailsDto>> trackingNumberWiseShipments = ParcelRatingUtil.prepareTrackingNumberWiseAuditDetails(entry.getValue());
+
+            for (Map.Entry<String, List<ParcelAuditDetailsDto>> listEntry : trackingNumberWiseShipments.entrySet()) {
+
+                RatingQueueBean ratingQueueBean = ParcelRatingUtil.prepareShipmentEntryForNonUpsShipment(listEntry.getValue(), msiARChargeCode);
+                if (queueBeanList == null)
+                    queueBeanList = new ArrayList<RatingQueueBean>();
+
+                queueBeanList.add(ratingQueueBean);
+            }
+            if (queueBeanList != null && queueBeanList.size() > 0) {
+                parcelRatingService.saveRatingQueueBean(queueBeanList);
+            }
+            queueBeanList.clear();
+        }
+    }
+
 }

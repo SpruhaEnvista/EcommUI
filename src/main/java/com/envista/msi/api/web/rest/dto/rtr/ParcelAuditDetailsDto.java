@@ -213,6 +213,9 @@ public class ParcelAuditDetailsDto {
     @Column(name = "rtr_status")
     private String rtrStatus;
 
+    @Column(name = "MULTI_WEIGHT_NUMBER")
+    private String multiWeightNumber;
+
     public ParcelAuditDetailsDto() {
     }
 
@@ -592,6 +595,14 @@ public class ParcelAuditDetailsDto {
 
     public void setRtrStatus(String rtrStatus) {
         this.rtrStatus = rtrStatus;
+    }
+
+    public String getMultiWeightNumber() {
+        return multiWeightNumber;
+    }
+
+    public void setMultiWeightNumber(String multiWeightNumber) {
+        this.multiWeightNumber = multiWeightNumber;
     }
 
     public static class Config{
