@@ -43,7 +43,7 @@ public class ParcelHwtRatingScheduler {
         // Get the scheduler
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         // Get a handle, starting now, with a 10 minutes delay
-        final ScheduledFuture<?> future = executor.scheduleWithFixedDelay(new ParcelRatingPollingService(jobIds), 0, 1, TimeUnit.MINUTES);
+        final ScheduledFuture<?> future = executor.scheduleWithFixedDelay(new ParcelHwtRatingPollingService(jobIds), 0, 1, TimeUnit.MINUTES);
         //future.cancel(false);
         //executor.shutdown();
     }

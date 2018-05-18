@@ -766,35 +766,31 @@ public class ParcelRatingUtil {
             }
         });
         Map<String, List<RatingQueueBean>> mwtDetailsMap = new HashMap<>();
-        List<RatingQueueBean> dtoList = null;
-        String prevHwtIdentifier = null;
+
+
         for (RatingQueueBean queueBean : beanList) {
 
 
             if (queueBean.getHwtIdentifier() != null && !queueBean.getHwtIdentifier().isEmpty()) {
 
-                if (dtoList == null)
-                    dtoList = new ArrayList<RatingQueueBean>();
 
-                if (prevHwtIdentifier == null || StringUtils.equalsIgnoreCase(prevHwtIdentifier, queueBean.getHwtIdentifier())) {
-                    dtoList.add(queueBean);
+
+                if (mwtDetailsMap.containsKey(queueBean.getHwtIdentifier())) {
+                    mwtDetailsMap.get(queueBean.getHwtIdentifier()).add(queueBean);
                 } else {
-                    mwtDetailsMap.put(queueBean.getHwtIdentifier(), dtoList);
-                    dtoList.clear();
+                    List<RatingQueueBean> dtoList = new ArrayList<RatingQueueBean>();
                     dtoList.add(queueBean);
+                    mwtDetailsMap.put(queueBean.getHwtIdentifier(), dtoList);
+
+
                 }
 
-                prevHwtIdentifier = queueBean.getHwtIdentifier();
+
             }
 
 
         }
-        if ((mwtDetailsMap != null && prevHwtIdentifier != null) && dtoList != null && dtoList.size() > 0) {
-            if (mwtDetailsMap.containsKey(prevHwtIdentifier))
-                mwtDetailsMap.get(prevHwtIdentifier).addAll(dtoList);
-            else
-                mwtDetailsMap.put(prevHwtIdentifier, dtoList);
-        }
+
 
         return mwtDetailsMap;
 
