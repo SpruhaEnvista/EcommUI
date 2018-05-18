@@ -652,11 +652,11 @@ public class ParcelRatingUtil {
         return false;
     }
 
-    public static ParcelAuditDetailsDto findFrtCharge(List<ParcelAuditDetailsDto> shipment){
-        if(shipment != null) {
-            for(ParcelAuditDetailsDto charge : shipment){
-                if(charge != null){
-                    if("FRT".equalsIgnoreCase(charge.getChargeClassificationCode())){
+    public static ParcelAuditDetailsDto findFrtCharge(List<ParcelAuditDetailsDto> shipment) {
+        if (shipment != null) {
+            for (ParcelAuditDetailsDto charge : shipment) {
+                if (charge != null) {
+                    if ("FRT".equalsIgnoreCase(charge.getChargeClassificationCode())) {
                         return charge;
                     }
                 }

@@ -114,11 +114,11 @@ public class ParcelUpsRatingService {
                                                         boolean hasFrtCharge = false;
                                                         boolean frtChargeManipulated = false;
                                                         ParcelAuditDetailsDto frtCharged = ParcelRatingUtil.findFrtCharge(shipmentToRate);
-                                                        if(frtCharged != null) {
+                                                        if (frtCharged != null) {
                                                             hasFrtCharge = true;
-                                                            if(frtCharged.getPackageWeight() != null && !frtCharged.getPackageWeight().isEmpty() && Float.parseFloat(frtCharged.getPackageWeight()) == 0) {
+                                                            if (frtCharged.getPackageWeight() != null && !frtCharged.getPackageWeight().isEmpty() && Float.parseFloat(frtCharged.getPackageWeight()) == 0) {
                                                                 ParcelAuditDetailsDto prevShipmentFrtCharge = ParcelRatingUtil.findFrtCharge(previousShipment);
-                                                                if(prevShipmentFrtCharge != null && prevShipmentFrtCharge.getPackageWeight() != null
+                                                                if (prevShipmentFrtCharge != null && prevShipmentFrtCharge.getPackageWeight() != null
                                                                         && !prevShipmentFrtCharge.getPackageWeight().isEmpty() && Float.parseFloat(prevShipmentFrtCharge.getPackageWeight()) > 0) {
                                                                     frtCharged.setPackageWeight(prevShipmentFrtCharge.getPackageWeight());
                                                                     frtCharged.setWeightUnit(prevShipmentFrtCharge.getWeightUnit());
@@ -133,7 +133,7 @@ public class ParcelUpsRatingService {
                                                                     frtChargeManipulated = true;
                                                                 }
                                                             }
-                                                        }else {
+                                                        } else {
                                                             hasFrtCharge = false;
                                                         }
                                                         boolean hasFSCCharge = ParcelRatingUtil.containsFuelSurcharge(shipmentToRate);
@@ -144,7 +144,7 @@ public class ParcelUpsRatingService {
                                                             if(!hasFSCCharge && ParcelAuditConstant.ChargeClassificationCode.FSC.name().equalsIgnoreCase(prevShpCharge.getChargeClassificationCode())) {
                                                                 shipmentToRate.add(prevShpCharge);
                                                             }
-                                                            if(!hasFrtCharge && !frtChargeManipulated && ParcelAuditConstant.ChargeClassificationCode.FRT.name().equalsIgnoreCase(prevShpCharge.getChargeClassificationCode())) {
+                                                            if (!hasFrtCharge && !frtChargeManipulated && ParcelAuditConstant.ChargeClassificationCode.FRT.name().equalsIgnoreCase(prevShpCharge.getChargeClassificationCode())) {
                                                                 shipmentToRate.add(prevShpCharge);
                                                             }
                                                         }

@@ -318,14 +318,14 @@ public class ParcelRTRDao {
         }
     }
 
-    public void updateRtrStatusByIds(String entityIds, String userName, String rtrStatus, Long carrierId){
-        try{
+    public void updateRtrStatusByIds(String entityIds, String userName, String rtrStatus, Long carrierId) {
+        try {
             QueryParameter queryParameter = StoredProcedureParameter.withPosition(1, ParameterMode.IN, String.class, entityIds)
                     .andPosition(2, ParameterMode.IN, String.class, userName)
                     .andPosition(3, ParameterMode.IN, String.class, rtrStatus)
                     .andPosition(4, ParameterMode.IN, Long.class, carrierId);
             persistentContext.executeStoredProcedure("SHP_UPDATE_RTR_STATUS_PROC", queryParameter);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             throw new DaoException("Error while updating invoice amount", e);
         }

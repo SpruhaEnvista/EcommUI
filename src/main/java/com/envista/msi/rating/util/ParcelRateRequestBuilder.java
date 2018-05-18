@@ -62,15 +62,13 @@ public class ParcelRateRequestBuilder {
 
             List<ParcelRateRequest.Item> items = new ArrayList<>();
             List<ParcelRateRequest.ServiceFlag> serviceFlagList = new ArrayList<>();
-            int sequence = 1;
             if (queueBeans == null) {
 
-                prepareItems(serviceFlagList, items, ratingQueueBean, sequence);
+                prepareItems(serviceFlagList, items, ratingQueueBean);
             } else {
                 for (RatingQueueBean queueBean : queueBeans) {
 
-                    prepareItems(serviceFlagList, items, queueBean, sequence);
-                    sequence++;
+                    prepareItems(serviceFlagList, items, queueBean);
                 }
             }
 
@@ -134,9 +132,8 @@ public class ParcelRateRequestBuilder {
      * @param serviceFlagList
      * @param items
      * @param ratingQueueBean
-     * @param sequence
-     */
-    private static void prepareItems(List<ParcelRateRequest.ServiceFlag> serviceFlagList, List<ParcelRateRequest.Item> items, RatingQueueBean ratingQueueBean, int sequence) {
+     * */
+    private static void prepareItems(List<ParcelRateRequest.ServiceFlag> serviceFlagList, List<ParcelRateRequest.Item> items, RatingQueueBean ratingQueueBean) {
 
 
         ParcelRateRequest.Weight weightObj = new ParcelRateRequest.Weight();
@@ -177,7 +174,7 @@ public class ParcelRateRequestBuilder {
 
         ParcelRateRequest.Item item = new ParcelRateRequest.Item();
         //removed parentid here in the sequence, because while making int value for sequence, it is generating some negating value.
-        item.setSequence(sequence);
+        item.setSequence(ratingQueueBean.getParentId());
         item.setWeight(weightObj);
         item.setActualWeight(actualWeightElement);
         item.setQuantity(quantityObj);
@@ -190,7 +187,7 @@ public class ParcelRateRequestBuilder {
                 if (acc != null && !acc.isEmpty()) {
                     ParcelRateRequest.ServiceFlag serviceFlag = new ParcelRateRequest.ServiceFlag();
                     serviceFlag.setCode(acc);
-                    serviceFlag.setSequence(sequence);
+                    serviceFlag.setSequence(ratingQueueBean.getParentId());
                     serviceFlagList.add(serviceFlag);
                 }
             }

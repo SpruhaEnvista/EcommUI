@@ -25,11 +25,11 @@ public class ParcelRatingScheduler {
      * @param args
      */
     public static void main(String[] args) throws Exception {
-        String jobIds="1,2,3,4,5,6,7,8,9,10";
-        if(args!=null && args.length>0){
+        String jobIds = "1,2,3,4,5,6,7,8,9,10";
+        if (args != null && args.length > 0) {
             jobIds = args[0];
         }
-        File file = new File("ParcelRatingScheduler"+jobIds.replaceAll(",",""));
+        File file = new File("ParcelRatingScheduler" + jobIds.replaceAll(",", ""));
         FileChannel channel = new RandomAccessFile(file, "rw").getChannel();
         FileLock lock = null;
         try {

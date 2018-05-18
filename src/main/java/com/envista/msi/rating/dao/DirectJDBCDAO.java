@@ -67,10 +67,10 @@ public class DirectJDBCDAO {
         }
     }
 
-    public void updateRtrStatusByIds(String entityIds, String userName, String rtrStatus, Long carrierId){
+    public void updateRtrStatusByIds(String entityIds, String userName, String rtrStatus, Long carrierId) {
         Connection conn = null;
-        CallableStatement cstmt =null;
-        try{
+        CallableStatement cstmt = null;
+        try {
             conn = ServiceLocator.getDatabaseConnection();
             cstmt = conn.prepareCall("{ call SHP_UPDATE_RTR_STATUS_PROC(?,?,?,?)}");
             cstmt.setString(1, entityIds);
@@ -80,9 +80,9 @@ public class DirectJDBCDAO {
             cstmt.executeUpdate();
 
         }catch (SQLException sqle) {
-            System.out.println("Exception in updateRtrStatusByIds -- > "+sqle.getStackTrace());
+            System.out.println("Exception in updateRtrStatusByIds -- > " + sqle.getStackTrace());
         }  catch (ServiceLocatorException sle) {
-            System.out.println("Exception in updateRtrStatusByIds -- > "+sle.getStackTrace());
+            System.out.println("Exception in updateRtrStatusByIds -- > " + sle.getStackTrace());
         }finally {
             try {
                 if (cstmt != null)
@@ -176,6 +176,7 @@ public class DirectJDBCDAO {
             }
         }
     }
+
     public void updateShipmentRateDetails(String referenceTableName, String entityId, String userName, ParcelRateDetailsDto rateDetails) {
         Connection conn = null;
         CallableStatement cstmt = null;
@@ -183,7 +184,7 @@ public class DirectJDBCDAO {
             conn = ServiceLocator.getDatabaseConnection();
             cstmt = conn.prepareCall("{ call SHP_SAVE_RATE_DETAILS_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
             cstmt.setString(1,referenceTableName);
-            cstmt.setString(2,entityId);
+            cstmt.setString(2, entityId);
             cstmt.setString(3,userName);
             cstmt.setBigDecimal(4,rateDetails != null && rateDetails.getDimDivisor() != null ? rateDetails.getDimDivisor() : new BigDecimal("0"));
             cstmt.setString(5, rateDetails != null && rateDetails.getShipperCategory() != null ? rateDetails.getShipperCategory() : "");
@@ -454,9 +455,9 @@ public class DirectJDBCDAO {
             cstmt.executeUpdate();
 
         }catch (SQLException sqle) {
-            System.out.println("Exception in updateAllShipmentRateDetails -- > "+sqle.getStackTrace());
+            System.out.println("Exception in updateAllShipmentRateDetails -- > " + sqle.getStackTrace());
         }  catch (ServiceLocatorException sle) {
-            System.out.println("Exception in updateAllShipmentRateDetails -- > "+sle.getStackTrace());
+            System.out.println("Exception in updateAllShipmentRateDetails -- > " + sle.getStackTrace());
         }finally {
 
             try {
