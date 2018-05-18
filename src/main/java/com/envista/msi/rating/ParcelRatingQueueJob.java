@@ -177,8 +177,33 @@ public class ParcelRatingQueueJob {
                                     if(previousShipment != null){
                                         List<ParcelAuditDetailsDto> shipmentsToRate = new ArrayList<>(shipmentChargeList);
                                         if(shipmentsToRate != null) {
+                                            boolean hasFrtCharge = false;
+                                            boolean frtChargeManipulated = false;
+                                            ParcelAuditDetailsDto frtCharged = ParcelRatingUtil.findFrtCharge(shipmentsToRate);
+                                            if(frtCharged != null) {
+                                                hasFrtCharge = true;
+                                                if(frtCharged.getPackageWeight() != null && !frtCharged.getPackageWeight().isEmpty() && Float.parseFloat(frtCharged.getPackageWeight()) == 0) {
+                                                    ParcelAuditDetailsDto prevShipmentFrtCharge = ParcelRatingUtil.findFrtCharge(previousShipment);
+                                                    if(prevShipmentFrtCharge != null && prevShipmentFrtCharge.getPackageWeight() != null
+                                                            && !prevShipmentFrtCharge.getPackageWeight().isEmpty() && Float.parseFloat(prevShipmentFrtCharge.getPackageWeight()) > 0) {
+                                                        frtCharged.setPackageWeight(prevShipmentFrtCharge.getPackageWeight());
+                                                        frtCharged.setWeightUnit(prevShipmentFrtCharge.getWeightUnit());
+                                                        frtCharged.setActualWeight(prevShipmentFrtCharge.getActualWeight());
+                                                        frtCharged.setActualWeightUnit(prevShipmentFrtCharge.getActualWeightUnit());
+                                                        frtCharged.setDimHeight(prevShipmentFrtCharge.getDimHeight());
+                                                        frtCharged.setDimWidth(prevShipmentFrtCharge.getDimWidth());
+                                                        frtCharged.setDimLength(prevShipmentFrtCharge.getDimLength());
+                                                        frtCharged.setUnitOfDim(prevShipmentFrtCharge.getUnitOfDim());
+                                                        frtCharged.setPackageDimension(prevShipmentFrtCharge.getPackageDimension());
+                                                        System.out.println("Prev shipment weight added for tracking number :: " + prevShipmentFrtCharge.getTrackingNumber());
+
+                                                        frtChargeManipulated = true;
+                                                    }
+                                                }
+                                            }else {
+                                                hasFrtCharge = false;
+                                            }
                                             boolean hasFSCCharge = ParcelRatingUtil.containsFuelSurcharge(shipmentsToRate);
-                                            boolean hasFrtCharge = ParcelRatingUtil.containsFRTCharge(shipmentsToRate);
                                             for(ParcelAuditDetailsDto prevShpCharge : previousShipment){
                                                 if(prevShpCharge != null && ParcelAuditConstant.ChargeClassificationCode.ACC.name().equalsIgnoreCase(prevShpCharge.getChargeClassificationCode())) {
                                                     shipmentsToRate.add(prevShpCharge);
@@ -186,7 +211,7 @@ public class ParcelRatingQueueJob {
                                                 if(!hasFSCCharge && ParcelAuditConstant.ChargeClassificationCode.ACC.name().equalsIgnoreCase(prevShpCharge.getChargeClassificationCode())) {
                                                     shipmentsToRate.add(prevShpCharge);
                                                 }
-                                                if(!hasFrtCharge && ParcelAuditConstant.ChargeClassificationCode.FRT.name().equalsIgnoreCase(prevShpCharge.getChargeClassificationCode())) {
+                                                if(!hasFrtCharge && !frtChargeManipulated && ParcelAuditConstant.ChargeClassificationCode.FRT.name().equalsIgnoreCase(prevShpCharge.getChargeClassificationCode())) {
                                                     shipmentsToRate.add(prevShpCharge);
                                                 }
                                             }

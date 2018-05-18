@@ -25,11 +25,13 @@ public class ParcelRatingScheduler {
      * @param args
      */
     public static void main(String[] args) throws Exception {
-
-        File file = new File("ParcelRatingScheduler");
+        String jobIds="1,2,3,4,5,6,7,8,9,10";
+        if(args!=null && args.length>0){
+            jobIds = args[0];
+        }
+        File file = new File("ParcelRatingScheduler"+jobIds.replaceAll(",",""));
         FileChannel channel = new RandomAccessFile(file, "rw").getChannel();
         FileLock lock = null;
-        String jobIds = "99";
         try {
             lock = channel.tryLock();
         } catch (OverlappingFileLockException e) {
@@ -40,9 +42,7 @@ public class ParcelRatingScheduler {
             System.out.println("lock is acquired. Another program instance is running. ");
             System.exit(0);
         }
-        if(args!=null && args.length>0){
-            jobIds = args[0];
-        }
+
 
         // Get the scheduler
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();

@@ -417,7 +417,7 @@ public class ParcelRateRequest implements Serializable {
         private static final long serialVersionUID = 1L;
 
         @XmlAttribute
-        private Integer sequence;
+        private Long sequence;
 
         @XmlAttribute
         private String freightClass; // #.#
@@ -452,10 +452,10 @@ public class ParcelRateRequest implements Serializable {
         @XmlElement(name="Dimensions")
         private Dimensions dimensions = new Dimensions();
 
-        public Integer getSequence() {
+        public Long getSequence() {
             return sequence;
         }
-        public void setSequence(Integer sequence) {
+        public void setSequence(Long sequence) {
             this.sequence = sequence;
         }
         public String getFreightClass() {

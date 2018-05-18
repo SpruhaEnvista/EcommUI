@@ -2,6 +2,7 @@ package com.envista.msi.rating.dao;
 
 import com.envista.msi.api.dao.DaoException;
 import com.envista.msi.api.web.rest.dto.rtr.*;
+import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant;
 import com.envista.msi.rating.ServiceLocator;
 import com.envista.msi.rating.ServiceLocatorException;
 import oracle.jdbc.OracleTypes;
@@ -13,6 +14,7 @@ import java.util.List;
 
 public class DirectJDBCDAO {
 
+    @Deprecated
     public void updateRTRInvoiceAmount(Long id, String userName, BigDecimal rtrAmount, String rtrStatus, Long carrierId){
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -65,50 +67,28 @@ public class DirectJDBCDAO {
         }
     }
 
-    public void updateInvoiceAmountByIds(String entityIds, String userName, String rtrStatus, Long carrierId){
+    public void updateRtrStatusByIds(String entityIds, String userName, String rtrStatus, Long carrierId){
         Connection conn = null;
-        PreparedStatement prstmt = null;
-        PreparedStatement aprstmt = null;
-
-        String lUpdateQuery = "";
-        String aUpdateQuery = "";
-        if(carrierId==21){
-            lUpdateQuery = " UPDATE SHP_EBILL_GFF_TB SET RTR_STATUS = '"+rtrStatus+"', RTR_AMOUNT=NET_AMOUNT, LAST_UPDATE_DATE=sysdate, " +
-                    " LAST_UPDATE_USER = '"+userName+"' WHERE EBILL_GFF_ID in ("+entityIds+")";
-            aUpdateQuery = " UPDATE ARC_EBILL_GFF_TB SET RTR_STATUS = '"+rtrStatus+"', RTR_AMOUNT=NET_AMOUNT, LAST_UPDATE_DATE=sysdate, " +
-                    " LAST_UPDATE_USER = '"+userName+"' WHERE EBILL_GFF_ID in ("+entityIds+")";
-        }else{
-            lUpdateQuery = " UPDATE SHP_EBILL_MANIFEST_TB SET RTR_STATUS = '"+rtrStatus+"', RTR_AMOUNT=NET_CHARGES, LAST_UPDATE_DATE=sysdate, " +
-                    " LAST_UPDATE_USER = '"+userName+"' WHERE EBILL_MANIFEST_ID in ("+entityIds+")";
-            aUpdateQuery = " UPDATE ARC_EBILL_MANIFEST_TB SET RTR_STATUS = '"+rtrStatus+"', RTR_AMOUNT=NET_CHARGES, LAST_UPDATE_DATE=sysdate, " +
-                    " LAST_UPDATE_USER = '"+userName+"' WHERE EBILL_MANIFEST_ID in ("+entityIds+")";
-        }
-
-        try {
+        CallableStatement cstmt =null;
+        try{
             conn = ServiceLocator.getDatabaseConnection();
-            prstmt = conn.prepareStatement(lUpdateQuery);
-            prstmt.executeUpdate();
-            aprstmt = conn.prepareStatement(aUpdateQuery);
-            aprstmt.executeQuery();
+            cstmt = conn.prepareCall("{ call SHP_UPDATE_RTR_STATUS_PROC(?,?,?,?)}");
+            cstmt.setString(1, entityIds);
+            cstmt.setString(2, userName);
+            cstmt.setString(3, rtrStatus);
+            cstmt.setLong(4, carrierId);
+            cstmt.executeUpdate();
 
         }catch (SQLException sqle) {
-            System.out.println("Exception in updateInvoiceAmountByIds -- > "+sqle.getStackTrace());
+            System.out.println("Exception in updateRtrStatusByIds -- > "+sqle.getStackTrace());
         }  catch (ServiceLocatorException sle) {
-            System.out.println("Exception in updateInvoiceAmountByIds -- > "+sle.getStackTrace());
+            System.out.println("Exception in updateRtrStatusByIds -- > "+sle.getStackTrace());
         }finally {
-
             try {
-                if (prstmt != null)
-                    prstmt.close();
+                if (cstmt != null)
+                    cstmt.close();
             } catch (SQLException sqle) {
             }
-
-            try {
-                if (aprstmt != null)
-                    aprstmt.close();
-            } catch (SQLException sqle) {
-            }
-
             try {
                 if (conn != null)
                     conn.close();
@@ -196,14 +176,14 @@ public class DirectJDBCDAO {
             }
         }
     }
-    public void updateShipmentRateDetails(String referenceTableName, String entityIds, String userName, ParcelRateDetailsDto rateDetails){
+    public void updateShipmentRateDetails(String referenceTableName, String entityId, String userName, ParcelRateDetailsDto rateDetails) {
         Connection conn = null;
         CallableStatement cstmt = null;
         try{
             conn = ServiceLocator.getDatabaseConnection();
-            cstmt = conn.prepareCall("{ call SHP_SAVE_RATE_DETAILS_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
+            cstmt = conn.prepareCall("{ call SHP_SAVE_RATE_DETAILS_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
             cstmt.setString(1,referenceTableName);
-            cstmt.setString(2,entityIds);
+            cstmt.setString(2,entityId);
             cstmt.setString(3,userName);
             cstmt.setBigDecimal(4,rateDetails != null && rateDetails.getDimDivisor() != null ? rateDetails.getDimDivisor() : new BigDecimal("0"));
             cstmt.setString(5, rateDetails != null && rateDetails.getShipperCategory() != null ? rateDetails.getShipperCategory() : "");
@@ -219,6 +199,8 @@ public class DirectJDBCDAO {
             cstmt.setBigDecimal(15, rateDetails != null && rateDetails.getResidentialSurchargeDiscount() != null ? rateDetails.getResidentialSurchargeDiscount() : new BigDecimal("0"));
             cstmt.setBigDecimal(16, rateDetails != null && rateDetails.getResidentialSurchargeDiscountPercentage() != null ? rateDetails.getResidentialSurchargeDiscountPercentage() : new BigDecimal("0"));
             cstmt.setBigDecimal(17, rateDetails != null && rateDetails.getDeliveryAreaSurchargeDiscount() != null ? rateDetails.getDeliveryAreaSurchargeDiscount() : new BigDecimal("0"));
+            cstmt.setBigDecimal(18, rateDetails != null && rateDetails.getRtrAmount() != null ? rateDetails.getRtrAmount() : new BigDecimal("0"));
+            cstmt.setString(19, rateDetails != null && rateDetails.getRtrStatus() != null ? rateDetails.getRtrStatus() : "");
             cstmt.executeUpdate();
 
         }catch (SQLException sqle) {
@@ -226,7 +208,6 @@ public class DirectJDBCDAO {
         }  catch (ServiceLocatorException sle) {
             System.out.println("Exception in updateShipmentRateDetails -- > "+sle.getStackTrace());
         }finally {
-
             try {
                 if (cstmt != null)
                     cstmt.close();
@@ -440,7 +421,7 @@ public class DirectJDBCDAO {
         CallableStatement cstmt =null;
         try{
             conn = ServiceLocator.getDatabaseConnection();
-            cstmt = conn.prepareCall("{ call SHP_SAVE_ALL_RATE_DETAILS_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
+            cstmt = conn.prepareCall("{ call SHP_SAVE_ALL_RATE_DETAILS_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
             cstmt.setString(1,referenceTableName);
             cstmt.setString(2,entityIds);
             cstmt.setString(3,userName);
@@ -468,12 +449,14 @@ public class DirectJDBCDAO {
             cstmt.setString(25, rateDetails != null && rateDetails.getAccessorial2Code() != null ? rateDetails.getAccessorial2Code() : "");
             cstmt.setString(26, rateDetails != null && rateDetails.getAccessorial3Code() != null ? rateDetails.getAccessorial3Code() : "");
             cstmt.setString(27, rateDetails != null && rateDetails.getAccessorial4Code() != null ? rateDetails.getAccessorial4Code() : "");
+            cstmt.setBigDecimal(28, rateDetails != null && rateDetails.getRtrAmount() != null ? rateDetails.getRtrAmount() : new BigDecimal("0"));
+            cstmt.setString(29, rateDetails != null && rateDetails.getRtrStatus() != null ? rateDetails.getRtrStatus() : "");
             cstmt.executeUpdate();
 
         }catch (SQLException sqle) {
-            System.out.println("Exception in updateShipmentRateDetails -- > "+sqle.getStackTrace());
+            System.out.println("Exception in updateAllShipmentRateDetails -- > "+sqle.getStackTrace());
         }  catch (ServiceLocatorException sle) {
-            System.out.println("Exception in updateShipmentRateDetails -- > "+sle.getStackTrace());
+            System.out.println("Exception in updateAllShipmentRateDetails -- > "+sle.getStackTrace());
         }finally {
 
             try {
