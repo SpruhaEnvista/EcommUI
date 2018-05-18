@@ -83,14 +83,9 @@ public class ParcelRating implements Callable<String> {
             System.out.println("Rating : " + bean.getTrackingNumber() + " : Status : " + status);
         }
 
-        if(status != null && !status.isEmpty()) {
-            RatingQueueDAO ratingQueueDAO = new RatingQueueDAO();
-            ratingQueueDAO.updateRateStatusInQueue(bean.getRatingQueueId(), null);
-        }
-
         if(ParcelRatingUtil.isRatingDone(status)){
             RatingQueueDAO ratingQueueDAO = new RatingQueueDAO();
-            ratingQueueDAO.updateARRateStatusInQueue(bean.getRatingQueueId(), null);
+            ratingQueueDAO.updateRateStatusInQueue(bean.getRatingQueueId(), null);
         }
     }
 }

@@ -87,14 +87,9 @@ public class ParcelHwtRating implements Callable<String> {
                 status = nonUpsRatingService.doRatingForNonUpsShipment(queueBeans);
             }
         String queueIds = ParcelRatingUtil.prepareQueueIdsInOperator(queueBeans);
-        if (status != null && !status.isEmpty()) {
-            RatingQueueDAO ratingQueueDAO = new RatingQueueDAO();
-            ratingQueueDAO.updateRateStatusInQueue(null, queueIds);
-        }
-
         if (ParcelRatingUtil.isRatingDone(status)) {
             RatingQueueDAO ratingQueueDAO = new RatingQueueDAO();
-            ratingQueueDAO.updateARRateStatusInQueue(null, queueIds);
+            ratingQueueDAO.updateRateStatusInQueue(null, queueIds);
         }
     }
 }
