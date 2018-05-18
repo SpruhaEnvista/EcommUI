@@ -1,10 +1,6 @@
 package com.envista.msi.rating.util;
 
-import com.envista.msi.api.domain.util.ParcelRatingUtil;
-import com.envista.msi.api.web.rest.dto.rtr.MsiARChargeCodesDto;
-import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditDetailsDto;
 import com.envista.msi.api.web.rest.util.DateUtil;
-import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelRateRequest;
 import com.envista.msi.rating.bean.RatingQueueBean;
 
@@ -12,7 +8,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by Sujit kumar on 02/05/2018.
@@ -20,9 +15,12 @@ import java.util.Map;
 public class ParcelRateRequestBuilder {
     private static final String RATE_REQUEST_EVENT_DATE_FORMAT = "MM/dd/yyyy hh:mm";
 
-    public static ParcelRateRequest buildParcelRateRequest(RatingQueueBean ratingQueueBean, String licenseKey){
+    public static ParcelRateRequest buildParcelRateRequest(RatingQueueBean ratingQueueBean, String licenseKey, List<RatingQueueBean> queueBeans) {
         ParcelRateRequest parcelRateRequest = new ParcelRateRequest();
         parcelRateRequest.setLicenseKey(licenseKey);
+
+        if ((ratingQueueBean == null && queueBeans != null) && queueBeans.size() > 0)
+            ratingQueueBean = queueBeans.get(0);
 
         if(ratingQueueBean != null){
             ParcelRateRequest.BatchShipment batchShipment = new ParcelRateRequest.BatchShipment();
@@ -31,17 +29,7 @@ public class ParcelRateRequestBuilder {
 
             batchShipment.setBilledMiles("0.0");
 
-            //ServiceFlags section
-            List<ParcelRateRequest.ServiceFlag> serviceFlagList = new ArrayList<>();
-            if(ratingQueueBean.getAccessorialArray() != null) {
-                for(String acc : ratingQueueBean.getAccessorialArray()){
-                    if(acc != null && !acc.isEmpty()){
-                        ParcelRateRequest.ServiceFlag serviceFlag = new ParcelRateRequest.ServiceFlag();
-                        serviceFlag.setCode(acc);
-                        serviceFlagList.add(serviceFlag);
-                    }
-                }
-            }
+
 
             //Constraints section
             ParcelRateRequest.Constraints constraints = new ParcelRateRequest.Constraints();
@@ -59,8 +47,7 @@ public class ParcelRateRequestBuilder {
 
             constraints.setService(serviceLevel);
             constraints.setCustomerCode(ratingQueueBean.getCustomerCode());
-            constraints.setServiceFlags(serviceFlagList);
-            batchShipment.setConstraints(constraints);
+
 
             ParcelRateRequest.RevenueTier revenueTier = new ParcelRateRequest.RevenueTier();
             String revenueValue = ratingQueueBean.getRevenueTier();
@@ -72,40 +59,23 @@ public class ParcelRateRequestBuilder {
             shipper.setNumber(ratingQueueBean.getShipperNumber());
             batchShipment.setShipper(shipper);
 
+
             List<ParcelRateRequest.Item> items = new ArrayList<>();
-            ParcelRateRequest.Weight weightObj = new ParcelRateRequest.Weight();
-            if(ratingQueueBean.getFrtWeight() != null){
-                weightObj.setWeight(BigDecimal.valueOf(ratingQueueBean.getFrtWeight()));
+            List<ParcelRateRequest.ServiceFlag> serviceFlagList = new ArrayList<>();
+            int sequence = 1;
+            if (queueBeans == null) {
+
+                prepareItems(serviceFlagList, items, ratingQueueBean, sequence);
+            } else {
+                for (RatingQueueBean queueBean : queueBeans) {
+
+                    prepareItems(serviceFlagList, items, queueBean, sequence);
+                    sequence++;
+                }
             }
-            weightObj.setUnits(ratingQueueBean.getFrtWeightUnits());
 
-            ParcelRateRequest.Weight actualWeightElement = new ParcelRateRequest.Weight();
-            if(ratingQueueBean.getFrtActualWeight() != null) {
-                actualWeightElement.setWeight(new BigDecimal(ratingQueueBean.getFrtActualWeight().toString()));
-            }
-            actualWeightElement.setUnits(ratingQueueBean.getFrtActualWeightUnits());
-
-            ParcelRateRequest.Quantity quantityObj = new ParcelRateRequest.Quantity();
-            if(ratingQueueBean.getFrtQyantity() != null){
-                quantityObj.setQuantity(new BigDecimal(ratingQueueBean.getFrtQyantity().toString()));
-            }
-            quantityObj.setUnits(ratingQueueBean.getFrtQuantityUnits());
-
-            ParcelRateRequest.Dimensions dimensionsObj = new ParcelRateRequest.Dimensions();
-            try{ if(ratingQueueBean.getDimLength() != null) dimensionsObj.setLength(new BigDecimal(ratingQueueBean.getDimLength().toString())); }catch (Exception e){}
-            try{ if(ratingQueueBean.getDimWidth() != null) dimensionsObj.setWidth(new BigDecimal(ratingQueueBean.getDimWidth().toString())); }catch (Exception e){}
-            try{ if(ratingQueueBean.getDimHeight() != null) dimensionsObj.setHeight(new BigDecimal(ratingQueueBean.getDimHeight().toString())); }catch (Exception e){}
-            dimensionsObj.setUnits(ratingQueueBean.getDimUnits());
-
-            ParcelRateRequest.Item item = new ParcelRateRequest.Item();
-            //removed parentid here in the sequence, because while making int value for sequence, it is generating some negating value.
-            item.setSequence(1);
-            item.setWeight(weightObj);
-            item.setActualWeight(actualWeightElement);
-            item.setQuantity(quantityObj);
-            item.setDimensions(dimensionsObj);
-            item.setContainer(ratingQueueBean.getPackageType());
-            items.add(item);
+            constraints.setServiceFlags(serviceFlagList);
+            batchShipment.setConstraints(constraints);
             batchShipment.setItems(items);
 
             //Events section
@@ -158,5 +128,72 @@ public class ParcelRateRequestBuilder {
             parcelRateRequest.getShipments().add(batchShipment);
         }
         return parcelRateRequest;
+    }
+
+    /**
+     * @param serviceFlagList
+     * @param items
+     * @param ratingQueueBean
+     * @param sequence
+     */
+    private static void prepareItems(List<ParcelRateRequest.ServiceFlag> serviceFlagList, List<ParcelRateRequest.Item> items, RatingQueueBean ratingQueueBean, int sequence) {
+
+
+        ParcelRateRequest.Weight weightObj = new ParcelRateRequest.Weight();
+        if (ratingQueueBean.getFrtWeight() != null) {
+            weightObj.setWeight(BigDecimal.valueOf(ratingQueueBean.getFrtWeight()));
+        }
+        weightObj.setUnits(ratingQueueBean.getFrtWeightUnits());
+
+        ParcelRateRequest.Weight actualWeightElement = new ParcelRateRequest.Weight();
+        if (ratingQueueBean.getFrtActualWeight() != null) {
+            actualWeightElement.setWeight(new BigDecimal(ratingQueueBean.getFrtActualWeight().toString()));
+        }
+        actualWeightElement.setUnits(ratingQueueBean.getFrtActualWeightUnits());
+
+        ParcelRateRequest.Quantity quantityObj = new ParcelRateRequest.Quantity();
+        if (ratingQueueBean.getFrtQyantity() != null) {
+            quantityObj.setQuantity(new BigDecimal(ratingQueueBean.getFrtQyantity().toString()));
+        }
+        quantityObj.setUnits(ratingQueueBean.getFrtQuantityUnits());
+
+        ParcelRateRequest.Dimensions dimensionsObj = new ParcelRateRequest.Dimensions();
+        try {
+            if (ratingQueueBean.getDimLength() != null)
+                dimensionsObj.setLength(new BigDecimal(ratingQueueBean.getDimLength().toString()));
+        } catch (Exception e) {
+        }
+        try {
+            if (ratingQueueBean.getDimWidth() != null)
+                dimensionsObj.setWidth(new BigDecimal(ratingQueueBean.getDimWidth().toString()));
+        } catch (Exception e) {
+        }
+        try {
+            if (ratingQueueBean.getDimHeight() != null)
+                dimensionsObj.setHeight(new BigDecimal(ratingQueueBean.getDimHeight().toString()));
+        } catch (Exception e) {
+        }
+        dimensionsObj.setUnits(ratingQueueBean.getDimUnits());
+
+        ParcelRateRequest.Item item = new ParcelRateRequest.Item();
+        //removed parentid here in the sequence, because while making int value for sequence, it is generating some negating value.
+        item.setSequence(sequence);
+        item.setWeight(weightObj);
+        item.setActualWeight(actualWeightElement);
+        item.setQuantity(quantityObj);
+        item.setDimensions(dimensionsObj);
+        item.setContainer(ratingQueueBean.getPackageType());
+        items.add(item);
+
+        if (ratingQueueBean.getAccessorialArray() != null) {
+            for (String acc : ratingQueueBean.getAccessorialArray()) {
+                if (acc != null && !acc.isEmpty()) {
+                    ParcelRateRequest.ServiceFlag serviceFlag = new ParcelRateRequest.ServiceFlag();
+                    serviceFlag.setCode(acc);
+                    serviceFlag.setSequence(sequence);
+                    serviceFlagList.add(serviceFlag);
+                }
+            }
+        }
     }
 }

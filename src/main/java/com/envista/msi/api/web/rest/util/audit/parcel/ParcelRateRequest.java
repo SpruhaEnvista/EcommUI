@@ -362,6 +362,10 @@ public class ParcelRateRequest implements Serializable {
         @XmlAttribute
         private String quantityUnit;
 
+        @XmlAttribute
+        private int sequence;
+
+
         public String getCode() {
             return code;
         }
@@ -397,6 +401,14 @@ public class ParcelRateRequest implements Serializable {
         }
         public void setQuantityUnit(String quantityUnit) {
             this.quantityUnit = quantityUnit;
+        }
+
+        public int getSequence() {
+            return sequence;
+        }
+
+        public void setSequence(int sequence) {
+            this.sequence = sequence;
         }
     }
 

@@ -40,7 +40,7 @@ public class ServiceLocator {
         if (dataSource == null) {
             dataSource = new BasicDataSource();
             dataSource.setDriverClassName("oracle.jdbc.driver.OracleDriver");
-            dataSource.setUrl("jdbc:oracle:thin:@172.16.4.10:1521:DB01");
+            dataSource.setUrl("jdbc:oracle:thin:@10.20.0.12:1521:db01");
             dataSource.setUsername("ship");
             dataSource.setPassword("ship");
             dataSource.setMaxTotal(10);

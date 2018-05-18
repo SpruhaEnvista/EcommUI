@@ -94,7 +94,7 @@ public class ParcelNonUpsRatingService {
             if(shipmentToRate != null && !shipmentToRate.isEmpty()) {
                 if(ParcelRatingUtil.isFirstShipmentToRate(shipments, bean.getParentId())) {
                     if(!ParcelRatingUtil.isShipmentRated(shipmentToRate)) {
-                        status = callRTRAndPopulateRates(shipmentToRate, bean);
+                        status = callRTRAndPopulateRates(shipmentToRate, bean, null);
                     }
                 } else {
                     if(!ParcelRatingUtil.isShipmentRated(shipmentToRate)) {
@@ -105,10 +105,10 @@ public class ParcelNonUpsRatingService {
                                     ParcelAuditDetailsDto prevShipmentFrtCharge = ParcelRatingUtil.getPreviousShipmentBaseChargeDetails(shipments, bean.getParentId());
                                     if(prevShipmentFrtCharge != null) {
                                         shipmentToRate.add(prevShipmentFrtCharge);
-                                        status = callRTRAndPopulateRates(shipmentToRate, bean);
+                                        status = callRTRAndPopulateRates(shipmentToRate, bean, null);
                                     }
                                 }else {
-                                    status = callRTRAndPopulateRates(shipmentToRate, bean);
+                                    status = callRTRAndPopulateRates(shipmentToRate, bean, null);
                                 }
                             }
                         }
@@ -119,16 +119,20 @@ public class ParcelNonUpsRatingService {
         return status;
     }
 
-    public String callRTRAndPopulateRates(List<ParcelAuditDetailsDto> shipmentToRate, RatingQueueBean bean) throws Exception {
+    public String callRTRAndPopulateRates(List<ParcelAuditDetailsDto> shipmentToRate, RatingQueueBean bean, List<RatingQueueBean> queueBeans) throws Exception {
         String requestPayload = "";
         String response = "";
         String status = null;
         String url = ParcelAuditConstant.AR_RATE_REQUEST_PROTOCOL + "://" + ParcelAuditConstant.AR_RATE_REQUEST_HOST_NAME + "/" + ParcelAuditConstant.AR_RATE_REQUEST_URI_PATH;
 
-        requestPayload = com.envista.msi.rating.util.ParcelRateRequestBuilder.buildParcelRateRequest(bean, ParcelAuditConstant.AR_RATE_REQUEST_LICENSE_KEY).toXmlString();
+        requestPayload = com.envista.msi.rating.util.ParcelRateRequestBuilder.buildParcelRateRequest(bean, ParcelAuditConstant.AR_RATE_REQUEST_LICENSE_KEY, queueBeans).toXmlString();
+        System.out.println("NON UPS requestPayload*******" + requestPayload);
         response = CommonUtil.connectAndGetResponseAsString(url, requestPayload);
+        System.out.println("NON UPS response*******" + response);
         if(response != null && !response.trim().isEmpty()) {
             new DirectJDBCDAO().saveParcelAuditRequestAndResponseLog(ParcelRatingUtil.prepareRequestResponseLog(requestPayload, response, bean.getParentId(), ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME));
+            if (queueBeans != null && queueBeans.size() > 0)
+                shipmentToRate = ParcelRatingUtil.getLeadShipmentDetails(shipmentToRate);
             status = updateRateForNonUpsCarrier(ParcelRateResponseParser.parse(response), shipmentToRate, getAllMappedARChargeCodes());
         }
         return status;
@@ -470,5 +474,29 @@ public class ParcelNonUpsRatingService {
         if (queueBeanList != null) {
             new RatingQueueDAO().saveRatingQueueBean(queueBeanList);
         }
+    }
+
+
+    /**
+     * @param beans
+     * @return
+     * @throws Exception
+     */
+    public String doRatingForNonUpsShipment(List<RatingQueueBean> beans) throws Exception {
+
+        String trackingNumbers = ParcelRatingUtil.prepareTrackingNumbersInOperator(beans);
+        String status = null;
+        if (trackingNumbers != null && trackingNumbers.length() > 0) {
+
+            List<ParcelAuditDetailsDto> allShipmentCharges = getFedExParcelShipmentDetails(trackingNumbers, true);
+
+
+            if (allShipmentCharges != null && !allShipmentCharges.isEmpty()) {
+                status = callRTRAndPopulateRates(allShipmentCharges, null, beans);
+            }
+
+        }
+
+        return status;
     }
 }

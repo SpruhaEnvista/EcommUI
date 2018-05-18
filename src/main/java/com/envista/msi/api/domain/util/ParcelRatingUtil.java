@@ -739,4 +739,93 @@ public class ParcelRatingUtil {
         return detailsDtos;
     }
 
+    /**
+     * This method will prepare bundle number or multi weight id tracking number wise details
+     *
+     * @return
+     */
+    public static Map<String, List<RatingQueueBean>> prepareHwtShipmentWiseInfo(ArrayList<RatingQueueBean> beanList) {
+
+        Collections.sort(beanList, new Comparator<RatingQueueBean>() {
+            @Override
+            public int compare(RatingQueueBean h1, RatingQueueBean h2) {
+                return h1.getHwtIdentifier().compareTo(h2.getHwtIdentifier());
+            }
+        });
+        Map<String, List<RatingQueueBean>> mwtDetailsMap = new HashMap<>();
+        List<RatingQueueBean> dtoList = null;
+        String prevHwtIdentifier = null;
+        for (RatingQueueBean queueBean : beanList) {
+
+
+            if (queueBean.getHwtIdentifier() != null && !queueBean.getHwtIdentifier().isEmpty()) {
+
+                if (dtoList == null)
+                    dtoList = new ArrayList<RatingQueueBean>();
+
+                if (prevHwtIdentifier == null || StringUtils.equalsIgnoreCase(prevHwtIdentifier, queueBean.getHwtIdentifier())) {
+                    dtoList.add(queueBean);
+                } else {
+                    mwtDetailsMap.put(queueBean.getHwtIdentifier(), dtoList);
+                    dtoList.clear();
+                    dtoList.add(queueBean);
+                }
+
+                prevHwtIdentifier = queueBean.getHwtIdentifier();
+            }
+
+
+        }
+        if ((mwtDetailsMap != null && prevHwtIdentifier != null) && dtoList != null && dtoList.size() > 0) {
+            if (mwtDetailsMap.containsKey(prevHwtIdentifier))
+                mwtDetailsMap.get(prevHwtIdentifier).addAll(dtoList);
+            else
+                mwtDetailsMap.put(prevHwtIdentifier, dtoList);
+        }
+
+        return mwtDetailsMap;
+
+    }
+
+    /**
+     * @param queueBeans
+     * @return
+     */
+    public static String prepareTrackingNumbersInOperator(List<RatingQueueBean> queueBeans) {
+
+        StringBuilder builder = null;
+
+        for (RatingQueueBean bean : queueBeans) {
+
+            if (builder == null) {
+                builder = new StringBuilder();
+            } else {
+                builder.append(",");
+            }
+            builder.append(bean.getTrackingNumber());
+        }
+        return builder.toString();
+    }
+
+    /**
+     * @param queueBeans
+     * @return
+     */
+    public static String prepareQueueIdsInOperator(List<RatingQueueBean> queueBeans) {
+
+        StringBuilder builder = null;
+
+        for (RatingQueueBean bean : queueBeans) {
+
+            if (builder == null) {
+                builder = new StringBuilder();
+            } else {
+                builder.append(",");
+            }
+            builder.append(bean.getRatingQueueId());
+        }
+        return builder.toString();
+    }
+
+
 }

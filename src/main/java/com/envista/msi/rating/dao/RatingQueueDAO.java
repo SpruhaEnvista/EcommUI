@@ -212,16 +212,24 @@ public class RatingQueueDAO {
 
         return beanList;
     }
-    public void updateRateStatusInQueue(Long ratingQueueId) {
+
+    public void updateRateStatusInQueue(Long ratingQueueId, String queueIds) {
         Connection connection = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
 
-        String updateQuery = "update SHP_RATING_QUEUE_TB set RATE_STATUS = 1 where SHP_RATING_QUEUE_ID = " + ratingQueueId;
+        StringBuilder updateQuery = new StringBuilder("update SHP_RATING_QUEUE_TB set RATE_STATUS = 1 where SHP_RATING_QUEUE_ID");
+
+        if (ratingQueueId != null)
+            updateQuery.append(" = " + ratingQueueId);
+        else if (queueIds != null)
+            updateQuery.append(" IN(" + queueIds + ")");
+        else
+            updateQuery.append(" = -1");
 
         try {
             connection = ServiceLocator.getDatabaseConnection();
-            stmt = connection.prepareStatement(updateQuery);
+            stmt = connection.prepareStatement(updateQuery.toString());
             stmt.executeUpdate();
         } catch (SQLException sqle) {
             System.out.println("Exception in updateRateStatusinQueue-- > " + sqle.getStackTrace());
@@ -247,16 +255,24 @@ public class RatingQueueDAO {
         }
     }
 
-    public void updateARRateStatusInQueue(Long ratingQueueId) {
+    public void updateARRateStatusInQueue(Long ratingQueueId, String queueIds) {
         Connection connection = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
 
-        String updateQuery = "update SHP_RATING_QUEUE_TB set AR_RATE_STATUS = 1 where SHP_RATING_QUEUE_ID = " + ratingQueueId;
+        StringBuilder updateQuery = new StringBuilder("update SHP_RATING_QUEUE_TB set AR_RATE_STATUS = 1 where SHP_RATING_QUEUE_ID");
+
+        if (ratingQueueId != null)
+            updateQuery.append(" = " + ratingQueueId);
+        else if (queueIds != null)
+            updateQuery.append(" IN(" + queueIds + ")");
+        else
+            updateQuery.append(" = -1");
+
 
         try {
             connection = ServiceLocator.getDatabaseConnection();
-            stmt = connection.prepareStatement(updateQuery);
+            stmt = connection.prepareStatement(updateQuery.toString());
             stmt.executeUpdate();
         } catch (SQLException sqle) {
             System.out.println("Exception in updateARRateStatusInQueue-- > " + sqle.getStackTrace());
