@@ -115,10 +115,9 @@ public class RatingQueueDAO {
         ResultSet rs = null;
 
         java.util.ArrayList<RatingQueueBean> beanList = null;
-        String selectQuery = "select * from SHP_RATING_QUEUE_TB where RATE_STATUS = 0 and job_id in ( "+jobIds+" ) and rownum < 2001";
+        String selectQuery = "select * from SHP_RATING_QUEUE_TB where RATE_STATUS = 0 and job_id in ( "+jobIds+" ) and rownum < 30001 ";
 
         try {
-            System.out.println("Loading queue data for " + jobIds);
             connection = ServiceLocator.getDatabaseConnection();
             stmt = connection.prepareStatement(selectQuery);
             beanList = new ArrayList<RatingQueueBean>();
@@ -181,7 +180,7 @@ public class RatingQueueDAO {
                 ratingQueueBean.setPackageType(rs.getString("PACKAGE_TYPE"));
                 beanList.add(ratingQueueBean);
             }
-            System.out.println("Loaded queue data for " + jobIds);
+
         } catch (SQLException sqle) {
             System.out.println("Exception in getRatingQueueByJobId-- > "+sqle.getStackTrace());
             sqle.printStackTrace();
@@ -241,6 +240,42 @@ public class RatingQueueDAO {
             }
         }
     }
+
+    public void updateARRateStatusInQueue(Long ratingQueueId) {
+        Connection connection = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        String updateQuery = "update SHP_RATING_QUEUE_TB set AR_RATE_STATUS = 1 where SHP_RATING_QUEUE_ID = " + ratingQueueId;
+
+        try {
+            connection = ServiceLocator.getDatabaseConnection();
+            stmt = connection.prepareStatement(updateQuery);
+            stmt.executeUpdate();
+        } catch (SQLException sqle) {
+            System.out.println("Exception in updateARRateStatusInQueue-- > " + sqle.getStackTrace());
+            sqle.printStackTrace();
+        } catch (ServiceLocatorException sle) {
+            System.out.println("Exception in updateARRateStatusInQueue-- > " + sle.getStackTrace());
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (SQLException sqle) {
+            }
+            try {
+                if (stmt != null)
+                    stmt.close();
+            } catch (SQLException sqle) {
+            }
+            try {
+                if (connection != null)
+                    connection.close();
+            } catch (SQLException sqle) {
+            }
+        }
+    }
+
     public void saveRatingQueueBean(RatingQueueBean ratingQueueBean){
         Connection connection = null;
         PreparedStatement ps = null;
