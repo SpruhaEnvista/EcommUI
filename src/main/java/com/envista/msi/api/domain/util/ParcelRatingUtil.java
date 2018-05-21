@@ -846,7 +846,7 @@ public class ParcelRatingUtil {
 
         for (RatingQueueBean bean : queueBeans) {
 
-            if (shipmentToRate.get(0).getParentId() == bean.getManiestId()) {
+            if (shipmentToRate.get(0).getParentId().equals(bean.getManiestId())) {
 
                 return bean;
             }
