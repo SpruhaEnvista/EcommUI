@@ -85,4 +85,17 @@ public class ParcelAuditConstant {
 
     public static final String RATE_JOB_ID_SEQUENCE_NAME = "SHP_RATING_JOB_S";
     public static final String RATE_JOB_ID_SEQUENCE_VALUE = "SHP_RATING_JOB_S.NEXTVAL";
+
+    public enum ParcelRatingQueueRateStatus {
+        READY_FOR_RATE(0),
+        DONE(1),
+        RATING_EXCEPTION(2),
+        EMPTY_PRICE_SHEET(3);
+
+        public final int value;
+
+        ParcelRatingQueueRateStatus(int value){
+            this.value = value;
+        }
+    }
 }
