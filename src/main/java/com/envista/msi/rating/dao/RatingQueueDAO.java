@@ -4,6 +4,7 @@ import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditDetailsDto;
 import com.envista.msi.rating.ServiceLocator;
 import com.envista.msi.rating.ServiceLocatorException;
 import com.envista.msi.rating.bean.RatingQueueBean;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -469,7 +470,11 @@ public class RatingQueueDAO {
             }
 
             if(trackingNumbers != null && !trackingNumbers.isEmpty()) {
-                liveSqlQuery += " AND ebmf.tracking_number IN ('" + trackingNumbers +"') ";
+
+                if (StringUtils.containsIgnoreCase(trackingNumbers, ","))
+                    liveSqlQuery += " AND ebmf.tracking_number IN (" + trackingNumbers + ") ";
+                else
+                    liveSqlQuery += " AND ebmf.tracking_number IN ('" + trackingNumbers + "') ";
             }
 
             if(invoiceId != null && !invoiceId.isEmpty()) {
@@ -481,7 +486,7 @@ public class RatingQueueDAO {
             }
 
             String archiveQuery = liveSqlQuery.replace("SHP_EBILL_MANIFEST_TB", "ARC_EBILL_MANIFEST_TB");
-
+            System.out.println("===liveSqlQuery=" + liveSqlQuery);
             ps = conn.prepareStatement(liveSqlQuery + " UNION " + archiveQuery);
             parcelUpsShipments = new ArrayList<>();
 

@@ -130,9 +130,13 @@ public class ParcelNonUpsRatingService {
         response = CommonUtil.connectAndGetResponseAsString(url, requestPayload);
         System.out.println("NON UPS response*******" + response);
         if(response != null && !response.trim().isEmpty()) {
-            new DirectJDBCDAO().saveParcelAuditRequestAndResponseLog(ParcelRatingUtil.prepareRequestResponseLog(requestPayload, response, bean.getParentId(), ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME));
-            if (queueBeans != null && queueBeans.size() > 0)
+            if (queueBeans != null && queueBeans.size() > 0) {
                 shipmentToRate = ParcelRatingUtil.getLeadShipmentDetails(shipmentToRate);
+                bean = ParcelRatingUtil.getLeadShipmentQueueBean(shipmentToRate, queueBeans);
+            }
+
+            new DirectJDBCDAO().saveParcelAuditRequestAndResponseLog(ParcelRatingUtil.prepareRequestResponseLog(requestPayload, response, bean.getParentId(), ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME));
+
             status = updateRateForNonUpsCarrier(ParcelRateResponseParser.parse(response), shipmentToRate, getAllMappedARChargeCodes());
         }
         return status;

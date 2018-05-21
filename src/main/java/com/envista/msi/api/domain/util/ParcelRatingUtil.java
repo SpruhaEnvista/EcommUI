@@ -811,7 +811,7 @@ public class ParcelRatingUtil {
             } else {
                 builder.append(",");
             }
-            builder.append(bean.getTrackingNumber());
+            builder.append("'" + bean.getTrackingNumber() + "'");
         }
         return builder.toString();
     }
@@ -837,4 +837,20 @@ public class ParcelRatingUtil {
     }
 
 
+    /**
+     * @param shipmentToRate
+     * @param queueBeans
+     * @return
+     */
+    public static RatingQueueBean getLeadShipmentQueueBean(List<ParcelAuditDetailsDto> shipmentToRate, List<RatingQueueBean> queueBeans) {
+
+        for (RatingQueueBean bean : queueBeans) {
+
+            if (shipmentToRate.get(0).getParentId() == bean.getManiestId()) {
+
+                return bean;
+            }
+        }
+        return null;
+    }
 }
