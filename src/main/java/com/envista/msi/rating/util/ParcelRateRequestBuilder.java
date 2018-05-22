@@ -99,7 +99,7 @@ public class ParcelRateRequestBuilder {
 
             ParcelRateRequest.Item item = new ParcelRateRequest.Item();
             //removed parentid here in the sequence, because while making int value for sequence, it is generating some negating value.
-            item.setSequence(1);
+            item.setSequence(ratingQueueBean.getParentId());
             item.setWeight(weightObj);
             item.setActualWeight(actualWeightElement);
             item.setQuantity(quantityObj);
