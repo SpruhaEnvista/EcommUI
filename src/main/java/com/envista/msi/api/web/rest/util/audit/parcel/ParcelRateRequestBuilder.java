@@ -149,7 +149,7 @@ public class ParcelRateRequestBuilder {
                     dimensionsObj.setUnits(dimUnit);
 
                     ParcelRateRequest.Item item = new ParcelRateRequest.Item();
-                    item.setSequence(latestFreightCharge.getParentId().intValue());
+                    item.setSequence(latestFreightCharge.getParentId());
                     item.setWeight(weightObj);
                     item.setActualWeight(actualWeightElement);
                     item.setQuantity(quantityObj);
@@ -341,7 +341,7 @@ public class ParcelRateRequestBuilder {
                         dimensionsObj.setUnits(dimUnit);
 
                         ParcelRateRequest.Item item = new ParcelRateRequest.Item();
-                        item.setSequence(firstBaseCharge.getParentId().intValue());
+                        item.setSequence(firstBaseCharge.getParentId());
                         item.setWeight(weightObj);
                         item.setActualWeight(actualWeightElement);
                         item.setQuantity(quantityObj);

@@ -95,7 +95,6 @@ public class RatingDAOUtil {
 
     public static void setSqlStatementPlaceHolderValues(PreparedStatement ps, RatingQueueBean queueBean) throws SQLException {
         for(String columnName : RATING_QUEUE_COLUMN_NAMES) {
-            System.out.println(columnName);
             if("SHP_RATING_QUEUE_ID".equalsIgnoreCase(columnName)) {
                 ;
             } else if("MANIFEST_ID".equalsIgnoreCase(columnName)) {
