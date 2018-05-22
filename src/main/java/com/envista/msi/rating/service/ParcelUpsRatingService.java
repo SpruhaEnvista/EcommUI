@@ -19,24 +19,24 @@ import java.util.*;
  * Created by Sujit kumar on 05/05/2018.
  */
 public class ParcelUpsRatingService {
-    public List<ParcelAuditDetailsDto> getUpsParcelShipmentDetails(String customerId, String fromShipDate, String toShipDate, String trackingNumbers, String invoiceIds, boolean ignoreRtrStatus){
-        return new RatingQueueDAO().getUpsParcelShipmentDetails(customerId, fromShipDate, toShipDate, trackingNumbers, invoiceIds, ignoreRtrStatus);
+    public List<ParcelAuditDetailsDto> getUpsParcelShipmentDetails(String customerId, String fromShipDate, String toShipDate, String trackingNumbers, String invoiceIds, boolean ignoreRtrStatus, boolean isHwt) {
+        return new RatingQueueDAO().getUpsParcelShipmentDetails(customerId, fromShipDate, toShipDate, trackingNumbers, invoiceIds, ignoreRtrStatus, isHwt);
     }
 
-    public List<ParcelAuditDetailsDto> getUpsParcelShipmentDetails(String customerId, String fromShipDate, String toShipDate, String trackingNumbers, String invoiceIds) {
-        return getUpsParcelShipmentDetails(customerId, fromShipDate, toShipDate, trackingNumbers, invoiceIds, false);
+    public List<ParcelAuditDetailsDto> getUpsParcelShipmentDetails(String customerId, String fromShipDate, String toShipDate, String trackingNumbers, String invoiceIds, boolean isHwt) {
+        return getUpsParcelShipmentDetails(customerId, fromShipDate, toShipDate, trackingNumbers, invoiceIds, false, isHwt);
     }
 
-    public List<ParcelAuditDetailsDto> getUpsParcelShipmentDetails(String customerId, String fromShipDate, String toShipDate, boolean ignoreRtrStatus){
-        return getUpsParcelShipmentDetails(customerId, fromShipDate, toShipDate, null, null, ignoreRtrStatus);
+    public List<ParcelAuditDetailsDto> getUpsParcelShipmentDetails(String customerId, String fromShipDate, String toShipDate, boolean ignoreRtrStatus, boolean isHwt) {
+        return getUpsParcelShipmentDetails(customerId, fromShipDate, toShipDate, null, null, ignoreRtrStatus, isHwt);
     }
 
-    public List<ParcelAuditDetailsDto> getUpsParcelShipmentDetails(String customerId, String fromShipDate, String toShipDate){
-        return getUpsParcelShipmentDetails(customerId, fromShipDate, toShipDate, null, null, false);
+    public List<ParcelAuditDetailsDto> getUpsParcelShipmentDetails(String customerId, String fromShipDate, String toShipDate, boolean isHwt) {
+        return getUpsParcelShipmentDetails(customerId, fromShipDate, toShipDate, null, null, false, isHwt);
     }
 
-    public List<ParcelAuditDetailsDto> getUpsParcelShipmentDetails(String customerId, String trackingNumber, boolean ignoreRtrStatus){
-        return getUpsParcelShipmentDetails(customerId, null, null, trackingNumber, null, ignoreRtrStatus);
+    public List<ParcelAuditDetailsDto> getUpsParcelShipmentDetails(String customerId, String trackingNumber, boolean ignoreRtrStatus, boolean isHwt) {
+        return getUpsParcelShipmentDetails(customerId, null, null, trackingNumber, null, ignoreRtrStatus, isHwt);
     }
 
     public Map<String, String> getMappedDASChargeCodes(){
@@ -88,7 +88,7 @@ public class ParcelUpsRatingService {
             if(trackingNumber != null && !trackingNumber.isEmpty()){
                 try{
                     MsiARChargeCodesDto msiARChargeCode = getAllMappedARChargeCodes();
-                    shipmentRecords = getUpsParcelShipmentDetails(null, trackingNumber, true);
+                    shipmentRecords = getUpsParcelShipmentDetails(null, trackingNumber, true, false);
                     if(shipmentRecords != null && !shipmentRecords.isEmpty()) {
                         Map<Long, List<ParcelAuditDetailsDto>> shipments = ParcelRatingUtil.organiseShipmentsByParentId(shipmentRecords);
                         List<ParcelAuditDetailsDto> shipmentToRate = shipments.get(bean.getParentId());
@@ -1155,7 +1155,7 @@ public class ParcelUpsRatingService {
             if (trackingNumbers != null && !trackingNumbers.isEmpty()) {
                 try {
                     MsiARChargeCodesDto msiARChargeCode = getAllMappedARChargeCodes();
-                    shipmentRecords = getUpsParcelShipmentDetails(null, trackingNumbers, true);
+                    shipmentRecords = getUpsParcelShipmentDetails(null, trackingNumbers, true, false);
                     if (shipmentRecords != null && !shipmentRecords.isEmpty()) {
 
                         status = callRTRAndPopulateRates(url, licenseKey, shipmentRecords, msiARChargeCode, null, null, beans);

@@ -290,7 +290,7 @@ public class RatingQueueDAO {
         }
     }
 
-    public List<ParcelAuditDetailsDto> getUpsParcelShipmentDetails(String customerIds, String fromDate, String toDate, String trackingNumbers, String invoiceIds, boolean ignoreRtrStatus){
+    public List<ParcelAuditDetailsDto> getUpsParcelShipmentDetails(String customerIds, String fromDate, String toDate, String trackingNumbers, String invoiceIds, boolean ignoreRtrStatus, boolean isHwt) {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -310,17 +310,27 @@ public class RatingQueueDAO {
             liveQuery += " null AS DIM_HEIGHT, null AS DIM_WIDTH, a.Package_Dimen_Unit_Of_Measure AS UNIT_OF_DIM, a.INVOICE_CURRENCY_CODE AS CURRENCY, b.INVOICE_ID, ";
             liveQuery += " (select custom_defined_9 from shp_lookup_tb where lookup_id = a.actual_service_bucket) AS SERVICE_LEVEL, a.DW_FIELD_INFORMATION AS DW_FIELD_INFORMATION, ";
             liveQuery += " CONCAT('0000', a.ACCOUNT_NUMBER) AS SHIPPER_NUMBER, a.PARENT_ID, (CASE WHEN a.container_type = 'LTR' THEN 'Letter' WHEN a.container_type IN ('PKG', 'PAK') THEN 'PKG' ELSE a.container_type END) package_type, ";
-            liveQuery += " a.PACKAGE_DIMENSIONS AS PACKAGE_DIMENSION, a.ENTERED_WEIGHT AS ACTUAL_WEIGHT, a.ENTERED_WEIGHT_UNIT_OF_MEASURE AS UNIT_OF_ACTUAL_WEIGHT, ar.rtr_amount, ";
+            liveQuery += " a.PACKAGE_DIMENSIONS AS PACKAGE_DIMENSION, a.ENTERED_WEIGHT AS ACTUAL_WEIGHT, a.ENTERED_WEIGHT_UNIT_OF_MEASURE AS UNIT_OF_ACTUAL_WEIGHT, ";
             liveQuery += " (select rev.SPEND from Shp_Revenue_Tb rev where  rev.customer_id=c.customer_id and rev.carrier_id=c.carrier_id and rev.carrier_id=21 and (SHIPMENT_DATE BETWEEN week_from_date AND week_to_date) and rownum=1 and rev.spend is not null) AS REVENUE_TIER, ";
-            liveQuery += " null AS CHARGE_CODE, ar.rtr_status, Lead_Shipment_Number AS MULTI_WEIGHT_NUMBER ";
-            liveQuery += " FROM shp_ebill_gff_tb a, shp_ebill_invoice_tb b, shp_ebill_contract_tb c, shp_customer_profile_tb d, shp_carrier_tb e, shp_shipper_tb f, SHP_AUDIT_RATE_DETAILS_TB ar ";
+            liveQuery += " null AS CHARGE_CODE, Lead_Shipment_Number AS MULTI_WEIGHT_NUMBER, ";
+            if (isHwt) {
+                liveQuery += " 0 as RTR_AMOUNT ,null as rtr_status,";
+            } else {
+                liveQuery += " ar.RTR_AMOUNT ,ar.rtr_status,";
+            }
+            liveQuery += " FROM shp_ebill_gff_tb a, shp_ebill_invoice_tb b, shp_ebill_contract_tb c, shp_customer_profile_tb d, shp_carrier_tb e, shp_shipper_tb f ";
+            if (!isHwt) {
+                liveQuery += ", SHP_AUDIT_RATE_DETAILS_TB ar  ";
+            }
             liveQuery += " WHERE a.invoice_id = b.invoice_id ";
             liveQuery += " AND b.INV_CONTRACT_NUMBER = c.CONTRACT_NUMBER ";
             liveQuery += " AND c.CUSTOMER_ID = d.CUSTOMER_ID ";
             liveQuery += " AND c.CARRIER_ID = e.CARRIER_ID ";
             liveQuery += " AND b.inv_CARRIER_ID = c.CARRIER_ID ";
             liveQuery += " AND b.shipper_code = f.shipper_code ";
-            liveQuery += " AND a.ebill_gff_id = ar.ebill_gff_id(+) ";
+            if (!isHwt) {
+                liveQuery += " AND a.ebill_gff_id = ar.ebill_gff_id(+) ";
+            }
             liveQuery += " and b.inv_carrier_id = 21 ";
 
             if(fromDate != null && !fromDate.isEmpty() && toDate != null && !toDate.isEmpty()) {
@@ -328,9 +338,13 @@ public class RatingQueueDAO {
             }
             liveQuery += " AND a.CHARGE_CLASSIFICATION_CODE IS NOT NULL ";
 
+
             if(trackingNumbers != null && !trackingNumbers.isEmpty()) {
-                //liveQuery += " AND a.tracking_number IN (SELECT COLUMN_VALUE FROM TABLE ( CAST ( SHP_IN_LIST_FN ('" + trackingNumbers + "') AS SHP_INLIST_TABLE_TYPE) )) ";
-                liveQuery += " AND a.tracking_number IN ('" + trackingNumbers + "') ";
+
+                if (StringUtils.containsIgnoreCase(trackingNumbers, ","))
+                    liveQuery += " AND a.tracking_number IN (" + trackingNumbers + ") ";
+                else
+                    liveQuery += " AND a.tracking_number IN ('" + trackingNumbers + "') ";
             }
 
             if(customerIds != null && !customerIds.isEmpty()) {
@@ -341,8 +355,12 @@ public class RatingQueueDAO {
                 liveQuery += " AND a.invoice_id IN ( " + invoiceIds + ") ";
             }
 
-            if(!ignoreRtrStatus) {
+            if (!ignoreRtrStatus && !isHwt) {
                 liveQuery += " AND (UPPER(ar.RTR_STATUS) = 'READYFORRATE' OR ar.RTR_STATUS IS NULL) ";
+            }
+            if (isHwt) {
+                liveQuery += " and a.Lead_Shipment_Number is not null and (a.Lead_Shipment_Number not in(select distinct Lead_Shipment_Number from SHP_AUDIT_RATE_DETAILS_TB p,shp_ebill_gff_tb q \n" +
+                        "where p.ebill_gff_id = q.ebill_gff_id and hwt_identifier is not null and q.invoice_id IN ( " + invoiceIds + "))or Lead_Shipment_Number is null)\n";
             }
 
             String archiveQuery = "";
@@ -429,7 +447,7 @@ public class RatingQueueDAO {
         return parcelUpsShipments;
     }
 
-    public List<ParcelAuditDetailsDto> getNonUpsParcelShipmentDetails(String customerIds, String carrierIds, String fromDate, String toDate, String trackingNumbers, String invoiceId, boolean ignoreRtrStatus){
+    public List<ParcelAuditDetailsDto> getNonUpsParcelShipmentDetails(String customerIds, String carrierIds, String fromDate, String toDate, String trackingNumbers, String invoiceId, boolean ignoreRtrStatus, boolean isHwt) {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -449,14 +467,25 @@ public class RatingQueueDAO {
             liveSqlQuery += " ebmf.WIDTH AS DIM_WIDTH, ebmf.UNIT_OF_DIM, ebmf.INVOICE_BILLING_CURRENCY_CODE AS CURRENCY, ebmf.INVOICE_ID, ";
             liveSqlQuery += " (select custom_defined_9 from shp_lookup_tb where lookup_id = ebmf.service_bucket) AS SERVICE_LEVEL, ebmf.DW_FIELD_INFORMATION, ";
             liveSqlQuery += " ebmf.SHIPPER_CODE AS SHIPPER_NUMBER, ebmf.PARENT_ID, DECODE (ebmf.bill_weight, 0, 'Letter', 'PKG') package_type, ";
-            liveSqlQuery += " null AS PACKAGE_DIMENSION, ebmf.ACT_WEIGHT AS ACTUAL_WEIGHT, ebmf.UNIT_OF_ACTUAL_WEIGHT, ar.RTR_AMOUNT , ";
-            liveSqlQuery += " ebmf.REVENUE_TIER AS REVENUE_TIER, ebmf.CHARGE_CODE, ar.rtr_status,Ebmf.Bundle_Number AS MULTI_WEIGHT_NUMBER ";
-            liveSqlQuery += " FROM SHP_EBILL_MANIFEST_TB ebmf, SHP_EBILL_CONTRACT_TB ebc, SHP_CUSTOMER_PROFILE_TB cp, SHP_CARRIER_TB c, SHP_SHIPPER_TB s, SHP_AUDIT_RATE_DETAILS_TB ar  ";
+            liveSqlQuery += " null AS PACKAGE_DIMENSION, ebmf.ACT_WEIGHT AS ACTUAL_WEIGHT, ebmf.UNIT_OF_ACTUAL_WEIGHT, ";
+            if (isHwt) {
+                liveSqlQuery += " 0 as RTR_AMOUNT ,null as rtr_status,";
+            } else {
+                liveSqlQuery += " ar.RTR_AMOUNT ,ar.rtr_status,";
+            }
+            liveSqlQuery += " ebmf.REVENUE_TIER AS REVENUE_TIER, ebmf.CHARGE_CODE,Ebmf.Bundle_Number AS MULTI_WEIGHT_NUMBER ";
+            liveSqlQuery += " FROM SHP_EBILL_MANIFEST_TB ebmf, SHP_EBILL_CONTRACT_TB ebc, SHP_CUSTOMER_PROFILE_TB cp, SHP_CARRIER_TB c, SHP_SHIPPER_TB s";
+            if (!isHwt) {
+                liveSqlQuery += ", SHP_AUDIT_RATE_DETAILS_TB ar  ";
+            }
+
             liveSqlQuery += " WHERE ebmf.CONTRACT_NUMBER = ebc.CONTRACT_NUMBER ";
             liveSqlQuery += " AND ebc.CUSTOMER_ID = cp.CUSTOMER_ID ";
             liveSqlQuery += " AND ebmf.CARRIER_ID = c.CARRIER_ID ";
             liveSqlQuery += " AND ebmf.SHIPPER_CODE = s.SHIPPER_CODE ";
-            liveSqlQuery += " AND ebmf.ebill_manifest_id = ar.ebill_manifest_id(+) ";
+            if (!isHwt) {
+                liveSqlQuery += " AND ebmf.ebill_manifest_id = ar.ebill_manifest_id(+) ";
+            }
             liveSqlQuery += " AND ebmf.CARRIER_ID IN ( " + carrierIds + ") ";
 
             if(fromDate != null && !fromDate.isEmpty() && toDate != null && !toDate.isEmpty()) {
@@ -481,8 +510,13 @@ public class RatingQueueDAO {
                 liveSqlQuery += " AND ebmf.invoice_id IN ( " + invoiceId + ") ";
             }
 
-            if(!ignoreRtrStatus) {
+            if (!ignoreRtrStatus && !isHwt) {
                 liveSqlQuery += " AND (UPPER(ar.RTR_STATUS) = 'READYFORRATE' OR ar.RTR_STATUS IS NULL) ";
+            }
+
+            if (isHwt) {
+                liveSqlQuery += " and Ebmf.Bundle_Number is not null and (Ebmf.Bundle_Number not in(select distinct bundle_number from SHP_AUDIT_RATE_DETAILS_TB p,shp_ebill_manifest_tb q \n" +
+                        "where p.ebill_manifest_id = q.ebill_manifest_id and hwt_identifier is not null and q.invoice_id IN ( " + invoiceId + "))or bundle_number is null)\n";
             }
 
             String archiveQuery = liveSqlQuery.replace("SHP_EBILL_MANIFEST_TB", "ARC_EBILL_MANIFEST_TB");

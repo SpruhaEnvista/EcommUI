@@ -8,6 +8,7 @@ import com.envista.msi.rating.bean.RatingQueueBean;
 import com.envista.msi.rating.dao.DirectJDBCDAO;
 import com.envista.msi.rating.service.ParcelNonUpsRatingService;
 import com.envista.msi.rating.service.ParcelUpsRatingService;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +38,7 @@ public class ParcelRatingQueueJob {
         String rateTo = null;
         String trackingNumbers = null;
         String invoiceIds = null;
+        boolean isHwt = false;
         if(args != null && args.length > 0){
             for (String s : args) {
                 String[] array = s.split("=");
@@ -61,6 +63,10 @@ public class ParcelRatingQueueJob {
                     if(!array[1].trim().equalsIgnoreCase("\\")){
                         invoiceIds = array[1].trim();
                     }
+                } else if ("isHwt".equalsIgnoreCase(array[0].trim())) {
+                    Boolean b = BooleanUtils.toBooleanObject((String) array[1].trim());
+                    if (b != null)
+                        isHwt = b;
                 }
             }
 
@@ -85,7 +91,7 @@ public class ParcelRatingQueueJob {
 
             if(isValidInput){
                 try {
-                    ParcelRatingQueueJob.getInstance().processShipments(customerId, fromShipDate, toShipDate, trackingNumbers, invoiceIds, rateTo);
+                    ParcelRatingQueueJob.getInstance().processShipments(customerId, fromShipDate, toShipDate, trackingNumbers, invoiceIds, rateTo, isHwt);
                 } catch (SQLException e) {
                     log.error("SQLException-->" + e.getStackTrace());
                 }
@@ -93,7 +99,7 @@ public class ParcelRatingQueueJob {
         }
     }
 
-    private void processShipments(String customerId, String fromShipDate, String toShipDate, String trackingNumber, String invoiceIds, String rateTo) throws SQLException {
+    private void processShipments(String customerId, String fromShipDate, String toShipDate, String trackingNumber, String invoiceIds, String rateTo, boolean isHwt) throws SQLException {
         List<ParcelAuditDetailsDto> allShipmentDetails = null;
         if("ups".equalsIgnoreCase(rateTo)){
             List<Long> invoiceList = new DirectJDBCDAO().loadInvoiceIds(fromShipDate, toShipDate, customerId, invoiceIds, 0, "UPS");
@@ -101,7 +107,7 @@ public class ParcelRatingQueueJob {
                 for(Long invId : invoiceList){
                     if(invId != null) {
                         System.out.println("For Invoice-->"+invId);
-                        allShipmentDetails = new ParcelUpsRatingService().getUpsParcelShipmentDetails(customerId, fromShipDate, toShipDate, trackingNumber, invId.toString());
+                        allShipmentDetails = new ParcelUpsRatingService().getUpsParcelShipmentDetails(customerId, fromShipDate, toShipDate, trackingNumber, invId.toString(), isHwt);
                         if(allShipmentDetails != null && !allShipmentDetails.isEmpty()){
                             Map<String, List<ParcelAuditDetailsDto>> trackingNumberWiseShipments = ParcelRatingUtil.prepareTrackingNumberWiseAuditDetails(allShipmentDetails);
                             processUpsShipments(trackingNumberWiseShipments, parcelRatingService.getAllMappedARChargeCodes(), customerId);
@@ -116,7 +122,7 @@ public class ParcelRatingQueueJob {
                 for (Long invId : invoiceList) {
                     if (invId != null) {
                         System.out.println("For Invoice-->"+invId);
-                        allShipmentDetails =  parcelRatingService.getFedExParcelShipmentDetails(customerId, fromShipDate, toShipDate, trackingNumber, invId.toString());
+                        allShipmentDetails = parcelRatingService.getFedExParcelShipmentDetails(customerId, fromShipDate, toShipDate, trackingNumber, invId.toString(), isHwt);
                         if(allShipmentDetails != null && !allShipmentDetails.isEmpty()){
                             Map<String, List<ParcelAuditDetailsDto>> trackingNumberWiseShipments = ParcelRatingUtil.prepareTrackingNumberWiseAuditDetails(allShipmentDetails);
                             processFedExShipments(trackingNumberWiseShipments, parcelRatingService.getAllMappedARChargeCodes());
@@ -136,7 +142,7 @@ public class ParcelRatingQueueJob {
                     String trackingNumber = parcelAuditEntry.getKey();
                     List<ParcelAuditDetailsDto> shipmentRecords = null;
                     if(trackingNumber != null && !trackingNumber.isEmpty()){
-                        shipmentRecords = new ParcelUpsRatingService().getUpsParcelShipmentDetails(customerIds, trackingNumber, true);
+                        shipmentRecords = new ParcelUpsRatingService().getUpsParcelShipmentDetails(customerIds, trackingNumber, true, false);
                     }
 
                     Map<Long, List<ParcelAuditDetailsDto>> shipments = ParcelRatingUtil.organiseShipmentsByParentId(shipmentRecords);

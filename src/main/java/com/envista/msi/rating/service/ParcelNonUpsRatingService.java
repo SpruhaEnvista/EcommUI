@@ -67,24 +67,24 @@ public class ParcelNonUpsRatingService {
         }
     }
 
-    public List<ParcelAuditDetailsDto> getFedExParcelShipmentDetails(String customerId, String fromShipDate, String toShipDate, String trackingNumbers, String invoiceIds, boolean ignoreRtrStatus){
-        return new RatingQueueDAO().getNonUpsParcelShipmentDetails(customerId, "22", fromShipDate, toShipDate, trackingNumbers, invoiceIds, ignoreRtrStatus);
+    public List<ParcelAuditDetailsDto> getFedExParcelShipmentDetails(String customerId, String fromShipDate, String toShipDate, String trackingNumbers, String invoiceIds, boolean ignoreRtrStatus, boolean isHwt) {
+        return new RatingQueueDAO().getNonUpsParcelShipmentDetails(customerId, "22", fromShipDate, toShipDate, trackingNumbers, invoiceIds, ignoreRtrStatus, isHwt);
     }
 
-    public List<ParcelAuditDetailsDto> getFedExParcelShipmentDetails(String customerId, String fromShipDate, String toShipDate, String trackingNumbers, String invoiceIds){
-        return new RatingQueueDAO().getNonUpsParcelShipmentDetails(customerId, "22", fromShipDate, toShipDate, trackingNumbers, invoiceIds, false);
+    public List<ParcelAuditDetailsDto> getFedExParcelShipmentDetails(String customerId, String fromShipDate, String toShipDate, String trackingNumbers, String invoiceIds, boolean isHwt) {
+        return new RatingQueueDAO().getNonUpsParcelShipmentDetails(customerId, "22", fromShipDate, toShipDate, trackingNumbers, invoiceIds, false, isHwt);
     }
 
-    public List<ParcelAuditDetailsDto> getFedExParcelShipmentDetails(String customerId, String fromShipDate, String toShipDate) {
-        return getFedExParcelShipmentDetails(customerId, fromShipDate, toShipDate, null, null);
+    public List<ParcelAuditDetailsDto> getFedExParcelShipmentDetails(String customerId, String fromShipDate, String toShipDate, boolean isHwt) {
+        return getFedExParcelShipmentDetails(customerId, fromShipDate, toShipDate, null, null, isHwt);
     }
 
-    public List<ParcelAuditDetailsDto> getFedExParcelShipmentDetails(String trackingNumbers, boolean ignoreRtrStatus) {
-        return getFedExParcelShipmentDetails(null, null, null, trackingNumbers, null, ignoreRtrStatus);
+    public List<ParcelAuditDetailsDto> getFedExParcelShipmentDetails(String trackingNumbers, boolean ignoreRtrStatus, boolean isHwt) {
+        return getFedExParcelShipmentDetails(null, null, null, trackingNumbers, null, ignoreRtrStatus, isHwt);
     }
 
     public String doRatingForNonUpsShipment(RatingQueueBean bean) throws Exception {
-        List<ParcelAuditDetailsDto> allShipmentCharges = getFedExParcelShipmentDetails(bean.getTrackingNumber(), true);
+        List<ParcelAuditDetailsDto> allShipmentCharges = getFedExParcelShipmentDetails(bean.getTrackingNumber(), true, false);
         String status = null;
 
         if(allShipmentCharges != null && !allShipmentCharges.isEmpty()) {
@@ -496,7 +496,7 @@ public class ParcelNonUpsRatingService {
         String status = null;
         if (trackingNumbers != null && trackingNumbers.length() > 0) {
 
-            List<ParcelAuditDetailsDto> allShipmentCharges = getFedExParcelShipmentDetails(trackingNumbers, true);
+            List<ParcelAuditDetailsDto> allShipmentCharges = getFedExParcelShipmentDetails(trackingNumbers, true, false);
 
 
             if (allShipmentCharges != null && !allShipmentCharges.isEmpty()) {
