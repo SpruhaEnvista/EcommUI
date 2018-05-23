@@ -314,9 +314,9 @@ public class RatingQueueDAO {
             liveQuery += " (select rev.SPEND from Shp_Revenue_Tb rev where  rev.customer_id=c.customer_id and rev.carrier_id=c.carrier_id and rev.carrier_id=21 and (SHIPMENT_DATE BETWEEN week_from_date AND week_to_date) and rownum=1 and rev.spend is not null) AS REVENUE_TIER, ";
             liveQuery += " null AS CHARGE_CODE, Lead_Shipment_Number AS MULTI_WEIGHT_NUMBER, ";
             if (isHwt) {
-                liveQuery += " 0 as RTR_AMOUNT ,null as rtr_status,";
+                liveQuery += " 0 as RTR_AMOUNT ,null as rtr_status";
             } else {
-                liveQuery += " ar.RTR_AMOUNT ,ar.rtr_status,";
+                liveQuery += " ar.RTR_AMOUNT ,ar.rtr_status";
             }
             liveQuery += " FROM shp_ebill_gff_tb a, shp_ebill_invoice_tb b, shp_ebill_contract_tb c, shp_customer_profile_tb d, shp_carrier_tb e, shp_shipper_tb f ";
             if (!isHwt) {
@@ -366,7 +366,7 @@ public class RatingQueueDAO {
             String archiveQuery = "";
             archiveQuery = liveQuery.replace("shp_ebill_gff_tb", "arc_ebill_gff_tb");
             archiveQuery = archiveQuery.replace("shp_ebill_invoice_tb", "arc_ebill_invoice_tb");
-
+            System.out.println("UPS liveQuery"+liveQuery);
             ps = conn.prepareStatement(liveQuery + " UNION " + archiveQuery);
             parcelUpsShipments = new ArrayList<>();
 
