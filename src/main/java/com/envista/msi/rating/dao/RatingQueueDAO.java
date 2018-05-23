@@ -344,7 +344,7 @@ public class RatingQueueDAO {
                 if (StringUtils.containsIgnoreCase(trackingNumbers, ","))
                     liveQuery += " AND a.tracking_number IN (" + trackingNumbers + ") ";
                 else
-                    liveQuery += " AND a.tracking_number IN ('" + trackingNumbers + "') ";
+                    liveQuery += " AND a.tracking_number IN ('" + trackingNumbers + "') and a.Lead_Shipment_Number is null ";
             }
 
             if(customerIds != null && !customerIds.isEmpty()) {
@@ -503,7 +503,7 @@ public class RatingQueueDAO {
                 if (StringUtils.containsIgnoreCase(trackingNumbers, ","))
                     liveSqlQuery += " AND ebmf.tracking_number IN (" + trackingNumbers + ") ";
                 else
-                    liveSqlQuery += " AND ebmf.tracking_number IN ('" + trackingNumbers + "') ";
+                    liveSqlQuery += " AND ebmf.tracking_number IN ('" + trackingNumbers + "') and Ebmf.Bundle_Number is null ";
             }
 
             if(invoiceId != null && !invoiceId.isEmpty()) {
