@@ -22,7 +22,7 @@ public class ParcelHwtRating implements Callable<String> {
     private static final int MAX_THREADS = 1;
 
     private List<RatingQueueBean> queueBeans = null;
-    private Log m_log = LogFactory.getLog(ParcelRating.class);
+    private Log m_log = LogFactory.getLog(ParcelHwtRating.class);
 
     public ParcelHwtRating() {
     }
