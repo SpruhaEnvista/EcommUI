@@ -344,7 +344,7 @@ public class RatingQueueDAO {
                 if (StringUtils.containsIgnoreCase(trackingNumbers, ","))
                     liveQuery += " AND a.tracking_number IN (" + trackingNumbers + ") ";
                 else
-                    liveQuery += " AND a.tracking_number IN ('" + trackingNumbers + "') and a.Lead_Shipment_Number is null ";
+                    liveQuery += " AND a.tracking_number IN ('" + trackingNumbers + "') ";
             }
 
             if(customerIds != null && !customerIds.isEmpty()) {
@@ -356,7 +356,7 @@ public class RatingQueueDAO {
             }
 
             if (!ignoreRtrStatus && !isHwt) {
-                liveQuery += " AND (UPPER(ar.RTR_STATUS) = 'READYFORRATE' OR ar.RTR_STATUS IS NULL) ";
+                liveQuery += " AND (UPPER(ar.RTR_STATUS) = 'READYFORRATE' OR ar.RTR_STATUS IS NULL) and a.Lead_Shipment_Number is null ";
             }
             if (isHwt) {
                 liveQuery += " and a.Lead_Shipment_Number is not null and (a.Lead_Shipment_Number not in(select distinct Lead_Shipment_Number from SHP_AUDIT_RATE_DETAILS_TB p,shp_ebill_gff_tb q \n" +
@@ -503,7 +503,7 @@ public class RatingQueueDAO {
                 if (StringUtils.containsIgnoreCase(trackingNumbers, ","))
                     liveSqlQuery += " AND ebmf.tracking_number IN (" + trackingNumbers + ") ";
                 else
-                    liveSqlQuery += " AND ebmf.tracking_number IN ('" + trackingNumbers + "') and Ebmf.Bundle_Number is null ";
+                    liveSqlQuery += " AND ebmf.tracking_number IN ('" + trackingNumbers + "') ";
             }
 
             if(invoiceId != null && !invoiceId.isEmpty()) {
@@ -511,7 +511,7 @@ public class RatingQueueDAO {
             }
 
             if (!ignoreRtrStatus && !isHwt) {
-                liveSqlQuery += " AND (UPPER(ar.RTR_STATUS) = 'READYFORRATE' OR ar.RTR_STATUS IS NULL) ";
+                liveSqlQuery += " AND (UPPER(ar.RTR_STATUS) = 'READYFORRATE' OR ar.RTR_STATUS IS NULL) and Ebmf.Bundle_Number is null ";
             }
 
             if (isHwt) {
