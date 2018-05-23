@@ -377,6 +377,7 @@ public class ParcelRatingUtil {
                 ratingQueueBean.setReceiverState(receiverState);
                 ratingQueueBean.setReceiverCity(receiverCity);
                 ratingQueueBean.setReceiverZip(receiverZipCode);
+                ratingQueueBean.setHwtIdentifier(firstCharge.getMultiWeightNumber());
             }
         }
         return ratingQueueBean;

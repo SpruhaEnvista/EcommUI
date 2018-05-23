@@ -329,7 +329,7 @@ public class ParcelRatingQueueJob {
                 if (StringUtils.equalsIgnoreCase("fedex", rateTo))
                     ratingQueueBean = ParcelRatingUtil.prepareShipmentEntryForNonUpsShipment(listEntry.getValue(), msiARChargeCode);
                 else if (StringUtils.equalsIgnoreCase("ups", rateTo))
-                    ParcelRatingUtil.prepareShipmentEntryForUpsShipment(listEntry.getValue(), msiARChargeCode);
+                    ratingQueueBean =ParcelRatingUtil.prepareShipmentEntryForUpsShipment(listEntry.getValue(), msiARChargeCode);
 
                 if (queueBeanList == null)
                     queueBeanList = new ArrayList<RatingQueueBean>();
