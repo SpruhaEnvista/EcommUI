@@ -133,110 +133,118 @@ public class ParcelRatingQueueJob {
         }
     }
 
-    private void processUpsShipments(Map<String, List<ParcelAuditDetailsDto>> trackingNumberWiseShipments, MsiARChargeCodesDto allMappedARChargeCodes, String customerIds) {
-        Iterator<Map.Entry<String, List<ParcelAuditDetailsDto>>> entryIterator = trackingNumberWiseShipments.entrySet().iterator();
-        while(entryIterator.hasNext()){
-            Map.Entry<String,List<ParcelAuditDetailsDto>> parcelAuditEntry = entryIterator.next();
-            if(parcelAuditEntry != null){
-                try{
-                    String trackingNumber = parcelAuditEntry.getKey();
-                    List<ParcelAuditDetailsDto> shipmentRecords = null;
-                    if(trackingNumber != null && !trackingNumber.isEmpty()){
-                        shipmentRecords = new ParcelUpsRatingService().getUpsParcelShipmentDetails(customerIds, trackingNumber, true, false);
-                    }
+    private void processUpsShipments(Map<String, List<ParcelAuditDetailsDto>> trackingNumberWiseShipments, MsiARChargeCodesDto allMappedARChargeCodes, String customerIds) throws SQLException {
 
-                    Map<Long, List<ParcelAuditDetailsDto>> shipments = ParcelRatingUtil.organiseShipmentsByParentId(shipmentRecords);
-                    Iterator<Map.Entry<Long, List<ParcelAuditDetailsDto>>> shipmentIterator = shipments.entrySet().iterator();
+        if (trackingNumberWiseShipments != null) {
 
-                    List<ParcelAuditDetailsDto> previousShipment = null;
-                    while(shipmentIterator.hasNext()){
-                        Map.Entry<Long, List<ParcelAuditDetailsDto>> shpEntry = shipmentIterator.next();
-                        if(shpEntry != null){
-                            List<ParcelAuditDetailsDto> shipmentChargeList = shpEntry.getValue();
-                            if(shipmentChargeList != null && !ParcelRatingUtil.isShipmentRated(shipmentChargeList)){
-                                if(ParcelRatingUtil.containsCharge(ParcelAuditConstant.COMMERCIAL_ADJUSTMENT_CHARGE_TYPE, shipmentChargeList)){
-                                    List<ParcelAuditDetailsDto> commercialShipment = new ArrayList<>();
-                                    commercialShipment.addAll(shipmentChargeList);
+            Map<String, List<ParcelAuditDetailsDto>> hwtDetailsMap = ParcelRatingUtil.prepareHwtNumberWiseAuditDetails(trackingNumberWiseShipments);
 
-                                    if(previousShipment != null) {
-                                        for(ParcelAuditDetailsDto commShipment : previousShipment){
-                                            if(commShipment != null && !"RES".equalsIgnoreCase(commShipment.getChargeDescriptionCode())
-                                                    && !"RSC".equalsIgnoreCase(commShipment.getChargeDescriptionCode()) && !"FRT".equalsIgnoreCase(commShipment.getChargeClassificationCode())){
-                                                commercialShipment.add(commShipment);
+            Iterator<Map.Entry<String, List<ParcelAuditDetailsDto>>> entryIterator = trackingNumberWiseShipments.entrySet().iterator();
+            while (entryIterator.hasNext()) {
+                Map.Entry<String, List<ParcelAuditDetailsDto>> parcelAuditEntry = entryIterator.next();
+                if (parcelAuditEntry != null) {
+                    try {
+                        String trackingNumber = parcelAuditEntry.getKey();
+                        List<ParcelAuditDetailsDto> shipmentRecords = null;
+                        if (trackingNumber != null && !trackingNumber.isEmpty()) {
+                            shipmentRecords = new ParcelUpsRatingService().getUpsParcelShipmentDetails(customerIds, trackingNumber, true, false);
+                        }
+
+                        Map<Long, List<ParcelAuditDetailsDto>> shipments = ParcelRatingUtil.organiseShipmentsByParentId(shipmentRecords);
+                        Iterator<Map.Entry<Long, List<ParcelAuditDetailsDto>>> shipmentIterator = shipments.entrySet().iterator();
+
+                        List<ParcelAuditDetailsDto> previousShipment = null;
+                        while (shipmentIterator.hasNext()) {
+                            Map.Entry<Long, List<ParcelAuditDetailsDto>> shpEntry = shipmentIterator.next();
+                            if (shpEntry != null) {
+                                List<ParcelAuditDetailsDto> shipmentChargeList = shpEntry.getValue();
+                                if (shipmentChargeList != null && !ParcelRatingUtil.isShipmentRated(shipmentChargeList)) {
+                                    if (ParcelRatingUtil.containsCharge(ParcelAuditConstant.COMMERCIAL_ADJUSTMENT_CHARGE_TYPE, shipmentChargeList)) {
+                                        List<ParcelAuditDetailsDto> commercialShipment = new ArrayList<>();
+                                        commercialShipment.addAll(shipmentChargeList);
+
+                                        if (previousShipment != null) {
+                                            for (ParcelAuditDetailsDto commShipment : previousShipment) {
+                                                if (commShipment != null && !"RES".equalsIgnoreCase(commShipment.getChargeDescriptionCode())
+                                                        && !"RSC".equalsIgnoreCase(commShipment.getChargeDescriptionCode()) && !"FRT".equalsIgnoreCase(commShipment.getChargeClassificationCode())) {
+                                                    commercialShipment.add(commShipment);
+                                                }
                                             }
                                         }
-                                    }
-                                    addUpsShipmentEntryIntoQueue(commercialShipment, allMappedARChargeCodes);
-                                } else if(ParcelRatingUtil.containsCharge(ParcelAuditConstant.RESIDENTIAL_ADJUSTMENT_CHARGE_TYPE, shipmentChargeList)){
-                                    //keeping it in separate if condition in order to handle few more scenarios in future.
-                                    List<ParcelAuditDetailsDto> residentialShipment = new ArrayList<>();
-                                    residentialShipment.addAll(shipmentChargeList);
-                                    if(previousShipment != null) {
-                                        for(ParcelAuditDetailsDto commShipment : previousShipment){
-                                            if(commShipment != null && !"FRT".equalsIgnoreCase(commShipment.getChargeClassificationCode())){
-                                                residentialShipment.add(commShipment);
+                                        addUpsShipmentEntryIntoQueue(commercialShipment, allMappedARChargeCodes);
+                                    } else if (ParcelRatingUtil.containsCharge(ParcelAuditConstant.RESIDENTIAL_ADJUSTMENT_CHARGE_TYPE, shipmentChargeList)) {
+                                        //keeping it in separate if condition in order to handle few more scenarios in future.
+                                        List<ParcelAuditDetailsDto> residentialShipment = new ArrayList<>();
+                                        residentialShipment.addAll(shipmentChargeList);
+                                        if (previousShipment != null) {
+                                            for (ParcelAuditDetailsDto commShipment : previousShipment) {
+                                                if (commShipment != null && !"FRT".equalsIgnoreCase(commShipment.getChargeClassificationCode())) {
+                                                    residentialShipment.add(commShipment);
+                                                }
                                             }
                                         }
-                                    }
-                                    addUpsShipmentEntryIntoQueue(residentialShipment, allMappedARChargeCodes);
-                                } else {
-                                    if(previousShipment != null){
-                                        List<ParcelAuditDetailsDto> shipmentsToRate = new ArrayList<>(shipmentChargeList);
-                                        if(shipmentsToRate != null) {
-                                            boolean hasFrtCharge = false;
-                                            boolean frtChargeManipulated = false;
-                                            ParcelAuditDetailsDto frtCharged = ParcelRatingUtil.findFrtCharge(shipmentsToRate);
-                                            if (frtCharged != null) {
-                                                hasFrtCharge = true;
-                                                if (frtCharged.getPackageWeight() != null && !frtCharged.getPackageWeight().isEmpty() && Float.parseFloat(frtCharged.getPackageWeight()) == 0) {
-                                                    ParcelAuditDetailsDto prevShipmentFrtCharge = ParcelRatingUtil.findFrtCharge(previousShipment);
-                                                    if (prevShipmentFrtCharge != null && prevShipmentFrtCharge.getPackageWeight() != null
-                                                            && !prevShipmentFrtCharge.getPackageWeight().isEmpty() && Float.parseFloat(prevShipmentFrtCharge.getPackageWeight()) > 0) {
-                                                        frtCharged.setPackageWeight(prevShipmentFrtCharge.getPackageWeight());
-                                                        frtCharged.setWeightUnit(prevShipmentFrtCharge.getWeightUnit());
-                                                        frtCharged.setActualWeight(prevShipmentFrtCharge.getActualWeight());
-                                                        frtCharged.setActualWeightUnit(prevShipmentFrtCharge.getActualWeightUnit());
-                                                        frtCharged.setDimHeight(prevShipmentFrtCharge.getDimHeight());
-                                                        frtCharged.setDimWidth(prevShipmentFrtCharge.getDimWidth());
-                                                        frtCharged.setDimLength(prevShipmentFrtCharge.getDimLength());
-                                                        frtCharged.setUnitOfDim(prevShipmentFrtCharge.getUnitOfDim());
-                                                        frtCharged.setPackageDimension(prevShipmentFrtCharge.getPackageDimension());
-                                                        System.out.println("Prev shipment weight added for tracking number :: " + prevShipmentFrtCharge.getTrackingNumber());
+                                        addUpsShipmentEntryIntoQueue(residentialShipment, allMappedARChargeCodes);
+                                    } else {
+                                        if (previousShipment != null) {
+                                            List<ParcelAuditDetailsDto> shipmentsToRate = new ArrayList<>(shipmentChargeList);
+                                            if (shipmentsToRate != null) {
+                                                boolean hasFrtCharge = false;
+                                                boolean frtChargeManipulated = false;
+                                                ParcelAuditDetailsDto frtCharged = ParcelRatingUtil.findFrtCharge(shipmentsToRate);
+                                                if (frtCharged != null) {
+                                                    hasFrtCharge = true;
+                                                    if (frtCharged.getPackageWeight() != null && !frtCharged.getPackageWeight().isEmpty() && Float.parseFloat(frtCharged.getPackageWeight()) == 0) {
+                                                        ParcelAuditDetailsDto prevShipmentFrtCharge = ParcelRatingUtil.findFrtCharge(previousShipment);
+                                                        if (prevShipmentFrtCharge != null && prevShipmentFrtCharge.getPackageWeight() != null
+                                                                && !prevShipmentFrtCharge.getPackageWeight().isEmpty() && Float.parseFloat(prevShipmentFrtCharge.getPackageWeight()) > 0) {
+                                                            frtCharged.setPackageWeight(prevShipmentFrtCharge.getPackageWeight());
+                                                            frtCharged.setWeightUnit(prevShipmentFrtCharge.getWeightUnit());
+                                                            frtCharged.setActualWeight(prevShipmentFrtCharge.getActualWeight());
+                                                            frtCharged.setActualWeightUnit(prevShipmentFrtCharge.getActualWeightUnit());
+                                                            frtCharged.setDimHeight(prevShipmentFrtCharge.getDimHeight());
+                                                            frtCharged.setDimWidth(prevShipmentFrtCharge.getDimWidth());
+                                                            frtCharged.setDimLength(prevShipmentFrtCharge.getDimLength());
+                                                            frtCharged.setUnitOfDim(prevShipmentFrtCharge.getUnitOfDim());
+                                                            frtCharged.setPackageDimension(prevShipmentFrtCharge.getPackageDimension());
+                                                            System.out.println("Prev shipment weight added for tracking number :: " + prevShipmentFrtCharge.getTrackingNumber());
 
-                                                        frtChargeManipulated = true;
+                                                            frtChargeManipulated = true;
+                                                        }
+                                                    }
+                                                } else {
+                                                    hasFrtCharge = false;
+                                                }
+                                                boolean hasFSCCharge = ParcelRatingUtil.containsFuelSurcharge(shipmentsToRate);
+                                                for (ParcelAuditDetailsDto prevShpCharge : previousShipment) {
+                                                    if (prevShpCharge != null && ParcelAuditConstant.ChargeClassificationCode.ACC.name().equalsIgnoreCase(prevShpCharge.getChargeClassificationCode())) {
+                                                        shipmentsToRate.add(prevShpCharge);
+                                                    }
+                                                    if (!hasFSCCharge && ParcelAuditConstant.ChargeClassificationCode.ACC.name().equalsIgnoreCase(prevShpCharge.getChargeClassificationCode())) {
+                                                        shipmentsToRate.add(prevShpCharge);
+                                                    }
+                                                    if (!hasFrtCharge && !frtChargeManipulated && ParcelAuditConstant.ChargeClassificationCode.FRT.name().equalsIgnoreCase(prevShpCharge.getChargeClassificationCode())) {
+                                                        shipmentsToRate.add(prevShpCharge);
                                                     }
                                                 }
-                                            } else {
-                                                hasFrtCharge = false;
+                                                addUpsShipmentEntryIntoQueue(shipmentsToRate, allMappedARChargeCodes);
                                             }
-                                            boolean hasFSCCharge = ParcelRatingUtil.containsFuelSurcharge(shipmentsToRate);
-                                            for(ParcelAuditDetailsDto prevShpCharge : previousShipment){
-                                                if(prevShpCharge != null && ParcelAuditConstant.ChargeClassificationCode.ACC.name().equalsIgnoreCase(prevShpCharge.getChargeClassificationCode())) {
-                                                    shipmentsToRate.add(prevShpCharge);
-                                                }
-                                                if(!hasFSCCharge && ParcelAuditConstant.ChargeClassificationCode.ACC.name().equalsIgnoreCase(prevShpCharge.getChargeClassificationCode())) {
-                                                    shipmentsToRate.add(prevShpCharge);
-                                                }
-                                                if (!hasFrtCharge && !frtChargeManipulated && ParcelAuditConstant.ChargeClassificationCode.FRT.name().equalsIgnoreCase(prevShpCharge.getChargeClassificationCode())) {
-                                                    shipmentsToRate.add(prevShpCharge);
-                                                }
-                                            }
-                                            addUpsShipmentEntryIntoQueue(shipmentsToRate, allMappedARChargeCodes);
+                                        } else {
+                                            addUpsShipmentEntryIntoQueue(shipmentChargeList, allMappedARChargeCodes);
                                         }
-                                    } else {
-                                        addUpsShipmentEntryIntoQueue(shipmentChargeList, allMappedARChargeCodes);
                                     }
                                 }
+                                previousShipment = new ArrayList<>(shipmentChargeList);
                             }
-                            previousShipment = new ArrayList<>(shipmentChargeList);
                         }
+                        entryIterator.remove();
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                        //Do nothing
                     }
-                    entryIterator.remove();
-                }catch (Exception e){
-                    System.out.println(e.getMessage());
-                    //Do nothing
                 }
             }
+
+            addMwtOrHwtShipmentEntryIntoQueue(hwtDetailsMap, allMappedARChargeCodes, "ups");
         }
     }
 
@@ -288,7 +296,7 @@ public class ParcelRatingQueueJob {
                         entryIterator.remove();
                     }
                 }
-            addMwtShipmentEntryIntoQueue(mwtDetailsMap, msiARChargeCode);
+            addMwtOrHwtShipmentEntryIntoQueue(mwtDetailsMap, msiARChargeCode, "fedex");
         }
     }
 
@@ -307,7 +315,7 @@ public class ParcelRatingQueueJob {
     }
 
 
-    private void addMwtShipmentEntryIntoQueue(Map<String, List<ParcelAuditDetailsDto>> mwtDetailsMap, MsiARChargeCodesDto msiARChargeCode) throws SQLException {
+    private void addMwtOrHwtShipmentEntryIntoQueue(Map<String, List<ParcelAuditDetailsDto>> mwtDetailsMap, MsiARChargeCodesDto msiARChargeCode, String rateTo) throws SQLException {
 
         List<RatingQueueBean> queueBeanList = null;
         for (Map.Entry<String, List<ParcelAuditDetailsDto>> entry : mwtDetailsMap.entrySet()) {
@@ -316,7 +324,13 @@ public class ParcelRatingQueueJob {
 
             for (Map.Entry<String, List<ParcelAuditDetailsDto>> listEntry : trackingNumberWiseShipments.entrySet()) {
 
-                RatingQueueBean ratingQueueBean = ParcelRatingUtil.prepareShipmentEntryForNonUpsShipment(listEntry.getValue(), msiARChargeCode);
+                RatingQueueBean ratingQueueBean = null;
+
+                if (StringUtils.equalsIgnoreCase("fedex", rateTo))
+                    ratingQueueBean = ParcelRatingUtil.prepareShipmentEntryForNonUpsShipment(listEntry.getValue(), msiARChargeCode);
+                else if (StringUtils.equalsIgnoreCase("ups", rateTo))
+                    ParcelRatingUtil.prepareShipmentEntryForUpsShipment(listEntry.getValue(), msiARChargeCode);
+
                 if (queueBeanList == null)
                     queueBeanList = new ArrayList<RatingQueueBean>();
 
