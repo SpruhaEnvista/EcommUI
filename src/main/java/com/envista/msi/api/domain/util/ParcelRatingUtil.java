@@ -804,16 +804,20 @@ public class ParcelRatingUtil {
     public static String prepareTrackingNumbersInOperator(List<RatingQueueBean> queueBeans) {
 
         StringBuilder builder = null;
-
-        for (RatingQueueBean bean : queueBeans) {
-
-            if (builder == null) {
+            if(queueBeans.size()==1){
                 builder = new StringBuilder();
-            } else {
-                builder.append(",");
+                builder.append( queueBeans.get(0).getTrackingNumber() );
+            }else {
+                for (RatingQueueBean bean : queueBeans) {
+
+                    if (builder == null) {
+                        builder = new StringBuilder();
+                    } else {
+                        builder.append(",");
+                    }
+                    builder.append("'" + bean.getTrackingNumber() + "'");
+                }
             }
-            builder.append("'" + bean.getTrackingNumber() + "'");
-        }
         return builder.toString();
     }
 
