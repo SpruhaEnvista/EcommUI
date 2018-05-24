@@ -343,8 +343,6 @@ public class RatingQueueDAO {
 
                 if (StringUtils.containsIgnoreCase(trackingNumbers, ","))
                     liveQuery += " AND a.tracking_number IN (" + trackingNumbers + ") ";
-                else if (!ignoreRtrStatus && !isHwt)
-                    liveQuery += " AND a.tracking_number IN (" + trackingNumbers + ") ";
                 else
                     liveQuery += " AND a.tracking_number IN ('" + trackingNumbers + "') ";
             }
@@ -503,8 +501,6 @@ public class RatingQueueDAO {
             if(trackingNumbers != null && !trackingNumbers.isEmpty()) {
 
                 if (StringUtils.containsIgnoreCase(trackingNumbers, ","))
-                    liveSqlQuery += " AND ebmf.tracking_number IN (" + trackingNumbers + ") ";
-                else if (!ignoreRtrStatus && !isHwt)
                     liveSqlQuery += " AND ebmf.tracking_number IN (" + trackingNumbers + ") ";
                 else
                     liveSqlQuery += " AND ebmf.tracking_number IN ('" + trackingNumbers + "') ";
