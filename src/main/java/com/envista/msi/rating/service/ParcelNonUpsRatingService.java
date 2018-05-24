@@ -126,10 +126,8 @@ public class ParcelNonUpsRatingService {
         String url = ParcelAuditConstant.AR_RATE_REQUEST_PROTOCOL + "://" + ParcelAuditConstant.AR_RATE_REQUEST_HOST_NAME + "/" + ParcelAuditConstant.AR_RATE_REQUEST_URI_PATH;
 
         requestPayload = com.envista.msi.rating.util.ParcelRateRequestBuilder.buildParcelRateRequest(bean, ParcelAuditConstant.AR_RATE_REQUEST_LICENSE_KEY, queueBeans).toXmlString();
-        System.out.println("NON UPS requestPayload*******" + requestPayload);
-        response = CommonUtil.connectAndGetResponseAsString(url, requestPayload);
-        System.out.println("NON UPS response*******" + response);
-        if(response != null && !response.trim().isEmpty()) {
+         response = CommonUtil.connectAndGetResponseAsString(url, requestPayload);
+         if(response != null && !response.trim().isEmpty()) {
             if (queueBeans != null && queueBeans.size() > 0) {
                 shipmentToRate = ParcelRatingUtil.getLeadShipmentDetails(shipmentToRate);
                 bean = ParcelRatingUtil.getLeadShipmentQueueBean(shipmentToRate, queueBeans);

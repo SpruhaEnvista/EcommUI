@@ -242,9 +242,6 @@ public class ParcelUpsRatingService {
             }
         }
 
-        System.out.println("UPS requestPayload*******" + requestPayload);
-        System.out.println("UPS response*******" + response);
-
         return status;
     }
 
