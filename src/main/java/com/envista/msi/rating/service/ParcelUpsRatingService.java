@@ -95,7 +95,11 @@ public class ParcelUpsRatingService {
 
                         if(shipmentToRate != null && !shipmentToRate.isEmpty()) {
                             if(ParcelRatingUtil.isFirstShipmentToRate(shipments, bean.getParentId())) {
-                                if(!ParcelRatingUtil.isShipmentRated(shipmentToRate)) {
+                                if(ParcelRatingUtil.isRatedWithException(shipmentToRate)) {
+                                    status = ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value;
+                                } else if(ParcelRatingUtil.isRatedWithEmptyPriceSheet(shipmentToRate)) {
+                                    status = ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET.value;
+                                } else if(!ParcelRatingUtil.isShipmentRated(shipmentToRate)) {
                                     status = callRTRAndPopulateRates(url, licenseKey, shipmentToRate, msiARChargeCode, null, bean);
                                 }
                             } else {
@@ -113,7 +117,7 @@ public class ParcelUpsRatingService {
                                                     List<ParcelAuditDetailsDto> resComShipmentToRate = new ArrayList<>();
                                                     for(ParcelAuditDetailsDto shpCharge : shipmentToRate) {
                                                         if(shpCharge != null && ParcelAuditConstant.ChargeClassificationCode.ACC.name().equalsIgnoreCase(shpCharge.getChargeClassificationCode())
-                                                            && !"RES".equalsIgnoreCase(shpCharge.getChargeDescriptionCode())) {
+                                                                && !"RES".equalsIgnoreCase(shpCharge.getChargeDescriptionCode())) {
                                                             resComShipmentToRate.add(shpCharge);
                                                         }
                                                     }
@@ -173,6 +177,10 @@ public class ParcelUpsRatingService {
                                                     }
                                                 }
                                             }
+                                        } else if(ParcelRatingUtil.isRatedWithException(previousShipment)) {
+                                            status = ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value;
+                                        } else if(ParcelRatingUtil.isRatedWithEmptyPriceSheet(previousShipment)) {
+                                            status = ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET.value;
                                         }
                                     }
                                 }

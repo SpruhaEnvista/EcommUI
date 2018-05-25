@@ -54,7 +54,7 @@ public class RatingQueueBean {
     private Date createDate;
     private Long carrierId;
     private Long parentId;
-    private Boolean rateStatus;
+    private Integer rateStatus = 0;
     private String accessorialInfo;
     private String[] accessorialArray;
     private String revenueTier;
@@ -465,11 +465,11 @@ public class RatingQueueBean {
         this.parentId = parentId;
     }
 
-    public Boolean getRateStatus() {
+    public Integer getRateStatus() {
         return rateStatus;
     }
 
-    public void setRateStatus(Boolean rateStatus) {
+    public void setRateStatus(Integer rateStatus) {
         this.rateStatus = rateStatus;
     }
 

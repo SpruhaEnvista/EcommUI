@@ -662,4 +662,32 @@ public class ParcelRatingUtil {
         }
         return null;
     }
+
+    public static boolean isRatedWithException(List<ParcelAuditDetailsDto> shipment){
+        boolean isRatedWithException = false;
+        if(shipment != null && !shipment.isEmpty()) {
+            for(ParcelAuditDetailsDto shipmentCharge : shipment){
+                if(shipmentCharge != null && shipmentCharge.getRtrStatus() != null
+                        && ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value.equalsIgnoreCase(shipmentCharge.getRtrStatus())) {
+                    isRatedWithException = true;
+                    break;
+                }
+            }
+        }
+        return isRatedWithException;
+    }
+
+    public static boolean isRatedWithEmptyPriceSheet(List<ParcelAuditDetailsDto> shipment){
+        boolean isRatedWithEmptyPriceSheet = false;
+        if(shipment != null && !shipment.isEmpty()) {
+            for(ParcelAuditDetailsDto shipmentCharge : shipment){
+                if(shipmentCharge != null && shipmentCharge.getRtrStatus() != null
+                        && ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET.value.equalsIgnoreCase(shipmentCharge.getRtrStatus())) {
+                    isRatedWithEmptyPriceSheet = true;
+                    break;
+                }
+            }
+        }
+        return isRatedWithEmptyPriceSheet;
+    }
 }

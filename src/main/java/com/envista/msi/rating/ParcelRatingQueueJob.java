@@ -243,6 +243,7 @@ public class ParcelRatingQueueJob {
                     }
                     entryIterator.remove();
                 }catch (Exception e){
+                    e.printStackTrace();
                     System.out.println(e.getMessage());
                     //Do nothing
                 }

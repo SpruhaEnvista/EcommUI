@@ -239,7 +239,7 @@ public class RatingDAOUtil {
                     ps.setNull(46, Types.INTEGER);
                 }
             }  else if("RATE_STATUS".equalsIgnoreCase(columnName)) {
-                ps.setInt(47, queueBean.getRateStatus() != null && queueBean.getRateStatus() ? 1 : 0);
+                ps.setInt(47, queueBean.getRateStatus() != null ? queueBean.getRateStatus() : 0);
             } else if("ACCESSORIAL_INFO".equalsIgnoreCase(columnName)) {
                 ps.setString(48, queueBean.getAccessorialInfo());
             } else if("DALIVERY_DATE".equalsIgnoreCase(columnName)) {

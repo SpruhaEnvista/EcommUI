@@ -77,7 +77,7 @@ public class RatingQueueDAO {
                 ratingQBean.setCreateDate(rss.getDate("CREATE_DATE"));
                 ratingQBean.setCarrierId(rss.getLong("CARRIER_ID"));
                 ratingQBean.setParentId(rss.getLong("PARENT_ID"));
-                ratingQBean.setRateStatus(rss.getBoolean("RATE_STATUS"));
+                ratingQBean.setRateStatus(rss.getInt("RATE_STATUS"));
                 ratingQBean.setAccessorialInfo(rss.getString("ACCESSORIAL_INFO"));
                 ratingQBean.setRevenueTier(rss.getString("REVENUE_TIER"));
                 ratingQBean.setTrackingNumber(rss.getString("TRACKING_NUMBER"));
@@ -115,7 +115,7 @@ public class RatingQueueDAO {
         ResultSet rs = null;
 
         java.util.ArrayList<RatingQueueBean> beanList = null;
-        String selectQuery = "select * from SHP_RATING_QUEUE_TB where RATE_STATUS = 0 and job_id in ( "+jobIds+" ) and rownum < 30001 ";
+        String selectQuery = "select * from SHP_RATING_QUEUE_TB where RATE_STATUS = 0 and job_id in ( "+jobIds+" ) and rownum <= 30000 ";
 
         try {
             connection = ServiceLocator.getDatabaseConnection();
@@ -173,7 +173,7 @@ public class RatingQueueDAO {
                 ratingQueueBean.setCreateDate(rs.getDate("CREATE_DATE"));
                 ratingQueueBean.setCarrierId(rs.getLong("CARRIER_ID"));
                 ratingQueueBean.setParentId(rs.getLong("PARENT_ID"));
-                ratingQueueBean.setRateStatus(rs.getBoolean("RATE_STATUS"));
+                ratingQueueBean.setRateStatus(rs.getInt("RATE_STATUS"));
                 ratingQueueBean.setAccessorialInfo(rs.getString("ACCESSORIAL_INFO"));
                 ratingQueueBean.setRevenueTier(rs.getString("REVENUE_TIER"));
                 ratingQueueBean.setTrackingNumber(rs.getString("TRACKING_NUMBER"));
