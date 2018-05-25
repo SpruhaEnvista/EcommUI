@@ -101,7 +101,7 @@ public class DirectJDBCDAO {
         CallableStatement cstmt =null;
         try{
             conn = ServiceLocator.getDatabaseConnection();
-            cstmt = conn.prepareCall("{ call SHP_FRT_SAVE_XML_RATING_PROC(?,?,?,?,?,?,?,?)}");
+            cstmt = conn.prepareCall("{ call SHP_FRT_SAVE_XML_RATING_PROC(?,?,?,?,?,?,?,?,?)}");
             cstmt.setString(1, requestResponseLog.getTableName());
             cstmt.setString(2, requestResponseLog.getEntityIds());
             cstmt.setString(3, requestResponseLog.getRequestXml1());
@@ -110,6 +110,7 @@ public class DirectJDBCDAO {
             cstmt.setString(6, requestResponseLog.getResponseXml2());
             cstmt.setString(7, requestResponseLog.getResponseXml3());
             cstmt.setString(8, requestResponseLog.getCreateUser());
+            cstmt.setString(9, requestResponseLog.getRequestXml3());
             cstmt.executeUpdate();
 
         }catch (SQLException sqle) {
