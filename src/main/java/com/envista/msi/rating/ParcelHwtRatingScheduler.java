@@ -14,24 +14,18 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-/**
- * @author Sreenivas
- *
- *
- */
-public class ParcelRatingScheduler {
+
+public class ParcelHwtRatingScheduler {
 
     /**
      * @param args
      */
     public static void main(String[] args) throws Exception {
-        String jobIds = "1,2,3,4,5,6,7,8,9,10";
-        if (args != null && args.length > 0) {
-            jobIds = args[0];
-        }
-        File file = new File("ParcelRatingScheduler" + jobIds.replaceAll(",", ""));
+
+        File file = new File("ParcelHwtRatingScheduler");
         FileChannel channel = new RandomAccessFile(file, "rw").getChannel();
         FileLock lock = null;
+        String jobIds = "99";
         try {
             lock = channel.tryLock();
         } catch (OverlappingFileLockException e) {
@@ -42,30 +36,32 @@ public class ParcelRatingScheduler {
             System.out.println("lock is acquired. Another program instance is running. ");
             System.exit(0);
         }
-
+        if (args != null && args.length > 0) {
+            jobIds = args[0];
+        }
 
         // Get the scheduler
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         // Get a handle, starting now, with a 10 minutes delay
-        final ScheduledFuture<?> future = executor.scheduleWithFixedDelay(new ParcelRatingPollingService(jobIds), 0, 1,TimeUnit.MINUTES);
+        final ScheduledFuture<?> future = executor.scheduleWithFixedDelay(new ParcelHwtRatingPollingService(jobIds), 0, 1, TimeUnit.MINUTES);
         //future.cancel(false);
         //executor.shutdown();
     }
 }
 
-class ParcelRatingPollingService implements Runnable {
+class ParcelHwtRatingPollingService implements Runnable {
 
     private Log m_log = LogFactory.getLog(ParcelRatingPollingService.class);
     private String jobIds;
 
-    public ParcelRatingPollingService(String jobIds) {
-        this.jobIds=jobIds;
+    public ParcelHwtRatingPollingService(String jobIds) {
+        this.jobIds = jobIds;
     }
 
     public void run() {
         try {
-            ParcelRating parcelRating = new ParcelRating();
-            parcelRating.processRating(this.jobIds);
+            ParcelHwtRating parcelHwtRating = new ParcelHwtRating();
+            parcelHwtRating.processRating(this.jobIds);
         } catch (Exception e) {
             m_log.error(e);
             e.printStackTrace();
@@ -73,3 +69,4 @@ class ParcelRatingPollingService implements Runnable {
     }
 
 }
+

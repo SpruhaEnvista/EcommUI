@@ -213,6 +213,12 @@ public class ParcelAuditDetailsDto {
     @Column(name = "rtr_status")
     private String rtrStatus;
 
+    @Column(name = "MULTI_WEIGHT_NUMBER")
+    private String multiWeightNumber;
+
+    @Column(name = "HWT_AMOUNT")
+    private String hwtAmount;
+
     public ParcelAuditDetailsDto() {
     }
 
@@ -593,6 +599,18 @@ public class ParcelAuditDetailsDto {
     public void setRtrStatus(String rtrStatus) {
         this.rtrStatus = rtrStatus;
     }
+
+    public String getMultiWeightNumber() {
+        return multiWeightNumber;
+    }
+
+    public void setMultiWeightNumber(String multiWeightNumber) {
+        this.multiWeightNumber = multiWeightNumber;
+    }
+
+    public String getHwtAmount() { return hwtAmount; }
+
+    public void setHwtAmount(String hwtAmount) { this.hwtAmount = hwtAmount;  }
 
     public static class Config{
         public static class StoredProcedureName{

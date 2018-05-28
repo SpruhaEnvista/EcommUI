@@ -15,6 +15,7 @@ import com.envista.msi.rating.dao.RatingQueueDAO;
 
 import javax.xml.bind.JAXBException;
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.util.*;
 
 /**
@@ -66,24 +67,24 @@ public class ParcelNonUpsRatingService {
         }
     }
 
-    public List<ParcelAuditDetailsDto> getFedExParcelShipmentDetails(String customerId, String fromShipDate, String toShipDate, String trackingNumbers, String invoiceIds, boolean ignoreRtrStatus){
-        return new RatingQueueDAO().getNonUpsParcelShipmentDetails(customerId, "22", fromShipDate, toShipDate, trackingNumbers, invoiceIds, ignoreRtrStatus);
+    public List<ParcelAuditDetailsDto> getFedExParcelShipmentDetails(String customerId, String fromShipDate, String toShipDate, String trackingNumbers, String invoiceIds, boolean ignoreRtrStatus, boolean isHwt) {
+        return new RatingQueueDAO().getNonUpsParcelShipmentDetails(customerId, "22", fromShipDate, toShipDate, trackingNumbers, invoiceIds, ignoreRtrStatus, isHwt);
     }
 
-    public List<ParcelAuditDetailsDto> getFedExParcelShipmentDetails(String customerId, String fromShipDate, String toShipDate, String trackingNumbers, String invoiceIds){
-        return new RatingQueueDAO().getNonUpsParcelShipmentDetails(customerId, "22", fromShipDate, toShipDate, trackingNumbers, invoiceIds, false);
+    public List<ParcelAuditDetailsDto> getFedExParcelShipmentDetails(String customerId, String fromShipDate, String toShipDate, String trackingNumbers, String invoiceIds, boolean isHwt) {
+        return new RatingQueueDAO().getNonUpsParcelShipmentDetails(customerId, "22", fromShipDate, toShipDate, trackingNumbers, invoiceIds, false, isHwt);
     }
 
-    public List<ParcelAuditDetailsDto> getFedExParcelShipmentDetails(String customerId, String fromShipDate, String toShipDate) {
-        return getFedExParcelShipmentDetails(customerId, fromShipDate, toShipDate, null, null);
+    public List<ParcelAuditDetailsDto> getFedExParcelShipmentDetails(String customerId, String fromShipDate, String toShipDate, boolean isHwt) {
+        return getFedExParcelShipmentDetails(customerId, fromShipDate, toShipDate, null, null, isHwt);
     }
 
-    public List<ParcelAuditDetailsDto> getFedExParcelShipmentDetails(String trackingNumbers, boolean ignoreRtrStatus) {
-        return getFedExParcelShipmentDetails(null, null, null, trackingNumbers, null, ignoreRtrStatus);
+    public List<ParcelAuditDetailsDto> getFedExParcelShipmentDetails(String trackingNumbers, boolean ignoreRtrStatus, boolean isHwt) {
+        return getFedExParcelShipmentDetails(null, null, null, trackingNumbers, null, ignoreRtrStatus, isHwt);
     }
 
     public String doRatingForNonUpsShipment(RatingQueueBean bean) throws Exception {
-        List<ParcelAuditDetailsDto> allShipmentCharges = getFedExParcelShipmentDetails(bean.getTrackingNumber(), true);
+        List<ParcelAuditDetailsDto> allShipmentCharges = getFedExParcelShipmentDetails(bean.getTrackingNumber(), true, false);
         String status = null;
 
         if(allShipmentCharges != null && !allShipmentCharges.isEmpty()) {
@@ -93,7 +94,7 @@ public class ParcelNonUpsRatingService {
             if(shipmentToRate != null && !shipmentToRate.isEmpty()) {
                 if(ParcelRatingUtil.isFirstShipmentToRate(shipments, bean.getParentId())) {
                     if(!ParcelRatingUtil.isShipmentRated(shipmentToRate)) {
-                        status = callRTRAndPopulateRates(shipmentToRate, bean);
+                        status = callRTRAndPopulateRates(shipmentToRate, bean, null);
                     }
                 } else {
                     if(!ParcelRatingUtil.isShipmentRated(shipmentToRate)) {
@@ -104,10 +105,10 @@ public class ParcelNonUpsRatingService {
                                     ParcelAuditDetailsDto prevShipmentFrtCharge = ParcelRatingUtil.getPreviousShipmentBaseChargeDetails(shipments, bean.getParentId());
                                     if(prevShipmentFrtCharge != null) {
                                         shipmentToRate.add(prevShipmentFrtCharge);
-                                        status = callRTRAndPopulateRates(shipmentToRate, bean);
+                                        status = callRTRAndPopulateRates(shipmentToRate, bean, null);
                                     }
                                 }else {
-                                    status = callRTRAndPopulateRates(shipmentToRate, bean);
+                                    status = callRTRAndPopulateRates(shipmentToRate, bean, null);
                                 }
                             }
                         }
@@ -118,29 +119,42 @@ public class ParcelNonUpsRatingService {
         return status;
     }
 
-    public String callRTRAndPopulateRates(List<ParcelAuditDetailsDto> shipmentToRate, RatingQueueBean bean) throws Exception {
+    public String callRTRAndPopulateRates(List<ParcelAuditDetailsDto> shipmentToRate, RatingQueueBean bean, List<RatingQueueBean> queueBeans) throws Exception {
         String requestPayload = "";
         String response = "";
         String status = null;
         String url = ParcelAuditConstant.AR_RATE_REQUEST_PROTOCOL + "://" + ParcelAuditConstant.AR_RATE_REQUEST_HOST_NAME + "/" + ParcelAuditConstant.AR_RATE_REQUEST_URI_PATH;
 
-        requestPayload = com.envista.msi.rating.util.ParcelRateRequestBuilder.buildParcelRateRequest(bean, ParcelAuditConstant.AR_RATE_REQUEST_LICENSE_KEY).toXmlString();
+        requestPayload = com.envista.msi.rating.util.ParcelRateRequestBuilder.buildParcelRateRequest(bean, ParcelAuditConstant.AR_RATE_REQUEST_LICENSE_KEY, queueBeans).toXmlString();
         response = CommonUtil.connectAndGetResponseAsString(url, requestPayload);
         if(response != null && !response.trim().isEmpty()) {
+            if (queueBeans != null && queueBeans.size() > 0) {
+                BigDecimal sumOfNetAmount = ParcelRatingUtil.findSumOfNetAmount(shipmentToRate);
+                shipmentToRate = ParcelRatingUtil.getLeadShipmentDetails(shipmentToRate);
+                bean = ParcelRatingUtil.getLeadShipmentQueueBean(shipmentToRate, queueBeans);
+                if(bean!= null)
+                bean.setNetAmount(sumOfNetAmount);
+            }
+
             new DirectJDBCDAO().saveParcelAuditRequestAndResponseLog(ParcelRatingUtil.prepareRequestResponseLog(requestPayload, response, bean.getParentId(), ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME));
-            status = updateRateForNonUpsCarrier(ParcelRateResponseParser.parse(response), shipmentToRate, getAllMappedARChargeCodes());
+
+            status = updateRateForNonUpsCarrier(ParcelRateResponseParser.parse(response), shipmentToRate, getAllMappedARChargeCodes(),bean);
         }
         return status;
     }
 
-    public String updateRateForNonUpsCarrier(ParcelRateResponse parcelRateResponse, List<ParcelAuditDetailsDto> parcelAuditDetails, MsiARChargeCodesDto msiARChargeCode) throws Exception {
+    public String updateRateForNonUpsCarrier(ParcelRateResponse parcelRateResponse, List<ParcelAuditDetailsDto> parcelAuditDetails, MsiARChargeCodesDto msiARChargeCode,RatingQueueBean bean) throws Exception {
         String status = "";
         if(parcelRateResponse != null){
             if(parcelRateResponse.getStatusCode().equals(0)){
                 if(parcelRateResponse.getPriceSheets() != null && !parcelRateResponse.getPriceSheets().isEmpty()){
                     //Taking the first price sheet, as per the discussion we finalised that the first price sheet will be be correct and rated based on the latest contract.
                     ParcelRateResponse.PriceSheet firstPriceSheet = parcelRateResponse.getPriceSheets().get(0);
-                    BigDecimal sumOfNetAmount = ParcelRatingUtil.findSumOfNetAmount(parcelAuditDetails);
+                    BigDecimal sumOfNetAmount = null;
+                    if(bean.getHwtIdentifier() != null)
+                        sumOfNetAmount = bean.getNetAmount();
+                    else
+                        sumOfNetAmount = ParcelRatingUtil.findSumOfNetAmount(parcelAuditDetails);
                     BigDecimal totalRateAmount = firstPriceSheet.getTotal().setScale(2, BigDecimal.ROUND_HALF_EVEN);
 
                     BigDecimal toleranceLowerBound = sumOfNetAmount.multiply(new BigDecimal("0.995"));
@@ -210,7 +224,7 @@ public class ParcelNonUpsRatingService {
                             rateDetails.setRatedMinMaxAdjustment(ParcelRateResponseParser.getMinMaxAdjustment(priceSheet));
                             rateDetails.setDimDivisor(charge.getDimDivisor() == null ? new BigDecimal("0") : charge.getDimDivisor());
                             rateDetails.setRatedWeight(charge.getWeight() == null ? new BigDecimal("0") : charge.getWeight());
-
+                            rateDetails.setHwtIdentifier(auditDetails.getMultiWeightNumber());
                             ParcelRateResponse.Charge residentialSurchargeDiscountCharge = ParcelRateResponseParser.getResidentialSurchargeDiscount(priceSheet);
                             if(residentialSurchargeDiscountCharge != null){
                                 rateDetails.setResidentialSurchargeDiscount(residentialSurchargeDiscountCharge.getAmount());
@@ -236,6 +250,7 @@ public class ParcelNonUpsRatingService {
                         rateDetails.setRatedWeight(charge.getWeight() == null ? new BigDecimal("0") : charge.getWeight());
                         rateDetails.setRtrAmount(charge.getAmount());
                         rateDetails.setRtrStatus(rtrStatus.value);
+                        rateDetails.setHwtIdentifier(auditDetails.getMultiWeightNumber());
                         directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                     }
                 }else if(ParcelAuditConstant.ChargeClassificationCode.ACS.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())
@@ -251,6 +266,7 @@ public class ParcelNonUpsRatingService {
                         rateDetails.setRatedWeight(charge.getWeight() == null ? new BigDecimal("0") : charge.getWeight());
                         rateDetails.setRtrAmount(charge.getAmount());
                         rateDetails.setRtrStatus(rtrStatus.value);
+                        rateDetails.setHwtIdentifier(auditDetails.getMultiWeightNumber());
 
                         directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                     }
@@ -286,6 +302,7 @@ public class ParcelNonUpsRatingService {
                         rateDetails.setRatedWeight(charge.getWeight() == null ? new BigDecimal("0") : charge.getWeight());
                         rateDetails.setRtrAmount(charge.getAmount());
                         rateDetails.setRtrStatus(rtrStatus.value);
+                        rateDetails.setHwtIdentifier(auditDetails.getMultiWeightNumber());
 
                         directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                     }
@@ -303,6 +320,7 @@ public class ParcelNonUpsRatingService {
                         rateDetails.setRatedWeight(charge.getWeight() == null ? new BigDecimal("0") : charge.getWeight());
                         rateDetails.setRtrAmount(charge.getAmount());
                         rateDetails.setRtrStatus(rtrStatus.value);
+                        rateDetails.setHwtIdentifier(auditDetails.getMultiWeightNumber());
 
                         directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                     }
@@ -323,6 +341,7 @@ public class ParcelNonUpsRatingService {
                         rateDetails.setRatedWeight(charge.getWeight() == null ? new BigDecimal("0") : charge.getWeight());
                         rateDetails.setRtrAmount(charge.getAmount());
                         rateDetails.setRtrStatus(rtrStatus.value);
+                        rateDetails.setHwtIdentifier(auditDetails.getMultiWeightNumber());
                         directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                     }
                 }
@@ -334,6 +353,7 @@ public class ParcelNonUpsRatingService {
                     rateDetails.setFuelTablePercentage(fuelTablePerc);
                     rateDetails.setRtrAmount(new BigDecimal("0"));
                     rateDetails.setRtrStatus(rtrStatus.value);
+                    rateDetails.setHwtIdentifier(auditDetails.getMultiWeightNumber());
                     directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                 }
             }
@@ -342,11 +362,13 @@ public class ParcelNonUpsRatingService {
         ParcelRateDetailsDto otherDscRateDetails = ParcelRateDetailsDto.getInstance();
         otherDscRateDetails.setShipperCategory(shipperCategory);
         otherDscRateDetails.setContractName(contractName);
+        otherDscRateDetails.setHwtIdentifier(parcelAuditDetails.get(0).getMultiWeightNumber());
         saveOtherDiscountsAppliedForNonUps(priceSheet, parcelAuditDetails, otherDscRateDetails, mappedDscChanges);
 
         ParcelRateDetailsDto accessorialRateDetails = ParcelRateDetailsDto.getInstance();
         accessorialRateDetails.setShipperCategory(shipperCategory);
         accessorialRateDetails.setContractName(contractName);
+        accessorialRateDetails.setHwtIdentifier(parcelAuditDetails.get(0).getMultiWeightNumber());
         saveAccessorialForNonUps(priceSheet, parcelAuditDetails, accessorialRateDetails, mappedAccChanges);
         return rtrStatus.value;
     }
@@ -467,5 +489,35 @@ public class ParcelNonUpsRatingService {
                 }
             }
         }catch (Exception e){}
+    }
+
+    public void saveRatingQueueBean(List<RatingQueueBean> queueBeanList) throws SQLException {
+        if (queueBeanList != null) {
+            new RatingQueueDAO().saveRatingQueueBean(queueBeanList);
+        }
+    }
+
+
+    /**
+     * @param beans
+     * @return
+     * @throws Exception
+     */
+    public String doRatingForNonUpsShipment(List<RatingQueueBean> beans) throws Exception {
+
+        String trackingNumbers = ParcelRatingUtil.prepareTrackingNumbersInOperator(beans);
+        String status = null;
+        if (trackingNumbers != null && trackingNumbers.length() > 0) {
+
+            List<ParcelAuditDetailsDto> allShipmentCharges = getFedExParcelShipmentDetails(trackingNumbers, true, false);
+
+
+            if (allShipmentCharges != null && !allShipmentCharges.isEmpty()) {
+                status = callRTRAndPopulateRates(allShipmentCharges, null, beans);
+            }
+
+        }
+
+        return status;
     }
 }
