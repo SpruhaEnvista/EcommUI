@@ -1,6 +1,7 @@
 package com.envista.msi.rating;
 
 import com.envista.msi.api.domain.util.ParcelRatingUtil;
+import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditDetailsDto;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant;
 import com.envista.msi.rating.bean.RatingQueueBean;
 import com.envista.msi.rating.dao.RatingQueueDAO;
@@ -10,22 +11,25 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class ParcelRating implements Callable<String> {
+public class ParcelHwtRating implements Callable<String> {
 
-    private static final int MAX_THREADS = 5;
+    private static final int MAX_THREADS = 1;
 
-    private RatingQueueBean ratingQueueBean = null;
-    private Log m_log = LogFactory.getLog(ParcelRating.class);
+    private List<RatingQueueBean> queueBeans = null;
+    private Log m_log = LogFactory.getLog(ParcelHwtRating.class);
 
-    public ParcelRating() { }
+    public ParcelHwtRating() {
+    }
 
-    public ParcelRating(RatingQueueBean bean) {
-        this.ratingQueueBean = bean;
+    public ParcelHwtRating(List<RatingQueueBean> queueBeans) {
+        this.queueBeans = queueBeans;
     }
 
     /*public void getRecord(){
@@ -40,19 +44,21 @@ public class ParcelRating implements Callable<String> {
         entitymanager.close();
     }*/
 
-    public void processRating(String jobIds) throws Exception{
+    public void processRating(String jobIds) throws Exception {
 
         RatingQueueDAO ratingQueueDao = new RatingQueueDAO();
         ArrayList<RatingQueueBean> beanList = ratingQueueDao.getRatingQueueByJobId(jobIds);
 
+        Map<String, List<RatingQueueBean>> shipmentWiseInfo = ParcelRatingUtil.prepareHwtShipmentWiseInfo(beanList);
 
-        System.out.println("in process parcel rating .....");
-        if (beanList != null) {
+        m_log.info("in process parcel rating .....");
+        if (shipmentWiseInfo != null) {
             ExecutorService executor = Executors.newFixedThreadPool(MAX_THREADS);
-            for(RatingQueueBean bean :beanList){
-                Callable<String> callableTask = new ParcelRating(bean);
+            for (Map.Entry<String, List<RatingQueueBean>> entry : shipmentWiseInfo.entrySet()) {
+                Callable<String> callableTask = new ParcelHwtRating(entry.getValue());
                 executor.submit(callableTask);
             }
+
             try {
                 executor.shutdown();
                 // Wait until all threads are finish
@@ -63,33 +69,37 @@ public class ParcelRating implements Callable<String> {
             }
         }
     }
+
     @Override
     public String call() throws Exception {
-        System.out.println("in call ....."+this.ratingQueueBean.getRatingQueueId());
-        processParcelRating(this.ratingQueueBean);
+        System.out.println("in call ....." + this.queueBeans);
+        processParcelRating(this.queueBeans);
         return "Success";
     }
-    public void processParcelRating(RatingQueueBean bean) throws Exception {
+
+    public void processParcelRating(List<RatingQueueBean> queueBeans) throws Exception {
         ParcelUpsRatingService parcelUpsRatingService = new ParcelUpsRatingService();
         ParcelNonUpsRatingService nonUpsRatingService = new ParcelNonUpsRatingService();
         String status = null;
-        if(bean.getCarrierId() == 21){
-            status = parcelUpsRatingService.doParcelRatingForUpsCarrier(bean);
-            System.out.println("Rating : " + bean.getTrackingNumber() + " : Status : " + status);
-        } else if(bean.getCarrierId() == 22) {
-            status = nonUpsRatingService.doRatingForNonUpsShipment(bean);
-            System.out.println("Rating : " + bean.getTrackingNumber() + " : Status : " + status);
-        }
+        if (queueBeans != null && queueBeans.size() > 0)
+            if (queueBeans.get(0).getCarrierId() == 21) {
+                status = parcelUpsRatingService.doParcelRatingForUpsCarrier(queueBeans);
+            } else if (queueBeans.get(0).getCarrierId() == 22) {
+                status = nonUpsRatingService.doRatingForNonUpsShipment(queueBeans);
+            }
+        String queueIds = ParcelRatingUtil.prepareQueueIdsInOperator(queueBeans);
 
         if (status != null && !status.isEmpty()) {
             RatingQueueDAO ratingQueueDAO = new RatingQueueDAO();
             if (ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value.equalsIgnoreCase(status)) {
-                ratingQueueDAO.updateRateStatusInQueue(bean.getRatingQueueId(), ParcelAuditConstant.ParcelRatingQueueRateStatus.RATING_EXCEPTION.value, null);
+                ratingQueueDAO.updateRateStatusInQueue(null, ParcelAuditConstant.ParcelRatingQueueRateStatus.RATING_EXCEPTION.value, queueIds);
             } else if (ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET.value.equalsIgnoreCase(status)) {
-                ratingQueueDAO.updateRateStatusInQueue(bean.getRatingQueueId(), ParcelAuditConstant.ParcelRatingQueueRateStatus.EMPTY_PRICE_SHEET.value, null);
+                ratingQueueDAO.updateRateStatusInQueue(null, ParcelAuditConstant.ParcelRatingQueueRateStatus.EMPTY_PRICE_SHEET.value, queueIds);
             } else if (ParcelRatingUtil.isRatingDone(status)) {
-                ratingQueueDAO.updateRateStatusInQueue(bean.getRatingQueueId(), ParcelAuditConstant.ParcelRatingQueueRateStatus.DONE.value, null);
+                ratingQueueDAO.updateRateStatusInQueue(null, ParcelAuditConstant.ParcelRatingQueueRateStatus.DONE.value, queueIds);
             }
         }
+
     }
 }
+
