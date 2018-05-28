@@ -108,6 +108,28 @@ public class ParcelUpsRatingService {
                                             } else if (ParcelRatingUtil.containsCharge(ParcelAuditConstant.RESIDENTIAL_ADJUSTMENT_CHARGE_TYPE, shipmentToRate)) {
                                                 //keeping it in separate if condition in order to handle few more scenarios in future.
                                                 status = callRTRAndPopulateRates(url, licenseKey, previousShipment, msiARChargeCode, shipmentToRate.get(0), previousShipment, bean, null);
+                                                status = callRTRAndPopulateRates(url, licenseKey, previousShipment, msiARChargeCode, shipmentToRate.get(0), previousShipment, bean);
+                                            } else if(ParcelRatingUtil.containsCharge(ParcelAuditConstant.RESIDENTIAL_COMMERCIAL_ADJUSTMENT_CHARGE_TYPE, shipmentToRate)) {
+                                                if(previousShipment != null) {
+                                                    List<ParcelAuditDetailsDto> resComShipmentToRate = new ArrayList<>();
+                                                    for(ParcelAuditDetailsDto shpCharge : shipmentToRate) {
+                                                        if(shpCharge != null && ParcelAuditConstant.ChargeClassificationCode.ACC.name().equalsIgnoreCase(shpCharge.getChargeClassificationCode())
+                                                            && !"RES".equalsIgnoreCase(shpCharge.getChargeDescriptionCode())) {
+                                                            resComShipmentToRate.add(shpCharge);
+                                                        }
+                                                    }
+                                                    for(ParcelAuditDetailsDto prevShipmentCharge : previousShipment) {
+                                                        if(prevShipmentCharge != null) {
+                                                            if(ParcelAuditConstant.ChargeClassificationCode.FRT.name().equalsIgnoreCase(prevShipmentCharge.getChargeClassificationCode())) {
+                                                                resComShipmentToRate.add(prevShipmentCharge);
+                                                            } else if(ParcelAuditConstant.ChargeClassificationCode.ACC.name().equalsIgnoreCase(prevShipmentCharge.getChargeClassificationCode())
+                                                                    && !"RES".equalsIgnoreCase(prevShipmentCharge.getChargeDescriptionCode())) {
+                                                                resComShipmentToRate.add(prevShipmentCharge);
+                                                            }
+                                                        }
+                                                    }
+                                                    status = callRTRAndPopulateRates(url, licenseKey, resComShipmentToRate, msiARChargeCode, previousShipment, bean);
+                                                }
                                             } else {
                                                 if(previousShipment != null){
                                                     if(shipmentToRate != null) {

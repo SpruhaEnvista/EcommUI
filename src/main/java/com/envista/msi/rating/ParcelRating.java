@@ -1,21 +1,19 @@
 package com.envista.msi.rating;
 
 import com.envista.msi.api.domain.util.ParcelRatingUtil;
-import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditDetailsDto;
+import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant;
 import com.envista.msi.rating.bean.RatingQueueBean;
 import com.envista.msi.rating.dao.RatingQueueDAO;
-
-import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
-
 import com.envista.msi.rating.service.ParcelNonUpsRatingService;
 import com.envista.msi.rating.service.ParcelUpsRatingService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import java.util.ArrayList;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class ParcelRating implements Callable<String> {
 
@@ -83,9 +81,15 @@ public class ParcelRating implements Callable<String> {
             System.out.println("Rating : " + bean.getTrackingNumber() + " : Status : " + status);
         }
 
-        if(ParcelRatingUtil.isRatingDone(status)){
+        if(status != null && !status.isEmpty()) {
             RatingQueueDAO ratingQueueDAO = new RatingQueueDAO();
-            ratingQueueDAO.updateRateStatusInQueue(bean.getRatingQueueId(), null);
+            if(ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value.equalsIgnoreCase(status)) {
+                ratingQueueDAO.updateRateStatusInQueue(bean.getRatingQueueId(), ParcelAuditConstant.ParcelRatingQueueRateStatus.RATING_EXCEPTION.value);
+            } else if(ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET.value.equalsIgnoreCase(status)) {
+                ratingQueueDAO.updateRateStatusInQueue(bean.getRatingQueueId(), ParcelAuditConstant.ParcelRatingQueueRateStatus.EMPTY_PRICE_SHEET.value);
+            } else if(ParcelRatingUtil.isRatingDone(status)) {
+                ratingQueueDAO.updateRateStatusInQueue(bean.getRatingQueueId(), ParcelAuditConstant.ParcelRatingQueueRateStatus.DONE.value);
+            }
         }
     }
 }

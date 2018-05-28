@@ -121,7 +121,7 @@ public class RatingQueueDAO {
         ResultSet rs = null;
 
         java.util.ArrayList<RatingQueueBean> beanList = null;
-        String selectQuery = "select * from SHP_RATING_QUEUE_TB where RATE_STATUS = 0 and job_id in ( " + jobIds + " ) and rownum < 2001";
+        String selectQuery = "select * from SHP_RATING_QUEUE_TB where RATE_STATUS = 0 and job_id in ( "+jobIds+" ) and rownum < 30001 ";
 
         try {
             connection = ServiceLocator.getDatabaseConnection();
@@ -213,12 +213,14 @@ public class RatingQueueDAO {
 
         return beanList;
     }
+    public void updateRateStatusInQueue(Long ratingQueueId, int statusValue) {
 
     public void updateRateStatusInQueue(Long ratingQueueId, String queueIds) {
         Connection connection = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
 
+        String updateQuery = "update SHP_RATING_QUEUE_TB set RATE_STATUS = " + statusValue + " where SHP_RATING_QUEUE_ID = " + ratingQueueId;
         StringBuilder updateQuery = new StringBuilder("update SHP_RATING_QUEUE_TB set RATE_STATUS = 1 where SHP_RATING_QUEUE_ID");
 
         if (ratingQueueId != null)
@@ -255,6 +257,7 @@ public class RatingQueueDAO {
             }
         }
     }
+
     public void saveRatingQueueBean(RatingQueueBean ratingQueueBean){
         Connection connection = null;
         PreparedStatement ps = null;
@@ -519,6 +522,7 @@ public class RatingQueueDAO {
             }
 
             String archiveQuery = liveSqlQuery.replace("SHP_EBILL_MANIFEST_TB", "ARC_EBILL_MANIFEST_TB");
+
             ps = conn.prepareStatement(liveSqlQuery + " UNION " + archiveQuery);
             parcelUpsShipments = new ArrayList<>();
 
