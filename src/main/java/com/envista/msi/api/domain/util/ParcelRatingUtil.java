@@ -526,8 +526,8 @@ public class ParcelRatingUtil {
                 requestResponseLog.setRequestXml1(requestPayload);
             } else {
                 requestResponseLog.setRequestXml1(requestPayload.substring(0, 3999));
-                if(requestLength >= 4000 && requestLength < 8000){
-                    requestResponseLog.setRequestXml2(requestPayload.substring(4000, 7999));
+                if(requestLength <= 8000){
+                    requestResponseLog.setRequestXml2(requestPayload.substring(4000, requestLength));
                 }else {
                     requestResponseLog.setRequestXml2(requestPayload.substring(4000, 7999));
                     requestResponseLog.setRequestXml3(requestPayload.substring(8000, requestLength));
@@ -541,14 +541,19 @@ public class ParcelRatingUtil {
                 requestResponseLog.setResponseXml1(response);
             } else {
                 requestResponseLog.setResponseXml1(response.substring(0, 3999));
-                if(respLength >= 4000 && respLength < 8000){
-                    requestResponseLog.setResponseXml2(response.substring(4000, 7999));
-                }else if(respLength >= 8000 && respLength < 12000){
-                    requestResponseLog.setResponseXml2(response.substring(4000, 7999));
-                    requestResponseLog.setResponseXml3(response.substring(8000, respLength));
-                }else{
-                    requestResponseLog.setResponseXml2(response.substring(4000, 7999));
-                    try{  requestResponseLog.setResponseXml3(response.substring(8000, 11999));}catch (Exception e){}
+                if(respLength <= 8000){
+                    requestResponseLog.setResponseXml2(response.substring(4000, respLength));
+                }else {
+                    if (respLength  <= 12000) {
+                        requestResponseLog.setResponseXml2(response.substring(4000, 7999));
+                        requestResponseLog.setResponseXml3(response.substring(8000, respLength));
+                    } else {
+                        requestResponseLog.setResponseXml2(response.substring(4000, 7999));
+                        try {
+                            requestResponseLog.setResponseXml3(response.substring(8000, 11999));
+                        } catch (Exception e) {
+                        }
+                    }
                 }
             }
         }
