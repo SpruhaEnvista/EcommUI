@@ -1,9 +1,14 @@
 package com.envista.msi.api.domain.util;
 
-import com.envista.msi.api.web.rest.dto.rtr.*;
+import com.envista.msi.api.web.rest.dto.rtr.MsiARChargeCodesDto;
+import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditDetailsDto;
+import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditRequestResponseLog;
+import com.envista.msi.api.web.rest.dto.rtr.RatedChargeDetailsDto;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant;
 import com.envista.msi.rating.bean.RatingQueueBean;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -12,6 +17,9 @@ import java.util.*;
  * Created by Sujit kumar on 20/04/2018.
  */
 public class ParcelRatingUtil {
+
+    private static Log m_log = LogFactory.getLog(ParcelRatingUtil.class);
+
     public static ParcelAuditDetailsDto getLatestFrightCharge(List<ParcelAuditDetailsDto> parcelAuditDetails){
         ParcelAuditDetailsDto parcelAuditDetail = null;
         Long maxEntityId = 0l;
@@ -520,45 +528,69 @@ public class ParcelRatingUtil {
         requestResponseLog.setEntityIds(entityId.toString());
         requestResponseLog.setCreateUser(ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME);
         requestResponseLog.setTableName(tableName);
-        if(requestPayload != null && !requestPayload.isEmpty()){
+        if (requestPayload != null && !requestPayload.isEmpty()) {
             int requestLength = requestPayload.length();
             if (requestLength <= 4000) {
                 requestResponseLog.setRequestXml1(requestPayload);
             } else {
                 requestResponseLog.setRequestXml1(requestPayload.substring(0, 3999));
-                if(requestLength <= 8000){
+                if (requestLength <= 8000) {
                     requestResponseLog.setRequestXml2(requestPayload.substring(4000, requestLength));
-                }else {
+                } else {
                     requestResponseLog.setRequestXml2(requestPayload.substring(4000, 7999));
-                    requestResponseLog.setRequestXml3(requestPayload.substring(8000, requestLength));
+                    if (requestLength > 8000) {
+
+                        requestLength = requestLength - 8000;
+
+                        if (requestLength >= 4000)
+                            requestLength = 3999;
+
+                        requestResponseLog.setRequestXml2(requestPayload.substring(8000, requestLength));
+
+                        if (requestLength >= 4000) {
+                            m_log.error("The request xml is more than 12000 characters, So log table could to able to store request beyond 12000 characters. Request is***" + requestPayload);
+                        }
+
+
+                    }
                 }
             }
-        }
 
-        if(response != null && !response.isEmpty()){
-            int respLength = response.length();
-            if (respLength <= 4000) {
-                requestResponseLog.setResponseXml1(response);
-            } else {
-                requestResponseLog.setResponseXml1(response.substring(0, 3999));
-                if(respLength <= 8000){
-                    requestResponseLog.setResponseXml2(response.substring(4000, respLength));
-                }else {
-                    if (respLength  <= 12000) {
-                        requestResponseLog.setResponseXml2(response.substring(4000, 7999));
-                        requestResponseLog.setResponseXml3(response.substring(8000, respLength));
+            if (response != null && !response.isEmpty()) {
+                int respLength = response.length();
+                if (respLength <= 4000) {
+                    requestResponseLog.setResponseXml1(response);
+                } else {
+                    requestResponseLog.setResponseXml1(response.substring(0, 3999));
+                    if (respLength <= 8000) {
+                        requestResponseLog.setResponseXml2(response.substring(4000, respLength));
                     } else {
-                        requestResponseLog.setResponseXml2(response.substring(4000, 7999));
-                        try {
-                            requestResponseLog.setResponseXml3(response.substring(8000, 11999));
-                        } catch (Exception e) {
+                        if (respLength <= 12000) {
+                            requestResponseLog.setResponseXml2(response.substring(4000, 7999));
+                            requestResponseLog.setResponseXml3(response.substring(8000, respLength));
+                        } else {
+                            requestResponseLog.setResponseXml2(response.substring(4000, 7999));
+
+                            if (respLength > 12000) {
+
+                                respLength = respLength - 8000;
+
+                                if (respLength >= 4000)
+                                    respLength = 3999;
+
+                                requestResponseLog.setResponseXml3(response.substring(8000, respLength));
+                            }
+                            if (respLength >= 4000) {
+                                m_log.error("The response xml is more than 12000 characters, So log table could to able to store response beyond 12000 characters. Response is***" + response);
+                            }
+
                         }
                     }
                 }
             }
         }
-        return requestResponseLog;
-    }
+            return requestResponseLog;
+        }
 
     public static BigDecimal findSumOfNetAmount(List<ParcelAuditDetailsDto> parcelAuditDetailsList) {
         BigDecimal sumOfNetAmount = new BigDecimal("0.0");
