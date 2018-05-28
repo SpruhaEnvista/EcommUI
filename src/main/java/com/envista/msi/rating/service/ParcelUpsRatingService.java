@@ -253,7 +253,7 @@ public class ParcelUpsRatingService {
             requestPayload = com.envista.msi.rating.util.ParcelRateRequestBuilder.buildParcelRateRequest(bean, ParcelAuditConstant.AR_RATE_REQUEST_LICENSE_KEY, beans).toXmlString();
             response = CommonUtil.connectAndGetResponseAsString(url, requestPayload);
             if(response != null && !response.trim().isEmpty()){
-                BigDecimal hwtNetAmount=null;
+                BigDecimal hwtNetAmount = null;
                 if (beans != null && beans.size() > 0) {
                     hwtNetAmount = ParcelRatingUtil.findSumOfNetAmount(parcelAuditDetails);
                     parcelAuditDetails = ParcelRatingUtil.getLeadShipmentDetails(parcelAuditDetails);
@@ -261,18 +261,18 @@ public class ParcelUpsRatingService {
                 }
 
                 directJDBCDAO.saveParcelAuditRequestAndResponseLog(ParcelRatingUtil.prepareRequestResponseLog(requestPayload, response, parcelAuditDetails.get(0).getParentId(), ParcelAuditConstant.EBILL_GFF_TABLE_NAME));
-                status = updateRateForUps(ParcelRateResponseParser.parse(response), parcelAuditDetails, msiARChargeCode, previousShipment,hwtNetAmount);
+                status = updateRateForUps(ParcelRateResponseParser.parse(response), parcelAuditDetails, msiARChargeCode, previousShipment, hwtNetAmount);
             }
         }
 
         return status;
     }
 
-    private String updateRateForUps(ParcelRateResponse parcelRateResponse, List<ParcelAuditDetailsDto> parcelAuditDetails, MsiARChargeCodesDto msiARChargeCodes, List<ParcelAuditDetailsDto> previousShipment,BigDecimal hwtNetAmount) throws Exception {
-        return updateRateForUps(parcelRateResponse, parcelAuditDetails, msiARChargeCodes, null, previousShipment,hwtNetAmount);
+    private String updateRateForUps(ParcelRateResponse parcelRateResponse, List<ParcelAuditDetailsDto> parcelAuditDetails, MsiARChargeCodesDto msiARChargeCodes, List<ParcelAuditDetailsDto> previousShipment, BigDecimal hwtNetAmount) throws Exception {
+        return updateRateForUps(parcelRateResponse, parcelAuditDetails, msiARChargeCodes, null, previousShipment, hwtNetAmount);
     }
 
-    private String updateRateForUps(ParcelRateResponse parcelRateResponse, List<ParcelAuditDetailsDto> parcelAuditDetails, MsiARChargeCodesDto msiARChargeCodes, ParcelAuditDetailsDto commercialAdjCharge, List<ParcelAuditDetailsDto> previousShipment,BigDecimal hwtNetAmount) throws Exception {
+    private String updateRateForUps(ParcelRateResponse parcelRateResponse, List<ParcelAuditDetailsDto> parcelAuditDetails, MsiARChargeCodesDto msiARChargeCodes, ParcelAuditDetailsDto commercialAdjCharge, List<ParcelAuditDetailsDto> previousShipment, BigDecimal hwtNetAmount) throws Exception {
         String status = "";
         if(parcelRateResponse != null){
             if(parcelRateResponse.getStatusCode() != null && parcelRateResponse.getStatusCode().equals(0)){
@@ -280,7 +280,7 @@ public class ParcelUpsRatingService {
                     //Taking the first price sheet, as per the discussion we finalised that the first price sheet will be be correct and rated based on the latest contract.
                     ParcelRateResponse.PriceSheet firstPriceSheet = parcelRateResponse.getPriceSheets().get(0);
                     BigDecimal sumOfNetAmount = null;
-                    if(hwtNetAmount != null)
+                    if (hwtNetAmount != null)
                         sumOfNetAmount = hwtNetAmount;
                     else
                         sumOfNetAmount = ParcelRatingUtil.findSumOfNetAmount(parcelAuditDetails);

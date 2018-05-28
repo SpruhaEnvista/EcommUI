@@ -89,7 +89,11 @@ public class ParcelAuditRequestResponseLog implements Serializable {
         this.createUser = createUser;
     }
 
-    public String getRequestXml3() { return requestXml3; }
+    public String getRequestXml3() {
+        return requestXml3;
+    }
 
-    public void setRequestXml3(String requestXml3) { this.requestXml3 = requestXml3; }
+    public void setRequestXml3(String requestXml3) {
+        this.requestXml3 = requestXml3;
+    }
 }

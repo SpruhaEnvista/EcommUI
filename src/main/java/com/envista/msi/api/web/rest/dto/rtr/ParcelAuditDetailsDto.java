@@ -608,9 +608,13 @@ public class ParcelAuditDetailsDto {
         this.multiWeightNumber = multiWeightNumber;
     }
 
-    public String getHwtAmount() { return hwtAmount; }
+    public String getHwtAmount() {
+        return hwtAmount;
+    }
 
-    public void setHwtAmount(String hwtAmount) { this.hwtAmount = hwtAmount;  }
+    public void setHwtAmount(String hwtAmount) {
+        this.hwtAmount = hwtAmount;
+    }
 
     public static class Config{
         public static class StoredProcedureName{
