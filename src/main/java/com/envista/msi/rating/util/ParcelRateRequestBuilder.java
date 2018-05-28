@@ -132,7 +132,7 @@ public class ParcelRateRequestBuilder {
      * @param serviceFlagList
      * @param items
      * @param ratingQueueBean
-     * */
+     */
     private static void prepareItems(List<ParcelRateRequest.ServiceFlag> serviceFlagList, List<ParcelRateRequest.Item> items, RatingQueueBean ratingQueueBean) {
 
 

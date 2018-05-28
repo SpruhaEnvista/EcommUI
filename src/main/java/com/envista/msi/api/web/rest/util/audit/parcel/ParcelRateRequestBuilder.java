@@ -103,16 +103,6 @@ public class ParcelRateRequestBuilder {
 
                     Map<String, List<ParcelAuditDetailsDto>> listMap = prepareTrackingNumberWiseAuditDetails(parcelAuditDetailsList);
 
-                    ParcelRateRequest.Item item = new ParcelRateRequest.Item();
-                    item.setSequence(latestFreightCharge.getParentId());
-                    item.setWeight(weightObj);
-                    item.setActualWeight(actualWeightElement);
-                    item.setQuantity(quantityObj);
-                    item.setDimensions(dimensionsObj);
-                    item.setContainer(parcelAuditDetails.getPackageType());
-                    items.add(item);
-                } else{
-                    throw new RuntimeException("Freight Item not found");
                     for (Map.Entry<String, List<ParcelAuditDetailsDto>> entry : listMap.entrySet()) {
 
                         prepareUpsItems(entry.getValue(), items, serviceFlagList, itemSequence, dasChargeList, lpsCharges, parcelAuditDetails, hasRJ5Charge);
@@ -259,27 +249,6 @@ public class ParcelRateRequestBuilder {
                             prepareNonUpsItems(entry.getValue(), items, serviceFlagList, itemSequence, dasChargeList, lpsCharges);
                             itemSequence++;
 
-                        ParcelRateRequest.Item item = new ParcelRateRequest.Item();
-                        item.setSequence(firstBaseCharge.getParentId());
-                        item.setWeight(weightObj);
-                        item.setActualWeight(actualWeightElement);
-                        item.setQuantity(quantityObj);
-                        item.setDimensions(dimensionsObj);
-                        item.setContainer(firstBaseCharge.getPackageType());
-                        items.add(item);
-                    }
-                }
-                batchShipment.setItems(items);
-
-                //Events section
-                String pickupDate = "", dropDate = "", locationCode = "";
-                if(parcelAuditDetails.getPickupDate() != null){
-                    pickupDate = DateUtil.format(parcelAuditDetails.getPickupDate(), RATE_REQUEST_EVENT_DATE_FORMAT);
-                }
-                String senderCountry =  (null == parcelAuditDetails.getSenderCountry() || parcelAuditDetails.getSenderCountry().isEmpty() ? "US" :  parcelAuditDetails.getSenderCountry());
-                String senderState =  (null == parcelAuditDetails.getSenderState() ? "" :  parcelAuditDetails.getSenderState());
-                String senderCity =  (null == parcelAuditDetails.getSenderCity() ? "" :  parcelAuditDetails.getSenderCity());
-                String senderZipCode =  (null == parcelAuditDetails.getSenderZipCode() ? "" :  parcelAuditDetails.getSenderZipCode());
                         }
                     } else {
                         prepareNonUpsItems(parcelAuditDetailsList, items, serviceFlagList, itemSequence, dasChargeList, lpsCharges);
@@ -440,7 +409,7 @@ public class ParcelRateRequestBuilder {
             dimensionsObj.setUnits(dimUnit);
 
             ParcelRateRequest.Item item = new ParcelRateRequest.Item();
-            item.setSequence(itemSequence);
+            item.setSequence(latestFreightCharge.getParentId());
             item.setWeight(weightObj);
             item.setActualWeight(actualWeightElement);
             item.setQuantity(quantityObj);
@@ -465,7 +434,7 @@ public class ParcelRateRequestBuilder {
                             } else {
                                 serviceFlag.setCode(auditDetails.getChargeDescriptionCode());
                             }
-                            serviceFlag.setSequence(itemSequence);
+                            serviceFlag.setSequence(auditDetails.getParentId());
                             serviceFlag.setNetAmount(auditDetails.getNetAmount());
                             serviceFlagList.add(serviceFlag);
                         }
@@ -535,7 +504,7 @@ public class ParcelRateRequestBuilder {
                 dimensionsObj.setUnits(dimUnit);
 
                 ParcelRateRequest.Item item = new ParcelRateRequest.Item();
-                item.setSequence(itemSequence);
+                item.setSequence(firstBaseCharge.getParentId());
                 item.setWeight(weightObj);
                 item.setActualWeight(actualWeightElement);
                 item.setQuantity(quantityObj);
@@ -563,7 +532,7 @@ public class ParcelRateRequestBuilder {
                             } else {
                                 serviceFlag.setCode(auditDetails.getChargeDescriptionCode());
                             }
-                            serviceFlag.setSequence(itemSequence);
+                            serviceFlag.setSequence(auditDetails.getParentId());
                             serviceFlag.setNetAmount(auditDetails.getNetAmount());
                             serviceFlagList.add(serviceFlag);
                         }
