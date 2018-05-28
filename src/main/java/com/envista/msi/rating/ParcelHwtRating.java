@@ -2,6 +2,7 @@ package com.envista.msi.rating;
 
 import com.envista.msi.api.domain.util.ParcelRatingUtil;
 import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditDetailsDto;
+import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant;
 import com.envista.msi.rating.bean.RatingQueueBean;
 import com.envista.msi.rating.dao.RatingQueueDAO;
 import com.envista.msi.rating.service.ParcelNonUpsRatingService;
@@ -87,10 +88,18 @@ public class ParcelHwtRating implements Callable<String> {
                 status = nonUpsRatingService.doRatingForNonUpsShipment(queueBeans);
             }
         String queueIds = ParcelRatingUtil.prepareQueueIdsInOperator(queueBeans);
-        if (ParcelRatingUtil.isRatingDone(status)) {
+
+        if (status != null && !status.isEmpty()) {
             RatingQueueDAO ratingQueueDAO = new RatingQueueDAO();
-            ratingQueueDAO.updateRateStatusInQueue(null, queueIds);
+            if (ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value.equalsIgnoreCase(status)) {
+                ratingQueueDAO.updateRateStatusInQueue(null, ParcelAuditConstant.ParcelRatingQueueRateStatus.RATING_EXCEPTION.value, queueIds);
+            } else if (ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET.value.equalsIgnoreCase(status)) {
+                ratingQueueDAO.updateRateStatusInQueue(null, ParcelAuditConstant.ParcelRatingQueueRateStatus.EMPTY_PRICE_SHEET.value, queueIds);
+            } else if (ParcelRatingUtil.isRatingDone(status)) {
+                ratingQueueDAO.updateRateStatusInQueue(null, ParcelAuditConstant.ParcelRatingQueueRateStatus.DONE.value, queueIds);
+            }
         }
+
     }
 }
 
