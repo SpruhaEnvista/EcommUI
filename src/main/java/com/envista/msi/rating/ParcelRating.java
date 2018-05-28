@@ -81,13 +81,13 @@ public class ParcelRating implements Callable<String> {
             System.out.println("Rating : " + bean.getTrackingNumber() + " : Status : " + status);
         }
 
-        if(status != null && !status.isEmpty()) {
+        if (status != null && !status.isEmpty()) {
             RatingQueueDAO ratingQueueDAO = new RatingQueueDAO();
-            if(ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value.equalsIgnoreCase(status)) {
+            if (ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value.equalsIgnoreCase(status)) {
                 ratingQueueDAO.updateRateStatusInQueue(bean.getRatingQueueId(), ParcelAuditConstant.ParcelRatingQueueRateStatus.RATING_EXCEPTION.value);
-            } else if(ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET.value.equalsIgnoreCase(status)) {
+            } else if (ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET.value.equalsIgnoreCase(status)) {
                 ratingQueueDAO.updateRateStatusInQueue(bean.getRatingQueueId(), ParcelAuditConstant.ParcelRatingQueueRateStatus.EMPTY_PRICE_SHEET.value);
-            } else if(ParcelRatingUtil.isRatingDone(status)) {
+            } else if (ParcelRatingUtil.isRatingDone(status)) {
                 ratingQueueDAO.updateRateStatusInQueue(bean.getRatingQueueId(), ParcelAuditConstant.ParcelRatingQueueRateStatus.DONE.value);
             }
         }
