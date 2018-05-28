@@ -272,9 +272,10 @@ public class ParcelRatingQueueJob {
                         //Do nothing
                     }
                 }
-
-                addMwtOrHwtShipmentEntryIntoQueue(hwtDetailsMap, allMappedARChargeCodes, "ups");
             }
+
+            addMwtOrHwtShipmentEntryIntoQueue(hwtDetailsMap, allMappedARChargeCodes, "ups");
+
         }
     }
 
@@ -369,7 +370,7 @@ public class ParcelRatingQueueJob {
             if (queueBeanList != null && queueBeanList.size() > 0) {
                 parcelRatingService.saveRatingQueueBean(queueBeanList);
             }
-            queueBeanList.clear();
+            queueBeanList = null;
         }
     }
 
