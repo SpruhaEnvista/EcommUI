@@ -4,9 +4,15 @@ import com.envista.msi.api.dao.rtr.ParcelRTRDao;
 import com.envista.msi.api.domain.util.ParcelRatingUtil;
 import com.envista.msi.api.web.rest.dto.rtr.*;
 import com.envista.msi.api.web.rest.util.CommonUtil;
-import com.envista.msi.api.web.rest.util.audit.parcel.*;
+import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant.RTRStatus;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant.RateTo;
+import com.envista.msi.api.web.rest.util.audit.parcel.ParcelRateRequestBuilder;
+import com.envista.msi.api.web.rest.util.audit.parcel.ParcelRateResponse;
+import com.envista.msi.api.web.rest.util.audit.parcel.ParcelRateResponseParser;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
@@ -22,6 +28,9 @@ import java.util.*;
 @Service
 @Transactional
 public class ParcelRTRService{
+
+    private final Logger log = LoggerFactory.getLogger(ParcelRTRService.class);
+
     @Inject
     private ParcelRTRDao parcelRTRDao;
 
@@ -113,8 +122,11 @@ public class ParcelRTRService{
         //  doParcelRating(loadNonUpsParcelAuditDetails(customerId, fromDate, toDate, trackingNumbers), url, licenseKey, RateTo.NON_UPS);
     }
 
-    private void doParcelRatingForNonUpsCarrier(Map<String, List<ParcelAuditDetailsDto>> parcelAuditDetailsMap, String url, String licenseKey, String customerIds, MsiARChargeCodesDto msiARChargeCode){
+    private void doParcelRatingForNonUpsCarrier(Map<String, List<ParcelAuditDetailsDto>> parcelAuditDetailsMap, String url, String licenseKey, String customerIds, MsiARChargeCodesDto msiARChargeCode) {
         if(parcelAuditDetailsMap != null && !parcelAuditDetailsMap.isEmpty()){
+
+            Map<String, List<ParcelAuditDetailsDto>> mwtDetailsMap = prepareMultiWeightNumberWiseAuditDetails(parcelAuditDetailsMap);
+
             int shipmentCount = 1;
             Iterator<Map.Entry<String, List<ParcelAuditDetailsDto>>> entryIterator = parcelAuditDetailsMap.entrySet().iterator();
             while(entryIterator.hasNext()){
@@ -146,13 +158,12 @@ public class ParcelRTRService{
                                             ParcelAuditDetailsDto prevFrtCharge = ParcelRatingUtil.getFirstFrightChargeForNonUpsCarrier(previousShipment);
                                             if(prevFrtCharge != null){
                                                 shipmentsWithPrevFrt.add(prevFrtCharge);
-                                                callRTRAndPopulateRates(url, licenseKey, shipmentsWithPrevFrt, RateTo.NON_UPS, msiARChargeCode);
+                                                callRTRAndPopulateRates(url, licenseKey, shipmentsWithPrevFrt, RateTo.NON_UPS, msiARChargeCode, false);
                                             }
                                         }
                                     } else {
-                                        callRTRAndPopulateRates(url, licenseKey, shipmentDetails, RateTo.NON_UPS, msiARChargeCode);
+                                        callRTRAndPopulateRates(url, licenseKey, shipmentDetails, RateTo.NON_UPS, msiARChargeCode, false);
                                     }
-
                                     System.out.println("Shipment Count :: " + shipmentCount++ + " :: " +parcelAuditEntry.getValue().get(0).getTrackingNumber());
                                     previousShipment = new ArrayList<>(shipmentDetails);
                                 }
@@ -162,11 +173,24 @@ public class ParcelRTRService{
                     entryIterator.remove();
                 }
             }
+
+            for (Map.Entry<String, List<ParcelAuditDetailsDto>> entry : mwtDetailsMap.entrySet()) {
+
+                try {
+                    callRTRAndPopulateRates(url, licenseKey, entry.getValue(), RateTo.NON_UPS, msiARChargeCode, true);
+                } catch (Exception e) {
+                    log.error(e.getMessage());
+                }
+
+            }
         }
     }
 
-    private void doParcelRatingForUpsCarrier(Map<String, List<ParcelAuditDetailsDto>> parcelAuditDetailsMap, String url, String licenseKey, String customerIds, MsiARChargeCodesDto msiARChargeCode){
+    private void doParcelRatingForUpsCarrier(Map<String, List<ParcelAuditDetailsDto>> parcelAuditDetailsMap, String url, String licenseKey, String customerIds, MsiARChargeCodesDto msiARChargeCode) {
         if(parcelAuditDetailsMap != null && !parcelAuditDetailsMap.isEmpty()){
+
+            Map<String, List<ParcelAuditDetailsDto>> hwtDetailsMap = prepareHwtNumberWiseAuditDetails(parcelAuditDetailsMap);
+
             int shipmentCount = 1;
 
             //Keeping this logic temporarily. When we start new design then we have to change this logic here.
@@ -191,16 +215,40 @@ public class ParcelRTRService{
                                 List<ParcelAuditDetailsDto> shipmentChargeList = shpEntry.getValue();
                                 if(shipmentChargeList != null){
                                     if(ParcelRatingUtil.containsCharge(ParcelAuditConstant.COMMERCIAL_ADJUSTMENT_CHARGE_TYPE, shipmentChargeList)){
-                                        callRTRAndPopulateRates(url, licenseKey, previousShipment, RateTo.UPS, msiARChargeCode, shipmentChargeList.get(0), previousShipment);
+                                        callRTRAndPopulateRates(url, licenseKey, previousShipment, RateTo.UPS, msiARChargeCode, shipmentChargeList.get(0), previousShipment, false);
                                     } else if(ParcelRatingUtil.containsCharge(ParcelAuditConstant.RESIDENTIAL_ADJUSTMENT_CHARGE_TYPE, shipmentChargeList)){
                                         //keeping it in separate if condition in order to handle few more scenarios in future.
-                                        callRTRAndPopulateRates(url, licenseKey, previousShipment, RateTo.UPS, msiARChargeCode, shipmentChargeList.get(0), previousShipment);
+                                        callRTRAndPopulateRates(url, licenseKey, previousShipment, RateTo.UPS, msiARChargeCode, shipmentChargeList.get(0), previousShipment, false);
                                     } else {
                                         if(previousShipment != null){
                                             List<ParcelAuditDetailsDto> shipmentsToRate = new ArrayList<>(shipmentChargeList);
                                             if(shipmentsToRate != null) {
+                                                boolean hasFrtCharge = false;
+                                                boolean frtChargeManipulated = false;
+                                                ParcelAuditDetailsDto frtCharged = ParcelRatingUtil.findFrtCharge(shipmentsToRate);
+                                                if (frtCharged != null) {
+                                                    hasFrtCharge = true;
+                                                    if (frtCharged.getPackageWeight() != null && !frtCharged.getPackageWeight().isEmpty() && Float.parseFloat(frtCharged.getPackageWeight()) == 0) {
+                                                        ParcelAuditDetailsDto prevShipmentFrtCharge = ParcelRatingUtil.findFrtCharge(previousShipment);
+                                                        if (prevShipmentFrtCharge != null && prevShipmentFrtCharge.getPackageWeight() != null
+                                                                && !prevShipmentFrtCharge.getPackageWeight().isEmpty() && Float.parseFloat(prevShipmentFrtCharge.getPackageWeight()) > 0) {
+                                                            frtCharged.setPackageWeight(prevShipmentFrtCharge.getPackageWeight());
+                                                            frtCharged.setWeightUnit(prevShipmentFrtCharge.getWeightUnit());
+                                                            frtCharged.setActualWeight(prevShipmentFrtCharge.getActualWeight());
+                                                            frtCharged.setActualWeightUnit(prevShipmentFrtCharge.getActualWeightUnit());
+                                                            frtCharged.setDimHeight(prevShipmentFrtCharge.getDimHeight());
+                                                            frtCharged.setDimWidth(prevShipmentFrtCharge.getDimWidth());
+                                                            frtCharged.setDimLength(prevShipmentFrtCharge.getDimLength());
+                                                            frtCharged.setUnitOfDim(prevShipmentFrtCharge.getUnitOfDim());
+                                                            frtCharged.setPackageDimension(prevShipmentFrtCharge.getPackageDimension());
+
+                                                            frtChargeManipulated = true;
+                                                        }
+                                                    }
+                                                } else {
+                                                    hasFrtCharge = false;
+                                                }
                                                 boolean hasFSCCharge = ParcelRatingUtil.containsFuelSurcharge(shipmentsToRate);
-                                                boolean hasFrtCharge = ParcelRatingUtil.containsFRTCharge(shipmentsToRate);
                                                 for(ParcelAuditDetailsDto prevShpCharge : previousShipment){
                                                     if(prevShpCharge != null && ParcelAuditConstant.ChargeClassificationCode.ACC.name().equalsIgnoreCase(prevShpCharge.getChargeClassificationCode())) {
                                                         shipmentsToRate.add(prevShpCharge);
@@ -208,14 +256,14 @@ public class ParcelRTRService{
                                                     if(!hasFSCCharge && ParcelAuditConstant.ChargeClassificationCode.ACC.name().equalsIgnoreCase(prevShpCharge.getChargeClassificationCode())) {
                                                         shipmentsToRate.add(prevShpCharge);
                                                     }
-                                                    if(!hasFrtCharge && ParcelAuditConstant.ChargeClassificationCode.FRT.name().equalsIgnoreCase(prevShpCharge.getChargeClassificationCode())) {
+                                                    if (!hasFrtCharge && !frtChargeManipulated && ParcelAuditConstant.ChargeClassificationCode.FRT.name().equalsIgnoreCase(prevShpCharge.getChargeClassificationCode())) {
                                                         shipmentsToRate.add(prevShpCharge);
                                                     }
                                                 }
-                                                callRTRAndPopulateRates(url, licenseKey, shipmentsToRate, RateTo.UPS, msiARChargeCode, previousShipment);
+                                                callRTRAndPopulateRates(url, licenseKey, shipmentsToRate, RateTo.UPS, msiARChargeCode, previousShipment,false);
                                             }
                                         } else {
-                                            callRTRAndPopulateRates(url, licenseKey, shipmentChargeList, RateTo.UPS, msiARChargeCode, null);
+                                            callRTRAndPopulateRates(url, licenseKey, shipmentChargeList, RateTo.UPS, msiARChargeCode, null, false);
                                         }
                                     }
                                 }
@@ -231,23 +279,34 @@ public class ParcelRTRService{
                     }
                 }
             }
+
+            for (Map.Entry<String, List<ParcelAuditDetailsDto>> entry : hwtDetailsMap.entrySet()) {
+
+                try {
+                    callRTRAndPopulateRates(url, licenseKey, entry.getValue(), RateTo.UPS, msiARChargeCode, null, true);
+                } catch (Exception e) {
+                    log.error(e.getMessage());
+                }
+
+            }
         }
     }
 
-    private String callRTRAndPopulateRates(String url, String licenseKey, List<ParcelAuditDetailsDto> parcelAuditDetails, RateTo rateTo, MsiARChargeCodesDto msiARChargeCode) throws Exception {
-        return callRTRAndPopulateRates(url, licenseKey, parcelAuditDetails, rateTo, msiARChargeCode, null, null);
+    private String callRTRAndPopulateRates(String url, String licenseKey, List<ParcelAuditDetailsDto> parcelAuditDetails, RateTo rateTo, MsiARChargeCodesDto msiARChargeCode, boolean isHwt) throws Exception {
+        return callRTRAndPopulateRates(url, licenseKey, parcelAuditDetails, rateTo, msiARChargeCode, null, null, isHwt);
     }
 
-    private String callRTRAndPopulateRates(String url, String licenseKey, List<ParcelAuditDetailsDto> parcelAuditDetails, RateTo rateTo, MsiARChargeCodesDto msiARChargeCode, List<ParcelAuditDetailsDto> previousShipment) throws Exception {
-        return callRTRAndPopulateRates(url, licenseKey, parcelAuditDetails, rateTo, msiARChargeCode, null, previousShipment);
+    private String callRTRAndPopulateRates(String url, String licenseKey, List<ParcelAuditDetailsDto> parcelAuditDetails, RateTo rateTo, MsiARChargeCodesDto msiARChargeCode, List<ParcelAuditDetailsDto> previousShipment, boolean isHwt) throws Exception {
+        return callRTRAndPopulateRates(url, licenseKey, parcelAuditDetails, rateTo, msiARChargeCode, null, previousShipment, isHwt);
     }
 
-    private String callRTRAndPopulateRates(String url, String licenseKey, List<ParcelAuditDetailsDto> parcelAuditDetails, RateTo rateTo, MsiARChargeCodesDto msiARChargeCode, ParcelAuditDetailsDto commercialCharge, List<ParcelAuditDetailsDto> previousShipment) throws Exception {
+    private String callRTRAndPopulateRates(String url, String licenseKey, List<ParcelAuditDetailsDto> parcelAuditDetails, RateTo rateTo, MsiARChargeCodesDto msiARChargeCode, ParcelAuditDetailsDto commercialCharge, List<ParcelAuditDetailsDto> previousShipment, boolean isHwt) throws Exception {
         String requestPayload = "";
         String response = "";
         String status = "";
         switch (rateTo){
             case UPS:
+                BigDecimal sumOfNetAmount = null;
                 if(commercialCharge != null){
                     if(parcelAuditDetails != null && !parcelAuditDetails.isEmpty()){
                         if(ParcelAuditConstant.COMMERCIAL_ADJUSTMENT_CHARGE_TYPE.equalsIgnoreCase(commercialCharge.getChargeDescription())){
@@ -262,11 +321,18 @@ public class ParcelRTRService{
                                 }
                             }
 
-                            requestPayload = ParcelRateRequestBuilder.buildParcelRateRequestForUps(commercialShipment, licenseKey, msiARChargeCode).toXmlString();
+                            requestPayload = ParcelRateRequestBuilder.buildParcelRateRequestForUps(commercialShipment, licenseKey, msiARChargeCode, isHwt).toXmlString();
+
+                            sumOfNetAmount = findSumOfNetAmount(commercialShipment);
+
+                            if (isHwt)
+                                parcelAuditDetails = getLeadShipmentDetails(commercialShipment);
+
+
                             response = CommonUtil.connectAndGetResponseAsString(url, requestPayload);
                             if(response != null && !response.trim().isEmpty()){
                                 saveRequestResponse(requestPayload, response, commercialCharge.getParentId(), ParcelAuditConstant.EBILL_GFF_TABLE_NAME);
-                                status = updateRateForUps(ParcelRateResponseParser.parse(response), commercialShipment, msiARChargeCode, commercialCharge, previousShipment);
+                                status = updateRateForUps(ParcelRateResponseParser.parse(response), commercialShipment, msiARChargeCode, commercialCharge, previousShipment, sumOfNetAmount);
                             }
                         } else if(ParcelAuditConstant.RESIDENTIAL_ADJUSTMENT_CHARGE_TYPE.equalsIgnoreCase(commercialCharge.getChargeDescription())){
                             List<ParcelAuditDetailsDto> residentialShipment = new ArrayList<>();
@@ -279,29 +345,56 @@ public class ParcelRTRService{
                                     }
                                 }
                             }
-                            requestPayload = ParcelRateRequestBuilder.buildParcelRateRequestForUps(residentialShipment, licenseKey, msiARChargeCode).toXmlString();
+
+                            requestPayload = ParcelRateRequestBuilder.buildParcelRateRequestForUps(residentialShipment, licenseKey, msiARChargeCode, isHwt).toXmlString();
+
+                            if (isHwt)
+                                parcelAuditDetails = getLeadShipmentDetails(residentialShipment);
+
+                            sumOfNetAmount = findSumOfNetAmount(residentialShipment);
+
                             response = CommonUtil.connectAndGetResponseAsString(url, requestPayload);
                             if(response != null && !response.trim().isEmpty()){
                                 saveRequestResponse(requestPayload, response, commercialCharge.getParentId(), ParcelAuditConstant.EBILL_GFF_TABLE_NAME);
-                                status = updateRateForUps(ParcelRateResponseParser.parse(response), residentialShipment, msiARChargeCode, commercialCharge, previousShipment);
+                                status = updateRateForUps(ParcelRateResponseParser.parse(response), residentialShipment, msiARChargeCode, commercialCharge, previousShipment, sumOfNetAmount);
                             }
                         }
                     }
                 }else{
-                    requestPayload = ParcelRateRequestBuilder.buildParcelRateRequestForUps(parcelAuditDetails, licenseKey, msiARChargeCode).toXmlString();
+                    sumOfNetAmount = findSumOfNetAmount(parcelAuditDetails);
+
+                    requestPayload = ParcelRateRequestBuilder.buildParcelRateRequestForUps(parcelAuditDetails, licenseKey, msiARChargeCode, isHwt).toXmlString();
+
+                    if (isHwt)
+                        parcelAuditDetails = getLeadShipmentDetails(parcelAuditDetails);
+
+
                     response = CommonUtil.connectAndGetResponseAsString(url, requestPayload);
                     if(response != null && !response.trim().isEmpty()){
                         saveRequestResponse(requestPayload, response, parcelAuditDetails.get(0).getParentId(), ParcelAuditConstant.EBILL_GFF_TABLE_NAME);
-                        status = updateRateForUps(ParcelRateResponseParser.parse(response), parcelAuditDetails, msiARChargeCode, previousShipment);
+                        status = updateRateForUps(ParcelRateResponseParser.parse(response), parcelAuditDetails, msiARChargeCode, previousShipment, sumOfNetAmount);
                     }
                 }
+                log.debug("sumOfNetAmount=====" + sumOfNetAmount + "==requestPayload=======" + requestPayload);
+                log.debug("response=======" + response);
                 break;
             case NON_UPS:
-                requestPayload = ParcelRateRequestBuilder.buildParcelRateRequestForNonUpsCarrier(parcelAuditDetails, licenseKey, msiARChargeCode).toXmlString();
+                sumOfNetAmount = findSumOfNetAmount(parcelAuditDetails);
+
+                requestPayload = ParcelRateRequestBuilder.buildParcelRateRequestForNonUpsCarrier(parcelAuditDetails, licenseKey, msiARChargeCode, isHwt).toXmlString();
+
+                if (isHwt)
+                    parcelAuditDetails = getLeadShipmentDetails(parcelAuditDetails);
+
+                log.debug("sumOfNetAmount=====" + sumOfNetAmount + "==requestPayload=======" + requestPayload);
+
                 response = CommonUtil.connectAndGetResponseAsString(url, requestPayload);
+
+                log.debug("response=======" + response);
+
                 if(response != null && !response.trim().isEmpty()) {
                     saveRequestResponse(requestPayload, response, parcelAuditDetails.get(0).getParentId(), ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME);
-                    status = updateRateForNonUpsCarrier(ParcelRateResponseParser.parse(response), parcelAuditDetails, msiARChargeCode);
+                    status = updateRateForNonUpsCarrier(ParcelRateResponseParser.parse(response), parcelAuditDetails, msiARChargeCode, sumOfNetAmount);
                 }
                 break;
         }
@@ -339,14 +432,14 @@ public class ParcelRTRService{
         parcelRTRDao.saveParcelAuditRequestAndResponseLog(requestResponseLog);
     }
 
-    private String updateRateForNonUpsCarrier(ParcelRateResponse parcelRateResponse, List<ParcelAuditDetailsDto> parcelAuditDetails, MsiARChargeCodesDto msiARChargeCode) throws Exception {
+    private String updateRateForNonUpsCarrier(ParcelRateResponse parcelRateResponse, List<ParcelAuditDetailsDto> parcelAuditDetails, MsiARChargeCodesDto msiARChargeCode, BigDecimal sumOfNetAmount) throws Exception {
         String status = "";
         if(parcelRateResponse != null){
             if(parcelRateResponse.getStatusCode().equals(0)){
                 if(parcelRateResponse.getPriceSheets() != null && !parcelRateResponse.getPriceSheets().isEmpty()){
                     //Taking the first price sheet, as per the discussion we finalised that the first price sheet will be be correct and rated based on the latest contract.
                     ParcelRateResponse.PriceSheet firstPriceSheet = parcelRateResponse.getPriceSheets().get(0);
-                    BigDecimal sumOfNetAmount = findSumOfNetAmount(parcelAuditDetails);
+
                     BigDecimal totalRateAmount = firstPriceSheet.getTotal().setScale(2, BigDecimal.ROUND_HALF_EVEN);
 
                     BigDecimal toleranceLowerBound = sumOfNetAmount.multiply(new BigDecimal("0.995"));
@@ -405,7 +498,7 @@ public class ParcelRTRService{
                         charge = ParcelRateResponseParser.findChargeByType(ParcelRateResponse.ChargeType.ITEM.name(), priceSheet);
                         if(charge != null){
                             frtChargeFound = true;
-                            parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, charge.getAmount(), rtrStatus.value, auditDetails.getCarrierId());
+                            //parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, charge.getAmount(), rtrStatus.value, auditDetails.getCarrierId());
 
                             ParcelRateDetailsDto rateDetails = ParcelRateDetailsDto.getInstance();
                             rateDetails.setShipperCategory(shipperCategory);
@@ -422,7 +515,8 @@ public class ParcelRTRService{
                                 rateDetails.setResidentialSurchargeDiscount(residentialSurchargeDiscountCharge.getAmount());
                                 rateDetails.setResidentialSurchargeDiscountPercentage(residentialSurchargeDiscountCharge.getRate());
                             }
-
+                            rateDetails.setRtrAmount(charge.getAmount());
+                            rateDetails.setRtrStatus(rtrStatus.value);
                             parcelRTRDao.updateShipmentRateDetails(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                         }
                     }
@@ -430,7 +524,7 @@ public class ParcelRTRService{
                         && ParcelAuditConstant.ChargeDescriptionCode.FSC.name().equalsIgnoreCase(auditDetails.getChargeDescriptionCode())){
                     charge = ParcelRateResponseParser.findChargeByType(ParcelRateResponse.ChargeType.ACCESSORIAL_FUEL.name(), priceSheet);
                     if(charge != null){
-                        parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, charge.getAmount(), rtrStatus.value, auditDetails.getCarrierId());
+                        //parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, charge.getAmount(), rtrStatus.value, auditDetails.getCarrierId());
 
                         ParcelRateDetailsDto rateDetails = ParcelRateDetailsDto.getInstance();
                         rateDetails.setShipperCategory(shipperCategory);
@@ -441,7 +535,8 @@ public class ParcelRTRService{
                         rateDetails.setRatedGrossFuel(ratedGrossFuel);
                         rateDetails.setDimDivisor(charge.getDimDivisor() == null ? new BigDecimal("0") : charge.getDimDivisor());
                         rateDetails.setRatedWeight(charge.getWeight() == null ? new BigDecimal("0") : charge.getWeight());
-
+                        rateDetails.setRtrAmount(charge.getAmount());
+                        rateDetails.setRtrStatus(rtrStatus.value);
                         parcelRTRDao.updateShipmentRateDetails(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                     }
                 }else if(ParcelAuditConstant.ChargeClassificationCode.ACS.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())
@@ -455,8 +550,9 @@ public class ParcelRTRService{
                         rateDetails.setFuelTablePercentage(fuelTablePerc);
                         rateDetails.setDimDivisor(charge.getDimDivisor() == null ? new BigDecimal("0") : charge.getDimDivisor());
                         rateDetails.setRatedWeight(charge.getWeight() == null ? new BigDecimal("0") : charge.getWeight());
-
-                        parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, charge.getAmount(), rtrStatus.value, auditDetails.getCarrierId());
+                        rateDetails.setRtrAmount(charge.getAmount());
+                        rateDetails.setRtrStatus(rtrStatus.value);
+                        //parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, charge.getAmount(), rtrStatus.value, auditDetails.getCarrierId());
                         parcelRTRDao.updateShipmentRateDetails(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                     }
                 }else if(ParcelAuditConstant.ChargeClassificationCode.ACS.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())
@@ -490,7 +586,9 @@ public class ParcelRTRService{
                         rateDetails.setDimDivisor(charge.getDimDivisor() == null ? new BigDecimal("0") : charge.getDimDivisor());
                         rateDetails.setRatedWeight(charge.getWeight() == null ? new BigDecimal("0") : charge.getWeight());
 
-                        parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, charge.getAmount(), rtrStatus.value, auditDetails.getCarrierId());
+                        rateDetails.setRtrAmount(charge.getAmount());
+                        rateDetails.setRtrStatus(rtrStatus.value);
+                        //parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, charge.getAmount(), rtrStatus.value, auditDetails.getCarrierId());
                         parcelRTRDao.updateShipmentRateDetails(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                     }
                 } else if(ParcelAuditConstant.ChargeClassificationCode.ACS.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())
@@ -505,8 +603,9 @@ public class ParcelRTRService{
                         rateDetails.setFuelTablePercentage(fuelTablePerc);
                         rateDetails.setDimDivisor(charge.getDimDivisor() == null ? new BigDecimal("0") : charge.getDimDivisor());
                         rateDetails.setRatedWeight(charge.getWeight() == null ? new BigDecimal("0") : charge.getWeight());
-
-                        parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, charge.getAmount(), rtrStatus.value, auditDetails.getCarrierId());
+                        rateDetails.setRtrAmount(charge.getAmount());
+                        rateDetails.setRtrStatus(rtrStatus.value);
+                        //parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, charge.getAmount(), rtrStatus.value, auditDetails.getCarrierId());
                         parcelRTRDao.updateShipmentRateDetails(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                     }
                 } else {
@@ -524,7 +623,9 @@ public class ParcelRTRService{
                         rateDetails.setFuelTablePercentage(fuelTablePerc);
                         rateDetails.setDimDivisor(charge.getDimDivisor() == null ? new BigDecimal("0") : charge.getDimDivisor());
                         rateDetails.setRatedWeight(charge.getWeight() == null ? new BigDecimal("0") : charge.getWeight());
-                        parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, new BigDecimal("0"), rtrStatus.value, auditDetails.getCarrierId());
+                        rateDetails.setRtrAmount(charge.getAmount());
+                        rateDetails.setRtrStatus(rtrStatus.value);
+                        //parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, new BigDecimal("0"), rtrStatus.value, auditDetails.getCarrierId());
                         parcelRTRDao.updateShipmentRateDetails(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                     }
                 }
@@ -534,8 +635,10 @@ public class ParcelRTRService{
                     rateDetails.setShipperCategory(shipperCategory);
                     rateDetails.setContractName(contractName);
                     rateDetails.setFuelTablePercentage(fuelTablePerc);
-
-                    parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, new BigDecimal("0"), rtrStatus.value, auditDetails.getCarrierId());
+                    rateDetails.setRtrAmount(new BigDecimal("0"));
+                    rateDetails.setRtrStatus(rtrStatus.value);
+                    parcelRTRDao.updateShipmentRateDetails(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
+                    //parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, new BigDecimal("0"), rtrStatus.value, auditDetails.getCarrierId());
                 }
             }
         }
@@ -552,22 +655,22 @@ public class ParcelRTRService{
         return rtrStatus.value;
     }
 
-    private String updateRateForUps(ParcelRateResponse parcelRateResponse, List<ParcelAuditDetailsDto> parcelAuditDetails, MsiARChargeCodesDto msiARChargeCodes, ParcelAuditDetailsDto commercialAdj) throws Exception {
-        return updateRateForUps(parcelRateResponse, parcelAuditDetails, msiARChargeCodes, commercialAdj, null);
+    private String updateRateForUps(ParcelRateResponse parcelRateResponse, List<ParcelAuditDetailsDto> parcelAuditDetails, MsiARChargeCodesDto msiARChargeCodes, ParcelAuditDetailsDto commercialAdj, BigDecimal sumOfNetAmount) throws Exception {
+        return updateRateForUps(parcelRateResponse, parcelAuditDetails, msiARChargeCodes, commercialAdj, null, sumOfNetAmount);
     }
 
-    private String updateRateForUps(ParcelRateResponse parcelRateResponse, List<ParcelAuditDetailsDto> parcelAuditDetails, MsiARChargeCodesDto msiARChargeCodes, List<ParcelAuditDetailsDto> previousShipment) throws Exception {
-        return updateRateForUps(parcelRateResponse, parcelAuditDetails, msiARChargeCodes, null, previousShipment);
+    private String updateRateForUps(ParcelRateResponse parcelRateResponse, List<ParcelAuditDetailsDto> parcelAuditDetails, MsiARChargeCodesDto msiARChargeCodes, List<ParcelAuditDetailsDto> previousShipment, BigDecimal sumOfNetAmount) throws Exception {
+        return updateRateForUps(parcelRateResponse, parcelAuditDetails, msiARChargeCodes, null, previousShipment, sumOfNetAmount);
     }
 
-    private String updateRateForUps(ParcelRateResponse parcelRateResponse, List<ParcelAuditDetailsDto> parcelAuditDetails, MsiARChargeCodesDto msiARChargeCodes, ParcelAuditDetailsDto commercialAdjCharge, List<ParcelAuditDetailsDto> previousShipment) throws Exception {
+    private String updateRateForUps(ParcelRateResponse parcelRateResponse, List<ParcelAuditDetailsDto> parcelAuditDetails, MsiARChargeCodesDto msiARChargeCodes, ParcelAuditDetailsDto commercialAdjCharge, List<ParcelAuditDetailsDto> previousShipment, BigDecimal sumOfNetAmount) throws Exception {
         String status = "";
         if(parcelRateResponse != null){
             if(parcelRateResponse.getStatusCode() != null && parcelRateResponse.getStatusCode().equals(0)){
                 if(parcelRateResponse.getPriceSheets() != null && !parcelRateResponse.getPriceSheets().isEmpty()){
                     //Taking the first price sheet, as per the discussion we finalised that the first price sheet will be be correct and rated based on the latest contract.
                     ParcelRateResponse.PriceSheet firstPriceSheet = parcelRateResponse.getPriceSheets().get(0);
-                    BigDecimal sumOfNetAmount = findSumOfNetAmount(parcelAuditDetails);
+
                     BigDecimal totalRateAmount = firstPriceSheet.getTotal().setScale(2, BigDecimal.ROUND_HALF_EVEN);
 
                     BigDecimal toleranceLowerBound = sumOfNetAmount.multiply(new BigDecimal("0.995"));
@@ -697,15 +800,31 @@ public class ParcelRTRService{
                                     frtAmount = charge.getAmount();
                                 }
                             }
-                            parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, frtAmount, rtrStatus.value, auditDetails.getCarrierId());
+                            rateDetails.setRtrAmount(frtAmount);
+                            rateDetails.setRtrStatus(rtrStatus.value);
+                            //parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, frtAmount, rtrStatus.value, auditDetails.getCarrierId());
                             parcelRTRDao.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
 
                             frtChargeFound = true;
                         }else{
-                            parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, new BigDecimal("0"), rtrStatus.value, auditDetails.getCarrierId());
+                            ParcelRateDetailsDto rateDetails = ParcelRateDetailsDto.getInstance();
+                            rateDetails.setShipperCategory(shipperCategory);
+                            rateDetails.setContractName(contractName);
+                            rateDetails.setFuelTablePercentage(fuelTablePerc);
+                            rateDetails.setRtrAmount(new BigDecimal("0"));
+                            rateDetails.setRtrStatus(rtrStatus.value);
+                            //parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, new BigDecimal("0"), rtrStatus.value, auditDetails.getCarrierId());
+                            parcelRTRDao.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                         }
                     }else{
-                        parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, new BigDecimal("0"), rtrStatus.value, auditDetails.getCarrierId());
+                        ParcelRateDetailsDto rateDetails = ParcelRateDetailsDto.getInstance();
+                        rateDetails.setShipperCategory(shipperCategory);
+                        rateDetails.setContractName(contractName);
+                        rateDetails.setFuelTablePercentage(fuelTablePerc);
+                        rateDetails.setRtrAmount(new BigDecimal("0"));
+                        rateDetails.setRtrStatus(rtrStatus.value);
+                        //parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, new BigDecimal("0"), rtrStatus.value, auditDetails.getCarrierId());
+                        parcelRTRDao.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                     }
                 }else if(ParcelAuditConstant.ChargeClassificationCode.FSC.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())){
                     charge = ParcelRateResponseParser.findChargeByType(ParcelRateResponse.ChargeType.ACCESSORIAL_FUEL.name(), priceSheet);
@@ -736,7 +855,9 @@ public class ParcelRTRService{
                             }
 
                         }
-                        parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, fscAmount, rtrStatus.value, auditDetails.getCarrierId());
+                        rateDetails.setRtrAmount(fscAmount);
+                        rateDetails.setRtrStatus(rtrStatus.value);
+                        //parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, fscAmount, rtrStatus.value, auditDetails.getCarrierId());
                         parcelRTRDao.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                     }
                 } else if(ParcelAuditConstant.ChargeClassificationCode.ACC.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())
@@ -763,7 +884,9 @@ public class ParcelRTRService{
                             }
 
                         }
-                        parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, resAmount, rtrStatus.value, auditDetails.getCarrierId());
+                        rateDetails.setRtrAmount(resAmount);
+                        rateDetails.setRtrStatus(rtrStatus.value);
+                        //parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, resAmount, rtrStatus.value, auditDetails.getCarrierId());
                         parcelRTRDao.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                     }
                 }else if(ParcelAuditConstant.ChargeClassificationCode.ACC.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())
@@ -792,7 +915,9 @@ public class ParcelRTRService{
                             }
 
                         }
-                        parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, dasAmount, rtrStatus.value, auditDetails.getCarrierId());
+                        rateDetails.setRtrAmount(dasAmount);
+                        rateDetails.setRtrStatus(rtrStatus.value);
+                        //parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, dasAmount, rtrStatus.value, auditDetails.getCarrierId());
                         parcelRTRDao.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                     }
                 } else if(ParcelAuditConstant.ChargeClassificationCode.ACC.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())
@@ -807,8 +932,9 @@ public class ParcelRTRService{
                         rateDetails.setFuelTablePercentage(fuelTablePerc);
                         rateDetails.setDimDivisor(charge.getDimDivisor() == null ? new BigDecimal("0") : charge.getDimDivisor());
                         rateDetails.setRatedWeight(charge.getWeight() == null ? new BigDecimal("0") : charge.getWeight());
-
-                        parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, charge.getAmount(), rtrStatus.value, auditDetails.getCarrierId());
+                        rateDetails.setRtrAmount(charge.getAmount());
+                        rateDetails.setRtrStatus(rtrStatus.value);
+                        //parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, charge.getAmount(), rtrStatus.value, auditDetails.getCarrierId());
                         parcelRTRDao.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                     }
                 } else{
@@ -836,9 +962,15 @@ public class ParcelRTRService{
                                 }
 
                             }
-                            parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, otherAcc, rtrStatus.value, auditDetails.getCarrierId());
+                            rateDetails.setRtrAmount(otherAcc);
+                            rateDetails.setRtrStatus(rtrStatus.value);
+                            //parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, otherAcc, rtrStatus.value, auditDetails.getCarrierId());
+                            parcelRTRDao.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                         } else {
-                            parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, charge.getAmount(), rtrStatus.value, auditDetails.getCarrierId());
+                            rateDetails.setRtrAmount(charge.getAmount());
+                            rateDetails.setRtrStatus(rtrStatus.value);
+                            //parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, charge.getAmount(), rtrStatus.value, auditDetails.getCarrierId());
+                            parcelRTRDao.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                         }
                     }
                 }
@@ -848,8 +980,9 @@ public class ParcelRTRService{
                     rateDetails.setShipperCategory(shipperCategory);
                     rateDetails.setContractName(contractName);
                     rateDetails.setFuelTablePercentage(fuelTablePerc);
-
-                    parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, new BigDecimal("0"), rtrStatus.value, auditDetails.getCarrierId());
+                    rateDetails.setRtrAmount(new BigDecimal("0"));
+                    rateDetails.setRtrStatus(rtrStatus.value);
+                    //parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, new BigDecimal("0"), rtrStatus.value, auditDetails.getCarrierId());
                     parcelRTRDao.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                 }
             }
@@ -1006,8 +1139,9 @@ public class ParcelRTRService{
         }catch (Exception e){}
 
         BigDecimal prevTotalRated = previousShipment != null && !previousShipment.isEmpty() ? getRatedTotalAmount(previousShipment.get(0).getParentId()) : new BigDecimal("0");
-
-        parcelRTRDao.updateRTRInvoiceAmount(commercialAdjCharge.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, (totalRatedAmount.subtract(prevTotalRated)) , rtrStatus.value, commercialAdjCharge.getCarrierId());
+        rateDetails.setRtrAmount(totalRatedAmount.subtract(prevTotalRated));
+        rateDetails.setRtrStatus(rtrStatus.value);
+        //parcelRTRDao.updateRTRInvoiceAmount(commercialAdjCharge.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, (totalRatedAmount.subtract(prevTotalRated)) , rtrStatus.value, commercialAdjCharge.getCarrierId());
         parcelRTRDao.updateAllShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, commercialAdjCharge.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
 
         return rtrStatus.value;
@@ -1052,15 +1186,31 @@ public class ParcelRTRService{
                                     rateDetails.setResidentialSurchargeDiscountPercentage(residentialSurchargeDiscountCharge.getRate());
                                 }
 
+                                rateDetails.setRtrAmount(charge.getAmount());
+                                rateDetails.setRtrStatus(rtrStatus.value);
                                 parcelRTRDao.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
-                                parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, charge.getAmount(), rtrStatus.value, auditDetails.getCarrierId());
+                                //parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, charge.getAmount(), rtrStatus.value, auditDetails.getCarrierId());
                             }
                             frtChargeFound = true;
                         }else{
-                            parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, new BigDecimal("0"), rtrStatus.value, auditDetails.getCarrierId());
+                            ParcelRateDetailsDto rateDetails = ParcelRateDetailsDto.getInstance();
+                            rateDetails.setShipperCategory(shipperCategory);
+                            rateDetails.setContractName(contractName);
+                            rateDetails.setFuelTablePercentage(fuelTablePerc);
+                            rateDetails.setRtrAmount(new BigDecimal("0"));
+                            rateDetails.setRtrStatus(rtrStatus.value);
+                            //parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, new BigDecimal("0"), rtrStatus.value, auditDetails.getCarrierId());
+                            parcelRTRDao.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                         }
                     }else{
-                        parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, new BigDecimal("0"), rtrStatus.value, auditDetails.getCarrierId());
+                        ParcelRateDetailsDto rateDetails = ParcelRateDetailsDto.getInstance();
+                        rateDetails.setShipperCategory(shipperCategory);
+                        rateDetails.setContractName(contractName);
+                        rateDetails.setFuelTablePercentage(fuelTablePerc);
+                        rateDetails.setRtrAmount(new BigDecimal("0"));
+                        rateDetails.setRtrStatus(rtrStatus.value);
+                        //parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, new BigDecimal("0"), rtrStatus.value, auditDetails.getCarrierId());
+                        parcelRTRDao.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                     }
                 }else if(ParcelAuditConstant.ChargeClassificationCode.FSC.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())){
                     charge = ParcelRateResponseParser.findChargeByType(ParcelRateResponse.ChargeType.ACCESSORIAL_FUEL.name(), priceSheet);
@@ -1075,7 +1225,9 @@ public class ParcelRTRService{
                         rateDetails.setDimDivisor(charge.getDimDivisor() == null ? new BigDecimal("0") : charge.getDimDivisor());
                         rateDetails.setRatedWeight(charge.getWeight() == null ? new BigDecimal("0") : charge.getWeight());
 
-                        parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, charge.getAmount(), rtrStatus.value, auditDetails.getCarrierId());
+                        rateDetails.setRtrAmount(charge.getAmount());
+                        rateDetails.setRtrStatus(rtrStatus.value);
+                        //parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, charge.getAmount(), rtrStatus.value, auditDetails.getCarrierId());
                         parcelRTRDao.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                     }
                 } else if(ParcelAuditConstant.ChargeClassificationCode.ACC.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())
@@ -1088,8 +1240,9 @@ public class ParcelRTRService{
                         rateDetails.setContractName(contractName);
                         rateDetails.setDimDivisor(charge.getDimDivisor() == null ? new BigDecimal("0") : charge.getDimDivisor());
                         rateDetails.setRatedWeight(charge.getWeight() == null ? new BigDecimal("0") : charge.getWeight());
-
-                        parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, charge.getAmount(), rtrStatus.value, auditDetails.getCarrierId());
+                        rateDetails.setRtrAmount(charge.getAmount());
+                        rateDetails.setRtrStatus(rtrStatus.value);
+                        //parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, charge.getAmount(), rtrStatus.value, auditDetails.getCarrierId());
                         parcelRTRDao.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                     }
                 }else if(ParcelAuditConstant.ChargeClassificationCode.ACC.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())
@@ -1107,8 +1260,9 @@ public class ParcelRTRService{
                         }
                         rateDetails.setDimDivisor(charge.getDimDivisor() == null ? new BigDecimal("0") : charge.getDimDivisor());
                         rateDetails.setRatedWeight(charge.getWeight() == null ? new BigDecimal("0") : charge.getWeight());
-
-                        parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, charge.getAmount(), rtrStatus.value, auditDetails.getCarrierId());
+                        rateDetails.setRtrAmount(charge.getAmount());
+                        rateDetails.setRtrStatus(rtrStatus.value);
+                        //parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, charge.getAmount(), rtrStatus.value, auditDetails.getCarrierId());
                         parcelRTRDao.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                     }
                 } else if(ParcelAuditConstant.ChargeClassificationCode.ACC.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())
@@ -1123,8 +1277,9 @@ public class ParcelRTRService{
                         rateDetails.setFuelTablePercentage(fuelTablePerc);
                         rateDetails.setDimDivisor(charge.getDimDivisor() == null ? new BigDecimal("0") : charge.getDimDivisor());
                         rateDetails.setRatedWeight(charge.getWeight() == null ? new BigDecimal("0") : charge.getWeight());
-
-                        parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, charge.getAmount(), rtrStatus.value, auditDetails.getCarrierId());
+                        rateDetails.setRtrAmount(charge.getAmount());
+                        rateDetails.setRtrStatus(rtrStatus.value);
+                        //parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, charge.getAmount(), rtrStatus.value, auditDetails.getCarrierId());
                         parcelRTRDao.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                     }
                 } else{
@@ -1140,8 +1295,10 @@ public class ParcelRTRService{
                         rateDetails.setFuelTablePercentage(fuelTablePerc);
                         rateDetails.setDimDivisor(charge.getDimDivisor() == null ? new BigDecimal("0") : charge.getDimDivisor());
                         rateDetails.setRatedWeight(charge.getWeight() == null ? new BigDecimal("0") : charge.getWeight());
-
-                        parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, charge.getAmount(), rtrStatus.value, auditDetails.getCarrierId());
+                        rateDetails.setRtrAmount(charge.getAmount());
+                        rateDetails.setRtrStatus(rtrStatus.value);
+                        //parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, charge.getAmount(), rtrStatus.value, auditDetails.getCarrierId());
+                        parcelRTRDao.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                     }
                 }
 
@@ -1150,8 +1307,9 @@ public class ParcelRTRService{
                     rateDetails.setShipperCategory(shipperCategory);
                     rateDetails.setContractName(contractName);
                     rateDetails.setFuelTablePercentage(fuelTablePerc);
-
-                    parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, new BigDecimal("0"), rtrStatus.value, auditDetails.getCarrierId());
+                    rateDetails.setRtrAmount(new BigDecimal("0"));
+                    rateDetails.setRtrStatus(rtrStatus.value);
+                    //parcelRTRDao.updateRTRInvoiceAmount(auditDetails.getId(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, new BigDecimal("0"), rtrStatus.value, auditDetails.getCarrierId());
                     parcelRTRDao.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                 }
             }
@@ -1185,7 +1343,7 @@ public class ParcelRTRService{
                 }
             }
             if(entityIds.length() > 0){
-                parcelRTRDao.updateInvoiceAmountByIds(entityIds.toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rtrStatus.value, parcelAuditDetails.get(0).getCarrierId());
+                parcelRTRDao.updateRtrStatusByIds(entityIds.toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rtrStatus.value, parcelAuditDetails.get(0).getCarrierId());
             }
         }
     }
@@ -1242,6 +1400,7 @@ public class ParcelRTRService{
         }
     }
 
+    @Deprecated
     private void updateInvoiceRtrStatus(Long invoiceId, Map<String, String> shipmentStatusMap) {
         String userName = "ParcelRTRRating";
         if(shipmentStatusMap != null && !shipmentStatusMap.isEmpty()){
@@ -1591,4 +1750,90 @@ public class ParcelRTRService{
         }
         return total;
     }
+
+    /**
+     * This method will prepare bundle number or multi weight id tracking number wise details
+     *
+     * @param listMap
+     * @return
+     */
+    private Map<String, List<ParcelAuditDetailsDto>> prepareMultiWeightNumberWiseAuditDetails(Map<String, List<ParcelAuditDetailsDto>> listMap) {
+
+        Map<String, List<ParcelAuditDetailsDto>> mwtDetailsMap = new HashMap<>();
+        Map<String, List<ParcelAuditDetailsDto>> tempMap = new HashMap<>(listMap);
+        for (Map.Entry<String, List<ParcelAuditDetailsDto>> entry : tempMap.entrySet()) {
+
+
+            for (ParcelAuditDetailsDto parcelAuditDetails : entry.getValue()) {
+                if (parcelAuditDetails != null) {
+
+                    if (parcelAuditDetails.getMultiWeightNumber() != null && !parcelAuditDetails.getMultiWeightNumber().isEmpty()) {
+                        if (mwtDetailsMap.containsKey(parcelAuditDetails.getMultiWeightNumber()))
+                            mwtDetailsMap.get(parcelAuditDetails.getMultiWeightNumber()).addAll(tempMap.get(parcelAuditDetails.getTrackingNumber()));
+                        else
+                            mwtDetailsMap.put(parcelAuditDetails.getMultiWeightNumber(), tempMap.get(parcelAuditDetails.getTrackingNumber()));
+
+                        listMap.remove(parcelAuditDetails.getTrackingNumber());
+                        break;
+                    }
+                }
+            }
+        }
+        tempMap = null;
+        return mwtDetailsMap;
+    }
+
+    /**
+     * This method will prepare Lead Shipment tracking number wise details
+     * @param listMap
+     * @return
+     */
+    private Map<String, List<ParcelAuditDetailsDto>> prepareHwtNumberWiseAuditDetails(Map<String, List<ParcelAuditDetailsDto>> listMap) {
+
+        Map<String, List<ParcelAuditDetailsDto>> hwtDetailsMap = new HashMap<>();
+        Map<String, List<ParcelAuditDetailsDto>> tempMap = new HashMap<>(listMap);
+        for (Map.Entry<String, List<ParcelAuditDetailsDto>> entry : tempMap.entrySet()) {
+
+            for (ParcelAuditDetailsDto parcelAuditDetails : entry.getValue()) {
+                if (parcelAuditDetails != null) {
+
+                    if (parcelAuditDetails.getMultiWeightNumber() != null && !parcelAuditDetails.getMultiWeightNumber().isEmpty()) {
+                        if (hwtDetailsMap.containsKey(parcelAuditDetails.getMultiWeightNumber()))
+                            hwtDetailsMap.get(parcelAuditDetails.getMultiWeightNumber()).addAll(tempMap.get(parcelAuditDetails.getTrackingNumber()));
+                        else
+                            hwtDetailsMap.put(parcelAuditDetails.getMultiWeightNumber(), tempMap.get(parcelAuditDetails.getTrackingNumber()));
+
+                        listMap.remove(parcelAuditDetails.getTrackingNumber());
+                        break;
+                    }
+                }
+            }
+        }
+        tempMap = null;
+        return hwtDetailsMap;
+    }
+
+    /**
+     * This method will return lead shipment details
+     * @param parcelAuditDetails
+     * @return
+     */
+    private List<ParcelAuditDetailsDto> getLeadShipmentDetails(List<ParcelAuditDetailsDto> parcelAuditDetails) {
+
+        List<ParcelAuditDetailsDto> detailsDtos = new ArrayList<>();
+
+        ParcelAuditDetailsDto minDto = parcelAuditDetails.stream().min(Comparator.comparing(ParcelAuditDetailsDto::getId)).orElseThrow(NoSuchElementException::new);
+
+        if (minDto != null) {
+            for (ParcelAuditDetailsDto dto : parcelAuditDetails) {
+
+                if (StringUtils.equalsIgnoreCase(dto.getTrackingNumber(), minDto.getTrackingNumber())) {
+
+                    detailsDtos.add(dto);
+                }
+            }
+        }
+        return detailsDtos;
+    }
+
 }

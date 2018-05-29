@@ -297,7 +297,7 @@ public class ParcelRateResponseParser {
     public static ParcelRateResponse.Charge getRatedDasDiscount(ParcelRateResponse.PriceSheet priceSheet){
         if(priceSheet != null && priceSheet.getCharges() != null) {
             for (ParcelRateResponse.Charge charge : priceSheet.getCharges()) {
-                if(charge != null && charge.getType() != null && ParcelRateResponse.ChargeType.DISCOUNT.name().equalsIgnoreCase(charge.getType())
+                if (charge != null && charge.getType() != null && ParcelRateResponse.ChargeType.DISCOUNT.name().equalsIgnoreCase(charge.getType())
                         && charge.getName() != null && "Delivery Area Surcharge Discount".equalsIgnoreCase(charge.getName())){
                     return charge;
                 }
@@ -318,11 +318,11 @@ public class ParcelRateResponseParser {
         return null;
     }
 
-    public static ParcelRateResponse.Charge getRatedExtendedDasDiscount(ParcelRateResponse.PriceSheet priceSheet){
-        if(priceSheet != null && priceSheet.getCharges() != null) {
+    public static ParcelRateResponse.Charge getRatedExtendedDasDiscount(ParcelRateResponse.PriceSheet priceSheet) {
+        if (priceSheet != null && priceSheet.getCharges() != null) {
             for (ParcelRateResponse.Charge charge : priceSheet.getCharges()) {
-                if(charge != null && charge.getType() != null && ParcelRateResponse.ChargeType.DISCOUNT.name().equalsIgnoreCase(charge.getType())
-                        && charge.getName() != null && "Delivery Area Surcharge - Extended Discount".equalsIgnoreCase(charge.getName())){
+                if (charge != null && charge.getType() != null && ParcelRateResponse.ChargeType.DISCOUNT.name().equalsIgnoreCase(charge.getType())
+                        && charge.getName() != null && "Delivery Area Surcharge - Extended Discount".equalsIgnoreCase(charge.getName())) {
                     return charge;
                 }
             }

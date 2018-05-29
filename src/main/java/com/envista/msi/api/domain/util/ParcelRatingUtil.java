@@ -1,16 +1,34 @@
 package com.envista.msi.api.domain.util;
 
-import com.envista.msi.api.web.rest.dto.rtr.*;
+import com.envista.msi.api.web.rest.dto.rtr.MsiARChargeCodesDto;
+import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditDetailsDto;
+import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditRequestResponseLog;
+import com.envista.msi.api.web.rest.dto.rtr.RatedChargeDetailsDto;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant;
 import com.envista.msi.rating.bean.RatingQueueBean;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.StringJoiner;
 
 /**
  * Created by Sujit kumar on 20/04/2018.
  */
 public class ParcelRatingUtil {
+
+    private static Log m_log = LogFactory.getLog(ParcelRatingUtil.class);
+
     public static ParcelAuditDetailsDto getLatestFrightCharge(List<ParcelAuditDetailsDto> parcelAuditDetails){
         ParcelAuditDetailsDto parcelAuditDetail = null;
         Long maxEntityId = 0l;
@@ -376,6 +394,7 @@ public class ParcelRatingUtil {
                 ratingQueueBean.setReceiverState(receiverState);
                 ratingQueueBean.setReceiverCity(receiverCity);
                 ratingQueueBean.setReceiverZip(receiverZipCode);
+                ratingQueueBean.setHwtIdentifier(firstCharge.getMultiWeightNumber());
             }
         }
         return ratingQueueBean;
@@ -495,6 +514,7 @@ public class ParcelRatingUtil {
         ratingQueueBean.setReceiverState(receiverState);
         ratingQueueBean.setReceiverCity(receiverCity);
         ratingQueueBean.setReceiverZip(receiverZipCode);
+        ratingQueueBean.setHwtIdentifier(firstCharge.getMultiWeightNumber());
 
         return ratingQueueBean;
     }
@@ -517,26 +537,66 @@ public class ParcelRatingUtil {
         requestResponseLog.setEntityIds(entityId.toString());
         requestResponseLog.setCreateUser(ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME);
         requestResponseLog.setTableName(tableName);
-        if(requestPayload != null && !requestPayload.isEmpty()){
+        int length;
+        if (requestPayload != null && !requestPayload.isEmpty()) {
             int requestLength = requestPayload.length();
             if (requestLength <= 4000) {
                 requestResponseLog.setRequestXml1(requestPayload);
             } else {
                 requestResponseLog.setRequestXml1(requestPayload.substring(0, 3999));
-                requestResponseLog.setRequestXml2(requestPayload.substring(4000, requestLength));
-            }
-        }
+                if (requestLength <= 8000) {
+                    requestResponseLog.setRequestXml2(requestPayload.substring(4000, requestLength));
+                } else {
+                    requestResponseLog.setRequestXml2(requestPayload.substring(4000, 7999));
+                    if (requestLength > 8000) {
 
-        if(response != null && !response.isEmpty()){
-            int respLength = response.length();
-            if (respLength <= 4000) {
-                requestResponseLog.setResponseXml1(response);
-            } else {
-                requestResponseLog.setResponseXml1(response.substring(0, 3999));
-                if(respLength >= 4000 && respLength < 8000){
-                    requestResponseLog.setResponseXml2(response.substring(3999, respLength));
-                }else{
-                    try{  requestResponseLog.setResponseXml2(response.substring(3999, 7999));}catch (Exception e){}
+                        length = requestLength - 8000;
+
+                        if (length >= 4000)
+                            length = 3999;
+
+                        requestResponseLog.setRequestXml3(requestPayload.substring(8000, 8000 + length));
+
+                        if (length >= 4000) {
+                            m_log.error("The request xml is more than 12000 characters, So log table could to able to store request beyond 12000 characters. Request is***" + requestPayload);
+                        }
+
+
+                    }
+                }
+            }
+
+            if (response != null && !response.isEmpty()) {
+                int respLength = response.length();
+                length = 0;
+                if (respLength <= 4000) {
+                    requestResponseLog.setResponseXml1(response);
+                } else {
+                    requestResponseLog.setResponseXml1(response.substring(0, 3999));
+                    if (respLength <= 8000) {
+                        requestResponseLog.setResponseXml2(response.substring(4000, respLength));
+                    } else {
+                        if (respLength <= 12000) {
+                            requestResponseLog.setResponseXml2(response.substring(4000, 7999));
+                            requestResponseLog.setResponseXml3(response.substring(8000, respLength));
+                        } else {
+                            requestResponseLog.setResponseXml2(response.substring(4000, 7999));
+
+                            if (respLength > 12000) {
+
+                                length = respLength - 8000;
+
+                                if (length >= 4000)
+                                    length = 3999;
+
+                                requestResponseLog.setResponseXml3(response.substring(8000, 8000 + length));
+                            }
+                            if (length >= 4000) {
+                                m_log.error("The response xml is more than 12000 characters, So log table could to able to store response beyond 12000 characters. Response is***" + response);
+                            }
+
+                        }
+                    }
                 }
             }
         }
@@ -648,5 +708,210 @@ public class ParcelRatingUtil {
             }
         }
         return false;
+    }
+
+    public static ParcelAuditDetailsDto findFrtCharge(List<ParcelAuditDetailsDto> shipment) {
+        if (shipment != null) {
+            for (ParcelAuditDetailsDto charge : shipment) {
+                if (charge != null) {
+                    if ("FRT".equalsIgnoreCase(charge.getChargeClassificationCode())) {
+                        return charge;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * This method will prepare bundle number or multi weight id tracking number wise details
+     *
+     * @param listMap
+     * @return
+     */
+    public static Map<String, List<ParcelAuditDetailsDto>> prepareMultiWeightNumberWiseAuditDetails(Map<String, List<ParcelAuditDetailsDto>> listMap) {
+
+        Map<String, List<ParcelAuditDetailsDto>> mwtDetailsMap = new HashMap<>();
+        Map<String, List<ParcelAuditDetailsDto>> tempMap = new HashMap<>(listMap);
+        for (Map.Entry<String, List<ParcelAuditDetailsDto>> entry : tempMap.entrySet()) {
+
+
+            for (ParcelAuditDetailsDto parcelAuditDetails : entry.getValue()) {
+                if (parcelAuditDetails != null) {
+
+                    if (parcelAuditDetails.getMultiWeightNumber() != null && !parcelAuditDetails.getMultiWeightNumber().isEmpty()) {
+                        if (mwtDetailsMap.containsKey(parcelAuditDetails.getMultiWeightNumber()))
+                            mwtDetailsMap.get(parcelAuditDetails.getMultiWeightNumber()).addAll(tempMap.get(parcelAuditDetails.getTrackingNumber()));
+                        else
+                            mwtDetailsMap.put(parcelAuditDetails.getMultiWeightNumber(), tempMap.get(parcelAuditDetails.getTrackingNumber()));
+
+                        listMap.remove(parcelAuditDetails.getTrackingNumber());
+                        break;
+                    }
+                }
+            }
+        }
+        tempMap = null;
+        return mwtDetailsMap;
+    }
+
+    /**
+     * This method will prepare Lead Shipment tracking number wise details
+     *
+     * @param listMap
+     * @return
+     */
+    public static Map<String, List<ParcelAuditDetailsDto>> prepareHwtNumberWiseAuditDetails(Map<String, List<ParcelAuditDetailsDto>> listMap) {
+
+        Map<String, List<ParcelAuditDetailsDto>> hwtDetailsMap = new HashMap<>();
+        Map<String, List<ParcelAuditDetailsDto>> tempMap = new HashMap<>(listMap);
+        for (Map.Entry<String, List<ParcelAuditDetailsDto>> entry : tempMap.entrySet()) {
+
+            for (ParcelAuditDetailsDto parcelAuditDetails : entry.getValue()) {
+                if (parcelAuditDetails != null) {
+
+                    if (parcelAuditDetails.getMultiWeightNumber() != null && !parcelAuditDetails.getMultiWeightNumber().isEmpty()) {
+                        if (hwtDetailsMap.containsKey(parcelAuditDetails.getMultiWeightNumber()))
+                            hwtDetailsMap.get(parcelAuditDetails.getMultiWeightNumber()).addAll(tempMap.get(parcelAuditDetails.getTrackingNumber()));
+                        else
+                            hwtDetailsMap.put(parcelAuditDetails.getMultiWeightNumber(), tempMap.get(parcelAuditDetails.getTrackingNumber()));
+
+                        listMap.remove(parcelAuditDetails.getTrackingNumber());
+                        break;
+                    }
+                }
+            }
+        }
+        tempMap = null;
+        return hwtDetailsMap;
+    }
+
+    /**
+     * This method will return lead shipment details
+     *
+     * @param parcelAuditDetails
+     * @return
+     */
+    public static List<ParcelAuditDetailsDto> getLeadShipmentDetails(List<ParcelAuditDetailsDto> parcelAuditDetails) {
+
+        List<ParcelAuditDetailsDto> detailsDtos = new ArrayList<>();
+
+        ParcelAuditDetailsDto minDto = parcelAuditDetails.stream().min(Comparator.comparing(ParcelAuditDetailsDto::getId)).orElseThrow(NoSuchElementException::new);
+
+        if (minDto != null) {
+            for (ParcelAuditDetailsDto dto : parcelAuditDetails) {
+
+                if (StringUtils.equalsIgnoreCase(dto.getTrackingNumber(), minDto.getTrackingNumber())) {
+
+                    detailsDtos.add(dto);
+                }
+            }
+        }
+        return detailsDtos;
+    }
+
+    /**
+     * This method will prepare bundle number or multi weight id tracking number wise details
+     *
+     * @return
+     */
+    public static Map<String, List<RatingQueueBean>> prepareHwtShipmentWiseInfo(ArrayList<RatingQueueBean> beanList) {
+
+        Collections.sort(beanList, new Comparator<RatingQueueBean>() {
+            @Override
+            public int compare(RatingQueueBean h1, RatingQueueBean h2) {
+                return h1.getHwtIdentifier().compareTo(h2.getHwtIdentifier());
+            }
+        });
+        Map<String, List<RatingQueueBean>> mwtDetailsMap = new HashMap<>();
+
+
+        for (RatingQueueBean queueBean : beanList) {
+
+
+            if (queueBean.getHwtIdentifier() != null && !queueBean.getHwtIdentifier().isEmpty()) {
+
+
+                if (mwtDetailsMap.containsKey(queueBean.getHwtIdentifier())) {
+                    mwtDetailsMap.get(queueBean.getHwtIdentifier()).add(queueBean);
+                } else {
+                    List<RatingQueueBean> dtoList = new ArrayList<RatingQueueBean>();
+                    dtoList.add(queueBean);
+                    mwtDetailsMap.put(queueBean.getHwtIdentifier(), dtoList);
+
+
+                }
+
+
+            }
+
+
+        }
+
+
+        return mwtDetailsMap;
+
+    }
+
+    /**
+     * @param queueBeans
+     * @return
+     */
+    public static String prepareTrackingNumbersInOperator(List<RatingQueueBean> queueBeans) {
+
+        StringBuilder builder = null;
+        if (queueBeans.size() == 1) {
+            builder = new StringBuilder();
+            builder.append(queueBeans.get(0).getTrackingNumber());
+        } else {
+            for (RatingQueueBean bean : queueBeans) {
+
+                if (builder == null) {
+                    builder = new StringBuilder();
+                } else {
+                    builder.append(",");
+                }
+                builder.append("'" + bean.getTrackingNumber() + "'");
+            }
+        }
+        return builder.toString();
+    }
+
+    /**
+     * @param queueBeans
+     * @return
+     */
+    public static String prepareQueueIdsInOperator(List<RatingQueueBean> queueBeans) {
+
+        StringBuilder builder = null;
+
+        for (RatingQueueBean bean : queueBeans) {
+
+            if (builder == null) {
+                builder = new StringBuilder();
+            } else {
+                builder.append(",");
+            }
+            builder.append(bean.getRatingQueueId());
+        }
+        return builder.toString();
+    }
+
+
+    /**
+     * @param shipmentToRate
+     * @param queueBeans
+     * @return
+     */
+    public static RatingQueueBean getLeadShipmentQueueBean(List<ParcelAuditDetailsDto> shipmentToRate, List<RatingQueueBean> queueBeans) {
+
+        for (RatingQueueBean bean : queueBeans) {
+
+            if (shipmentToRate.get(0).getParentId().equals(bean.getManiestId())) {
+
+                return bean;
+            }
+        }
+        return null;
     }
 }
