@@ -468,4 +468,8 @@ public class ParcelNonUpsRatingService {
             }
         }catch (Exception e){}
     }
+
+    public boolean shipmentExist(Long parentId){
+        return new RatingQueueDAO().shipmentExist(parentId);
+    }
 }

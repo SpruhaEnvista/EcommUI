@@ -302,16 +302,20 @@ public class ParcelRatingQueueJob {
     }
 
     private void addNonUpsShipmentEntryIntoQueue(List<ParcelAuditDetailsDto> shipmentsWithPrevFrt, MsiARChargeCodesDto msiARChargeCode) {
-        RatingQueueBean ratingQueueBean = ParcelRatingUtil.prepareShipmentEntryForNonUpsShipment(shipmentsWithPrevFrt, msiARChargeCode);
-        if(ratingQueueBean != null){
-            parcelRatingService.saveRatingQueueBean(ratingQueueBean);
+        if(!parcelRatingService.shipmentExist(shipmentsWithPrevFrt.get(0).getParentId())) {
+            RatingQueueBean ratingQueueBean = ParcelRatingUtil.prepareShipmentEntryForNonUpsShipment(shipmentsWithPrevFrt, msiARChargeCode);
+            if(ratingQueueBean != null){
+                parcelRatingService.saveRatingQueueBean(ratingQueueBean);
+            }
         }
     }
 
     private void addUpsShipmentEntryIntoQueue(List<ParcelAuditDetailsDto> shipmentsWithPrevFrt, MsiARChargeCodesDto msiARChargeCode) {
-        RatingQueueBean ratingQueueBean = ParcelRatingUtil.prepareShipmentEntryForUpsShipment(shipmentsWithPrevFrt, msiARChargeCode);
-        if(ratingQueueBean != null){
-            parcelRatingService.saveRatingQueueBean(ratingQueueBean);
+        if(!parcelRatingService.shipmentExist(shipmentsWithPrevFrt.get(0).getParentId())) {
+            RatingQueueBean ratingQueueBean = ParcelRatingUtil.prepareShipmentEntryForUpsShipment(shipmentsWithPrevFrt, msiARChargeCode);
+            if(ratingQueueBean != null){
+                parcelRatingService.saveRatingQueueBean(ratingQueueBean);
+            }
         }
     }
 }

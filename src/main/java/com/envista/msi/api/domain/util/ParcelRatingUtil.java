@@ -501,10 +501,19 @@ public class ParcelRatingUtil {
 
     public static boolean isShipmentRated(List<ParcelAuditDetailsDto> shipment){
         boolean rated = false;
+        List<String> rateStatusList = null;
         if(shipment != null && !shipment.isEmpty()) {
+            rateStatusList = new ArrayList<>();
             for(ParcelAuditDetailsDto shipmentCharge : shipment){
-                if(shipmentCharge != null && shipmentCharge.getRtrStatus() != null
-                        && Arrays.asList(ParcelAuditConstant.RTRStatus.CLOSED.value, ParcelAuditConstant.RTRStatus.UNDER_CHARGED.value, ParcelAuditConstant.RTRStatus.OVER_CHARGED.value).contains(shipmentCharge.getRtrStatus())) {
+                if(shipmentCharge != null && shipmentCharge.getRtrStatus() != null && !shipmentCharge.getRtrStatus().isEmpty()){
+                    rateStatusList.add(shipmentCharge.getRtrStatus());
+                }
+            }
+            if(rateStatusList != null && !rateStatusList.isEmpty()) {
+                if(rateStatusList.contains(ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET.value) || rateStatusList.contains(ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value)) {
+                    rated = false;
+                } else if(rateStatusList.contains(ParcelAuditConstant.RTRStatus.CLOSED.value) || rateStatusList.contains(ParcelAuditConstant.RTRStatus.UNDER_CHARGED.value)
+                        || rateStatusList.contains(ParcelAuditConstant.RTRStatus.OVER_CHARGED.value)) {
                     rated = true;
                 }
             }

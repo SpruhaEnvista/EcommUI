@@ -556,4 +556,44 @@ public class RatingQueueDAO {
         }
         return parcelUpsShipments;
     }
+
+    public boolean shipmentExist(Long parentId){
+        Connection connection = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            connection = ServiceLocator.getDatabaseConnection();
+            String sqlQuery = "select count(1) shipment_count from shp_rating_queue_tb where parent_id = ?";
+            ps = connection.prepareStatement(sqlQuery);
+            ps.setLong(1, parentId);
+            rs = ps.executeQuery();
+            if(rs.next()) {
+                if(rs.getInt("shipment_count") > 0) {
+                    return true;
+                }
+            }
+        }catch (SQLException sqle) {
+            System.out.println("Exception in getRatingQueueByJobId-- > "+sqle.getStackTrace());
+            sqle.printStackTrace();
+        }  catch (ServiceLocatorException sle) {
+            System.out.println("Exception in getRatingQueueByJobId-- > "+sle.getStackTrace());
+        }finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (SQLException sqle) {
+            }
+            try {
+                if (ps != null)
+                    ps.close();
+            } catch (SQLException sqle) {
+            }
+            try {
+                if (connection != null)
+                    connection.close();
+            } catch (SQLException sqle) {
+            }
+        }
+        return false;
+    }
 }
