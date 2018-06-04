@@ -272,9 +272,10 @@ public class ParcelRatingQueueJob {
                         //Do nothing
                     }
                 }
-
-                addMwtOrHwtShipmentEntryIntoQueue(hwtDetailsMap, allMappedARChargeCodes, "ups");
             }
+
+            addMwtOrHwtShipmentEntryIntoQueue(hwtDetailsMap, allMappedARChargeCodes, "ups");
+
         }
     }
 
@@ -359,7 +360,7 @@ public class ParcelRatingQueueJob {
                 if (StringUtils.equalsIgnoreCase("fedex", rateTo))
                     ratingQueueBean = ParcelRatingUtil.prepareShipmentEntryForNonUpsShipment(listEntry.getValue(), msiARChargeCode);
                 else if (StringUtils.equalsIgnoreCase("ups", rateTo))
-                    ratingQueueBean =ParcelRatingUtil.prepareShipmentEntryForUpsShipment(listEntry.getValue(), msiARChargeCode);
+                    ratingQueueBean = ParcelRatingUtil.prepareShipmentEntryForUpsShipment(listEntry.getValue(), msiARChargeCode);
 
                 if (queueBeanList == null)
                     queueBeanList = new ArrayList<RatingQueueBean>();
@@ -369,7 +370,7 @@ public class ParcelRatingQueueJob {
             if (queueBeanList != null && queueBeanList.size() > 0) {
                 parcelRatingService.saveRatingQueueBean(queueBeanList);
             }
-            queueBeanList.clear();
+            queueBeanList = null;
         }
     }
 

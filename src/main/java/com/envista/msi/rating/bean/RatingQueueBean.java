@@ -523,7 +523,11 @@ public class RatingQueueBean {
         this.hwtIdentifier = hwtIdentifier;
     }
 
-    public BigDecimal getNetAmount() { return netAmount; }
+    public BigDecimal getNetAmount() {
+        return netAmount;
+    }
 
-    public void setNetAmount(BigDecimal netAmount) { this.netAmount = netAmount; }
+    public void setNetAmount(BigDecimal netAmount) {
+        this.netAmount = netAmount;
+    }
 }

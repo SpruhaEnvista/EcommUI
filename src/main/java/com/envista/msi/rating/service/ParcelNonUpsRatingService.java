@@ -132,18 +132,18 @@ public class ParcelNonUpsRatingService {
                 BigDecimal sumOfNetAmount = ParcelRatingUtil.findSumOfNetAmount(shipmentToRate);
                 shipmentToRate = ParcelRatingUtil.getLeadShipmentDetails(shipmentToRate);
                 bean = ParcelRatingUtil.getLeadShipmentQueueBean(shipmentToRate, queueBeans);
-                if(bean!= null)
-                bean.setNetAmount(sumOfNetAmount);
+                if (bean != null)
+                    bean.setNetAmount(sumOfNetAmount);
             }
 
             new DirectJDBCDAO().saveParcelAuditRequestAndResponseLog(ParcelRatingUtil.prepareRequestResponseLog(requestPayload, response, bean.getParentId(), ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME));
 
-            status = updateRateForNonUpsCarrier(ParcelRateResponseParser.parse(response), shipmentToRate, getAllMappedARChargeCodes(),bean);
+            status = updateRateForNonUpsCarrier(ParcelRateResponseParser.parse(response), shipmentToRate, getAllMappedARChargeCodes(), bean);
         }
         return status;
     }
 
-    public String updateRateForNonUpsCarrier(ParcelRateResponse parcelRateResponse, List<ParcelAuditDetailsDto> parcelAuditDetails, MsiARChargeCodesDto msiARChargeCode,RatingQueueBean bean) throws Exception {
+    public String updateRateForNonUpsCarrier(ParcelRateResponse parcelRateResponse, List<ParcelAuditDetailsDto> parcelAuditDetails, MsiARChargeCodesDto msiARChargeCode, RatingQueueBean bean) throws Exception {
         String status = "";
         if(parcelRateResponse != null){
             if(parcelRateResponse.getStatusCode().equals(0)){
@@ -151,7 +151,7 @@ public class ParcelNonUpsRatingService {
                     //Taking the first price sheet, as per the discussion we finalised that the first price sheet will be be correct and rated based on the latest contract.
                     ParcelRateResponse.PriceSheet firstPriceSheet = parcelRateResponse.getPriceSheets().get(0);
                     BigDecimal sumOfNetAmount = null;
-                    if(bean.getHwtIdentifier() != null)
+                    if (bean.getHwtIdentifier() != null)
                         sumOfNetAmount = bean.getNetAmount();
                     else
                         sumOfNetAmount = ParcelRatingUtil.findSumOfNetAmount(parcelAuditDetails);

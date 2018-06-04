@@ -555,7 +555,7 @@ public class ParcelRatingUtil {
                         if (length >= 4000)
                             length = 3999;
 
-                        requestResponseLog.setRequestXml3(requestPayload.substring(8000, 8000+length));
+                        requestResponseLog.setRequestXml3(requestPayload.substring(8000, 8000 + length));
 
                         if (length >= 4000) {
                             m_log.error("The request xml is more than 12000 characters, So log table could to able to store request beyond 12000 characters. Request is***" + requestPayload);
@@ -589,7 +589,7 @@ public class ParcelRatingUtil {
                                 if (length >= 4000)
                                     length = 3999;
 
-                                requestResponseLog.setResponseXml3(response.substring(8000, 8000+length));
+                                requestResponseLog.setResponseXml3(response.substring(8000, 8000 + length));
                             }
                             if (length >= 4000) {
                                 m_log.error("The response xml is more than 12000 characters, So log table could to able to store response beyond 12000 characters. Response is***" + response);
@@ -600,8 +600,8 @@ public class ParcelRatingUtil {
                 }
             }
         }
-            return requestResponseLog;
-        }
+        return requestResponseLog;
+    }
 
     public static BigDecimal findSumOfNetAmount(List<ParcelAuditDetailsDto> parcelAuditDetailsList) {
         BigDecimal sumOfNetAmount = new BigDecimal("0.0");
@@ -832,7 +832,6 @@ public class ParcelRatingUtil {
             if (queueBean.getHwtIdentifier() != null && !queueBean.getHwtIdentifier().isEmpty()) {
 
 
-
                 if (mwtDetailsMap.containsKey(queueBean.getHwtIdentifier())) {
                     mwtDetailsMap.get(queueBean.getHwtIdentifier()).add(queueBean);
                 } else {
@@ -861,20 +860,20 @@ public class ParcelRatingUtil {
     public static String prepareTrackingNumbersInOperator(List<RatingQueueBean> queueBeans) {
 
         StringBuilder builder = null;
-            if(queueBeans.size()==1){
-                builder = new StringBuilder();
-                builder.append( queueBeans.get(0).getTrackingNumber() );
-            }else {
-                for (RatingQueueBean bean : queueBeans) {
+        if (queueBeans.size() == 1) {
+            builder = new StringBuilder();
+            builder.append(queueBeans.get(0).getTrackingNumber());
+        } else {
+            for (RatingQueueBean bean : queueBeans) {
 
-                    if (builder == null) {
-                        builder = new StringBuilder();
-                    } else {
-                        builder.append(",");
-                    }
-                    builder.append("'" + bean.getTrackingNumber() + "'");
+                if (builder == null) {
+                    builder = new StringBuilder();
+                } else {
+                    builder.append(",");
                 }
+                builder.append("'" + bean.getTrackingNumber() + "'");
             }
+        }
         return builder.toString();
     }
 

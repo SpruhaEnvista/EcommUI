@@ -2770,17 +2770,19 @@ public class DashboardsController extends DashboardBaseController {
             dashboardReportJson =dashboardsService.getReportForExport(appliedFilter, offset, 1000, null,isSelectedAll,exportTo);
         }
         String fileName = "Dashboards_Export";
-        if(! exportTo.contains("CSV") && dashboardReportJson!=null )
-        {
-            workbook =  CommonUtil.generateXlsxFromJson(dashboardReportJson);
 
-
-
-            if (appliedFilter.getDashletteName()!= null) {
-                fileName = appliedFilter.getDashletteName().trim().replaceAll("&gt;", ">").replaceAll(" ", "_");
-                fileName = fileName.replaceAll(">", "_").replaceAll("\\|", "_").replaceAll("_+", "_");
+        if (appliedFilter.getDashletteName()!= null) {
+            fileName = appliedFilter.getDashletteName().trim();
+            if ( fileName.toUpperCase().contains("NET SPEND OVER TIME") ) {
+                fileName = fileName.replace("NET SPEND OVER TIME","TOP 10 CARRIERS BY SPEND OVER TIME");
             }
+            fileName = fileName.replaceAll("&gt;", ">").replaceAll(" ", "_");
+            fileName = fileName.replaceAll(">", "_").replaceAll("\\|", "_").replaceAll("_+", "_");
 
+        }
+
+        if(! exportTo.contains("CSV") && dashboardReportJson!=null )  {
+            workbook =  CommonUtil.generateXlsxFromJson(dashboardReportJson);
 
             response.setContentType("application/text");
             response.setHeader("Content-Disposition", "attachment; filename="+fileName+".xlsx");
@@ -2790,12 +2792,7 @@ public class DashboardsController extends DashboardBaseController {
                 workbook.close();
             }
         }
-        else if(exportTo.contains("CSV") && dashboardReportJson!=null )
-        {
-            if (appliedFilter.getDashletteName()!= null) {
-                fileName = appliedFilter.getDashletteName().trim().replaceAll("&gt;", ">").replaceAll(" ", "_");
-                fileName = fileName.replaceAll(">", "_").replaceAll("\\|", "_").replaceAll("_+", "_");
-            }
+        else if(exportTo.contains("CSV") && dashboardReportJson!=null ) {
 
             OutputStream outputStream = response.getOutputStream();
             response.setContentType("text/csv");
@@ -2897,8 +2894,13 @@ public class DashboardsController extends DashboardBaseController {
         String fileName = "Dashboards_Export";
 
         if (appliedFilter.getDashletteName()!= null) {
-            fileName = appliedFilter.getDashletteName().trim().replaceAll("&gt;", ">").replaceAll(" ", "_");
+            fileName = appliedFilter.getDashletteName().trim();
+            if ( fileName.toUpperCase().contains("NET SPEND OVER TIME") ) {
+                fileName = fileName.replace("NET SPEND OVER TIME","TOP 10 CARRIERS BY SPEND OVER TIME");
+            }
+            fileName = fileName.replaceAll("&gt;", ">").replaceAll(" ", "_");
             fileName = fileName.replaceAll(">", "_").replaceAll("\\|", "_").replaceAll("_+", "_");
+
         }
 
         reportObject.put("svReportStatus", "Queued");
