@@ -185,6 +185,7 @@ public class RatingQueueDAO {
                 ratingQueueBean.setTrackingNumber(rs.getString("TRACKING_NUMBER"));
                 ratingQueueBean.setPackageType(rs.getString("PACKAGE_TYPE"));
                 ratingQueueBean.setHwtIdentifier(rs.getString("HWT_IDENTIFIER"));
+                ratingQueueBean.setRateSet(rs.getString("RATE_SET_NAME"));
                 beanList.add(ratingQueueBean);
             }
 

@@ -165,6 +165,7 @@ public class ParcelRateRequest implements Serializable {
             res.append("\n  service: ").append(getConstraints().getService());
             res.append("\n  billOption: ").append(getConstraints().getBillOption());
             res.append("\n  currency: ").append(getConstraints().getCurrency());
+            res.append("\n  rateSet: ").append(getConstraints().getRateSet());
 
             res.append("\n  serviceFlags: ");
             for (ServiceFlag flag :getConstraints().getServiceFlags())
