@@ -71,6 +71,8 @@ public class RatingDAOUtil {
         RATING_QUEUE_COLUMN_NAMES.add("TRACKING_NUMBER");
         RATING_QUEUE_COLUMN_NAMES.add("REVENUE_TIER");
         RATING_QUEUE_COLUMN_NAMES.add("PACKAGE_TYPE");
+        RATING_QUEUE_COLUMN_NAMES.add("RATE_SET_NAME");
+        RATING_QUEUE_COLUMN_NAMES.add("TASK_ID");
     }
 
     public static String prepareRatingQueueInsertQuery() {
@@ -238,7 +240,7 @@ public class RatingDAOUtil {
                 } else {
                     ps.setNull(46, Types.INTEGER);
                 }
-            }  else if("RATE_STATUS".equalsIgnoreCase(columnName)) {
+            } else if("RATE_STATUS".equalsIgnoreCase(columnName)) {
                 ps.setInt(47, queueBean.getRateStatus() != null ? queueBean.getRateStatus() : 0);
             } else if("ACCESSORIAL_INFO".equalsIgnoreCase(columnName)) {
                 ps.setString(48, queueBean.getAccessorialInfo());
@@ -254,6 +256,14 @@ public class RatingDAOUtil {
                 ps.setString(51, queueBean.getRevenueTier());
             } else if("PACKAGE_TYPE".equalsIgnoreCase(columnName)) {
                 ps.setString(52, queueBean.getPackageType());
+            } else if("RATE_SET_NAME".equalsIgnoreCase(columnName)){
+                ps.setString(53, queueBean.getRateSetName());
+            } else if("TASK_ID".equalsIgnoreCase(columnName)){
+                if(queueBean.getTaskId() != null){
+                    ps.setLong(54, queueBean.getTaskId());
+                } else {
+                    ps.setNull(54, Types.INTEGER);
+                }
             } else {
                 throw new RuntimeException("Column name not mapped");
             }

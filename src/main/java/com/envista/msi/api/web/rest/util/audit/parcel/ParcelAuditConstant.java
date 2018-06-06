@@ -98,4 +98,17 @@ public class ParcelAuditConstant {
             this.value = value;
         }
     }
+
+    public enum ParcelRatingInputProcessStatus{
+        NEW("New"),
+        RUNNING("Running"),
+        COMPLETED("Completed"),
+        EXCEPTION("Exception");
+
+        public final String value;
+
+        ParcelRatingInputProcessStatus(String value) {
+            this.value = value;
+        }
+    }
 }

@@ -60,6 +60,8 @@ public class RatingQueueBean {
     private String revenueTier;
     private String trackingNumber;
     private String packageType;
+    private Long taskId;
+    private String rateSetName;
 
     public Long getRatingQueueId() {
         return ratingQueueId;
@@ -510,5 +512,21 @@ public class RatingQueueBean {
 
     public void setPackageType(String packageType) {
         this.packageType = packageType;
+    }
+
+    public Long getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(Long taskId) {
+        this.taskId = taskId;
+    }
+
+    public String getRateSetName() {
+        return rateSetName;
+    }
+
+    public void setRateSetName(String rateSetName) {
+        this.rateSetName = rateSetName;
     }
 }

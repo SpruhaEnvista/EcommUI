@@ -5,6 +5,7 @@ import com.envista.msi.api.web.rest.dto.rtr.*;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant;
 import com.envista.msi.rating.ServiceLocator;
 import com.envista.msi.rating.ServiceLocatorException;
+import com.envista.msi.rating.entity.ParcelRatingInputCriteriaDto;
 import oracle.jdbc.OracleTypes;
 
 import java.math.BigDecimal;
@@ -548,5 +549,77 @@ public class DirectJDBCDAO {
             }
         }
         return invoiceList;
+    }
+
+    public ParcelRatingInputCriteriaDto getRatingInputCriteria(String status) {
+        ParcelRatingInputCriteriaDto inputCriteria = null;
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        String selectQueryStr = "SELECT * FROM SHP_PARCEL_RATING_INPUT_TB where STATUS = ? AND ROWNUM <= 1";
+
+        try {
+            con = ServiceLocator.getDatabaseConnection();
+            pstmt = con.prepareStatement(selectQueryStr);
+            pstmt.setString(1, status);
+            rs = pstmt.executeQuery();
+            inputCriteria = new ParcelRatingInputCriteriaDto();
+            if(rs.next()) {
+                inputCriteria.setId(rs.getLong("PARCEL_RATING_INPUT_ID"));
+                inputCriteria.setFromShipDate(rs.getDate("FROM_SHIP_DATE"));
+                inputCriteria.setToShipDate(rs.getDate("TO_SHIP_DATE"));
+                inputCriteria.setCustomerId(rs.getLong("CUSTOMER_ID"));
+                inputCriteria.setCarrierId(rs.getLong("CARRIER_ID"));
+                inputCriteria.setStatus(rs.getString("STATUS"));
+                inputCriteria.setTaskId(rs.getLong("TASK_ID"));
+                inputCriteria.setRateSetName(rs.getString("RATE_SET"));
+            }
+        } catch (Exception e) {
+
+        }finally {
+            try {
+                if (pstmt != null)
+                    pstmt.close();
+            } catch (SQLException sqle) {
+            }
+            try{
+                if(rs != null) rs.close();
+            }catch (SQLException e){}
+            try {
+                if (con != null)
+                    con.close();
+            } catch (SQLException sqle) {
+            }
+        }
+        return inputCriteria;
+    }
+
+    public void updateRatingInputCriteriaStatus(Long id, String status) {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        String selectQueryStr = "UPDATE SHP_PARCEL_RATING_INPUT_TB SET STATUS = ? WHERE PARCEL_RATING_INPUT_ID = ? ";
+        try {
+            con = ServiceLocator.getDatabaseConnection();
+            pstmt = con.prepareStatement(selectQueryStr);
+            pstmt.setString(1, status);
+            pstmt.setLong(2, id);
+            pstmt.executeUpdate();
+        } catch (Exception e) {
+
+        }finally {
+            try {
+                if (pstmt != null)
+                    pstmt.close();
+            } catch (SQLException sqle) {
+            }
+            try {
+                if (con != null)
+                    con.close();
+            } catch (SQLException sqle) {
+            }
+        }
     }
 }
