@@ -94,7 +94,7 @@ public class ParcelAuditConstant {
 
         public final int value;
 
-        ParcelRatingQueueRateStatus(int value){
+        ParcelRatingQueueRateStatus(int value) {
             this.value = value;
         }
     }

@@ -11,6 +11,7 @@ public class ParcelAuditRequestResponseLog implements Serializable {
     private String tableName;
     private String requestXml1;
     private String requestXml2;
+    private String requestXml3;
     private String responseXml1;
     private String responseXml2;
     private String responseXml3;
@@ -86,5 +87,13 @@ public class ParcelAuditRequestResponseLog implements Serializable {
 
     public void setCreateUser(String createUser) {
         this.createUser = createUser;
+    }
+
+    public String getRequestXml3() {
+        return requestXml3;
+    }
+
+    public void setRequestXml3(String requestXml3) {
+        this.requestXml3 = requestXml3;
     }
 }

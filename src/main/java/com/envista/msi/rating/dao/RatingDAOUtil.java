@@ -71,11 +71,12 @@ public class RatingDAOUtil {
         RATING_QUEUE_COLUMN_NAMES.add("TRACKING_NUMBER");
         RATING_QUEUE_COLUMN_NAMES.add("REVENUE_TIER");
         RATING_QUEUE_COLUMN_NAMES.add("PACKAGE_TYPE");
+        RATING_QUEUE_COLUMN_NAMES.add("HWT_IDENTIFIER");
         RATING_QUEUE_COLUMN_NAMES.add("RATE_SET_NAME");
         RATING_QUEUE_COLUMN_NAMES.add("TASK_ID");
     }
 
-    public static String prepareRatingQueueInsertQuery() {
+    public static String prepareRatingQueueInsertQuery(boolean isHwt) {
         Iterator<String> columnIterator = RATING_QUEUE_COLUMN_NAMES.listIterator();
         StringBuffer sqlQuery = new StringBuffer("INSERT INTO SHP_RATING_QUEUE_TB (");
         StringBuffer questionmark = new StringBuffer("SHP_RATING_QUEUE_S.NEXTVAL");
@@ -84,7 +85,10 @@ public class RatingDAOUtil {
             String columnName = columnIterator.next();
             sqlQuery.append(" , " + columnName);
             if("JOB_ID".equalsIgnoreCase(columnName)){
-                questionmark.append("," + ParcelAuditConstant.RATE_JOB_ID_SEQUENCE_VALUE);
+                if (!isHwt)
+                    questionmark.append("," + ParcelAuditConstant.RATE_JOB_ID_SEQUENCE_VALUE);
+                else
+                    questionmark.append(",99");
             } else {
                 questionmark.append(",?");
             }
@@ -256,6 +260,8 @@ public class RatingDAOUtil {
                 ps.setString(51, queueBean.getRevenueTier());
             } else if("PACKAGE_TYPE".equalsIgnoreCase(columnName)) {
                 ps.setString(52, queueBean.getPackageType());
+            } else if ("HWT_IDENTIFIER".equalsIgnoreCase(columnName)) {
+                ps.setString(53, queueBean.getHwtIdentifier());
             } else if("RATE_SET_NAME".equalsIgnoreCase(columnName)){
                 ps.setString(53, queueBean.getRateSetName());
             } else if("TASK_ID".equalsIgnoreCase(columnName)){

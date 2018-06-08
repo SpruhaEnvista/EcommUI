@@ -1,5 +1,6 @@
 package com.envista.msi.rating.bean;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 public class RatingQueueBean {
@@ -60,6 +61,8 @@ public class RatingQueueBean {
     private String revenueTier;
     private String trackingNumber;
     private String packageType;
+    private String hwtIdentifier;
+    private BigDecimal netAmount;
     private Long taskId;
     private String rateSetName;
 
@@ -512,6 +515,22 @@ public class RatingQueueBean {
 
     public void setPackageType(String packageType) {
         this.packageType = packageType;
+    }
+
+    public String getHwtIdentifier() {
+        return hwtIdentifier;
+    }
+
+    public void setHwtIdentifier(String hwtIdentifier) {
+        this.hwtIdentifier = hwtIdentifier;
+    }
+
+    public BigDecimal getNetAmount() {
+        return netAmount;
+    }
+
+    public void setNetAmount(BigDecimal netAmount) {
+        this.netAmount = netAmount;
     }
 
     public Long getTaskId() {
