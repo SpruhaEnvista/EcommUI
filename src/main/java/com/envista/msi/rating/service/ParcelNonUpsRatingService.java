@@ -13,7 +13,6 @@ import com.envista.msi.rating.bean.RatingQueueBean;
 import com.envista.msi.rating.dao.DirectJDBCDAO;
 import com.envista.msi.rating.dao.RatingQueueDAO;
 
-import javax.xml.bind.JAXBException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.*;

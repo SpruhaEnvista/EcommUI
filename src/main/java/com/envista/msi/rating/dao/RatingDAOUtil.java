@@ -3,7 +3,6 @@ package com.envista.msi.rating.dao;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant;
 import com.envista.msi.rating.bean.RatingQueueBean;
 
-import java.lang.reflect.Type;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -263,12 +262,12 @@ public class RatingDAOUtil {
             } else if ("HWT_IDENTIFIER".equalsIgnoreCase(columnName)) {
                 ps.setString(53, queueBean.getHwtIdentifier());
             } else if("RATE_SET_NAME".equalsIgnoreCase(columnName)){
-                ps.setString(53, queueBean.getRateSetName());
+                ps.setString(54, queueBean.getRateSetName());
             } else if("TASK_ID".equalsIgnoreCase(columnName)){
                 if(queueBean.getTaskId() != null){
-                    ps.setLong(54, queueBean.getTaskId());
+                    ps.setLong(55, queueBean.getTaskId());
                 } else {
-                    ps.setNull(54, Types.INTEGER);
+                    ps.setNull(55, Types.INTEGER);
                 }
             } else {
                 throw new RuntimeException("Column name not mapped");

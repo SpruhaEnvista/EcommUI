@@ -5,7 +5,6 @@ import com.envista.msi.api.domain.util.ParcelRatingUtil;
 import com.envista.msi.api.web.rest.dto.rtr.*;
 import com.envista.msi.api.web.rest.util.CommonUtil;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant;
-import com.envista.msi.api.web.rest.util.audit.parcel.ParcelRateRequestBuilder;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelRateResponse;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelRateResponseParser;
 import com.envista.msi.rating.bean.RatingQueueBean;
@@ -43,7 +42,7 @@ public class ParcelUpsRatingService {
         Map<String, String> chargeCodeMap = null;
         List<ParcelARChargeCodeMappingDto> mappedChargeCodes = new DirectJDBCDAO().loadMappedARChargeCodes(ParcelAuditConstant.MSI_AR_CHARGE_CODE_MAPPING_MODELE_NAME, ParcelAuditConstant.MSI_AR_DAS_CHARGE_CODE_NAME);
         if(mappedChargeCodes != null && !mappedChargeCodes.isEmpty()){
-            chargeCodeMap =  prepareChargeCodeMap(mappedChargeCodes);
+            chargeCodeMap = prepareChargeCodeMap(mappedChargeCodes);
         }
         return chargeCodeMap;
     }
@@ -52,7 +51,7 @@ public class ParcelUpsRatingService {
         Map<String, String> chargeCodeMap = null;
         List<ParcelARChargeCodeMappingDto> mappedChargeCodes = new DirectJDBCDAO().loadMappedARChargeCodes(ParcelAuditConstant.MSI_AR_CHARGE_CODE_MAPPING_MODELE_NAME, ParcelAuditConstant.MSI_AR_LPS_CHARGE_CODE_NAME);
         if(mappedChargeCodes != null && !mappedChargeCodes.isEmpty()){
-            chargeCodeMap =  prepareChargeCodeMap(mappedChargeCodes);
+            chargeCodeMap = prepareChargeCodeMap(mappedChargeCodes);
         }
         return chargeCodeMap;
     }
@@ -95,8 +94,6 @@ public class ParcelUpsRatingService {
 
                         if(shipmentToRate != null && !shipmentToRate.isEmpty()) {
                             if(ParcelRatingUtil.isFirstShipmentToRate(shipments, bean.getParentId())) {
-                                if(!ParcelRatingUtil.isShipmentRated(shipmentToRate)) {
-                                    status = callRTRAndPopulateRates(url, licenseKey, shipmentToRate, msiARChargeCode, null, bean, null);
                                 if(ParcelRatingUtil.isRatedWithException(shipmentToRate)) {
                                     status = ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value;
                                 } else if(ParcelRatingUtil.isRatedWithEmptyPriceSheet(shipmentToRate)) {
@@ -114,13 +111,9 @@ public class ParcelUpsRatingService {
                                             } else if (ParcelRatingUtil.containsCharge(ParcelAuditConstant.RESIDENTIAL_ADJUSTMENT_CHARGE_TYPE, shipmentToRate)) {
                                                 //keeping it in separate if condition in order to handle few more scenarios in future.
                                                 status = callRTRAndPopulateRates(url, licenseKey, previousShipment, msiARChargeCode, shipmentToRate.get(0), previousShipment, bean, null);
-                                                status = callRTRAndPopulateRates(url, licenseKey, previousShipment, msiARChargeCode, shipmentToRate.get(0), previousShipment, bean, null);
                                             } else if (ParcelRatingUtil.containsCharge(ParcelAuditConstant.RESIDENTIAL_COMMERCIAL_ADJUSTMENT_CHARGE_TYPE, shipmentToRate)) {
                                                 if (previousShipment != null) {
                                                     List<ParcelAuditDetailsDto> resComShipmentToRate = new ArrayList<>();
-                                                    for (ParcelAuditDetailsDto shpCharge : shipmentToRate) {
-                                                        if (shpCharge != null && ParcelAuditConstant.ChargeClassificationCode.ACC.name().equalsIgnoreCase(shpCharge.getChargeClassificationCode())
-                                                                && !"RES".equalsIgnoreCase(shpCharge.getChargeDescriptionCode())) {
                                                     for(ParcelAuditDetailsDto shpCharge : shipmentToRate) {
                                                         if(shpCharge != null && ParcelAuditConstant.ChargeClassificationCode.ACC.name().equalsIgnoreCase(shpCharge.getChargeClassificationCode())
                                                                 && !"RES".equalsIgnoreCase(shpCharge.getChargeDescriptionCode())) {
@@ -137,7 +130,7 @@ public class ParcelUpsRatingService {
                                                             }
                                                         }
                                                     }
-                                                    status = callRTRAndPopulateRates(url, licenseKey, resComShipmentToRate, msiARChargeCode, previousShipment, bean, null);
+                                                    status = callRTRAndPopulateRates(url, licenseKey, resComShipmentToRate, msiARChargeCode, previousShipment, bean);
                                                 }
                                             } else {
                                                 if(previousShipment != null){
@@ -179,7 +172,7 @@ public class ParcelUpsRatingService {
                                                                 shipmentToRate.add(prevShpCharge);
                                                             }
                                                         }
-                                                        status = callRTRAndPopulateRates(url, licenseKey, shipmentToRate, msiARChargeCode, previousShipment, bean, null);
+                                                        status = callRTRAndPopulateRates(url, licenseKey, shipmentToRate, msiARChargeCode, previousShipment, bean);
                                                     }
                                                 }
                                             }
@@ -199,6 +192,10 @@ public class ParcelUpsRatingService {
             }
         }
         return status;
+    }
+
+    private String callRTRAndPopulateRates(String url, String licenseKey, List<ParcelAuditDetailsDto> parcelAuditDetails, MsiARChargeCodesDto msiARChargeCode, List<ParcelAuditDetailsDto> previousShipment, RatingQueueBean bean) throws Exception{
+        return callRTRAndPopulateRates(url, licenseKey, parcelAuditDetails, msiARChargeCode, null, previousShipment, bean, null);
     }
 
     private String callRTRAndPopulateRates(String url, String licenseKey, List<ParcelAuditDetailsDto> parcelAuditDetails, MsiARChargeCodesDto msiARChargeCode, List<ParcelAuditDetailsDto> previousShipment, RatingQueueBean bean, List<RatingQueueBean> beans) throws Exception {
@@ -297,6 +294,7 @@ public class ParcelUpsRatingService {
                         sumOfNetAmount = hwtNetAmount;
                     else
                         sumOfNetAmount = ParcelRatingUtil.findSumOfNetAmount(parcelAuditDetails);
+
                     BigDecimal totalRateAmount = firstPriceSheet.getTotal().setScale(2, BigDecimal.ROUND_HALF_EVEN);
 
                     BigDecimal toleranceLowerBound = sumOfNetAmount.multiply(new BigDecimal("0.995"));
@@ -876,7 +874,6 @@ public class ParcelUpsRatingService {
                             }else{
                                 fscAmount = charge.getAmount();
                             }
-
                         }
                         rateDetails.setRtrAmount(fscAmount);
                         rateDetails.setRtrStatus(rtrStatus.value);

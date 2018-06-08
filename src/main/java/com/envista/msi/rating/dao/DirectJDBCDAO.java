@@ -1,12 +1,16 @@
 package com.envista.msi.rating.dao;
 
 import com.envista.msi.api.dao.DaoException;
-import com.envista.msi.api.web.rest.dto.rtr.*;
-import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant;
+import com.envista.msi.api.web.rest.dto.rtr.ParcelARChargeCodeMappingDto;
+import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditRequestResponseLog;
+import com.envista.msi.api.web.rest.dto.rtr.ParcelRateDetailsDto;
+import com.envista.msi.api.web.rest.dto.rtr.RatedChargeDetailsDto;
 import com.envista.msi.rating.ServiceLocator;
 import com.envista.msi.rating.ServiceLocatorException;
 import com.envista.msi.rating.entity.ParcelRatingInputCriteriaDto;
 import oracle.jdbc.OracleTypes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.sql.*;
@@ -14,6 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DirectJDBCDAO {
+
+    private static final Logger log = LoggerFactory.getLogger(DirectJDBCDAO.class);
 
     @Deprecated
     public void updateRTRInvoiceAmount(Long id, String userName, BigDecimal rtrAmount, String rtrStatus, Long carrierId){
@@ -611,7 +617,7 @@ public class DirectJDBCDAO {
             pstmt.setLong(2, id);
             pstmt.executeUpdate();
         } catch (Exception e) {
-
+            log.error("ERROR - ", e.getStackTrace());
         }finally {
             try {
                 if (pstmt != null)
