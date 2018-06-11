@@ -40,6 +40,19 @@ public class ParcelNonUpsRatingService {
         return chargeCodeMap;
     }
 
+    public Map<String, String> getMappedDeclaredValueChargeCodes(){
+        return getMappedARChargeCode(ParcelAuditConstant.MSI_AR_DECLARED_VALUE_CHARGE_CODE_NAME);
+    }
+
+    public Map<String, String> getMappedARChargeCode(String chargeType){
+        Map<String, String> chargeCodeMap = null;
+        List<ParcelARChargeCodeMappingDto> mappedChargeCodes = new DirectJDBCDAO().loadMappedARChargeCodes(ParcelAuditConstant.MSI_AR_CHARGE_CODE_MAPPING_MODELE_NAME, chargeType);
+        if(mappedChargeCodes != null && !mappedChargeCodes.isEmpty()){
+            chargeCodeMap =  prepareChargeCodeMap(mappedChargeCodes);
+        }
+        return chargeCodeMap;
+    }
+
     public Map<String, String> prepareChargeCodeMap(List<ParcelARChargeCodeMappingDto> mappedChargeCodes){
         Map<String, String> chargeCodeMap = null;
         if(mappedChargeCodes != null && !mappedChargeCodes.isEmpty()){
@@ -57,6 +70,7 @@ public class ParcelNonUpsRatingService {
         MsiARChargeCodesDto msiARChargeCode = MsiARChargeCodesDto.getInstance();
         msiARChargeCode.setDasChargeCodes(getMappedDASChargeCodes());
         msiARChargeCode.setLpsChargeCodes(getMappedLPSChargeCodes());
+        msiARChargeCode.setDeclaredValueChargeCodes(getMappedDeclaredValueChargeCodes());
         return msiARChargeCode;
     }
 
@@ -203,6 +217,7 @@ public class ParcelNonUpsRatingService {
         BigDecimal ratedGrossFuel = ParcelRateResponseParser.getRatedGrossFuel(priceSheet);
         Map<String, String> dasChargeList = msiARChargeCode.getDasChargeCodes();
         Map<String, String> lpsChargeCodes = msiARChargeCode.getLpsChargeCodes();
+        Map<String, String> declaredValueCodes = msiARChargeCode.getDeclaredValueChargeCodes();
         for(ParcelAuditDetailsDto auditDetails : parcelAuditDetails){
             if(auditDetails != null && auditDetails.getChargeClassificationCode() != null && !auditDetails.getChargeClassificationCode().isEmpty()){
                 ParcelRateResponse.Charge charge = null;
@@ -296,6 +311,24 @@ public class ParcelNonUpsRatingService {
                             }
                         }
 
+                        rateDetails.setFuelTablePercentage(fuelTablePerc);
+                        rateDetails.setDimDivisor(charge.getDimDivisor() == null ? new BigDecimal("0") : charge.getDimDivisor());
+                        rateDetails.setRatedWeight(charge.getWeight() == null ? new BigDecimal("0") : charge.getWeight());
+                        rateDetails.setRtrAmount(charge.getAmount());
+                        rateDetails.setRtrStatus(rtrStatus.value);
+                        rateDetails.setHwtIdentifier(auditDetails.getMultiWeightNumber());
+
+                        directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
+                    }
+                } else if(ParcelAuditConstant.ChargeClassificationCode.ACS.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())
+                        && ("DEC".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())) || (declaredValueCodes != null && declaredValueCodes.containsKey(auditDetails.getChargeDescriptionCode()))) {
+                    charge = ParcelRateResponseParser.getRatedDeclaredValue(priceSheet);
+                    if(charge != null){
+                        mappedAccChanges.add(charge);
+
+                        ParcelRateDetailsDto rateDetails = ParcelRateDetailsDto.getInstance();
+                        rateDetails.setShipperCategory(shipperCategory);
+                        rateDetails.setContractName(contractName);
                         rateDetails.setFuelTablePercentage(fuelTablePerc);
                         rateDetails.setDimDivisor(charge.getDimDivisor() == null ? new BigDecimal("0") : charge.getDimDivisor());
                         rateDetails.setRatedWeight(charge.getWeight() == null ? new BigDecimal("0") : charge.getWeight());

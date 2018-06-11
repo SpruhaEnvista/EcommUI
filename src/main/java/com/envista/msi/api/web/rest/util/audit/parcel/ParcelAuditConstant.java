@@ -75,6 +75,7 @@ public class ParcelAuditConstant {
     public static final String MSI_AR_CHARGE_CODE_MAPPING_MODELE_NAME = "Parcel_Rating_MSI_AR_Code_Mapping";
     public static final String MSI_AR_DAS_CHARGE_CODE_NAME = "DeliveryAreaSurcharge";
     public static final String MSI_AR_LPS_CHARGE_CODE_NAME = "LargePackageSurcharge";
+    public static final String MSI_AR_DECLARED_VALUE_CHARGE_CODE_NAME = "DeclaredValue";
 
     public static final String RATE_REQUEST_EVENT_DATE_FORMAT = "MM/dd/yyyy hh:mm";
 

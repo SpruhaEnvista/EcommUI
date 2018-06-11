@@ -18,6 +18,7 @@ import java.util.*;
  * Created by Sujit kumar on 05/05/2018.
  */
 public class ParcelUpsRatingService {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ParcelUpsRatingService.class);
     public List<ParcelAuditDetailsDto> getUpsParcelShipmentDetails(String customerId, String fromShipDate, String toShipDate, String trackingNumbers, String invoiceIds, boolean ignoreRtrStatus, boolean isHwt) {
         return new RatingQueueDAO().getUpsParcelShipmentDetails(customerId, fromShipDate, toShipDate, trackingNumbers, invoiceIds, ignoreRtrStatus, isHwt);
     }
@@ -185,6 +186,9 @@ public class ParcelUpsRatingService {
                                 }
                             }
                         }
+
+                        //To check whether it is a void shipment or not, if so then update the IS_VOID_SHIPMENT = 1.
+                        checkForVoidShipmentAndUpdate(shipmentRecords);
                     }
                 }catch (Exception e){
                     e.printStackTrace();
@@ -192,6 +196,29 @@ public class ParcelUpsRatingService {
             }
         }
         return status;
+    }
+
+    private void checkForVoidShipmentAndUpdate(List<ParcelAuditDetailsDto> shipmentRecords) {
+        try{
+            if(ParcelRatingUtil.isVoidShipment(shipmentRecords)){
+                BigDecimal totalNetAmount = new BigDecimal("0");
+
+                StringJoiner entityIds = new StringJoiner(",");
+                for(ParcelAuditDetailsDto ship : shipmentRecords){
+                    if(ship != null && ship.getId() != null){
+                        if(ship.getNetAmount() != null && !ship.getNetAmount().isEmpty()){
+                            totalNetAmount = totalNetAmount.add(new BigDecimal(ship.getNetAmount()));
+                        }
+                        entityIds.add(ship.getId().toString());
+                    }
+                }
+                if(totalNetAmount.compareTo(new BigDecimal("0")) == 0) {
+                    new DirectJDBCDAO().updateRatingVoidShipmentStatus(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, entityIds.toString(), 1);
+                }
+            }
+        }catch (Exception e){
+
+        }
     }
 
     private String callRTRAndPopulateRates(String url, String licenseKey, List<ParcelAuditDetailsDto> parcelAuditDetails, MsiARChargeCodesDto msiARChargeCode, List<ParcelAuditDetailsDto> previousShipment, RatingQueueBean bean) throws Exception{

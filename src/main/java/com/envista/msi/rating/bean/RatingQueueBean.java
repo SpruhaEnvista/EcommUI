@@ -1,7 +1,11 @@
 package com.envista.msi.rating.bean;
 
+import com.envista.msi.api.web.rest.util.audit.parcel.ParcelRateRequest;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.math.BigDecimal;
-import java.util.Date;
+import java.util.*;
 
 public class RatingQueueBean {
 
@@ -57,7 +61,7 @@ public class RatingQueueBean {
     private Long parentId;
     private Integer rateStatus = 0;
     private String accessorialInfo;
-    private String[] accessorialArray;
+    private Set<ParcelRateRequest.ServiceFlag> accessorials;
     private String revenueTier;
     private String trackingNumber;
     private String packageType;
@@ -314,8 +318,8 @@ public class RatingQueueBean {
         this.dimHeight = dimHeight;
     }
 
-    public void setAccessorialArray(String[] accessorialArray) {
-        this.accessorialArray = accessorialArray;
+    public void setAccessorialArray(Set<ParcelRateRequest.ServiceFlag> serviceFlag) {
+        this.accessorials = accessorials;
     }
 
     public Date getShipDate() {
@@ -486,11 +490,47 @@ public class RatingQueueBean {
         this.accessorialInfo = accessorialInfo;
     }
 
-    public String[] getAccessorialArray(){
-        if(this.accessorialInfo!=null && this.accessorialInfo.length()>0){
-            this.accessorialArray = this.accessorialInfo.split(",");
+    public Set<ParcelRateRequest.ServiceFlag> getAccessorials(){
+        Set<ParcelRateRequest.ServiceFlag> serviceFlags = null;
+        try{
+            if(this.accessorials == null){
+                if(this.accessorialInfo!=null && this.accessorialInfo.length()>0){
+                    serviceFlags = new HashSet<>();
+                    JSONArray accJsonArr = new JSONArray(this.accessorialInfo);
+                    if(accJsonArr != null && accJsonArr.length() > 0){
+                        for(int n = 0; n < accJsonArr.length(); n++) {
+                            JSONObject accjson = accJsonArr.getJSONObject(n);
+                            if(accjson != null) {
+                                ParcelRateRequest.ServiceFlag serviceFlag = new ParcelRateRequest.ServiceFlag();
+                                if(accjson.has("code")){
+                                    serviceFlag.setCode(accjson.getString("code"));
+                                }
+                                if(accjson.has("netAmount")){
+                                    serviceFlag.setNetAmount(accjson.getString("netAmount"));
+                                }
+                                if(accjson.has("weight")){
+                                    serviceFlag.setWeight(accjson.getString("weight") != null ? new BigDecimal(accjson.getString("weight")) : new BigDecimal("0.0"));
+                                }
+                                if(accjson.has("weightUnit")){
+                                    serviceFlag.setWeightUnit(accjson.getString("weightUnit"));
+                                }
+                                if(accjson.has("quantity")){
+                                    serviceFlag.setQuantity(accjson.getString("quantity"));
+                                }
+                                if(accjson.has("quantityUnit")){
+                                    serviceFlag.setQuantityUnit(accjson.getString("quantityUnit"));
+                                }
+                                serviceFlags.add(serviceFlag);
+                            }
+                        }
+                    }
+                    this.accessorials = new HashSet<>(serviceFlags);
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
-        return this.accessorialArray;
+        return this.accessorials;
     }
 
     public String getRevenueTier() {

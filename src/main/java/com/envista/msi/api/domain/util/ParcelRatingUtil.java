@@ -9,6 +9,8 @@ import com.envista.msi.rating.bean.RatingQueueBean;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -410,6 +412,7 @@ public class ParcelRatingUtil {
         ratingQueueBean.setCarrierId(firstCharge.getCarrierId());
         Map<String, String> dasChargeList = msiARChargeCodes.getDasChargeCodes();
         Map<String, String> lpsCharges = msiARChargeCodes.getLpsChargeCodes();
+        Map<String, String> declaredValueCode = msiARChargeCodes.getDeclaredValueChargeCodes();
 
         String billOption = (null == firstCharge.getBillOption() ? "" : firstCharge.getBillOption());
         if(billOption.equalsIgnoreCase("Prepaid") || billOption.equals("1") || billOption.equalsIgnoreCase("Outbound")){
@@ -421,28 +424,42 @@ public class ParcelRatingUtil {
         }
         ratingQueueBean.setBillOption(billOption);
 
-        StringJoiner accessorials = new StringJoiner(",");
+        //StringJoiner accessorials = new StringJoiner(",");
+        JSONArray accJsonArr = new JSONArray();
         for(ParcelAuditDetailsDto auditDetails : shipmentDetails){
             if(auditDetails != null){
                 if(auditDetails.getChargeClassificationCode() != null && ParcelAuditConstant.ChargeClassificationCode.ACS.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())
                         && !Arrays.asList(ParcelAuditConstant.ChargeDescriptionCode.FSC.name(), ParcelAuditConstant.ChargeDescriptionCode.DSC.name()).contains(auditDetails.getChargeDescriptionCode())){
-                    if(auditDetails.getChargeDescriptionCode().equalsIgnoreCase("RES")){
-                        accessorials.add("RSC");
-                    } else if(dasChargeList.containsKey(auditDetails.getChargeDescriptionCode())){
-                        if(auditDetails.getChargeDescription() != null && (auditDetails.getChargeDescription().contains("EXTENDED") || auditDetails.getChargeDescription().contains("extended"))){
-                            accessorials.add("DSX");
+                    try{
+                        JSONObject accJson = new JSONObject();
+                        accJson.put("netAmount", auditDetails.getNetAmount() != null ? auditDetails.getNetAmount().toString() : "0.00");
+                        accJson.put("weight", auditDetails.getPackageWeight() != null ? auditDetails.getPackageWeight().toString() : "0.00");
+                        accJson.put("weightUnit", (null == auditDetails.getWeightUnit() || auditDetails.getWeightUnit().isEmpty() || "L".equalsIgnoreCase(auditDetails.getWeightUnit()) ? "LBS" : auditDetails.getWeightUnit()));
+                        accJson.put("quantity", (null == auditDetails.getItemQuantity() || auditDetails.getItemQuantity().isEmpty() ? 1l : Long.parseLong(auditDetails.getItemQuantity())));
+                        accJson.put("quantityUnit", (null == auditDetails.getQuantityUnit() || auditDetails.getQuantityUnit().isEmpty() ? "PCS" : auditDetails.getQuantityUnit()));
+                        if(auditDetails.getChargeDescriptionCode().equalsIgnoreCase("RES")){
+                            accJson.put("code", "RSC");
+                        } else if(dasChargeList.containsKey(auditDetails.getChargeDescriptionCode())){
+                            if(auditDetails.getChargeDescription() != null && (auditDetails.getChargeDescription().contains("EXTENDED") || auditDetails.getChargeDescription().contains("extended"))){
+                                accJson.put("code", "DSX");
+                            } else {
+                                accJson.put("code", dasChargeList.get(auditDetails.getChargeDescriptionCode()));
+                            }
+                        } else if(lpsCharges != null && lpsCharges.containsKey(auditDetails.getChargeDescriptionCode())) {
+                            accJson.put("code", lpsCharges.get(auditDetails.getChargeDescriptionCode()));
+                        } else if(declaredValueCode != null && declaredValueCode.containsKey(auditDetails.getChargeDescriptionCode())) {
+                            accJson.put("code", declaredValueCode.get(auditDetails.getChargeDescriptionCode()));
                         } else {
-                            accessorials.add(dasChargeList.get(auditDetails.getChargeDescriptionCode()));
+                            accJson.put("code", auditDetails.getChargeDescriptionCode());
                         }
-                    } else if(lpsCharges != null && lpsCharges.containsKey(auditDetails.getChargeDescriptionCode())) {
-                        accessorials.add(lpsCharges.get(auditDetails.getChargeDescriptionCode()));
-                    } else {
-                        accessorials.add(auditDetails.getChargeDescriptionCode());
+                        accJsonArr.put(accJson);
+                    }catch (Exception e){
+                        e.printStackTrace();
                     }
                 }
             }
         }
-        ratingQueueBean.setAccessorialInfo(accessorials.toString());
+        ratingQueueBean.setAccessorialInfo(accJsonArr.length() > 0 ? accJsonArr.toString() : null);
 
         String rtrScacCode = (null == firstCharge.getRtrScacCode() ? "" : "FDEG".equals(firstCharge.getRtrScacCode()) ? "FDE" : firstCharge.getRtrScacCode());
         String currency = (null == firstCharge.getCurrency() || firstCharge.getCurrency().isEmpty() ? "USD" : firstCharge.getCurrency());
@@ -950,5 +967,18 @@ public class ParcelRatingUtil {
             }
         }
         return isRatedWithEmptyPriceSheet;
+    }
+
+    public static boolean isVoidShipment(List<ParcelAuditDetailsDto> shipment){
+        boolean isVoidShipment = false;
+        if(shipment != null && !shipment.isEmpty()){
+            for(ParcelAuditDetailsDto shp : shipment){
+                if(shp != null && shp.getChargeCategoryDetailCode() != null && "VOID".equalsIgnoreCase(shp.getChargeCategoryDetailCode().trim())){
+                    isVoidShipment = true;
+                    break;
+                }
+            }
+        }
+        return isVoidShipment;
     }
 }

@@ -9,6 +9,7 @@ import java.util.Map;
 public class MsiARChargeCodesDto implements Serializable {
     private Map<String, String> dasChargeCodes;
     private Map<String, String> lpsChargeCodes;
+    private Map<String, String> declaredValueChargeCodes;
 
     public static MsiARChargeCodesDto getInstance(){
         return new MsiARChargeCodesDto();
@@ -28,5 +29,13 @@ public class MsiARChargeCodesDto implements Serializable {
 
     public void setLpsChargeCodes(Map<String, String> lpsChargeCodes) {
         this.lpsChargeCodes = lpsChargeCodes;
+    }
+
+    public Map<String, String> getDeclaredValueChargeCodes() {
+        return declaredValueChargeCodes;
+    }
+
+    public void setDeclaredValueChargeCodes(Map<String, String> declaredValueChargeCodes) {
+        this.declaredValueChargeCodes = declaredValueChargeCodes;
     }
 }

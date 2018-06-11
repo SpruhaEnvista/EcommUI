@@ -84,7 +84,7 @@ public class ParcelRatingQueueJob {
                 ratingInputCriteriaBean.setRateTo(rateTo);
                 ParcelRatingQueueJob.getInstance().processShipments(ratingInputCriteriaBean, isHwt);
             } catch (Exception e) {
-                log.error("ERROR - ", e.getStackTrace());
+                log.error("ERROR - ", e.getMessage());
             }
         } else {
             ParcelRatingService ratingService = new ParcelRatingService();
