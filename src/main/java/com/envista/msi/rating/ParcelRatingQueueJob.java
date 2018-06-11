@@ -39,6 +39,7 @@ public class ParcelRatingQueueJob {
         String trackingNumbers = null;
         String invoiceIds = null;
         boolean isHwt = false;
+        String rateSet = null;
         if(args != null && args.length > 0){
             for (String s : args) {
                 String[] array = s.split("=");
@@ -67,6 +68,9 @@ public class ParcelRatingQueueJob {
                     Boolean b = BooleanUtils.toBooleanObject((String) array[1].trim());
                     if (b != null)
                         isHwt = b;
+                } else if ("rateSet".equalsIgnoreCase(array[0].trim())) {
+                    rateSet = array[1].trim();
+
                 }
             }
 
@@ -91,7 +95,7 @@ public class ParcelRatingQueueJob {
 
             if(isValidInput){
                 try {
-                    ParcelRatingQueueJob.getInstance().processShipments(customerId, fromShipDate, toShipDate, trackingNumbers, invoiceIds, rateTo, isHwt);
+                    ParcelRatingQueueJob.getInstance().processShipments(customerId, fromShipDate, toShipDate, trackingNumbers, invoiceIds, rateTo, isHwt, rateSet);
                 } catch (SQLException e) {
                     log.error("SQLException-->" + e.getStackTrace());
                 }
@@ -99,7 +103,7 @@ public class ParcelRatingQueueJob {
         }
     }
 
-    private void processShipments(String customerId, String fromShipDate, String toShipDate, String trackingNumber, String invoiceIds, String rateTo, boolean isHwt) throws SQLException {
+    private void processShipments(String customerId, String fromShipDate, String toShipDate, String trackingNumber, String invoiceIds, String rateTo, boolean isHwt, String rateSet) throws SQLException {
         List<ParcelAuditDetailsDto> allShipmentDetails = null;
         if("ups".equalsIgnoreCase(rateTo)){
             List<Long> invoiceList = new DirectJDBCDAO().loadInvoiceIds(fromShipDate, toShipDate, customerId, invoiceIds, 0, "UPS");
@@ -110,7 +114,7 @@ public class ParcelRatingQueueJob {
                         allShipmentDetails = new ParcelUpsRatingService().getUpsParcelShipmentDetails(customerId, fromShipDate, toShipDate, trackingNumber, invId.toString(), isHwt);
                         if(allShipmentDetails != null && !allShipmentDetails.isEmpty()){
                             Map<String, List<ParcelAuditDetailsDto>> trackingNumberWiseShipments = ParcelRatingUtil.prepareTrackingNumberWiseAuditDetails(allShipmentDetails);
-                            processUpsShipments(trackingNumberWiseShipments, parcelRatingService.getAllMappedARChargeCodes(), customerId);
+                            processUpsShipments(trackingNumberWiseShipments, parcelRatingService.getAllMappedARChargeCodes(), customerId, rateSet);
                         }
                     }
                 }
@@ -125,7 +129,7 @@ public class ParcelRatingQueueJob {
                         allShipmentDetails = parcelRatingService.getFedExParcelShipmentDetails(customerId, fromShipDate, toShipDate, trackingNumber, invId.toString(), isHwt);
                         if(allShipmentDetails != null && !allShipmentDetails.isEmpty()){
                             Map<String, List<ParcelAuditDetailsDto>> trackingNumberWiseShipments = ParcelRatingUtil.prepareTrackingNumberWiseAuditDetails(allShipmentDetails);
-                            processFedExShipments(trackingNumberWiseShipments, parcelRatingService.getAllMappedARChargeCodes());
+                            processFedExShipments(trackingNumberWiseShipments, parcelRatingService.getAllMappedARChargeCodes(), rateSet);
                         }
                     }
                 }
@@ -133,7 +137,7 @@ public class ParcelRatingQueueJob {
         }
     }
 
-    private void processUpsShipments(Map<String, List<ParcelAuditDetailsDto>> trackingNumberWiseShipments, MsiARChargeCodesDto allMappedARChargeCodes, String customerIds) throws SQLException {
+    private void processUpsShipments(Map<String, List<ParcelAuditDetailsDto>> trackingNumberWiseShipments, MsiARChargeCodesDto allMappedARChargeCodes, String customerIds, String rateSet) throws SQLException {
 
         if (trackingNumberWiseShipments != null) {
 
@@ -179,7 +183,7 @@ public class ParcelRatingQueueJob {
                                                     }
                                                 }
                                             }
-                                            addUpsShipmentEntryIntoQueue(commercialShipment, allMappedARChargeCodes);
+                                            addUpsShipmentEntryIntoQueue(commercialShipment, allMappedARChargeCodes, rateSet);
                                         } else if (ParcelRatingUtil.containsCharge(ParcelAuditConstant.RESIDENTIAL_ADJUSTMENT_CHARGE_TYPE, shipmentChargeList)) {
                                             //keeping it in separate if condition in order to handle few more scenarios in future.
                                             List<ParcelAuditDetailsDto> residentialShipment = new ArrayList<>();
@@ -191,7 +195,7 @@ public class ParcelRatingQueueJob {
                                                     }
                                                 }
                                             }
-                                            addUpsShipmentEntryIntoQueue(residentialShipment, allMappedARChargeCodes);
+                                            addUpsShipmentEntryIntoQueue(residentialShipment, allMappedARChargeCodes, rateSet);
                                         } else if (ParcelRatingUtil.containsCharge(ParcelAuditConstant.RESIDENTIAL_COMMERCIAL_ADJUSTMENT_CHARGE_TYPE, shipmentChargeList)) {
                                             if (previousShipment != null) {
                                                 List<ParcelAuditDetailsDto> resComShipmentToRate = new ArrayList<>();
@@ -211,7 +215,7 @@ public class ParcelRatingQueueJob {
                                                         }
                                                     }
                                                 }
-                                                addUpsShipmentEntryIntoQueue(resComShipmentToRate, allMappedARChargeCodes);
+                                                addUpsShipmentEntryIntoQueue(resComShipmentToRate, allMappedARChargeCodes, rateSet);
                                             }
                                         } else {
                                             if (previousShipment != null) {
@@ -255,10 +259,10 @@ public class ParcelRatingQueueJob {
                                                             shipmentsToRate.add(prevShpCharge);
                                                         }
                                                     }
-                                                    addUpsShipmentEntryIntoQueue(shipmentsToRate, allMappedARChargeCodes);
+                                                    addUpsShipmentEntryIntoQueue(shipmentsToRate, allMappedARChargeCodes, rateSet);
                                                 }
                                             } else {
-                                                addUpsShipmentEntryIntoQueue(shipmentChargeList, allMappedARChargeCodes);
+                                                addUpsShipmentEntryIntoQueue(shipmentChargeList, allMappedARChargeCodes, rateSet);
                                             }
                                         }
                                     }
@@ -274,12 +278,12 @@ public class ParcelRatingQueueJob {
                 }
             }
 
-            addMwtOrHwtShipmentEntryIntoQueue(hwtDetailsMap, allMappedARChargeCodes, "ups");
+            addMwtOrHwtShipmentEntryIntoQueue(hwtDetailsMap, allMappedARChargeCodes, "ups", rateSet);
 
         }
     }
 
-    public void processFedExShipments(Map<String, List<ParcelAuditDetailsDto>> trackingNumberWiseShipments, MsiARChargeCodesDto msiARChargeCode) throws SQLException {
+    public void processFedExShipments(Map<String, List<ParcelAuditDetailsDto>> trackingNumberWiseShipments, MsiARChargeCodesDto msiARChargeCode, String rateSet) throws SQLException {
         if(trackingNumberWiseShipments != null && !trackingNumberWiseShipments.isEmpty()) {
 
             Map<String, List<ParcelAuditDetailsDto>> mwtDetailsMap = ParcelRatingUtil.prepareMultiWeightNumberWiseAuditDetails(trackingNumberWiseShipments);
@@ -311,11 +315,11 @@ public class ParcelRatingQueueJob {
                                                 ParcelAuditDetailsDto prevFrtCharge = ParcelRatingUtil.getFirstFrightChargeForNonUpsCarrier(previousShipment);
                                                 if(prevFrtCharge != null){
                                                     shipmentsWithPrevFrt.add(prevFrtCharge);
-                                                    addNonUpsShipmentEntryIntoQueue(shipmentsWithPrevFrt, msiARChargeCode);
+                                                    addNonUpsShipmentEntryIntoQueue(shipmentsWithPrevFrt, msiARChargeCode, rateSet);
                                                 }
                                             }
                                         } else {
-                                            addNonUpsShipmentEntryIntoQueue(shipmentDetails, msiARChargeCode);
+                                            addNonUpsShipmentEntryIntoQueue(shipmentDetails, msiARChargeCode, rateSet);
                                         }
                                         previousShipment = new ArrayList<>(shipmentDetails);
                                     }
@@ -327,26 +331,26 @@ public class ParcelRatingQueueJob {
                         entryIterator.remove();
                     }
                 }
-            addMwtOrHwtShipmentEntryIntoQueue(mwtDetailsMap, msiARChargeCode, "fedex");
+            addMwtOrHwtShipmentEntryIntoQueue(mwtDetailsMap, msiARChargeCode, "fedex", rateSet);
         }
     }
 
-    private void addNonUpsShipmentEntryIntoQueue(List<ParcelAuditDetailsDto> shipmentsWithPrevFrt, MsiARChargeCodesDto msiARChargeCode) {
-        RatingQueueBean ratingQueueBean = ParcelRatingUtil.prepareShipmentEntryForNonUpsShipment(shipmentsWithPrevFrt, msiARChargeCode);
+    private void addNonUpsShipmentEntryIntoQueue(List<ParcelAuditDetailsDto> shipmentsWithPrevFrt, MsiARChargeCodesDto msiARChargeCode, String rateSet) {
+        RatingQueueBean ratingQueueBean = ParcelRatingUtil.prepareShipmentEntryForNonUpsShipment(shipmentsWithPrevFrt, msiARChargeCode, rateSet);
         if(ratingQueueBean != null){
             parcelRatingService.saveRatingQueueBean(ratingQueueBean);
         }
     }
 
-    private void addUpsShipmentEntryIntoQueue(List<ParcelAuditDetailsDto> shipmentsWithPrevFrt, MsiARChargeCodesDto msiARChargeCode) {
-        RatingQueueBean ratingQueueBean = ParcelRatingUtil.prepareShipmentEntryForUpsShipment(shipmentsWithPrevFrt, msiARChargeCode);
+    private void addUpsShipmentEntryIntoQueue(List<ParcelAuditDetailsDto> shipmentsWithPrevFrt, MsiARChargeCodesDto msiARChargeCode, String rateSet) {
+        RatingQueueBean ratingQueueBean = ParcelRatingUtil.prepareShipmentEntryForUpsShipment(shipmentsWithPrevFrt, msiARChargeCode, rateSet);
         if(ratingQueueBean != null){
             parcelRatingService.saveRatingQueueBean(ratingQueueBean);
         }
     }
 
 
-    private void addMwtOrHwtShipmentEntryIntoQueue(Map<String, List<ParcelAuditDetailsDto>> mwtDetailsMap, MsiARChargeCodesDto msiARChargeCode, String rateTo) throws SQLException {
+    private void addMwtOrHwtShipmentEntryIntoQueue(Map<String, List<ParcelAuditDetailsDto>> mwtDetailsMap, MsiARChargeCodesDto msiARChargeCode, String rateTo, String rateSet) throws SQLException {
 
         List<RatingQueueBean> queueBeanList = null;
         for (Map.Entry<String, List<ParcelAuditDetailsDto>> entry : mwtDetailsMap.entrySet()) {
@@ -358,9 +362,9 @@ public class ParcelRatingQueueJob {
                 RatingQueueBean ratingQueueBean = null;
 
                 if (StringUtils.equalsIgnoreCase("fedex", rateTo))
-                    ratingQueueBean = ParcelRatingUtil.prepareShipmentEntryForNonUpsShipment(listEntry.getValue(), msiARChargeCode);
+                    ratingQueueBean = ParcelRatingUtil.prepareShipmentEntryForNonUpsShipment(listEntry.getValue(), msiARChargeCode, rateSet);
                 else if (StringUtils.equalsIgnoreCase("ups", rateTo))
-                    ratingQueueBean = ParcelRatingUtil.prepareShipmentEntryForUpsShipment(listEntry.getValue(), msiARChargeCode);
+                    ratingQueueBean = ParcelRatingUtil.prepareShipmentEntryForUpsShipment(listEntry.getValue(), msiARChargeCode, rateSet);
 
                 if (queueBeanList == null)
                     queueBeanList = new ArrayList<RatingQueueBean>();
