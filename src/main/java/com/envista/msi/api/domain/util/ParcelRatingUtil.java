@@ -263,7 +263,7 @@ public class ParcelRatingUtil {
         return null;
     }
 
-    public static RatingQueueBean prepareShipmentEntryForUpsShipment(List<ParcelAuditDetailsDto> shipmentDetails, MsiARChargeCodesDto msiARChargeCodes){
+    public static RatingQueueBean prepareShipmentEntryForUpsShipment(List<ParcelAuditDetailsDto> shipmentDetails, MsiARChargeCodesDto msiARChargeCodes, String rateSet) {
         RatingQueueBean ratingQueueBean = new RatingQueueBean();
         ParcelAuditDetailsDto firstCharge = shipmentDetails.get(0);
 
@@ -395,12 +395,13 @@ public class ParcelRatingUtil {
                 ratingQueueBean.setReceiverCity(receiverCity);
                 ratingQueueBean.setReceiverZip(receiverZipCode);
                 ratingQueueBean.setHwtIdentifier(firstCharge.getMultiWeightNumber());
+                ratingQueueBean.setRateSet(rateSet);
             }
         }
         return ratingQueueBean;
     }
 
-    public static RatingQueueBean prepareShipmentEntryForNonUpsShipment(List<ParcelAuditDetailsDto> shipmentDetails, MsiARChargeCodesDto msiARChargeCodes){
+    public static RatingQueueBean prepareShipmentEntryForNonUpsShipment(List<ParcelAuditDetailsDto> shipmentDetails, MsiARChargeCodesDto msiARChargeCodes, String rateSet) {
         RatingQueueBean ratingQueueBean = new RatingQueueBean();
         ParcelAuditDetailsDto firstCharge = shipmentDetails.get(0);
 
@@ -515,6 +516,7 @@ public class ParcelRatingUtil {
         ratingQueueBean.setReceiverCity(receiverCity);
         ratingQueueBean.setReceiverZip(receiverZipCode);
         ratingQueueBean.setHwtIdentifier(firstCharge.getMultiWeightNumber());
+        ratingQueueBean.setRateSet(rateSet);
 
         return ratingQueueBean;
     }

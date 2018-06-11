@@ -63,6 +63,7 @@ public class RatingQueueBean {
     private String packageType;
     private String hwtIdentifier;
     private BigDecimal netAmount;
+    private String rateSet;
 
     public Long getRatingQueueId() {
         return ratingQueueId;
@@ -529,5 +530,13 @@ public class RatingQueueBean {
 
     public void setNetAmount(BigDecimal netAmount) {
         this.netAmount = netAmount;
+    }
+
+    public String getRateSet() {
+        return rateSet;
+    }
+
+    public void setRateSet(String rateSet) {
+        this.rateSet = rateSet;
     }
 }

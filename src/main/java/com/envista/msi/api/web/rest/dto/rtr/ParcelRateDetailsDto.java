@@ -127,6 +127,9 @@ public class ParcelRateDetailsDto implements Serializable {
     @Column(name = "HWT_IDENTIFIER")
     private String HwtIdentifier;
 
+    @Column(name = "RATE_SET_NAME")
+    private String rateSetName;
+
 
     public static ParcelRateDetailsDto getInstance(){
         return new ParcelRateDetailsDto();
@@ -411,4 +414,8 @@ public class ParcelRateDetailsDto implements Serializable {
     public void setHwtIdentifier(String hwtIdentifier) {
         HwtIdentifier = hwtIdentifier;
     }
+
+    public String getRateSetName() { return rateSetName; }
+
+    public void setRateSetName(String rateSetName) { this.rateSetName = rateSetName; }
 }

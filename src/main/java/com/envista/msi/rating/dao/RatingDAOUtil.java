@@ -72,6 +72,7 @@ public class RatingDAOUtil {
         RATING_QUEUE_COLUMN_NAMES.add("REVENUE_TIER");
         RATING_QUEUE_COLUMN_NAMES.add("PACKAGE_TYPE");
         RATING_QUEUE_COLUMN_NAMES.add("HWT_IDENTIFIER");
+        RATING_QUEUE_COLUMN_NAMES.add("RATE_SET_NAME");
     }
 
     public static String prepareRatingQueueInsertQuery(boolean isHwt) {
@@ -260,6 +261,8 @@ public class RatingDAOUtil {
                 ps.setString(52, queueBean.getPackageType());
             } else if ("HWT_IDENTIFIER".equalsIgnoreCase(columnName)) {
                 ps.setString(53, queueBean.getHwtIdentifier());
+            } else if ("RATE_SET_NAME".equalsIgnoreCase(columnName)) {
+                ps.setString(54, queueBean.getRateSet());
             } else {
                 throw new RuntimeException("Column name not mapped");
             }
