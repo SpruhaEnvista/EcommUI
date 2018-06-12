@@ -217,7 +217,7 @@ public class ParcelUpsRatingService {
                 }
             }
         }catch (Exception e){
-
+            log.error("ERROR in checkForVoidShipmentAndUpdate", e.getMessage());
         }
     }
 
