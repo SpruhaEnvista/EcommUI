@@ -3,7 +3,6 @@ package com.envista.msi.rating.dao;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant;
 import com.envista.msi.rating.bean.RatingQueueBean;
 
-import java.lang.reflect.Type;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -73,6 +72,7 @@ public class RatingDAOUtil {
         RATING_QUEUE_COLUMN_NAMES.add("PACKAGE_TYPE");
         RATING_QUEUE_COLUMN_NAMES.add("HWT_IDENTIFIER");
         RATING_QUEUE_COLUMN_NAMES.add("RATE_SET_NAME");
+        RATING_QUEUE_COLUMN_NAMES.add("TASK_ID");
     }
 
     public static String prepareRatingQueueInsertQuery(boolean isHwt) {
@@ -243,8 +243,8 @@ public class RatingDAOUtil {
                 } else {
                     ps.setNull(46, Types.INTEGER);
                 }
-            }  else if("RATE_STATUS".equalsIgnoreCase(columnName)) {
-                ps.setInt(47, queueBean.getRateStatus() != null && queueBean.getRateStatus() ? 1 : 0);
+            } else if("RATE_STATUS".equalsIgnoreCase(columnName)) {
+                ps.setInt(47, queueBean.getRateStatus() != null ? queueBean.getRateStatus() : 0);
             } else if("ACCESSORIAL_INFO".equalsIgnoreCase(columnName)) {
                 ps.setString(48, queueBean.getAccessorialInfo());
             } else if("DALIVERY_DATE".equalsIgnoreCase(columnName)) {
@@ -261,8 +261,14 @@ public class RatingDAOUtil {
                 ps.setString(52, queueBean.getPackageType());
             } else if ("HWT_IDENTIFIER".equalsIgnoreCase(columnName)) {
                 ps.setString(53, queueBean.getHwtIdentifier());
-            } else if ("RATE_SET_NAME".equalsIgnoreCase(columnName)) {
-                ps.setString(54, queueBean.getRateSet());
+            } else if("RATE_SET_NAME".equalsIgnoreCase(columnName)){
+                ps.setString(54, queueBean.getRateSetName());
+            } else if("TASK_ID".equalsIgnoreCase(columnName)){
+                if(queueBean.getTaskId() != null){
+                    ps.setLong(55, queueBean.getTaskId());
+                } else {
+                    ps.setNull(55, Types.INTEGER);
+                }
             } else {
                 throw new RuntimeException("Column name not mapped");
             }
