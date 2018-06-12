@@ -165,6 +165,7 @@ public class ParcelRateRequest implements Serializable {
             res.append("\n  service: ").append(getConstraints().getService());
             res.append("\n  billOption: ").append(getConstraints().getBillOption());
             res.append("\n  currency: ").append(getConstraints().getCurrency());
+            res.append("\n  rateSet: ").append(getConstraints().getRateSet());
 
             res.append("\n  serviceFlags: ");
             for (ServiceFlag flag :getConstraints().getServiceFlags())
@@ -254,6 +255,9 @@ public class ParcelRateRequest implements Serializable {
         @XmlElement(name = "Currency")
         private String currency;
 
+        @XmlElement(name = "RateSet")
+        private String rateSet;
+
         public Contract getContract() {
             return contract;
         }
@@ -307,6 +311,14 @@ public class ParcelRateRequest implements Serializable {
         }
         public void setCurrency(String currency) {
             this.currency = currency;
+        }
+
+        public String getRateSet() {
+            return rateSet;
+        }
+
+        public void setRateSet(String rateSet) {
+            this.rateSet = rateSet;
         }
     }
 
