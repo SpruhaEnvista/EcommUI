@@ -397,7 +397,7 @@ public class ParcelRatingUtil {
                 ratingQueueBean.setReceiverCity(receiverCity);
                 ratingQueueBean.setReceiverZip(receiverZipCode);
                 ratingQueueBean.setHwtIdentifier(firstCharge.getMultiWeightNumber());
-                ratingQueueBean.setRateSet(rateSet);
+                ratingQueueBean.setRateSetName(rateSet);
             }
         }
         return ratingQueueBean;
@@ -533,7 +533,7 @@ public class ParcelRatingUtil {
         ratingQueueBean.setReceiverCity(receiverCity);
         ratingQueueBean.setReceiverZip(receiverZipCode);
         ratingQueueBean.setHwtIdentifier(firstCharge.getMultiWeightNumber());
-        ratingQueueBean.setRateSet(rateSet);
+        ratingQueueBean.setRateSetName(rateSet);
 
         return ratingQueueBean;
     }

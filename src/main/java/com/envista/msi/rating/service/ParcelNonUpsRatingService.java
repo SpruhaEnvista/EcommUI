@@ -341,6 +341,7 @@ public class ParcelNonUpsRatingService {
                         rateDetails.setRtrAmount(charge.getAmount());
                         rateDetails.setRtrStatus(rtrStatus.value);
                         rateDetails.setHwtIdentifier(auditDetails.getMultiWeightNumber());
+                        rateDetails.setRateSetName(rateSetName);
 
                         directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                     }
@@ -359,6 +360,7 @@ public class ParcelNonUpsRatingService {
                         rateDetails.setRtrAmount(charge.getAmount());
                         rateDetails.setRtrStatus(rtrStatus.value);
                         rateDetails.setHwtIdentifier(auditDetails.getMultiWeightNumber());
+                        rateDetails.setRateSetName(rateSetName);
 
                         directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                     }

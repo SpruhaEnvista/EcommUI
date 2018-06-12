@@ -88,6 +88,9 @@ public class RatingQueueDAO {
                 ratingQBean.setRevenueTier(rss.getString("REVENUE_TIER"));
                 ratingQBean.setTrackingNumber(rss.getString("TRACKING_NUMBER"));
                 ratingQBean.setPackageType(rss.getString("PACKAGE_TYPE"));
+                ratingQBean.setHwtIdentifier(rss.getString("HWT_IDENTIFIER"));
+                ratingQBean.setRateSetName(rss.getString("RATE_SET_NAME"));
+                ratingQBean.setTaskId(rss.getLong("TASK_ID"));
             }
 
         } catch (SQLException sqle) {
@@ -185,7 +188,8 @@ public class RatingQueueDAO {
                 ratingQueueBean.setTrackingNumber(rs.getString("TRACKING_NUMBER"));
                 ratingQueueBean.setPackageType(rs.getString("PACKAGE_TYPE"));
                 ratingQueueBean.setHwtIdentifier(rs.getString("HWT_IDENTIFIER"));
-                ratingQueueBean.setRateSet(rs.getString("RATE_SET_NAME"));
+                ratingQueueBean.setRateSetName(rs.getString("RATE_SET_NAME"));
+                ratingQueueBean.setTaskId(rs.getLong("TASK_ID"));
                 beanList.add(ratingQueueBean);
             }
 
