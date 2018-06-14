@@ -329,4 +329,16 @@ public class ParcelRateResponseParser {
         }
         return null;
     }
+
+    public static ParcelRateResponse.Charge getRatedDeclaredValue(ParcelRateResponse.PriceSheet priceSheet) {
+        if (priceSheet != null && priceSheet.getCharges() != null) {
+            for (ParcelRateResponse.Charge charge : priceSheet.getCharges()) {
+                if (charge != null && charge.getType() != null && ParcelRateResponse.ChargeType.ACCESSORIAL.name().equalsIgnoreCase(charge.getType())
+                        && charge.getName() != null && "Declared Value".equalsIgnoreCase(charge.getName())) {
+                    return charge;
+                }
+            }
+        }
+        return null;
+    }
 }
