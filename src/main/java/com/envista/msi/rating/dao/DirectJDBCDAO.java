@@ -1,11 +1,15 @@
 package com.envista.msi.rating.dao;
 
-import com.envista.msi.api.dao.DaoException;
-import com.envista.msi.api.web.rest.dto.rtr.*;
-import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant;
+import com.envista.msi.api.web.rest.dto.rtr.ParcelARChargeCodeMappingDto;
+import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditRequestResponseLog;
+import com.envista.msi.api.web.rest.dto.rtr.ParcelRateDetailsDto;
+import com.envista.msi.api.web.rest.dto.rtr.RatedChargeDetailsDto;
 import com.envista.msi.rating.ServiceLocator;
 import com.envista.msi.rating.ServiceLocatorException;
+import com.envista.msi.rating.entity.ParcelRatingInputCriteriaDto;
 import oracle.jdbc.OracleTypes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.sql.*;
@@ -13,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DirectJDBCDAO {
+
+    private static final Logger log = LoggerFactory.getLogger(DirectJDBCDAO.class);
 
     @Deprecated
     public void updateRTRInvoiceAmount(Long id, String userName, BigDecimal rtrAmount, String rtrStatus, Long carrierId){
@@ -42,9 +48,9 @@ public class DirectJDBCDAO {
             apstmt.executeQuery();
 
         }catch (SQLException sqle) {
-            System.out.println("Exception in updateRTRInvoiceAmount -- > "+sqle.getStackTrace());
+            throw new DaoException("Exception in updateRTRInvoiceAmount", sqle);
         }  catch (ServiceLocatorException sle) {
-            System.out.println("Exception in updateRTRInvoiceAmount -- > "+sle.getStackTrace());
+            throw new DaoException("Exception in updateRTRInvoiceAmount", sle);
         }finally {
 
             try {
@@ -80,9 +86,9 @@ public class DirectJDBCDAO {
             cstmt.executeUpdate();
 
         }catch (SQLException sqle) {
-            System.out.println("Exception in updateRtrStatusByIds -- > " + sqle.getStackTrace());
+            throw new DaoException("Exception in updateRtrStatusByIds", sqle);
         }  catch (ServiceLocatorException sle) {
-            System.out.println("Exception in updateRtrStatusByIds -- > " + sle.getStackTrace());
+            throw new DaoException("Exception in updateRtrStatusByIds", sle);
         }finally {
             try {
                 if (cstmt != null)
@@ -114,9 +120,9 @@ public class DirectJDBCDAO {
             cstmt.executeUpdate();
 
         }catch (SQLException sqle) {
-            System.out.println("Exception in saveParcelAuditRequestAndResponseLog -- > "+sqle.getStackTrace());
+            throw new DaoException("Exception in saveParcelAuditRequestAndResponseLog", sqle);
         }  catch (ServiceLocatorException sle) {
-            System.out.println("Exception in saveParcelAuditRequestAndResponseLog -- > "+sle.getStackTrace());
+            throw new DaoException("Exception in saveParcelAuditRequestAndResponseLog", sle);
         }finally {
             try {
                 if (cstmt != null)
@@ -153,9 +159,9 @@ public class DirectJDBCDAO {
             aprstmt.executeQuery();
 
         }catch (SQLException sqle) {
-            System.out.println("Exception in updateInvoiceRtrStatus -- > "+sqle.getStackTrace());
+            throw new DaoException("Exception in updateInvoiceRtrStatus", sqle);
         }  catch (ServiceLocatorException sle) {
-            System.out.println("Exception in updateInvoiceRtrStatus -- > "+sle.getStackTrace());
+            throw new DaoException("Exception in updateInvoiceRtrStatus", sle);
         }finally {
 
             try {
@@ -207,10 +213,10 @@ public class DirectJDBCDAO {
             cstmt.setString(21, rateDetails != null && rateDetails.getRateSetName() != null ? rateDetails.getRateSetName() : null);
             cstmt.executeUpdate();
 
-        }catch (SQLException sqle) {
-            System.out.println("Exception in updateShipmentRateDetails -- > "+sqle.getStackTrace());
+        }catch (SQLException sqle) {;
+            throw new DaoException("Exception in updateShipmentRateDetails", sqle);
         }  catch (ServiceLocatorException sle) {
-            System.out.println("Exception in updateShipmentRateDetails -- > "+sle.getStackTrace());
+            throw new DaoException("Exception in updateShipmentRateDetails", sle);
         }finally {
             try {
                 if (cstmt != null)
@@ -240,9 +246,9 @@ public class DirectJDBCDAO {
             cstmt.setBigDecimal(8, rateDetails != null && rateDetails.getOtherDiscount3() != null ? rateDetails.getOtherDiscount3() : new BigDecimal("0"));
             cstmt.executeUpdate();
         }catch (SQLException sqle) {
-            System.out.println("Exception in updateOtherDiscountShipmentRateDetails -- > "+sqle.getStackTrace());
+            throw new DaoException("Exception in updateOtherDiscountShipmentRateDetails", sqle);
         }  catch (ServiceLocatorException sle) {
-            System.out.println("Exception in updateOtherDiscountShipmentRateDetails -- > "+sle.getStackTrace());
+            throw new DaoException("Exception in updateOtherDiscountShipmentRateDetails", sle);
         }finally {
 
             try {
@@ -280,10 +286,10 @@ public class DirectJDBCDAO {
             cstmt.executeUpdate();
         }catch (SQLException sqle) {
             sqle.printStackTrace();
-            System.out.println("Exception in updateAccessorialShipmentRateDetails -- > "+sqle.getStackTrace());
+            throw new DaoException("Exception in updateAccessorialShipmentRateDetails", sqle);
         }  catch (ServiceLocatorException sle) {
             sle.printStackTrace();
-            System.out.println("Exception in updateAccessorialShipmentRateDetails -- > "+sle.getStackTrace());
+            throw new DaoException("Exception in updateAccessorialShipmentRateDetails", sle);
         }finally {
             try {
                 if (cstmt != null)
@@ -395,10 +401,8 @@ public class DirectJDBCDAO {
                 ratedChargeDetailsDtoList.add(ratedChargeDetailsDto);
             }
         }catch (SQLException sqle) {
-            System.out.println("Exception in fetching rate details in getRatedChargeAmount-- > "+sqle.getStackTrace());
             throw new RuntimeException("Exception in fetching rate details in getRatedChargeAmount -- > "+sqle.getStackTrace());
         }  catch (ServiceLocatorException sle) {
-            System.out.println("Exception in getting connection in getRatedChargeAmount -- > "+sle.getStackTrace());
             throw new RuntimeException("Exception in getting connection in getRatedChargeAmount -- > "+sle.getStackTrace());
         }finally {
             try {
@@ -458,9 +462,9 @@ public class DirectJDBCDAO {
             cstmt.executeUpdate();
 
         }catch (SQLException sqle) {
-            System.out.println("Exception in updateAllShipmentRateDetails -- > " + sqle.getStackTrace());
+            throw new DaoException("updateAllShipmentRateDetails", sqle);
         }  catch (ServiceLocatorException sle) {
-            System.out.println("Exception in updateAllShipmentRateDetails -- > " + sle.getStackTrace());
+            throw new DaoException("updateAllShipmentRateDetails", sle);
         }finally {
 
             try {
@@ -535,9 +539,9 @@ public class DirectJDBCDAO {
                 invoiceList.add(rs.getLong("INVOICE_ID"));
             }
         }catch (SQLException sqle) {
-            System.out.println("Exception in loadInvoiceIds -- > "+sqle.getStackTrace());
+            throw new DaoException("loadInvoiceIds", sqle);
         }  catch (ServiceLocatorException sle) {
-            System.out.println("Exception in loadInvoiceIds -- > "+sle.getStackTrace());
+            throw new DaoException("loadInvoiceIds :: Error getting connection", sle);
         }finally {
 
             try {
@@ -552,5 +556,119 @@ public class DirectJDBCDAO {
             }
         }
         return invoiceList;
+    }
+
+    public ParcelRatingInputCriteriaDto getRatingInputCriteria(String status) {
+        ParcelRatingInputCriteriaDto inputCriteria = null;
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        String selectQueryStr = "SELECT * FROM SHP_PARCEL_RATING_INPUT_TB where STATUS = ? AND ROWNUM <= 1";
+
+        try {
+            con = ServiceLocator.getDatabaseConnection();
+            pstmt = con.prepareStatement(selectQueryStr);
+            pstmt.setString(1, status);
+            rs = pstmt.executeQuery();
+            inputCriteria = new ParcelRatingInputCriteriaDto();
+            if(rs.next()) {
+                inputCriteria.setId(rs.getLong("PARCEL_RATING_INPUT_ID"));
+                inputCriteria.setFromShipDate(rs.getDate("FROM_SHIP_DATE"));
+                inputCriteria.setToShipDate(rs.getDate("TO_SHIP_DATE"));
+                inputCriteria.setCustomerId(rs.getLong("CUSTOMER_ID"));
+                inputCriteria.setCarrierId(rs.getLong("CARRIER_ID"));
+                inputCriteria.setStatus(rs.getString("STATUS"));
+                inputCriteria.setTaskId(rs.getLong("TASK_ID"));
+                inputCriteria.setRateSetName(rs.getString("RATE_SET"));
+            }
+        } catch (Exception e) {
+            throw new DaoException("getRatingInputCriteria", e);
+        }finally {
+            try {
+                if (pstmt != null)
+                    pstmt.close();
+            } catch (SQLException sqle) {
+            }
+            try{
+                if(rs != null) rs.close();
+            }catch (SQLException e){}
+            try {
+                if (con != null)
+                    con.close();
+            } catch (SQLException sqle) {
+            }
+        }
+        return inputCriteria;
+    }
+
+    public void updateRatingInputCriteriaStatus(Long id, String status) {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+
+        String selectQueryStr = "UPDATE SHP_PARCEL_RATING_INPUT_TB SET STATUS = ? WHERE PARCEL_RATING_INPUT_ID = ? ";
+        try {
+            con = ServiceLocator.getDatabaseConnection();
+            pstmt = con.prepareStatement(selectQueryStr);
+            pstmt.setString(1, status);
+            pstmt.setLong(2, id);
+            pstmt.executeUpdate();
+            con.commit();
+        } catch (Exception e) {
+            try {
+                con.rollback();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+            throw new DaoException("updateRatingInputCriteriaStatus method", e);
+        }finally {
+            try {
+                if (pstmt != null)
+                    pstmt.close();
+            } catch (SQLException sqle) {
+            }
+            try {
+                if (con != null)
+                    con.close();
+            } catch (SQLException sqle) {
+            }
+        }
+    }
+
+    public void updateRatingVoidShipmentStatus(String tableName, String entityIds, int value) {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        String selectQueryStr = "";
+        if("SHP_EBILL_MANIFEST_TB".equalsIgnoreCase(tableName)){
+            selectQueryStr = "UPDATE shp_audit_rate_details_tb SET IS_VOID_SHIPMENT = ? WHERE EBILL_MANIFEST_ID IN (" + entityIds + ")";
+        } else if("SHP_EBILL_GFF_TB".equalsIgnoreCase(tableName)) {
+            selectQueryStr = "UPDATE shp_audit_rate_details_tb SET IS_VOID_SHIPMENT = ? WHERE EBILL_GFF_ID IN (" + entityIds + ")";
+        }
+
+        try {
+            con = ServiceLocator.getDatabaseConnection();
+            pstmt = con.prepareStatement(selectQueryStr);
+            pstmt.setInt(1, value);
+            pstmt.executeUpdate();
+            con.commit();
+        } catch (Exception e) {
+            try {
+                con.rollback();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+            throw new DaoException("Exception in updateRatingVoidShipmentStatus", e);
+        }finally {
+            try {
+                if (pstmt != null)
+                    pstmt.close();
+            } catch (SQLException sqle) {
+            }
+            try {
+                if (con != null)
+                    con.close();
+            } catch (SQLException sqle) {
+            }
+        }
     }
 }
