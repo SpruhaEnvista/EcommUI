@@ -217,6 +217,7 @@ public class ParcelUpsRatingService {
                 }
             }
         }catch (Exception e){
+            e.printStackTrace();
             log.error("ERROR in checkForVoidShipmentAndUpdate", e.getMessage());
         }
     }
@@ -645,7 +646,9 @@ public class ParcelUpsRatingService {
                     new ParcelRTRDao().updateOtherDiscountShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, entityIds.toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                 }
             }
-        }catch (Exception e){}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private String updateAmountWithRTRResponseChargesForUpsCommercialAdjustment(ParcelRateResponse.PriceSheet priceSheet, List<ParcelAuditDetailsDto> parcelAuditDetails, ParcelAuditConstant.RTRStatus rtrStatus, MsiARChargeCodesDto msiARChargeCodes, ParcelAuditDetailsDto commercialAdjCharge, List<ParcelAuditDetailsDto> previousShipment) {
@@ -786,7 +789,9 @@ public class ParcelUpsRatingService {
                     }
                 }
             }
-        }catch (Exception e){}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         BigDecimal prevTotalRated = previousShipment != null && !previousShipment.isEmpty() ? getRatedTotalAmount(previousShipment.get(0).getParentId()) : new BigDecimal("0");
         rateDetails.setRtrAmount(totalRatedAmount.subtract(prevTotalRated));
@@ -1240,7 +1245,9 @@ public class ParcelUpsRatingService {
                     new DirectJDBCDAO().updateAccessorialShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, entityIds.toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                 }
             }
-        }catch (Exception e){}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public BigDecimal getRatedTotalAmount(Long parentId){

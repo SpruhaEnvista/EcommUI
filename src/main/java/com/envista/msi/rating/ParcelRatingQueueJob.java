@@ -88,6 +88,7 @@ public class ParcelRatingQueueJob {
                 ratingInputCriteriaBean.setRateTo(rateTo);
                 ParcelRatingQueueJob.getInstance().processShipments(ratingInputCriteriaBean, isHwt);
             } catch (Exception e) {
+                e.printStackTrace();
                 log.error("ERROR - ", e.getMessage());
             }
         } else {
@@ -122,6 +123,7 @@ public class ParcelRatingQueueJob {
 
                     ratingService.updateRatingInputCriteriaStatus(ratingInputCriteria.getId(), ParcelAuditConstant.ParcelRatingInputProcessStatus.COMPLETED.value);
                 } catch (Exception e) {
+                    e.printStackTrace();
                     ratingService.updateRatingInputCriteriaStatus(ratingInputCriteria.getId(), ParcelAuditConstant.ParcelRatingInputProcessStatus.EXCEPTION.value);
                 }
             }
