@@ -286,7 +286,9 @@ public class ParcelRatingUtil {
                             auditDetails.setDimWidth(dimension[1] != null ? dimension[1].trim() : "");
                             auditDetails.setDimHeight(dimension[2] != null ? dimension[2].trim() : "");
                         }
-                    }catch (Exception e){}
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
                 if("RJ5".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())) {
                     hasRJ5Charge = true;
@@ -649,7 +651,9 @@ public class ParcelRatingUtil {
                 if(parcelAuditDetails != null && parcelAuditDetails.getNetAmount() != null && !parcelAuditDetails.getNetAmount().isEmpty()){
                     try{
                         sumOfNetAmount = sumOfNetAmount.add(new BigDecimal(parcelAuditDetails.getNetAmount()));
-                    }catch (Exception e){}
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
