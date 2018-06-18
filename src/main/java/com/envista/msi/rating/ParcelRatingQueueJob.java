@@ -136,6 +136,7 @@ public class ParcelRatingQueueJob {
                 for(Long invId : invoiceList){
                     if(invId != null) {
                         allShipmentDetails = new ParcelUpsRatingService().getUpsParcelShipmentDetails(ratingInputCriteriaBean.getCustomerId(), ratingInputCriteriaBean.getFromShipDate(), ratingInputCriteriaBean.getToShipDate(), ratingInputCriteriaBean.getTrackingNumbers(), invId.toString(), isHwt);
+                        System.out.println("139 line-->" + invId);
                         if(allShipmentDetails != null && !allShipmentDetails.isEmpty()){
                             Map<String, List<ParcelAuditDetailsDto>> trackingNumberWiseShipments = ParcelRatingUtil.prepareTrackingNumberWiseAuditDetails(allShipmentDetails);
                             processUpsShipments(trackingNumberWiseShipments, parcelRatingService.getAllMappedARChargeCodes(), ratingInputCriteriaBean.getCustomerId(), ratingInputCriteriaBean, isHwt);
@@ -151,6 +152,7 @@ public class ParcelRatingQueueJob {
                     if (invId != null) {
                         System.out.println("For Invoice-->"+invId);
                         allShipmentDetails =  parcelRatingService.getFedExParcelShipmentDetails(ratingInputCriteriaBean.getCustomerId(), ratingInputCriteriaBean.getFromShipDate(), ratingInputCriteriaBean.getToShipDate(), ratingInputCriteriaBean.getTrackingNumbers(), invId.toString(), isHwt);
+                        System.out.println("154 line-->" + invId);
                         if(allShipmentDetails != null && !allShipmentDetails.isEmpty()){
                             Map<String, List<ParcelAuditDetailsDto>> trackingNumberWiseShipments = ParcelRatingUtil.prepareTrackingNumberWiseAuditDetails(allShipmentDetails);
                             processFedExShipments(trackingNumberWiseShipments, parcelRatingService.getAllMappedARChargeCodes(), ratingInputCriteriaBean, isHwt);
@@ -292,8 +294,10 @@ public class ParcelRatingQueueJob {
                     }
                     entryIterator.remove();
                 }
-                addMwtOrHwtShipmentEntryIntoQueue(hwtDetailsMap, allMappedARChargeCodes, "ups", ratingInputCriteriaBean.getRateSetName());
             }
+
+            addMwtOrHwtShipmentEntryIntoQueue(hwtDetailsMap, allMappedARChargeCodes, "ups", ratingInputCriteriaBean.getRateSetName());
+
         }
     }
 
