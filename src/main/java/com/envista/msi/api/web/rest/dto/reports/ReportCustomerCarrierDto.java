@@ -35,6 +35,13 @@ import java.util.TreeSet;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_user_id", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_customer_data", type = Void.class)
                 }
+        ),
+        @NamedStoredProcedureQuery(name = "ReportCustomerCarrierDto.getRateCustomers",procedureName = "shp_rate_customer_proc",
+                resultSetMappings = "ReportCustomerCarrierDto.RateCustomers",
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_user_id", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "refcur_rate_customer", type = Void.class)
+                }
         )
 })
 @SqlResultSetMappings({
@@ -95,8 +102,22 @@ import java.util.TreeSet;
                         )
                 }
 
+        ),
+        @SqlResultSetMapping(
+                name = "ReportCustomerCarrierDto.RateCustomers",
+                classes = {
+                        @ConstructorResult(
+                                targetClass = ReportCustomerCarrierDto.class,
+                                columns = {
+                                        @ColumnResult(name = "customer_id", type = Long.class),
+                                        @ColumnResult(name = "customer_name", type = String.class),
+                                        @ColumnResult(name = "parent_customer_id", type = Long.class),
+                                }
+                        )
+                }
         )
 })
+
 @Entity
 public class ReportCustomerCarrierDto implements Serializable,Comparable<ReportCustomerCarrierDto> {
     @Id
@@ -172,6 +193,11 @@ public class ReportCustomerCarrierDto implements Serializable,Comparable<ReportC
         this.carrierName = carrierName;
         this.isLtl = isLtl;
         this.selected = selected;
+    }
+    public ReportCustomerCarrierDto(Long customerId, String customerName,Long parentCustomerId) {
+        this.customerId = customerId;
+        this.customerName = customerName;
+        this.parentCustomerId = parentCustomerId;
     }
 
     public ReportCustomerCarrierDto(Long customerId, String customerName, String customerCarrierId, Boolean isChild, Long parentCustomerId, String parentCustomerName, Long shipperId, String shipCodeName, Long shipperGroupId, Boolean paidCust, String shipperGroupName, Boolean selected) {
