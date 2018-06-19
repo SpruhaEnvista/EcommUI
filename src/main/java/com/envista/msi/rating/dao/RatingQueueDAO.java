@@ -83,17 +83,20 @@ public class RatingQueueDAO {
                 ratingQBean.setCreateDate(rss.getDate("CREATE_DATE"));
                 ratingQBean.setCarrierId(rss.getLong("CARRIER_ID"));
                 ratingQBean.setParentId(rss.getLong("PARENT_ID"));
-                ratingQBean.setRateStatus(rss.getBoolean("RATE_STATUS"));
+                ratingQBean.setRateStatus(rss.getInt("RATE_STATUS"));
                 ratingQBean.setAccessorialInfo(rss.getString("ACCESSORIAL_INFO"));
                 ratingQBean.setRevenueTier(rss.getString("REVENUE_TIER"));
                 ratingQBean.setTrackingNumber(rss.getString("TRACKING_NUMBER"));
                 ratingQBean.setPackageType(rss.getString("PACKAGE_TYPE"));
+                ratingQBean.setHwtIdentifier(rss.getString("HWT_IDENTIFIER"));
+                ratingQBean.setRateSetName(rss.getString("RATE_SET_NAME"));
+                ratingQBean.setTaskId(rss.getLong("TASK_ID"));
             }
 
         } catch (SQLException sqle) {
-            System.out.println("Exception in getRatingBeanById -- > "+sqle.getStackTrace());
+            throw new DaoException("Exception in getRatingBeanById", sqle);
         }  catch (ServiceLocatorException sle) {
-            System.out.println("Exception in getRatingBeanById -- > "+sle.getStackTrace());
+            throw new DaoException("Exception in getRatingBeanById", sle);
         }finally {
             try {
                 if (rss != null)
@@ -121,7 +124,7 @@ public class RatingQueueDAO {
         ResultSet rs = null;
 
         java.util.ArrayList<RatingQueueBean> beanList = null;
-        String selectQuery = "select * from SHP_RATING_QUEUE_TB where RATE_STATUS = 0 and job_id in ( " + jobIds + " ) and rownum < 30001 ";
+        String selectQuery = "select * from SHP_RATING_QUEUE_TB where RATE_STATUS = 0 and job_id in ( "+jobIds+" ) and rownum <= 30000 ";
 
         try {
             connection = ServiceLocator.getDatabaseConnection();
@@ -179,20 +182,21 @@ public class RatingQueueDAO {
                 ratingQueueBean.setCreateDate(rs.getDate("CREATE_DATE"));
                 ratingQueueBean.setCarrierId(rs.getLong("CARRIER_ID"));
                 ratingQueueBean.setParentId(rs.getLong("PARENT_ID"));
-                ratingQueueBean.setRateStatus(rs.getBoolean("RATE_STATUS"));
+                ratingQueueBean.setRateStatus(rs.getInt("RATE_STATUS"));
                 ratingQueueBean.setAccessorialInfo(rs.getString("ACCESSORIAL_INFO"));
                 ratingQueueBean.setRevenueTier(rs.getString("REVENUE_TIER"));
                 ratingQueueBean.setTrackingNumber(rs.getString("TRACKING_NUMBER"));
                 ratingQueueBean.setPackageType(rs.getString("PACKAGE_TYPE"));
                 ratingQueueBean.setHwtIdentifier(rs.getString("HWT_IDENTIFIER"));
+                ratingQueueBean.setRateSetName(rs.getString("RATE_SET_NAME"));
+                ratingQueueBean.setTaskId(rs.getLong("TASK_ID"));
                 beanList.add(ratingQueueBean);
             }
 
         } catch (SQLException sqle) {
-            System.out.println("Exception in getRatingQueueByJobId-- > "+sqle.getStackTrace());
-            sqle.printStackTrace();
+            throw new DaoException("Exception in getRatingQueueByJobId", sqle);
         }  catch (ServiceLocatorException sle) {
-            System.out.println("Exception in getRatingQueueByJobId-- > "+sle.getStackTrace());
+            throw new DaoException("Exception in getRatingQueueByJobId", sle);
         }finally {
             try {
                 if (rs != null)
@@ -234,10 +238,9 @@ public class RatingQueueDAO {
             stmt = connection.prepareStatement(updateQuery.toString());
             stmt.executeUpdate();
         } catch (SQLException sqle) {
-            System.out.println("Exception in updateRateStatusinQueue-- > " + sqle.getStackTrace());
-            sqle.printStackTrace();
+            throw new DaoException("Exception in updateRateStatusinQueue", sqle);
         } catch (ServiceLocatorException sle) {
-            System.out.println("Exception in updateRateStatusinQueue-- > " + sle.getStackTrace());
+            throw new DaoException("Exception in updateRateStatusinQueue", sle);
         } finally {
             try {
                 if (rs != null)
@@ -269,10 +272,9 @@ public class RatingQueueDAO {
 
             ps.executeUpdate();
         }catch (SQLException sqle) {
-            System.out.println("Exception in getRatingQueueByJobId-- > "+sqle.getStackTrace());
-            sqle.printStackTrace();
+            throw new DaoException("Exception in getRatingQueueByJobId", sqle);
         }  catch (ServiceLocatorException sle) {
-            System.out.println("Exception in getRatingQueueByJobId-- > "+sle.getStackTrace());
+            throw new DaoException("Exception in getRatingQueueByJobId", sle);
         }finally {
             try {
                 if (rs != null)
@@ -314,7 +316,7 @@ public class RatingQueueDAO {
             liveQuery += " CONCAT('0000', a.ACCOUNT_NUMBER) AS SHIPPER_NUMBER, a.PARENT_ID, (CASE WHEN a.container_type = 'LTR' THEN 'Letter' WHEN a.container_type IN ('PKG', 'PAK') THEN 'PKG' ELSE a.container_type END) package_type, ";
             liveQuery += " a.PACKAGE_DIMENSIONS AS PACKAGE_DIMENSION, a.ENTERED_WEIGHT AS ACTUAL_WEIGHT, a.ENTERED_WEIGHT_UNIT_OF_MEASURE AS UNIT_OF_ACTUAL_WEIGHT, ";
             liveQuery += " (select rev.SPEND from Shp_Revenue_Tb rev where  rev.customer_id=c.customer_id and rev.carrier_id=c.carrier_id and rev.carrier_id=21 and (SHIPMENT_DATE BETWEEN week_from_date AND week_to_date) and rownum=1 and rev.spend is not null) AS REVENUE_TIER, ";
-            liveQuery += " null AS CHARGE_CODE, Lead_Shipment_Number AS MULTI_WEIGHT_NUMBER, ";
+            liveQuery += " null AS CHARGE_CODE, Lead_Shipment_Number AS MULTI_WEIGHT_NUMBER, a.CHARGE_CATEGORY_DETAIL_CODE, ";
             if (isHwt) {
                 liveQuery += " 0 as RTR_AMOUNT ,null as rtr_status";
             } else {
@@ -422,12 +424,14 @@ public class RatingQueueDAO {
                 shipmentDetails.setPackageType(rs.getString("PACKAGE_TYPE"));
                 shipmentDetails.setRtrStatus(rs.getString("RTR_STATUS"));
                 shipmentDetails.setMultiWeightNumber(rs.getString("MULTI_WEIGHT_NUMBER"));
+                shipmentDetails.setChargeCategoryDetailCode(rs.getString("CHARGE_CATEGORY_DETAIL_CODE"));
                 parcelUpsShipments.add(shipmentDetails);
             }
             System.out.println("Loading Shipment for " + invoiceIds+"<--End time -->"+System.currentTimeMillis());
 
         }catch (Exception e){
             e.printStackTrace();
+            throw new DaoException("Exception in getUpsParcelShipmentDetails", e);
         }finally {
             try {
                 if (rs != null)
@@ -474,7 +478,7 @@ public class RatingQueueDAO {
             } else {
                 liveSqlQuery += " ar.RTR_AMOUNT ,ar.rtr_status,";
             }
-            liveSqlQuery += " ebmf.REVENUE_TIER AS REVENUE_TIER, ebmf.CHARGE_CODE,Ebmf.Bundle_Number AS MULTI_WEIGHT_NUMBER ";
+            liveSqlQuery += " ebmf.REVENUE_TIER AS REVENUE_TIER, ebmf.CHARGE_CODE,Ebmf.Bundle_Number AS MULTI_WEIGHT_NUMBER, null AS CHARGE_CATEGORY_DETAIL_CODE ";
             liveSqlQuery += " FROM SHP_EBILL_MANIFEST_TB ebmf, SHP_EBILL_CONTRACT_TB ebc, SHP_CUSTOMER_PROFILE_TB cp, SHP_CARRIER_TB c, SHP_SHIPPER_TB s";
             if (!isHwt) {
                 liveSqlQuery += ", SHP_AUDIT_RATE_DETAILS_TB ar  ";
@@ -586,12 +590,14 @@ public class RatingQueueDAO {
                 shipmentDetails.setPackageType(rs.getString("PACKAGE_TYPE"));
                 shipmentDetails.setRtrStatus(rs.getString("RTR_STATUS"));
                 shipmentDetails.setMultiWeightNumber(rs.getString("MULTI_WEIGHT_NUMBER"));
+                shipmentDetails.setChargeCategoryDetailCode(rs.getString("CHARGE_CATEGORY_DETAIL_CODE"));
                 //Need to add charge code here.
                 parcelUpsShipments.add(shipmentDetails);
             }
             System.out.println("Loading Shipment for FedEx " + invoiceId+"<--End time -->"+System.currentTimeMillis());
         }catch (Exception e){
             e.printStackTrace();
+            throw new DaoException("Exception in getNonUpsParcelShipmentDetails", e);
         }finally {
             try {
                 if (rs != null)
@@ -630,9 +636,11 @@ public class RatingQueueDAO {
             connection.commit();
         } catch (SQLException sqle) {
             connection.rollback();
-            log.error("Exception in getRatingQueueByJobId-- > " + sqle.getStackTrace());
+            log.error("Exception in saveRatingQueueBean-- > " + sqle.getStackTrace());
+            throw new DaoException("Exception in saveRatingQueueBean", sqle);
         } catch (ServiceLocatorException sle) {
-            log.error("Exception in getRatingQueueByJobId-- > " + sle.getStackTrace());
+            log.error("Exception in saveRatingQueueBean-- > " + sle.getStackTrace());
+            throw new DaoException("Exception in saveRatingQueueBean", sle);
         } finally {
             if (rs != null)
                 rs.close();
@@ -641,5 +649,44 @@ public class RatingQueueDAO {
             if (connection != null)
                 connection.close();
         }
+    }
+
+    public boolean shipmentExist(Long parentId){
+        Connection connection = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            connection = ServiceLocator.getDatabaseConnection();
+            String sqlQuery = "select count(1) shipment_count from shp_rating_queue_tb where parent_id = ? and rate_status = 0";
+            ps = connection.prepareStatement(sqlQuery);
+            ps.setLong(1, parentId);
+            rs = ps.executeQuery();
+            if(rs.next()) {
+                if(rs.getInt("shipment_count") > 0) {
+                    return true;
+                }
+            }
+        }catch (SQLException sqle) {
+            throw new DaoException("Exception in shipmentExist", sqle);
+        }  catch (ServiceLocatorException sle) {
+            throw new DaoException("Exception in shipmentExist", sle);
+        }finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (SQLException sqle) {
+            }
+            try {
+                if (ps != null)
+                    ps.close();
+            } catch (SQLException sqle) {
+            }
+            try {
+                if (connection != null)
+                    connection.close();
+            } catch (SQLException sqle) {
+            }
+        }
+        return false;
     }
 }

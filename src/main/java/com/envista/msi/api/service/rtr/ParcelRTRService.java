@@ -2,7 +2,12 @@ package com.envista.msi.api.service.rtr;
 
 import com.envista.msi.api.dao.rtr.ParcelRTRDao;
 import com.envista.msi.api.domain.util.ParcelRatingUtil;
-import com.envista.msi.api.web.rest.dto.rtr.*;
+import com.envista.msi.api.web.rest.dto.rtr.MsiARChargeCodesDto;
+import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditDetailsDto;
+import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditRequestResponseLog;
+import com.envista.msi.api.web.rest.dto.rtr.ParcelRateDetailsDto;
+import com.envista.msi.api.web.rest.dto.rtr.RateSetResponse;
+import com.envista.msi.api.web.rest.dto.rtr.RatedChargeDetailsDto;
 import com.envista.msi.api.web.rest.util.CommonUtil;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant.RTRStatus;
@@ -17,10 +22,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.StringJoiner;
 
 /**
  * Created by Sujit kumar on 08/06/2017.
@@ -1836,4 +1849,20 @@ public class ParcelRTRService{
         return detailsDtos;
     }
 
+    public List<RateSetResponse.RateSet> getRateSetsByCustomer(Long customerId) {
+
+        String customerCode = "DALI";
+        String url = ParcelAuditConstant.AR_RATE_REQUEST_PROTOCOL + "://"
+                + ParcelAuditConstant.AR_RATE_REQUEST_HOST_NAME + "/"
+                + ParcelAuditConstant.AR_RATE_SET_REQUEST_URI_PATH + ParcelAuditConstant.AR_RATE_REQUEST_LICENSE_KEY + "&customerCode=" + customerCode;
+
+        log.info("url==" + url);
+        RestTemplate restTemplate = new RestTemplate();
+
+        RateSetResponse result = restTemplate.getForObject(url, RateSetResponse.class);
+
+        log.info("result=====" + result.getRateSets().toString());
+
+        return result.getRateSets();
+    }
 }

@@ -111,6 +111,9 @@ public class ParcelRateResponse implements Serializable {
         @XmlElement(name="Category")
         private String category;
 
+        @XmlElement(name = "RateSet")
+        private String rateSet;
+
         @XmlElement(name="Distance")
         private BigDecimal distance; // ####.#
 
@@ -258,6 +261,14 @@ public class ParcelRateResponse implements Serializable {
 
         public String getCategory() {
             return category;
+        }
+
+        public String getRateSet() {
+            return rateSet;
+        }
+
+        public void setRateSet(String rateSet) {
+            this.rateSet = rateSet;
         }
 
         public void setCategory(String category) {
