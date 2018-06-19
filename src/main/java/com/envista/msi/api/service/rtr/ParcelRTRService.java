@@ -1849,9 +1849,8 @@ public class ParcelRTRService{
         return detailsDtos;
     }
 
-    public List<RateSetResponse.RateSet> getRateSetsByCustomer(Long customerId) {
+    public List<RateSetResponse.RateSet> getRateSetsByCustomer(String customerCode) {
 
-        String customerCode = "DALI";
         String url = ParcelAuditConstant.AR_RATE_REQUEST_PROTOCOL + "://"
                 + ParcelAuditConstant.AR_RATE_REQUEST_HOST_NAME + "/"
                 + ParcelAuditConstant.AR_RATE_SET_REQUEST_URI_PATH + ParcelAuditConstant.AR_RATE_REQUEST_LICENSE_KEY + "&customerCode=" + customerCode;
