@@ -2,6 +2,7 @@ package com.envista.msi.api.web.rest;
 
 import com.envista.msi.api.service.RatingService;
 import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
+import com.envista.msi.api.web.rest.util.JSONUtil;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -31,7 +32,7 @@ public class RatingController {
             List<ReportCustomerCarrierDto> carriersList = ratingService.getRateCarrierList(Long.parseLong(userId), customerIds);
             JSONObject carrierJSON = new JSONObject();
             if(carriersList != null)
-                carrierJSON.put("rateCarriersList", carriersList);
+                carrierJSON.put("rateCarriersList", JSONUtil.carriersJson(carriersList));
             return new ResponseEntity<JSONObject>(carrierJSON, HttpStatus.OK);
         }catch (Exception e){
             return new ResponseEntity<JSONObject>(new JSONObject(), HttpStatus.INTERNAL_SERVER_ERROR);
