@@ -577,6 +577,7 @@ public class RatingQueueDAO {
                             shipmentDetails.setChargeDescriptionCode(dwFieldInfo[2].trim());
                         }
                     } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
                 shipmentDetails.setShipperNumber(rs.getString("SHIPPER_NUMBER"));
