@@ -6,6 +6,7 @@ import com.envista.msi.api.domain.util.QueryParameter;
 import com.envista.msi.api.domain.util.StoredProcedureParameter;
 import com.envista.msi.api.web.rest.dto.*;
 import com.envista.msi.api.web.rest.dto.reports.*;
+import com.envista.msi.api.web.rest.dto.rtr.ParcelServiceLevelDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -867,8 +868,16 @@ public class ReportsDao {
         return persistentContext.findEntities("SavedSchedReportDto.getReportDetailsByIds", queryParameter);
     }
 
-    public List<ReportCustomerCarrierDto> getRateCustomerList(Long userId){
+    public List<ReportCustomerCarrierDto> getRateCustomerList(Long userId) {
         QueryParameter queryParameter = StoredProcedureParameter.with("p_user_id", userId);
         return persistentContext.findEntities("ReportCustomerCarrierDto.getRateCustomers", queryParameter);
     }
+
+    public List<ParcelServiceLevelDto> getRateServiceLevels(String carrierIds){
+        QueryParameter queryParameter = StoredProcedureParameter.with("p_carrier_id", carrierIds);
+        return persistentContext.findEntities("ParcelServiceLevelDto.getService", queryParameter);
+
+    }
 }
+
+

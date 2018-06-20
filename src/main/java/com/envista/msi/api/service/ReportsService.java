@@ -9,6 +9,7 @@ import com.envista.msi.api.domain.util.ReportsUtil;
 import com.envista.msi.api.domain.util.StringEncrypter;
 import com.envista.msi.api.web.rest.dto.*;
 import com.envista.msi.api.web.rest.dto.reports.*;
+import com.envista.msi.api.web.rest.dto.rtr.ParcelServiceLevelDto;
 import com.envista.msi.api.web.rest.util.DateUtil;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -1293,7 +1294,11 @@ public class ReportsService {
         return reportsDao.getReportList(rptIds);
     }
 
-    public List<ReportCustomerCarrierDto> getRateCustomerList(Long userId){
-        return  reportsDao.getRateCustomerList(userId);
+    public List<ReportCustomerCarrierDto> getRateCustomerList(Long userId) {
+        return reportsDao.getRateCustomerList(userId);
+    }
+
+    public List<ParcelServiceLevelDto> getRateServiceLevels(String carrierIds){
+        return reportsDao.getRateServiceLevels(carrierIds);
     }
 }

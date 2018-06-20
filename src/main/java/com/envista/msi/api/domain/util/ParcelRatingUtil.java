@@ -310,22 +310,22 @@ public class ParcelRatingUtil {
                 JSONArray accJsonArr = new JSONArray();
                 for(ParcelAuditDetailsDto auditDetails : shipmentDetails){
                     if(auditDetails != null){
-                        try{
-                            if(auditDetails.getChargeClassificationCode() != null
-                                    && ParcelAuditConstant.ChargeClassificationCode.ACC.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())){
-                                if(auditDetails.getChargeDescriptionCode() != null && !auditDetails.getChargeDescriptionCode().isEmpty()
-                                        && !"RJ5".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())){
+                        try {
+                            if (auditDetails.getChargeClassificationCode() != null
+                                    && ParcelAuditConstant.ChargeClassificationCode.ACC.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())) {
+                                if (auditDetails.getChargeDescriptionCode() != null && !auditDetails.getChargeDescriptionCode().isEmpty()
+                                        && !"RJ5".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())) {
                                     JSONObject accJson = new JSONObject();
                                     accJson.put("netAmount", auditDetails.getNetAmount() != null ? auditDetails.getNetAmount().toString() : "0.00");
                                     accJson.put("weight", auditDetails.getPackageWeight() != null ? auditDetails.getPackageWeight().toString() : "0.00");
                                     accJson.put("weightUnit", (null == auditDetails.getWeightUnit() || auditDetails.getWeightUnit().isEmpty() || "L".equalsIgnoreCase(auditDetails.getWeightUnit()) ? "LBS" : auditDetails.getWeightUnit()));
                                     accJson.put("quantity", (null == auditDetails.getItemQuantity() || auditDetails.getItemQuantity().isEmpty() ? 1l : Long.parseLong(auditDetails.getItemQuantity())));
                                     accJson.put("quantityUnit", (null == auditDetails.getQuantityUnit() || auditDetails.getQuantityUnit().isEmpty() ? "PCS" : auditDetails.getQuantityUnit()));
-                                    if(!hasRJ5Charge && auditDetails.getChargeDescriptionCode().equalsIgnoreCase("RES")){
+                                    if (!hasRJ5Charge && auditDetails.getChargeDescriptionCode().equalsIgnoreCase("RES")) {
                                         accJson.put("code", "RSC");
-                                    } else if(dasChargeList.containsKey(auditDetails.getChargeDescriptionCode())) {
+                                    } else if (dasChargeList.containsKey(auditDetails.getChargeDescriptionCode())) {
                                         accJson.put("code", dasChargeList.get(auditDetails.getChargeDescriptionCode()));
-                                    } else if(lpsCharges != null && lpsCharges.containsKey(auditDetails.getChargeDescriptionCode())) {
+                                    } else if (lpsCharges != null && lpsCharges.containsKey(auditDetails.getChargeDescriptionCode())) {
                                         accJson.put("code", auditDetails.getChargeDescriptionCode());
                                     } else {
                                         accJson.put("code", auditDetails.getChargeDescriptionCode());
@@ -333,7 +333,7 @@ public class ParcelRatingUtil {
                                     accJsonArr.put(accJson);
                                 }
                             }
-                        }catch (Exception e){
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
