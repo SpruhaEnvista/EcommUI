@@ -47,7 +47,7 @@ public class ParcelRateRequestBuilder {
 
             constraints.setService(serviceLevel);
             constraints.setCustomerCode(ratingQueueBean.getCustomerCode());
-
+            constraints.setRateSet(ratingQueueBean.getRateSetName());
 
             ParcelRateRequest.RevenueTier revenueTier = new ParcelRateRequest.RevenueTier();
             String revenueValue = ratingQueueBean.getRevenueTier();
@@ -182,15 +182,8 @@ public class ParcelRateRequestBuilder {
         item.setContainer(ratingQueueBean.getPackageType());
         items.add(item);
 
-        if (ratingQueueBean.getAccessorialArray() != null) {
-            for (String acc : ratingQueueBean.getAccessorialArray()) {
-                if (acc != null && !acc.isEmpty()) {
-                    ParcelRateRequest.ServiceFlag serviceFlag = new ParcelRateRequest.ServiceFlag();
-                    serviceFlag.setCode(acc);
-                    serviceFlag.setSequence(ratingQueueBean.getParentId());
-                    serviceFlagList.add(serviceFlag);
-                }
-            }
+        if (ratingQueueBean.getAccessorials() != null) {
+            serviceFlagList.addAll(ratingQueueBean.getAccessorials());
         }
     }
 }

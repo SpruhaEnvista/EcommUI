@@ -9,6 +9,8 @@ import com.envista.msi.rating.bean.RatingQueueBean;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -263,7 +265,7 @@ public class ParcelRatingUtil {
         return null;
     }
 
-    public static RatingQueueBean prepareShipmentEntryForUpsShipment(List<ParcelAuditDetailsDto> shipmentDetails, MsiARChargeCodesDto msiARChargeCodes){
+    public static RatingQueueBean prepareShipmentEntryForUpsShipment(List<ParcelAuditDetailsDto> shipmentDetails, MsiARChargeCodesDto msiARChargeCodes, String rateSet) {
         RatingQueueBean ratingQueueBean = new RatingQueueBean();
         ParcelAuditDetailsDto firstCharge = shipmentDetails.get(0);
 
@@ -284,7 +286,9 @@ public class ParcelRatingUtil {
                             auditDetails.setDimWidth(dimension[1] != null ? dimension[1].trim() : "");
                             auditDetails.setDimHeight(dimension[2] != null ? dimension[2].trim() : "");
                         }
-                    }catch (Exception e){}
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
                 if("RJ5".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())) {
                     hasRJ5Charge = true;
@@ -303,27 +307,38 @@ public class ParcelRatingUtil {
 
                 ratingQueueBean.setBillOption(billOption);
 
-                StringJoiner accessorials = new StringJoiner(",");
+                JSONArray accJsonArr = new JSONArray();
                 for(ParcelAuditDetailsDto auditDetails : shipmentDetails){
                     if(auditDetails != null){
-                        if(auditDetails.getChargeClassificationCode() != null
-                                && ParcelAuditConstant.ChargeClassificationCode.ACC.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())){
-                            if(auditDetails.getChargeDescriptionCode() != null && !auditDetails.getChargeDescriptionCode().isEmpty()
-                                    && !"RJ5".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())){
-                                if(!hasRJ5Charge && auditDetails.getChargeDescriptionCode().equalsIgnoreCase("RES")){
-                                    accessorials.add("RSC");
-                                } else if(dasChargeList.containsKey(auditDetails.getChargeDescriptionCode())) {
-                                    accessorials.add(dasChargeList.get(auditDetails.getChargeDescriptionCode()));
-                                } else if(lpsCharges != null && lpsCharges.containsKey(auditDetails.getChargeDescriptionCode())) {
-                                    accessorials.add(lpsCharges.get(auditDetails.getChargeDescriptionCode()));
-                                } else {
-                                    accessorials.add(auditDetails.getChargeDescriptionCode());
+                        try{
+                            if(auditDetails.getChargeClassificationCode() != null
+                                    && ParcelAuditConstant.ChargeClassificationCode.ACC.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())){
+                                if(auditDetails.getChargeDescriptionCode() != null && !auditDetails.getChargeDescriptionCode().isEmpty()
+                                        && !"RJ5".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())){
+                                    JSONObject accJson = new JSONObject();
+                                    accJson.put("netAmount", auditDetails.getNetAmount() != null ? auditDetails.getNetAmount().toString() : "0.00");
+                                    accJson.put("weight", auditDetails.getPackageWeight() != null ? auditDetails.getPackageWeight().toString() : "0.00");
+                                    accJson.put("weightUnit", (null == auditDetails.getWeightUnit() || auditDetails.getWeightUnit().isEmpty() || "L".equalsIgnoreCase(auditDetails.getWeightUnit()) ? "LBS" : auditDetails.getWeightUnit()));
+                                    accJson.put("quantity", (null == auditDetails.getItemQuantity() || auditDetails.getItemQuantity().isEmpty() ? 1l : Long.parseLong(auditDetails.getItemQuantity())));
+                                    accJson.put("quantityUnit", (null == auditDetails.getQuantityUnit() || auditDetails.getQuantityUnit().isEmpty() ? "PCS" : auditDetails.getQuantityUnit()));
+                                    if(!hasRJ5Charge && auditDetails.getChargeDescriptionCode().equalsIgnoreCase("RES")){
+                                        accJson.put("code", "RSC");
+                                    } else if(dasChargeList.containsKey(auditDetails.getChargeDescriptionCode())) {
+                                        accJson.put("code", dasChargeList.get(auditDetails.getChargeDescriptionCode()));
+                                    } else if(lpsCharges != null && lpsCharges.containsKey(auditDetails.getChargeDescriptionCode())) {
+                                        accJson.put("code", auditDetails.getChargeDescriptionCode());
+                                    } else {
+                                        accJson.put("code", auditDetails.getChargeDescriptionCode());
+                                    }
+                                    accJsonArr.put(accJson);
                                 }
                             }
+                        }catch (Exception e){
+                            e.printStackTrace();
                         }
                     }
                 }
-                ratingQueueBean.setAccessorialInfo(accessorials.toString());
+                ratingQueueBean.setAccessorialInfo(accJsonArr != null && accJsonArr.length() > 0 ? accJsonArr.toString() : null);
                 String scacCode = (null == firstCharge.getRtrScacCode() ? "" : "FDEG".equals(firstCharge.getRtrScacCode()) ? "FDE" : firstCharge.getRtrScacCode());
                 ratingQueueBean.setScacCode(scacCode);
 
@@ -395,12 +410,13 @@ public class ParcelRatingUtil {
                 ratingQueueBean.setReceiverCity(receiverCity);
                 ratingQueueBean.setReceiverZip(receiverZipCode);
                 ratingQueueBean.setHwtIdentifier(firstCharge.getMultiWeightNumber());
+                ratingQueueBean.setRateSetName(rateSet);
             }
         }
         return ratingQueueBean;
     }
 
-    public static RatingQueueBean prepareShipmentEntryForNonUpsShipment(List<ParcelAuditDetailsDto> shipmentDetails, MsiARChargeCodesDto msiARChargeCodes){
+    public static RatingQueueBean prepareShipmentEntryForNonUpsShipment(List<ParcelAuditDetailsDto> shipmentDetails, MsiARChargeCodesDto msiARChargeCodes, String rateSet) {
         RatingQueueBean ratingQueueBean = new RatingQueueBean();
         ParcelAuditDetailsDto firstCharge = shipmentDetails.get(0);
 
@@ -410,6 +426,7 @@ public class ParcelRatingUtil {
         ratingQueueBean.setCarrierId(firstCharge.getCarrierId());
         Map<String, String> dasChargeList = msiARChargeCodes.getDasChargeCodes();
         Map<String, String> lpsCharges = msiARChargeCodes.getLpsChargeCodes();
+        Map<String, String> declaredValueCode = msiARChargeCodes.getDeclaredValueChargeCodes();
 
         String billOption = (null == firstCharge.getBillOption() ? "" : firstCharge.getBillOption());
         if(billOption.equalsIgnoreCase("Prepaid") || billOption.equals("1") || billOption.equalsIgnoreCase("Outbound")){
@@ -421,28 +438,42 @@ public class ParcelRatingUtil {
         }
         ratingQueueBean.setBillOption(billOption);
 
-        StringJoiner accessorials = new StringJoiner(",");
+        //StringJoiner accessorials = new StringJoiner(",");
+        JSONArray accJsonArr = new JSONArray();
         for(ParcelAuditDetailsDto auditDetails : shipmentDetails){
             if(auditDetails != null){
                 if(auditDetails.getChargeClassificationCode() != null && ParcelAuditConstant.ChargeClassificationCode.ACS.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())
                         && !Arrays.asList(ParcelAuditConstant.ChargeDescriptionCode.FSC.name(), ParcelAuditConstant.ChargeDescriptionCode.DSC.name()).contains(auditDetails.getChargeDescriptionCode())){
-                    if(auditDetails.getChargeDescriptionCode().equalsIgnoreCase("RES")){
-                        accessorials.add("RSC");
-                    } else if(dasChargeList.containsKey(auditDetails.getChargeDescriptionCode())){
-                        if(auditDetails.getChargeDescription() != null && (auditDetails.getChargeDescription().contains("EXTENDED") || auditDetails.getChargeDescription().contains("extended"))){
-                            accessorials.add("DSX");
+                    try{
+                        JSONObject accJson = new JSONObject();
+                        accJson.put("netAmount", auditDetails.getNetAmount() != null ? auditDetails.getNetAmount().toString() : "0.00");
+                        accJson.put("weight", auditDetails.getPackageWeight() != null ? auditDetails.getPackageWeight().toString() : "0.00");
+                        accJson.put("weightUnit", (null == auditDetails.getWeightUnit() || auditDetails.getWeightUnit().isEmpty() || "L".equalsIgnoreCase(auditDetails.getWeightUnit()) ? "LBS" : auditDetails.getWeightUnit()));
+                        accJson.put("quantity", (null == auditDetails.getItemQuantity() || auditDetails.getItemQuantity().isEmpty() ? 1l : Long.parseLong(auditDetails.getItemQuantity())));
+                        accJson.put("quantityUnit", (null == auditDetails.getQuantityUnit() || auditDetails.getQuantityUnit().isEmpty() ? "PCS" : auditDetails.getQuantityUnit()));
+                        if(auditDetails.getChargeDescriptionCode().equalsIgnoreCase("RES")){
+                            accJson.put("code", "RSC");
+                        } else if(dasChargeList.containsKey(auditDetails.getChargeDescriptionCode())){
+                            if(auditDetails.getChargeDescription() != null && (auditDetails.getChargeDescription().contains("EXTENDED") || auditDetails.getChargeDescription().contains("extended"))){
+                                accJson.put("code", "DSX");
+                            } else {
+                                accJson.put("code", dasChargeList.get(auditDetails.getChargeDescriptionCode()));
+                            }
+                        } else if(lpsCharges != null && lpsCharges.containsKey(auditDetails.getChargeDescriptionCode())) {
+                            accJson.put("code", lpsCharges.get(auditDetails.getChargeDescriptionCode()));
+                        } else if(declaredValueCode != null && declaredValueCode.containsKey(auditDetails.getChargeDescriptionCode())) {
+                            accJson.put("code", declaredValueCode.get(auditDetails.getChargeDescriptionCode()));
                         } else {
-                            accessorials.add(dasChargeList.get(auditDetails.getChargeDescriptionCode()));
+                            accJson.put("code", auditDetails.getChargeDescriptionCode());
                         }
-                    } else if(lpsCharges != null && lpsCharges.containsKey(auditDetails.getChargeDescriptionCode())) {
-                        accessorials.add(lpsCharges.get(auditDetails.getChargeDescriptionCode()));
-                    } else {
-                        accessorials.add(auditDetails.getChargeDescriptionCode());
+                        accJsonArr.put(accJson);
+                    }catch (Exception e){
+                        e.printStackTrace();
                     }
                 }
             }
         }
-        ratingQueueBean.setAccessorialInfo(accessorials.toString());
+        ratingQueueBean.setAccessorialInfo(accJsonArr.length() > 0 ? accJsonArr.toString() : null);
 
         String rtrScacCode = (null == firstCharge.getRtrScacCode() ? "" : "FDEG".equals(firstCharge.getRtrScacCode()) ? "FDE" : firstCharge.getRtrScacCode());
         String currency = (null == firstCharge.getCurrency() || firstCharge.getCurrency().isEmpty() ? "USD" : firstCharge.getCurrency());
@@ -515,16 +546,26 @@ public class ParcelRatingUtil {
         ratingQueueBean.setReceiverCity(receiverCity);
         ratingQueueBean.setReceiverZip(receiverZipCode);
         ratingQueueBean.setHwtIdentifier(firstCharge.getMultiWeightNumber());
+        ratingQueueBean.setRateSetName(rateSet);
 
         return ratingQueueBean;
     }
 
     public static boolean isShipmentRated(List<ParcelAuditDetailsDto> shipment){
         boolean rated = false;
+        List<String> rateStatusList = null;
         if(shipment != null && !shipment.isEmpty()) {
+            rateStatusList = new ArrayList<>();
             for(ParcelAuditDetailsDto shipmentCharge : shipment){
-                if(shipmentCharge != null && shipmentCharge.getRtrStatus() != null
-                        && Arrays.asList(ParcelAuditConstant.RTRStatus.CLOSED.value, ParcelAuditConstant.RTRStatus.UNDER_CHARGED.value, ParcelAuditConstant.RTRStatus.OVER_CHARGED.value).contains(shipmentCharge.getRtrStatus())) {
+                if(shipmentCharge != null && shipmentCharge.getRtrStatus() != null && !shipmentCharge.getRtrStatus().isEmpty()){
+                    rateStatusList.add(shipmentCharge.getRtrStatus());
+                }
+            }
+            if(rateStatusList != null && !rateStatusList.isEmpty()) {
+                if(rateStatusList.contains(ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET.value) || rateStatusList.contains(ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value)) {
+                    rated = false;
+                } else if(rateStatusList.contains(ParcelAuditConstant.RTRStatus.CLOSED.value) || rateStatusList.contains(ParcelAuditConstant.RTRStatus.UNDER_CHARGED.value)
+                        || rateStatusList.contains(ParcelAuditConstant.RTRStatus.OVER_CHARGED.value)) {
                     rated = true;
                 }
             }
@@ -610,7 +651,9 @@ public class ParcelRatingUtil {
                 if(parcelAuditDetails != null && parcelAuditDetails.getNetAmount() != null && !parcelAuditDetails.getNetAmount().isEmpty()){
                     try{
                         sumOfNetAmount = sumOfNetAmount.add(new BigDecimal(parcelAuditDetails.getNetAmount()));
-                    }catch (Exception e){}
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
@@ -913,5 +956,46 @@ public class ParcelRatingUtil {
             }
         }
         return null;
+    }
+
+    public static boolean isRatedWithException(List<ParcelAuditDetailsDto> shipment){
+        boolean isRatedWithException = false;
+        if(shipment != null && !shipment.isEmpty()) {
+            for(ParcelAuditDetailsDto shipmentCharge : shipment){
+                if(shipmentCharge != null && shipmentCharge.getRtrStatus() != null
+                        && ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value.equalsIgnoreCase(shipmentCharge.getRtrStatus())) {
+                    isRatedWithException = true;
+                    break;
+                }
+            }
+        }
+        return isRatedWithException;
+    }
+
+    public static boolean isRatedWithEmptyPriceSheet(List<ParcelAuditDetailsDto> shipment){
+        boolean isRatedWithEmptyPriceSheet = false;
+        if(shipment != null && !shipment.isEmpty()) {
+            for(ParcelAuditDetailsDto shipmentCharge : shipment){
+                if(shipmentCharge != null && shipmentCharge.getRtrStatus() != null
+                        && ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET.value.equalsIgnoreCase(shipmentCharge.getRtrStatus())) {
+                    isRatedWithEmptyPriceSheet = true;
+                    break;
+                }
+            }
+        }
+        return isRatedWithEmptyPriceSheet;
+    }
+
+    public static boolean isVoidShipment(List<ParcelAuditDetailsDto> shipment){
+        boolean isVoidShipment = false;
+        if(shipment != null && !shipment.isEmpty()){
+            for(ParcelAuditDetailsDto shp : shipment){
+                if(shp != null && shp.getChargeCategoryDetailCode() != null && "VOID".equalsIgnoreCase(shp.getChargeCategoryDetailCode().trim())){
+                    isVoidShipment = true;
+                    break;
+                }
+            }
+        }
+        return isVoidShipment;
     }
 }

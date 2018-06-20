@@ -216,6 +216,9 @@ public class ParcelAuditDetailsDto {
     @Column(name = "MULTI_WEIGHT_NUMBER")
     private String multiWeightNumber;
 
+    @Column(name = "CHARGE_CATEGORY_DETAIL_CODE")
+    private String chargeCategoryDetailCode;
+
     public ParcelAuditDetailsDto() {
     }
 
@@ -603,6 +606,14 @@ public class ParcelAuditDetailsDto {
 
     public void setMultiWeightNumber(String multiWeightNumber) {
         this.multiWeightNumber = multiWeightNumber;
+    }
+
+    public String getChargeCategoryDetailCode() {
+        return chargeCategoryDetailCode;
+    }
+
+    public void setChargeCategoryDetailCode(String chargeCategoryDetailCode) {
+        this.chargeCategoryDetailCode = chargeCategoryDetailCode;
     }
 
     public static class Config{

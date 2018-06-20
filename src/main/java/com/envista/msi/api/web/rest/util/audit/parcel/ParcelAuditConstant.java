@@ -75,6 +75,7 @@ public class ParcelAuditConstant {
     public static final String MSI_AR_CHARGE_CODE_MAPPING_MODELE_NAME = "Parcel_Rating_MSI_AR_Code_Mapping";
     public static final String MSI_AR_DAS_CHARGE_CODE_NAME = "DeliveryAreaSurcharge";
     public static final String MSI_AR_LPS_CHARGE_CODE_NAME = "LargePackageSurcharge";
+    public static final String MSI_AR_DECLARED_VALUE_CHARGE_CODE_NAME = "DeclaredValue";
 
     public static final String RATE_REQUEST_EVENT_DATE_FORMAT = "MM/dd/yyyy hh:mm";
 
@@ -86,6 +87,8 @@ public class ParcelAuditConstant {
     public static final String RATE_JOB_ID_SEQUENCE_NAME = "SHP_RATING_JOB_S";
     public static final String RATE_JOB_ID_SEQUENCE_VALUE = "SHP_RATING_JOB_S.NEXTVAL";
 
+    public static final String AR_RATE_SET_REQUEST_URI_PATH = "ws/freight/v1/ratesets?license=";
+
     public enum ParcelRatingQueueRateStatus {
         READY_FOR_RATE(0),
         DONE(1),
@@ -95,6 +98,19 @@ public class ParcelAuditConstant {
         public final int value;
 
         ParcelRatingQueueRateStatus(int value) {
+            this.value = value;
+        }
+    }
+
+    public enum ParcelRatingInputProcessStatus{
+        NEW("New"),
+        RUNNING("Running"),
+        COMPLETED("Completed"),
+        EXCEPTION("Exception");
+
+        public final String value;
+
+        ParcelRatingInputProcessStatus(String value) {
             this.value = value;
         }
     }
