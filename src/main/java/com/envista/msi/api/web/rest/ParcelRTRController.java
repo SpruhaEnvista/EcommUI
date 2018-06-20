@@ -80,11 +80,11 @@ public class ParcelRTRController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @RequestMapping(value = "/getFileInfoList", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
-    public ResponseEntity<List<RateSetResponse.RateSet>> getRateSetsByCustomer(@RequestParam("customerId") Long customerId) throws JSONException {
+    @RequestMapping(value = "/getRateSetsByCustomer", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+    public ResponseEntity<List<RateSetResponse.RateSet>> getRateSetsByCustomer(@RequestParam("customerCode") String customerCode) throws JSONException {
         log.info("***getRateSetsByCustomer method started****");
 
-        List<RateSetResponse.RateSet> dtos = parcelRTRService.getRateSetsByCustomer(customerId);
+        List<RateSetResponse.RateSet> dtos = parcelRTRService.getRateSetsByCustomer(customerCode);
 
         log.info("***getRateSetsByCustomer json***==== " + dtos);
 
