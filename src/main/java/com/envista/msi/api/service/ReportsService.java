@@ -1293,7 +1293,7 @@ public class ReportsService {
         return reportsDao.getReportList(rptIds);
     }
 
-    public List<ReportCustomerCarrierDto> getRateCustomerList(Long userId){
-        return  reportsDao.getRateCustomerList(userId);
+    public List<ReportCustomerCarrierDto> getRateCustomerList(Long userId) {
+        return reportsDao.getRateCustomerList(userId);
     }
 }

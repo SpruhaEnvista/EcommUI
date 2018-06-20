@@ -36,7 +36,7 @@ import java.util.TreeSet;
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_customer_data", type = Void.class)
                 }
         ),
-        @NamedStoredProcedureQuery(name = "ReportCustomerCarrierDto.getRateCustomers",procedureName = "shp_rate_customer_proc",
+        @NamedStoredProcedureQuery(name = "ReportCustomerCarrierDto.getRateCustomers", procedureName = "shp_rate_customer_proc",
                 resultSetMappings = "ReportCustomerCarrierDto.RateCustomers",
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_user_id", type = Long.class),
@@ -194,7 +194,8 @@ public class ReportCustomerCarrierDto implements Serializable,Comparable<ReportC
         this.isLtl = isLtl;
         this.selected = selected;
     }
-    public ReportCustomerCarrierDto(Long customerId, String customerName,Long parentCustomerId) {
+
+    public ReportCustomerCarrierDto(Long customerId, String customerName, Long parentCustomerId) {
         this.customerId = customerId;
         this.customerName = customerName;
         this.parentCustomerId = parentCustomerId;
