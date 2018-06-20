@@ -868,7 +868,7 @@ public class ReportsDao {
         return persistentContext.findEntities("SavedSchedReportDto.getReportDetailsByIds", queryParameter);
     }
 
-    public List<ReportCustomerCarrierDto> getRateCustomerList(Long userId){
+    public List<ReportCustomerCarrierDto> getRateCustomerList(Long userId) {
         QueryParameter queryParameter = StoredProcedureParameter.with("p_user_id", userId);
         return persistentContext.findEntities("ReportCustomerCarrierDto.getRateCustomers", queryParameter);
     }

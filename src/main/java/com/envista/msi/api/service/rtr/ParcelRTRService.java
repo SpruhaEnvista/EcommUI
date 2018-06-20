@@ -51,6 +51,9 @@ public class ParcelRTRService{
     @org.springframework.beans.factory.annotation.Qualifier(value = "rtrRateResource")
     private MessageSource messageSource;
 
+    @Autowired
+    private RestTemplate restTemplate;
+
     public Map<String, List<ParcelAuditDetailsDto>> loadUpsParcelAuditDetails(String customerId, String fromDate, String toDate, String trackingNumbers, String invoiceIds, Integer ignoreRtrStatus){
         return prepareTrackingNumberWiseAuditDetails(parcelRTRDao.loadUpsParcelAuditDetails(customerId, fromDate, toDate, trackingNumbers, invoiceIds, ignoreRtrStatus));
     }
@@ -1851,12 +1854,13 @@ public class ParcelRTRService{
 
     public List<RateSetResponse.RateSet> getRateSetsByCustomer(String customerCode) {
 
+
         String url = ParcelAuditConstant.AR_RATE_REQUEST_PROTOCOL + "://"
                 + ParcelAuditConstant.AR_RATE_REQUEST_HOST_NAME + "/"
                 + ParcelAuditConstant.AR_RATE_SET_REQUEST_URI_PATH + ParcelAuditConstant.AR_RATE_REQUEST_LICENSE_KEY + "&customerCode=" + customerCode;
 
         log.info("url==" + url);
-        RestTemplate restTemplate = new RestTemplate();
+
 
         RateSetResponse result = restTemplate.getForObject(url, RateSetResponse.class);
 

@@ -662,13 +662,14 @@ public class ReportsController {
         response.setStatusCode(HttpStatus.OK.value());
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
     @RequestMapping(value = "/ratecustomer", method = {RequestMethod.GET}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<JSONObject> getRateCustomerList(@RequestParam String userId){
+    public ResponseEntity<JSONObject> getRateCustomerList(@RequestParam String userId) {
         try {
             List<ReportCustomerCarrierDto> customerList = reportsService.getRateCustomerList(Long.parseLong(userId));
-            JSONObject customerJson=new JSONObject();
-            if(customerList!=null)
-                customerJson.put("ratecustomerlist",customerList);
+            JSONObject customerJson = new JSONObject();
+            if (customerList != null)
+                customerJson.put("ratecustomerlist", customerList);
             return new ResponseEntity<JSONObject>(customerJson, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<JSONObject>(new JSONObject(), HttpStatus.INTERNAL_SERVER_ERROR);
