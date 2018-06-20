@@ -112,6 +112,7 @@ import java.util.TreeSet;
                                         @ColumnResult(name = "customer_id", type = Long.class),
                                         @ColumnResult(name = "customer_name", type = String.class),
                                         @ColumnResult(name = "parent_customer_id", type = Long.class),
+                                        @ColumnResult(name = "customer_code", type = String.class)
                                 }
                         )
                 }
@@ -182,6 +183,9 @@ public class ReportCustomerCarrierDto implements Serializable,Comparable<ReportC
     @Column(name = "currency_id")
     private String currencyId;
 
+    @Column(name = "customer_code")
+    private String customerCode;
+
     private TreeSet<ReportCustomerCarrierDto> collection = new TreeSet<ReportCustomerCarrierDto>();
 
     public ReportCustomerCarrierDto() { }
@@ -194,10 +198,11 @@ public class ReportCustomerCarrierDto implements Serializable,Comparable<ReportC
         this.isLtl = isLtl;
         this.selected = selected;
     }
-    public ReportCustomerCarrierDto(Long customerId, String customerName,Long parentCustomerId) {
+    public ReportCustomerCarrierDto(Long customerId, String customerName,Long parentCustomerId, String customerCode) {
         this.customerId = customerId;
         this.customerName = customerName;
         this.parentCustomerId = parentCustomerId;
+        this.customerCode = customerCode;
     }
 
     public ReportCustomerCarrierDto(Long customerId, String customerName, String customerCarrierId, Boolean isChild, Long parentCustomerId, String parentCustomerName, Long shipperId, String shipCodeName, Long shipperGroupId, Boolean paidCust, String shipperGroupName, Boolean selected) {
@@ -368,6 +373,14 @@ public class ReportCustomerCarrierDto implements Serializable,Comparable<ReportC
 
     public void setCurrencyId(String currencyId) {
         this.currencyId = currencyId;
+    }
+
+    public String getCustomerCode() {
+        return customerCode;
+    }
+
+    public void setCustomerCode(String customerCode) {
+        this.customerCode = customerCode;
     }
 
     @Override
