@@ -129,7 +129,8 @@ import java.util.TreeSet;
                         columns = {
                                 @ColumnResult(name = "carrier_id", type = Long.class),
                                 @ColumnResult(name = "carrier_name", type = String.class),
-                                @ColumnResult(name = "is_ltl", type = Boolean.class)
+                                @ColumnResult(name = "is_ltl", type = Boolean.class),
+                                @ColumnResult(name = "selected", type = Boolean.class)
                         })
         }),
 })
@@ -209,11 +210,6 @@ public class ReportCustomerCarrierDto implements Serializable,Comparable<ReportC
         this.carrierName = carrierName;
         this.isLtl = isLtl;
         this.selected = selected;
-    }
-    public ReportCustomerCarrierDto( Long carrierId, String carrierName, Boolean isLtl) {
-        this.carrierId = carrierId;
-        this.carrierName = carrierName;
-        this.isLtl = isLtl;
     }
 
     public ReportCustomerCarrierDto(Long customerId, String customerName,Long parentCustomerId) {
