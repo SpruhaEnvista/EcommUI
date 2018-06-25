@@ -362,9 +362,12 @@ public class RatingQueueDAO {
             if (!ignoreRtrStatus && !isHwt) {
                 liveQuery += " AND (UPPER(ar.RTR_STATUS) = 'READYFORRATE' OR ar.RTR_STATUS IS NULL) and a.Lead_Shipment_Number is null ";
             }
+
             if (isHwt) {
-                liveQuery += " and a.Lead_Shipment_Number is not null and (a.Lead_Shipment_Number not in(select distinct Lead_Shipment_Number from SHP_AUDIT_RATE_DETAILS_TB p,shp_ebill_gff_tb q \n" +
-                        "where p.ebill_gff_id = q.ebill_gff_id and hwt_identifier is not null and q.invoice_id IN ( " + invoiceIds + "))or Lead_Shipment_Number is null)\n";
+                liveQuery += " and a.Lead_Shipment_Number is not null AND (a.ebill_gff_id,a.Lead_Shipment_Number) in(SELECT EBILL_GFF_ID,Lead_Shipment_Number FROM  shp_ebill_gff_tb " +
+                        " where invoice_id IN ( " + invoiceIds + ") MINUS SELECT a.EBILL_GFF_ID,a.hwt_identifier FROM  SHP_AUDIT_RATE_DETAILS_TB a," +
+                        " shp_ebill_gff_tb b where a.EBILL_GFF_ID = b.EBILL_GFF_ID and b.invoice_id IN ( " + invoiceIds + "))";
+
             }
 
             String archiveQuery = "";
@@ -520,8 +523,10 @@ public class RatingQueueDAO {
             }
 
             if (isHwt) {
-                liveSqlQuery += " and Ebmf.Bundle_Number is not null and (Ebmf.Bundle_Number not in(select distinct bundle_number from SHP_AUDIT_RATE_DETAILS_TB p,shp_ebill_manifest_tb q \n" +
-                        "where p.ebill_manifest_id = q.ebill_manifest_id and hwt_identifier is not null and q.invoice_id IN ( " + invoiceId + "))or bundle_number is null)\n";
+                liveSqlQuery += " and Ebmf.Bundle_Number is not null AND (Ebmf.ebill_manifest_id,Ebmf.Bundle_Number) in(SELECT ebill_manifest_id,Bundle_Number FROM  SHP_EBILL_MANIFEST_TB " +
+                        " where invoice_id IN ( " + invoiceId + ") MINUS SELECT a.ebill_manifest_id,a.hwt_identifier FROM  SHP_AUDIT_RATE_DETAILS_TB a," +
+                        " SHP_EBILL_MANIFEST_TB b where a.ebill_manifest_id = b.ebill_manifest_id and b.invoice_id IN ( " + invoiceId + "))";
+
             }
 
             String archiveQuery = liveSqlQuery.replace("SHP_EBILL_MANIFEST_TB", "ARC_EBILL_MANIFEST_TB");
