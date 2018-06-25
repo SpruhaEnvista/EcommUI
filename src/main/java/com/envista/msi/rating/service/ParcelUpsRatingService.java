@@ -217,6 +217,7 @@ public class ParcelUpsRatingService {
                 }
             }
         }catch (Exception e){
+            e.printStackTrace();
             log.error("ERROR in checkForVoidShipmentAndUpdate", e.getMessage());
         }
     }
@@ -289,7 +290,7 @@ public class ParcelUpsRatingService {
         }else{
             requestPayload = com.envista.msi.rating.util.ParcelRateRequestBuilder.buildParcelRateRequest(bean, ParcelAuditConstant.AR_RATE_REQUEST_LICENSE_KEY, beans).toXmlString();
             response = CommonUtil.connectAndGetResponseAsString(url, requestPayload);
-             if(response != null && !response.trim().isEmpty()){
+            if (response != null && !response.trim().isEmpty()) {
                 BigDecimal hwtNetAmount = null;
                 if (beans != null && beans.size() > 0) {
                     hwtNetAmount = ParcelRatingUtil.findSumOfNetAmount(parcelAuditDetails);
@@ -618,6 +619,7 @@ public class ParcelUpsRatingService {
                 if(discountCharges != null && !discountCharges.isEmpty()){
                     if(mappedDscChanges != null && !mappedDscChanges.isEmpty()){
                         Iterator<ParcelRateResponse.Charge> chargeIterator = mappedDscChanges.iterator();
+                        List<ParcelRateResponse.Charge> tempRemoveList = new ArrayList<>();
                         while(chargeIterator.hasNext()){
                             ParcelRateResponse.Charge tempCharge = chargeIterator.next();
                             for(ParcelRateResponse.Charge mappedChrg : mappedDscChanges){
@@ -626,9 +628,13 @@ public class ParcelUpsRatingService {
                                         && mappedChrg.getType().equalsIgnoreCase(tempCharge.getType())
                                         && mappedChrg.getName() != null && tempCharge.getName() != null
                                         && mappedChrg.getName().equalsIgnoreCase(tempCharge.getName())) {
-                                    chargeIterator.remove();
+                                    tempRemoveList.add(tempCharge);
                                 }
                             }
+                        }
+                        if (tempRemoveList != null && tempRemoveList.size() > 0) {
+                            mappedDscChanges.removeAll(tempRemoveList);
+                            tempRemoveList = null;
                         }
                     }
 
@@ -645,7 +651,9 @@ public class ParcelUpsRatingService {
                     new ParcelRTRDao().updateOtherDiscountShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, entityIds.toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                 }
             }
-        }catch (Exception e){}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private String updateAmountWithRTRResponseChargesForUpsCommercialAdjustment(ParcelRateResponse.PriceSheet priceSheet, List<ParcelAuditDetailsDto> parcelAuditDetails, ParcelAuditConstant.RTRStatus rtrStatus, MsiARChargeCodesDto msiARChargeCodes, ParcelAuditDetailsDto commercialAdjCharge, List<ParcelAuditDetailsDto> previousShipment) {
@@ -741,6 +749,7 @@ public class ParcelUpsRatingService {
                 if(accessorialCharges != null && !accessorialCharges.isEmpty()){
                     if(mappedAccChanges != null && !mappedAccChanges.isEmpty()){
                         Iterator<ParcelRateResponse.Charge> chargeIterator = accessorialCharges.iterator();
+                        List<ParcelRateResponse.Charge> tempRemoveList = new ArrayList<>();
                         while(chargeIterator.hasNext()){
                             ParcelRateResponse.Charge tempCharge = chargeIterator.next();
                             for(ParcelRateResponse.Charge mappedChrg : mappedAccChanges){
@@ -749,9 +758,13 @@ public class ParcelUpsRatingService {
                                         && mappedChrg.getType().equalsIgnoreCase(tempCharge.getType())
                                         && mappedChrg.getName() != null && tempCharge.getName() != null
                                         && mappedChrg.getName().equalsIgnoreCase(tempCharge.getName())) {
-                                    chargeIterator.remove();
+                                    tempRemoveList.add(tempCharge);
                                 }
                             }
+                        }
+                        if (tempRemoveList != null && tempRemoveList.size() > 0) {
+                            accessorialCharges.removeAll(tempRemoveList);
+                            tempRemoveList = null;
                         }
                     }
 
@@ -786,7 +799,9 @@ public class ParcelUpsRatingService {
                     }
                 }
             }
-        }catch (Exception e){}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         BigDecimal prevTotalRated = previousShipment != null && !previousShipment.isEmpty() ? getRatedTotalAmount(previousShipment.get(0).getParentId()) : new BigDecimal("0");
         rateDetails.setRtrAmount(totalRatedAmount.subtract(prevTotalRated));
@@ -1091,6 +1106,7 @@ public class ParcelUpsRatingService {
                 if(accessorialCharges != null && !accessorialCharges.isEmpty()){
                     if(mappedAccChanges != null && !mappedAccChanges.isEmpty()){
                         Iterator<ParcelRateResponse.Charge> chargeIterator = accessorialCharges.iterator();
+                        List<ParcelRateResponse.Charge> tempRemoveList = new ArrayList<>();
                         while(chargeIterator.hasNext()){
                             ParcelRateResponse.Charge tempCharge = chargeIterator.next();
                             for(ParcelRateResponse.Charge mappedChrg : mappedAccChanges){
@@ -1099,9 +1115,13 @@ public class ParcelUpsRatingService {
                                         && mappedChrg.getType().equalsIgnoreCase(tempCharge.getType())
                                         && mappedChrg.getName() != null && tempCharge.getName() != null
                                         && mappedChrg.getName().equalsIgnoreCase(tempCharge.getName())) {
-                                    chargeIterator.remove();
+                                    tempRemoveList.add(tempCharge);
                                 }
                             }
+                        }
+                        if (tempRemoveList != null && tempRemoveList.size() > 0) {
+                            accessorialCharges.removeAll(tempRemoveList);
+                            tempRemoveList = null;
                         }
                     }
 
@@ -1240,7 +1260,9 @@ public class ParcelUpsRatingService {
                     new DirectJDBCDAO().updateAccessorialShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, entityIds.toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                 }
             }
-        }catch (Exception e){}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public BigDecimal getRatedTotalAmount(Long parentId){

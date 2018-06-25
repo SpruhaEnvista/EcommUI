@@ -449,6 +449,7 @@ public class ParcelNonUpsRatingService {
                 if(discountCharges != null && !discountCharges.isEmpty()){
                     if(mappedDscChanges != null && !mappedDscChanges.isEmpty()){
                         Iterator<ParcelRateResponse.Charge> chargeIterator = mappedDscChanges.iterator();
+                        List<ParcelRateResponse.Charge> tempRemoveList = new ArrayList<>();
                         while(chargeIterator.hasNext()){
                             ParcelRateResponse.Charge tempCharge = chargeIterator.next();
                             for(ParcelRateResponse.Charge mappedChrg : mappedDscChanges){
@@ -457,9 +458,13 @@ public class ParcelNonUpsRatingService {
                                         && mappedChrg.getType().equalsIgnoreCase(tempCharge.getType())
                                         && mappedChrg.getName() != null && tempCharge.getName() != null
                                         && mappedChrg.getName().equalsIgnoreCase(tempCharge.getName())) {
-                                    chargeIterator.remove();
+                                    tempRemoveList.add(tempCharge);
                                 }
                             }
+                        }
+                        if (tempRemoveList != null && tempRemoveList.size() > 0) {
+                            mappedDscChanges.removeAll(tempRemoveList);
+                            tempRemoveList = null;
                         }
                     }
                     if(discountCharges.size() == 1){
@@ -475,7 +480,9 @@ public class ParcelNonUpsRatingService {
                     new DirectJDBCDAO().updateOtherDiscountShipmentRateDetails(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME, entityIds.toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                 }
             }
-        }catch (Exception e){}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void saveAccessorialForNonUps(ParcelRateResponse.PriceSheet priceSheet, List<ParcelAuditDetailsDto> parcelAuditDetails, ParcelRateDetailsDto rateDetails, List<ParcelRateResponse.Charge> mappedAccChanges) {
@@ -489,6 +496,7 @@ public class ParcelNonUpsRatingService {
                 if(accessorialCharges != null && !accessorialCharges.isEmpty()){
                     if(mappedAccChanges != null && !mappedAccChanges.isEmpty()){
                         Iterator<ParcelRateResponse.Charge> chargeIterator = accessorialCharges.iterator();
+                        List<ParcelRateResponse.Charge> tempRemoveList = new ArrayList<>();
                         while(chargeIterator.hasNext()){
                             ParcelRateResponse.Charge tempCharge = chargeIterator.next();
                             for(ParcelRateResponse.Charge mappedChrg : mappedAccChanges){
@@ -497,9 +505,13 @@ public class ParcelNonUpsRatingService {
                                         && mappedChrg.getType().equalsIgnoreCase(tempCharge.getType())
                                         && mappedChrg.getName() != null && tempCharge.getName() != null
                                         && mappedChrg.getName().equalsIgnoreCase(tempCharge.getName())) {
-                                    chargeIterator.remove();
+                                    tempRemoveList.add(tempCharge);
                                 }
                             }
+                        }
+                        if (tempRemoveList != null && tempRemoveList.size() > 0) {
+                            accessorialCharges.removeAll(tempRemoveList);
+                            tempRemoveList = null;
                         }
                     }
 
@@ -532,7 +544,9 @@ public class ParcelNonUpsRatingService {
                     new DirectJDBCDAO().updateAccessorialShipmentRateDetails(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME, entityIds.toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                 }
             }
-        }catch (Exception e){}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void saveRatingQueueBean(List<RatingQueueBean> queueBeanList) throws SQLException {
