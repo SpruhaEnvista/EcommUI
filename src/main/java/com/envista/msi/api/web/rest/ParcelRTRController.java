@@ -2,12 +2,20 @@ package com.envista.msi.api.web.rest;
 
 import com.envista.msi.api.service.rtr.ParcelRTRService;
 import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditDetailsDto;
+import com.envista.msi.api.web.rest.dto.rtr.RateSetResponse;
 import com.envista.msi.api.web.rest.response.CommonResponse;
 import com.envista.msi.api.web.rest.response.ErrorResponse;
+import org.json.JSONException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.inject.Inject;
 import java.util.HashMap;
@@ -21,6 +29,8 @@ import java.util.Map;
 @RestController
 @RequestMapping(value = "/api/parcel/rtr")
 public class ParcelRTRController {
+
+    private final Logger log = LoggerFactory.getLogger(ParcelRTRController.class);
 
     @Inject
     private ParcelRTRService parcelRTRService;
@@ -72,6 +82,17 @@ public class ParcelRTRController {
         response.setMessage(message);
         response.setData(respMap);
         return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @RequestMapping(value = "/getRateSetsByCustomer", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+    public ResponseEntity<List<RateSetResponse.RateSet>> getRateSetsByCustomer(@RequestParam("customerCode") String customerCode) throws JSONException {
+        log.info("***getRateSetsByCustomer method started****");
+
+        List<RateSetResponse.RateSet> dtos = parcelRTRService.getRateSetsByCustomer(customerCode);
+
+        log.info("***getRateSetsByCustomer json***==== " + dtos);
+
+        return new ResponseEntity<List<RateSetResponse.RateSet>>(dtos, HttpStatus.OK);
     }
 
     @ExceptionHandler({Exception.class})

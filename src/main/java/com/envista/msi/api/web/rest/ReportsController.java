@@ -4,7 +4,21 @@ import com.envista.msi.api.security.SecurityUtils;
 import com.envista.msi.api.service.ReportsService;
 import com.envista.msi.api.service.UserService;
 import com.envista.msi.api.web.rest.dto.UserProfileDto;
-import com.envista.msi.api.web.rest.dto.reports.*;
+import com.envista.msi.api.web.rest.dto.reports.ReportCodeValueDto;
+import com.envista.msi.api.web.rest.dto.reports.ReportColumnDto;
+import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
+import com.envista.msi.api.web.rest.dto.reports.ReportFTPServerDto;
+import com.envista.msi.api.web.rest.dto.reports.ReportFolderDetailsDto;
+import com.envista.msi.api.web.rest.dto.reports.ReportFolderDto;
+import com.envista.msi.api.web.rest.dto.reports.ReportFormatDto;
+import com.envista.msi.api.web.rest.dto.reports.ReportModesDto;
+import com.envista.msi.api.web.rest.dto.reports.ReportResultsDto;
+import com.envista.msi.api.web.rest.dto.reports.ReportResultsUsersListDto;
+import com.envista.msi.api.web.rest.dto.reports.ReportUserListByRptIdDto;
+import com.envista.msi.api.web.rest.dto.reports.SavedSchedReportDto;
+import com.envista.msi.api.web.rest.dto.reports.SavedSchedReportsDto;
+import com.envista.msi.api.web.rest.dto.reports.UpdateSavedSchedReportDto;
+import com.envista.msi.api.web.rest.dto.rtr.ParcelServiceLevelDto;
 import com.envista.msi.api.web.rest.response.CommonResponse;
 import com.envista.msi.api.web.rest.util.JSONUtil;
 import com.envista.msi.api.web.rest.util.WebConstants;
@@ -12,15 +26,21 @@ import com.envista.msi.api.web.rest.util.pac.GlobalConstants;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.FileCopyUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.inject.Inject;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,6 +57,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/reports")
 public class ReportsController {
+
+    private final Logger log = LoggerFactory.getLogger(ReportsController.class);
 
     @Inject
     private ReportsService reportsService;
@@ -640,4 +662,38 @@ public class ReportsController {
         response.setStatusCode(HttpStatus.OK.value());
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
+    @RequestMapping(value = "/ratecustomer", method = {RequestMethod.GET}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<JSONObject> getRateCustomerList(@RequestParam String userId) {
+        try {
+            List<ReportCustomerCarrierDto> customerList = reportsService.getRateCustomerList(Long.parseLong(userId));
+            JSONObject customerJson = new JSONObject();
+            if (customerList != null)
+                customerJson.put("ratecustomerlist", customerList);
+            return new ResponseEntity<JSONObject>(customerJson, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<JSONObject>(new JSONObject(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    @RequestMapping(value = "/getServiceLevelsByCarrier", method = {RequestMethod.GET}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<List<ParcelServiceLevelDto>> getServiceLevelsByCarrier(@RequestParam String carrierIds) {
+
+        List<ParcelServiceLevelDto> serviceList = null;
+        try {
+
+            if(carrierIds!=null && !carrierIds.isEmpty())
+                serviceList = reportsService.getRateServiceLevels(carrierIds);
+
+            return new ResponseEntity<List<ParcelServiceLevelDto>>(serviceList, HttpStatus.OK);
+
+
+        } catch (Exception e) {
+            log.error("getServiceLevelsByCarrier exception--->"+e.getMessage());
+            return new ResponseEntity<List<ParcelServiceLevelDto>>(serviceList, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
 }
