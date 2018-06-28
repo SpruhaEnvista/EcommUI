@@ -648,7 +648,10 @@ public class ParcelUpsRatingService {
                         rateDetails.setOtherDiscount2(discountCharges.get(1).getAmount());
                         rateDetails.setOtherDiscount3(discountCharges.get(2).getAmount());
                     }
-                    new ParcelRTRDao().updateOtherDiscountShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, entityIds.toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
+
+                    DirectJDBCDAO directJDBCDAO = new DirectJDBCDAO();
+                    directJDBCDAO.updateOtherDiscountShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, entityIds.toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
+                    // new ParcelRTRDao().updateOtherDiscountShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, entityIds.toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                 }
             }
         } catch (Exception e) {
