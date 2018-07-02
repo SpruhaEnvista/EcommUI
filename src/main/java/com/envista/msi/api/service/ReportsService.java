@@ -1292,4 +1292,8 @@ public class ReportsService {
     public List<ReportDto> getReportList(String rptIds){
         return reportsDao.getReportList(rptIds);
     }
+
+    public List<ReportCustomerCarrierDto> getRateCustomerList(Long userId){
+        return  reportsDao.getRateCustomerList(userId);
+    }
 }
