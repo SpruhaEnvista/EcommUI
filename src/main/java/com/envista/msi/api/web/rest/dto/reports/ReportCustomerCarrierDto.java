@@ -42,7 +42,14 @@ import java.util.TreeSet;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_user_id", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "refcur_rate_customer", type = Void.class)
                 }
-        )
+        ),
+        @NamedStoredProcedureQuery(name = "ReportCustomerCarrierDto.getRateCarriers", procedureName = "shp_rate_carrier_proc",
+                resultSetMappings = "ReportCustomerCarrierDto.RateCarriers",
+                parameters = {
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_user_id", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_customer_ids", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_rate_carrier", type = Void.class)
+                }),
 })
 @SqlResultSetMappings({
         @SqlResultSetMapping(name = "ReportCustomer", classes = {
@@ -112,10 +119,21 @@ import java.util.TreeSet;
                                         @ColumnResult(name = "customer_id", type = Long.class),
                                         @ColumnResult(name = "customer_name", type = String.class),
                                         @ColumnResult(name = "parent_customer_id", type = Long.class),
+                                        @ColumnResult(name = "customer_code", type = String.class)
                                 }
                         )
                 }
-        )
+        ),
+        @SqlResultSetMapping(name = "ReportCustomerCarrierDto.RateCarriers", classes = {
+                @ConstructorResult(
+                        targetClass = ReportCustomerCarrierDto.class,
+                        columns = {
+                                @ColumnResult(name = "carrier_id", type = Long.class),
+                                @ColumnResult(name = "carrier_name", type = String.class),
+                                @ColumnResult(name = "is_ltl", type = Boolean.class),
+                                @ColumnResult(name = "selected", type = Boolean.class)
+                        })
+        }),
 })
 
 @Entity
@@ -182,6 +200,9 @@ public class ReportCustomerCarrierDto implements Serializable,Comparable<ReportC
     @Column(name = "currency_id")
     private String currencyId;
 
+    @Column(name = "customer_code")
+    private String customerCode;
+
     private TreeSet<ReportCustomerCarrierDto> collection = new TreeSet<ReportCustomerCarrierDto>();
 
     public ReportCustomerCarrierDto() { }
@@ -194,10 +215,11 @@ public class ReportCustomerCarrierDto implements Serializable,Comparable<ReportC
         this.isLtl = isLtl;
         this.selected = selected;
     }
-    public ReportCustomerCarrierDto(Long customerId, String customerName,Long parentCustomerId) {
+    public ReportCustomerCarrierDto(Long customerId, String customerName,Long parentCustomerId, String customerCode) {
         this.customerId = customerId;
         this.customerName = customerName;
         this.parentCustomerId = parentCustomerId;
+        this.customerCode = customerCode;
     }
 
     public ReportCustomerCarrierDto(Long customerId, String customerName, String customerCarrierId, Boolean isChild, Long parentCustomerId, String parentCustomerName, Long shipperId, String shipCodeName, Long shipperGroupId, Boolean paidCust, String shipperGroupName, Boolean selected) {
@@ -368,6 +390,14 @@ public class ReportCustomerCarrierDto implements Serializable,Comparable<ReportC
 
     public void setCurrencyId(String currencyId) {
         this.currencyId = currencyId;
+    }
+
+    public String getCustomerCode() {
+        return customerCode;
+    }
+
+    public void setCustomerCode(String customerCode) {
+        this.customerCode = customerCode;
     }
 
     @Override
