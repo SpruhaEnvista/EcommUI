@@ -87,6 +87,8 @@ public class ParcelAuditConstant {
     public static final String RATE_JOB_ID_SEQUENCE_NAME = "SHP_RATING_JOB_S";
     public static final String RATE_JOB_ID_SEQUENCE_VALUE = "SHP_RATING_JOB_S.NEXTVAL";
 
+    public static final String AR_RATE_SET_REQUEST_URI_PATH = "ws/freight/v1/ratesets?license=";
+
     public enum ParcelRatingQueueRateStatus {
         READY_FOR_RATE(0),
         DONE(1),
