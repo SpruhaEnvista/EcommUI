@@ -2,22 +2,22 @@ package com.envista.msi.api.web.rest;
 
 import com.envista.msi.api.service.RatingService;
 import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
+import com.envista.msi.api.web.rest.dto.rtr.StoreRatingDetailsDto;
 import com.envista.msi.api.web.rest.util.JSONUtil;
+import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 
 import javax.inject.Inject;
 import java.util.List;
 
 /*
-* Created by Srikanth Punna on 06/19/2018
-* */
+ * Created by Srikanth Punna on 06/19/2018
+ * */
 
 @RestController
 @RequestMapping("/api/rates")
@@ -26,16 +26,40 @@ public class RatingController {
     @Inject
     private RatingService ratingService;
 
-    @RequestMapping(value="/carrierlist", method={RequestMethod.GET}, produces={MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<JSONObject> getRateCarriersList(@RequestParam String userId, @RequestParam String customerIds){
-        try{
+    @RequestMapping(value = "/carrierlist", method = {RequestMethod.GET}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<JSONObject> getRateCarriersList(@RequestParam String userId, @RequestParam String customerIds) {
+        try {
             List<ReportCustomerCarrierDto> carriersList = ratingService.getRateCarrierList(Long.parseLong(userId), customerIds);
             JSONObject carrierJSON = new JSONObject();
-            if(carriersList != null)
+            if (carriersList != null)
                 carrierJSON.put("rateCarriersList", JSONUtil.carriersJson(carriersList));
             return new ResponseEntity<JSONObject>(carrierJSON, HttpStatus.OK);
-        }catch (Exception e){
+        } catch (Exception e) {
             return new ResponseEntity<JSONObject>(new JSONObject(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @RequestMapping(value = "/storeRatingDetailsList", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE}, consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<List<StoreRatingDetailsDto>> storeRatingDetailsList(@RequestBody StoreRatingDetailsDto storeRatingDetailsDto) {
+        List<StoreRatingDetailsDto> ratingDetailsList = null;
+        try {
+            if(storeRatingDetailsDto != null){
+                storeRatingDetailsDto.setStatus(ParcelAuditConstant.ParcelRatingInputProcessStatus.NEW.value);
+                //storeRatingDetailsDto.setUs//ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME;
+
+                storeRatingDetailsDto.setCreateUser(ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME);
+
+
+            }
+            if (storeRatingDetailsDto != null & storeRatingDetailsDto.getRateSet() != null)
+
+                ratingDetailsList = ratingService.saveRatingDetailsList(storeRatingDetailsDto);
+            return new ResponseEntity<List<StoreRatingDetailsDto>>(ratingDetailsList, HttpStatus.OK);
+        } catch (Exception e) {
+
+            return new ResponseEntity<List<StoreRatingDetailsDto>>(ratingDetailsList, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
 }
