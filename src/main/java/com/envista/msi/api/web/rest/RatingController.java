@@ -2,7 +2,9 @@ package com.envista.msi.api.web.rest;
 
 import com.envista.msi.api.service.RatingService;
 import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
+import com.envista.msi.api.web.rest.dto.rtr.EventLogDto;
 import com.envista.msi.api.web.rest.util.JSONUtil;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,8 +18,8 @@ import javax.inject.Inject;
 import java.util.List;
 
 /*
-* Created by Srikanth Punna on 06/19/2018
-* */
+ * Created by Srikanth Punna on 06/19/2018
+ * */
 
 @RestController
 @RequestMapping("/api/rates")
@@ -26,16 +28,31 @@ public class RatingController {
     @Inject
     private RatingService ratingService;
 
-    @RequestMapping(value="/carrierlist", method={RequestMethod.GET}, produces={MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<JSONObject> getRateCarriersList(@RequestParam String userId, @RequestParam String customerIds){
-        try{
+    @RequestMapping(value = "/carrierlist", method = {RequestMethod.GET}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<JSONObject> getRateCarriersList(@RequestParam String userId, @RequestParam String customerIds) {
+        try {
             List<ReportCustomerCarrierDto> carriersList = ratingService.getRateCarrierList(Long.parseLong(userId), customerIds);
             JSONObject carrierJSON = new JSONObject();
-            if(carriersList != null)
+            if (carriersList != null)
                 carrierJSON.put("rateCarriersList", JSONUtil.carriersJson(carriersList));
             return new ResponseEntity<JSONObject>(carrierJSON, HttpStatus.OK);
-        }catch (Exception e){
+        } catch (Exception e) {
             return new ResponseEntity<JSONObject>(new JSONObject(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @RequestMapping(value = "/getEventLog", method = {RequestMethod.GET}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<JSONObject> getEventLog(@RequestParam Long jobId) {
+
+        try {
+            List<EventLogDto> eventLogList = ratingService.getEventLog(jobId);
+            JSONObject eventLogJson = new JSONObject();
+            if (eventLogList != null)
+                eventLogJson.put("eventLogs", new JSONArray(eventLogList));
+            return new ResponseEntity<JSONObject>(eventLogJson, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<JSONObject>(new JSONObject(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 }
