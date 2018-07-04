@@ -581,6 +581,9 @@ public class DirectJDBCDAO {
                 inputCriteria.setStatus(rs.getString("STATUS"));
                 inputCriteria.setTaskId(rs.getLong("TASK_ID"));
                 inputCriteria.setRateSetName(rs.getString("RATE_SET"));
+                inputCriteria.setThresholdType(rs.getString("THRESHOLD_TYPE"));
+                inputCriteria.setThresholdValue(rs.getString("THRESHOLD_VALUE"));
+                inputCriteria.setServiceLevel(rs.getString("SERVICE_LEVELS_ID"));
             }
         } catch (Exception e) {
             throw new DaoException("getRatingInputCriteria", e);

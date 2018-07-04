@@ -118,6 +118,9 @@ public class ParcelRatingQueueJob {
                     ratingInputCriteriaBean.setTrackingNumbers(trackingNumbers);
                     ratingInputCriteriaBean.setInvoiceIds(invoiceIds);
                     ratingInputCriteriaBean.setRateTo(rateTo);
+                    ratingInputCriteriaBean.setThresholdValue(ratingInputCriteria.getThresholdValue());
+                    ratingInputCriteriaBean.setThresholdType(ratingInputCriteria.getThresholdType());
+                    ratingInputCriteriaBean.setServiceLevel(ratingInputCriteria.getServiceLevel());
                     ParcelRatingQueueJob.getInstance().processShipments(ratingInputCriteriaBean, false);
                     ParcelRatingQueueJob.getInstance().processShipments(ratingInputCriteriaBean, true);
 
@@ -302,7 +305,7 @@ public class ParcelRatingQueueJob {
                 }
             }
 
-            addMwtOrHwtShipmentEntryIntoQueue(hwtDetailsMap, allMappedARChargeCodes, "ups", ratingInputCriteriaBean.getRateSetName());
+            addMwtOrHwtShipmentEntryIntoQueue(hwtDetailsMap, allMappedARChargeCodes, "ups", ratingInputCriteriaBean.getRateSetName(),ratingInputCriteriaBean);
 
         }
     }
@@ -349,7 +352,7 @@ public class ParcelRatingQueueJob {
                     entryIterator.remove();
                 }
             }
-            addMwtOrHwtShipmentEntryIntoQueue(mwtDetailsMap, msiARChargeCode, "fedex", ratingInputCriteriaBean.getRateSetName());
+            addMwtOrHwtShipmentEntryIntoQueue(mwtDetailsMap, msiARChargeCode, "fedex", ratingInputCriteriaBean.getRateSetName(),ratingInputCriteriaBean);
         }
     }
 
@@ -359,6 +362,9 @@ public class ParcelRatingQueueJob {
                 RatingQueueBean ratingQueueBean = ParcelRatingUtil.prepareShipmentEntryForNonUpsShipment(shipmentsWithPrevFrt, msiARChargeCode, ratingInputCriteriaBean.getRateSetName());
                 if(ratingQueueBean != null){
                     ratingQueueBean.setTaskId(ratingInputCriteriaBean.getTaskId());
+                    ratingQueueBean.setThresholdValue(ratingInputCriteriaBean.getThresholdValue());
+                    ratingQueueBean.setThresholdType(ratingInputCriteriaBean.getThresholdType());
+                    ratingQueueBean.setServiceLevel(ratingInputCriteriaBean.getServiceLevel());
                     parcelRatingService.saveRatingQueueBean(ratingQueueBean);
                 }
             } catch (Exception e){
@@ -373,6 +379,9 @@ public class ParcelRatingQueueJob {
                 RatingQueueBean ratingQueueBean = ParcelRatingUtil.prepareShipmentEntryForUpsShipment(shipmentsWithPrevFrt, msiARChargeCode, ratingInputCriteriaBean.getRateSetName());
                 if(ratingQueueBean != null){
                     ratingQueueBean.setTaskId(ratingInputCriteriaBean.getTaskId());
+                    ratingQueueBean.setThresholdValue(ratingInputCriteriaBean.getThresholdValue());
+                    ratingQueueBean.setThresholdType(ratingInputCriteriaBean.getThresholdType());
+                    ratingQueueBean.setServiceLevel(ratingInputCriteriaBean.getServiceLevel());
                     parcelRatingService.saveRatingQueueBean(ratingQueueBean);
                 }
             }catch (Exception e) {
@@ -382,7 +391,7 @@ public class ParcelRatingQueueJob {
     }
 
 
-    private void addMwtOrHwtShipmentEntryIntoQueue(Map<String, List<ParcelAuditDetailsDto>> mwtDetailsMap, MsiARChargeCodesDto msiARChargeCode, String rateTo, String rateSet) throws SQLException {
+    private void addMwtOrHwtShipmentEntryIntoQueue(Map<String, List<ParcelAuditDetailsDto>> mwtDetailsMap, MsiARChargeCodesDto msiARChargeCode, String rateTo, String rateSet,ParcelRatingInputCriteriaBean ratingInputCriteriaBean) throws SQLException {
 
         List<RatingQueueBean> queueBeanList = null;
         for (Map.Entry<String, List<ParcelAuditDetailsDto>> entry : mwtDetailsMap.entrySet()) {
@@ -401,6 +410,10 @@ public class ParcelRatingQueueJob {
                 if (queueBeanList == null)
                     queueBeanList = new ArrayList<RatingQueueBean>();
 
+                ratingQueueBean.setTaskId(ratingInputCriteriaBean.getTaskId());
+                ratingQueueBean.setThresholdValue(ratingInputCriteriaBean.getThresholdValue());
+                ratingQueueBean.setThresholdType(ratingInputCriteriaBean.getThresholdType());
+                ratingQueueBean.setServiceLevel(ratingInputCriteriaBean.getServiceLevel());
                 queueBeanList.add(ratingQueueBean);
             }
             if (queueBeanList != null && queueBeanList.size() > 0) {
