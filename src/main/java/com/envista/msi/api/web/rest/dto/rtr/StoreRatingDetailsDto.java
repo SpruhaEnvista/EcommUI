@@ -9,22 +9,22 @@ import java.io.Serializable;
         @NamedStoredProcedureQuery(name = "StoreRatingDetailsDto.saveRatingDetailsList", procedureName = "shp_store_rating_details_proc",
                 resultClasses = StoreRatingDetailsDto.class,
                 parameters = {
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_customer_id", type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_carrier_id", type = Long.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_from_invoice_date", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_to_invoice_date", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_from_ship_date", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_to_ship_date", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_rate_set", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_service_levels_id", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_invoice_rate", type = Boolean.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_flagged_shipments", type = Boolean.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_threshold_value", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_threshold_type", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_rate", type = Boolean.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_info_lookup", type = Boolean.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_user_name", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_status", type = String.class)
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "customer_id", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "carrier_id", type = Long.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "from_invoice_date", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "to_invoice_date", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "from_ship_date", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "to_ship_date", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "rate_set", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "service_levels_id", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "invoice_rate", type = Boolean.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "flagged_shipments", type = Boolean.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "threshold_value", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "threshold_type", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "rate", type = Boolean.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "info_lookup", type = Boolean.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "user_name", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "status", type = String.class)
 
                 })
 })
@@ -37,53 +37,53 @@ public class StoreRatingDetailsDto implements Serializable {
     //@Column(name="PARCEL_RATING_INPUT_ID")
     private Long jobId;
 
-    @Column(name = "p_customer_id")
+    @Column(name = "customer_id")
     private Long customerId;
 
-    @Column(name = "p_carrier_id")
+    @Column(name = "carrier_id")
     private Long carrierIds;
 
-    @Column(name = "p_from_invoice_date")
+    @Column(name = "from_invoice_date")
     private String fromInvoiceDate;
 
     @Column(name = "p_to_invoice_date")
     private String toInvoiceDate;
 
-    @Column(name = "p_from_ship_date")
+    @Column(name = "from_ship_date")
     private String fromShipDate;
 
-    @Column(name="p_to_ship_date")
+    @Column(name="to_ship_date")
     private String toShipDate;
 
-    @Column(name="p_rate_set")
+    @Column(name="rate_set")
     private String rateSet;
 
-    @Column(name="p_service_levels_id")
+    @Column(name="service_levels_id")
     private String serviceLevelsId;
 
 
-    @Column(name="p_invoice_rate")
+    @Column(name="invoice_rate")
     private boolean invoiceRate =false;
 
-    @Column(name="p_flagged_shipments")
+    @Column(name="flagged_shipments")
     private boolean flaggedShipments =false;
 
-    @Column(name="p_threshold_value")
+    @Column(name="threshold_value")
     private String thresholdValue;
 
-    @Column(name="p_threshold_type")
+    @Column(name="threshold_type")
     private String thresholdType;
 
-    @Column(name="p_rate")
+    @Column(name="rate")
     private boolean rate =false;
 
-    @Column(name="p_info_lookup")
+    @Column(name="info_lookup")
     private boolean infoLookUp =false;
 
-    @Column(name="p_status")
+    @Column(name="status")
     private String status;
 
-    @Column(name="p_user_name")
+    @Column(name="user_name")
     private String createUser;
 
 
