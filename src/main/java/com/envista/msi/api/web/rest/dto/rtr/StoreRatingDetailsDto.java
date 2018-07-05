@@ -46,7 +46,7 @@ public class StoreRatingDetailsDto implements Serializable {
     @Column(name = "from_invoice_date")
     private String fromInvoiceDate;
 
-    @Column(name = "p_to_invoice_date")
+    @Column(name = "to_invoice_date")
     private String toInvoiceDate;
 
     @Column(name = "from_ship_date")
