@@ -11,7 +11,7 @@ import javax.persistence.StoredProcedureParameter;
 import java.io.Serializable;
 
 @NamedStoredProcedureQueries({
-        @NamedStoredProcedureQuery(name = "ParcelServiceLevelDto.getService",procedureName = "shp_rate_servic_by_crrer_proc",
+        @NamedStoredProcedureQuery(name = "ParcelServiceLevelDto.getService",procedureName = "shp_rate_service_by_carrier",
                 resultClasses = ParcelServiceLevelDto.class,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_carrier_id", type = String.class),
