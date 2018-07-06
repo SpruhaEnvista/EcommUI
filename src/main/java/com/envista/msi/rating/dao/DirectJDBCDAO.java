@@ -480,7 +480,7 @@ public class DirectJDBCDAO {
         }
     }
 
-    public List<Long> loadInvoiceIds(String fromDate, String toDate, String customerId, String invoiceIds, int limit, String rateTo){
+    public List<Long> loadInvoiceIds(String fromDate, String toDate, String customerId, String invoiceIds, int limit, String rateTo,String serviceLevelIds){
         System.out.println("Loading Invoices");
         Connection conn = null;
         PreparedStatement ps = null;
@@ -500,6 +500,11 @@ public class DirectJDBCDAO {
                     liveSqlQuery += " WHERE inv_contract_number IN (SELECT contract_number FROM SHP_EBILL_CONTRACT_TB ";
                     liveSqlQuery += " WHERE customer_id in (" + customerId + ") and carrier_id = 21) and inv_carrier_id = 21) ";
                     liveSqlQuery += " and trunc(pickup_date) between TRUNC(TO_DATE('"+ fromDate +"', 'DD-MON-YYYY')) AND TRUNC(TO_DATE('"+ toDate +"', 'DD-MON-YYYY')) ";
+
+                    if( serviceLevelIds != null && !"-1".equalsIgnoreCase(serviceLevelIds) ) {
+
+                        liveSqlQuery += " and ( SERVICE_BUCKET in ("+serviceLevelIds+") OR  ACTUAL_SERVICE_BUCKET in ("+serviceLevelIds+") ) ";
+                    }
                 }
 
                 if(limit > 0) {
@@ -521,6 +526,11 @@ public class DirectJDBCDAO {
                     liveSqlQuery += " WHERE inv_contract_number IN (SELECT contract_number FROM SHP_EBILL_CONTRACT_TB ";
                     liveSqlQuery += " WHERE customer_id IN ("  + customerId + ") and carrier_id = 22) and inv_carrier_id = 22) ";
                     liveSqlQuery += " and trunc(pickup_date) between TRUNC(TO_DATE('"+ fromDate +"', 'DD-MON-YYYY')) AND TRUNC(TO_DATE('"+ toDate +"', 'DD-MON-YYYY')) ";
+
+                    if( serviceLevelIds != null && !"-1".equalsIgnoreCase(serviceLevelIds) ) {
+
+                        liveSqlQuery += " and ( SERVICE_BUCKET in ("+serviceLevelIds+") OR  ACTUAL_SERVICE_BUCKET in ("+serviceLevelIds+") ) ";
+                    }
 
                     if(limit > 0) {
                         liveSqlQuery += " AND ROWNUM <= " + limit;
