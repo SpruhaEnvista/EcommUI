@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -61,5 +62,14 @@ public class RatingController {
         }
     }
 
+    @RequestMapping(value="/ratingJobs/getJobsByCustomer", method={RequestMethod.GET}, produces={MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<List<StoreRatingDetailsDto>> getJobsByCustomer(@RequestParam String customerId){
+        try{
+            List<StoreRatingDetailsDto> customerRatingJobsList = ratingService.getRatingJobsList(Long.parseLong(customerId));
+            return new ResponseEntity<List<StoreRatingDetailsDto>>(customerRatingJobsList, HttpStatus.OK);
+        }catch (Exception e){
+            return new ResponseEntity<List<StoreRatingDetailsDto>>(new ArrayList<StoreRatingDetailsDto>(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
 }

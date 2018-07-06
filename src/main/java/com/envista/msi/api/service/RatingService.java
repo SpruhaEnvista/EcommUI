@@ -20,4 +20,8 @@ public class RatingService {
     public List<StoreRatingDetailsDto> saveRatingDetailsList(StoreRatingDetailsDto storeRatingDetailsDto){
         return ratingDao.saveRatingDetailsList(storeRatingDetailsDto);
     }
+
+    public List<StoreRatingDetailsDto>  getRatingJobsList(Long customerId){
+        return ratingDao.getRatingJobsList(customerId);
+    }
 }
