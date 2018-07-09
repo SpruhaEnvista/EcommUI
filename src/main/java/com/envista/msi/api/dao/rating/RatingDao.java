@@ -18,7 +18,7 @@ public class RatingDao {
     private PersistentContext persistentContext;
 
     public List<ReportCustomerCarrierDto> getRateCarrierList(Long userId, String customerIds){
-        QueryParameter queryParameter = StoredProcedureParameter.with("user_id", userId).and("customer_ids", customerIds);
+        QueryParameter queryParameter = StoredProcedureParameter.with("p_user_id", userId).and("p_customer_ids", customerIds);
         return persistentContext.findEntities("ReportCustomerCarrierDto.getRateCarriers", queryParameter);
     }
 
