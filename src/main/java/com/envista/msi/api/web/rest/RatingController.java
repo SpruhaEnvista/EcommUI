@@ -3,16 +3,16 @@ package com.envista.msi.api.web.rest;
 import com.envista.msi.api.service.RatingService;
 import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
 import com.envista.msi.api.web.rest.dto.rtr.EventLogDto;
+import com.envista.msi.api.web.rest.dto.rtr.StoreRatingDetailsDto;
 import com.envista.msi.api.web.rest.util.JSONUtil;
 import org.json.JSONArray;
+import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 
 import javax.inject.Inject;
 import java.util.List;
@@ -55,4 +55,28 @@ public class RatingController {
         }
 
     }
+
+    @RequestMapping(value = "/storeRatingDetailsList", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE}, consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<List<StoreRatingDetailsDto>> storeRatingDetailsList(@RequestBody StoreRatingDetailsDto storeRatingDetailsDto) {
+        List<StoreRatingDetailsDto> ratingDetailsList = null;
+        try {
+            if(storeRatingDetailsDto != null){
+                storeRatingDetailsDto.setStatus(ParcelAuditConstant.ParcelRatingInputProcessStatus.NEW.value);
+                //storeRatingDetailsDto.setUs//ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME;
+
+                storeRatingDetailsDto.setCreateUser(ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME);
+
+
+            }
+            if (storeRatingDetailsDto != null & storeRatingDetailsDto.getRateSet() != null)
+
+                ratingDetailsList = ratingService.saveRatingDetailsList(storeRatingDetailsDto);
+            return new ResponseEntity<List<StoreRatingDetailsDto>>(ratingDetailsList, HttpStatus.OK);
+        } catch (Exception e) {
+
+            return new ResponseEntity<List<StoreRatingDetailsDto>>(ratingDetailsList, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
 }

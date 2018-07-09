@@ -11,7 +11,7 @@ import javax.persistence.StoredProcedureParameter;
 import java.io.Serializable;
 
 @NamedStoredProcedureQueries({
-        @NamedStoredProcedureQuery(name = "ParcelServiceLevelDto.getService",procedureName = "shp_rate_servic_by_crrer_proc",
+        @NamedStoredProcedureQuery(name = "ParcelServiceLevelDto.getService",procedureName = "shp_rate_service_by_carrier",
                 resultClasses = ParcelServiceLevelDto.class,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_carrier_id", type = String.class),
@@ -22,40 +22,39 @@ import java.io.Serializable;
 @Entity
 public class ParcelServiceLevelDto implements Serializable {
     @Id
-    @Column(name="TRANSIT_TIME_ID")
-    private Long id;
+    @Column(name="lookup_id")
+    private Long lookUpId;
 
-    @Column(name="RTR_SERVICE_CODE")
-    private String rtrServiceCode;
+    @Column(name="lookup_code")
+    private String lookupCode;
 
-    @Column(name="SERVICE_DESC")
-    private String serviceDesc;
+    @Column(name="custom_defined_9")
+    private String customDefined9;
 
     public ParcelServiceLevelDto() {
     }
 
-
-    public Long getId() {
-        return id;
+    public Long getLookUpId() {
+        return lookUpId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setLookUpId(Long lookUpId) {
+        this.lookUpId = lookUpId;
     }
 
-    public String getRtrServiceCode() {
-        return rtrServiceCode;
+    public String getLookupCode() {
+        return lookupCode;
     }
 
-    public void setRtrServiceCode(String rtrServiceCode) {
-        this.rtrServiceCode = rtrServiceCode;
+    public void setLookupCode(String lookupCode) {
+        this.lookupCode = lookupCode;
     }
 
-    public String getServiceDesc() {
-        return serviceDesc;
+    public String getCustomDefined9() {
+        return customDefined9;
     }
 
-    public void setServiceDesc(String serviceDesc) {
-        this.serviceDesc = serviceDesc;
+    public void setCustomDefined9(String customDefined9) {
+        this.customDefined9 = customDefined9;
     }
 }
