@@ -1,6 +1,10 @@
 package com.envista.msi.rating.dao;
 
-import com.envista.msi.api.web.rest.dto.rtr.*;
+import com.envista.msi.api.web.rest.dto.rtr.StoreRatingDetailsDto;
+import com.envista.msi.api.web.rest.dto.rtr.ParcelRateDetailsDto;
+import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditRequestResponseLog;
+import com.envista.msi.api.web.rest.dto.rtr.RatedChargeDetailsDto;
+import com.envista.msi.api.web.rest.dto.rtr.ParcelARChargeCodeMappingDto;
 import com.envista.msi.rating.ServiceLocator;
 import com.envista.msi.rating.ServiceLocatorException;
 import com.envista.msi.rating.entity.ParcelRatingInputCriteriaDto;
@@ -9,7 +13,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.CallableStatement;
 import java.util.ArrayList;
 import java.util.List;
 
