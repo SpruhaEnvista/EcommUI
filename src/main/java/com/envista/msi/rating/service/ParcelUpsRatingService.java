@@ -260,7 +260,7 @@ public class ParcelUpsRatingService {
                         }
 
                         directJDBCDAO.saveParcelAuditRequestAndResponseLog(ParcelRatingUtil.prepareRequestResponseLog(requestPayload, response, commercialCharge.getParentId(), ParcelAuditConstant.EBILL_GFF_TABLE_NAME));
-                        status = updateRateForUps(ParcelRateResponseParser.parse(response), commercialShipment, msiARChargeCode, commercialCharge, previousShipment, null,( beans != null && beans.size() > 0 ? beans.get(0) : null));
+                        status = updateRateForUps(ParcelRateResponseParser.parse(response), commercialShipment, msiARChargeCode, commercialCharge, previousShipment, null,( beans != null && beans.size() > 0 ? beans.get(0) : bean));
                     }
                 } else if(ParcelAuditConstant.RESIDENTIAL_ADJUSTMENT_CHARGE_TYPE.equalsIgnoreCase(commercialCharge.getChargeDescription())){
                     List<ParcelAuditDetailsDto> residentialShipment = new ArrayList<>();
@@ -283,7 +283,7 @@ public class ParcelUpsRatingService {
                         }
 
                         directJDBCDAO.saveParcelAuditRequestAndResponseLog(ParcelRatingUtil.prepareRequestResponseLog(requestPayload, response, commercialCharge.getParentId(), ParcelAuditConstant.EBILL_GFF_TABLE_NAME));
-                        status = updateRateForUps(ParcelRateResponseParser.parse(response), residentialShipment, msiARChargeCode, commercialCharge, previousShipment, null,( beans != null && beans.size() > 0 ? beans.get(0) : null));
+                        status = updateRateForUps(ParcelRateResponseParser.parse(response), residentialShipment, msiARChargeCode, commercialCharge, previousShipment, null,( beans != null && beans.size() > 0 ? beans.get(0) : bean));
                     }
                 }
             }
@@ -299,7 +299,7 @@ public class ParcelUpsRatingService {
                 }
 
                 directJDBCDAO.saveParcelAuditRequestAndResponseLog(ParcelRatingUtil.prepareRequestResponseLog(requestPayload, response, parcelAuditDetails.get(0).getParentId(), ParcelAuditConstant.EBILL_GFF_TABLE_NAME));
-                status = updateRateForUps(ParcelRateResponseParser.parse(response), parcelAuditDetails, msiARChargeCode, previousShipment, hwtNetAmount,( beans != null && beans.size() > 0 ? beans.get(0) : null));
+                status = updateRateForUps(ParcelRateResponseParser.parse(response), parcelAuditDetails, msiARChargeCode, previousShipment, hwtNetAmount,( beans != null && beans.size() > 0 ? beans.get(0) : bean));
             }
         }
 
