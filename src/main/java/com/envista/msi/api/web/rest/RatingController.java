@@ -2,8 +2,10 @@ package com.envista.msi.api.web.rest;
 
 import com.envista.msi.api.service.RatingService;
 import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
+import com.envista.msi.api.web.rest.dto.rtr.EventLogDto;
 import com.envista.msi.api.web.rest.dto.rtr.StoreRatingDetailsDto;
 import com.envista.msi.api.web.rest.util.JSONUtil;
+import org.json.JSONArray;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
@@ -37,6 +39,21 @@ public class RatingController {
         } catch (Exception e) {
             return new ResponseEntity<JSONObject>(new JSONObject(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @RequestMapping(value = "/getEventLog", method = {RequestMethod.GET}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<JSONObject> getEventLog(@RequestParam Long jobId) {
+
+        try {
+            List<EventLogDto> eventLogList = ratingService.getEventLog(jobId);
+            JSONObject eventLogJson = new JSONObject();
+            if (eventLogList != null)
+                eventLogJson.put("eventLogs", new JSONArray(eventLogList));
+            return new ResponseEntity<JSONObject>(eventLogJson, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<JSONObject>(new JSONObject(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 
     @RequestMapping(value = "/storeRatingDetailsList", method = {RequestMethod.POST, RequestMethod.OPTIONS}, produces = {MediaType.APPLICATION_JSON_VALUE}, consumes = {MediaType.APPLICATION_JSON_VALUE})
