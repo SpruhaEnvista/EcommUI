@@ -189,7 +189,7 @@ public class DirectJDBCDAO {
         CallableStatement cstmt = null;
         try{
             conn = ServiceLocator.getDatabaseConnection();
-            cstmt = conn.prepareCall("{ call SHP_SAVE_RATE_DETAILS_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
+            cstmt = conn.prepareCall("{ call SHP_SAVE_RATE_DETAILS_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
             cstmt.setString(1,referenceTableName);
             cstmt.setString(2, entityId);
             cstmt.setString(3,userName);
@@ -211,6 +211,7 @@ public class DirectJDBCDAO {
             cstmt.setString(19, rateDetails != null && rateDetails.getRtrStatus() != null ? rateDetails.getRtrStatus() : "");
             cstmt.setString(20, rateDetails != null && rateDetails.getHwtIdentifier() != null ? rateDetails.getHwtIdentifier() : null);
             cstmt.setString(21, rateDetails != null && rateDetails.getRateSetName() != null ? rateDetails.getRateSetName() : null);
+            cstmt.setString(22, "0");
             cstmt.executeUpdate();
 
         }catch (SQLException sqle) {;
@@ -235,7 +236,7 @@ public class DirectJDBCDAO {
         CallableStatement cstmt =null;
         try{
             conn = ServiceLocator.getDatabaseConnection();
-            cstmt = conn.prepareCall("{ call SHP_UPDATE_OTHER_DSC_PROC(?,?,?,?,?,?,?,?)}");
+            cstmt = conn.prepareCall("{ call SHP_UPDATE_OTHER_DSC_PROC(?,?,?,?,?,?,?,?,?)}");
             cstmt.setString(1, referenceTableName);
             cstmt.setString(2, entityIds);
             cstmt.setString(3, userName);
@@ -244,6 +245,7 @@ public class DirectJDBCDAO {
             cstmt.setBigDecimal(6, rateDetails != null && rateDetails.getOtherDiscount1() != null ? rateDetails.getOtherDiscount1() : new BigDecimal("0"));
             cstmt.setBigDecimal(7, rateDetails != null && rateDetails.getOtherDiscount2() != null ? rateDetails.getOtherDiscount2() : new BigDecimal("0"));
             cstmt.setBigDecimal(8, rateDetails != null && rateDetails.getOtherDiscount3() != null ? rateDetails.getOtherDiscount3() : new BigDecimal("0"));
+            cstmt.setString(9, "0");
             cstmt.executeUpdate();
         }catch (SQLException sqle) {
             throw new DaoException("Exception in updateOtherDiscountShipmentRateDetails", sqle);
@@ -269,7 +271,7 @@ public class DirectJDBCDAO {
         CallableStatement cstmt =null;
         try{
             conn = ServiceLocator.getDatabaseConnection();
-            cstmt = conn.prepareCall("{ call SHP_RATE_UPDATE_ACC_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?)}");
+            cstmt = conn.prepareCall("{ call SHP_RATE_UPDATE_ACC_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
             cstmt.setString(1, referenceTableName);
             cstmt.setString(2, entityIds);
             cstmt.setString(3, userName);
@@ -283,6 +285,7 @@ public class DirectJDBCDAO {
             cstmt.setString(11, rateDetails != null && rateDetails.getAccessorial2Code() != null ? rateDetails.getAccessorial2Code() : null);
             cstmt.setString(12, rateDetails != null && rateDetails.getAccessorial3Code() != null ? rateDetails.getAccessorial3Code() : null);
             cstmt.setString(13, rateDetails != null && rateDetails.getAccessorial4Code() != null ? rateDetails.getAccessorial4Code() : null);
+            cstmt.setString(14, "0");
             cstmt.executeUpdate();
         }catch (SQLException sqle) {
             sqle.printStackTrace();
@@ -429,7 +432,7 @@ public class DirectJDBCDAO {
         CallableStatement cstmt =null;
         try{
             conn = ServiceLocator.getDatabaseConnection();
-            cstmt = conn.prepareCall("{ call SHP_SAVE_ALL_RATE_DETAILS_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
+            cstmt = conn.prepareCall("{ call SHP_SAVE_ALL_RATE_DETAILS_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
             cstmt.setString(1,referenceTableName);
             cstmt.setString(2,entityIds);
             cstmt.setString(3,userName);
@@ -459,6 +462,7 @@ public class DirectJDBCDAO {
             cstmt.setString(27, rateDetails != null && rateDetails.getAccessorial4Code() != null ? rateDetails.getAccessorial4Code() : "");
             cstmt.setBigDecimal(28, rateDetails != null && rateDetails.getRtrAmount() != null ? rateDetails.getRtrAmount() : new BigDecimal("0"));
             cstmt.setString(29, rateDetails != null && rateDetails.getRtrStatus() != null ? rateDetails.getRtrStatus() : "");
+            cstmt.setString(30, "0");
             cstmt.executeUpdate();
 
         }catch (SQLException sqle) {
@@ -640,9 +644,9 @@ public class DirectJDBCDAO {
         PreparedStatement pstmt = null;
         String selectQueryStr = "";
         if("SHP_EBILL_MANIFEST_TB".equalsIgnoreCase(tableName)){
-            selectQueryStr = "UPDATE shp_audit_rate_details_tb SET IS_VOID_SHIPMENT = ? WHERE EBILL_MANIFEST_ID IN (" + entityIds + ")";
+            selectQueryStr = "UPDATE SHP_EBILL_FEDEX_RATES_TB SET IS_VOID_SHIPMENT = ? WHERE EBILL_MANIFEST_ID IN (" + entityIds + ")";
         } else if("SHP_EBILL_GFF_TB".equalsIgnoreCase(tableName)) {
-            selectQueryStr = "UPDATE shp_audit_rate_details_tb SET IS_VOID_SHIPMENT = ? WHERE EBILL_GFF_ID IN (" + entityIds + ")";
+            selectQueryStr = "UPDATE SHP_EBILL_UPS_RATES_TB SET IS_VOID_SHIPMENT = ? WHERE EBILL_GFF_ID IN (" + entityIds + ")";
         }
 
         try {
