@@ -463,6 +463,7 @@ public class DirectJDBCDAO {
             cstmt.setBigDecimal(28, rateDetails != null && rateDetails.getRtrAmount() != null ? rateDetails.getRtrAmount() : new BigDecimal("0"));
             cstmt.setString(29, rateDetails != null && rateDetails.getRtrStatus() != null ? rateDetails.getRtrStatus() : "");
             cstmt.setString(30, rateDetails != null && rateDetails.getFlagged() != null ? rateDetails.getFlagged() : "");
+            cstmt.setString(31, rateDetails != null && rateDetails.getRateSetName() != null ? rateDetails.getRateSetName() : "");
             cstmt.executeUpdate();
 
         }catch (SQLException sqle) {
