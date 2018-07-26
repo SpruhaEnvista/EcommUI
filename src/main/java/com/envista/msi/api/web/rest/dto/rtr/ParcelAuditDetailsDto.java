@@ -240,8 +240,8 @@ public class ParcelAuditDetailsDto {
     @Column(name = "PIECES")
     private Integer pieces;
 
-    @Column(name = "DIM_DIVISOR")
-    private String dimDivisor;
+    @Column(name = "BILLED_DIM_DIVISOR")
+    private String billedDimDivisor;
 
     public ParcelAuditDetailsDto() {
     }
@@ -696,12 +696,12 @@ public class ParcelAuditDetailsDto {
         this.pieces = pieces;
     }
 
-    public String getDimDivisor() {
-        return dimDivisor;
+    public String getBilledDimDivisor() {
+        return billedDimDivisor;
     }
 
-    public void setDimDivisor(String dimDivisor) {
-        this.dimDivisor = dimDivisor;
+    public void setBilledDimDivisor(String billedDimDivisor) {
+        this.billedDimDivisor = billedDimDivisor;
     }
 
     public static class Config{

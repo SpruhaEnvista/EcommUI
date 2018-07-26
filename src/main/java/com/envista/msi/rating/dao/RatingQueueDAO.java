@@ -485,7 +485,7 @@ public class RatingQueueDAO {
             liveSqlQuery += " (select custom_defined_9 from shp_lookup_tb where lookup_id = ebmf.service_bucket) AS SERVICE_LEVEL, ebmf.DW_FIELD_INFORMATION, ";
             liveSqlQuery += " ebmf.SHIPPER_CODE AS SHIPPER_NUMBER, ebmf.PARENT_ID, DECODE (ebmf.bill_weight, 0, 'Letter', 'PKG') package_type, ";
             liveSqlQuery += " null AS PACKAGE_DIMENSION, ebmf.ACT_WEIGHT AS ACTUAL_WEIGHT, ebmf.UNIT_OF_ACTUAL_WEIGHT, ";
-            liveSqlQuery += " ebmf.INVOICE_NUMBER, ebmf.ZONE, ebmf.MISCELLANEOUS5, ebmf.PIECES, ebmf.DIM_DIVISOR, ebmf.BILL_DATE AS INVOICE_DATE, inv.CREATE_DATE AS INV_CREATE_DATE, ";
+            liveSqlQuery += " ebmf.INVOICE_NUMBER, ebmf.ZONE, ebmf.MISCELLANEOUS5, ebmf.PIECES, ebmf.DIM_DIVISOR AS BILLED_DIM_DIVISOR, ebmf.BILL_DATE AS INVOICE_DATE, inv.CREATE_DATE AS INV_CREATE_DATE, ";
             if (isHwt) {
                 liveSqlQuery += " 0 as RTR_AMOUNT ,null as rtr_status,";
             } else {
@@ -614,6 +614,7 @@ public class RatingQueueDAO {
                 shipmentDetails.setPieces(rs.getInt("PIECES"));
                 shipmentDetails.setZone(rs.getString("ZONE"));
                 shipmentDetails.setInvoiceNumber(rs.getString("INVOICE_NUMBER"));
+                shipmentDetails.setBilledDimDivisor(rs.getString("BILLED_DIM_DIVISOR"));
                 //Need to add charge code here.
                 parcelUpsShipments.add(shipmentDetails);
             }

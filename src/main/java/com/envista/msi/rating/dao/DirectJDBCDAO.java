@@ -677,16 +677,16 @@ public class DirectJDBCDAO {
     public void updateUpsOtherFieldValues(List<ParcelAuditDetailsDto> rateDetailsList) {
         Connection con = null;
         PreparedStatement pstmt = null;
-        String selectQueryStr = " UPDATE SHP_EBILL_UPS_RATES_TB ur SET ur.SENDER_COUNTRY = ?, ";
-        selectQueryStr += " ur.RECEIVER_COUNTRY = ?, ur.SENDER_STATE = ?, ur.RECEIVER_STATE = ?, ur.SHIPMENT_DATE = ?, ur.INVOICE_DATE = ?, ur.INVOICE_NUMBER = ?, ";
-        selectQueryStr += " ur.LEAD_SHIPMENT_NUMBER = ?, ur.TRACKING_NUMBER = ?, ur.ENTERED_WEIGHT = ?, ur.BILLED_WEIGHT = ?, ur.CONTAINER_TYPE = ?, ur.PACKAGE_DIMENSIONS = ?, ";
-        selectQueryStr += " ur.ZONE = ?, ur.CHARGE_CLASSIFICATION_CODE = ?, ur.CHARGE_DESCRIPTION = ?, ur.INCENTIVE_AMOUNT = ?, ur.NET_AMOUNT = ?, ur.CUSTOMER_CODE = ?, ur.SHIPPER_CODE = ?, ";
-        selectQueryStr += " ur.INV_CREATE_DATE = ?, ur.PARENT_ID = ?, ur.DW_FIELD_INFORMATION = ?, ur.INVOICE_ID = ?, ur.CUSTOMER_ID = ?, ur.BILL_OPTION_CODE = ?, ur.CHARGE_CATEGORY_DETAIL_CODE = ? ";
-        selectQueryStr += " WHERE ur.EBILL_GFF_ID = ? ";
+        String sqlQuery = " UPDATE SHP_EBILL_UPS_RATES_TB ur SET ur.SENDER_COUNTRY = ?, ";
+        sqlQuery += " ur.RECEIVER_COUNTRY = ?, ur.SENDER_STATE = ?, ur.RECEIVER_STATE = ?, ur.SHIPMENT_DATE = ?, ur.INVOICE_DATE = ?, ur.INVOICE_NUMBER = ?, ";
+        sqlQuery += " ur.LEAD_SHIPMENT_NUMBER = ?, ur.TRACKING_NUMBER = ?, ur.ENTERED_WEIGHT = ?, ur.BILLED_WEIGHT = ?, ur.CONTAINER_TYPE = ?, ur.PACKAGE_DIMENSIONS = ?, ";
+        sqlQuery += " ur.ZONE = ?, ur.CHARGE_CLASSIFICATION_CODE = ?, ur.CHARGE_DESCRIPTION = ?, ur.INCENTIVE_AMOUNT = ?, ur.NET_AMOUNT = ?, ur.CUSTOMER_CODE = ?, ur.SHIPPER_CODE = ?, ";
+        sqlQuery += " ur.INV_CREATE_DATE = ?, ur.PARENT_ID = ?, ur.DW_FIELD_INFORMATION = ?, ur.INVOICE_ID = ?, ur.CUSTOMER_ID = ?, ur.BILL_OPTION_CODE = ?, ur.CHARGE_CATEGORY_DETAIL_CODE = ? ";
+        sqlQuery += " WHERE ur.EBILL_GFF_ID = ? ";
 
         try {
             con = ServiceLocator.getDatabaseConnection();
-            pstmt = con.prepareStatement(selectQueryStr);
+            pstmt = con.prepareStatement(sqlQuery);
             con.setAutoCommit(false);
 
             for(ParcelAuditDetailsDto rateDetails : rateDetailsList){
@@ -759,15 +759,16 @@ public class DirectJDBCDAO {
     public void updateFedExOtherFieldValues(List<ParcelAuditDetailsDto> rateDetailsList) {
         Connection con = null;
         PreparedStatement pstmt = null;
-        String selectQueryStr = " UPDATE SHP_EBILL_FDX_RATES_TB ur SET ur.SENDER_COUNTRY = ?, ";
-        selectQueryStr += " ur.CONSIGNEE_COUNTRY = ?, ur.SENDER_ST = ?, ur.CONSIGNEE_ST = ?, ur.DW_FIELD_INFORMATION = ?, ur.INVOICE_ID = ?, ur.SHIPPER_CODE = ?, ur.INVOICE_NUMBER = ?, ";
-        selectQueryStr += " ur.TRACKING_NUMBER = ?, ur.BILL_WEIGHT = ?, ur.ACT_WEIGHT = ?, ur.ZONE = ?, ur.SERVICE = ?, ur.BILL_OPT = ?, ur.NET_CHARGES = ?, ur.MISCELLANEOUS5 = ?, ur.BUNDLE_NUMBER = ?, ";
-        selectQueryStr += " ur.PARENT_ID = ?, ur.PIECES = ?, ur.DIM_LENGTH = ?, ur.WIDTH = ?, ur.HEIGHT = ?, ur.CHARGE_CODE = ?, ur.CUSTOMER_CODE = ?, ur.PICKUP_DATE = ?, ur.BILL_DATE = ?, ur.INV_CREATE_DATE = ?, ur.CUSTOMER_ID = ? ";
-        selectQueryStr += " WHERE ur.EBILL_MANIFEST_ID = ? ";
+        String sqlQuery = " UPDATE SHP_EBILL_FDX_RATES_TB ur SET ur.SENDER_COUNTRY = ?, ";
+        sqlQuery += " ur.CONSIGNEE_COUNTRY = ?, ur.SENDER_ST = ?, ur.CONSIGNEE_ST = ?, ur.DW_FIELD_INFORMATION = ?, ur.INVOICE_ID = ?, ur.SHIPPER_CODE = ?, ur.INVOICE_NUMBER = ?, ";
+        sqlQuery += " ur.TRACKING_NUMBER = ?, ur.BILL_WEIGHT = ?, ur.ACT_WEIGHT = ?, ur.ZONE = ?, ur.SERVICE = ?, ur.BILL_OPT = ?, ur.NET_CHARGES = ?, ur.MISCELLANEOUS5 = ?, ur.BUNDLE_NUMBER = ?, ";
+        sqlQuery += " ur.PARENT_ID = ?, ur.PIECES = ?, ur.DIM_LENGTH = ?, ur.WIDTH = ?, ur.HEIGHT = ?, ur.CHARGE_CODE = ?, ur.CUSTOMER_CODE = ?, ur.PICKUP_DATE = ?, ur.BILL_DATE = ?, ur.INV_CREATE_DATE = ?, ur.CUSTOMER_ID = ?, ";
+        sqlQuery += " ur.BILLED_DIM_DIVISOR = ? ";
+        sqlQuery += " WHERE ur.EBILL_MANIFEST_ID = ? ";
 
         try {
             con = ServiceLocator.getDatabaseConnection();
-            pstmt = con.prepareStatement(selectQueryStr);
+            pstmt = con.prepareStatement(sqlQuery);
             con.setAutoCommit(false);
 
             for(ParcelAuditDetailsDto rateDetails : rateDetailsList){
@@ -816,7 +817,8 @@ public class DirectJDBCDAO {
                     pstmt.setNull(27, OracleTypes.DATE);
                 }
                 pstmt.setLong(28, rateDetails.getCustomerId());
-                pstmt.setLong(29, rateDetails.getId());
+                pstmt.setString(29, rateDetails.getBilledDimDivisor());
+                pstmt.setLong(30, rateDetails.getId());
                 pstmt.addBatch();
             }
 
