@@ -186,7 +186,7 @@ public class DirectJDBCDAO {
         CallableStatement cstmt = null;
         try{
             conn = ServiceLocator.getDatabaseConnection();
-            cstmt = conn.prepareCall("{ call SHP_SAVE_RATE_DETAILS_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
+            cstmt = conn.prepareCall("{ call SHP_SAVE_RATE_DETAILS_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
             cstmt.setString(1,referenceTableName);
             cstmt.setString(2, entityId);
             cstmt.setString(3,userName);
@@ -209,7 +209,7 @@ public class DirectJDBCDAO {
             cstmt.setString(20, rateDetails != null && rateDetails.getHwtIdentifier() != null ? rateDetails.getHwtIdentifier() : null);
             cstmt.setString(21, rateDetails != null && rateDetails.getRateSetName() != null ? rateDetails.getRateSetName() : null);
             cstmt.setString(22, rateDetails != null && rateDetails.getFlagged() != null ? rateDetails.getFlagged() : null);
-            cstmt.setString(22, rateDetails != null && rateDetails.getZone() != null ? rateDetails.getZone() : null);
+            cstmt.setString(23, rateDetails != null && rateDetails.getZone() != null ? rateDetails.getZone() : null);
             cstmt.executeUpdate();
 
         }catch (SQLException sqle) {;
@@ -234,7 +234,7 @@ public class DirectJDBCDAO {
         CallableStatement cstmt =null;
         try{
             conn = ServiceLocator.getDatabaseConnection();
-            cstmt = conn.prepareCall("{ call SHP_UPDATE_OTHER_DSC_PROC(?,?,?,?,?,?,?,?,?)}");
+            cstmt = conn.prepareCall("{ call SHP_UPDATE_OTHER_DSC_PROC(?,?,?,?,?,?,?,?,?,?)}");
             cstmt.setString(1, referenceTableName);
             cstmt.setString(2, entityIds);
             cstmt.setString(3, userName);
@@ -244,7 +244,7 @@ public class DirectJDBCDAO {
             cstmt.setBigDecimal(7, rateDetails != null && rateDetails.getOtherDiscount2() != null ? rateDetails.getOtherDiscount2() : new BigDecimal("0"));
             cstmt.setBigDecimal(8, rateDetails != null && rateDetails.getOtherDiscount3() != null ? rateDetails.getOtherDiscount3() : new BigDecimal("0"));
             cstmt.setString(9, rateDetails != null && rateDetails.getFlagged() != null ? rateDetails.getFlagged() : "");
-            cstmt.setString(9, rateDetails != null && rateDetails.getZone() != null ? rateDetails.getZone() : null);
+            cstmt.setString(10, rateDetails != null && rateDetails.getZone() != null ? rateDetails.getZone() : null);
             cstmt.executeUpdate();
         }catch (SQLException sqle) {
             throw new DaoException("Exception in updateOtherDiscountShipmentRateDetails", sqle);
@@ -270,7 +270,7 @@ public class DirectJDBCDAO {
         CallableStatement cstmt =null;
         try{
             conn = ServiceLocator.getDatabaseConnection();
-            cstmt = conn.prepareCall("{ call SHP_RATE_UPDATE_ACC_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
+            cstmt = conn.prepareCall("{ call SHP_RATE_UPDATE_ACC_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
             cstmt.setString(1, referenceTableName);
             cstmt.setString(2, entityIds);
             cstmt.setString(3, userName);
@@ -285,7 +285,7 @@ public class DirectJDBCDAO {
             cstmt.setString(12, rateDetails != null && rateDetails.getAccessorial3Code() != null ? rateDetails.getAccessorial3Code() : null);
             cstmt.setString(13, rateDetails != null && rateDetails.getAccessorial4Code() != null ? rateDetails.getAccessorial4Code() : null);
             cstmt.setString(14, rateDetails != null && rateDetails.getFlagged() != null ? rateDetails.getFlagged() : null);
-            cstmt.setString(14, rateDetails != null && rateDetails.getZone() != null ? rateDetails.getZone() : null);
+            cstmt.setString(15, rateDetails != null && rateDetails.getZone() != null ? rateDetails.getZone() : null);
             cstmt.executeUpdate();
         }catch (SQLException sqle) {
             sqle.printStackTrace();
@@ -432,7 +432,7 @@ public class DirectJDBCDAO {
         CallableStatement cstmt =null;
         try{
             conn = ServiceLocator.getDatabaseConnection();
-            cstmt = conn.prepareCall("{ call SHP_SAVE_ALL_RATE_DETAILS_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
+            cstmt = conn.prepareCall("{ call SHP_SAVE_ALL_RATE_DETAILS_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
             cstmt.setString(1,referenceTableName);
             cstmt.setString(2,entityIds);
             cstmt.setString(3,userName);
@@ -464,7 +464,7 @@ public class DirectJDBCDAO {
             cstmt.setString(29, rateDetails != null && rateDetails.getRtrStatus() != null ? rateDetails.getRtrStatus() : "");
             cstmt.setString(30, rateDetails != null && rateDetails.getFlagged() != null ? rateDetails.getFlagged() : "");
             cstmt.setString(31, rateDetails != null && rateDetails.getRateSetName() != null ? rateDetails.getRateSetName() : "");
-            cstmt.setString(30, rateDetails != null && rateDetails.getZone() != null ? rateDetails.getZone() : "");
+            cstmt.setString(32, rateDetails != null && rateDetails.getZone() != null ? rateDetails.getZone() : "");
             cstmt.executeUpdate();
 
         }catch (SQLException sqle) {

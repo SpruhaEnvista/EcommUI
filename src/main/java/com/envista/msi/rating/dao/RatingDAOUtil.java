@@ -279,10 +279,8 @@ public class RatingDAOUtil {
                 ps.setString(57, queueBean.getThresholdType());
             } else if("SERVICE_LEVELS_ID".equalsIgnoreCase(columnName)) {
                 ps.setString(58,queueBean.getServiceLevel());
-            }
-            else {
             } else if("ZONE".equalsIgnoreCase(columnName)) {
-                ps.setString(56, queueBean.getZone());
+                ps.setString(59, queueBean.getZone());
             } else {
                 throw new RuntimeException("Column name not mapped");
             }
