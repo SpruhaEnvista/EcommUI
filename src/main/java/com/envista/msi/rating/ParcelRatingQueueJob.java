@@ -118,6 +118,9 @@ public class ParcelRatingQueueJob {
                     ratingInputCriteriaBean.setTrackingNumbers(trackingNumbers);
                     ratingInputCriteriaBean.setInvoiceIds(invoiceIds);
                     ratingInputCriteriaBean.setRateTo(rateTo);
+                    ratingInputCriteriaBean.setThresholdValue(ratingInputCriteria.getThresholdValue());
+                    ratingInputCriteriaBean.setThresholdType(ratingInputCriteria.getThresholdType());
+                    ratingInputCriteriaBean.setServiceLevel(ratingInputCriteria.getServiceLevel());
                     ParcelRatingQueueJob.getInstance().processShipments(ratingInputCriteriaBean, false);
                     ParcelRatingQueueJob.getInstance().processShipments(ratingInputCriteriaBean, true);
 
@@ -133,7 +136,7 @@ public class ParcelRatingQueueJob {
     private void processShipments(ParcelRatingInputCriteriaBean ratingInputCriteriaBean, boolean isHwt) throws SQLException {
         List<ParcelAuditDetailsDto> allShipmentDetails = null;
         if("ups".equalsIgnoreCase(ratingInputCriteriaBean.getRateTo())){
-            List<Long> invoiceList = new DirectJDBCDAO().loadInvoiceIds(ratingInputCriteriaBean.getFromShipDate(), ratingInputCriteriaBean.getToShipDate(), ratingInputCriteriaBean.getCustomerId(), ratingInputCriteriaBean.getInvoiceIds(), 0, "UPS");
+            List<Long> invoiceList = new DirectJDBCDAO().loadInvoiceIds(ratingInputCriteriaBean.getFromShipDate(), ratingInputCriteriaBean.getToShipDate(), ratingInputCriteriaBean.getCustomerId(), ratingInputCriteriaBean.getInvoiceIds(), 0, "UPS",ratingInputCriteriaBean.getServiceLevel());
             if(invoiceList != null && !invoiceList.isEmpty()) {
                 for(Long invId : invoiceList){
                     if(invId != null) {
@@ -148,7 +151,7 @@ public class ParcelRatingQueueJob {
             }
 
         } else if("fedex".equalsIgnoreCase(ratingInputCriteriaBean.getRateTo())) {
-            List<Long> invoiceList = new DirectJDBCDAO().loadInvoiceIds(ratingInputCriteriaBean.getFromShipDate(), ratingInputCriteriaBean.getToShipDate(), ratingInputCriteriaBean.getCustomerId(), ratingInputCriteriaBean.getInvoiceIds(), 0, "FEDEX");
+            List<Long> invoiceList = new DirectJDBCDAO().loadInvoiceIds(ratingInputCriteriaBean.getFromShipDate(), ratingInputCriteriaBean.getToShipDate(), ratingInputCriteriaBean.getCustomerId(), ratingInputCriteriaBean.getInvoiceIds(), 0, "FEDEX",ratingInputCriteriaBean.getServiceLevel());
             if(invoiceList != null && !invoiceList.isEmpty()) {
                 for (Long invId : invoiceList) {
                     if (invId != null) {
@@ -359,6 +362,9 @@ public class ParcelRatingQueueJob {
                 RatingQueueBean ratingQueueBean = ParcelRatingUtil.prepareShipmentEntryForNonUpsShipment(shipmentsWithPrevFrt, msiARChargeCode, ratingInputCriteriaBean.getRateSetName());
                 if(ratingQueueBean != null){
                     ratingQueueBean.setTaskId(ratingInputCriteriaBean.getTaskId());
+                    ratingQueueBean.setThresholdValue(ratingInputCriteriaBean.getThresholdValue());
+                    ratingQueueBean.setThresholdType(ratingInputCriteriaBean.getThresholdType());
+                    ratingQueueBean.setServiceLevel(ratingInputCriteriaBean.getServiceLevel());
                     parcelRatingService.saveRatingQueueBean(ratingQueueBean);
                 }
             } catch (Exception e){
@@ -373,6 +379,9 @@ public class ParcelRatingQueueJob {
                 RatingQueueBean ratingQueueBean = ParcelRatingUtil.prepareShipmentEntryForUpsShipment(shipmentsWithPrevFrt, msiARChargeCode, ratingInputCriteriaBean.getRateSetName());
                 if(ratingQueueBean != null){
                     ratingQueueBean.setTaskId(ratingInputCriteriaBean.getTaskId());
+                    ratingQueueBean.setThresholdValue(ratingInputCriteriaBean.getThresholdValue());
+                    ratingQueueBean.setThresholdType(ratingInputCriteriaBean.getThresholdType());
+                    ratingQueueBean.setServiceLevel(ratingInputCriteriaBean.getServiceLevel());
                     parcelRatingService.saveRatingQueueBean(ratingQueueBean);
                 }
             }catch (Exception e) {
@@ -404,6 +413,11 @@ public class ParcelRatingQueueJob {
                     if (queueBeanList == null)
                         queueBeanList = new ArrayList<RatingQueueBean>();
 
+                ratingQueueBean.setTaskId(ratingInputCriteriaBean.getTaskId());
+                ratingQueueBean.setThresholdValue(ratingInputCriteriaBean.getThresholdValue());
+                ratingQueueBean.setThresholdType(ratingInputCriteriaBean.getThresholdType());
+                ratingQueueBean.setServiceLevel(ratingInputCriteriaBean.getServiceLevel());
+                queueBeanList.add(ratingQueueBean);
                     queueBeanList.add(ratingQueueBean);
                 }
             }
