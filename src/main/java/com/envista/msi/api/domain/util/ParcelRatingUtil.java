@@ -306,6 +306,9 @@ public class ParcelRatingUtil {
                 }
 
                 ratingQueueBean.setBillOption(billOption);
+                if(ratingQueueBean.getZone() == null && firstCharge.getZone() != null){
+                    ratingQueueBean.setZone(firstCharge.getZone());
+                }
 
                 JSONArray accJsonArr = new JSONArray();
                 for(ParcelAuditDetailsDto auditDetails : shipmentDetails){
@@ -437,6 +440,9 @@ public class ParcelRatingUtil {
             billOption = "TP";
         }
         ratingQueueBean.setBillOption(billOption);
+        if(ratingQueueBean.getZone() == null && firstCharge.getZone() != null){
+            ratingQueueBean.setZone(firstCharge.getZone());
+        }
 
         //StringJoiner accessorials = new StringJoiner(",");
         JSONArray accJsonArr = new JSONArray();

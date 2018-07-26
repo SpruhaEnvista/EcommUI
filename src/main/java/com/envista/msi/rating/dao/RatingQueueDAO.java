@@ -91,6 +91,7 @@ public class RatingQueueDAO {
                 ratingQBean.setHwtIdentifier(rss.getString("HWT_IDENTIFIER"));
                 ratingQBean.setRateSetName(rss.getString("RATE_SET_NAME"));
                 ratingQBean.setTaskId(rss.getLong("TASK_ID"));
+                ratingQBean.setZone(rss.getString("ZONE"));
             }
 
         } catch (SQLException sqle) {
@@ -190,6 +191,7 @@ public class RatingQueueDAO {
                 ratingQueueBean.setHwtIdentifier(rs.getString("HWT_IDENTIFIER"));
                 ratingQueueBean.setRateSetName(rs.getString("RATE_SET_NAME"));
                 ratingQueueBean.setTaskId(rs.getLong("TASK_ID"));
+                ratingQueueBean.setZone(rs.getString("ZONE"));
                 beanList.add(ratingQueueBean);
             }
 

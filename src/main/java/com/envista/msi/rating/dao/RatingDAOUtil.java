@@ -73,6 +73,7 @@ public class RatingDAOUtil {
         RATING_QUEUE_COLUMN_NAMES.add("HWT_IDENTIFIER");
         RATING_QUEUE_COLUMN_NAMES.add("RATE_SET_NAME");
         RATING_QUEUE_COLUMN_NAMES.add("TASK_ID");
+        RATING_QUEUE_COLUMN_NAMES.add("ZONE");
     }
 
     public static String prepareRatingQueueInsertQuery(boolean isHwt) {
@@ -269,6 +270,8 @@ public class RatingDAOUtil {
                 } else {
                     ps.setNull(55, Types.INTEGER);
                 }
+            } else if("ZONE".equalsIgnoreCase(columnName)) {
+                ps.setString(56, queueBean.getZone());
             } else {
                 throw new RuntimeException("Column name not mapped");
             }

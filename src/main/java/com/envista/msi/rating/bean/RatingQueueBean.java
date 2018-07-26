@@ -69,6 +69,7 @@ public class RatingQueueBean {
     private BigDecimal netAmount;
     private Long taskId;
     private String rateSetName;
+    private String zone;
 
     public Long getRatingQueueId() {
         return ratingQueueId;
@@ -587,5 +588,13 @@ public class RatingQueueBean {
 
     public void setRateSetName(String rateSetName) {
         this.rateSetName = rateSetName;
+    }
+
+    public String getZone() {
+        return zone;
+    }
+
+    public void setZone(String zone) {
+        this.zone = zone;
     }
 }
