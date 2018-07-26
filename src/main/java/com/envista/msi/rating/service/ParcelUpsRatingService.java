@@ -302,7 +302,7 @@ public class ParcelUpsRatingService {
                 status = updateRateForUps(ParcelRateResponseParser.parse(response), parcelAuditDetails, msiARChargeCode, previousShipment, hwtNetAmount);
             }
         }
-
+        updateUpsOtherFieldValues(parcelAuditDetails);
         return status;
     }
 
@@ -1322,5 +1322,13 @@ public class ParcelUpsRatingService {
             }
         }
         return status;
+    }
+
+    public void updateUpsOtherFieldValues(List<ParcelAuditDetailsDto> rateDetailsList) {
+        try{
+            new DirectJDBCDAO().updateUpsOtherFieldValues(rateDetailsList);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 }

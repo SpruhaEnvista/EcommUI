@@ -108,6 +108,7 @@ public class ParcelNonUpsRatingService {
                 if(ParcelRatingUtil.isFirstShipmentToRate(shipments, bean.getParentId())) {
                     if(!ParcelRatingUtil.isShipmentRated(shipmentToRate)) {
                         status = callRTRAndPopulateRates(shipmentToRate, bean, null);
+                        updateFedExOtherFieldValues(shipmentToRate);
                     }
                 } else {
                     if(!ParcelRatingUtil.isShipmentRated(shipmentToRate)) {
@@ -119,9 +120,11 @@ public class ParcelNonUpsRatingService {
                                     if(prevShipmentFrtCharge != null) {
                                         shipmentToRate.add(prevShipmentFrtCharge);
                                         status = callRTRAndPopulateRates(shipmentToRate, bean, null);
+                                        updateFedExOtherFieldValues(shipmentToRate);
                                     }
                                 }else {
                                     status = callRTRAndPopulateRates(shipmentToRate, bean, null);
+                                    updateFedExOtherFieldValues(shipmentToRate);
                                 }
                             }
                         }
@@ -581,5 +584,13 @@ public class ParcelNonUpsRatingService {
 
     public boolean shipmentExist(Long parentId){
         return new RatingQueueDAO().shipmentExist(parentId);
+    }
+
+    public void updateFedExOtherFieldValues(List<ParcelAuditDetailsDto> rateDetailsList) {
+        try{
+            new DirectJDBCDAO().updateFedExOtherFieldValues(rateDetailsList);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 }

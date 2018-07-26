@@ -219,6 +219,30 @@ public class ParcelAuditDetailsDto {
     @Column(name = "CHARGE_CATEGORY_DETAIL_CODE")
     private String chargeCategoryDetailCode;
 
+    @Column(name = "INVOICE_DATE")
+    private Date invoiceDate;
+
+    @Column(name = "INVOICE_NUMBER")
+    private String invoiceNumber;
+
+    @Column(name = "ZONE")
+    private String zone;
+
+    @Column(name = "INCENTIVE_AMOUNT")
+    private BigDecimal incentiveAmount;
+
+    @Column(name = "INV_CREATE_DATE")
+    private Date invoiceCreateDate;
+
+    @Column(name = "MISCELLANEOUS5")
+    private String miscellaneous5;
+
+    @Column(name = "PIECES")
+    private Integer pieces;
+
+    @Column(name = "DIM_DIVISOR")
+    private String dimDivisor;
+
     public ParcelAuditDetailsDto() {
     }
 
@@ -614,6 +638,70 @@ public class ParcelAuditDetailsDto {
 
     public void setChargeCategoryDetailCode(String chargeCategoryDetailCode) {
         this.chargeCategoryDetailCode = chargeCategoryDetailCode;
+    }
+
+    public Date getInvoiceDate() {
+        return invoiceDate;
+    }
+
+    public void setInvoiceDate(Date invoiceDate) {
+        this.invoiceDate = invoiceDate;
+    }
+
+    public String getInvoiceNumber() {
+        return invoiceNumber;
+    }
+
+    public void setInvoiceNumber(String invoiceNumber) {
+        this.invoiceNumber = invoiceNumber;
+    }
+
+    public String getZone() {
+        return zone;
+    }
+
+    public void setZone(String zone) {
+        this.zone = zone;
+    }
+
+    public BigDecimal getIncentiveAmount() {
+        return incentiveAmount;
+    }
+
+    public void setIncentiveAmount(BigDecimal incentiveAmount) {
+        this.incentiveAmount = incentiveAmount;
+    }
+
+    public Date getInvoiceCreateDate() {
+        return invoiceCreateDate;
+    }
+
+    public void setInvoiceCreateDate(Date invoiceCreateDate) {
+        this.invoiceCreateDate = invoiceCreateDate;
+    }
+
+    public String getMiscellaneous5() {
+        return miscellaneous5;
+    }
+
+    public void setMiscellaneous5(String miscellaneous5) {
+        this.miscellaneous5 = miscellaneous5;
+    }
+
+    public Integer getPieces() {
+        return pieces;
+    }
+
+    public void setPieces(Integer pieces) {
+        this.pieces = pieces;
+    }
+
+    public String getDimDivisor() {
+        return dimDivisor;
+    }
+
+    public void setDimDivisor(String dimDivisor) {
+        this.dimDivisor = dimDivisor;
     }
 
     public static class Config{
