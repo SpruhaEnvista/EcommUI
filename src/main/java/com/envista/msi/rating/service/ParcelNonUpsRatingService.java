@@ -218,6 +218,7 @@ public class ParcelNonUpsRatingService {
         String shipperCategory = priceSheet.getCategory();
         String contractName = priceSheet.getContractName();
         String rateSetName = priceSheet.getRateSet();
+        String zone = priceSheet.getZone();
         BigDecimal fuelTablePerc = ParcelRateResponseParser.getFuelTablePercentage(priceSheet);
         BigDecimal ratedGrossFuel = ParcelRateResponseParser.getRatedGrossFuel(priceSheet);
         Map<String, String> dasChargeList = msiARChargeCode.getDasChargeCodes();
@@ -238,6 +239,7 @@ public class ParcelNonUpsRatingService {
                             rateDetails.setShipperCategory(shipperCategory);
                             rateDetails.setContractName(contractName);
                             rateDetails.setFuelTablePercentage(fuelTablePerc);
+                            rateDetails.setZone(zone);
                             rateDetails.setRatedBaseDiscount(ParcelRateResponseParser.getSumOfFreightDiscount(priceSheet));
                             rateDetails.setRatedEarnedDiscount(ParcelRateResponseParser.getSpendDiscount(priceSheet));
                             rateDetails.setRatedMinMaxAdjustment(ParcelRateResponseParser.getMinMaxAdjustment(priceSheet));
@@ -263,6 +265,7 @@ public class ParcelNonUpsRatingService {
                         rateDetails.setShipperCategory(shipperCategory);
                         rateDetails.setContractName(contractName);
                         rateDetails.setFuelTablePercentage(fuelTablePerc);
+                        rateDetails.setZone(zone);
                         rateDetails.setRatedFuelSurchargeDiscount(ParcelRateResponseParser.getRatedSurchargeDiscount(priceSheet));
                         rateDetails.setRatedCustomFuelSurchargeDiscount(ParcelRateResponseParser.getRatedCustomSurchargeDiscount(priceSheet));
                         rateDetails.setRatedGrossFuel(ratedGrossFuel);
@@ -283,6 +286,7 @@ public class ParcelNonUpsRatingService {
                         rateDetails.setShipperCategory(shipperCategory);
                         rateDetails.setContractName(contractName);
                         rateDetails.setFuelTablePercentage(fuelTablePerc);
+                        rateDetails.setZone(zone);
                         rateDetails.setDimDivisor(charge.getDimDivisor() == null ? new BigDecimal("0") : charge.getDimDivisor());
                         rateDetails.setRatedWeight(charge.getWeight() == null ? new BigDecimal("0") : charge.getWeight());
                         rateDetails.setRtrAmount(charge.getAmount());
@@ -305,6 +309,7 @@ public class ParcelNonUpsRatingService {
                         ParcelRateDetailsDto rateDetails = ParcelRateDetailsDto.getInstance();
                         rateDetails.setShipperCategory(shipperCategory);
                         rateDetails.setContractName(contractName);
+                        rateDetails.setZone(zone);
                         if(auditDetails.getChargeDescription() != null && (auditDetails.getChargeDescription().contains("EXTENDED") || auditDetails.getChargeDescription().contains("extended"))){
                             ParcelRateResponse.Charge extendedDasDiscount = ParcelRateResponseParser.getRatedExtendedDasDiscount(priceSheet);
                             if(extendedDasDiscount != null){
@@ -339,6 +344,7 @@ public class ParcelNonUpsRatingService {
                         rateDetails.setShipperCategory(shipperCategory);
                         rateDetails.setContractName(contractName);
                         rateDetails.setFuelTablePercentage(fuelTablePerc);
+                        rateDetails.setZone(zone);
                         rateDetails.setDimDivisor(charge.getDimDivisor() == null ? new BigDecimal("0") : charge.getDimDivisor());
                         rateDetails.setRatedWeight(charge.getWeight() == null ? new BigDecimal("0") : charge.getWeight());
                         rateDetails.setRtrAmount(charge.getAmount());
@@ -358,6 +364,7 @@ public class ParcelNonUpsRatingService {
                         rateDetails.setShipperCategory(shipperCategory);
                         rateDetails.setContractName(contractName);
                         rateDetails.setFuelTablePercentage(fuelTablePerc);
+                        rateDetails.setZone(zone);
                         rateDetails.setDimDivisor(charge.getDimDivisor() == null ? new BigDecimal("0") : charge.getDimDivisor());
                         rateDetails.setRatedWeight(charge.getWeight() == null ? new BigDecimal("0") : charge.getWeight());
                         rateDetails.setRtrAmount(charge.getAmount());
@@ -380,6 +387,7 @@ public class ParcelNonUpsRatingService {
                         rateDetails.setShipperCategory(shipperCategory);
                         rateDetails.setContractName(contractName);
                         rateDetails.setFuelTablePercentage(fuelTablePerc);
+                        rateDetails.setZone(zone);
                         rateDetails.setDimDivisor(charge.getDimDivisor() == null ? new BigDecimal("0") : charge.getDimDivisor());
                         rateDetails.setRatedWeight(charge.getWeight() == null ? new BigDecimal("0") : charge.getWeight());
                         rateDetails.setRtrAmount(charge.getAmount());
@@ -395,6 +403,7 @@ public class ParcelNonUpsRatingService {
                     rateDetails.setShipperCategory(shipperCategory);
                     rateDetails.setContractName(contractName);
                     rateDetails.setFuelTablePercentage(fuelTablePerc);
+                    rateDetails.setZone(zone);
                     rateDetails.setRtrAmount(new BigDecimal("0"));
                     rateDetails.setRtrStatus(rtrStatus.value);
                     rateDetails.setHwtIdentifier(auditDetails.getMultiWeightNumber());
@@ -409,6 +418,7 @@ public class ParcelNonUpsRatingService {
         otherDscRateDetails.setContractName(contractName);
         otherDscRateDetails.setHwtIdentifier(parcelAuditDetails.get(0).getMultiWeightNumber());
         otherDscRateDetails.setRateSetName(rateSetName);
+        otherDscRateDetails.setZone(zone);
         saveOtherDiscountsAppliedForNonUps(priceSheet, parcelAuditDetails, otherDscRateDetails, mappedDscChanges);
 
         ParcelRateDetailsDto accessorialRateDetails = ParcelRateDetailsDto.getInstance();
@@ -416,6 +426,7 @@ public class ParcelNonUpsRatingService {
         accessorialRateDetails.setContractName(contractName);
         accessorialRateDetails.setHwtIdentifier(parcelAuditDetails.get(0).getMultiWeightNumber());
         accessorialRateDetails.setRateSetName(rateSetName);
+        accessorialRateDetails.setZone(zone);
         saveAccessorialForNonUps(priceSheet, parcelAuditDetails, accessorialRateDetails, mappedAccChanges);
         return rtrStatus.value;
     }
