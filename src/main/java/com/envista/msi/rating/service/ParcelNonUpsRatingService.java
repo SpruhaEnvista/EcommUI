@@ -155,7 +155,7 @@ public class ParcelNonUpsRatingService {
 
             new DirectJDBCDAO().saveParcelAuditRequestAndResponseLog(ParcelRatingUtil.prepareRequestResponseLog(requestPayload, response, bean.getParentId(), ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME));
 
-            status = updateRateForNonUpsCarrier(ParcelRateResponseParser.parse(response), shipmentToRate, getAllMappedARChargeCodes(), bean);
+            status = updateRateForNonUpsCarrier(ParcelRateResponseParser.parse(response), shipmentToRate, getAllMappedARChargeCodes(), (( queueBeans != null && queueBeans.size() > 0) ? queueBeans.get(0) : bean ));
         }
         return status;
     }
@@ -174,16 +174,51 @@ public class ParcelNonUpsRatingService {
                         sumOfNetAmount = ParcelRatingUtil.findSumOfNetAmount(parcelAuditDetails);
                     BigDecimal totalRateAmount = firstPriceSheet.getTotal().setScale(2, BigDecimal.ROUND_HALF_EVEN);
 
+                    String flagged = null;
+                    if(bean != null && bean.getThresholdType() != null ){
+
+                        BigDecimal thresholdLowerBound = null;
+                        BigDecimal thresholdUpperBound = null;
+                        try {
+                            if (ParcelAuditConstant.THRESHOLD_TYPE_PERCENT.equalsIgnoreCase(bean.getThresholdType())) {
+
+                                if (bean.getThresholdValue() != null) {
+
+                                    BigDecimal percentValue = new BigDecimal(bean.getThresholdValue());
+                                    BigDecimal tolerance = percentValue.multiply(sumOfNetAmount).divide(new BigDecimal("100.000"), 2, BigDecimal.ROUND_HALF_EVEN);
+                                    thresholdLowerBound = sumOfNetAmount.subtract(tolerance);
+                                    thresholdUpperBound = sumOfNetAmount.add(tolerance);
+                                }
+                            } else if ( ParcelAuditConstant.THRESHOLD_TYPE_FLAT.equalsIgnoreCase(bean.getThresholdType()) ) {
+
+                                if (bean.getThresholdValue() != null) {
+
+                                    BigDecimal tolerance = new BigDecimal(bean.getThresholdValue());
+                                    thresholdLowerBound = sumOfNetAmount.subtract(tolerance);
+                                    thresholdUpperBound = sumOfNetAmount.add(tolerance);
+                                }
+                            }
+                        } catch( Exception e){ e.printStackTrace(); }
+
+                        if( thresholdLowerBound != null && thresholdUpperBound != null ) {
+
+                            if(sumOfNetAmount.compareTo(totalRateAmount) == 0 || (totalRateAmount.compareTo(thresholdLowerBound) >= 0 && totalRateAmount.compareTo(thresholdUpperBound) <= 0))
+                                flagged = "false";
+                            else
+                                flagged = "true";
+                        }
+                    }
+
                     BigDecimal toleranceLowerBound = sumOfNetAmount.multiply(new BigDecimal("0.995"));
                     BigDecimal toleranceUpperBound = sumOfNetAmount.multiply(new BigDecimal("1.005"));
 
                     if(sumOfNetAmount.compareTo(totalRateAmount) == 0 || (totalRateAmount.compareTo(toleranceLowerBound) >= 0 && totalRateAmount.compareTo(toleranceUpperBound) <= 0)){
-                        status = updateAmountWithRTRResponseChargesForNonUpsCarrier(firstPriceSheet, parcelAuditDetails, ParcelAuditConstant.RTRStatus.CLOSED, msiARChargeCode);
+                        status = updateAmountWithRTRResponseChargesForNonUpsCarrier(firstPriceSheet, parcelAuditDetails, ParcelAuditConstant.RTRStatus.CLOSED, msiARChargeCode,flagged);
                     } else{
                         if(sumOfNetAmount.compareTo(totalRateAmount) < 0){
-                            status = updateAmountWithRTRResponseChargesForNonUpsCarrier(firstPriceSheet, parcelAuditDetails, ParcelAuditConstant.RTRStatus.UNDER_CHARGED, msiARChargeCode);
+                            status = updateAmountWithRTRResponseChargesForNonUpsCarrier(firstPriceSheet, parcelAuditDetails, ParcelAuditConstant.RTRStatus.UNDER_CHARGED, msiARChargeCode,flagged);
                         } else if(sumOfNetAmount.compareTo(totalRateAmount) > 0){
-                            status = updateAmountWithRTRResponseChargesForNonUpsCarrier(firstPriceSheet, parcelAuditDetails, ParcelAuditConstant.RTRStatus.OVER_CHARGED, msiARChargeCode);
+                            status = updateAmountWithRTRResponseChargesForNonUpsCarrier(firstPriceSheet, parcelAuditDetails, ParcelAuditConstant.RTRStatus.OVER_CHARGED, msiARChargeCode,flagged);
                         }
                     }
                 }else{
@@ -210,7 +245,7 @@ public class ParcelNonUpsRatingService {
      * @param msiARChargeCode
      * @throws Exception
      */
-    private String updateAmountWithRTRResponseChargesForNonUpsCarrier(ParcelRateResponse.PriceSheet priceSheet, List<ParcelAuditDetailsDto> parcelAuditDetails, ParcelAuditConstant.RTRStatus rtrStatus, MsiARChargeCodesDto msiARChargeCode) throws Exception {
+    private String updateAmountWithRTRResponseChargesForNonUpsCarrier(ParcelRateResponse.PriceSheet priceSheet, List<ParcelAuditDetailsDto> parcelAuditDetails, ParcelAuditConstant.RTRStatus rtrStatus, MsiARChargeCodesDto msiARChargeCode,String flagged) throws Exception {
         DirectJDBCDAO directJDBCDAO = new DirectJDBCDAO();
         boolean frtChargeFound = false;
         List<ParcelRateResponse.Charge> mappedAccChanges = new ArrayList<>();
@@ -254,6 +289,7 @@ public class ParcelNonUpsRatingService {
                             }
                             rateDetails.setRtrAmount(charge.getAmount());
                             rateDetails.setRtrStatus(rtrStatus.value);
+                            rateDetails.setFlagged(flagged);
                             directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                         }
                     }
@@ -275,6 +311,7 @@ public class ParcelNonUpsRatingService {
                         rateDetails.setRtrStatus(rtrStatus.value);
                         rateDetails.setHwtIdentifier(auditDetails.getMultiWeightNumber());
                         rateDetails.setRateSetName(rateSetName);
+                        rateDetails.setFlagged(flagged);
                         directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                     }
                 }else if(ParcelAuditConstant.ChargeClassificationCode.ACS.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())
@@ -293,7 +330,7 @@ public class ParcelNonUpsRatingService {
                         rateDetails.setRtrStatus(rtrStatus.value);
                         rateDetails.setHwtIdentifier(auditDetails.getMultiWeightNumber());
                         rateDetails.setRateSetName(rateSetName);
-
+                        rateDetails.setFlagged(flagged);
                         directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                     }
                 }else if(ParcelAuditConstant.ChargeClassificationCode.ACS.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())
@@ -331,7 +368,7 @@ public class ParcelNonUpsRatingService {
                         rateDetails.setRtrStatus(rtrStatus.value);
                         rateDetails.setHwtIdentifier(auditDetails.getMultiWeightNumber());
                         rateDetails.setRateSetName(rateSetName);
-
+                        rateDetails.setFlagged(flagged);
                         directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                     }
                 } else if(ParcelAuditConstant.ChargeClassificationCode.ACS.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())
@@ -351,7 +388,7 @@ public class ParcelNonUpsRatingService {
                         rateDetails.setRtrStatus(rtrStatus.value);
                         rateDetails.setHwtIdentifier(auditDetails.getMultiWeightNumber());
                         rateDetails.setRateSetName(rateSetName);
-
+                        rateDetails.setFlagged(flagged);
                         directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                     }
                 } else if(ParcelAuditConstant.ChargeClassificationCode.ACS.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())
@@ -371,7 +408,7 @@ public class ParcelNonUpsRatingService {
                         rateDetails.setRtrStatus(rtrStatus.value);
                         rateDetails.setHwtIdentifier(auditDetails.getMultiWeightNumber());
                         rateDetails.setRateSetName(rateSetName);
-
+                        rateDetails.setFlagged(flagged);
                         directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                     }
                 } else {
@@ -394,6 +431,7 @@ public class ParcelNonUpsRatingService {
                         rateDetails.setRtrStatus(rtrStatus.value);
                         rateDetails.setHwtIdentifier(auditDetails.getMultiWeightNumber());
                         rateDetails.setRateSetName(rateSetName);
+                        rateDetails.setFlagged(flagged);
                         directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                     }
                 }
@@ -408,6 +446,7 @@ public class ParcelNonUpsRatingService {
                     rateDetails.setRtrStatus(rtrStatus.value);
                     rateDetails.setHwtIdentifier(auditDetails.getMultiWeightNumber());
                     rateDetails.setRateSetName(rateSetName);
+                    rateDetails.setFlagged(flagged);
                     directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                 }
             }
@@ -419,6 +458,7 @@ public class ParcelNonUpsRatingService {
         otherDscRateDetails.setHwtIdentifier(parcelAuditDetails.get(0).getMultiWeightNumber());
         otherDscRateDetails.setRateSetName(rateSetName);
         otherDscRateDetails.setZone(zone);
+        otherDscRateDetails.setFlagged(flagged);
         saveOtherDiscountsAppliedForNonUps(priceSheet, parcelAuditDetails, otherDscRateDetails, mappedDscChanges);
 
         ParcelRateDetailsDto accessorialRateDetails = ParcelRateDetailsDto.getInstance();
@@ -427,6 +467,7 @@ public class ParcelNonUpsRatingService {
         accessorialRateDetails.setHwtIdentifier(parcelAuditDetails.get(0).getMultiWeightNumber());
         accessorialRateDetails.setRateSetName(rateSetName);
         accessorialRateDetails.setZone(zone);
+        accessorialRateDetails.setFlagged(flagged);
         saveAccessorialForNonUps(priceSheet, parcelAuditDetails, accessorialRateDetails, mappedAccChanges);
         return rtrStatus.value;
     }

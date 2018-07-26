@@ -133,6 +133,9 @@ public class ParcelRateDetailsDto implements Serializable {
     @Column(name = "ZONE")
     private String zone;
 
+    @Transient
+    private String flagged;
+
 
     public static ParcelRateDetailsDto getInstance(){
         return new ParcelRateDetailsDto();
@@ -428,5 +431,13 @@ public class ParcelRateDetailsDto implements Serializable {
 
     public void setZone(String zone) {
         this.zone = zone;
+    }
+
+    public String getFlagged() {
+        return flagged;
+    }
+
+    public void setFlagged(String flagged) {
+        this.flagged = flagged;
     }
 }

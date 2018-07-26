@@ -73,6 +73,9 @@ public class RatingDAOUtil {
         RATING_QUEUE_COLUMN_NAMES.add("HWT_IDENTIFIER");
         RATING_QUEUE_COLUMN_NAMES.add("RATE_SET_NAME");
         RATING_QUEUE_COLUMN_NAMES.add("TASK_ID");
+        RATING_QUEUE_COLUMN_NAMES.add("THRESHOLD_VALUE");
+        RATING_QUEUE_COLUMN_NAMES.add("THRESHOLD_TYPE");
+        RATING_QUEUE_COLUMN_NAMES.add("SERVICE_LEVELS_ID");
         RATING_QUEUE_COLUMN_NAMES.add("ZONE");
     }
 
@@ -270,6 +273,14 @@ public class RatingDAOUtil {
                 } else {
                     ps.setNull(55, Types.INTEGER);
                 }
+            } else if ("THRESHOLD_VALUE".equalsIgnoreCase(columnName)){
+                ps.setString(56, queueBean.getThresholdValue());
+            } else if("THRESHOLD_TYPE".equalsIgnoreCase(columnName)) {
+                ps.setString(57, queueBean.getThresholdType());
+            } else if("SERVICE_LEVELS_ID".equalsIgnoreCase(columnName)) {
+                ps.setString(58,queueBean.getServiceLevel());
+            }
+            else {
             } else if("ZONE".equalsIgnoreCase(columnName)) {
                 ps.setString(56, queueBean.getZone());
             } else {
