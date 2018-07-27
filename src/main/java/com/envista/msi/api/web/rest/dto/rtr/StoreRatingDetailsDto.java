@@ -7,7 +7,8 @@ import java.io.Serializable;
 
 @NamedStoredProcedureQueries({
         @NamedStoredProcedureQuery(name = "StoreRatingDetailsDto.saveRatingDetailsList", procedureName = "shp_store_rating_details_proc",
-                resultClasses = StoreRatingDetailsDto.class,
+                resultSetMappings = "saveRecord",
+                // resultClasses = StoreRatingDetailsDto.class,
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "customer_id", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "carrier_id", type = Long.class),
@@ -24,9 +25,20 @@ import java.io.Serializable;
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "rate", type = Boolean.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "info_lookup", type = Boolean.class),
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "user_name", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "status", type = String.class)
+                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "status", type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_parcel_rating_input", type = Long.class)
 
                 })
+})
+@SqlResultSetMappings({
+        @SqlResultSetMapping(name = "saveRecord", classes = {
+                @ConstructorResult(
+                        targetClass = StoreRatingDetailsDto.class,
+                        columns = {
+                                @ColumnResult(name = "PARCEL_RATING_INPUT_ID", type = Long.class)
+                        }
+                )
+        })
 })
 
 
@@ -34,7 +46,7 @@ import java.io.Serializable;
 public class StoreRatingDetailsDto implements Serializable {
 
     @Id
-    //@Column(name="PARCEL_RATING_INPUT_ID")
+    @Column(name="PARCEL_RATING_INPUT_ID")
     private Long jobId;
 
     @Column(name = "customer_id")
@@ -87,9 +99,12 @@ public class StoreRatingDetailsDto implements Serializable {
     private String createUser;
 
 
-    public StoreRatingDetailsDto() {
+    public StoreRatingDetailsDto() { }
 
+    public StoreRatingDetailsDto(Long jobId){
+        this.jobId = jobId;
     }
+
 
     public Long getCustomerId() {
         return customerId;
@@ -171,8 +186,6 @@ public class StoreRatingDetailsDto implements Serializable {
     public void setRateSet(String rateSet) {
         this.rateSet = rateSet;
     }
-
-
 
     public void setInvoiceRate(boolean invoiceRate) {
         this.invoiceRate = invoiceRate;
