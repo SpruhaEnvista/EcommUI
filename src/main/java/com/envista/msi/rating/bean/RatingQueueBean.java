@@ -69,6 +69,9 @@ public class RatingQueueBean {
     private BigDecimal netAmount;
     private Long taskId;
     private String rateSetName;
+    private String thresholdValue;
+    private String thresholdType;
+    private String serviceLevel;
 
     public Long getRatingQueueId() {
         return ratingQueueId;
@@ -587,5 +590,29 @@ public class RatingQueueBean {
 
     public void setRateSetName(String rateSetName) {
         this.rateSetName = rateSetName;
+    }
+
+    public String getThresholdValue() {
+        return thresholdValue;
+    }
+
+    public void setThresholdValue(String thresholdValue) {
+        this.thresholdValue = thresholdValue;
+    }
+
+    public String getThresholdType() {
+        return thresholdType;
+    }
+
+    public void setThresholdType(String thresholdType) {
+        this.thresholdType = thresholdType;
+    }
+
+    public String getServiceLevel() {
+        return serviceLevel;
+    }
+
+    public void setServiceLevel(String serviceLevel) {
+        this.serviceLevel = serviceLevel;
     }
 }
