@@ -1,11 +1,13 @@
 package com.envista.msi.api.dao.rating;
 
+import com.envista.msi.api.dao.DaoException;
 import com.envista.msi.api.domain.PersistentContext;
 import com.envista.msi.api.domain.util.QueryParameter;
 import com.envista.msi.api.domain.util.StoredProcedureParameter;
 import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
 import com.envista.msi.api.web.rest.dto.rtr.EventLogDto;
 import com.envista.msi.api.web.rest.dto.rtr.StoreRatingDetailsDto;
+import com.envista.msi.api.web.rest.util.DateUtil;
 import org.springframework.stereotype.Repository;
 
 import javax.inject.Inject;
@@ -28,23 +30,29 @@ public class RatingDao {
     }
 
     public List<StoreRatingDetailsDto> saveRatingDetailsList( StoreRatingDetailsDto storeRatingDetailsDto ){
-        QueryParameter queryParameter = StoredProcedureParameter.with("customer_id", storeRatingDetailsDto.getCustomerId()).
-                and("carrier_id", storeRatingDetailsDto.getCarrierIds())
-                .and("from_invoice_date", storeRatingDetailsDto.getFromInvoiceDate())
-                .and("to_invoice_date", storeRatingDetailsDto.getToInvoiceDate())
-                .and("from_ship_date",storeRatingDetailsDto.getFromShipDate() )
-                .and("to_ship_date",storeRatingDetailsDto.getToShipDate() )
-                .and("rate_set", storeRatingDetailsDto.getRateSet())
-                .and("service_levels_id", storeRatingDetailsDto.getServiceLevelsId())
-                .and("invoice_rate",storeRatingDetailsDto.isInvoiceRate() )
-                .and("flagged_shipments",storeRatingDetailsDto.isFlaggedShipments() )
-                .and("threshold_value",storeRatingDetailsDto.getThresholdValue() )
-                .and("threshold_type",storeRatingDetailsDto.getThresholdType() )
-                .and("rate",storeRatingDetailsDto.isRate() )
-                .and("info_lookup",storeRatingDetailsDto.isInfoLookUp())
-                .and("user_name",storeRatingDetailsDto.getCreateUser())
-                .and("status",storeRatingDetailsDto.getStatus());
-        persistentContext.findEntities("StoreRatingDetailsDto.saveRatingDetailsList", queryParameter);
-        return null;
+
+        try {
+            QueryParameter queryParameter = StoredProcedureParameter.with("customer_id", storeRatingDetailsDto.getCustomerId()).
+                    and("carrier_id", storeRatingDetailsDto.getCarrierIds())
+                    .and("from_invoice_date", storeRatingDetailsDto.getFromInvoiceDate())
+                    .and("to_invoice_date", storeRatingDetailsDto.getToInvoiceDate())
+                    .and("from_ship_date", storeRatingDetailsDto.getFromShipDate())
+                    .and("to_ship_date", storeRatingDetailsDto.getToShipDate())
+                    .and("rate_set", storeRatingDetailsDto.getRateSet())
+                    .and("service_levels_id", storeRatingDetailsDto.getServiceLevelsId())
+                    .and("invoice_rate", storeRatingDetailsDto.isInvoiceRate())
+                    .and("flagged_shipments", storeRatingDetailsDto.isFlaggedShipments())
+                    .and("threshold_value", storeRatingDetailsDto.getThresholdValue())
+                    .and("threshold_type", storeRatingDetailsDto.getThresholdType())
+                    .and("rate", storeRatingDetailsDto.isRate())
+                    .and("info_lookup", storeRatingDetailsDto.isInfoLookUp())
+                    .and("user_name", storeRatingDetailsDto.getCreateUser())
+                    .and("status", storeRatingDetailsDto.getStatus());
+            return persistentContext.findEntities("StoreRatingDetailsDto.saveRatingDetailsList", queryParameter);
+        }catch(Exception e){
+
+            throw new DaoException("Failed to save rating Details", e);
+        }
+        //return null;
     }
 }
