@@ -4,6 +4,7 @@ import com.envista.msi.api.service.RatingService;
 import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
 import com.envista.msi.api.web.rest.dto.rtr.EventLogDto;
 import com.envista.msi.api.web.rest.dto.rtr.StoreRatingDetailsDto;
+import com.envista.msi.api.web.rest.util.DateUtil;
 import com.envista.msi.api.web.rest.util.JSONUtil;
 import org.json.JSONArray;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant;
@@ -60,6 +61,34 @@ public class RatingController {
     public ResponseEntity<List<StoreRatingDetailsDto>> storeRatingDetailsList(@RequestBody StoreRatingDetailsDto storeRatingDetailsDto) {
         List<StoreRatingDetailsDto> ratingDetailsList = null;
         try {
+
+            String dateFormat = "dd/MM/yyyy";
+            String fromInvoiceDate ="";
+            String toInvoiceDate="";
+            String fromShipDate="";
+            String toShipDate="";
+            if(storeRatingDetailsDto.getFromInvoiceDate() != null && !storeRatingDetailsDto.getFromInvoiceDate().isEmpty()){
+                fromInvoiceDate   = DateUtil.format(Long.parseLong(storeRatingDetailsDto.getFromInvoiceDate()), dateFormat);
+                storeRatingDetailsDto.setFromInvoiceDate(fromInvoiceDate);
+                System.out.println(fromInvoiceDate);
+            }
+
+            if(storeRatingDetailsDto.getToInvoiceDate() != null && !storeRatingDetailsDto.getToInvoiceDate().isEmpty()){
+                toInvoiceDate   = DateUtil.format(Long.parseLong(storeRatingDetailsDto.getToInvoiceDate()), dateFormat);
+                storeRatingDetailsDto.setToInvoiceDate(toInvoiceDate);
+                System.out.println(toInvoiceDate);
+            }
+
+            if(storeRatingDetailsDto.getFromShipDate() != null && !storeRatingDetailsDto.getFromShipDate().isEmpty()){
+                fromShipDate   = DateUtil.format(Long.parseLong(storeRatingDetailsDto.getFromShipDate()), dateFormat);
+                storeRatingDetailsDto.setFromShipDate(fromShipDate);
+            }
+
+            if(storeRatingDetailsDto.getToShipDate()!= null && !storeRatingDetailsDto.getToShipDate().isEmpty()){
+                toShipDate   = DateUtil.format(Long.parseLong(storeRatingDetailsDto.getToShipDate()), dateFormat);
+                storeRatingDetailsDto.setToShipDate(toShipDate);
+            }
+
             if(storeRatingDetailsDto != null){
                 storeRatingDetailsDto.setStatus(ParcelAuditConstant.ParcelRatingInputProcessStatus.NEW.value);
                 //storeRatingDetailsDto.setUs//ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME;
