@@ -130,6 +130,9 @@ public class ParcelRateDetailsDto implements Serializable {
     @Column(name = "RATE_SET_NAME")
     private String rateSetName;
 
+    @Transient
+    private String flagged;
+
 
     public static ParcelRateDetailsDto getInstance(){
         return new ParcelRateDetailsDto();
@@ -418,4 +421,12 @@ public class ParcelRateDetailsDto implements Serializable {
     public String getRateSetName() { return rateSetName; }
 
     public void setRateSetName(String rateSetName) { this.rateSetName = rateSetName; }
+
+    public String getFlagged() {
+        return flagged;
+    }
+
+    public void setFlagged(String flagged) {
+        this.flagged = flagged;
+    }
 }
