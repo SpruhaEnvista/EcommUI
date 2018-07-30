@@ -712,8 +712,8 @@ public class DirectJDBCDAO {
                 pstmt.setString(2, rateDetails.getReceiverCountry());
                 pstmt.setString(3, rateDetails.getSenderState());
                 pstmt.setString(4, rateDetails.getReceiverState());
-                if(rateDetails.getDeliveryDate() != null){
-                    pstmt.setDate(5, new java.sql.Date(rateDetails.getDeliveryDate().getTime()));
+                if(rateDetails.getPickupDate() != null){
+                    pstmt.setDate(5, new java.sql.Date(rateDetails.getPickupDate().getTime()));
                 }else {
                     pstmt.setNull(5, OracleTypes.DATE);
                 }
@@ -819,8 +819,8 @@ public class DirectJDBCDAO {
                 pstmt.setString(22, rateDetails.getDimHeight());
                 pstmt.setString(23, rateDetails.getChargeCode());
                 pstmt.setString(24, rateDetails.getCustomerCode());
-                if(rateDetails.getDeliveryDate() != null){
-                    pstmt.setDate(25, new java.sql.Date(rateDetails.getDeliveryDate().getTime()));
+                if(rateDetails.getPickupDate() != null){
+                    pstmt.setDate(25, new java.sql.Date(rateDetails.getPickupDate().getTime()));
                 }else {
                     pstmt.setNull(25, OracleTypes.DATE);
                 }
