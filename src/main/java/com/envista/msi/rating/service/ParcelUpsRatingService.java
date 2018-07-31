@@ -303,7 +303,7 @@ public class ParcelUpsRatingService {
                 }
 
                 directJDBCDAO.saveParcelAuditRequestAndResponseLog(ParcelRatingUtil.prepareRequestResponseLog(requestPayload, response, parcelAuditDetails.get(0).getParentId(), ParcelAuditConstant.EBILL_GFF_TABLE_NAME));
-                status = updateRateForUps(ParcelRateResponseParser.parse(response), parcelAuditDetails, msiARChargeCode, previousShipment, hwtNetAmount,( beans != null && beans.size() > 0 ? beans.get(0) : bean));
+                status = updateRateForUps(ParcelRateResponseParser.parse(response), parcelAuditDetails, msiARChargeCode, previousShipment, hwtNetAmount, bean);
             }
         }
         updateUpsOtherFieldValues(parcelAuditDetails);
