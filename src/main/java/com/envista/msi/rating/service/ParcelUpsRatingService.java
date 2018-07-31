@@ -1,6 +1,5 @@
 package com.envista.msi.rating.service;
 
-import com.envista.msi.api.dao.rtr.ParcelRTRDao;
 import com.envista.msi.api.domain.util.ParcelRatingUtil;
 import com.envista.msi.api.web.rest.dto.rtr.*;
 import com.envista.msi.api.web.rest.util.CommonUtil;
@@ -12,7 +11,12 @@ import com.envista.msi.rating.dao.DirectJDBCDAO;
 import com.envista.msi.rating.dao.RatingQueueDAO;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.StringJoiner;
 
 /**
  * Created by Sujit kumar on 05/05/2018.
@@ -294,7 +298,7 @@ public class ParcelUpsRatingService {
                 BigDecimal hwtNetAmount = null;
                 if (beans != null && beans.size() > 0) {
                     hwtNetAmount = ParcelRatingUtil.findSumOfNetAmount(parcelAuditDetails);
-                    parcelAuditDetails = ParcelRatingUtil.getLeadShipmentDetails(parcelAuditDetails);
+                    parcelAuditDetails = ParcelRatingUtil.updateWeightAndNetChargesForHwt(parcelAuditDetails);
                     bean = ParcelRatingUtil.getLeadShipmentQueueBean(parcelAuditDetails, beans);
                 }
 
