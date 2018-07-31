@@ -194,7 +194,7 @@ public class DirectJDBCDAO {
         CallableStatement cstmt = null;
         try{
             conn = ServiceLocator.getDatabaseConnection();
-            cstmt = conn.prepareCall("{ call SHP_SAVE_RATE_DETAILS_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
+            cstmt = conn.prepareCall("{ call SHP_SAVE_RATE_DETAILS_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
             cstmt.setString(1,referenceTableName);
             cstmt.setString(2, entityId);
             cstmt.setString(3,userName);
@@ -216,6 +216,7 @@ public class DirectJDBCDAO {
             cstmt.setString(19, rateDetails != null && rateDetails.getRtrStatus() != null ? rateDetails.getRtrStatus() : "");
             cstmt.setString(20, rateDetails != null && rateDetails.getHwtIdentifier() != null ? rateDetails.getHwtIdentifier() : null);
             cstmt.setString(21, rateDetails != null && rateDetails.getRateSetName() != null ? rateDetails.getRateSetName() : null);
+            cstmt.setString(22, rateDetails != null && rateDetails.getFlagged() != null ? rateDetails.getFlagged() : null);
             cstmt.executeUpdate();
 
         }catch (SQLException sqle) {;
@@ -240,7 +241,7 @@ public class DirectJDBCDAO {
         CallableStatement cstmt =null;
         try{
             conn = ServiceLocator.getDatabaseConnection();
-            cstmt = conn.prepareCall("{ call SHP_UPDATE_OTHER_DSC_PROC(?,?,?,?,?,?,?,?)}");
+            cstmt = conn.prepareCall("{ call SHP_UPDATE_OTHER_DSC_PROC(?,?,?,?,?,?,?,?,?)}");
             cstmt.setString(1, referenceTableName);
             cstmt.setString(2, entityIds);
             cstmt.setString(3, userName);
@@ -249,6 +250,7 @@ public class DirectJDBCDAO {
             cstmt.setBigDecimal(6, rateDetails != null && rateDetails.getOtherDiscount1() != null ? rateDetails.getOtherDiscount1() : new BigDecimal("0"));
             cstmt.setBigDecimal(7, rateDetails != null && rateDetails.getOtherDiscount2() != null ? rateDetails.getOtherDiscount2() : new BigDecimal("0"));
             cstmt.setBigDecimal(8, rateDetails != null && rateDetails.getOtherDiscount3() != null ? rateDetails.getOtherDiscount3() : new BigDecimal("0"));
+            cstmt.setString(9, rateDetails != null && rateDetails.getFlagged() != null ? rateDetails.getFlagged() : "");
             cstmt.executeUpdate();
         }catch (SQLException sqle) {
             throw new DaoException("Exception in updateOtherDiscountShipmentRateDetails", sqle);
@@ -274,7 +276,7 @@ public class DirectJDBCDAO {
         CallableStatement cstmt =null;
         try{
             conn = ServiceLocator.getDatabaseConnection();
-            cstmt = conn.prepareCall("{ call SHP_RATE_UPDATE_ACC_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?)}");
+            cstmt = conn.prepareCall("{ call SHP_RATE_UPDATE_ACC_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
             cstmt.setString(1, referenceTableName);
             cstmt.setString(2, entityIds);
             cstmt.setString(3, userName);
@@ -288,6 +290,7 @@ public class DirectJDBCDAO {
             cstmt.setString(11, rateDetails != null && rateDetails.getAccessorial2Code() != null ? rateDetails.getAccessorial2Code() : null);
             cstmt.setString(12, rateDetails != null && rateDetails.getAccessorial3Code() != null ? rateDetails.getAccessorial3Code() : null);
             cstmt.setString(13, rateDetails != null && rateDetails.getAccessorial4Code() != null ? rateDetails.getAccessorial4Code() : null);
+            cstmt.setString(14, rateDetails != null && rateDetails.getFlagged() != null ? rateDetails.getFlagged() : null);
             cstmt.executeUpdate();
         }catch (SQLException sqle) {
             sqle.printStackTrace();
@@ -434,7 +437,7 @@ public class DirectJDBCDAO {
         CallableStatement cstmt =null;
         try{
             conn = ServiceLocator.getDatabaseConnection();
-            cstmt = conn.prepareCall("{ call SHP_SAVE_ALL_RATE_DETAILS_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
+            cstmt = conn.prepareCall("{ call SHP_SAVE_ALL_RATE_DETAILS_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
             cstmt.setString(1,referenceTableName);
             cstmt.setString(2,entityIds);
             cstmt.setString(3,userName);
@@ -464,6 +467,8 @@ public class DirectJDBCDAO {
             cstmt.setString(27, rateDetails != null && rateDetails.getAccessorial4Code() != null ? rateDetails.getAccessorial4Code() : "");
             cstmt.setBigDecimal(28, rateDetails != null && rateDetails.getRtrAmount() != null ? rateDetails.getRtrAmount() : new BigDecimal("0"));
             cstmt.setString(29, rateDetails != null && rateDetails.getRtrStatus() != null ? rateDetails.getRtrStatus() : "");
+            cstmt.setString(30, rateDetails != null && rateDetails.getFlagged() != null ? rateDetails.getFlagged() : "");
+            cstmt.setString(31, rateDetails != null && rateDetails.getRateSetName() != null ? rateDetails.getRateSetName() : "");
             cstmt.executeUpdate();
 
         }catch (SQLException sqle) {
@@ -485,7 +490,7 @@ public class DirectJDBCDAO {
         }
     }
 
-    public List<Long> loadInvoiceIds(String fromDate, String toDate, String customerId, String invoiceIds, int limit, String rateTo){
+    public List<Long> loadInvoiceIds(String fromDate, String toDate, String customerId, String invoiceIds, int limit, String rateTo,String serviceLevelIds){
         System.out.println("Loading Invoices");
         Connection conn = null;
         PreparedStatement ps = null;
@@ -505,6 +510,11 @@ public class DirectJDBCDAO {
                     liveSqlQuery += " WHERE inv_contract_number IN (SELECT contract_number FROM SHP_EBILL_CONTRACT_TB ";
                     liveSqlQuery += " WHERE customer_id in (" + customerId + ") and carrier_id = 21) and inv_carrier_id = 21) ";
                     liveSqlQuery += " and trunc(pickup_date) between TRUNC(TO_DATE('"+ fromDate +"', 'DD-MON-YYYY')) AND TRUNC(TO_DATE('"+ toDate +"', 'DD-MON-YYYY')) ";
+
+                    if( serviceLevelIds != null && !"-1".equalsIgnoreCase(serviceLevelIds) ) {
+
+                        liveSqlQuery += " and ( SERVICE_BUCKET in ("+serviceLevelIds+") OR  ACTUAL_SERVICE_BUCKET in ("+serviceLevelIds+") ) ";
+                    }
                 }
 
                 if(limit > 0) {
@@ -526,6 +536,11 @@ public class DirectJDBCDAO {
                     liveSqlQuery += " WHERE inv_contract_number IN (SELECT contract_number FROM SHP_EBILL_CONTRACT_TB ";
                     liveSqlQuery += " WHERE customer_id IN ("  + customerId + ") and carrier_id = 22) and inv_carrier_id = 22) ";
                     liveSqlQuery += " and trunc(pickup_date) between TRUNC(TO_DATE('"+ fromDate +"', 'DD-MON-YYYY')) AND TRUNC(TO_DATE('"+ toDate +"', 'DD-MON-YYYY')) ";
+
+                    if( serviceLevelIds != null && !"-1".equalsIgnoreCase(serviceLevelIds) ) {
+
+                        liveSqlQuery += " and ( SERVICE_BUCKET in ("+serviceLevelIds+") OR  ACTUAL_SERVICE_BUCKET in ("+serviceLevelIds+") ) ";
+                    }
 
                     if(limit > 0) {
                         liveSqlQuery += " AND ROWNUM <= " + limit;
@@ -586,6 +601,9 @@ public class DirectJDBCDAO {
                 inputCriteria.setStatus(rs.getString("STATUS"));
                 inputCriteria.setTaskId(rs.getLong("TASK_ID"));
                 inputCriteria.setRateSetName(rs.getString("RATE_SET"));
+                inputCriteria.setThresholdType(rs.getString("THRESHOLD_TYPE"));
+                inputCriteria.setThresholdValue(rs.getString("THRESHOLD_VALUE"));
+                inputCriteria.setServiceLevel(rs.getString("SERVICE_LEVELS_ID"));
             }
         } catch (Exception e) {
             throw new DaoException("getRatingInputCriteria", e);

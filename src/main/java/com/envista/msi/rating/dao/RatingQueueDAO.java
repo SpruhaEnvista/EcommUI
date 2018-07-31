@@ -91,6 +91,8 @@ public class RatingQueueDAO {
                 ratingQBean.setHwtIdentifier(rss.getString("HWT_IDENTIFIER"));
                 ratingQBean.setRateSetName(rss.getString("RATE_SET_NAME"));
                 ratingQBean.setTaskId(rss.getLong("TASK_ID"));
+                ratingQBean.setThresholdValue(rss.getString("THRESHOLD_VALUE"));
+                ratingQBean.setThresholdType(rss.getString("THRESHOLD_TYPE"));
             }
 
         } catch (SQLException sqle) {
@@ -190,6 +192,8 @@ public class RatingQueueDAO {
                 ratingQueueBean.setHwtIdentifier(rs.getString("HWT_IDENTIFIER"));
                 ratingQueueBean.setRateSetName(rs.getString("RATE_SET_NAME"));
                 ratingQueueBean.setTaskId(rs.getLong("TASK_ID"));
+                ratingQueueBean.setThresholdType(rs.getString("THRESHOLD_TYPE"));
+                ratingQueueBean.setThresholdValue(rs.getString("THRESHOLD_VALUE"));
                 beanList.add(ratingQueueBean);
             }
 
@@ -481,7 +485,7 @@ public class RatingQueueDAO {
             } else {
                 liveSqlQuery += " ar.RTR_AMOUNT ,ar.rtr_status,";
             }
-            liveSqlQuery += " ebmf.REVENUE_TIER AS REVENUE_TIER, ebmf.CHARGE_CODE,Ebmf.Bundle_Number AS MULTI_WEIGHT_NUMBER, null AS CHARGE_CATEGORY_DETAIL_CODE ";
+            liveSqlQuery += " ebmf.REVENUE_TIER AS REVENUE_TIER, ebmf.CHARGE_CODE,DECODE (Ebmf.Bundle_Number,NULL,MISCELLANEOUS5,Bundle_Number) AS MULTI_WEIGHT_NUMBER, null AS CHARGE_CATEGORY_DETAIL_CODE ";
             liveSqlQuery += " FROM SHP_EBILL_MANIFEST_TB ebmf, SHP_EBILL_CONTRACT_TB ebc, SHP_CUSTOMER_PROFILE_TB cp, SHP_CARRIER_TB c, SHP_SHIPPER_TB s";
             if (!isHwt) {
                 liveSqlQuery += ", SHP_AUDIT_RATE_DETAILS_TB ar  ";
@@ -519,11 +523,11 @@ public class RatingQueueDAO {
             }
 
             if (!ignoreRtrStatus && !isHwt) {
-                liveSqlQuery += " AND (UPPER(ar.RTR_STATUS) = 'READYFORRATE' OR ar.RTR_STATUS IS NULL) and Ebmf.Bundle_Number is null ";
+                liveSqlQuery += " AND (UPPER(ar.RTR_STATUS) = 'READYFORRATE' OR ar.RTR_STATUS IS NULL) and (Ebmf.Bundle_Number is null OR Ebmf.MISCELLANEOUS5 is null)";
             }
 
             if (isHwt) {
-                liveSqlQuery += " and Ebmf.Bundle_Number is not null AND (Ebmf.ebill_manifest_id,Ebmf.Bundle_Number) in(SELECT ebill_manifest_id,Bundle_Number FROM  SHP_EBILL_MANIFEST_TB " +
+                liveSqlQuery += " and (Ebmf.Bundle_Number IS NOT NULL OR Ebmf.MISCELLANEOUS5 IS NOT NULL) AND (Ebmf.ebill_manifest_id,DECODE (Ebmf.Bundle_Number,NULL,Ebmf.MISCELLANEOUS5,Ebmf.Bundle_Number)) in(SELECT ebill_manifest_id,DECODE (Bundle_Number,NULL,MISCELLANEOUS5,Bundle_Number) FROM  SHP_EBILL_MANIFEST_TB " +
                         " where invoice_id IN ( " + invoiceId + ") MINUS SELECT a.ebill_manifest_id,a.hwt_identifier FROM  SHP_AUDIT_RATE_DETAILS_TB a," +
                         " SHP_EBILL_MANIFEST_TB b where a.ebill_manifest_id = b.ebill_manifest_id and b.invoice_id IN ( " + invoiceId + "))";
 
