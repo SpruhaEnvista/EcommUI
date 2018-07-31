@@ -1011,7 +1011,7 @@ public class ParcelRatingUtil {
         Map<String, BigDecimal> accessorialNetCharges = new HashMap<>();
         for (ParcelAuditDetailsDto dto : shipmentToRate) {
 
-            if (dto.getId() == dto.getParentId()) {
+            if (dto.getId().equals(dto.getParentId())) {
 
                 actualWeight.add(dto.getActualWeight());
                 billedWeight.add(new BigDecimal(dto.getPackageWeight()));
