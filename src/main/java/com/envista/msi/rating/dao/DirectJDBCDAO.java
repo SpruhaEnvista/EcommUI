@@ -700,7 +700,8 @@ public class DirectJDBCDAO {
         sqlQuery += " ur.RECEIVER_COUNTRY = ?, ur.SENDER_STATE = ?, ur.RECEIVER_STATE = ?, ur.SHIPMENT_DATE = ?, ur.INVOICE_DATE = ?, ur.INVOICE_NUMBER = ?, ";
         sqlQuery += " ur.LEAD_SHIPMENT_NUMBER = ?, ur.TRACKING_NUMBER = ?, ur.ENTERED_WEIGHT = ?, ur.BILLED_WEIGHT = ?, ur.CONTAINER_TYPE = ?, ur.PACKAGE_DIMENSIONS = ?, ";
         sqlQuery += " ur.ZONE = ?, ur.CHARGE_CLASSIFICATION_CODE = ?, ur.CHARGE_DESCRIPTION = ?, ur.INCENTIVE_AMOUNT = ?, ur.NET_AMOUNT = ?, ur.CUSTOMER_CODE = ?, ur.SHIPPER_CODE = ?, ";
-        sqlQuery += " ur.INV_CREATE_DATE = ?, ur.PARENT_ID = ?, ur.DW_FIELD_INFORMATION = ?, ur.INVOICE_ID = ?, ur.CUSTOMER_ID = ?, ur.BILL_OPTION_CODE = ?, ur.CHARGE_CATEGORY_DETAIL_CODE = ? ";
+        sqlQuery += " ur.INV_CREATE_DATE = ?, ur.PARENT_ID = ?, ur.DW_FIELD_INFORMATION = ?, ur.INVOICE_ID = ?, ur.CUSTOMER_ID = ?, ur.BILL_OPTION_CODE = ?, ur.CHARGE_CATEGORY_DETAIL_CODE = ?, ";
+        sqlQuery += " ur.PIECES ";
         sqlQuery += " WHERE ur.EBILL_GFF_ID = ? ";
 
         try {
@@ -748,7 +749,13 @@ public class DirectJDBCDAO {
                 pstmt.setLong(25, rateDetails.getCustomerId());
                 pstmt.setString(26, rateDetails.getBillOption());
                 pstmt.setString(27, rateDetails.getChargeCategoryDetailCode());
-                pstmt.setLong(28, rateDetails.getId());
+                if(rateDetails.getPieces() != null){
+                    pstmt.setInt(28, rateDetails.getPieces());
+                }else{
+                    pstmt.setNull(28, OracleTypes.INTEGER);
+                }
+
+                pstmt.setLong(29, rateDetails.getId());
                 pstmt.addBatch();
             }
 
