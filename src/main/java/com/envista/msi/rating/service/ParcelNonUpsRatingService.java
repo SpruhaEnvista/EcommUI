@@ -15,7 +15,12 @@ import com.envista.msi.rating.dao.RatingQueueDAO;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.StringJoiner;
 
 /**
  * Created by Sujit kumar on 02/05/2018.
@@ -147,7 +152,7 @@ public class ParcelNonUpsRatingService {
         if(response != null && !response.trim().isEmpty()) {
             if (queueBeans != null && queueBeans.size() > 0) {
                 BigDecimal sumOfNetAmount = ParcelRatingUtil.findSumOfNetAmount(shipmentToRate);
-                shipmentToRate = ParcelRatingUtil.getLeadShipmentDetails(shipmentToRate);
+                shipmentToRate = ParcelRatingUtil.updateWeightAndNetChargesForHwt(shipmentToRate);
                 bean = ParcelRatingUtil.getLeadShipmentQueueBean(shipmentToRate, queueBeans);
                 if (bean != null)
                     bean.setNetAmount(sumOfNetAmount);
@@ -155,6 +160,9 @@ public class ParcelNonUpsRatingService {
 
             new DirectJDBCDAO().saveParcelAuditRequestAndResponseLog(ParcelRatingUtil.prepareRequestResponseLog(requestPayload, response, bean.getParentId(), ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME));
 
+            status = updateRateForNonUpsCarrier(ParcelRateResponseParser.parse(response), shipmentToRate, getAllMappedARChargeCodes(), bean);
+
+            updateFedExOtherFieldValues(shipmentToRate);
             status = updateRateForNonUpsCarrier(ParcelRateResponseParser.parse(response), shipmentToRate, getAllMappedARChargeCodes(), (( queueBeans != null && queueBeans.size() > 0) ? queueBeans.get(0) : bean ));
             if(status != null && !status.isEmpty()){
                 new DirectJDBCDAO().updateRtrStatus(22L, bean.getTrackingNumber(), status);
