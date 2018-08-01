@@ -303,6 +303,9 @@ public class ParcelUpsRatingService {
             }
         }
         updateUpsOtherFieldValues(parcelAuditDetails);
+        if(status != null && !status.isEmpty()){
+            new DirectJDBCDAO().updateRtrStatus(21L, bean.getTrackingNumber(), status);
+        }
         return status;
     }
 
