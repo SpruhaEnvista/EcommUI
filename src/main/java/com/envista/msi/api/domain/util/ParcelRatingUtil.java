@@ -1075,13 +1075,13 @@ public class ParcelRatingUtil {
 
             if (dwArr != null && dwArr.length > 2) {
 
-                if (dwArr[1].equalsIgnoreCase("FRT")) {
-                    leadShipmentAccess.add(dwArr[1]);
+                if ("FRT".equalsIgnoreCase(dwArr[1].trim())) {
+                    leadShipmentAccess.add(dwArr[1].trim());
                     dto.setNetAmount("" + accessorialNetCharges.get("FRT") + "");
                 } else {
-                    leadShipmentAccess.add(dwArr[2]);
-                    if (accessorialNetCharges.containsKey(dwArr[2])) {
-                        dto.setNetAmount("" + accessorialNetCharges.get(dwArr[2]) + "");
+                    leadShipmentAccess.add(dwArr[2].trim());
+                    if (accessorialNetCharges.containsKey(dwArr[2].trim())) {
+                        dto.setNetAmount("" + accessorialNetCharges.get(dwArr[2].trim()) + "");
                     }
                 }
             }
@@ -1126,12 +1126,12 @@ public class ParcelRatingUtil {
 
             if (dwArr != null && dwArr.length > 2) {
 
-                if (dwArr[1].equalsIgnoreCase("FRT") && key.equalsIgnoreCase(dwArr[1])) {
+                if (dwArr[1].trim().equalsIgnoreCase("FRT") && key.equalsIgnoreCase(dwArr[1].trim())) {
 
                     resultDto = dto;
                     break;
 
-                } else if (dwArr[2].equalsIgnoreCase(key)) {
+                } else if (dwArr[2].trim().equalsIgnoreCase(key)) {
                     {
                         resultDto = dto;
                         break;
