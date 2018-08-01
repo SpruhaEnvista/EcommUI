@@ -1,6 +1,7 @@
 package com.envista.msi.rating.dao;
 
 import com.envista.msi.api.web.rest.dto.rtr.*;
+import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant;
 import com.envista.msi.rating.ServiceLocator;
 import com.envista.msi.rating.ServiceLocatorException;
 import com.envista.msi.rating.entity.ParcelRatingInputCriteriaDto;
@@ -841,6 +842,48 @@ public class DirectJDBCDAO {
             }
 
             pstmt.executeBatch();
+            con.commit();
+        } catch (Exception e) {
+            try {
+                con.rollback();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+            throw new DaoException("Exception in updateFedExOtherFieldValues", e);
+        }finally {
+            try {
+                if (pstmt != null)
+                    pstmt.close();
+            } catch (SQLException sqle) {
+            }
+            try {
+                if (con != null)
+                    con.close();
+            } catch (SQLException sqle) {
+            }
+        }
+    }
+
+
+
+    public void updateRtrStatus(Long carrierId, String trackingNumber, String status) {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        String sqlQuery = "";
+        if(carrierId == 21L){
+            sqlQuery += " UPDATE SHP_EBILL_UPS_RATES_TB ur SET ur.RTR_STATUS = ? WHERE ur.TRACKING_NUMBER = ? ";
+        } else if(carrierId == 22L){
+            sqlQuery += " UPDATE SHP_EBILL_FDX_RATES_TB ur SET ur.RTR_STATUS = ? WHERE ur.TRACKING_NUMBER = ? ";
+        }
+
+        try {
+            con = ServiceLocator.getDatabaseConnection();
+            pstmt = con.prepareStatement(sqlQuery);
+            con.setAutoCommit(false);
+
+            pstmt.setString(1, status);
+            pstmt.setString(2, trackingNumber);
+            pstmt.executeUpdate();
             con.commit();
         } catch (Exception e) {
             try {
