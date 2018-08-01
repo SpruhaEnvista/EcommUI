@@ -161,9 +161,7 @@ public class ParcelNonUpsRatingService {
             new DirectJDBCDAO().saveParcelAuditRequestAndResponseLog(ParcelRatingUtil.prepareRequestResponseLog(requestPayload, response, bean.getParentId(), ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME));
 
             status = updateRateForNonUpsCarrier(ParcelRateResponseParser.parse(response), shipmentToRate, getAllMappedARChargeCodes(), bean);
-
             updateFedExOtherFieldValues(shipmentToRate);
-            status = updateRateForNonUpsCarrier(ParcelRateResponseParser.parse(response), shipmentToRate, getAllMappedARChargeCodes(), (( queueBeans != null && queueBeans.size() > 0) ? queueBeans.get(0) : bean ));
             if(status != null && !status.isEmpty()){
                 new DirectJDBCDAO().updateRtrStatus(22L, bean.getTrackingNumber(), status);
             }
