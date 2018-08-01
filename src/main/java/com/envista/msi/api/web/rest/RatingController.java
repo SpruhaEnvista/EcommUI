@@ -70,13 +70,13 @@ public class RatingController {
             if(storeRatingDetailsDto.getFromInvoiceDate() != null && !storeRatingDetailsDto.getFromInvoiceDate().isEmpty()){
                 fromInvoiceDate   = DateUtil.format(Long.parseLong(storeRatingDetailsDto.getFromInvoiceDate()), dateFormat);
                 storeRatingDetailsDto.setFromInvoiceDate(fromInvoiceDate);
-                System.out.println(fromInvoiceDate);
+
             }
 
             if(storeRatingDetailsDto.getToInvoiceDate() != null && !storeRatingDetailsDto.getToInvoiceDate().isEmpty()){
                 toInvoiceDate   = DateUtil.format(Long.parseLong(storeRatingDetailsDto.getToInvoiceDate()), dateFormat);
                 storeRatingDetailsDto.setToInvoiceDate(toInvoiceDate);
-                System.out.println(toInvoiceDate);
+
             }
 
             if(storeRatingDetailsDto.getFromShipDate() != null && !storeRatingDetailsDto.getFromShipDate().isEmpty()){
@@ -91,14 +91,9 @@ public class RatingController {
 
             if(storeRatingDetailsDto != null){
                 storeRatingDetailsDto.setStatus(ParcelAuditConstant.ParcelRatingInputProcessStatus.NEW.value);
-                //storeRatingDetailsDto.setUs//ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME;
-
                 storeRatingDetailsDto.setCreateUser(ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME);
-
-
-            }
+                }
             if (storeRatingDetailsDto != null & storeRatingDetailsDto.getRateSet() != null)
-
                 ratingDetailsList = ratingService.saveRatingDetailsList(storeRatingDetailsDto);
             return new ResponseEntity<List<StoreRatingDetailsDto>>(ratingDetailsList, HttpStatus.OK);
         } catch (Exception e) {
