@@ -178,7 +178,7 @@ public class ParcelRatingQueueJob {
                     String trackingNumber = parcelAuditEntry.getKey();
                     List<ParcelAuditDetailsDto> shipmentRecords = null;
                     if (trackingNumber != null && !trackingNumber.isEmpty()) {
-                        shipmentRecords = new ParcelUpsRatingService().getUpsParcelShipmentDetails(customerIds, trackingNumber, true, isHwt);
+                        shipmentRecords = new ParcelUpsRatingService().getUpsParcelShipmentDetails(customerIds, trackingNumber, true, false);
                     }
 
                     Map<Long, List<ParcelAuditDetailsDto>> shipments = ParcelRatingUtil.organiseShipmentsByParentId(shipmentRecords);

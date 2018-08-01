@@ -804,25 +804,42 @@ public class ParcelRatingUtil {
     public static Map<String, List<ParcelAuditDetailsDto>> prepareHwtNumberWiseAuditDetails(Map<String, List<ParcelAuditDetailsDto>> listMap) {
 
         Map<String, List<ParcelAuditDetailsDto>> hwtDetailsMap = new HashMap<>();
-        Map<String, List<ParcelAuditDetailsDto>> tempMap = new HashMap<>(listMap);
-        for (Map.Entry<String, List<ParcelAuditDetailsDto>> entry : tempMap.entrySet()) {
+        for (Map.Entry<String, List<ParcelAuditDetailsDto>> entry : listMap.entrySet()) {
 
             for (ParcelAuditDetailsDto parcelAuditDetails : entry.getValue()) {
                 if (parcelAuditDetails != null) {
 
                     if (parcelAuditDetails.getMultiWeightNumber() != null && !parcelAuditDetails.getMultiWeightNumber().isEmpty()) {
                         if (hwtDetailsMap.containsKey(parcelAuditDetails.getMultiWeightNumber()))
-                            hwtDetailsMap.get(parcelAuditDetails.getMultiWeightNumber()).addAll(tempMap.get(parcelAuditDetails.getTrackingNumber()));
+                            hwtDetailsMap.get(parcelAuditDetails.getMultiWeightNumber()).addAll(listMap.get(parcelAuditDetails.getTrackingNumber()));
                         else
-                            hwtDetailsMap.put(parcelAuditDetails.getMultiWeightNumber(), tempMap.get(parcelAuditDetails.getTrackingNumber()));
+                            hwtDetailsMap.put(parcelAuditDetails.getMultiWeightNumber(), listMap.get(parcelAuditDetails.getTrackingNumber()));
 
-                        listMap.remove(parcelAuditDetails.getTrackingNumber());
+
                         break;
                     }
                 }
             }
         }
-        tempMap = null;
+        Map<String, List<ParcelAuditDetailsDto>> hwtDetailsMapTemp = new HashMap<>(hwtDetailsMap);
+        Set<String> trackingSet;
+        for (Map.Entry<String, List<ParcelAuditDetailsDto>> entry : hwtDetailsMapTemp.entrySet()) {
+
+            trackingSet = new HashSet<>();
+            for (ParcelAuditDetailsDto parcelAuditDetails : entry.getValue()) {
+                if (parcelAuditDetails != null) {
+                    trackingSet.add(parcelAuditDetails.getTrackingNumber());
+                }
+
+            }
+            if (trackingSet.size() == 1 && trackingSet.contains(entry.getKey())) {
+                hwtDetailsMap.remove(entry.getKey());
+            } else {
+                listMap.remove(trackingSet);
+            }
+        }
+
+
         return hwtDetailsMap;
     }
 
@@ -1013,8 +1030,8 @@ public class ParcelRatingUtil {
 
             if (dto.getId().equals(dto.getParentId())) {
 
-                actualWeight.add(dto.getActualWeight());
-                billedWeight.add(new BigDecimal(dto.getPackageWeight()));
+                actualWeight = actualWeight.add(dto.getActualWeight());
+                billedWeight = billedWeight.add(new BigDecimal(dto.getPackageWeight()));
 
                 noOfPieces++;
             }
@@ -1025,20 +1042,20 @@ public class ParcelRatingUtil {
 
             if (dwArr != null && dwArr.length > 2) {
 
-                if (dwArr[1].equalsIgnoreCase("FRT")) {
+                if ("FRT".equalsIgnoreCase(dwArr[1].trim())) {
 
                     if (accessorialNetCharges.containsKey("FRT")) {
 
-                        accessorialNetCharges.get("FRT").add(netAmt);
+                        accessorialNetCharges.put("FRT", accessorialNetCharges.get("FRT").add(netAmt));
                     } else {
                         accessorialNetCharges.put("FRT", netAmt);
                     }
                 } else {
-                    if (accessorialNetCharges.containsKey(dwArr[2])) {
+                    if (accessorialNetCharges.containsKey(dwArr[2].trim())) {
 
-                        accessorialNetCharges.get(dwArr[2]).add(netAmt);
+                        accessorialNetCharges.put(dwArr[2].trim(), accessorialNetCharges.get(dwArr[2].trim()).add(netAmt));
                     } else {
-                        accessorialNetCharges.put(dwArr[2], netAmt);
+                        accessorialNetCharges.put(dwArr[2].trim(), netAmt);
                     }
                 }
             }
