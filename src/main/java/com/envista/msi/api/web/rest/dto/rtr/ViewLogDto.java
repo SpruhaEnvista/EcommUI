@@ -64,28 +64,5 @@ public class ViewLogDto implements Serializable {
         this.last_Update_Date = last_Update_Date;
     }
 
-   /* @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof EventLogDto)) return false;
-        EventLogDto that = (EventLogDto) o;
-        return Objects.equals(getEventLogid(), that.getEventLogid()) &&
-                Objects.equals(getCreated(), that.getCreated()) &&
-                Objects.equals(getUserId(), that.getUserId()) &&
-                Objects.equals(getLogLevel(), that.getLogLevel()) &&
-                Objects.equals(getRatingComponent(), that.getRatingComponent()) &&
-                Objects.equals(getJobId(), that.getJobId()) &&
-                Objects.equals(getEntryContent(), that.getEntryContent()) &&
-                Objects.equals(getUserName(), that.getUserName()) &&
-                Objects.equals(getRatingVersion(), that.getRatingVersion()) &&
-                Objects.equals(getCustomerCode(), that.getCustomerCode());
-    }
-
-    @Override
-    public int hashCode() {
-
-        return Objects.hash(getEventLogid(), getCreated(), getUserId(), getLogLevel(), getRatingComponent(), getJobId(), getEntryContent(), getUserName(), getRatingVersion(), getCustomerCode());
-    }
-*/
 
 }
