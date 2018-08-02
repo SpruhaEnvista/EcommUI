@@ -701,7 +701,7 @@ public class DirectJDBCDAO {
         sqlQuery += " ur.LEAD_SHIPMENT_NUMBER = ?, ur.TRACKING_NUMBER = ?, ur.ENTERED_WEIGHT = ?, ur.BILLED_WEIGHT = ?, ur.CONTAINER_TYPE = ?, ur.PACKAGE_DIMENSIONS = ?, ";
         sqlQuery += " ur.ZONE = ?, ur.CHARGE_CLASSIFICATION_CODE = ?, ur.CHARGE_DESCRIPTION = ?, ur.INCENTIVE_AMOUNT = ?, ur.NET_AMOUNT = ?, ur.CUSTOMER_CODE = ?, ur.SHIPPER_CODE = ?, ";
         sqlQuery += " ur.INV_CREATE_DATE = ?, ur.PARENT_ID = ?, ur.DW_FIELD_INFORMATION = ?, ur.INVOICE_ID = ?, ur.CUSTOMER_ID = ?, ur.BILL_OPTION_CODE = ?, ur.CHARGE_CATEGORY_DETAIL_CODE = ?, ";
-        sqlQuery += " ur.PIECES ";
+        sqlQuery += " ur.PIECES = ? ";
         sqlQuery += " WHERE ur.EBILL_GFF_ID = ? ";
 
         try {
