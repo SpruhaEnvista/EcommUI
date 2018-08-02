@@ -4,6 +4,7 @@ import com.envista.msi.api.service.RatingService;
 import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
 import com.envista.msi.api.web.rest.dto.rtr.EventLogDto;
 import com.envista.msi.api.web.rest.dto.rtr.StoreRatingDetailsDto;
+import com.envista.msi.api.web.rest.dto.rtr.ViewLogDto;
 import com.envista.msi.api.web.rest.util.JSONUtil;
 import org.json.JSONArray;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant;
@@ -91,6 +92,21 @@ public class RatingController {
         }catch (Exception e){
             return new ResponseEntity<List<StoreRatingDetailsDto>>(new ArrayList<StoreRatingDetailsDto>(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @RequestMapping(value = "/getViewLog", method = {RequestMethod.GET}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<JSONObject> getViewLog(@RequestParam Long jobId) {
+
+        try {
+            List<ViewLogDto> eventLogList = ratingService.getViewLog(jobId);
+            JSONObject eventLogJson = new JSONObject();
+            if (eventLogList != null)
+                eventLogJson.put("eventLogs", new JSONArray(eventLogList));
+            return new ResponseEntity<JSONObject>(eventLogJson, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<JSONObject>(new JSONObject(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 
 }
