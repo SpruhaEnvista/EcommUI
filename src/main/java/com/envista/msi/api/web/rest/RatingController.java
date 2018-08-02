@@ -1,6 +1,9 @@
 package com.envista.msi.api.web.rest;
 
+import com.envista.msi.api.security.SecurityUtils;
 import com.envista.msi.api.service.RatingService;
+import com.envista.msi.api.service.UserService;
+import com.envista.msi.api.web.rest.dto.UserProfileDto;
 import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
 import com.envista.msi.api.web.rest.dto.rtr.EventLogDto;
 import com.envista.msi.api.web.rest.dto.rtr.StoreRatingDetailsDto;
@@ -25,6 +28,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/rates")
 public class RatingController {
+
+    @Inject
+    private UserService userService;
 
     @Inject
     private RatingService ratingService;
@@ -89,9 +95,14 @@ public class RatingController {
                 storeRatingDetailsDto.setToShipDate(toShipDate);
             }
 
+            UserProfileDto user = null;
+            try{
+                user = userService.getUserProfileByUserName(SecurityUtils.getCurrentUserLogin());
+            }catch (Exception e){ //Do nothing.
+            }
             if(storeRatingDetailsDto != null){
                 storeRatingDetailsDto.setStatus(ParcelAuditConstant.ParcelRatingInputProcessStatus.NEW.value);
-                storeRatingDetailsDto.setCreateUser(ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME);
+                storeRatingDetailsDto.setCreateUser(user != null ? user.getUserName() : ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME);
                 }
             if (storeRatingDetailsDto != null & storeRatingDetailsDto.getRateSet() != null)
                 ratingDetailsList = ratingService.saveRatingDetailsList(storeRatingDetailsDto);
