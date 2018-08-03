@@ -417,8 +417,9 @@ public class ParcelRatingQueueJob {
                 ratingQueueBean.setThresholdValue(ratingInputCriteriaBean.getThresholdValue());
                 ratingQueueBean.setThresholdType(ratingInputCriteriaBean.getThresholdType());
                 ratingQueueBean.setServiceLevel(ratingInputCriteriaBean.getServiceLevel());
-                queueBeanList.add(ratingQueueBean);
+
                     queueBeanList.add(ratingQueueBean);
+
                 }
             }
             if (queueBeanList != null && queueBeanList.size() > 0) {
