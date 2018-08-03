@@ -964,9 +964,16 @@ public class ParcelRatingUtil {
 
         for (RatingQueueBean bean : queueBeans) {
 
-            if (shipmentToRate.get(0).getParentId().equals(bean.getManiestId())) {
+            if (shipmentToRate.get(0).getCarrierId() == 21) {
+                if (shipmentToRate.get(0).getParentId().equals(bean.getGffId())) {
 
-                return bean;
+                    return bean;
+                }
+            } else if (shipmentToRate.get(0).getCarrierId() == 22) {
+                if (shipmentToRate.get(0).getParentId().equals(bean.getManiestId())) {
+
+                    return bean;
+                }
             }
         }
         return null;
@@ -1030,8 +1037,10 @@ public class ParcelRatingUtil {
 
             if (dto.getId().equals(dto.getParentId())) {
 
-                actualWeight = actualWeight.add(dto.getActualWeight());
-                billedWeight = billedWeight.add(new BigDecimal(dto.getPackageWeight()));
+                if (dto.getActualWeight() != null)
+                    actualWeight = actualWeight.add(dto.getActualWeight());
+                if (dto.getPackageWeight() != null)
+                    billedWeight = billedWeight.add(new BigDecimal(dto.getPackageWeight()));
 
                 noOfPieces++;
             }
