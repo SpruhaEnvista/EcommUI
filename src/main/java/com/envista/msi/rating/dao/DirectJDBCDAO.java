@@ -1,10 +1,6 @@
 package com.envista.msi.rating.dao;
 
-import com.envista.msi.api.web.rest.dto.rtr.StoreRatingDetailsDto;
-import com.envista.msi.api.web.rest.dto.rtr.ParcelRateDetailsDto;
-import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditRequestResponseLog;
-import com.envista.msi.api.web.rest.dto.rtr.RatedChargeDetailsDto;
-import com.envista.msi.api.web.rest.dto.rtr.ParcelARChargeCodeMappingDto;
+import com.envista.msi.api.web.rest.dto.rtr.*;
 import com.envista.msi.rating.ServiceLocator;
 import com.envista.msi.rating.ServiceLocatorException;
 import com.envista.msi.rating.entity.ParcelRatingInputCriteriaDto;
@@ -698,7 +694,6 @@ public class DirectJDBCDAO {
             }
         }
     }
-
 
     public void updateUpsOtherFieldValues(List<ParcelAuditDetailsDto> rateDetailsList) {
         Connection con = null;
