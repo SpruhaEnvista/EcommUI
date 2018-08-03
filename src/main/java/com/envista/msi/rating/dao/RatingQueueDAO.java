@@ -372,8 +372,8 @@ public class RatingQueueDAO {
 
             if (isHwt) {
                 liveQuery += " and a.Lead_Shipment_Number is not null AND (a.ebill_gff_id,a.Lead_Shipment_Number) in(SELECT EBILL_GFF_ID,Lead_Shipment_Number FROM  shp_ebill_gff_tb " +
-                        " where invoice_id IN ( " + invoiceIds + ") MINUS SELECT a.EBILL_GFF_ID,a.hwt_identifier FROM  SHP_EBILL_UPS_RATES_TB a," +
-                        " shp_ebill_gff_tb b where a.EBILL_GFF_ID = b.EBILL_GFF_ID and b.invoice_id IN ( " + invoiceIds + "))";
+                        " where invoice_id IN ( " + invoiceIds + ") MINUS SELECT a.Gff_Id,a.hwt_identifier FROM  Shp_Rating_Queue_Tb a," +
+                        " shp_ebill_gff_tb b where a.Gff_Id = b.EBILL_GFF_ID and b.invoice_id IN ( " + invoiceIds + "))";
 
             }
 
@@ -539,8 +539,8 @@ public class RatingQueueDAO {
 
             if (isHwt) {
                 liveSqlQuery += " and (Ebmf.Bundle_Number IS NOT NULL OR Ebmf.MISCELLANEOUS5 IS NOT NULL) AND (Ebmf.ebill_manifest_id,DECODE (Ebmf.Bundle_Number,NULL,Ebmf.MISCELLANEOUS5,Ebmf.Bundle_Number)) in(SELECT ebill_manifest_id,DECODE (Bundle_Number,NULL,MISCELLANEOUS5,Bundle_Number) FROM  SHP_EBILL_MANIFEST_TB " +
-                        " where invoice_id IN ( " + invoiceId + ") MINUS SELECT a.ebill_manifest_id,a.hwt_identifier FROM  SHP_EBILL_FDX_RATES_TB a," +
-                        " SHP_EBILL_MANIFEST_TB b where a.ebill_manifest_id = b.ebill_manifest_id and b.invoice_id IN ( " + invoiceId + "))";
+                        " where invoice_id IN ( " + invoiceId + ") MINUS SELECT a.manifest_id,a.hwt_identifier FROM  Shp_Rating_Queue_Tb a," +
+                        " SHP_EBILL_MANIFEST_TB b where a.manifest_id = b.ebill_manifest_id and b.invoice_id IN ( " + invoiceId + "))";
 
             }
 
