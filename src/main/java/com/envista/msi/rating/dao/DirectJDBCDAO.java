@@ -1,7 +1,10 @@
 package com.envista.msi.rating.dao;
 
-import com.envista.msi.api.web.rest.dto.rtr.*;
-import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant;
+import com.envista.msi.api.web.rest.dto.rtr.StoreRatingDetailsDto;
+import com.envista.msi.api.web.rest.dto.rtr.ParcelRateDetailsDto;
+import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditRequestResponseLog;
+import com.envista.msi.api.web.rest.dto.rtr.RatedChargeDetailsDto;
+import com.envista.msi.api.web.rest.dto.rtr.ParcelARChargeCodeMappingDto;
 import com.envista.msi.rating.ServiceLocator;
 import com.envista.msi.rating.ServiceLocatorException;
 import com.envista.msi.rating.entity.ParcelRatingInputCriteriaDto;
@@ -10,7 +13,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.CallableStatement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -912,4 +919,68 @@ public class DirectJDBCDAO {
             }
         }
     }
+
+    public List<StoreRatingDetailsDto> getRatingJobsByCustomer(Long customerId){
+        Connection conn = null;
+        CallableStatement cstmt = null;
+        ResultSet rs = null;
+        List<StoreRatingDetailsDto> storeRatingDetailsDtoList = null;
+
+        try{
+            conn = ServiceLocator.getDatabaseConnection();
+            cstmt = conn.prepareCall("{ call SHP_RATING_JOBS_BY_CUST_PROC(?,?)}");
+            cstmt.setLong(1, customerId);
+            cstmt.registerOutParameter(2, OracleTypes.CURSOR);
+            cstmt.execute();
+            storeRatingDetailsDtoList = new ArrayList<>();
+            rs = (ResultSet) cstmt.getObject(2);
+            while(rs.next()){
+                StoreRatingDetailsDto storeRatingDetailsDto = new StoreRatingDetailsDto();
+
+
+                storeRatingDetailsDto.setCustomerId(rs.getLong("customer_id"));
+                storeRatingDetailsDto.setFromInvoiceDate(rs.getString("from_invoice_date"));
+                storeRatingDetailsDto.setToInvoiceDate(rs.getString("to_invoice_date"));
+                storeRatingDetailsDto.setFromShipDate(rs.getString("from_ship_date"));
+                storeRatingDetailsDto.setToShipDate(rs.getString("to_ship_date"));
+                storeRatingDetailsDto.setRateSet(rs.getString("rate_set"));
+                storeRatingDetailsDto.setInvoiceRate(rs.getBoolean("invoice_rate"));
+                storeRatingDetailsDto.setFlaggedShipments(rs.getBoolean("flagged_shipments"));
+                storeRatingDetailsDto.setThresholdValue(rs.getString("threshold_value"));
+                storeRatingDetailsDto.setThresholdType(rs.getString("threshold_type"));
+                storeRatingDetailsDto.setRate(rs.getBoolean("rate"));
+                storeRatingDetailsDto.setInfoLookUp(rs.getBoolean("info_lookup"));
+                storeRatingDetailsDto.setStatus(rs.getString("status"));
+                storeRatingDetailsDto.setTaskId(rs.getLong("task_id"));
+                storeRatingDetailsDto.setCreateDate(rs.getString("create_date"));
+                storeRatingDetailsDto.setTotatCount(rs.getLong("total_count"));
+                storeRatingDetailsDto.setCompletedCount(rs.getLong("completed_count"));
+                storeRatingDetailsDto.setCarrierName(rs.getString("carrier"));
+
+                storeRatingDetailsDtoList.add(storeRatingDetailsDto);
+
+            }
+        }catch (Exception e) {
+            throw new DaoException("getRatingJobsByCustomer", e);
+        }finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (SQLException sqle) {
+            }
+            try {
+                if (cstmt != null)
+                    cstmt.close();
+            } catch (SQLException sqle) {
+            }
+            try {
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException sqle) {
+            }
+        }
+        return storeRatingDetailsDtoList;
+    }
+
+
 }
