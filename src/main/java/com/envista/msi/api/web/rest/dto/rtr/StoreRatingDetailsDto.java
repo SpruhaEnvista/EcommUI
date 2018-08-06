@@ -1,6 +1,16 @@
 package com.envista.msi.api.web.rest.dto.rtr;
 
-import javax.persistence.*;
+import javax.persistence.StoredProcedureParameter;
+import javax.persistence.SqlResultSetMappings;
+import javax.persistence.NamedStoredProcedureQueries;
+import javax.persistence.NamedStoredProcedureQuery;
+import javax.persistence.ParameterMode;
+import javax.persistence.SqlResultSetMapping;
+import javax.persistence.ConstructorResult;
+import javax.persistence.Entity;
+import javax.persistence.ColumnResult;
+import javax.persistence.Column;
+import javax.persistence.Id;
 import java.io.Serializable;
 
 
