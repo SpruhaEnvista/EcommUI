@@ -7,6 +7,7 @@ import com.envista.msi.api.domain.util.StoredProcedureParameter;
 import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
 import com.envista.msi.api.web.rest.dto.rtr.EventLogDto;
 import com.envista.msi.api.web.rest.dto.rtr.StoreRatingDetailsDto;
+import com.envista.msi.rating.dao.DirectJDBCDAO;
 import org.springframework.stereotype.Repository;
 
 import javax.inject.Inject;
@@ -52,6 +53,10 @@ public class RatingDao {
 
             throw new DaoException("Failed to save rating Details", e);
         }
-        //return null;
+
+    }
+
+    public List<StoreRatingDetailsDto> getRatingJobsList(Long customerId){
+        return new DirectJDBCDAO().getRatingJobsByCustomer(customerId);
     }
 }

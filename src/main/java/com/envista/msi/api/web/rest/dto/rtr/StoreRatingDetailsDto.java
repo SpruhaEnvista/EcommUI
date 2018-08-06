@@ -83,7 +83,6 @@ public class StoreRatingDetailsDto implements Serializable {
     @Column(name="service_levels_id")
     private String serviceLevelsId;
 
-
     @Column(name="invoice_rate")
     private boolean invoiceRate =false;
 
@@ -107,6 +106,21 @@ public class StoreRatingDetailsDto implements Serializable {
 
     @Column(name="user_name")
     private String createUser;
+
+    @Column(name="task_id")
+    private Long taskId;
+
+    @Column(name="completed_count")
+    private Long completedCount;
+
+    @Column(name="carrier")
+    private String carrierName;
+
+    @Column(name="total_count")
+    private Long totatCount;
+
+    @Column(name="create_date")
+    private String createDate;
 
 
     public StoreRatingDetailsDto() { }
@@ -253,4 +267,23 @@ public class StoreRatingDetailsDto implements Serializable {
         this.serviceLevelsId = serviceLevelsId;
     }
 
+    public Long getTaskId() {  return taskId;  }
+
+    public void setTaskId(Long taskId) {  this.taskId = taskId;  }
+
+    public Long getCompletedCount() {   return completedCount;   }
+
+    public void setCompletedCount(Long completedCount) { this.completedCount = completedCount;  }
+
+    public String getCarrierName() {  return carrierName;  }
+
+    public void setCarrierName(String carrierName) { this.carrierName = carrierName;   }
+
+    public Long getTotatCount() {  return totatCount;  }
+
+    public void setTotatCount(Long totatCount) {  this.totatCount = totatCount;   }
+
+    public String getCreateDate() {  return createDate;  }
+
+    public void setCreateDate(String createDate) {    this.createDate = createDate;   }
 }
