@@ -31,6 +31,7 @@ public class RatingDao {
 
     public List<StoreRatingDetailsDto> saveRatingDetailsList( StoreRatingDetailsDto storeRatingDetailsDto ){
 
+        try {
             QueryParameter queryParameter = StoredProcedureParameter.with("customer_id", storeRatingDetailsDto.getCustomerId()).
                     and("carrier_id", storeRatingDetailsDto.getCarrierIds())
                     .and("from_invoice_date", storeRatingDetailsDto.getFromInvoiceDate())
@@ -47,8 +48,11 @@ public class RatingDao {
                     .and("info_lookup", storeRatingDetailsDto.isInfoLookUp())
                     .and("user_name", storeRatingDetailsDto.getCreateUser())
                     .and("status", storeRatingDetailsDto.getStatus());
-        persistentContext.findEntities("StoreRatingDetailsDto.saveRatingDetailsList", queryParameter);
-        return null;
+            return persistentContext.findEntities("StoreRatingDetailsDto.saveRatingDetailsList", queryParameter);
+        }catch(Exception e){
+
+            throw new DaoException("Failed to save rating Details", e);
+        }
 
     }
 
