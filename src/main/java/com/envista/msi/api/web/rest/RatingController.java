@@ -11,10 +11,15 @@ import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestBody;
 
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -78,5 +83,14 @@ public class RatingController {
         }
     }
 
+    @RequestMapping(value="/ratingJobs/getJobsByCustomer", method={RequestMethod.GET}, produces={MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<List<StoreRatingDetailsDto>> getJobsByCustomer(@RequestParam String customerId){
+        try{
+            List<StoreRatingDetailsDto> customerRatingJobsList = ratingService.getRatingJobsList(Long.parseLong(customerId));
+            return new ResponseEntity<List<StoreRatingDetailsDto>>(customerRatingJobsList, HttpStatus.OK);
+        }catch (Exception e){
+            return new ResponseEntity<List<StoreRatingDetailsDto>>(new ArrayList<StoreRatingDetailsDto>(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
 }
