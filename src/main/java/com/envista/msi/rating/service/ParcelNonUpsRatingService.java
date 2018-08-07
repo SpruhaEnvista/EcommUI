@@ -333,9 +333,13 @@ public class ParcelNonUpsRatingService {
                     }
                 } else {
                     //need to clarify this step, whether it is required for NonUPS Carrier or not.
-                    ServiceFlagAccessorialBean bean = ParcelRatingUtil.getAccessorialBean(accessorialBeans, auditDetails.getChargeDescription(), auditDetails.getChargeDescriptionCode());
-                    if (bean != null)
+                    ServiceFlagAccessorialBean bean = ParcelRatingUtil.getAccessorialBean(accessorialBeans, auditDetails.getChargeDescription(), auditDetails.getActualchargeDescriptionCode());
+                    if (bean != null) {
+                        if("RSC".equalsIgnoreCase(bean.getLookUpValue()))
+                            bean.setLookUpValue("RSS");
+
                         charge = ParcelRateResponseParser.findChargeByEDICodeInResponse(bean.getLookUpValue(), priceSheet);
+                    }
 
                     if(charge != null){
                         mappedAccChanges.add(charge);
