@@ -1,11 +1,11 @@
 package com.envista.msi.api.domain.util;
 
-import com.envista.msi.api.web.rest.dto.rtr.MsiARChargeCodesDto;
 import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditDetailsDto;
 import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditRequestResponseLog;
 import com.envista.msi.api.web.rest.dto.rtr.RatedChargeDetailsDto;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant;
 import com.envista.msi.rating.bean.RatingQueueBean;
+import com.envista.msi.rating.bean.ServiceFlagAccessorialBean;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -13,7 +13,17 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 /**
  * Created by Sujit kumar on 20/04/2018.
@@ -256,7 +266,7 @@ public class ParcelRatingUtil {
         return null;
     }
 
-    public static RatingQueueBean prepareShipmentEntryForUpsShipment(List<ParcelAuditDetailsDto> shipmentDetails, MsiARChargeCodesDto msiARChargeCodes, String rateSet) {
+    public static RatingQueueBean prepareShipmentEntryForUpsShipment(List<ParcelAuditDetailsDto> shipmentDetails, String rateSet, List<ServiceFlagAccessorialBean> accessorialBeans) {
         RatingQueueBean ratingQueueBean = new RatingQueueBean();
         ParcelAuditDetailsDto firstCharge = shipmentDetails.get(0);
 
@@ -264,8 +274,6 @@ public class ParcelRatingUtil {
         ratingQueueBean.setTrackingNumber(firstCharge.getTrackingNumber());
         ratingQueueBean.setParentId(firstCharge.getParentId());
         ratingQueueBean.setCarrierId(firstCharge.getCarrierId());
-        Map<String, String> dasChargeList = msiARChargeCodes.getDasChargeCodes();
-        Map<String, String> lpsCharges = msiARChargeCodes.getLpsChargeCodes();
         boolean hasRJ5Charge = false;
         if (shipmentDetails != null && !shipmentDetails.isEmpty()) {
             for (ParcelAuditDetailsDto auditDetails : shipmentDetails) {
@@ -317,12 +325,16 @@ public class ParcelRatingUtil {
                                     accJson.put("quantityUnit", (null == auditDetails.getQuantityUnit() || auditDetails.getQuantityUnit().isEmpty() ? "PCS" : auditDetails.getQuantityUnit()));
                                     if (!hasRJ5Charge && auditDetails.getChargeDescriptionCode().equalsIgnoreCase("RES")) {
                                         accJson.put("code", "RSC");
-                                    } else if (dasChargeList.containsKey(auditDetails.getChargeDescriptionCode())) {
-                                        accJson.put("code", dasChargeList.get(auditDetails.getChargeDescriptionCode()));
-                                    } else if (lpsCharges != null && lpsCharges.containsKey(auditDetails.getChargeDescriptionCode())) {
-                                        accJson.put("code", auditDetails.getChargeDescriptionCode());
                                     } else {
-                                        accJson.put("code", auditDetails.getChargeDescriptionCode());
+
+                                        ServiceFlagAccessorialBean bean = getAccessorialBean(accessorialBeans, auditDetails.getChargeDescription(), auditDetails.getChargeDescriptionCode());
+
+                                        if (bean != null) {
+                                            accJson.put("code", bean.getLookUpValue());
+                                        } else {
+                                            m_log.info("Service flag accessorial code is not found in look up table:" + auditDetails.getChargeDescriptionCode());
+                                            accJson.put("code", auditDetails.getChargeDescriptionCode());
+                                        }
                                     }
                                     accJsonArr.put(accJson);
                                 }
@@ -410,7 +422,7 @@ public class ParcelRatingUtil {
         return ratingQueueBean;
     }
 
-    public static RatingQueueBean prepareShipmentEntryForNonUpsShipment(List<ParcelAuditDetailsDto> shipmentDetails, MsiARChargeCodesDto msiARChargeCodes, String rateSet) {
+    public static RatingQueueBean prepareShipmentEntryForNonUpsShipment(List<ParcelAuditDetailsDto> shipmentDetails, String rateSet, List<ServiceFlagAccessorialBean> accessorialBeans) {
         RatingQueueBean ratingQueueBean = new RatingQueueBean();
         ParcelAuditDetailsDto firstCharge = shipmentDetails.get(0);
 
@@ -418,9 +430,6 @@ public class ParcelRatingUtil {
         ratingQueueBean.setTrackingNumber(firstCharge.getTrackingNumber());
         ratingQueueBean.setParentId(firstCharge.getParentId());
         ratingQueueBean.setCarrierId(firstCharge.getCarrierId());
-        Map<String, String> dasChargeList = msiARChargeCodes.getDasChargeCodes();
-        Map<String, String> lpsCharges = msiARChargeCodes.getLpsChargeCodes();
-        Map<String, String> declaredValueCode = msiARChargeCodes.getDeclaredValueChargeCodes();
 
         String billOption = (null == firstCharge.getBillOption() ? "" : firstCharge.getBillOption());
         if (billOption.equalsIgnoreCase("Prepaid") || billOption.equals("1") || billOption.equalsIgnoreCase("Outbound")) {
@@ -450,20 +459,20 @@ public class ParcelRatingUtil {
                         accJson.put("quantityUnit", (null == auditDetails.getQuantityUnit() || auditDetails.getQuantityUnit().isEmpty() ? "PCS" : auditDetails.getQuantityUnit()));
                         if (auditDetails.getChargeDescriptionCode().equalsIgnoreCase("RES")) {
                             accJson.put("code", "RSC");
-                        } else if (dasChargeList.containsKey(auditDetails.getChargeDescriptionCode())) {
-                            if (auditDetails.getChargeDescription() != null && (auditDetails.getChargeDescription().contains("EXTENDED") || auditDetails.getChargeDescription().contains("extended"))) {
-                                accJson.put("code", "DSX");
-                            } else {
-                                accJson.put("code", dasChargeList.get(auditDetails.getChargeDescriptionCode()));
-                            }
-                        } else if (lpsCharges != null && lpsCharges.containsKey(auditDetails.getChargeDescriptionCode())) {
-                            accJson.put("code", lpsCharges.get(auditDetails.getChargeDescriptionCode()));
-                        } else if (declaredValueCode != null && declaredValueCode.containsKey(auditDetails.getChargeDescriptionCode())) {
-                            accJson.put("code", declaredValueCode.get(auditDetails.getChargeDescriptionCode()));
                         } else {
-                            accJson.put("code", auditDetails.getChargeDescriptionCode());
+
+                            ServiceFlagAccessorialBean bean = getAccessorialBean(accessorialBeans, auditDetails.getChargeDescription(), auditDetails.getChargeDescriptionCode());
+
+                            if (bean != null) {
+                                accJson.put("code", bean.getLookUpValue());
+                            } else {
+                                m_log.info("Service flag accessorial code is not found in the look up table:" + auditDetails.getChargeDescriptionCode());
+                                accJson.put("code", auditDetails.getChargeDescriptionCode());
+                            }
                         }
+
                         accJsonArr.put(accJson);
+
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -1152,5 +1161,25 @@ public class ParcelRatingUtil {
 
         }
         return resultDto;
+    }
+
+
+    /**
+     * @param beans
+     * @param chargeDesc
+     * @param chargeCode
+     * @return
+     */
+    public static ServiceFlagAccessorialBean getAccessorialBean(List<ServiceFlagAccessorialBean> beans, String chargeDesc, String chargeCode) {
+
+        for (ServiceFlagAccessorialBean bean : beans) {
+
+            if ((bean.getCustomDefined1() != null && bean.getLookUpCode() != null) && (chargeCode != null && chargeDesc != null)) {
+                if (bean.getCustomDefined1().trim().equalsIgnoreCase(chargeDesc.trim()) && bean.getLookUpCode().trim().equalsIgnoreCase(chargeCode.trim())) {
+                    return bean;
+                }
+            }
+        }
+        return null;
     }
 }

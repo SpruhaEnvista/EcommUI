@@ -1,8 +1,14 @@
 package com.envista.msi.rating.dao;
 
-import com.envista.msi.api.web.rest.dto.rtr.*;
+import com.envista.msi.api.web.rest.dto.rtr.ParcelARChargeCodeMappingDto;
+import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditDetailsDto;
+import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditRequestResponseLog;
+import com.envista.msi.api.web.rest.dto.rtr.ParcelRateDetailsDto;
+import com.envista.msi.api.web.rest.dto.rtr.RatedChargeDetailsDto;
+import com.envista.msi.api.web.rest.dto.rtr.StoreRatingDetailsDto;
 import com.envista.msi.rating.ServiceLocator;
 import com.envista.msi.rating.ServiceLocatorException;
+import com.envista.msi.rating.bean.ServiceFlagAccessorialBean;
 import com.envista.msi.rating.entity.ParcelRatingInputCriteriaDto;
 import oracle.jdbc.OracleTypes;
 import org.slf4j.Logger;
@@ -975,6 +981,69 @@ public class DirectJDBCDAO {
             }
         }
         return storeRatingDetailsDtoList;
+    }
+
+
+    /**
+     * This method returns service flag accessroials based on carrier id and module name which needs to send in the XML request
+     *
+     * @param carrierId
+     * @param moduleName
+     * @return
+     */
+    public List<ServiceFlagAccessorialBean> getServiceFlagAcessorials(Long carrierId, String moduleName) {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        List<ServiceFlagAccessorialBean> beans = new ArrayList<>();
+
+        String sqlQuery = "select Lookup_Id,Module_Name,Column_Name,Lookup_Code,Lookup_Value,Custom_Defined_1,Custom_Defined_2 from shp_lookup_tb where module_name=? and Custom_Defined_2=?;";
+
+
+        try {
+            con = ServiceLocator.getDatabaseConnection();
+            pstmt = con.prepareStatement(sqlQuery);
+            con.setAutoCommit(false);
+
+            pstmt.setString(1, moduleName);
+            pstmt.setString(2, String.valueOf(carrierId));
+            rs = pstmt.executeQuery();
+
+            while ((rs.next())) {
+                ServiceFlagAccessorialBean bean = new ServiceFlagAccessorialBean();
+
+                bean.setLookUpId(rs.getLong("Lookup_Id"));
+                bean.setModuleName(rs.getString("Module_Name"));
+                bean.setColumnName(rs.getString("Column_Name"));
+                bean.setLookUpCode(rs.getString("Lookup_Code"));
+                bean.setLookUpValue(rs.getString("Lookup_Value"));
+                bean.setCustomDefined1(rs.getString("Custom_Defined_1"));
+                bean.setCustomDefined2(rs.getString("Custom_Defined_2"));
+
+                beans.add(bean);
+            }
+
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+        } catch (ServiceLocatorException e) {
+            log.error(e.getMessage());
+            //e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+                if (pstmt != null)
+                    pstmt.close();
+                if (con != null)
+                    con.close();
+            } catch (SQLException sqle) {
+                log.error(sqle.getMessage());
+                //sqle.printStackTrace();
+            }
+        }
+        return beans;
     }
 
 
