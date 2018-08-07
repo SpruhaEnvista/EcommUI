@@ -323,9 +323,6 @@ public class ParcelRatingUtil {
                                     accJson.put("weightUnit", (null == auditDetails.getWeightUnit() || auditDetails.getWeightUnit().isEmpty() || "L".equalsIgnoreCase(auditDetails.getWeightUnit()) ? "LBS" : auditDetails.getWeightUnit()));
                                     accJson.put("quantity", (null == auditDetails.getItemQuantity() || auditDetails.getItemQuantity().isEmpty() ? 1l : Long.parseLong(auditDetails.getItemQuantity())));
                                     accJson.put("quantityUnit", (null == auditDetails.getQuantityUnit() || auditDetails.getQuantityUnit().isEmpty() ? "PCS" : auditDetails.getQuantityUnit()));
-                                    if (!hasRJ5Charge && auditDetails.getChargeDescriptionCode().equalsIgnoreCase("RES")) {
-                                        accJson.put("code", "RSC");
-                                    } else {
 
                                         ServiceFlagAccessorialBean bean = getAccessorialBean(accessorialBeans, auditDetails.getChargeDescription(), auditDetails.getChargeDescriptionCode());
 
@@ -335,7 +332,7 @@ public class ParcelRatingUtil {
                                             m_log.info("Service flag accessorial code is not found in look up table:" + auditDetails.getChargeDescriptionCode());
                                             accJson.put("code", auditDetails.getChargeDescriptionCode());
                                         }
-                                    }
+
                                     accJsonArr.put(accJson);
                                 }
                             }

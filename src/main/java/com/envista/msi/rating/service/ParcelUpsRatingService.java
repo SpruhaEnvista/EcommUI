@@ -558,9 +558,12 @@ public class ParcelUpsRatingService {
                     }
                 } else{
                     ServiceFlagAccessorialBean bean = ParcelRatingUtil.getAccessorialBean(accessorialBeans, auditDetails.getChargeDescription(), auditDetails.getChargeDescriptionCode());
-                    if (bean != null)
-                        charge = ParcelRateResponseParser.findChargeByEDICodeInResponse(bean.getLookUpValue(), priceSheet);
+                    if (bean != null) {
+                        if("RSC".equalsIgnoreCase(bean.getLookUpValue()))
+                            bean.setLookUpValue("RSS");
 
+                        charge = ParcelRateResponseParser.findChargeByEDICodeInResponse(bean.getLookUpValue(), priceSheet);
+                    }
                     if(charge != null){
                         mappedAccChanges.add(charge);
                         if(charge != null && charge.getType() != null){
