@@ -997,13 +997,12 @@ public class DirectJDBCDAO {
         ResultSet rs = null;
         List<ServiceFlagAccessorialBean> beans = new ArrayList<>();
 
-        String sqlQuery = "select Lookup_Id,Module_Name,Column_Name,Lookup_Code,Lookup_Value,Custom_Defined_1,Custom_Defined_2 from shp_lookup_tb where module_name=? and Custom_Defined_2=?;";
+        String sqlQuery = "select Lookup_Id,Module_Name,Column_Name,Lookup_Code,Lookup_Value,Custom_Defined_1,Custom_Defined_2 from shp_lookup_tb where module_name=? and Custom_Defined_2=?";
 
 
         try {
             con = ServiceLocator.getDatabaseConnection();
             pstmt = con.prepareStatement(sqlQuery);
-            con.setAutoCommit(false);
 
             pstmt.setString(1, moduleName);
             pstmt.setString(2, String.valueOf(carrierId));

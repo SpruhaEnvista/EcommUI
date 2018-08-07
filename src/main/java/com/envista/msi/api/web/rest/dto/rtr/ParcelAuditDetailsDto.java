@@ -243,6 +243,9 @@ public class ParcelAuditDetailsDto {
     @Column(name = "BILLED_DIM_DIVISOR")
     private String billedDimDivisor;
 
+    @Column(name = "ACTUAL_CHARGE_DESCRIPTION_CODE")
+    private String actualchargeDescriptionCode;
+
     public ParcelAuditDetailsDto() {
     }
 
@@ -698,6 +701,14 @@ public class ParcelAuditDetailsDto {
 
     public String getBilledDimDivisor() {
         return billedDimDivisor;
+    }
+
+    public String getActualchargeDescriptionCode() {
+        return actualchargeDescriptionCode;
+    }
+
+    public void setActualchargeDescriptionCode(String actualchargeDescriptionCode) {
+        this.actualchargeDescriptionCode = actualchargeDescriptionCode;
     }
 
     public void setBilledDimDivisor(String billedDimDivisor) {

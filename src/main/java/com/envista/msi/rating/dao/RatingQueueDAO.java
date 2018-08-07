@@ -127,7 +127,7 @@ public class RatingQueueDAO {
         ResultSet rs = null;
 
         java.util.ArrayList<RatingQueueBean> beanList = null;
-        String selectQuery = "select * from SHP_RATING_QUEUE_TB where RATE_STATUS = 0 and job_id in ( "+jobIds+" ) and rownum <= 30000 ";
+        String selectQuery = "select * from SHP_RATING_QUEUE_TB where  RATE_STATUS = 0 and job_id in ( "+jobIds+" ) and rownum <= 30000 ";
 
         try {
             connection = ServiceLocator.getDatabaseConnection();
@@ -479,7 +479,7 @@ public class RatingQueueDAO {
 
             String liveSqlQuery = " SELECT ebmf.EBILL_MANIFEST_ID AS ID, cp.CUSTOMER_ID, cp.CUSTOMER_CODE, c.CARRIER_ID, ebmf.CONTRACT_NUMBER, ";
             liveSqlQuery += " ebmf.BILL_OPT AS BILL_OPTION_CODE, c.RTR_SCAC_CODE, c.SCAC_CODE, ebmf.TRAN_CODE, ";
-            liveSqlQuery += " null AS CHARGE_CLASSIFICATION_CODE, null AS CHARGE_DESCRIPTION_CODE, ebmf.SERVICE AS CHARGE_DESCRIPTION, ";
+            liveSqlQuery += " null AS CHARGE_CLASSIFICATION_CODE, ebmf.CHARGE_CODE AS CHARGE_DESCRIPTION_CODE, ebmf.SERVICE AS CHARGE_DESCRIPTION, ";
             liveSqlQuery += " ebmf.BILL_WEIGHT AS PACKAGE_WEIGHT, ebmf.TRACKING_NUMBER, ebmf.PICKUP_DATE, ebmf.TRAN_CODE AS RESIDENTIAL_INDICATOR, ";
             liveSqlQuery += " ebmf.DELIVERY_DATE, NVL(ebmf.SENDER_COUNTRY, s.COUNTRY) AS SENDER_COUNTRY, NVL(ebmf.SENDER_ST, s.STATE) AS SENDER_STATE, ";
             liveSqlQuery += " NVL(ebmf.SENDER_CITY, s.CITY) AS SENDER_CITY, NVL(ebmf.SENDER_ZIP, s.ZIPCODE) AS SENDER_ZIP_CODE, ebmf.CONSIGNEE_COUNTRY AS RECEIVER_COUNTRY, ";
@@ -562,7 +562,7 @@ public class RatingQueueDAO {
                 shipmentDetails.setScacCode(rs.getString("scac_code"));
                 shipmentDetails.setTranCode(rs.getString("TRAN_CODE"));
                 shipmentDetails.setChargeClassificationCode(rs.getString("CHARGE_CLASSIFICATION_CODE"));
-                shipmentDetails.setChargeDescriptionCode(rs.getString("CHARGE_DESCRIPTION_CODE"));
+                shipmentDetails.setActualchargeDescriptionCode(rs.getString("CHARGE_DESCRIPTION_CODE"));
                 shipmentDetails.setChargeDescription(rs.getString("CHARGE_DESCRIPTION"));
                 shipmentDetails.setPackageWeight(rs.getString("PACKAGE_WEIGHT"));
                 shipmentDetails.setTrackingNumber(rs.getString("TRACKING_NUMBER"));

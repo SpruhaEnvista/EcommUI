@@ -461,12 +461,12 @@ public class ParcelRatingUtil {
                             accJson.put("code", "RSC");
                         } else {
 
-                            ServiceFlagAccessorialBean bean = getAccessorialBean(accessorialBeans, auditDetails.getChargeDescription(), auditDetails.getChargeDescriptionCode());
+                            ServiceFlagAccessorialBean bean = getAccessorialBean(accessorialBeans, auditDetails.getChargeDescription(), auditDetails.getActualchargeDescriptionCode());
 
                             if (bean != null) {
                                 accJson.put("code", bean.getLookUpValue());
                             } else {
-                                m_log.info("Service flag accessorial code is not found in the look up table:" + auditDetails.getChargeDescriptionCode());
+                                m_log.info("Service flag accessorial code is not found in the look up table:" + auditDetails.getActualchargeDescriptionCode()+": Tracking Number "+auditDetails.getTrackingNumber()+": charge description ->"+auditDetails.getChargeDescription());
                                 accJson.put("code", auditDetails.getChargeDescriptionCode());
                             }
                         }
