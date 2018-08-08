@@ -5,8 +5,8 @@ import java.sql.Timestamp;
 import java.util.Objects;
 
 @NamedStoredProcedureQueries({
-        @NamedStoredProcedureQuery(name = "ViewLogDto.getViewLogs", procedureName = "get_view_logs",
-                resultSetMappings = "ViewLogDto.getViewLogs",
+        @NamedStoredProcedureQuery(name = "SHP_GET_VIEW_LOGS_PROC.getViewLogs", procedureName = "get_view_logs",
+                resultSetMappings = "SHP_GET_VIEW_LOGS_PROC.getViewLogs",
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, name = "job_id", type = Long.class),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "refcur_view_log",
@@ -14,7 +14,7 @@ import java.util.Objects;
                 })})
 @SqlResultSetMappings(
         @SqlResultSetMapping(
-                name = "ViewLogDto.getViewLogs",
+                name = "SHP_GET_VIEW_LOGS_PROC.getViewLogs",
                 classes = {
                         @ConstructorResult(
                                 targetClass = ViewLogDto.class,

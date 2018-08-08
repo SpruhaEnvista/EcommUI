@@ -63,6 +63,6 @@ public class RatingDao {
 
     public List<ViewLogDto> getViewLog(Long jobId){
         QueryParameter queryParameter = StoredProcedureParameter.with("job_id", jobId);
-        return persistentContext.findEntities("ViewLogDto.getViewLogs", queryParameter);
+        return persistentContext.findEntities("SHP_GET_VIEW_LOGS_PROC.getViewLogs", queryParameter);
     }
 }
