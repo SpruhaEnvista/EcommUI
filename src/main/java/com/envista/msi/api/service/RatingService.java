@@ -4,6 +4,7 @@ import com.envista.msi.api.dao.rating.RatingDao;
 import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
 import com.envista.msi.api.web.rest.dto.rtr.EventLogDto;
 import com.envista.msi.api.web.rest.dto.rtr.StoreRatingDetailsDto;
+import com.envista.msi.api.web.rest.dto.rtr.ViewLogDto;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -28,5 +29,8 @@ public class RatingService {
 
     public List<StoreRatingDetailsDto>  getRatingJobsList(Long customerId){
         return ratingDao.getRatingJobsList(customerId);
+    }
+    public List<ViewLogDto> getViewLog(Long jobId){
+        return ratingDao.getViewLog(jobId);
     }
 }

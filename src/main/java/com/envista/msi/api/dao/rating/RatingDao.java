@@ -7,6 +7,7 @@ import com.envista.msi.api.domain.util.StoredProcedureParameter;
 import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
 import com.envista.msi.api.web.rest.dto.rtr.EventLogDto;
 import com.envista.msi.api.web.rest.dto.rtr.StoreRatingDetailsDto;
+import com.envista.msi.api.web.rest.dto.rtr.ViewLogDto;
 import com.envista.msi.rating.dao.DirectJDBCDAO;
 import org.springframework.stereotype.Repository;
 
@@ -58,5 +59,10 @@ public class RatingDao {
 
     public List<StoreRatingDetailsDto> getRatingJobsList(Long customerId){
         return new DirectJDBCDAO().getRatingJobsByCustomer(customerId);
+    }
+
+    public List<ViewLogDto> getViewLog(Long jobId){
+        QueryParameter queryParameter = StoredProcedureParameter.with("job_id", jobId);
+        return persistentContext.findEntities("ViewLogDto.getViewLogs", queryParameter);
     }
 }
