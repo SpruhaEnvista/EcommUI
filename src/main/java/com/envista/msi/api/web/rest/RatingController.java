@@ -1,9 +1,13 @@
 package com.envista.msi.api.web.rest;
 
+import com.envista.msi.api.security.SecurityUtils;
 import com.envista.msi.api.service.RatingService;
+import com.envista.msi.api.service.UserService;
+import com.envista.msi.api.web.rest.dto.UserProfileDto;
 import com.envista.msi.api.web.rest.dto.reports.ReportCustomerCarrierDto;
 import com.envista.msi.api.web.rest.dto.rtr.EventLogDto;
 import com.envista.msi.api.web.rest.dto.rtr.StoreRatingDetailsDto;
+import com.envista.msi.api.web.rest.util.DateUtil;
 import com.envista.msi.api.web.rest.dto.rtr.ViewLogDto;
 import com.envista.msi.api.web.rest.util.JSONUtil;
 import org.json.JSONArray;
@@ -30,6 +34,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/rates")
 public class RatingController {
+
+    @Inject
+    private UserService userService;
 
     @Inject
     private RatingService ratingService;
@@ -66,16 +73,44 @@ public class RatingController {
     public ResponseEntity<List<StoreRatingDetailsDto>> storeRatingDetailsList(@RequestBody StoreRatingDetailsDto storeRatingDetailsDto) {
         List<StoreRatingDetailsDto> ratingDetailsList = null;
         try {
-            if(storeRatingDetailsDto != null){
-                storeRatingDetailsDto.setStatus(ParcelAuditConstant.ParcelRatingInputProcessStatus.NEW.value);
-                //storeRatingDetailsDto.setUs//ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME;
 
-                storeRatingDetailsDto.setCreateUser(ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME);
-
+            String dateFormat = "dd/MM/yyyy";
+            String fromInvoiceDate ="";
+            String toInvoiceDate="";
+            String fromShipDate="";
+            String toShipDate="";
+            if(storeRatingDetailsDto.getFromInvoiceDate() != null && !storeRatingDetailsDto.getFromInvoiceDate().isEmpty()){
+                fromInvoiceDate   = DateUtil.format(Long.parseLong(storeRatingDetailsDto.getFromInvoiceDate()), dateFormat);
+                storeRatingDetailsDto.setFromInvoiceDate(fromInvoiceDate);
 
             }
-            if (storeRatingDetailsDto != null & storeRatingDetailsDto.getRateSet() != null)
 
+            if(storeRatingDetailsDto.getToInvoiceDate() != null && !storeRatingDetailsDto.getToInvoiceDate().isEmpty()){
+                toInvoiceDate   = DateUtil.format(Long.parseLong(storeRatingDetailsDto.getToInvoiceDate()), dateFormat);
+                storeRatingDetailsDto.setToInvoiceDate(toInvoiceDate);
+
+            }
+
+            if(storeRatingDetailsDto.getFromShipDate() != null && !storeRatingDetailsDto.getFromShipDate().isEmpty()){
+                fromShipDate   = DateUtil.format(Long.parseLong(storeRatingDetailsDto.getFromShipDate()), dateFormat);
+                storeRatingDetailsDto.setFromShipDate(fromShipDate);
+            }
+
+            if(storeRatingDetailsDto.getToShipDate()!= null && !storeRatingDetailsDto.getToShipDate().isEmpty()){
+                toShipDate   = DateUtil.format(Long.parseLong(storeRatingDetailsDto.getToShipDate()), dateFormat);
+                storeRatingDetailsDto.setToShipDate(toShipDate);
+            }
+
+            UserProfileDto user = null;
+            try{
+                user = userService.getUserProfileByUserName(SecurityUtils.getCurrentUserLogin());
+            }catch (Exception e){ //Do nothing.
+            }
+            if(storeRatingDetailsDto != null){
+                storeRatingDetailsDto.setStatus(ParcelAuditConstant.ParcelRatingInputProcessStatus.NEW.value);
+                storeRatingDetailsDto.setCreateUser(user != null ? user.getUserName() : ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME);
+                }
+            if (storeRatingDetailsDto != null & storeRatingDetailsDto.getRateSet() != null)
                 ratingDetailsList = ratingService.saveRatingDetailsList(storeRatingDetailsDto);
             return new ResponseEntity<List<StoreRatingDetailsDto>>(ratingDetailsList, HttpStatus.OK);
         } catch (Exception e) {
