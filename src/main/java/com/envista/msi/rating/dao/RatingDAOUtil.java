@@ -76,6 +76,7 @@ public class RatingDAOUtil {
         RATING_QUEUE_COLUMN_NAMES.add("THRESHOLD_VALUE");
         RATING_QUEUE_COLUMN_NAMES.add("THRESHOLD_TYPE");
         RATING_QUEUE_COLUMN_NAMES.add("SERVICE_LEVELS_ID");
+        RATING_QUEUE_COLUMN_NAMES.add("ZONE");
     }
 
     public static String prepareRatingQueueInsertQuery(boolean isHwt) {
@@ -278,8 +279,9 @@ public class RatingDAOUtil {
                 ps.setString(57, queueBean.getThresholdType());
             } else if("SERVICE_LEVELS_ID".equalsIgnoreCase(columnName)) {
                 ps.setString(58,queueBean.getServiceLevel());
-            }
-            else {
+            } else if("ZONE".equalsIgnoreCase(columnName)) {
+                ps.setString(59, queueBean.getZone());
+            } else {
                 throw new RuntimeException("Column name not mapped");
             }
         }

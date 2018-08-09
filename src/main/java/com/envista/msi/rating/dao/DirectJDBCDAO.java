@@ -1,12 +1,14 @@
 package com.envista.msi.rating.dao;
 
-import com.envista.msi.api.web.rest.dto.rtr.StoreRatingDetailsDto;
-import com.envista.msi.api.web.rest.dto.rtr.ParcelRateDetailsDto;
-import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditRequestResponseLog;
-import com.envista.msi.api.web.rest.dto.rtr.RatedChargeDetailsDto;
 import com.envista.msi.api.web.rest.dto.rtr.ParcelARChargeCodeMappingDto;
+import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditDetailsDto;
+import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditRequestResponseLog;
+import com.envista.msi.api.web.rest.dto.rtr.ParcelRateDetailsDto;
+import com.envista.msi.api.web.rest.dto.rtr.RatedChargeDetailsDto;
+import com.envista.msi.api.web.rest.dto.rtr.StoreRatingDetailsDto;
 import com.envista.msi.rating.ServiceLocator;
 import com.envista.msi.rating.ServiceLocatorException;
+import com.envista.msi.rating.bean.ServiceFlagAccessorialBean;
 import com.envista.msi.rating.entity.ParcelRatingInputCriteriaDto;
 import oracle.jdbc.OracleTypes;
 import org.slf4j.Logger;
@@ -194,7 +196,7 @@ public class DirectJDBCDAO {
         CallableStatement cstmt = null;
         try{
             conn = ServiceLocator.getDatabaseConnection();
-            cstmt = conn.prepareCall("{ call SHP_SAVE_RATE_DETAILS_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
+            cstmt = conn.prepareCall("{ call SHP_SAVE_RATE_DETAILS_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
             cstmt.setString(1,referenceTableName);
             cstmt.setString(2, entityId);
             cstmt.setString(3,userName);
@@ -217,6 +219,7 @@ public class DirectJDBCDAO {
             cstmt.setString(20, rateDetails != null && rateDetails.getHwtIdentifier() != null ? rateDetails.getHwtIdentifier() : null);
             cstmt.setString(21, rateDetails != null && rateDetails.getRateSetName() != null ? rateDetails.getRateSetName() : null);
             cstmt.setString(22, rateDetails != null && rateDetails.getFlagged() != null ? rateDetails.getFlagged() : null);
+            cstmt.setString(23, rateDetails != null && rateDetails.getZone() != null ? rateDetails.getZone() : null);
             cstmt.executeUpdate();
 
         }catch (SQLException sqle) {;
@@ -241,7 +244,7 @@ public class DirectJDBCDAO {
         CallableStatement cstmt =null;
         try{
             conn = ServiceLocator.getDatabaseConnection();
-            cstmt = conn.prepareCall("{ call SHP_UPDATE_OTHER_DSC_PROC(?,?,?,?,?,?,?,?,?)}");
+            cstmt = conn.prepareCall("{ call SHP_UPDATE_OTHER_DSC_PROC(?,?,?,?,?,?,?,?,?,?)}");
             cstmt.setString(1, referenceTableName);
             cstmt.setString(2, entityIds);
             cstmt.setString(3, userName);
@@ -251,6 +254,7 @@ public class DirectJDBCDAO {
             cstmt.setBigDecimal(7, rateDetails != null && rateDetails.getOtherDiscount2() != null ? rateDetails.getOtherDiscount2() : new BigDecimal("0"));
             cstmt.setBigDecimal(8, rateDetails != null && rateDetails.getOtherDiscount3() != null ? rateDetails.getOtherDiscount3() : new BigDecimal("0"));
             cstmt.setString(9, rateDetails != null && rateDetails.getFlagged() != null ? rateDetails.getFlagged() : "");
+            cstmt.setString(10, rateDetails != null && rateDetails.getZone() != null ? rateDetails.getZone() : null);
             cstmt.executeUpdate();
         }catch (SQLException sqle) {
             throw new DaoException("Exception in updateOtherDiscountShipmentRateDetails", sqle);
@@ -276,7 +280,7 @@ public class DirectJDBCDAO {
         CallableStatement cstmt =null;
         try{
             conn = ServiceLocator.getDatabaseConnection();
-            cstmt = conn.prepareCall("{ call SHP_RATE_UPDATE_ACC_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
+            cstmt = conn.prepareCall("{ call SHP_RATE_UPDATE_ACC_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
             cstmt.setString(1, referenceTableName);
             cstmt.setString(2, entityIds);
             cstmt.setString(3, userName);
@@ -291,6 +295,7 @@ public class DirectJDBCDAO {
             cstmt.setString(12, rateDetails != null && rateDetails.getAccessorial3Code() != null ? rateDetails.getAccessorial3Code() : null);
             cstmt.setString(13, rateDetails != null && rateDetails.getAccessorial4Code() != null ? rateDetails.getAccessorial4Code() : null);
             cstmt.setString(14, rateDetails != null && rateDetails.getFlagged() != null ? rateDetails.getFlagged() : null);
+            cstmt.setString(15, rateDetails != null && rateDetails.getZone() != null ? rateDetails.getZone() : null);
             cstmt.executeUpdate();
         }catch (SQLException sqle) {
             sqle.printStackTrace();
@@ -437,7 +442,7 @@ public class DirectJDBCDAO {
         CallableStatement cstmt =null;
         try{
             conn = ServiceLocator.getDatabaseConnection();
-            cstmt = conn.prepareCall("{ call SHP_SAVE_ALL_RATE_DETAILS_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
+            cstmt = conn.prepareCall("{ call SHP_SAVE_ALL_RATE_DETAILS_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
             cstmt.setString(1,referenceTableName);
             cstmt.setString(2,entityIds);
             cstmt.setString(3,userName);
@@ -469,6 +474,7 @@ public class DirectJDBCDAO {
             cstmt.setString(29, rateDetails != null && rateDetails.getRtrStatus() != null ? rateDetails.getRtrStatus() : "");
             cstmt.setString(30, rateDetails != null && rateDetails.getFlagged() != null ? rateDetails.getFlagged() : "");
             cstmt.setString(31, rateDetails != null && rateDetails.getRateSetName() != null ? rateDetails.getRateSetName() : "");
+            cstmt.setString(32, rateDetails != null && rateDetails.getZone() != null ? rateDetails.getZone() : "");
             cstmt.executeUpdate();
 
         }catch (SQLException sqle) {
@@ -663,9 +669,9 @@ public class DirectJDBCDAO {
         PreparedStatement pstmt = null;
         String selectQueryStr = "";
         if("SHP_EBILL_MANIFEST_TB".equalsIgnoreCase(tableName)){
-            selectQueryStr = "UPDATE shp_audit_rate_details_tb SET IS_VOID_SHIPMENT = ? WHERE EBILL_MANIFEST_ID IN (" + entityIds + ")";
+            selectQueryStr = "UPDATE SHP_EBILL_FDX_RATES_TB SET IS_VOID_SHIPMENT = ? WHERE EBILL_MANIFEST_ID IN (" + entityIds + ")";
         } else if("SHP_EBILL_GFF_TB".equalsIgnoreCase(tableName)) {
-            selectQueryStr = "UPDATE shp_audit_rate_details_tb SET IS_VOID_SHIPMENT = ? WHERE EBILL_GFF_ID IN (" + entityIds + ")";
+            selectQueryStr = "UPDATE SHP_EBILL_UPS_RATES_TB SET IS_VOID_SHIPMENT = ? WHERE EBILL_GFF_ID IN (" + entityIds + ")";
         }
 
         try {
@@ -681,6 +687,226 @@ public class DirectJDBCDAO {
                 e1.printStackTrace();
             }
             throw new DaoException("Exception in updateRatingVoidShipmentStatus", e);
+        }finally {
+            try {
+                if (pstmt != null)
+                    pstmt.close();
+            } catch (SQLException sqle) {
+            }
+            try {
+                if (con != null)
+                    con.close();
+            } catch (SQLException sqle) {
+            }
+        }
+    }
+
+    public void updateUpsOtherFieldValues(List<ParcelAuditDetailsDto> rateDetailsList) {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        String sqlQuery = " UPDATE SHP_EBILL_UPS_RATES_TB ur SET ur.SENDER_COUNTRY = ?, ";
+        sqlQuery += " ur.RECEIVER_COUNTRY = ?, ur.SENDER_STATE = ?, ur.RECEIVER_STATE = ?, ur.SHIPMENT_DATE = ?, ur.INVOICE_DATE = ?, ur.INVOICE_NUMBER = ?, ";
+        sqlQuery += " ur.LEAD_SHIPMENT_NUMBER = ?, ur.TRACKING_NUMBER = ?, ur.ENTERED_WEIGHT = ?, ur.BILLED_WEIGHT = ?, ur.CONTAINER_TYPE = ?, ur.PACKAGE_DIMENSIONS = ?, ";
+        sqlQuery += " ur.ZONE = ?, ur.CHARGE_CLASSIFICATION_CODE = ?, ur.CHARGE_DESCRIPTION = ?, ur.INCENTIVE_AMOUNT = ?, ur.NET_AMOUNT = ?, ur.CUSTOMER_CODE = ?, ur.SHIPPER_CODE = ?, ";
+        sqlQuery += " ur.INV_CREATE_DATE = ?, ur.PARENT_ID = ?, ur.DW_FIELD_INFORMATION = ?, ur.INVOICE_ID = ?, ur.CUSTOMER_ID = ?, ur.BILL_OPTION_CODE = ?, ur.CHARGE_CATEGORY_DETAIL_CODE = ?, ";
+        sqlQuery += " ur.PIECES = ? ";
+        sqlQuery += " WHERE ur.EBILL_GFF_ID = ? ";
+
+        try {
+            con = ServiceLocator.getDatabaseConnection();
+            pstmt = con.prepareStatement(sqlQuery);
+            con.setAutoCommit(false);
+
+            for(ParcelAuditDetailsDto rateDetails : rateDetailsList){
+                pstmt.setString(1, rateDetails.getSenderCountry());
+                pstmt.setString(2, rateDetails.getReceiverCountry());
+                pstmt.setString(3, rateDetails.getSenderState());
+                pstmt.setString(4, rateDetails.getReceiverState());
+                if(rateDetails.getPickupDate() != null){
+                    pstmt.setDate(5, new java.sql.Date(rateDetails.getPickupDate().getTime()));
+                }else {
+                    pstmt.setNull(5, OracleTypes.DATE);
+                }
+                if(rateDetails.getInvoiceDate() != null){
+                    pstmt.setDate(6, new java.sql.Date(rateDetails.getInvoiceDate().getTime()));
+                }else{
+                    pstmt.setNull(6, OracleTypes.DATE);
+                }
+                pstmt.setString(7, rateDetails.getInvoiceNumber());
+                pstmt.setString(8, rateDetails.getMultiWeightNumber());
+                pstmt.setString(9, rateDetails.getTrackingNumber());
+                pstmt.setBigDecimal(10, rateDetails.getActualWeight());
+                pstmt.setString(11, rateDetails.getPackageWeight());
+                pstmt.setString(12, rateDetails.getPackageType());
+                pstmt.setString(13, rateDetails.getPackageDimension());
+                pstmt.setString(14, rateDetails.getZone());
+                pstmt.setString(15, rateDetails.getChargeDescriptionCode());
+                pstmt.setString(16, rateDetails.getChargeDescription());
+                pstmt.setBigDecimal(17, rateDetails.getIncentiveAmount());
+                pstmt.setString(18, rateDetails.getNetAmount());
+                pstmt.setString(19, rateDetails.getCustomerCode());
+                pstmt.setString(20, rateDetails.getShipperNumber());
+                if(rateDetails.getInvoiceCreateDate() != null){
+                    pstmt.setDate(21, new java.sql.Date(rateDetails.getInvoiceCreateDate().getTime()));
+                }else{
+                    pstmt.setNull(21, OracleTypes.DATE);
+                }
+                pstmt.setLong(22, rateDetails.getParentId());
+                pstmt.setString(23, rateDetails.getDwFieldInformation());
+                pstmt.setLong(24, rateDetails.getInvoiceId());
+                pstmt.setLong(25, rateDetails.getCustomerId());
+                pstmt.setString(26, rateDetails.getBillOption());
+                pstmt.setString(27, rateDetails.getChargeCategoryDetailCode());
+                if(rateDetails.getPieces() != null){
+                    pstmt.setInt(28, rateDetails.getPieces());
+                }else{
+                    pstmt.setNull(28, OracleTypes.INTEGER);
+                }
+
+                pstmt.setLong(29, rateDetails.getId());
+                pstmt.addBatch();
+            }
+
+            pstmt.executeBatch();
+            con.commit();
+        } catch (Exception e) {
+            try {
+                con.rollback();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+            throw new DaoException("Exception in updateUpsOtherFieldValues", e);
+        }finally {
+            try {
+                if (pstmt != null)
+                    pstmt.close();
+            } catch (SQLException sqle) {
+            }
+            try {
+                if (con != null)
+                    con.close();
+            } catch (SQLException sqle) {
+            }
+        }
+    }
+
+    public void updateFedExOtherFieldValues(List<ParcelAuditDetailsDto> rateDetailsList) {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        String sqlQuery = " UPDATE SHP_EBILL_FDX_RATES_TB ur SET ur.SENDER_COUNTRY = ?, ";
+        sqlQuery += " ur.CONSIGNEE_COUNTRY = ?, ur.SENDER_ST = ?, ur.CONSIGNEE_ST = ?, ur.DW_FIELD_INFORMATION = ?, ur.INVOICE_ID = ?, ur.SHIPPER_CODE = ?, ur.INVOICE_NUMBER = ?, ";
+        sqlQuery += " ur.TRACKING_NUMBER = ?, ur.BILL_WEIGHT = ?, ur.ACT_WEIGHT = ?, ur.ZONE = ?, ur.SERVICE = ?, ur.BILL_OPT = ?, ur.NET_CHARGES = ?, ur.MISCELLANEOUS5 = ?, ur.BUNDLE_NUMBER = ?, ";
+        sqlQuery += " ur.PARENT_ID = ?, ur.PIECES = ?, ur.DIM_LENGTH = ?, ur.WIDTH = ?, ur.HEIGHT = ?, ur.CHARGE_CODE = ?, ur.CUSTOMER_CODE = ?, ur.PICKUP_DATE = ?, ur.BILL_DATE = ?, ur.INV_CREATE_DATE = ?, ur.CUSTOMER_ID = ?, ";
+        sqlQuery += " ur.BILLED_DIM_DIVISOR = ? ";
+        sqlQuery += " WHERE ur.EBILL_MANIFEST_ID = ? ";
+
+        try {
+            con = ServiceLocator.getDatabaseConnection();
+            pstmt = con.prepareStatement(sqlQuery);
+            con.setAutoCommit(false);
+
+            for(ParcelAuditDetailsDto rateDetails : rateDetailsList){
+                pstmt.setString(1, rateDetails.getSenderCountry());
+                pstmt.setString(2, rateDetails.getReceiverCountry());
+                pstmt.setString(3, rateDetails.getSenderState());
+                pstmt.setString(4, rateDetails.getReceiverState());
+                pstmt.setString(5, rateDetails.getDwFieldInformation());
+                pstmt.setLong(6, rateDetails.getInvoiceId());
+                pstmt.setString(7, rateDetails.getShipperNumber());
+                pstmt.setString(8, rateDetails.getInvoiceNumber());
+                pstmt.setString(9, rateDetails.getTrackingNumber());
+                pstmt.setString(10, rateDetails.getPackageWeight());
+                pstmt.setBigDecimal(11, rateDetails.getActualWeight());
+                pstmt.setString(12, rateDetails.getZone());
+                pstmt.setString(13, rateDetails.getChargeDescription());
+                pstmt.setString(14, rateDetails.getBillOption());
+                pstmt.setString(15, rateDetails.getNetAmount());
+                pstmt.setString(16, rateDetails.getMiscellaneous5());
+                pstmt.setString(17, rateDetails.getMultiWeightNumber());
+                pstmt.setLong(18, rateDetails.getParentId());
+                if(rateDetails.getPieces() != null){
+                    pstmt.setInt(19, rateDetails.getPieces());
+                }else{
+                    pstmt.setNull(19, OracleTypes.INTEGER);
+                }
+
+                pstmt.setString(20, rateDetails.getDimLength());
+                pstmt.setString(21, rateDetails.getDimWidth());
+                pstmt.setString(22, rateDetails.getDimHeight());
+                pstmt.setString(23, rateDetails.getChargeCode());
+                pstmt.setString(24, rateDetails.getCustomerCode());
+                if(rateDetails.getPickupDate() != null){
+                    pstmt.setDate(25, new java.sql.Date(rateDetails.getPickupDate().getTime()));
+                }else {
+                    pstmt.setNull(25, OracleTypes.DATE);
+                }
+                if(rateDetails.getInvoiceDate() != null){
+                    pstmt.setDate(26, new java.sql.Date(rateDetails.getInvoiceDate().getTime()));
+                }else{
+                    pstmt.setNull(26, OracleTypes.DATE);
+                }
+                if(rateDetails.getInvoiceCreateDate() != null){
+                    pstmt.setDate(27, new java.sql.Date(rateDetails.getInvoiceCreateDate().getTime()));
+                }else{
+                    pstmt.setNull(27, OracleTypes.DATE);
+                }
+                pstmt.setLong(28, rateDetails.getCustomerId());
+                pstmt.setString(29, rateDetails.getBilledDimDivisor());
+                pstmt.setLong(30, rateDetails.getId());
+                pstmt.addBatch();
+            }
+
+            pstmt.executeBatch();
+            con.commit();
+        } catch (Exception e) {
+            try {
+                con.rollback();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+            throw new DaoException("Exception in updateFedExOtherFieldValues", e);
+        }finally {
+            try {
+                if (pstmt != null)
+                    pstmt.close();
+            } catch (SQLException sqle) {
+            }
+            try {
+                if (con != null)
+                    con.close();
+            } catch (SQLException sqle) {
+            }
+        }
+    }
+
+
+
+    public void updateRtrStatus(Long carrierId, String trackingNumber, String status) {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        String sqlQuery = "";
+        if(carrierId == 21L){
+            sqlQuery += " UPDATE SHP_EBILL_UPS_RATES_TB ur SET ur.RTR_STATUS = ? WHERE ur.TRACKING_NUMBER = ? ";
+        } else if(carrierId == 22L){
+            sqlQuery += " UPDATE SHP_EBILL_FDX_RATES_TB ur SET ur.RTR_STATUS = ? WHERE ur.TRACKING_NUMBER = ? ";
+        }
+
+        try {
+            con = ServiceLocator.getDatabaseConnection();
+            pstmt = con.prepareStatement(sqlQuery);
+            con.setAutoCommit(false);
+
+            pstmt.setString(1, status);
+            pstmt.setString(2, trackingNumber);
+            pstmt.executeUpdate();
+            con.commit();
+        } catch (Exception e) {
+            try {
+                con.rollback();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+            throw new DaoException("Exception in updateFedExOtherFieldValues", e);
         }finally {
             try {
                 if (pstmt != null)
@@ -755,6 +981,68 @@ public class DirectJDBCDAO {
             }
         }
         return storeRatingDetailsDtoList;
+    }
+
+
+    /**
+     * This method returns service flag accessroials based on carrier id and module name which needs to send in the XML request
+     *
+     * @param carrierId
+     * @param moduleName
+     * @return
+     */
+    public List<ServiceFlagAccessorialBean> getServiceFlagAcessorials(Long carrierId, String moduleName) {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        List<ServiceFlagAccessorialBean> beans = new ArrayList<>();
+
+        String sqlQuery = "select Lookup_Id,Module_Name,Column_Name,Lookup_Code,Lookup_Value,Custom_Defined_1,Custom_Defined_2 from shp_lookup_tb where module_name=? and Custom_Defined_2=?";
+
+
+        try {
+            con = ServiceLocator.getDatabaseConnection();
+            pstmt = con.prepareStatement(sqlQuery);
+
+            pstmt.setString(1, moduleName);
+            pstmt.setString(2, String.valueOf(carrierId));
+            rs = pstmt.executeQuery();
+
+            while ((rs.next())) {
+                ServiceFlagAccessorialBean bean = new ServiceFlagAccessorialBean();
+
+                bean.setLookUpId(rs.getLong("Lookup_Id"));
+                bean.setModuleName(rs.getString("Module_Name"));
+                bean.setColumnName(rs.getString("Column_Name"));
+                bean.setLookUpCode(rs.getString("Lookup_Code"));
+                bean.setLookUpValue(rs.getString("Lookup_Value"));
+                bean.setCustomDefined1(rs.getString("Custom_Defined_1"));
+                bean.setCustomDefined2(rs.getString("Custom_Defined_2"));
+
+                beans.add(bean);
+            }
+
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+        } catch (ServiceLocatorException e) {
+            log.error(e.getMessage());
+            //e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+                if (pstmt != null)
+                    pstmt.close();
+                if (con != null)
+                    con.close();
+            } catch (SQLException sqle) {
+                log.error(sqle.getMessage());
+                //sqle.printStackTrace();
+            }
+        }
+        return beans;
     }
 
 

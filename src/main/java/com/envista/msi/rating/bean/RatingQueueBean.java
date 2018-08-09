@@ -72,6 +72,7 @@ public class RatingQueueBean {
     private String thresholdValue;
     private String thresholdType;
     private String serviceLevel;
+    private String zone;
 
     public Long getRatingQueueId() {
         return ratingQueueId;
@@ -614,5 +615,13 @@ public class RatingQueueBean {
 
     public void setServiceLevel(String serviceLevel) {
         this.serviceLevel = serviceLevel;
+    }
+
+    public String getZone() {
+        return zone;
+    }
+
+    public void setZone(String zone) {
+        this.zone = zone;
     }
 }

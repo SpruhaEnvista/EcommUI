@@ -1,9 +1,9 @@
 package com.envista.msi.rating;
 
 import com.envista.msi.api.domain.util.ParcelRatingUtil;
-import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditDetailsDto;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant;
 import com.envista.msi.rating.bean.RatingQueueBean;
+import com.envista.msi.rating.bean.ServiceFlagAccessorialBean;
 import com.envista.msi.rating.dao.RatingQueueDAO;
 import com.envista.msi.rating.service.ParcelNonUpsRatingService;
 import com.envista.msi.rating.service.ParcelUpsRatingService;
@@ -20,10 +20,17 @@ import java.util.concurrent.TimeUnit;
 
 public class ParcelHwtRating implements Callable<String> {
 
+    private Log m_log = LogFactory.getLog(ParcelHwtRating.class);
+
     private static final int MAX_THREADS = 1;
 
     private List<RatingQueueBean> queueBeans = null;
-    private Log m_log = LogFactory.getLog(ParcelHwtRating.class);
+
+
+    private static final List<ServiceFlagAccessorialBean> fedexAccessorialBeans = ParcelNonUpsRatingService.getServiceFlagAcessorials(22l, ParcelAuditConstant.MSI_AR_CHARGE_CODE_MAPPING_MODELE_NAME);
+    ;
+    private static final List<ServiceFlagAccessorialBean> upsAccessorialBeans = ParcelNonUpsRatingService.getServiceFlagAcessorials(21l, ParcelAuditConstant.MSI_AR_CHARGE_CODE_MAPPING_MODELE_NAME);
+
 
     public ParcelHwtRating() {
     }
@@ -83,9 +90,9 @@ public class ParcelHwtRating implements Callable<String> {
         String status = null;
         if (queueBeans != null && queueBeans.size() > 0)
             if (queueBeans.get(0).getCarrierId() == 21) {
-                status = parcelUpsRatingService.doParcelRatingForUpsCarrier(queueBeans);
+                status = parcelUpsRatingService.doParcelRatingForUpsCarrier(queueBeans, upsAccessorialBeans);
             } else if (queueBeans.get(0).getCarrierId() == 22) {
-                status = nonUpsRatingService.doRatingForNonUpsShipment(queueBeans);
+                status = nonUpsRatingService.doRatingForNonUpsShipment(queueBeans, fedexAccessorialBeans);
             }
         String queueIds = ParcelRatingUtil.prepareQueueIdsInOperator(queueBeans);
 
