@@ -304,7 +304,6 @@ public class RatingQueueDAO {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        System.out.println("Loading Shipment for " + invoiceIds+"<--Start time -->"+System.currentTimeMillis());
         List<ParcelAuditDetailsDto> parcelUpsShipments = null;
         try {
             conn = ServiceLocator.getDatabaseConnection();
@@ -443,7 +442,7 @@ public class RatingQueueDAO {
 
                 parcelUpsShipments.add(shipmentDetails);
             }
-            System.out.println("Loading Shipment for " + invoiceIds+"<--End time -->"+System.currentTimeMillis());
+
 
         }catch (Exception e){
             e.printStackTrace();
@@ -473,7 +472,7 @@ public class RatingQueueDAO {
         PreparedStatement ps = null;
         ResultSet rs = null;
         List<ParcelAuditDetailsDto> parcelUpsShipments = null;
-        System.out.println("Loading Shipment for FedEx" + invoiceId+"<--Start time -->"+System.currentTimeMillis());
+
         try {
             conn = ServiceLocator.getDatabaseConnection();
 
@@ -623,7 +622,7 @@ public class RatingQueueDAO {
                 //Need to add charge code here.
                 parcelUpsShipments.add(shipmentDetails);
             }
-            System.out.println("Loading Shipment for FedEx " + invoiceId+"<--End time -->"+System.currentTimeMillis());
+
         }catch (Exception e){
             e.printStackTrace();
             throw new DaoException("Exception in getNonUpsParcelShipmentDetails", e);

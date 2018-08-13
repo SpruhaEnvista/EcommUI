@@ -140,6 +140,7 @@ public class ParcelRatingQueueJob {
             if(invoiceList != null && !invoiceList.isEmpty()) {
                 for(Long invId : invoiceList){
                     if(invId != null) {
+                        log.info("populating into rating queue table started for invoice id ->" + invId);
                         allShipmentDetails = new ParcelUpsRatingService().getUpsParcelShipmentDetails(ratingInputCriteriaBean.getCustomerId(), ratingInputCriteriaBean.getFromShipDate(), ratingInputCriteriaBean.getToShipDate(), ratingInputCriteriaBean.getTrackingNumbers(), invId.toString(), isHwt);
 
                         if(allShipmentDetails != null && !allShipmentDetails.isEmpty()){
@@ -156,7 +157,7 @@ public class ParcelRatingQueueJob {
             if(invoiceList != null && !invoiceList.isEmpty()) {
                 for (Long invId : invoiceList) {
                     if (invId != null) {
-                        System.out.println("For Invoice-->"+invId);
+                        log.info("populating into rating queue table started for invoice id ->" + invId);
                         allShipmentDetails =  parcelRatingService.getFedExParcelShipmentDetails(ratingInputCriteriaBean.getCustomerId(), ratingInputCriteriaBean.getFromShipDate(), ratingInputCriteriaBean.getToShipDate(), ratingInputCriteriaBean.getTrackingNumbers(), invId.toString(), isHwt);
 
                         if(allShipmentDetails != null && !allShipmentDetails.isEmpty()){
@@ -271,7 +272,7 @@ public class ParcelRatingQueueJob {
                                                                 frtCharged.setDimLength(prevShipmentFrtCharge.getDimLength());
                                                                 frtCharged.setUnitOfDim(prevShipmentFrtCharge.getUnitOfDim());
                                                                 frtCharged.setPackageDimension(prevShipmentFrtCharge.getPackageDimension());
-                                                                System.out.println("Prev shipment weight added for tracking number :: " + prevShipmentFrtCharge.getTrackingNumber());
+
 
                                                                 frtChargeManipulated = true;
                                                             }
