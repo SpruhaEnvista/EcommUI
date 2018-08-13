@@ -55,7 +55,7 @@ public class ParcelRating implements Callable<String> {
         ArrayList<RatingQueueBean> beanList = ratingQueueDao.getRatingQueueByJobId(jobIds);
 
 
-        System.out.println("in process parcel rating .....");
+        m_log.info("in process parcel rating .....");
         if (beanList != null) {
 
             ExecutorService executor = Executors.newFixedThreadPool(MAX_THREADS);
@@ -75,7 +75,7 @@ public class ParcelRating implements Callable<String> {
     }
     @Override
     public String call() throws Exception {
-        System.out.println("in call ....."+this.ratingQueueBean.getRatingQueueId());
+
         processParcelRating(this.ratingQueueBean);
         return "Success";
     }
@@ -83,12 +83,15 @@ public class ParcelRating implements Callable<String> {
         ParcelUpsRatingService parcelUpsRatingService = new ParcelUpsRatingService();
         ParcelNonUpsRatingService nonUpsRatingService = new ParcelNonUpsRatingService();
         String status = null;
+        m_log.info("rating started for tracking number ->" + bean.getTrackingNumber() + " ebill manifest id->" + bean.getManiestId());
         if(bean.getCarrierId() == 21){
+            m_log.info("rating started for tracking number ->" + bean.getTrackingNumber() + " ebill manifest id->" + bean.getGffId());
             status = parcelUpsRatingService.doParcelRatingForUpsCarrier(bean, upsAccessorialBeans);
-            System.out.println("Rating : " + bean.getTrackingNumber() + " : Status : " + status);
+            m_log.info("Rating : " + bean.getTrackingNumber() + " : Status : " + status);
         } else if(bean.getCarrierId() == 22) {
+            m_log.info("rating started for tracking number ->" + bean.getTrackingNumber() + " ebill manifest id->" + bean.getManiestId());
             status = nonUpsRatingService.doRatingForNonUpsShipment(bean, fedexAccessorialBeans);
-            System.out.println("Rating : " + bean.getTrackingNumber() + " : Status : " + status);
+            m_log.info("Rating : " + bean.getTrackingNumber() + " : Status : " + status);
         }
 
         if (status != null && !status.isEmpty()) {

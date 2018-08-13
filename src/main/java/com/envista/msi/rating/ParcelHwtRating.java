@@ -79,7 +79,7 @@ public class ParcelHwtRating implements Callable<String> {
 
     @Override
     public String call() throws Exception {
-        System.out.println("in call ....." + this.queueBeans);
+
         processParcelRating(this.queueBeans);
         return "Success";
     }

@@ -341,7 +341,8 @@ public class DirectJDBCDAO {
                     chargeCodes.add(mappedChargeType);
                 }
             }catch (SQLException sqle) {
-                System.out.println("Exception in loadMappedARChargeCodes -- > "+sqle.getStackTrace());
+                System.out.println(
+                        "Exception in loadMappedARChargeCodes -- > " + sqle.getStackTrace());
             }  catch (ServiceLocatorException sle) {
                 System.out.println("Exception in loadMappedARChargeCodes -- > "+sle.getStackTrace());
             }finally {
@@ -497,7 +498,7 @@ public class DirectJDBCDAO {
     }
 
     public List<Long> loadInvoiceIds(String fromDate, String toDate, String customerId, String invoiceIds, int limit, String rateTo,String serviceLevelIds){
-        System.out.println("Loading Invoices");
+
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -555,12 +556,12 @@ public class DirectJDBCDAO {
                 archiveQuery = liveSqlQuery.replace("SHP_EBILL_INVOICE_TB", "ARC_EBILL_INVOICE_TB");
                 archiveQuery = archiveQuery.replace("SHP_EBILL_MANIFEST_TB", "ARC_EBILL_MANIFEST_TB");
             }
-            System.out.println("Sql Query --> " + liveSqlQuery + " UNION " + archiveQuery);
+
             conn = ServiceLocator.getDatabaseConnection();
             ps = conn.prepareStatement(liveSqlQuery + " UNION " + archiveQuery);
             rs = ps.executeQuery();
 
-            System.out.println("Got Invoices-->");
+
             while(rs.next()) {
                 invoiceList.add(rs.getLong("INVOICE_ID"));
             }
