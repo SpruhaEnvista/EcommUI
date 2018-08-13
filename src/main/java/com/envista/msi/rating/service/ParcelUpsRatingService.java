@@ -492,6 +492,7 @@ public class ParcelUpsRatingService {
 
                                 ParcelRateResponse.Charge residentialSurchargeDiscountCharge = ParcelRateResponseParser.getResidentialSurchargeDiscount(priceSheet);
                                 if(residentialSurchargeDiscountCharge != null){
+                                    mappedDscChanges.add(residentialSurchargeDiscountCharge);
                                     rateDetails.setResidentialSurchargeDiscount(residentialSurchargeDiscountCharge.getAmount());
                                     rateDetails.setResidentialSurchargeDiscountPercentage(residentialSurchargeDiscountCharge.getRate());
                                 }
@@ -647,7 +648,7 @@ public class ParcelUpsRatingService {
                             }
                         }
                         if (tempRemoveList != null && tempRemoveList.size() > 0) {
-                            mappedDscChanges.removeAll(tempRemoveList);
+                            discountCharges.removeAll(tempRemoveList);
                             tempRemoveList = null;
                         }
                     }
@@ -706,6 +707,7 @@ public class ParcelUpsRatingService {
 
                             ParcelRateResponse.Charge residentialSurchargeDiscountCharge = ParcelRateResponseParser.getResidentialSurchargeDiscount(priceSheet);
                             if(residentialSurchargeDiscountCharge != null){
+
                                 rateDetails.setResidentialSurchargeDiscount(residentialSurchargeDiscountCharge.getAmount());
                                 rateDetails.setResidentialSurchargeDiscountPercentage(residentialSurchargeDiscountCharge.getRate());
                             }
@@ -730,7 +732,10 @@ public class ParcelUpsRatingService {
                     }
 
                     if(charge != null){
-                        mappedAccChanges.add(charge);
+                        if(charge != null && charge.getType() != null){
+                            if(ParcelRateResponse.ChargeType.ACCESSORIAL.name().equalsIgnoreCase(charge.getType())) mappedAccChanges.add(charge);
+                        }
+
                         if (rateDetails.getAccessorial1() == null && !accessorial1Mapped) {
                             mappedAccChanges.add(charge);
                             accessorial1Mapped = true;
