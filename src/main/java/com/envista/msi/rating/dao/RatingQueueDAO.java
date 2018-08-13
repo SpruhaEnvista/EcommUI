@@ -93,6 +93,7 @@ public class RatingQueueDAO {
                 ratingQBean.setTaskId(rss.getLong("TASK_ID"));
                 ratingQBean.setThresholdValue(rss.getString("THRESHOLD_VALUE"));
                 ratingQBean.setThresholdType(rss.getString("THRESHOLD_TYPE"));
+                ratingQBean.setZone(rss.getString("ZONE"));
             }
 
         } catch (SQLException sqle) {
@@ -126,7 +127,7 @@ public class RatingQueueDAO {
         ResultSet rs = null;
 
         java.util.ArrayList<RatingQueueBean> beanList = null;
-        String selectQuery = "select * from SHP_RATING_QUEUE_TB where RATE_STATUS = 0 and job_id in ( "+jobIds+" ) and rownum <= 30000 ";
+        String selectQuery = "select * from SHP_RATING_QUEUE_TB where  RATE_STATUS = 0 and job_id in ( "+jobIds+" ) and rownum <= 30000 ";
 
         try {
             connection = ServiceLocator.getDatabaseConnection();
@@ -194,6 +195,7 @@ public class RatingQueueDAO {
                 ratingQueueBean.setTaskId(rs.getLong("TASK_ID"));
                 ratingQueueBean.setThresholdType(rs.getString("THRESHOLD_TYPE"));
                 ratingQueueBean.setThresholdValue(rs.getString("THRESHOLD_VALUE"));
+                ratingQueueBean.setZone(rs.getString("ZONE"));
                 beanList.add(ratingQueueBean);
             }
 
@@ -302,7 +304,6 @@ public class RatingQueueDAO {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        System.out.println("Loading Shipment for " + invoiceIds+"<--Start time -->"+System.currentTimeMillis());
         List<ParcelAuditDetailsDto> parcelUpsShipments = null;
         try {
             conn = ServiceLocator.getDatabaseConnection();
@@ -310,7 +311,7 @@ public class RatingQueueDAO {
             String liveQuery = " SELECT a.EBILL_GFF_ID AS ID, d.CUSTOMER_ID, d.CUSTOMER_CODE, c.CARRIER_ID, c.CONTRACT_NUMBER, ";
             liveQuery += " DECODE(a.BILL_OPTION_CODE, 'F/C', 'FC', 'F/D', 'FD', 'P/P', 'PP', 'C/B', 'CB', 'T/P', 'TP', a.BILL_OPTION_CODE) AS BILL_OPTION_CODE, ";
             liveQuery += " e.rtr_scac_code, e.scac_code, null AS TRAN_CODE, a.CHARGE_CLASSIFICATION_CODE, a.CHARGE_DESCRIPTION_CODE, ";
-            liveQuery += " a.CHARGE_DESCRIPTION, a.BILLED_WEIGHT AS PACKAGE_WEIGHT, a.TRACKING_NUMBER, SHIPMENT_DATE AS PICKUP_DATE, ";
+            liveQuery += " a.CHARGE_DESCRIPTION, a.BILLED_WEIGHT AS PACKAGE_WEIGHT, a.TRACKING_NUMBER, a.SHIPMENT_DATE AS PICKUP_DATE, ";
             liveQuery += " DECODE(a.CHARGE_DESCRIPTION_CODE, '001', 'MAN', '002', 'MAN', '003', 'MAN', a.CHARGE_DESCRIPTION_CODE) AS RESIDENTIAL_INDICATOR, ";
             liveQuery += " a.DELIVERY_DATE, NVL(a.SENDER_COUNTRY, f.COUNTRY) AS SENDER_COUNTRY, NVL(a.SENDER_STATE, f.STATE) AS SENDER_STATE, NVL(a.SENDER_CITY, f.CITY) AS SENDER_CITY, ";
             liveQuery += " NVL(a.SENDER_POSTAL, f.ZIPCODE) AS SENDER_ZIP_CODE, a.RECEIVER_COUNTRY, a.RECEIVER_STATE, a.RECEIVER_CITY, a.RECEIVER_POSTAL AS RECEIVER_ZIP_CODE, ";
@@ -319,8 +320,9 @@ public class RatingQueueDAO {
             liveQuery += " (select custom_defined_9 from shp_lookup_tb where lookup_id = a.actual_service_bucket) AS SERVICE_LEVEL, a.DW_FIELD_INFORMATION AS DW_FIELD_INFORMATION, ";
             liveQuery += " CONCAT('0000', a.ACCOUNT_NUMBER) AS SHIPPER_NUMBER, a.PARENT_ID, (CASE WHEN a.container_type = 'LTR' THEN 'Letter' WHEN a.container_type IN ('PKG', 'PAK') THEN 'PKG' ELSE a.container_type END) package_type, ";
             liveQuery += " a.PACKAGE_DIMENSIONS AS PACKAGE_DIMENSION, a.ENTERED_WEIGHT AS ACTUAL_WEIGHT, a.ENTERED_WEIGHT_UNIT_OF_MEASURE AS UNIT_OF_ACTUAL_WEIGHT, ";
-            liveQuery += " (select rev.SPEND from Shp_Revenue_Tb rev where  rev.customer_id=c.customer_id and rev.carrier_id=c.carrier_id and rev.carrier_id=21 and (SHIPMENT_DATE BETWEEN week_from_date AND week_to_date) and rownum=1 and rev.spend is not null) AS REVENUE_TIER, ";
-            liveQuery += " null AS CHARGE_CODE, Lead_Shipment_Number AS MULTI_WEIGHT_NUMBER, a.CHARGE_CATEGORY_DETAIL_CODE, ";
+            liveQuery += " (select rev.SPEND from Shp_Revenue_Tb rev where  rev.customer_id=c.customer_id and rev.carrier_id=c.carrier_id and rev.carrier_id=21 and (a.SHIPMENT_DATE BETWEEN week_from_date AND week_to_date) and rownum=1 and rev.spend is not null) AS REVENUE_TIER, ";
+            liveQuery += " null AS CHARGE_CODE, a.Lead_Shipment_Number AS MULTI_WEIGHT_NUMBER, a.CHARGE_CATEGORY_DETAIL_CODE, ";
+            liveQuery += " a.INVOICE_DATE, a.INVOICE_NUMBER,  a.ZONE as ZONE, a.INCENTIVE_AMOUNT, b.CREATE_DATE AS INV_CREATE_DATE, ";
             if (isHwt) {
                 liveQuery += " 0 as RTR_AMOUNT ,null as rtr_status";
             } else {
@@ -328,7 +330,7 @@ public class RatingQueueDAO {
             }
             liveQuery += " FROM shp_ebill_gff_tb a, shp_ebill_invoice_tb b, shp_ebill_contract_tb c, shp_customer_profile_tb d, shp_carrier_tb e, shp_shipper_tb f ";
             if (!isHwt) {
-                liveQuery += ", SHP_AUDIT_RATE_DETAILS_TB ar  ";
+                liveQuery += ", SHP_EBILL_UPS_RATES_TB ar  ";
             }
             liveQuery += " WHERE a.invoice_id = b.invoice_id ";
             liveQuery += " AND b.INV_CONTRACT_NUMBER = c.CONTRACT_NUMBER ";
@@ -369,8 +371,8 @@ public class RatingQueueDAO {
 
             if (isHwt) {
                 liveQuery += " and a.Lead_Shipment_Number is not null AND (a.ebill_gff_id,a.Lead_Shipment_Number) in(SELECT EBILL_GFF_ID,Lead_Shipment_Number FROM  shp_ebill_gff_tb " +
-                        " where invoice_id IN ( " + invoiceIds + ") MINUS SELECT a.EBILL_GFF_ID,a.hwt_identifier FROM  SHP_AUDIT_RATE_DETAILS_TB a," +
-                        " shp_ebill_gff_tb b where a.EBILL_GFF_ID = b.EBILL_GFF_ID and b.invoice_id IN ( " + invoiceIds + "))";
+                        " where invoice_id IN ( " + invoiceIds + ") MINUS SELECT a.Gff_Id,a.hwt_identifier FROM  Shp_Rating_Queue_Tb a," +
+                        " shp_ebill_gff_tb b where a.Gff_Id = b.EBILL_GFF_ID and b.invoice_id IN ( " + invoiceIds + "))";
 
             }
 
@@ -432,9 +434,15 @@ public class RatingQueueDAO {
                 shipmentDetails.setRtrStatus(rs.getString("RTR_STATUS"));
                 shipmentDetails.setMultiWeightNumber(rs.getString("MULTI_WEIGHT_NUMBER"));
                 shipmentDetails.setChargeCategoryDetailCode(rs.getString("CHARGE_CATEGORY_DETAIL_CODE"));
+                shipmentDetails.setInvoiceDate(rs.getDate("INVOICE_DATE"));
+                shipmentDetails.setInvoiceNumber(rs.getString("INVOICE_NUMBER"));
+                shipmentDetails.setZone(rs.getString("ZONE"));
+                shipmentDetails.setIncentiveAmount(rs.getBigDecimal("INCENTIVE_AMOUNT"));
+                shipmentDetails.setInvoiceCreateDate(rs.getDate("INV_CREATE_DATE"));
+
                 parcelUpsShipments.add(shipmentDetails);
             }
-            System.out.println("Loading Shipment for " + invoiceIds+"<--End time -->"+System.currentTimeMillis());
+
 
         }catch (Exception e){
             e.printStackTrace();
@@ -464,13 +472,13 @@ public class RatingQueueDAO {
         PreparedStatement ps = null;
         ResultSet rs = null;
         List<ParcelAuditDetailsDto> parcelUpsShipments = null;
-        System.out.println("Loading Shipment for FedEx" + invoiceId+"<--Start time -->"+System.currentTimeMillis());
+
         try {
             conn = ServiceLocator.getDatabaseConnection();
 
             String liveSqlQuery = " SELECT ebmf.EBILL_MANIFEST_ID AS ID, cp.CUSTOMER_ID, cp.CUSTOMER_CODE, c.CARRIER_ID, ebmf.CONTRACT_NUMBER, ";
             liveSqlQuery += " ebmf.BILL_OPT AS BILL_OPTION_CODE, c.RTR_SCAC_CODE, c.SCAC_CODE, ebmf.TRAN_CODE, ";
-            liveSqlQuery += " null AS CHARGE_CLASSIFICATION_CODE, null AS CHARGE_DESCRIPTION_CODE, ebmf.SERVICE AS CHARGE_DESCRIPTION, ";
+            liveSqlQuery += " null AS CHARGE_CLASSIFICATION_CODE, ebmf.CHARGE_CODE AS CHARGE_DESCRIPTION_CODE, ebmf.SERVICE AS CHARGE_DESCRIPTION, ";
             liveSqlQuery += " ebmf.BILL_WEIGHT AS PACKAGE_WEIGHT, ebmf.TRACKING_NUMBER, ebmf.PICKUP_DATE, ebmf.TRAN_CODE AS RESIDENTIAL_INDICATOR, ";
             liveSqlQuery += " ebmf.DELIVERY_DATE, NVL(ebmf.SENDER_COUNTRY, s.COUNTRY) AS SENDER_COUNTRY, NVL(ebmf.SENDER_ST, s.STATE) AS SENDER_STATE, ";
             liveSqlQuery += " NVL(ebmf.SENDER_CITY, s.CITY) AS SENDER_CITY, NVL(ebmf.SENDER_ZIP, s.ZIPCODE) AS SENDER_ZIP_CODE, ebmf.CONSIGNEE_COUNTRY AS RECEIVER_COUNTRY, ";
@@ -480,18 +488,20 @@ public class RatingQueueDAO {
             liveSqlQuery += " (select custom_defined_9 from shp_lookup_tb where lookup_id = ebmf.service_bucket) AS SERVICE_LEVEL, ebmf.DW_FIELD_INFORMATION, ";
             liveSqlQuery += " ebmf.SHIPPER_CODE AS SHIPPER_NUMBER, ebmf.PARENT_ID, DECODE (ebmf.bill_weight, 0, 'Letter', 'PKG') package_type, ";
             liveSqlQuery += " null AS PACKAGE_DIMENSION, ebmf.ACT_WEIGHT AS ACTUAL_WEIGHT, ebmf.UNIT_OF_ACTUAL_WEIGHT, ";
+            liveSqlQuery += " ebmf.INVOICE_NUMBER, ebmf.ZONE, ebmf.MISCELLANEOUS5, ebmf.PIECES, ebmf.DIM_DIVISOR AS BILLED_DIM_DIVISOR, ebmf.BILL_DATE AS INVOICE_DATE, inv.CREATE_DATE AS INV_CREATE_DATE, ";
             if (isHwt) {
                 liveSqlQuery += " 0 as RTR_AMOUNT ,null as rtr_status,";
             } else {
                 liveSqlQuery += " ar.RTR_AMOUNT ,ar.rtr_status,";
             }
-            liveSqlQuery += " ebmf.REVENUE_TIER AS REVENUE_TIER, ebmf.CHARGE_CODE,DECODE (Ebmf.Bundle_Number,NULL,MISCELLANEOUS5,Bundle_Number) AS MULTI_WEIGHT_NUMBER, null AS CHARGE_CATEGORY_DETAIL_CODE ";
-            liveSqlQuery += " FROM SHP_EBILL_MANIFEST_TB ebmf, SHP_EBILL_CONTRACT_TB ebc, SHP_CUSTOMER_PROFILE_TB cp, SHP_CARRIER_TB c, SHP_SHIPPER_TB s";
+            liveSqlQuery += " ebmf.REVENUE_TIER AS REVENUE_TIER, ebmf.CHARGE_CODE,DECODE (Ebmf.Bundle_Number,NULL,ebmf.MISCELLANEOUS5, ebmf.Bundle_Number) AS MULTI_WEIGHT_NUMBER, null AS CHARGE_CATEGORY_DETAIL_CODE ";
+            liveSqlQuery += " FROM SHP_EBILL_MANIFEST_TB ebmf, SHP_EBILL_CONTRACT_TB ebc, SHP_CUSTOMER_PROFILE_TB cp, SHP_CARRIER_TB c, SHP_SHIPPER_TB s, SHP_EBILL_INVOICE_TB inv ";
             if (!isHwt) {
-                liveSqlQuery += ", SHP_AUDIT_RATE_DETAILS_TB ar  ";
+                liveSqlQuery += ", SHP_EBILL_FDX_RATES_TB ar  ";
             }
 
             liveSqlQuery += " WHERE ebmf.CONTRACT_NUMBER = ebc.CONTRACT_NUMBER ";
+            liveSqlQuery += " AND ebmf.INVOICE_ID = inv.INVOICE_ID ";
             liveSqlQuery += " AND ebc.CUSTOMER_ID = cp.CUSTOMER_ID ";
             liveSqlQuery += " AND ebmf.CARRIER_ID = c.CARRIER_ID ";
             liveSqlQuery += " AND ebmf.SHIPPER_CODE = s.SHIPPER_CODE ";
@@ -528,12 +538,13 @@ public class RatingQueueDAO {
 
             if (isHwt) {
                 liveSqlQuery += " and (Ebmf.Bundle_Number IS NOT NULL OR Ebmf.MISCELLANEOUS5 IS NOT NULL) AND (Ebmf.ebill_manifest_id,DECODE (Ebmf.Bundle_Number,NULL,Ebmf.MISCELLANEOUS5,Ebmf.Bundle_Number)) in(SELECT ebill_manifest_id,DECODE (Bundle_Number,NULL,MISCELLANEOUS5,Bundle_Number) FROM  SHP_EBILL_MANIFEST_TB " +
-                        " where invoice_id IN ( " + invoiceId + ") MINUS SELECT a.ebill_manifest_id,a.hwt_identifier FROM  SHP_AUDIT_RATE_DETAILS_TB a," +
-                        " SHP_EBILL_MANIFEST_TB b where a.ebill_manifest_id = b.ebill_manifest_id and b.invoice_id IN ( " + invoiceId + "))";
+                        " where invoice_id IN ( " + invoiceId + ") MINUS SELECT a.manifest_id,a.hwt_identifier FROM  Shp_Rating_Queue_Tb a," +
+                        " SHP_EBILL_MANIFEST_TB b where a.manifest_id = b.ebill_manifest_id and b.invoice_id IN ( " + invoiceId + "))";
 
             }
 
             String archiveQuery = liveSqlQuery.replace("SHP_EBILL_MANIFEST_TB", "ARC_EBILL_MANIFEST_TB");
+            archiveQuery = archiveQuery.replace("SHP_EBILL_INVOICE_TB", "ARC_EBILL_INVOICE_TB");
 
             ps = conn.prepareStatement(liveSqlQuery + " UNION " + archiveQuery);
             parcelUpsShipments = new ArrayList<>();
@@ -551,7 +562,7 @@ public class RatingQueueDAO {
                 shipmentDetails.setScacCode(rs.getString("scac_code"));
                 shipmentDetails.setTranCode(rs.getString("TRAN_CODE"));
                 shipmentDetails.setChargeClassificationCode(rs.getString("CHARGE_CLASSIFICATION_CODE"));
-                shipmentDetails.setChargeDescriptionCode(rs.getString("CHARGE_DESCRIPTION_CODE"));
+                shipmentDetails.setActualchargeDescriptionCode(rs.getString("CHARGE_DESCRIPTION_CODE"));
                 shipmentDetails.setChargeDescription(rs.getString("CHARGE_DESCRIPTION"));
                 shipmentDetails.setPackageWeight(rs.getString("PACKAGE_WEIGHT"));
                 shipmentDetails.setTrackingNumber(rs.getString("TRACKING_NUMBER"));
@@ -601,10 +612,17 @@ public class RatingQueueDAO {
                 shipmentDetails.setRtrStatus(rs.getString("RTR_STATUS"));
                 shipmentDetails.setMultiWeightNumber(rs.getString("MULTI_WEIGHT_NUMBER"));
                 shipmentDetails.setChargeCategoryDetailCode(rs.getString("CHARGE_CATEGORY_DETAIL_CODE"));
+                shipmentDetails.setChargeCode(rs.getString("CHARGE_CODE"));
+                shipmentDetails.setInvoiceDate(rs.getDate("INVOICE_DATE"));
+                shipmentDetails.setInvoiceCreateDate(rs.getDate("INV_CREATE_DATE"));
+                shipmentDetails.setPieces(rs.getInt("PIECES"));
+                shipmentDetails.setZone(rs.getString("ZONE"));
+                shipmentDetails.setInvoiceNumber(rs.getString("INVOICE_NUMBER"));
+                shipmentDetails.setBilledDimDivisor(rs.getString("BILLED_DIM_DIVISOR"));
                 //Need to add charge code here.
                 parcelUpsShipments.add(shipmentDetails);
             }
-            System.out.println("Loading Shipment for FedEx " + invoiceId+"<--End time -->"+System.currentTimeMillis());
+
         }catch (Exception e){
             e.printStackTrace();
             throw new DaoException("Exception in getNonUpsParcelShipmentDetails", e);

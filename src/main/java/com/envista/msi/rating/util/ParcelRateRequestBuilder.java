@@ -48,6 +48,7 @@ public class ParcelRateRequestBuilder {
             constraints.setService(serviceLevel);
             constraints.setCustomerCode(ratingQueueBean.getCustomerCode());
             constraints.setRateSet(ratingQueueBean.getRateSetName());
+            constraints.setZone(ratingQueueBean.getZone());
 
             ParcelRateRequest.RevenueTier revenueTier = new ParcelRateRequest.RevenueTier();
             String revenueValue = ratingQueueBean.getRevenueTier();

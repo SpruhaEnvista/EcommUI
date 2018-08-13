@@ -36,9 +36,7 @@ public class ParcelHwtRatingScheduler {
             System.out.println("lock is acquired. Another program instance is running. ");
             System.exit(0);
         }
-        if (args != null && args.length > 0) {
-            jobIds = args[0];
-        }
+
 
         // Get the scheduler
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();

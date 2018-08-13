@@ -258,6 +258,9 @@ public class ParcelRateRequest implements Serializable {
         @XmlElement(name = "RateSet")
         private String rateSet;
 
+        @XmlElement(name = "Zone")
+        private String zone;
+
         public Contract getContract() {
             return contract;
         }
@@ -319,6 +322,14 @@ public class ParcelRateRequest implements Serializable {
 
         public void setRateSet(String rateSet) {
             this.rateSet = rateSet;
+        }
+
+        public String getZone() {
+            return zone;
+        }
+
+        public void setZone(String zone) {
+            this.zone = zone;
         }
     }
 

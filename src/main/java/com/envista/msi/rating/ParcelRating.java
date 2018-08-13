@@ -3,6 +3,7 @@ package com.envista.msi.rating;
 import com.envista.msi.api.domain.util.ParcelRatingUtil;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant;
 import com.envista.msi.rating.bean.RatingQueueBean;
+import com.envista.msi.rating.bean.ServiceFlagAccessorialBean;
 import com.envista.msi.rating.dao.RatingQueueDAO;
 import com.envista.msi.rating.service.ParcelNonUpsRatingService;
 import com.envista.msi.rating.service.ParcelUpsRatingService;
@@ -10,6 +11,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -17,10 +19,17 @@ import java.util.concurrent.TimeUnit;
 
 public class ParcelRating implements Callable<String> {
 
+    private Log m_log = LogFactory.getLog(ParcelRating.class);
+
     private static final int MAX_THREADS = 5;
 
     private RatingQueueBean ratingQueueBean = null;
-    private Log m_log = LogFactory.getLog(ParcelRating.class);
+
+
+    private static final List<ServiceFlagAccessorialBean> fedexAccessorialBeans = ParcelNonUpsRatingService.getServiceFlagAcessorials(22l, ParcelAuditConstant.MSI_AR_CHARGE_CODE_MAPPING_MODELE_NAME);
+    ;
+    private static final List<ServiceFlagAccessorialBean> upsAccessorialBeans = ParcelNonUpsRatingService.getServiceFlagAcessorials(21l, ParcelAuditConstant.MSI_AR_CHARGE_CODE_MAPPING_MODELE_NAME);
+
 
     public ParcelRating() { }
 
@@ -46,8 +55,9 @@ public class ParcelRating implements Callable<String> {
         ArrayList<RatingQueueBean> beanList = ratingQueueDao.getRatingQueueByJobId(jobIds);
 
 
-        System.out.println("in process parcel rating .....");
+        m_log.info("in process parcel rating .....");
         if (beanList != null) {
+
             ExecutorService executor = Executors.newFixedThreadPool(MAX_THREADS);
             for(RatingQueueBean bean :beanList){
                 Callable<String> callableTask = new ParcelRating(bean);
@@ -65,7 +75,7 @@ public class ParcelRating implements Callable<String> {
     }
     @Override
     public String call() throws Exception {
-        System.out.println("in call ....."+this.ratingQueueBean.getRatingQueueId());
+
         processParcelRating(this.ratingQueueBean);
         return "Success";
     }
@@ -73,12 +83,15 @@ public class ParcelRating implements Callable<String> {
         ParcelUpsRatingService parcelUpsRatingService = new ParcelUpsRatingService();
         ParcelNonUpsRatingService nonUpsRatingService = new ParcelNonUpsRatingService();
         String status = null;
+        m_log.info("rating started for tracking number ->" + bean.getTrackingNumber() + " ebill manifest id->" + bean.getManiestId());
         if(bean.getCarrierId() == 21){
-            status = parcelUpsRatingService.doParcelRatingForUpsCarrier(bean);
-            System.out.println("Rating : " + bean.getTrackingNumber() + " : Status : " + status);
+            m_log.info("rating started for tracking number ->" + bean.getTrackingNumber() + " ebill manifest id->" + bean.getGffId());
+            status = parcelUpsRatingService.doParcelRatingForUpsCarrier(bean, upsAccessorialBeans);
+            m_log.info("Rating : " + bean.getTrackingNumber() + " : Status : " + status);
         } else if(bean.getCarrierId() == 22) {
-            status = nonUpsRatingService.doRatingForNonUpsShipment(bean);
-            System.out.println("Rating : " + bean.getTrackingNumber() + " : Status : " + status);
+            m_log.info("rating started for tracking number ->" + bean.getTrackingNumber() + " ebill manifest id->" + bean.getManiestId());
+            status = nonUpsRatingService.doRatingForNonUpsShipment(bean, fedexAccessorialBeans);
+            m_log.info("Rating : " + bean.getTrackingNumber() + " : Status : " + status);
         }
 
         if (status != null && !status.isEmpty()) {

@@ -139,6 +139,9 @@ public class ParcelRateResponse implements Serializable {
         @XmlElement(name="Comments")
         private String comments;
 
+        @XmlElement(name="Zone")
+        private String zone;
+
         public String getCleanComments() {
             if (comments == null) return null;
 
@@ -311,6 +314,14 @@ public class ParcelRateResponse implements Serializable {
         public void setDestServiceType(DirectionalityVO destServiceType) {
             this.destServiceType = destServiceType;
         }*/
+
+        public String getZone() {
+            return zone;
+        }
+
+        public void setZone(String zone) {
+            this.zone = zone;
+        }
     }
 
     @XmlAccessorType(XmlAccessType.NONE)
