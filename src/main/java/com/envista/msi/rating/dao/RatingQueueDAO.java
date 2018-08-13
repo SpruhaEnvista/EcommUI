@@ -545,6 +545,7 @@ public class RatingQueueDAO {
             }
 
             String archiveQuery = liveSqlQuery.replace("SHP_EBILL_MANIFEST_TB", "ARC_EBILL_MANIFEST_TB");
+            archiveQuery = archiveQuery.replace("SHP_EBILL_INVOICE_TB", "ARC_EBILL_INVOICE_TB");
 
             ps = conn.prepareStatement(liveSqlQuery + " UNION " + archiveQuery);
             parcelUpsShipments = new ArrayList<>();
