@@ -90,8 +90,12 @@ public class ParcelHwtRating implements Callable<String> {
         String status = null;
         if (queueBeans != null && queueBeans.size() > 0)
             if (queueBeans.get(0).getCarrierId() == 21) {
+                System.out.println("rating started for hwt identifier ->" + queueBeans.get(0).getHwtIdentifier());
+                m_log.info("rating started for hwt identifier ->" + queueBeans.get(0).getHwtIdentifier());
                 status = parcelUpsRatingService.doParcelRatingForUpsCarrier(queueBeans, upsAccessorialBeans);
             } else if (queueBeans.get(0).getCarrierId() == 22) {
+                System.out.println("rating started for hwt identifier ->" + queueBeans.get(0).getHwtIdentifier());
+                m_log.info("rating started for hwt identifier ->" + queueBeans.get(0).getHwtIdentifier());
                 status = nonUpsRatingService.doRatingForNonUpsShipment(queueBeans, fedexAccessorialBeans);
             }
         String queueIds = ParcelRatingUtil.prepareQueueIdsInOperator(queueBeans);

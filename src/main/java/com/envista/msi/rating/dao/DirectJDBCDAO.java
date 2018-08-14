@@ -741,7 +741,7 @@ public class DirectJDBCDAO {
                 pstmt.setString(12, rateDetails.getPackageType());
                 pstmt.setString(13, rateDetails.getPackageDimension());
                 pstmt.setString(14, rateDetails.getZone());
-                pstmt.setString(15, rateDetails.getChargeDescriptionCode());
+                pstmt.setString(15, rateDetails.getChargeClassificationCode());
                 pstmt.setString(16, rateDetails.getChargeDescription());
                 pstmt.setBigDecimal(17, rateDetails.getIncentiveAmount());
                 pstmt.setString(18, rateDetails.getNetAmount());

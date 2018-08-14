@@ -141,6 +141,7 @@ public class ParcelRatingQueueJob {
                 for(Long invId : invoiceList){
                     if(invId != null) {
                         log.info("populating into rating queue table started for invoice id ->" + invId);
+                        System.out.println("populating into rating queue table started for invoice id ->" + invId);
                         allShipmentDetails = new ParcelUpsRatingService().getUpsParcelShipmentDetails(ratingInputCriteriaBean.getCustomerId(), ratingInputCriteriaBean.getFromShipDate(), ratingInputCriteriaBean.getToShipDate(), ratingInputCriteriaBean.getTrackingNumbers(), invId.toString(), isHwt);
 
                         if(allShipmentDetails != null && !allShipmentDetails.isEmpty()){
@@ -158,6 +159,7 @@ public class ParcelRatingQueueJob {
                 for (Long invId : invoiceList) {
                     if (invId != null) {
                         log.info("populating into rating queue table started for invoice id ->" + invId);
+                        System.out.println("populating into rating queue table started for invoice id ->" + invId);
                         allShipmentDetails =  parcelRatingService.getFedExParcelShipmentDetails(ratingInputCriteriaBean.getCustomerId(), ratingInputCriteriaBean.getFromShipDate(), ratingInputCriteriaBean.getToShipDate(), ratingInputCriteriaBean.getTrackingNumbers(), invId.toString(), isHwt);
 
                         if(allShipmentDetails != null && !allShipmentDetails.isEmpty()){

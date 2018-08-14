@@ -134,12 +134,12 @@ public class ParcelRatingUtil {
         return amount;
     }
 
-    public static BigDecimal findRtrAmountByChargeClassificationCode(String chargeClassificationCode, List<RatedChargeDetailsDto> shipmentCharges) {
+    public static BigDecimal findRtrAmountByChargeClassificationCode(String chargeClassificationCode, List<RatedChargeDetailsDto> shipmentCharges, Long excludeGffId) {
         BigDecimal amount = new BigDecimal("0");
         if (chargeClassificationCode != null && !chargeClassificationCode.isEmpty() && shipmentCharges != null && !shipmentCharges.isEmpty()) {
             for (RatedChargeDetailsDto ratedCharge : shipmentCharges) {
                 if (ratedCharge != null) {
-                    if (chargeClassificationCode.equalsIgnoreCase(ratedCharge.getChargeClassificationCode())) {
+                    if (chargeClassificationCode.equalsIgnoreCase(ratedCharge.getChargeClassificationCode()) && !ratedCharge.getId().equals(excludeGffId)) {
                         if (ratedCharge.getRatedAmount() != null) {
                             amount = amount.add(ratedCharge.getRatedAmount());
                         }
@@ -151,11 +151,11 @@ public class ParcelRatingUtil {
         return amount;
     }
 
-    public static BigDecimal findRtrAmountByChargeClassificationCodeAndChargeDescriptionCode(String chargeClassificationCode, String chargeDescriptionCode, List<RatedChargeDetailsDto> shipmentCharges) {
+    public static BigDecimal findRtrAmountByChargeClassificationCodeAndChargeDescriptionCode(String chargeClassificationCode, String chargeDescriptionCode, List<RatedChargeDetailsDto> shipmentCharges, Long excludeGffId) {
         BigDecimal amount = new BigDecimal("0");
         if (chargeClassificationCode != null && !chargeClassificationCode.isEmpty() && shipmentCharges != null && !shipmentCharges.isEmpty()) {
             for (RatedChargeDetailsDto ratedCharge : shipmentCharges) {
-                if (ratedCharge != null) {
+                if (ratedCharge != null && !ratedCharge.getId().equals(excludeGffId)) {
                     if (chargeClassificationCode.equalsIgnoreCase(ratedCharge.getChargeClassificationCode()) && chargeDescriptionCode.equalsIgnoreCase(ratedCharge.getChargeDescriptionCode())) {
                         if (ratedCharge.getRatedAmount() != null) {
                             amount = amount.add(ratedCharge.getRatedAmount());
@@ -324,7 +324,7 @@ public class ParcelRatingUtil {
                                     accJson.put("quantity", (null == auditDetails.getItemQuantity() || auditDetails.getItemQuantity().isEmpty() ? 1l : Long.parseLong(auditDetails.getItemQuantity())));
                                     accJson.put("quantityUnit", (null == auditDetails.getQuantityUnit() || auditDetails.getQuantityUnit().isEmpty() ? "PCS" : auditDetails.getQuantityUnit()));
 
-                                        ServiceFlagAccessorialBean bean = getAccessorialBean(accessorialBeans, auditDetails.getChargeDescription(), auditDetails.getChargeDescriptionCode());
+                                        ServiceFlagAccessorialBean bean = getAccessorialBean(accessorialBeans, auditDetails.getChargeDescription(), auditDetails.getChargeDescriptionCode(), 21L);
 
                                         if (bean != null) {
                                             accJson.put("code", bean.getLookUpValue());
@@ -455,7 +455,7 @@ public class ParcelRatingUtil {
                         accJson.put("quantity", (null == auditDetails.getItemQuantity() || auditDetails.getItemQuantity().isEmpty() ? 1l : Long.parseLong(auditDetails.getItemQuantity())));
                         accJson.put("quantityUnit", (null == auditDetails.getQuantityUnit() || auditDetails.getQuantityUnit().isEmpty() ? "PCS" : auditDetails.getQuantityUnit()));
 
-                            ServiceFlagAccessorialBean bean = getAccessorialBean(accessorialBeans, auditDetails.getChargeDescription(), auditDetails.getActualchargeDescriptionCode());
+                            ServiceFlagAccessorialBean bean = getAccessorialBean(accessorialBeans, auditDetails.getChargeDescription(), auditDetails.getActualchargeDescriptionCode(), 22L);
 
                             if (bean != null) {
                                 accJson.put("code", bean.getLookUpValue());
@@ -1164,12 +1164,12 @@ public class ParcelRatingUtil {
      * @param chargeCode
      * @return
      */
-    public static ServiceFlagAccessorialBean getAccessorialBean(List<ServiceFlagAccessorialBean> beans, String chargeDesc, String chargeCode) {
+    public static ServiceFlagAccessorialBean getAccessorialBean(List<ServiceFlagAccessorialBean> beans, String chargeDesc, String chargeCode, Long carrierId) {
 
         for (ServiceFlagAccessorialBean bean : beans) {
 
             if ((bean.getCustomDefined1() != null && bean.getLookUpCode() != null) && (chargeCode != null && chargeDesc != null)) {
-                if (bean.getCustomDefined1().trim().equalsIgnoreCase(chargeDesc.trim()) && bean.getLookUpCode().trim().equalsIgnoreCase(chargeCode.trim())) {
+                if (bean.getCustomDefined2().equals(carrierId.toString()) && bean.getCustomDefined1().trim().equalsIgnoreCase(chargeDesc.trim()) && bean.getLookUpCode().trim().equalsIgnoreCase(chargeCode.trim())) {
                     return bean;
                 }
             }
