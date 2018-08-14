@@ -519,7 +519,7 @@ public class RatingQueueBean {
                                     serviceFlag.setWeightUnit(accjson.getString("weightUnit"));
                                 }
                                 if(accjson.has("quantity")){
-                                    serviceFlag.setQuantity(accjson.getString("quantity"));
+                                    serviceFlag.setQuantity("" + accjson.getInt("quantity") + "");
                                 }
                                 if(accjson.has("quantityUnit")){
                                     serviceFlag.setQuantityUnit(accjson.getString("quantityUnit"));
