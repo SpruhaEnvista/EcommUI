@@ -414,7 +414,7 @@ public class ParcelRatingQueueJob {
                     }
                     if (ratingQueueBean != null) {
                         ratingQueueBean.setTaskId(ratingInputCriteriaBean.getTaskId());
-                    }
+
                     if (queueBeanList == null)
                         queueBeanList = new ArrayList<RatingQueueBean>();
 
@@ -424,7 +424,7 @@ public class ParcelRatingQueueJob {
                 ratingQueueBean.setServiceLevel(ratingInputCriteriaBean.getServiceLevel());
 
                     queueBeanList.add(ratingQueueBean);
-
+                    }
                 }
             }
             if (queueBeanList != null && queueBeanList.size() > 0) {

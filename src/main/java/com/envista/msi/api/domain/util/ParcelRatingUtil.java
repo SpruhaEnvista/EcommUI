@@ -350,7 +350,9 @@ public class ParcelRatingUtil {
 
                 String serviceLevel = findServiceLevel(shipmentDetails);
                 if (serviceLevel == null || serviceLevel.trim().isEmpty()) {
-                    throw new RuntimeException("Invalid Service Level for " + shipmentDetails.get(0).getTrackingNumber());
+                    System.out.println("Invalid Service Level for " + shipmentDetails.get(0).getTrackingNumber());
+                    m_log.warn("Invalid Service Level for " + shipmentDetails.get(0).getTrackingNumber());
+                    return null;
                 } else {
                     ratingQueueBean.setService(serviceLevel);
                 }
@@ -481,8 +483,11 @@ public class ParcelRatingUtil {
         ratingQueueBean.setCurrencyCode(currency);
 
         String serviceLevel = findServiceLevel(shipmentDetails);
-        if (serviceLevel == null || serviceLevel.trim().isEmpty())
-            throw new RuntimeException("Invalid Service Level for " + firstCharge.getTrackingNumber());
+        if (serviceLevel == null || serviceLevel.trim().isEmpty()) {
+            System.out.println("Invalid Service Level for " + firstCharge.getTrackingNumber());
+            m_log.warn("Invalid Service Level for " + firstCharge.getTrackingNumber());
+            return null;
+        }
 
         ratingQueueBean.setService(serviceLevel);
         ratingQueueBean.setCustomerCode(firstCharge.getCustomerCode());

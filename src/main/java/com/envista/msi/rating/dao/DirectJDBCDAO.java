@@ -514,7 +514,7 @@ public class DirectJDBCDAO {
                     liveSqlQuery += " SELECT DISTINCT INVOICE_ID FROM SHP_EBILL_MANIFEST_TB ";
                     liveSqlQuery += " WHERE INVOICE_ID IN ( ";
                     liveSqlQuery += " SELECT invoice_id FROM SHP_EBILL_INVOICE_TB ";
-                    liveSqlQuery += " WHERE inv_contract_number IN (SELECT contract_number FROM SHP_EBILL_CONTRACT_TB ";
+                    liveSqlQuery += " WHERE  inv_contract_number IN (SELECT contract_number FROM SHP_EBILL_CONTRACT_TB ";
                     liveSqlQuery += " WHERE customer_id in (" + customerId + ") and carrier_id = 21) and inv_carrier_id = 21) ";
                     liveSqlQuery += " and trunc(pickup_date) between TRUNC(TO_DATE('"+ fromDate +"', 'DD-MON-YYYY')) AND TRUNC(TO_DATE('"+ toDate +"', 'DD-MON-YYYY')) ";
 
@@ -613,6 +613,7 @@ public class DirectJDBCDAO {
                 inputCriteria.setServiceLevel(rs.getString("SERVICE_LEVELS_ID"));
             }
         } catch (Exception e) {
+            e.printStackTrace();
             throw new DaoException("getRatingInputCriteria", e);
         }finally {
             try {
@@ -645,6 +646,7 @@ public class DirectJDBCDAO {
             pstmt.executeUpdate();
             con.commit();
         } catch (Exception e) {
+            e.printStackTrace();
             try {
                 con.rollback();
             } catch (SQLException e1) {
@@ -682,6 +684,7 @@ public class DirectJDBCDAO {
             pstmt.executeUpdate();
             con.commit();
         } catch (Exception e) {
+            e.printStackTrace();
             try {
                 con.rollback();
             } catch (SQLException e1) {
@@ -771,6 +774,7 @@ public class DirectJDBCDAO {
             pstmt.executeBatch();
             con.commit();
         } catch (Exception e) {
+            e.printStackTrace();
             try {
                 con.rollback();
             } catch (SQLException e1) {
@@ -860,6 +864,7 @@ public class DirectJDBCDAO {
             pstmt.executeBatch();
             con.commit();
         } catch (Exception e) {
+            e.printStackTrace();
             try {
                 con.rollback();
             } catch (SQLException e1) {
@@ -902,6 +907,7 @@ public class DirectJDBCDAO {
             pstmt.executeUpdate();
             con.commit();
         } catch (Exception e) {
+            e.printStackTrace();
             try {
                 con.rollback();
             } catch (SQLException e1) {
@@ -963,6 +969,7 @@ public class DirectJDBCDAO {
 
             }
         }catch (Exception e) {
+            e.printStackTrace();
             throw new DaoException("getRatingJobsByCustomer", e);
         }finally {
             try {
@@ -1029,7 +1036,7 @@ public class DirectJDBCDAO {
 
         } catch (ServiceLocatorException e) {
             log.error(e.getMessage());
-            //e.printStackTrace();
+            e.printStackTrace();
         } finally {
             try {
                 if (rs != null)

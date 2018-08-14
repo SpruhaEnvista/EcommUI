@@ -97,6 +97,7 @@ public class RatingQueueDAO {
             }
 
         } catch (SQLException sqle) {
+            sqle.printStackTrace();
             throw new DaoException("Exception in getRatingBeanById", sqle);
         }  catch (ServiceLocatorException sle) {
             throw new DaoException("Exception in getRatingBeanById", sle);
@@ -200,6 +201,7 @@ public class RatingQueueDAO {
             }
 
         } catch (SQLException sqle) {
+            sqle.printStackTrace();
             throw new DaoException("Exception in getRatingQueueByJobId", sqle);
         }  catch (ServiceLocatorException sle) {
             throw new DaoException("Exception in getRatingQueueByJobId", sle);
@@ -244,6 +246,7 @@ public class RatingQueueDAO {
             stmt = connection.prepareStatement(updateQuery.toString());
             stmt.executeUpdate();
         } catch (SQLException sqle) {
+            sqle.printStackTrace();
             throw new DaoException("Exception in updateRateStatusinQueue", sqle);
         } catch (ServiceLocatorException sle) {
             throw new DaoException("Exception in updateRateStatusinQueue", sle);
@@ -278,6 +281,7 @@ public class RatingQueueDAO {
 
             ps.executeUpdate();
         }catch (SQLException sqle) {
+            sqle.printStackTrace();
             throw new DaoException("Exception in getRatingQueueByJobId", sqle);
         }  catch (ServiceLocatorException sle) {
             throw new DaoException("Exception in getRatingQueueByJobId", sle);
@@ -663,6 +667,7 @@ public class RatingQueueDAO {
             ps.executeBatch();
             connection.commit();
         } catch (SQLException sqle) {
+            sqle.printStackTrace();
             connection.rollback();
             log.error("Exception in saveRatingQueueBean-- > " + sqle.getStackTrace());
             throw new DaoException("Exception in saveRatingQueueBean", sqle);
@@ -695,6 +700,7 @@ public class RatingQueueDAO {
                 }
             }
         }catch (SQLException sqle) {
+            sqle.printStackTrace();
             throw new DaoException("Exception in shipmentExist", sqle);
         }  catch (ServiceLocatorException sle) {
             throw new DaoException("Exception in shipmentExist", sle);
