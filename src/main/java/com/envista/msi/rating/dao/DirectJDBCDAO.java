@@ -364,20 +364,21 @@ public class DirectJDBCDAO {
         }
     }
 
-    public List<RatedChargeDetailsDto> getRatedChargeAmount(Long parentId){
+    public List<RatedChargeDetailsDto> getRatedChargeAmount(Long parentId, String tracking_number){
         Connection conn = null;
         CallableStatement cstmt = null;
         ResultSet rs = null;
         List<RatedChargeDetailsDto> ratedChargeDetailsDtoList = null;
         try{
             conn = ServiceLocator.getDatabaseConnection();
-            cstmt = conn.prepareCall("{ call SHP_GET_UPS_RATED_AMOUNT_PROC(?,?)}");
+            cstmt = conn.prepareCall("{ call SHP_GET_UPS_RATED_AMOUNT_PROC(?,?,?)}");
             cstmt.setLong(1, parentId);
-            cstmt.registerOutParameter(2, OracleTypes.CURSOR);
+            cstmt.setString(2, tracking_number);
+            cstmt.registerOutParameter(3, OracleTypes.CURSOR);
             cstmt.execute();
 
             ratedChargeDetailsDtoList = new ArrayList<>();
-            rs = (ResultSet) cstmt.getObject(2);
+            rs = (ResultSet) cstmt.getObject(3);
             while(rs.next()){
                 RatedChargeDetailsDto ratedChargeDetailsDto = new RatedChargeDetailsDto();
                 ratedChargeDetailsDto.setId(rs.getLong("ID"));

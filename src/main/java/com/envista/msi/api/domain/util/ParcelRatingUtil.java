@@ -134,16 +134,20 @@ public class ParcelRatingUtil {
         return amount;
     }
 
+    public static BigDecimal findRtrAmountByChargeClassificationCode(String chargeClassificationCode, List<RatedChargeDetailsDto> shipmentCharges) {
+        return findRtrAmountByChargeClassificationCode(chargeClassificationCode, shipmentCharges, null);
+    }
+
     public static BigDecimal findRtrAmountByChargeClassificationCode(String chargeClassificationCode, List<RatedChargeDetailsDto> shipmentCharges, Long excludeGffId) {
         BigDecimal amount = new BigDecimal("0");
         if (chargeClassificationCode != null && !chargeClassificationCode.isEmpty() && shipmentCharges != null && !shipmentCharges.isEmpty()) {
             for (RatedChargeDetailsDto ratedCharge : shipmentCharges) {
                 if (ratedCharge != null) {
-                    if (chargeClassificationCode.equalsIgnoreCase(ratedCharge.getChargeClassificationCode()) && !ratedCharge.getId().equals(excludeGffId)) {
+                    if(excludeGffId != null && ratedCharge.getId().equals(excludeGffId)) continue;
+                    if (chargeClassificationCode.equalsIgnoreCase(ratedCharge.getChargeClassificationCode())) {
                         if (ratedCharge.getRatedAmount() != null) {
                             amount = amount.add(ratedCharge.getRatedAmount());
                         }
-                        break;
                     }
                 }
             }
@@ -151,16 +155,21 @@ public class ParcelRatingUtil {
         return amount;
     }
 
+    public static BigDecimal findRtrAmountByChargeClassificationCodeAndChargeDescriptionCode(String chargeClassificationCode, String chargeDescriptionCode, List<RatedChargeDetailsDto> shipmentCharges) {
+        return findRtrAmountByChargeClassificationCodeAndChargeDescriptionCode(chargeClassificationCode, chargeDescriptionCode, shipmentCharges);
+    }
+
     public static BigDecimal findRtrAmountByChargeClassificationCodeAndChargeDescriptionCode(String chargeClassificationCode, String chargeDescriptionCode, List<RatedChargeDetailsDto> shipmentCharges, Long excludeGffId) {
         BigDecimal amount = new BigDecimal("0");
         if (chargeClassificationCode != null && !chargeClassificationCode.isEmpty() && shipmentCharges != null && !shipmentCharges.isEmpty()) {
             for (RatedChargeDetailsDto ratedCharge : shipmentCharges) {
-                if (ratedCharge != null && !ratedCharge.getId().equals(excludeGffId)) {
+                if (ratedCharge != null) {
+                    if(ratedCharge.getId().equals(excludeGffId)) continue;
+
                     if (chargeClassificationCode.equalsIgnoreCase(ratedCharge.getChargeClassificationCode()) && chargeDescriptionCode.equalsIgnoreCase(ratedCharge.getChargeDescriptionCode())) {
                         if (ratedCharge.getRatedAmount() != null) {
                             amount = amount.add(ratedCharge.getRatedAmount());
                         }
-                        break;
                     }
                 }
             }
