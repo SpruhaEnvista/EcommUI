@@ -48,7 +48,10 @@ public class ParcelRateRequestBuilder {
             constraints.setService(serviceLevel);
             constraints.setCustomerCode(ratingQueueBean.getCustomerCode());
             constraints.setRateSet(ratingQueueBean.getRateSetName());
-            constraints.setZone(ratingQueueBean.getZone());
+            if(ratingQueueBean.getShipperZip() == null || ratingQueueBean.getShipperZip().isEmpty()
+                    || ratingQueueBean.getReceiverZip() == null || ratingQueueBean.getReceiverZip().isEmpty()){
+                constraints.setZoneOverride(ratingQueueBean.getZone());
+            }
 
             ParcelRateRequest.RevenueTier revenueTier = new ParcelRateRequest.RevenueTier();
             String revenueValue = ratingQueueBean.getRevenueTier();
