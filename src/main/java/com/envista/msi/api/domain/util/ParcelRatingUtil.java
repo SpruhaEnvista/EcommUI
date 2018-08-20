@@ -283,6 +283,7 @@ public class ParcelRatingUtil {
         ratingQueueBean.setTrackingNumber(firstCharge.getTrackingNumber());
         ratingQueueBean.setParentId(firstCharge.getParentId());
         ratingQueueBean.setCarrierId(firstCharge.getCarrierId());
+        ratingQueueBean.setSenderBilledZipCode(firstCharge.getSenderBilledZipCode());
         boolean hasRJ5Charge = false;
         if (shipmentDetails != null && !shipmentDetails.isEmpty()) {
             for (ParcelAuditDetailsDto auditDetails : shipmentDetails) {
@@ -442,6 +443,7 @@ public class ParcelRatingUtil {
         ratingQueueBean.setTrackingNumber(firstCharge.getTrackingNumber());
         ratingQueueBean.setParentId(firstCharge.getParentId());
         ratingQueueBean.setCarrierId(firstCharge.getCarrierId());
+        ratingQueueBean.setSenderBilledZipCode(firstCharge.getSenderBilledZipCode());
 
         String billOption = (null == firstCharge.getBillOption() ? "" : firstCharge.getBillOption());
         if (billOption.equalsIgnoreCase("Prepaid") || billOption.equals("1") || billOption.equalsIgnoreCase("Outbound")) {

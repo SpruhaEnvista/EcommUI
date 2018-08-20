@@ -95,6 +95,7 @@ public class RatingQueueDAO {
                 ratingQBean.setThresholdValue(rss.getString("THRESHOLD_VALUE"));
                 ratingQBean.setThresholdType(rss.getString("THRESHOLD_TYPE"));
                 ratingQBean.setZone(rss.getString("ZONE"));
+                ratingQBean.setSenderBilledZipCode(rss.getString("SENDER_BILLED_ZIP_CODE"));
             }
 
         } catch (SQLException sqle) {
@@ -198,6 +199,7 @@ public class RatingQueueDAO {
                 ratingQueueBean.setThresholdType(rs.getString("THRESHOLD_TYPE"));
                 ratingQueueBean.setThresholdValue(rs.getString("THRESHOLD_VALUE"));
                 ratingQueueBean.setZone(rs.getString("ZONE"));
+                ratingQueueBean.setSenderBilledZipCode(rs.getString("SENDER_BILLED_ZIP_CODE"));
                 beanList.add(ratingQueueBean);
             }
 
@@ -456,6 +458,7 @@ public class RatingQueueDAO {
                 }
                 shipmentDetails.setIncentiveAmount(rs.getBigDecimal("INCENTIVE_AMOUNT"));
                 shipmentDetails.setInvoiceCreateDate(rs.getDate("INV_CREATE_DATE"));
+                shipmentDetails.setSenderBilledZipCode(rs.getString("SENDER_BILLED_ZIP_CODE"));
 
                 parcelUpsShipments.add(shipmentDetails);
 
@@ -712,6 +715,7 @@ public class RatingQueueDAO {
                 shipmentDetails.setZone(rs.getString("ZONE"));
                 shipmentDetails.setInvoiceNumber(rs.getString("INVOICE_NUMBER"));
                 shipmentDetails.setBilledDimDivisor(rs.getString("BILLED_DIM_DIVISOR"));
+                shipmentDetails.setSenderBilledZipCode(rs.getString("SENDER_BILLED_ZIP_CODE"));
                 //Need to add charge code here.
                 parcelUpsShipments.add(shipmentDetails);
 
