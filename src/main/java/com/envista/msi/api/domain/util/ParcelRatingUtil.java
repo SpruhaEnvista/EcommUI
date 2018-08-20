@@ -1198,4 +1198,97 @@ public class ParcelRatingUtil {
         }
         return null;
     }
+
+    public static String translateUpsZone(String zone) {
+        // Split combined zones, just pick last one
+        if (zone.contains("/"))
+            zone = zone.substring(zone.lastIndexOf("/")+1);
+
+        if (zone.length() > 6) {
+            // Error condition
+            return null;
+        }
+
+        if (!StringUtils.isNumeric(zone))
+            return zone; // Leave all international zones unchanged
+
+        // Remove leading zeros
+        while (zone.startsWith("0"))
+            zone = zone.substring(1);
+
+        // If zone was only zeros, leave one zero and return (DHL uses zone 0)
+        if (zone.length() == 0)
+            return "0";
+
+        if (zone.length() < 2)
+            return zone; // No translation needed
+
+        if (zone.length() == 2) {
+            if (zone.startsWith("8")) // 81, 82, 84 => 71, 72, 74
+                zone = "7" + zone.substring(1);
+            if (zone.startsWith("6")) // 61, 62, 64 => 91, 92, 94
+                zone = "9" + zone.substring(1);
+
+            return zone;
+        }
+
+        String zonePre  = zone.substring(0,2); // first two chars
+        String zoneSuff = zone.substring(1); // last two chars
+        String zoneLast = zone.substring(2); // last char
+
+        if (zone.equals("481") || zone.equals("491"))
+            return "71";
+        if (zone.equals("482") || zone.equals("492"))
+            return "72";
+        if (zone.equals("484") || zone.equals("494"))
+            return "74";
+
+        // 3 Day Select from Canada
+        if (zone.equals("475") || zone.equals("476") || zone.equals("477"))
+            return zoneSuff;
+
+        // Standard from Canada
+        if (zone.equals("376"))
+            return "75";
+        if (zone.equals("378"))
+            return "76";
+        if (zone.equals("380"))
+            return "77";
+
+        // Odd 501 zone used in UK - leave as 501
+        if (zone.equals("501"))
+            return "501";
+
+        // Only *42 that should not be 22 (these are 2-Day AM)
+        if (zone.equals("242"))
+            return "2";
+        if (zone.equals("243"))
+            return "3";
+
+        if (zoneSuff.equals("24")) // Metro Alaska / Hawaii
+            return "44";
+        if (zoneSuff.equals("25")) // Puerto Rico
+            return "45";
+        if (zoneSuff.equals("26")) // Remote Alaska / Hawaii
+            return "46";
+
+        // Standard from Mexico
+        if (zonePre.equals("36"))
+            return "6"+zoneLast; // 362 => 62 ...
+
+        if (zoneSuff.equals("20") || zoneSuff.equals("70"))
+            return "20"; // Date/Broward Florida to South America
+        if (zoneSuff.equals("21") || zoneSuff.equals("71"))
+            return "21"; // Date/Broward Florida to South America
+        if (zoneSuff.equals("12") || zoneSuff.equals("42") || zoneSuff.equals("62") || zoneSuff.equals("92"))
+            return "22"; // ?
+
+        // New zones for 2013
+        if (zoneSuff.equals("11") || zoneSuff.equals("41") || zoneSuff.equals("61") || zoneSuff.equals("91"))
+            return "11";
+        if (zoneSuff.equals("13") || zoneSuff.equals("43") || zoneSuff.equals("63") || zoneSuff.equals("93"))
+            return "13";
+
+        return zoneLast; // Just use last character, e.g. 102 -> 2
+    }
 }

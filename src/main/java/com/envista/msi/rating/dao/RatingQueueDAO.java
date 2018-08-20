@@ -1,5 +1,6 @@
 package com.envista.msi.rating.dao;
 
+import com.envista.msi.api.domain.util.ParcelRatingUtil;
 import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditDetailsDto;
 import com.envista.msi.rating.ServiceLocator;
 import com.envista.msi.rating.ServiceLocatorException;
@@ -450,6 +451,9 @@ public class RatingQueueDAO {
                 shipmentDetails.setInvoiceDate(rs.getDate("INVOICE_DATE"));
                 shipmentDetails.setInvoiceNumber(rs.getString("INVOICE_NUMBER"));
                 shipmentDetails.setZone(rs.getString("ZONE"));
+                if(shipmentDetails.getZone() != null && !shipmentDetails.getZone().isEmpty()){
+                    shipmentDetails.setZone(ParcelRatingUtil.translateUpsZone(shipmentDetails.getZone()));
+                }
                 shipmentDetails.setIncentiveAmount(rs.getBigDecimal("INCENTIVE_AMOUNT"));
                 shipmentDetails.setInvoiceCreateDate(rs.getDate("INV_CREATE_DATE"));
 
