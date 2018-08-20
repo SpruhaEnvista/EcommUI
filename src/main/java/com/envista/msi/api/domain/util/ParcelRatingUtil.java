@@ -156,7 +156,7 @@ public class ParcelRatingUtil {
     }
 
     public static BigDecimal findRtrAmountByChargeClassificationCodeAndChargeDescriptionCode(String chargeClassificationCode, String chargeDescriptionCode, List<RatedChargeDetailsDto> shipmentCharges) {
-        return findRtrAmountByChargeClassificationCodeAndChargeDescriptionCode(chargeClassificationCode, chargeDescriptionCode, shipmentCharges);
+        return findRtrAmountByChargeClassificationCodeAndChargeDescriptionCode(chargeClassificationCode, chargeDescriptionCode, shipmentCharges, null);
     }
 
     public static BigDecimal findRtrAmountByChargeClassificationCodeAndChargeDescriptionCode(String chargeClassificationCode, String chargeDescriptionCode, List<RatedChargeDetailsDto> shipmentCharges, Long excludeGffId) {
