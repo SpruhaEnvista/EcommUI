@@ -284,6 +284,7 @@ public class ParcelRatingUtil {
         ratingQueueBean.setParentId(firstCharge.getParentId());
         ratingQueueBean.setCarrierId(firstCharge.getCarrierId());
         ratingQueueBean.setSenderBilledZipCode(firstCharge.getSenderBilledZipCode());
+        ratingQueueBean.setReceiverBilledZipCode(firstCharge.getReceiverBilledZipCode());
         boolean hasRJ5Charge = false;
         if (shipmentDetails != null && !shipmentDetails.isEmpty()) {
             for (ParcelAuditDetailsDto auditDetails : shipmentDetails) {
@@ -444,6 +445,7 @@ public class ParcelRatingUtil {
         ratingQueueBean.setParentId(firstCharge.getParentId());
         ratingQueueBean.setCarrierId(firstCharge.getCarrierId());
         ratingQueueBean.setSenderBilledZipCode(firstCharge.getSenderBilledZipCode());
+        ratingQueueBean.setReceiverBilledZipCode(firstCharge.getReceiverBilledZipCode());
 
         String billOption = (null == firstCharge.getBillOption() ? "" : firstCharge.getBillOption());
         if (billOption.equalsIgnoreCase("Prepaid") || billOption.equals("1") || billOption.equalsIgnoreCase("Outbound")) {

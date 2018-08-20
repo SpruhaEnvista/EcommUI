@@ -249,6 +249,9 @@ public class ParcelAuditDetailsDto {
     @Column(name = "SENDER_BILLED_ZIP_CODE")
     private String senderBilledZipCode;
 
+    @Column(name = "RECEIVER_BILLED_ZIP_CODE")
+    private String receiverBilledZipCode;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -739,6 +742,14 @@ public class ParcelAuditDetailsDto {
 
     public void setSenderBilledZipCode(String senderBilledZipCode) {
         this.senderBilledZipCode = senderBilledZipCode;
+    }
+
+    public String getReceiverBilledZipCode() {
+        return receiverBilledZipCode;
+    }
+
+    public void setReceiverBilledZipCode(String receiverBilledZipCode) {
+        this.receiverBilledZipCode = receiverBilledZipCode;
     }
 
     public static class Config{

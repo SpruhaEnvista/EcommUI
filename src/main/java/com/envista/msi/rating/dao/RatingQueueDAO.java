@@ -96,6 +96,7 @@ public class RatingQueueDAO {
                 ratingQBean.setThresholdType(rss.getString("THRESHOLD_TYPE"));
                 ratingQBean.setZone(rss.getString("ZONE"));
                 ratingQBean.setSenderBilledZipCode(rss.getString("SENDER_BILLED_ZIP_CODE"));
+                ratingQBean.setReceiverBilledZipCode(rss.getString("RECEIVER_BILLED_ZIP_CODE"));
             }
 
         } catch (SQLException sqle) {
@@ -200,6 +201,7 @@ public class RatingQueueDAO {
                 ratingQueueBean.setThresholdValue(rs.getString("THRESHOLD_VALUE"));
                 ratingQueueBean.setZone(rs.getString("ZONE"));
                 ratingQueueBean.setSenderBilledZipCode(rs.getString("SENDER_BILLED_ZIP_CODE"));
+                ratingQueueBean.setReceiverBilledZipCode(rs.getString("RECEIVER_BILLED_ZIP_CODE"));
                 beanList.add(ratingQueueBean);
             }
 
@@ -329,7 +331,7 @@ public class RatingQueueDAO {
             liveQuery += " a.PACKAGE_DIMENSIONS AS PACKAGE_DIMENSION, a.ENTERED_WEIGHT AS ACTUAL_WEIGHT, a.ENTERED_WEIGHT_UNIT_OF_MEASURE AS UNIT_OF_ACTUAL_WEIGHT, ";
             liveQuery += " (select rev.SPEND from Shp_Revenue_Tb rev where  rev.customer_id=c.customer_id and rev.carrier_id=c.carrier_id and rev.carrier_id=21 and (a.SHIPMENT_DATE BETWEEN week_from_date AND week_to_date) and rownum=1 and rev.spend is not null) AS REVENUE_TIER, ";
             liveQuery += " null AS CHARGE_CODE, a.Lead_Shipment_Number AS MULTI_WEIGHT_NUMBER, a.CHARGE_CATEGORY_DETAIL_CODE, ";
-            liveQuery += " a.INVOICE_DATE, a.INVOICE_NUMBER,  a.ZONE as ZONE, a.INCENTIVE_AMOUNT, b.CREATE_DATE AS INV_CREATE_DATE, a.SENDER_POSTAL AS SENDER_BILLED_ZIP_CODE, ";
+            liveQuery += " a.INVOICE_DATE, a.INVOICE_NUMBER,  a.ZONE as ZONE, a.INCENTIVE_AMOUNT, b.CREATE_DATE AS INV_CREATE_DATE, a.SENDER_POSTAL AS SENDER_BILLED_ZIP_CODE, a.RECEIVER_POSTAL AS RECEIVER_BILLED_ZIP_CODE, ";
             if (isHwt) {
                 liveQuery += " 0 as RTR_AMOUNT ,null as rtr_status";
             } else {
@@ -459,6 +461,7 @@ public class RatingQueueDAO {
                 shipmentDetails.setIncentiveAmount(rs.getBigDecimal("INCENTIVE_AMOUNT"));
                 shipmentDetails.setInvoiceCreateDate(rs.getDate("INV_CREATE_DATE"));
                 shipmentDetails.setSenderBilledZipCode(rs.getString("SENDER_BILLED_ZIP_CODE"));
+                shipmentDetails.setReceiverBilledZipCode(rs.getString("RECEIVER_BILLED_ZIP_CODE"));
 
                 parcelUpsShipments.add(shipmentDetails);
 
@@ -575,7 +578,7 @@ public class RatingQueueDAO {
             liveSqlQuery += " (select custom_defined_9 from shp_lookup_tb where lookup_id = ebmf.service_bucket) AS SERVICE_LEVEL, ebmf.DW_FIELD_INFORMATION, ";
             liveSqlQuery += " ebmf.SHIPPER_CODE AS SHIPPER_NUMBER, ebmf.PARENT_ID, DECODE (ebmf.bill_weight, 0, 'Letter', 'PKG') package_type, ";
             liveSqlQuery += " null AS PACKAGE_DIMENSION, ebmf.ACT_WEIGHT AS ACTUAL_WEIGHT, ebmf.UNIT_OF_ACTUAL_WEIGHT, ";
-            liveSqlQuery += " ebmf.INVOICE_NUMBER, ebmf.ZONE, ebmf.MISCELLANEOUS5, ebmf.PIECES, ebmf.DIM_DIVISOR AS BILLED_DIM_DIVISOR, ebmf.BILL_DATE AS INVOICE_DATE, inv.CREATE_DATE AS INV_CREATE_DATE, ebmf.SENDER_ZIP AS SENDER_BILLED_ZIP_CODE, ";
+            liveSqlQuery += " ebmf.INVOICE_NUMBER, ebmf.ZONE, ebmf.MISCELLANEOUS5, ebmf.PIECES, ebmf.DIM_DIVISOR AS BILLED_DIM_DIVISOR, ebmf.BILL_DATE AS INVOICE_DATE, inv.CREATE_DATE AS INV_CREATE_DATE, ebmf.SENDER_ZIP AS SENDER_BILLED_ZIP_CODE, ebmf.CONSIGNEE_ZIP AS RECEIVER_BILLED_ZIP_CODE, ";
             if (isHwt) {
                 liveSqlQuery += " 0 as RTR_AMOUNT ,null as rtr_status,";
             } else {
@@ -716,6 +719,7 @@ public class RatingQueueDAO {
                 shipmentDetails.setInvoiceNumber(rs.getString("INVOICE_NUMBER"));
                 shipmentDetails.setBilledDimDivisor(rs.getString("BILLED_DIM_DIVISOR"));
                 shipmentDetails.setSenderBilledZipCode(rs.getString("SENDER_BILLED_ZIP_CODE"));
+                shipmentDetails.setReceiverBilledZipCode(rs.getString("RECEIVER_BILLED_ZIP_CODE"));
                 //Need to add charge code here.
                 parcelUpsShipments.add(shipmentDetails);
 

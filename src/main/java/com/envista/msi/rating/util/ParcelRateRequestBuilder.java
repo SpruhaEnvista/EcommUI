@@ -49,7 +49,7 @@ public class ParcelRateRequestBuilder {
             constraints.setCustomerCode(ratingQueueBean.getCustomerCode());
             constraints.setRateSet(ratingQueueBean.getRateSetName());
             if(ratingQueueBean.getSenderBilledZipCode() == null || ratingQueueBean.getSenderBilledZipCode().isEmpty()
-                    || ratingQueueBean.getReceiverZip() == null || ratingQueueBean.getReceiverZip().isEmpty()){
+                    || ratingQueueBean.getReceiverBilledZipCode() == null || ratingQueueBean.getReceiverBilledZipCode().isEmpty()){
                 constraints.setZoneOverride(ratingQueueBean.getZone());
             }
 
