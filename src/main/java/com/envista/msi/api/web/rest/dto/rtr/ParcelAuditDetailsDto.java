@@ -246,6 +246,9 @@ public class ParcelAuditDetailsDto {
     @Column(name = "ACTUAL_CHARGE_DESCRIPTION_CODE")
     private String actualchargeDescriptionCode;
 
+    @Column(name = "SENDER_BILLED_ZIP_CODE")
+    private String senderBilledZipCode;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -728,6 +731,14 @@ public class ParcelAuditDetailsDto {
 
     public void setBilledDimDivisor(String billedDimDivisor) {
         this.billedDimDivisor = billedDimDivisor;
+    }
+
+    public String getSenderBilledZipCode() {
+        return senderBilledZipCode;
+    }
+
+    public void setSenderBilledZipCode(String senderBilledZipCode) {
+        this.senderBilledZipCode = senderBilledZipCode;
     }
 
     public static class Config{

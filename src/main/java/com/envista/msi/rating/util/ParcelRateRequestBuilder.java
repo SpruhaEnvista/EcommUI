@@ -48,7 +48,7 @@ public class ParcelRateRequestBuilder {
             constraints.setService(serviceLevel);
             constraints.setCustomerCode(ratingQueueBean.getCustomerCode());
             constraints.setRateSet(ratingQueueBean.getRateSetName());
-            if(ratingQueueBean.getShipperZip() == null || ratingQueueBean.getShipperZip().isEmpty()
+            if(ratingQueueBean.getSenderBilledZipCode() == null || ratingQueueBean.getSenderBilledZipCode().isEmpty()
                     || ratingQueueBean.getReceiverZip() == null || ratingQueueBean.getReceiverZip().isEmpty()){
                 constraints.setZoneOverride(ratingQueueBean.getZone());
             }
