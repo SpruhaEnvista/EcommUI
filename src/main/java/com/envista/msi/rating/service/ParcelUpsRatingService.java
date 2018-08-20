@@ -311,6 +311,9 @@ public class ParcelUpsRatingService {
                 status = updateRateForUps(ParcelRateResponseParser.parse(response), parcelAuditDetails, previousShipment, hwtNetAmount, bean, accessorialBeans);
             }
         }
+        if (commercialCharge != null && parcelAuditDetails != null)
+            parcelAuditDetails.add(commercialCharge);
+
         updateUpsOtherFieldValues(parcelAuditDetails);
         if(status != null && !status.isEmpty()){
             new DirectJDBCDAO().updateRtrStatus(21L, bean.getTrackingNumber(), status);

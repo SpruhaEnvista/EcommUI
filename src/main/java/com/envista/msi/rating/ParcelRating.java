@@ -88,7 +88,7 @@ public class ParcelRating implements Callable<String> {
             System.out.println("rating started for tracking number ->" + bean.getTrackingNumber() + " ebill manifest id->" + bean.getGffId());
             m_log.info("rating started for tracking number ->" + bean.getTrackingNumber() + " ebill manifest id->" + bean.getGffId());
             status = parcelUpsRatingService.doParcelRatingForUpsCarrier(bean, upsAccessorialBeans);
-            m_log.info("Rating : " + bean.getTrackingNumber() + " : Status : " + status);
+            m_log.info("Rating : " + bean.getTrackingNumber() + " : Status : " + status + ":gff id->" + bean.getGffId());
         } else if(bean.getCarrierId() == 22) {
             System.out.println("rating started for tracking number ->" + bean.getTrackingNumber() + " ebill manifest id->" + bean.getManiestId());
             m_log.info("rating started for tracking number ->" + bean.getTrackingNumber() + " ebill manifest id->" + bean.getManiestId());
