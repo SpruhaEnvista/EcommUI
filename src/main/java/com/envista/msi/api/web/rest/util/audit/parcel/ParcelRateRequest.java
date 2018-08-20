@@ -261,6 +261,9 @@ public class ParcelRateRequest implements Serializable {
         @XmlElement(name = "Zone")
         private String zone;
 
+        @XmlElement(name = "ZoneOverride")
+        private String zoneOverride = "";
+
         public Contract getContract() {
             return contract;
         }
@@ -330,6 +333,14 @@ public class ParcelRateRequest implements Serializable {
 
         public void setZone(String zone) {
             this.zone = zone;
+        }
+
+        public String getZoneOverride() {
+            return zoneOverride;
+        }
+
+        public void setZoneOverride(String zoneOverride) {
+            this.zoneOverride = zoneOverride;
         }
     }
 

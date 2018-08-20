@@ -134,16 +134,20 @@ public class ParcelRatingUtil {
         return amount;
     }
 
+    public static BigDecimal findRtrAmountByChargeClassificationCode(String chargeClassificationCode, List<RatedChargeDetailsDto> shipmentCharges) {
+        return findRtrAmountByChargeClassificationCode(chargeClassificationCode, shipmentCharges, null);
+    }
+
     public static BigDecimal findRtrAmountByChargeClassificationCode(String chargeClassificationCode, List<RatedChargeDetailsDto> shipmentCharges, Long excludeGffId) {
         BigDecimal amount = new BigDecimal("0");
         if (chargeClassificationCode != null && !chargeClassificationCode.isEmpty() && shipmentCharges != null && !shipmentCharges.isEmpty()) {
             for (RatedChargeDetailsDto ratedCharge : shipmentCharges) {
                 if (ratedCharge != null) {
-                    if (chargeClassificationCode.equalsIgnoreCase(ratedCharge.getChargeClassificationCode()) && !ratedCharge.getId().equals(excludeGffId)) {
+                    if(excludeGffId != null && ratedCharge.getId().equals(excludeGffId)) continue;
+                    if (chargeClassificationCode.equalsIgnoreCase(ratedCharge.getChargeClassificationCode())) {
                         if (ratedCharge.getRatedAmount() != null) {
                             amount = amount.add(ratedCharge.getRatedAmount());
                         }
-                        break;
                     }
                 }
             }
@@ -151,16 +155,21 @@ public class ParcelRatingUtil {
         return amount;
     }
 
+    public static BigDecimal findRtrAmountByChargeClassificationCodeAndChargeDescriptionCode(String chargeClassificationCode, String chargeDescriptionCode, List<RatedChargeDetailsDto> shipmentCharges) {
+        return findRtrAmountByChargeClassificationCodeAndChargeDescriptionCode(chargeClassificationCode, chargeDescriptionCode, shipmentCharges, null);
+    }
+
     public static BigDecimal findRtrAmountByChargeClassificationCodeAndChargeDescriptionCode(String chargeClassificationCode, String chargeDescriptionCode, List<RatedChargeDetailsDto> shipmentCharges, Long excludeGffId) {
         BigDecimal amount = new BigDecimal("0");
         if (chargeClassificationCode != null && !chargeClassificationCode.isEmpty() && shipmentCharges != null && !shipmentCharges.isEmpty()) {
             for (RatedChargeDetailsDto ratedCharge : shipmentCharges) {
-                if (ratedCharge != null && !ratedCharge.getId().equals(excludeGffId)) {
+                if (ratedCharge != null) {
+                    if(ratedCharge.getId().equals(excludeGffId)) continue;
+
                     if (chargeClassificationCode.equalsIgnoreCase(ratedCharge.getChargeClassificationCode()) && chargeDescriptionCode.equalsIgnoreCase(ratedCharge.getChargeDescriptionCode())) {
                         if (ratedCharge.getRatedAmount() != null) {
                             amount = amount.add(ratedCharge.getRatedAmount());
                         }
-                        break;
                     }
                 }
             }
@@ -274,6 +283,8 @@ public class ParcelRatingUtil {
         ratingQueueBean.setTrackingNumber(firstCharge.getTrackingNumber());
         ratingQueueBean.setParentId(firstCharge.getParentId());
         ratingQueueBean.setCarrierId(firstCharge.getCarrierId());
+        ratingQueueBean.setSenderBilledZipCode(firstCharge.getSenderBilledZipCode());
+        ratingQueueBean.setReceiverBilledZipCode(firstCharge.getReceiverBilledZipCode());
         boolean hasRJ5Charge = false;
         if (shipmentDetails != null && !shipmentDetails.isEmpty()) {
             for (ParcelAuditDetailsDto auditDetails : shipmentDetails) {
@@ -320,6 +331,8 @@ public class ParcelRatingUtil {
                                     JSONObject accJson = new JSONObject();
                                     accJson.put("netAmount", auditDetails.getNetAmount() != null ? auditDetails.getNetAmount().toString() : "0.00");
                                     accJson.put("weight", auditDetails.getPackageWeight() != null ? auditDetails.getPackageWeight().toString() : "0.00");
+                                    if (auditDetails.getWeightUnit() != null && "O".equalsIgnoreCase(auditDetails.getWeightUnit()))
+                                        auditDetails.setWeightUnit("OUNCE");
                                     accJson.put("weightUnit", (null == auditDetails.getWeightUnit() || auditDetails.getWeightUnit().isEmpty() || "L".equalsIgnoreCase(auditDetails.getWeightUnit()) ? "LBS" : auditDetails.getWeightUnit()));
                                     accJson.put("quantity", (null == auditDetails.getItemQuantity() || auditDetails.getItemQuantity().isEmpty() ? 1l : Long.parseLong(auditDetails.getItemQuantity())));
                                     accJson.put("quantityUnit", (null == auditDetails.getQuantityUnit() || auditDetails.getQuantityUnit().isEmpty() ? "PCS" : auditDetails.getQuantityUnit()));
@@ -350,7 +363,9 @@ public class ParcelRatingUtil {
 
                 String serviceLevel = findServiceLevel(shipmentDetails);
                 if (serviceLevel == null || serviceLevel.trim().isEmpty()) {
-                    throw new RuntimeException("Invalid Service Level for " + shipmentDetails.get(0).getTrackingNumber());
+                    System.out.println("Invalid Service Level for " + shipmentDetails.get(0).getTrackingNumber());
+                    m_log.warn("Invalid Service Level for " + shipmentDetails.get(0).getTrackingNumber());
+                    return null;
                 } else {
                     ratingQueueBean.setService(serviceLevel);
                 }
@@ -360,6 +375,8 @@ public class ParcelRatingUtil {
                 ParcelAuditDetailsDto latestFreightCharge = ParcelRatingUtil.getLatestFrightCharge(shipmentDetails);
                 if (latestFreightCharge != null) {
                     float weight = (null == latestFreightCharge.getPackageWeight() || latestFreightCharge.getPackageWeight().isEmpty() ? 1f : Float.parseFloat(latestFreightCharge.getPackageWeight()));
+                    if (latestFreightCharge.getWeightUnit() != null && "O".equalsIgnoreCase(latestFreightCharge.getWeightUnit()))
+                        latestFreightCharge.setWeightUnit("OUNCE");
                     String weightUnit = (null == latestFreightCharge.getWeightUnit() || latestFreightCharge.getWeightUnit().isEmpty() || "L".equalsIgnoreCase(latestFreightCharge.getWeightUnit()) ? "LBS" : latestFreightCharge.getWeightUnit());
                     long quantity = (null == latestFreightCharge.getItemQuantity() || latestFreightCharge.getItemQuantity().isEmpty() ? 1l : Long.parseLong(latestFreightCharge.getItemQuantity()));
                     String quantityUnit = (null == latestFreightCharge.getQuantityUnit() || latestFreightCharge.getQuantityUnit().isEmpty() ? "PCS" : latestFreightCharge.getQuantityUnit());
@@ -427,6 +444,8 @@ public class ParcelRatingUtil {
         ratingQueueBean.setTrackingNumber(firstCharge.getTrackingNumber());
         ratingQueueBean.setParentId(firstCharge.getParentId());
         ratingQueueBean.setCarrierId(firstCharge.getCarrierId());
+        ratingQueueBean.setSenderBilledZipCode(firstCharge.getSenderBilledZipCode());
+        ratingQueueBean.setReceiverBilledZipCode(firstCharge.getReceiverBilledZipCode());
 
         String billOption = (null == firstCharge.getBillOption() ? "" : firstCharge.getBillOption());
         if (billOption.equalsIgnoreCase("Prepaid") || billOption.equals("1") || billOption.equalsIgnoreCase("Outbound")) {
@@ -451,6 +470,8 @@ public class ParcelRatingUtil {
                         JSONObject accJson = new JSONObject();
                         accJson.put("netAmount", auditDetails.getNetAmount() != null ? auditDetails.getNetAmount().toString() : "0.00");
                         accJson.put("weight", auditDetails.getPackageWeight() != null ? auditDetails.getPackageWeight().toString() : "0.00");
+                        if (auditDetails.getWeightUnit() != null && "O".equalsIgnoreCase(auditDetails.getWeightUnit()))
+                            auditDetails.setWeightUnit("OUNCE");
                         accJson.put("weightUnit", (null == auditDetails.getWeightUnit() || auditDetails.getWeightUnit().isEmpty() || "L".equalsIgnoreCase(auditDetails.getWeightUnit()) ? "LBS" : auditDetails.getWeightUnit()));
                         accJson.put("quantity", (null == auditDetails.getItemQuantity() || auditDetails.getItemQuantity().isEmpty() ? 1l : Long.parseLong(auditDetails.getItemQuantity())));
                         accJson.put("quantityUnit", (null == auditDetails.getQuantityUnit() || auditDetails.getQuantityUnit().isEmpty() ? "PCS" : auditDetails.getQuantityUnit()));
@@ -481,8 +502,11 @@ public class ParcelRatingUtil {
         ratingQueueBean.setCurrencyCode(currency);
 
         String serviceLevel = findServiceLevel(shipmentDetails);
-        if (serviceLevel == null || serviceLevel.trim().isEmpty())
-            throw new RuntimeException("Invalid Service Level for " + firstCharge.getTrackingNumber());
+        if (serviceLevel == null || serviceLevel.trim().isEmpty()) {
+            System.out.println("Invalid Service Level for " + firstCharge.getTrackingNumber());
+            m_log.warn("Invalid Service Level for " + firstCharge.getTrackingNumber());
+            return null;
+        }
 
         ratingQueueBean.setService(serviceLevel);
         ratingQueueBean.setCustomerCode(firstCharge.getCustomerCode());
@@ -495,6 +519,8 @@ public class ParcelRatingUtil {
             if (firstBaseCharge.getChargeClassificationCode() != null
                     && ParcelAuditConstant.ChargeClassificationCode.FRT.name().equalsIgnoreCase(firstBaseCharge.getChargeClassificationCode())) {
                 Float weight = (null == firstBaseCharge.getPackageWeight() || firstBaseCharge.getPackageWeight().isEmpty() ? 0.0f : Float.parseFloat(firstBaseCharge.getPackageWeight()));
+                if (firstBaseCharge.getWeightUnit() != null && "O".equalsIgnoreCase(firstBaseCharge.getWeightUnit()))
+                    firstBaseCharge.setWeightUnit("OUNCE");
                 String weightUnit = (null == firstBaseCharge.getWeightUnit() || firstBaseCharge.getWeightUnit().isEmpty() || "L".equalsIgnoreCase(firstBaseCharge.getWeightUnit()) ? "LBS" : firstBaseCharge.getWeightUnit());
                 Long quantity = (null == firstBaseCharge.getItemQuantity() || firstBaseCharge.getItemQuantity().isEmpty() ? 1l : Long.parseLong(firstBaseCharge.getItemQuantity()));
                 String quantityUnit = (null == firstBaseCharge.getQuantityUnit() || firstBaseCharge.getQuantityUnit().isEmpty() ? "PCS" : firstBaseCharge.getQuantityUnit());
@@ -1175,5 +1201,98 @@ public class ParcelRatingUtil {
             }
         }
         return null;
+    }
+
+    public static String translateUpsZone(String zone) {
+        // Split combined zones, just pick last one
+        if (zone.contains("/"))
+            zone = zone.substring(zone.lastIndexOf("/")+1);
+
+        if (zone.length() > 6) {
+            // Error condition
+            return null;
+        }
+
+        if (!StringUtils.isNumeric(zone))
+            return zone; // Leave all international zones unchanged
+
+        // Remove leading zeros
+        while (zone.startsWith("0"))
+            zone = zone.substring(1);
+
+        // If zone was only zeros, leave one zero and return (DHL uses zone 0)
+        if (zone.length() == 0)
+            return "0";
+
+        if (zone.length() < 2)
+            return zone; // No translation needed
+
+        if (zone.length() == 2) {
+            if (zone.startsWith("8")) // 81, 82, 84 => 71, 72, 74
+                zone = "7" + zone.substring(1);
+            if (zone.startsWith("6")) // 61, 62, 64 => 91, 92, 94
+                zone = "9" + zone.substring(1);
+
+            return zone;
+        }
+
+        String zonePre  = zone.substring(0,2); // first two chars
+        String zoneSuff = zone.substring(1); // last two chars
+        String zoneLast = zone.substring(2); // last char
+
+        if (zone.equals("481") || zone.equals("491"))
+            return "71";
+        if (zone.equals("482") || zone.equals("492"))
+            return "72";
+        if (zone.equals("484") || zone.equals("494"))
+            return "74";
+
+        // 3 Day Select from Canada
+        if (zone.equals("475") || zone.equals("476") || zone.equals("477"))
+            return zoneSuff;
+
+        // Standard from Canada
+        if (zone.equals("376"))
+            return "75";
+        if (zone.equals("378"))
+            return "76";
+        if (zone.equals("380"))
+            return "77";
+
+        // Odd 501 zone used in UK - leave as 501
+        if (zone.equals("501"))
+            return "501";
+
+        // Only *42 that should not be 22 (these are 2-Day AM)
+        if (zone.equals("242"))
+            return "2";
+        if (zone.equals("243"))
+            return "3";
+
+        if (zoneSuff.equals("24")) // Metro Alaska / Hawaii
+            return "44";
+        if (zoneSuff.equals("25")) // Puerto Rico
+            return "45";
+        if (zoneSuff.equals("26")) // Remote Alaska / Hawaii
+            return "46";
+
+        // Standard from Mexico
+        if (zonePre.equals("36"))
+            return "6"+zoneLast; // 362 => 62 ...
+
+        if (zoneSuff.equals("20") || zoneSuff.equals("70"))
+            return "20"; // Date/Broward Florida to South America
+        if (zoneSuff.equals("21") || zoneSuff.equals("71"))
+            return "21"; // Date/Broward Florida to South America
+        if (zoneSuff.equals("12") || zoneSuff.equals("42") || zoneSuff.equals("62") || zoneSuff.equals("92"))
+            return "22"; // ?
+
+        // New zones for 2013
+        if (zoneSuff.equals("11") || zoneSuff.equals("41") || zoneSuff.equals("61") || zoneSuff.equals("91"))
+            return "11";
+        if (zoneSuff.equals("13") || zoneSuff.equals("43") || zoneSuff.equals("63") || zoneSuff.equals("93"))
+            return "13";
+
+        return zoneLast; // Just use last character, e.g. 102 -> 2
     }
 }

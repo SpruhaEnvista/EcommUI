@@ -246,6 +246,27 @@ public class ParcelAuditDetailsDto {
     @Column(name = "ACTUAL_CHARGE_DESCRIPTION_CODE")
     private String actualchargeDescriptionCode;
 
+    @Column(name = "SENDER_BILLED_ZIP_CODE")
+    private String senderBilledZipCode;
+
+    @Column(name = "RECEIVER_BILLED_ZIP_CODE")
+    private String receiverBilledZipCode;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ParcelAuditDetailsDto that = (ParcelAuditDetailsDto) o;
+
+        return id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
+
     public ParcelAuditDetailsDto() {
     }
 
@@ -713,6 +734,22 @@ public class ParcelAuditDetailsDto {
 
     public void setBilledDimDivisor(String billedDimDivisor) {
         this.billedDimDivisor = billedDimDivisor;
+    }
+
+    public String getSenderBilledZipCode() {
+        return senderBilledZipCode;
+    }
+
+    public void setSenderBilledZipCode(String senderBilledZipCode) {
+        this.senderBilledZipCode = senderBilledZipCode;
+    }
+
+    public String getReceiverBilledZipCode() {
+        return receiverBilledZipCode;
+    }
+
+    public void setReceiverBilledZipCode(String receiverBilledZipCode) {
+        this.receiverBilledZipCode = receiverBilledZipCode;
     }
 
     public static class Config{
