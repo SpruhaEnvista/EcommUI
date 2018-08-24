@@ -202,6 +202,7 @@ public class RatingQueueDAO {
                 ratingQueueBean.setZone(rs.getString("ZONE"));
                 ratingQueueBean.setSenderBilledZipCode(rs.getString("SENDER_BILLED_ZIP_CODE"));
                 ratingQueueBean.setReceiverBilledZipCode(rs.getString("RECEIVER_BILLED_ZIP_CODE"));
+                ratingQueueBean.setReturnFlag(rs.getString("RETURN_FLAG"));
                 beanList.add(ratingQueueBean);
             }
 
