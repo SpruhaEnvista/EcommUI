@@ -332,21 +332,39 @@ public class ParcelRatingQueueJob {
                             Map.Entry<Long, List<ParcelAuditDetailsDto>> shpEntry = shipmentIterator.next();
                             if(shpEntry != null) {
                                 boolean frtFound = false;
+                                boolean shipDateSame = false;
+                                ParcelAuditDetailsDto currentFrtChargeTemp = null;
                                 List<ParcelAuditDetailsDto> shipmentDetails = shpEntry.getValue();
                                 for(ParcelAuditDetailsDto auditDetails : shipmentDetails) {
                                     if(auditDetails != null && "FRT".equalsIgnoreCase(auditDetails.getChargeClassificationCode())){
                                         frtFound = true;
+                                        currentFrtChargeTemp = auditDetails;
                                     }
                                 }
-                                if(!frtFound){
-                                    if(previousShipment != null && !previousShipment.isEmpty()){
+
+
+                                if(previousShipment != null && !previousShipment.isEmpty()){
+
+                                    ParcelAuditDetailsDto prevFrtChargeTemp = ParcelRatingUtil.getFirstFrightChargeForNonUpsCarrier(previousShipment);
+
+                                    if ((currentFrtChargeTemp != null && prevFrtChargeTemp != null) && (currentFrtChargeTemp.getPickupDate() != null && prevFrtChargeTemp.getPickupDate() != null)) {
+                                        if (currentFrtChargeTemp.getPickupDate().compareTo(prevFrtChargeTemp.getPickupDate()) == 0)
+                                            shipDateSame = true;
+                                    }
                                         List<ParcelAuditDetailsDto> shipmentsWithPrevFrt = new ArrayList<>(shipmentDetails);
-                                        ParcelAuditDetailsDto prevFrtCharge = ParcelRatingUtil.getFirstFrightChargeForNonUpsCarrier(previousShipment);
-                                        if(prevFrtCharge != null){
-                                            shipmentsWithPrevFrt.add(prevFrtCharge);
-                                            addNonUpsShipmentEntryIntoQueue(shipmentsWithPrevFrt, ratingInputCriteriaBean, accessorialBeans);
+
+                                    for (ParcelAuditDetailsDto prevShpCharge : previousShipment) {
+                                        if (prevShpCharge != null) {
+                                            if (shipDateSame && ParcelAuditConstant.ChargeClassificationCode.ACS.name().equalsIgnoreCase(prevShpCharge.getChargeClassificationCode())) {
+                                                shipmentsWithPrevFrt.add(prevShpCharge);
+                                            }
+
+                                            if (!frtFound && ParcelAuditConstant.ChargeClassificationCode.FRT.name().equalsIgnoreCase(prevShpCharge.getChargeClassificationCode())) {
+                                                shipmentsWithPrevFrt.add(prevShpCharge);
+                                            }
                                         }
                                     }
+                                    addNonUpsShipmentEntryIntoQueue(shipmentsWithPrevFrt, ratingInputCriteriaBean, accessorialBeans);
                                 } else {
                                     addNonUpsShipmentEntryIntoQueue(shipmentDetails, ratingInputCriteriaBean, accessorialBeans);
                                 }
