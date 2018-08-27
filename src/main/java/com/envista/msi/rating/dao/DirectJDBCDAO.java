@@ -1054,5 +1054,78 @@ public class DirectJDBCDAO {
         return beans;
     }
 
+    public List<RatedChargeDetailsDto> getRatedChargeAmountforNonUPS(Long parentId, String tracking_number) {
+        Connection conn = null;
+        CallableStatement cstmt = null;
+        ResultSet rs = null;
+        List<RatedChargeDetailsDto> ratedChargeDetailsDtoList = null;
+        try {
+            conn = ServiceLocator.getDatabaseConnection();
+            cstmt = conn.prepareCall("{ call SHP_GET_NON_UPS_RATED_AMT_PRO(?,?,?)}");
+            cstmt.setLong(1, parentId);
+            cstmt.setString(2, tracking_number);
+            cstmt.registerOutParameter(3, OracleTypes.CURSOR);
+            cstmt.execute();
 
+            ratedChargeDetailsDtoList = new ArrayList<>();
+            rs = (ResultSet) cstmt.getObject(3);
+            while (rs.next()) {
+                RatedChargeDetailsDto ratedChargeDetailsDto = new RatedChargeDetailsDto();
+                ratedChargeDetailsDto.setId(rs.getLong("ID"));
+                ratedChargeDetailsDto.setChargeClassificationCode(rs.getString("charge_classification_code"));
+                ratedChargeDetailsDto.setChargeDescriptionCode(rs.getString("charge_description_code"));
+                ratedChargeDetailsDto.setBilledAmount(rs.getBigDecimal("net_amount"));
+                ratedChargeDetailsDto.setRatedAmount(rs.getBigDecimal("rtr_amount"));
+                ratedChargeDetailsDto.setDimDivisor(rs.getBigDecimal("DIM_DIVISOR"));
+                ratedChargeDetailsDto.setShipperCategory(rs.getString("SHIPPER_CATEGORY"));
+                ratedChargeDetailsDto.setRatedWeight(rs.getBigDecimal("RATED_WEIGHT"));
+                ratedChargeDetailsDto.setContractName(rs.getString("CONTRACT_NAME"));
+                ratedChargeDetailsDto.setFuelTablePercentage(rs.getBigDecimal("FUEL_TABLE_PERC"));
+                ratedChargeDetailsDto.setRatedBaseDiscount(rs.getBigDecimal("RATED_BASE_DISCOUNT"));
+                ratedChargeDetailsDto.setRatedEarnedDiscount(rs.getBigDecimal("RATED_EARNED_DISCOUNT"));
+                ratedChargeDetailsDto.setRatedMinMaxAdjustment(rs.getBigDecimal("RATED_MIN_MAX_ADJ"));
+                ratedChargeDetailsDto.setRatedFuelSurchargeDiscount(rs.getBigDecimal("RATED_FUEL_SURCHARGE_DISC"));
+                ratedChargeDetailsDto.setRatedCustomFuelSurchargeDiscount(rs.getBigDecimal("RATED_CUST_FUEL_SURCHARGE_DISC"));
+                ratedChargeDetailsDto.setRatedGrossFuel(rs.getBigDecimal("RATED_GROSS_FUEL"));
+                ratedChargeDetailsDto.setResidentialSurchargeDiscount(rs.getBigDecimal("RES_SURCHARGE_DSC"));
+                ratedChargeDetailsDto.setResidentialSurchargeDiscountPercentage(rs.getBigDecimal("RES_SURCHARGE_DSC_PERC"));
+                ratedChargeDetailsDto.setOtherDiscount1(rs.getBigDecimal("OTHER_DSC_1"));
+                ratedChargeDetailsDto.setOtherDiscount2(rs.getBigDecimal("OTHER_DSC_2"));
+                ratedChargeDetailsDto.setOtherDiscount3(rs.getBigDecimal("OTHER_DSC_3"));
+                ratedChargeDetailsDto.setAccessorial1(rs.getBigDecimal("ACCESSORIAL_1"));
+                ratedChargeDetailsDto.setAccessorial2(rs.getBigDecimal("ACCESSORIAL_2"));
+                ratedChargeDetailsDto.setAccessorial3(rs.getBigDecimal("ACCESSORIAL_3"));
+                ratedChargeDetailsDto.setAccessorial4(rs.getBigDecimal("ACCESSORIAL_4"));
+                ratedChargeDetailsDto.setDeliveryAreaSurchargeDiscount(rs.getBigDecimal("RATED_DAS_DSC"));
+                ratedChargeDetailsDto.setAccessorial1Code(rs.getString("ACCESSORIAL_1_CODE"));
+                ratedChargeDetailsDto.setAccessorial2Code(rs.getString("ACCESSORIAL_2_CODE"));
+                ratedChargeDetailsDto.setAccessorial3Code(rs.getString("ACCESSORIAL_3_CODE"));
+                ratedChargeDetailsDto.setAccessorial4Code(rs.getString("ACCESSORIAL_4_CODE"));
+                ratedChargeDetailsDto.setFreightCharge(rs.getBigDecimal("FRT_CHARGE"));
+                ratedChargeDetailsDto.setFuelSurcharge(rs.getBigDecimal("FSC_CHARGE"));
+                ratedChargeDetailsDtoList.add(ratedChargeDetailsDto);
+            }
+        } catch (SQLException sqle) {
+            throw new RuntimeException("Exception in fetching rate details in getRatedChargeAmount -- > " + sqle.getStackTrace());
+        } catch (ServiceLocatorException sle) {
+            throw new RuntimeException("Exception in getting connection in getRatedChargeAmount -- > " + sle.getStackTrace());
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (SQLException sqle) {
+            }
+            try {
+                if (cstmt != null)
+                    cstmt.close();
+            } catch (SQLException sqle) {
+            }
+            try {
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException sqle) {
+            }
+        }
+        return ratedChargeDetailsDtoList;
+    }
 }
