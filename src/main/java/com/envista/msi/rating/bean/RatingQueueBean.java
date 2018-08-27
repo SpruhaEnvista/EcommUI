@@ -73,6 +73,8 @@ public class RatingQueueBean {
     private String thresholdType;
     private String serviceLevel;
     private String zone;
+    private String senderBilledZipCode;
+    private String receiverBilledZipCode;
 
     public Long getRatingQueueId() {
         return ratingQueueId;
@@ -492,6 +494,22 @@ public class RatingQueueBean {
 
     public void setAccessorialInfo(String accessorialInfo) {
         this.accessorialInfo = accessorialInfo;
+    }
+
+    public String getSenderBilledZipCode() {
+        return senderBilledZipCode;
+    }
+
+    public void setSenderBilledZipCode(String senderBilledZipCode) {
+        this.senderBilledZipCode = senderBilledZipCode;
+    }
+
+    public String getReceiverBilledZipCode() {
+        return receiverBilledZipCode;
+    }
+
+    public void setReceiverBilledZipCode(String receiverBilledZipCode) {
+        this.receiverBilledZipCode = receiverBilledZipCode;
     }
 
     public Set<ParcelRateRequest.ServiceFlag> getAccessorials(){

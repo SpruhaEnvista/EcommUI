@@ -364,20 +364,21 @@ public class DirectJDBCDAO {
         }
     }
 
-    public List<RatedChargeDetailsDto> getRatedChargeAmount(Long parentId){
+    public List<RatedChargeDetailsDto> getRatedChargeAmount(Long parentId, String tracking_number){
         Connection conn = null;
         CallableStatement cstmt = null;
         ResultSet rs = null;
         List<RatedChargeDetailsDto> ratedChargeDetailsDtoList = null;
         try{
             conn = ServiceLocator.getDatabaseConnection();
-            cstmt = conn.prepareCall("{ call SHP_GET_UPS_RATED_AMOUNT_PROC(?,?)}");
+            cstmt = conn.prepareCall("{ call SHP_GET_UPS_RATED_AMOUNT_PROC(?,?,?)}");
             cstmt.setLong(1, parentId);
-            cstmt.registerOutParameter(2, OracleTypes.CURSOR);
+            cstmt.setString(2, tracking_number);
+            cstmt.registerOutParameter(3, OracleTypes.CURSOR);
             cstmt.execute();
 
             ratedChargeDetailsDtoList = new ArrayList<>();
-            rs = (ResultSet) cstmt.getObject(2);
+            rs = (ResultSet) cstmt.getObject(3);
             while(rs.next()){
                 RatedChargeDetailsDto ratedChargeDetailsDto = new RatedChargeDetailsDto();
                 ratedChargeDetailsDto.setId(rs.getLong("ID"));
@@ -514,7 +515,7 @@ public class DirectJDBCDAO {
                     liveSqlQuery += " SELECT DISTINCT INVOICE_ID FROM SHP_EBILL_MANIFEST_TB ";
                     liveSqlQuery += " WHERE INVOICE_ID IN ( ";
                     liveSqlQuery += " SELECT invoice_id FROM SHP_EBILL_INVOICE_TB ";
-                    liveSqlQuery += " WHERE inv_contract_number IN (SELECT contract_number FROM SHP_EBILL_CONTRACT_TB ";
+                    liveSqlQuery += " WHERE  inv_contract_number IN (SELECT contract_number FROM SHP_EBILL_CONTRACT_TB ";
                     liveSqlQuery += " WHERE customer_id in (" + customerId + ") and carrier_id = 21) and inv_carrier_id = 21) ";
                     liveSqlQuery += " and trunc(pickup_date) between TRUNC(TO_DATE('"+ fromDate +"', 'DD-MON-YYYY')) AND TRUNC(TO_DATE('"+ toDate +"', 'DD-MON-YYYY')) ";
 
@@ -613,6 +614,7 @@ public class DirectJDBCDAO {
                 inputCriteria.setServiceLevel(rs.getString("SERVICE_LEVELS_ID"));
             }
         } catch (Exception e) {
+            e.printStackTrace();
             throw new DaoException("getRatingInputCriteria", e);
         }finally {
             try {
@@ -645,6 +647,7 @@ public class DirectJDBCDAO {
             pstmt.executeUpdate();
             con.commit();
         } catch (Exception e) {
+            e.printStackTrace();
             try {
                 con.rollback();
             } catch (SQLException e1) {
@@ -682,6 +685,7 @@ public class DirectJDBCDAO {
             pstmt.executeUpdate();
             con.commit();
         } catch (Exception e) {
+            e.printStackTrace();
             try {
                 con.rollback();
             } catch (SQLException e1) {
@@ -710,7 +714,7 @@ public class DirectJDBCDAO {
         sqlQuery += " ur.LEAD_SHIPMENT_NUMBER = ?, ur.TRACKING_NUMBER = ?, ur.ENTERED_WEIGHT = ?, ur.BILLED_WEIGHT = ?, ur.CONTAINER_TYPE = ?, ur.PACKAGE_DIMENSIONS = ?, ";
         sqlQuery += " ur.ZONE = ?, ur.CHARGE_CLASSIFICATION_CODE = ?, ur.CHARGE_DESCRIPTION = ?, ur.INCENTIVE_AMOUNT = ?, ur.NET_AMOUNT = ?, ur.CUSTOMER_CODE = ?, ur.SHIPPER_CODE = ?, ";
         sqlQuery += " ur.INV_CREATE_DATE = ?, ur.PARENT_ID = ?, ur.DW_FIELD_INFORMATION = ?, ur.INVOICE_ID = ?, ur.CUSTOMER_ID = ?, ur.BILL_OPTION_CODE = ?, ur.CHARGE_CATEGORY_DETAIL_CODE = ?, ";
-        sqlQuery += " ur.PIECES = ? ";
+        sqlQuery += " ur.PIECES = ?, CHARGE_DESCRIPTION_CODE = ? ";
         sqlQuery += " WHERE ur.EBILL_GFF_ID = ? ";
 
         try {
@@ -763,14 +767,15 @@ public class DirectJDBCDAO {
                 }else{
                     pstmt.setNull(28, OracleTypes.INTEGER);
                 }
-
-                pstmt.setLong(29, rateDetails.getId());
+                pstmt.setString(29, rateDetails.getChargeDescriptionCode());
+                pstmt.setLong(30, rateDetails.getId());
                 pstmt.addBatch();
             }
 
             pstmt.executeBatch();
             con.commit();
         } catch (Exception e) {
+            e.printStackTrace();
             try {
                 con.rollback();
             } catch (SQLException e1) {
@@ -860,6 +865,7 @@ public class DirectJDBCDAO {
             pstmt.executeBatch();
             con.commit();
         } catch (Exception e) {
+            e.printStackTrace();
             try {
                 con.rollback();
             } catch (SQLException e1) {
@@ -902,6 +908,7 @@ public class DirectJDBCDAO {
             pstmt.executeUpdate();
             con.commit();
         } catch (Exception e) {
+            e.printStackTrace();
             try {
                 con.rollback();
             } catch (SQLException e1) {
@@ -963,6 +970,7 @@ public class DirectJDBCDAO {
 
             }
         }catch (Exception e) {
+            e.printStackTrace();
             throw new DaoException("getRatingJobsByCustomer", e);
         }finally {
             try {
@@ -1029,7 +1037,7 @@ public class DirectJDBCDAO {
 
         } catch (ServiceLocatorException e) {
             log.error(e.getMessage());
-            //e.printStackTrace();
+            e.printStackTrace();
         } finally {
             try {
                 if (rs != null)
