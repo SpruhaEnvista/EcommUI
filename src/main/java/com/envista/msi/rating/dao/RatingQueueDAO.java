@@ -375,16 +375,16 @@ public class RatingQueueDAO {
                 liveQuery += " AND a.invoice_id IN ( " + invoiceIds + ") ";
             }
 
-      /*      if (!ignoreRtrStatus && !isHwt) {
+            if (!ignoreRtrStatus && !isHwt) {
                 liveQuery += " AND (UPPER(ar.RTR_STATUS) = 'READYFORRATE' OR ar.RTR_STATUS IS NULL) and a.Lead_Shipment_Number is null ";
-            }*/
+            }
 
-            /*if (isHwt) {
+            if (isHwt) {
                 liveQuery += " and a.Lead_Shipment_Number is not null AND (a.ebill_gff_id,a.Lead_Shipment_Number) in(SELECT EBILL_GFF_ID,Lead_Shipment_Number FROM  shp_ebill_gff_tb " +
                         " where invoice_id IN ( " + invoiceIds + ") MINUS SELECT a.Gff_Id,a.hwt_identifier FROM  Shp_Rating_Queue_Tb a," +
                         " shp_ebill_gff_tb b where a.Gff_Id = b.EBILL_GFF_ID and b.invoice_id IN ( " + invoiceIds + "))";
 
-            }*/
+            }
 
             String archiveQuery = "";
             archiveQuery = liveQuery.replace("shp_ebill_gff_tb", "arc_ebill_gff_tb");
