@@ -405,10 +405,23 @@ public class ParcelRatingUtil {
 
                 ratingQueueBean.setShipDate(firstCharge.getPickupDate());
 
+                if ((null != firstCharge.getSenderCountry() && !firstCharge.getSenderCountry().isEmpty())
+                        && (null != firstCharge.getSenderState() && !firstCharge.getSenderState().isEmpty())
+                        && (null != firstCharge.getSenderCity() && !firstCharge.getSenderCity().isEmpty())
+                        && (null != firstCharge.getSenderZipCode() && !firstCharge.getSenderZipCode().isEmpty())) {
+
+                    firstCharge.setSenderCity(firstCharge.getShipperCity());
+                    firstCharge.setSenderState(firstCharge.getShipperState());
+                    firstCharge.setSenderCountry(firstCharge.getShipperCountry());
+                    firstCharge.setSenderZipCode(firstCharge.getShipperZip());
+
+                }
+
                 String senderCountry = (null == firstCharge.getSenderCountry() || firstCharge.getSenderCountry().isEmpty() ? "US" : firstCharge.getSenderCountry());
                 String senderState = (null == firstCharge.getSenderState() ? "" : firstCharge.getSenderState());
                 String senderCity = (null == firstCharge.getSenderCity() ? "" : firstCharge.getSenderCity());
                 String senderZipCode = (null == firstCharge.getSenderZipCode() ? "" : firstCharge.getSenderZipCode());
+
 
                 ratingQueueBean.setShipperCountry(senderCountry);
                 ratingQueueBean.setShipperState(senderState);
@@ -546,6 +559,18 @@ public class ParcelRatingUtil {
         }
 
         ratingQueueBean.setShipDate(firstCharge.getPickupDate());
+
+        if ((null != firstCharge.getSenderCountry() && !firstCharge.getSenderCountry().isEmpty())
+                && (null != firstCharge.getSenderState() && !firstCharge.getSenderState().isEmpty())
+                && (null != firstCharge.getSenderCity() && !firstCharge.getSenderCity().isEmpty())
+                && (null != firstCharge.getSenderZipCode() && !firstCharge.getSenderZipCode().isEmpty())) {
+
+            firstCharge.setSenderCity(firstCharge.getShipperCity());
+            firstCharge.setSenderState(firstCharge.getShipperState());
+            firstCharge.setSenderCountry(firstCharge.getShipperCountry());
+            firstCharge.setSenderZipCode(firstCharge.getShipperZip());
+
+        }
 
         String senderCountry = (null == firstCharge.getSenderCountry() || firstCharge.getSenderCountry().isEmpty() ? "US" : firstCharge.getSenderCountry());
         String senderState = (null == firstCharge.getSenderState() ? "" : firstCharge.getSenderState());
