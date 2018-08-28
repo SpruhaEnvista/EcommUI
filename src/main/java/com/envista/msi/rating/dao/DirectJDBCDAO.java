@@ -1073,7 +1073,18 @@ public class DirectJDBCDAO {
                 RatedChargeDetailsDto ratedChargeDetailsDto = new RatedChargeDetailsDto();
                 ratedChargeDetailsDto.setId(rs.getLong("ID"));
                 ratedChargeDetailsDto.setChargeClassificationCode(rs.getString("charge_classification_code"));
-                ratedChargeDetailsDto.setChargeDescriptionCode(rs.getString("charge_description_code"));
+                if (ratedChargeDetailsDto.getChargeClassificationCode() != null) {
+                    try {
+                        String[] dwFieldInfo = ratedChargeDetailsDto.getChargeClassificationCode().split(",");
+                        if (dwFieldInfo != null && dwFieldInfo.length > 0) {
+                            ratedChargeDetailsDto.setChargeClassificationCode(dwFieldInfo[1].trim());
+                            ratedChargeDetailsDto.setChargeDescriptionCode(dwFieldInfo[2].trim());
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                //ratedChargeDetailsDto.setChargeDescriptionCode(rs.getString("charge_description_code"));
                 ratedChargeDetailsDto.setBilledAmount(rs.getBigDecimal("net_amount"));
                 ratedChargeDetailsDto.setRatedAmount(rs.getBigDecimal("rtr_amount"));
                 ratedChargeDetailsDto.setDimDivisor(rs.getBigDecimal("DIM_DIVISOR"));
