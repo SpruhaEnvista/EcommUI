@@ -51,6 +51,8 @@ public class ParcelRateRequestBuilder {
             if(ratingQueueBean.getSenderBilledZipCode() == null || ratingQueueBean.getSenderBilledZipCode().isEmpty()
                     || ratingQueueBean.getReceiverBilledZipCode() == null || ratingQueueBean.getReceiverBilledZipCode().isEmpty()){
                 constraints.setZoneOverride(ratingQueueBean.getZone());
+            } else {
+                constraints.setZoneOverride("");
             }
 
             ParcelRateRequest.RevenueTier revenueTier = new ParcelRateRequest.RevenueTier();
