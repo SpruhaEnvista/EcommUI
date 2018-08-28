@@ -20,13 +20,13 @@ public class RatingQueueDAO {
 
     private final Logger log = LoggerFactory.getLogger(RatingQueueDAO.class);
 
-    public RatingQueueBean getRatingBeanById(Long ratingQueueId){
+    public RatingQueueBean getRatingBeanById(Long ratingQueueId) {
         RatingQueueBean ratingQBean = null;
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rss = null;
 
-        String selectQueryStr = "select * from SHP_RATING_QUEUE_TB where SHP_RATING_QUEUE_ID="+ratingQueueId;
+        String selectQueryStr = "select * from SHP_RATING_QUEUE_TB where SHP_RATING_QUEUE_ID=" + ratingQueueId;
 
         try {
             con = ServiceLocator.getDatabaseConnection();
@@ -34,7 +34,7 @@ public class RatingQueueDAO {
             rss = pstmt.executeQuery();
             ratingQBean = new RatingQueueBean();
 
-            if(rss.next()){
+            if (rss.next()) {
                 ratingQBean.setRatingQueueId(rss.getLong("SHP_RATING_QUEUE_ID"));
                 ratingQBean.setManiestId(rss.getLong("maniestId"));
                 ratingQBean.setGffId(rss.getLong("GFF_ID"));
@@ -102,9 +102,9 @@ public class RatingQueueDAO {
         } catch (SQLException sqle) {
             sqle.printStackTrace();
             throw new DaoException("Exception in getRatingBeanById", sqle);
-        }  catch (ServiceLocatorException sle) {
+        } catch (ServiceLocatorException sle) {
             throw new DaoException("Exception in getRatingBeanById", sle);
-        }finally {
+        } finally {
             try {
                 if (rss != null)
                     rss.close();
@@ -125,20 +125,20 @@ public class RatingQueueDAO {
         return ratingQBean;
     }
 
-    public ArrayList<RatingQueueBean> getRatingQueueByJobId(String jobIds){
+    public ArrayList<RatingQueueBean> getRatingQueueByJobId(String jobIds) {
         Connection connection = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
 
         java.util.ArrayList<RatingQueueBean> beanList = null;
-        String selectQuery = "select * from SHP_RATING_QUEUE_TB where  RATE_STATUS = 0 and job_id in ( "+jobIds+" ) and rownum <= 30000 ";
+        String selectQuery = "select * from SHP_RATING_QUEUE_TB where  RATE_STATUS = 0 and job_id in ( " + jobIds + " ) and rownum <= 30000 ";
 
         try {
             connection = ServiceLocator.getDatabaseConnection();
             stmt = connection.prepareStatement(selectQuery);
             beanList = new ArrayList<RatingQueueBean>();
             rs = stmt.executeQuery();
-            while(rs.next()){
+            while (rs.next()) {
                 RatingQueueBean ratingQueueBean = new RatingQueueBean();
                 ratingQueueBean.setRatingQueueId(rs.getLong("SHP_RATING_QUEUE_ID"));
                 ratingQueueBean.setManiestId(rs.getLong("MANIFEST_ID"));
@@ -208,9 +208,9 @@ public class RatingQueueDAO {
         } catch (SQLException sqle) {
             sqle.printStackTrace();
             throw new DaoException("Exception in getRatingQueueByJobId", sqle);
-        }  catch (ServiceLocatorException sle) {
+        } catch (ServiceLocatorException sle) {
             throw new DaoException("Exception in getRatingQueueByJobId", sle);
-        }finally {
+        } finally {
             try {
                 if (rs != null)
                     rs.close();
@@ -230,6 +230,9 @@ public class RatingQueueDAO {
 
         return beanList;
     }
+
+
+
 
     public void updateRateStatusInQueue(Long ratingQueueId, int statusValue, String queueIds) {
 
@@ -600,7 +603,7 @@ public class RatingQueueDAO {
             liveSqlQuery += " ebmf.SHIPPER_CODE AS SHIPPER_NUMBER, ebmf.PARENT_ID, DECODE (ebmf.bill_weight, 0, 'Letter', 'PKG') package_type, ";
             liveSqlQuery += " null AS PACKAGE_DIMENSION, ebmf.ACT_WEIGHT AS ACTUAL_WEIGHT, ebmf.UNIT_OF_ACTUAL_WEIGHT, ";
             liveSqlQuery += " ebmf.INVOICE_NUMBER, ebmf.ZONE, ebmf.MISCELLANEOUS5, ebmf.PIECES, ebmf.DIM_DIVISOR AS BILLED_DIM_DIVISOR, ebmf.BILL_DATE AS INVOICE_DATE, inv.CREATE_DATE AS INV_CREATE_DATE, ebmf.SENDER_ZIP AS SENDER_BILLED_ZIP_CODE, ebmf.CONSIGNEE_ZIP AS RECEIVER_BILLED_ZIP_CODE," +
-                    " , s.STATE as shipper_state,s.CITY  as shipper_city,s.ZIPCODE  as shipper_zipCode,s.COUNTRY as shipper_country , ";
+                    "  s.STATE as shipper_state,s.CITY  as shipper_city,s.ZIPCODE  as shipper_zipCode,s.COUNTRY as shipper_country , ";
             if (isHwt) {
                 liveSqlQuery += " 0 as RTR_AMOUNT ,null as rtr_status,";
             } else {
