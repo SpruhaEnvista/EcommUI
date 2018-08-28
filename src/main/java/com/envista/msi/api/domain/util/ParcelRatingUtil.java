@@ -405,14 +405,23 @@ public class ParcelRatingUtil {
 
                 ratingQueueBean.setShipDate(firstCharge.getPickupDate());
 
-                String senderCountry = ((null == firstCharge.getSenderCountry() || firstCharge.getSenderCountry().isEmpty())
-                        && firstCharge.getShipperCountry() != null ? firstCharge.getShipperCountry()
-                        : (null == firstCharge.getSenderCountry()
-                        || firstCharge.getSenderCountry().isEmpty() ? "US" : firstCharge.getSenderCountry()));
+                if ((null != firstCharge.getSenderCountry() && !firstCharge.getSenderCountry().isEmpty())
+                        && (null != firstCharge.getSenderState() && !firstCharge.getSenderState().isEmpty())
+                        && (null != firstCharge.getSenderCity() && !firstCharge.getSenderCity().isEmpty())
+                        && (null != firstCharge.getSenderZipCode() && !firstCharge.getSenderZipCode().isEmpty())) {
 
-                String senderState = (null == firstCharge.getSenderState() && firstCharge.getShipperState() != null ? firstCharge.getShipperState() : null == firstCharge.getSenderState() ? "" : firstCharge.getSenderState());
-                String senderCity = (null == firstCharge.getSenderCity() && firstCharge.getShipperCity() != null ? firstCharge.getShipperCity() : null == firstCharge.getSenderCity() ? "" : firstCharge.getSenderCity());
-                String senderZipCode = (null == firstCharge.getSenderZipCode() && firstCharge.getShipperZip() != null ? firstCharge.getShipperZip() : null == firstCharge.getSenderZipCode() ? "" : firstCharge.getSenderZipCode());
+                    firstCharge.setSenderCity(firstCharge.getShipperCity());
+                    firstCharge.setSenderState(firstCharge.getShipperState());
+                    firstCharge.setSenderCountry(firstCharge.getShipperCountry());
+                    firstCharge.setSenderZipCode(firstCharge.getShipperZip());
+
+                }
+
+                String senderCountry = (null == firstCharge.getSenderCountry() || firstCharge.getSenderCountry().isEmpty() ? "US" : firstCharge.getSenderCountry());
+                String senderState = (null == firstCharge.getSenderState() ? "" : firstCharge.getSenderState());
+                String senderCity = (null == firstCharge.getSenderCity() ? "" : firstCharge.getSenderCity());
+                String senderZipCode = (null == firstCharge.getSenderZipCode() ? "" : firstCharge.getSenderZipCode());
+
 
                 ratingQueueBean.setShipperCountry(senderCountry);
                 ratingQueueBean.setShipperState(senderState);
