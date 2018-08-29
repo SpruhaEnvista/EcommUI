@@ -674,6 +674,7 @@ public class RatingQueueDAO {
             String receiverState = null;
             String receiverCity = null;
             String receiverZipCode = null;
+            String zone = null;
             while(rs.next()){
                 ParcelAuditDetailsDto shipmentDetails = new ParcelAuditDetailsDto();
                 shipmentDetails.setId(rs.getLong("ID"));
@@ -780,6 +781,9 @@ public class RatingQueueDAO {
                     if(receiverZipCode == null && shipmentDetails.getReceiverZipCode() != null && !shipmentDetails.getReceiverZipCode().isEmpty()){
                         receiverZipCode = shipmentDetails.getReceiverZipCode();
                     }
+                    if (zone == null && shipmentDetails.getZone() != null && !shipmentDetails.getZone().isEmpty()) {
+                        zone = shipmentDetails.getZone();
+                    }
 
                 }catch (Exception e){
                     e.printStackTrace();
@@ -794,6 +798,7 @@ public class RatingQueueDAO {
             String finalReceiverState = receiverState;
             String finalReceiverCity = receiverCity;
             String finalReceiverZipCode = receiverZipCode;
+            String finalZone = zone;
             parcelUpsShipments.parallelStream().filter(r -> r != null).forEach(
                     rate -> {
                         if(rate.getSenderCountry() == null || rate.getSenderCountry().isEmpty()){
@@ -820,6 +825,9 @@ public class RatingQueueDAO {
                         }
                         if(rate.getReceiverZipCode() == null || rate.getReceiverZipCode().isEmpty()){
                             rate.setReceiverZipCode(finalReceiverZipCode);
+                        }
+                        if (rate.getZone() == null || rate.getZone().isEmpty()) {
+                            rate.setZone(finalZone);
                         }
                     }
             );
