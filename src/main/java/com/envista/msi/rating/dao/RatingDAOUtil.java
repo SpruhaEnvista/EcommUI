@@ -218,7 +218,7 @@ public class RatingDAOUtil {
             } else if("SHIPPER_ZIP".equalsIgnoreCase(columnName)) {
                 ps.setString(35, queueBean.getShipperZip());
             } else if("SHIPPER_COUNTRY".equalsIgnoreCase(columnName)) {
-                ps.setString(36, queueBean.getShipperLocationCode());
+                ps.setString(36, queueBean.getShipperCountry());
             } else if("RECEIVER_LOCATION_CODE".equalsIgnoreCase(columnName)) {
                 ps.setString(37, queueBean.getReceiverLocationCode());
             }  else if("RECEIVER_CITY".equalsIgnoreCase(columnName)) {
