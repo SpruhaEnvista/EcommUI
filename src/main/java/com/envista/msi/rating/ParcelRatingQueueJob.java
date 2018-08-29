@@ -165,7 +165,7 @@ public class ParcelRatingQueueJob {
                         if(allShipmentDetails != null && !allShipmentDetails.isEmpty()){
                             Map<String, List<ParcelAuditDetailsDto>> trackingNumberWiseShipments = ParcelRatingUtil.prepareTrackingNumberWiseAuditDetails(allShipmentDetails);
                             List<ServiceFlagAccessorialBean> accessorialBeans = parcelRatingService.getServiceFlagAcessorials(22l, ParcelAuditConstant.MSI_AR_CHARGE_CODE_MAPPING_MODELE_NAME);
-                            processFedExShipments(trackingNumberWiseShipments, ratingInputCriteriaBean, isHwt, accessorialBeans);
+                            processFedExShipments(trackingNumberWiseShipments, ratingInputCriteriaBean, isHwt, accessorialBeans, ratingInputCriteriaBean.getCustomerId());
                         }
                     }
                 }
@@ -315,7 +315,7 @@ public class ParcelRatingQueueJob {
         }
     }
 
-    public void processFedExShipments(Map<String, List<ParcelAuditDetailsDto>> trackingNumberWiseShipments, ParcelRatingInputCriteriaBean ratingInputCriteriaBean, boolean isHwt, List<ServiceFlagAccessorialBean> accessorialBeans) throws SQLException {
+    public void processFedExShipments(Map<String, List<ParcelAuditDetailsDto>> trackingNumberWiseShipments, ParcelRatingInputCriteriaBean ratingInputCriteriaBean, boolean isHwt, List<ServiceFlagAccessorialBean> accessorialBeans, String customerId) throws SQLException {
         if(trackingNumberWiseShipments != null && !trackingNumberWiseShipments.isEmpty()) {
             Map<String, List<ParcelAuditDetailsDto>> mwtDetailsMap = ParcelRatingUtil.prepareMultiWeightNumberWiseAuditDetails(trackingNumberWiseShipments);
             List<ParcelAuditDetailsDto> previousShipment = null;
@@ -324,6 +324,11 @@ public class ParcelRatingQueueJob {
                 Map.Entry<String,List<ParcelAuditDetailsDto>> parcelAuditEntry = entryIterator.next();
                 if(parcelAuditEntry != null) {
                     String trackingNumber = parcelAuditEntry.getKey();
+                    List<ParcelAuditDetailsDto> pickUpDateShipmentDeatils = null;
+                    if (trackingNumber != null && !trackingNumber.isEmpty()) {
+                        ParcelAuditDetailsDto dto = parcelAuditEntry.getValue().get(0);
+                        pickUpDateShipmentDeatils = parcelRatingService.getFedExParcelShipmentDetails(ratingInputCriteriaBean.getCustomerId(), dto.getPickupDate().toString(), dto.getPickupDate().toString(), trackingNumber, null, true, false);
+                    }
                     List<ParcelAuditDetailsDto> shipmentRecords = parcelAuditEntry.getValue();
                     if(trackingNumber != null && !trackingNumber.isEmpty()){
                         Map<Long, List<ParcelAuditDetailsDto>> shipments = ParcelRatingUtil.organiseShipmentsByParentId(shipmentRecords);

@@ -95,7 +95,7 @@ public class ParcelNonUpsRatingService {
         return getFedExParcelShipmentDetails(null, null, null, trackingNumbers, null, ignoreRtrStatus, isHwt);
     }
 
-    public String doRatingForNonUpsShipment(RatingQueueBean bean, List<ServiceFlagAccessorialBean> accessorialBeans, List<ParcelAuditDetailsDto> prevShipmentDetails) throws Exception {
+    public String doRatingForNonUpsShipment(RatingQueueBean bean, List<ServiceFlagAccessorialBean> accessorialBeans) throws Exception {
         List<ParcelAuditDetailsDto> allShipmentCharges = getFedExParcelShipmentDetails(bean.getTrackingNumber(), true, false);
         String status = null;
 
@@ -106,7 +106,7 @@ public class ParcelNonUpsRatingService {
             if(shipmentToRate != null && !shipmentToRate.isEmpty()) {
                 if(ParcelRatingUtil.isFirstShipmentToRate(shipments, bean.getParentId())) {
                     if(!ParcelRatingUtil.isShipmentRated(shipmentToRate)) {
-                        status = callRTRAndPopulateRates(shipmentToRate, bean, null, accessorialBeans, prevShipmentDetails);
+                        status = callRTRAndPopulateRates(shipmentToRate, bean, null, accessorialBeans, null);
                         updateFedExOtherFieldValues(shipmentToRate);
                     }
                 } else {
@@ -118,11 +118,11 @@ public class ParcelNonUpsRatingService {
                                     ParcelAuditDetailsDto prevShipmentFrtCharge = ParcelRatingUtil.getPreviousShipmentBaseChargeDetails(shipments, bean.getParentId());
                                     if(prevShipmentFrtCharge != null) {
                                         shipmentToRate.add(prevShipmentFrtCharge);
-                                        status = callRTRAndPopulateRates(shipmentToRate, bean, null, accessorialBeans, prevShipmentDetails);
+                                        status = callRTRAndPopulateRates(shipmentToRate, bean, null, accessorialBeans, previousShipment);
                                         updateFedExOtherFieldValues(shipmentToRate);
                                     }
                                 }else {
-                                    status = callRTRAndPopulateRates(shipmentToRate, bean, null, accessorialBeans, prevShipmentDetails);
+                                    status = callRTRAndPopulateRates(shipmentToRate, bean, null, accessorialBeans, previousShipment);
                                     updateFedExOtherFieldValues(shipmentToRate);
                                 }
                             }

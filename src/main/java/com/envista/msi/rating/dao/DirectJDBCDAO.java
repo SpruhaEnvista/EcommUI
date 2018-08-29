@@ -533,7 +533,7 @@ public class DirectJDBCDAO {
                 archiveQuery = archiveQuery.replace("SHP_EBILL_MANIFEST_TB", "ARC_EBILL_MANIFEST_TB");
             } else if ("FEDEX".equalsIgnoreCase(rateTo)) {
                 liveSqlQuery += " SELECT DISTINCT INVOICE_ID FROM SHP_EBILL_MANIFEST_TB ";
-                liveSqlQuery += " WHERE 1 = 1 ";
+                liveSqlQuery += " WHERE Tracking_Number='787651842511' and 1 = 1 ";
 
                 if(invoiceIds != null) {
                     liveSqlQuery += " AND INVOICE_ID IN (" + invoiceIds +") ";
