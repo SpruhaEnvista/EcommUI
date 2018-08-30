@@ -252,6 +252,14 @@ public class ParcelAuditDetailsDto {
     @Column(name = "RECEIVER_BILLED_ZIP_CODE")
     private String receiverBilledZipCode;
 
+    private String shipperCity;
+
+    private String shipperCountry;
+
+    private String shipperZip;
+
+    private String shipperState;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -750,6 +758,38 @@ public class ParcelAuditDetailsDto {
 
     public void setReceiverBilledZipCode(String receiverBilledZipCode) {
         this.receiverBilledZipCode = receiverBilledZipCode;
+    }
+
+    public String getShipperCity() {
+        return shipperCity;
+    }
+
+    public void setShipperCity(String shipperCity) {
+        this.shipperCity = shipperCity;
+    }
+
+    public String getShipperCountry() {
+        return shipperCountry;
+    }
+
+    public void setShipperCountry(String shipperCountry) {
+        this.shipperCountry = shipperCountry;
+    }
+
+    public String getShipperZip() {
+        return shipperZip;
+    }
+
+    public void setShipperZip(String shipperZip) {
+        this.shipperZip = shipperZip;
+    }
+
+    public String getShipperState() {
+        return shipperState;
+    }
+
+    public void setShipperState(String shipperState) {
+        this.shipperState = shipperState;
     }
 
     public static class Config{
