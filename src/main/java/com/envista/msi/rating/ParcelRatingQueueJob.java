@@ -318,7 +318,7 @@ public class ParcelRatingQueueJob {
     public void processFedExShipments(Map<String, List<ParcelAuditDetailsDto>> trackingNumberWiseShipments, ParcelRatingInputCriteriaBean ratingInputCriteriaBean, boolean isHwt, List<ServiceFlagAccessorialBean> accessorialBeans, String customerId) throws SQLException {
         if(trackingNumberWiseShipments != null && !trackingNumberWiseShipments.isEmpty()) {
             Map<String, List<ParcelAuditDetailsDto>> mwtDetailsMap = ParcelRatingUtil.prepareMultiWeightNumberWiseAuditDetails(trackingNumberWiseShipments);
-            List<ParcelAuditDetailsDto> previousShipment = null;
+
             Iterator<Map.Entry<String, List<ParcelAuditDetailsDto>>> entryIterator = trackingNumberWiseShipments.entrySet().iterator();
             while(entryIterator.hasNext()){
                 Map.Entry<String,List<ParcelAuditDetailsDto>> parcelAuditEntry = entryIterator.next();
@@ -327,52 +327,54 @@ public class ParcelRatingQueueJob {
                     List<ParcelAuditDetailsDto> pickUpDateShipmentDeatils = null;
                     if (trackingNumber != null && !trackingNumber.isEmpty()) {
                         ParcelAuditDetailsDto dto = parcelAuditEntry.getValue().get(0);
-                        pickUpDateShipmentDeatils = parcelRatingService.getFedExParcelShipmentDetails(ratingInputCriteriaBean.getCustomerId(), dto.getPickupDate().toString(), dto.getPickupDate().toString(), trackingNumber, null, true, false);
+                        pickUpDateShipmentDeatils = parcelRatingService.getFedExParcelShipmentDetails(ratingInputCriteriaBean.getCustomerId(), null, null, trackingNumber, null, true, false);
                     }
                     List<ParcelAuditDetailsDto> shipmentRecords = parcelAuditEntry.getValue();
                     if(trackingNumber != null && !trackingNumber.isEmpty()){
                         Map<Long, List<ParcelAuditDetailsDto>> shipments = ParcelRatingUtil.organiseShipmentsByParentId(shipmentRecords);
                         Iterator<Map.Entry<Long, List<ParcelAuditDetailsDto>>> shipmentIterator = shipments.entrySet().iterator();
+
+                        List<ParcelAuditDetailsDto> previousShipment = null;
                         while(shipmentIterator.hasNext()) {
                             Map.Entry<Long, List<ParcelAuditDetailsDto>> shpEntry = shipmentIterator.next();
                             if(shpEntry != null) {
                                 boolean frtFound = false;
-                                boolean shipDateSame = false;
-                                ParcelAuditDetailsDto currentFrtChargeTemp = null;
                                 List<ParcelAuditDetailsDto> shipmentDetails = shpEntry.getValue();
                                 for(ParcelAuditDetailsDto auditDetails : shipmentDetails) {
                                     if(auditDetails != null && "FRT".equalsIgnoreCase(auditDetails.getChargeClassificationCode())){
                                         frtFound = true;
-                                        currentFrtChargeTemp = auditDetails;
+                                        break;
                                     }
                                 }
 
+                                List<ParcelAuditDetailsDto> shipmentsWithPrevFrt = new ArrayList<>(shipmentDetails);
 
-                                if(previousShipment != null && !previousShipment.isEmpty()){
+                                if (!frtFound) {
+                                    if (previousShipment != null && !previousShipment.isEmpty()) {
 
-                                    ParcelAuditDetailsDto prevFrtChargeTemp = ParcelRatingUtil.getFirstFrightChargeForNonUpsCarrier(previousShipment);
+                                        ParcelAuditDetailsDto prevFrtCharge = ParcelRatingUtil.getFirstFrightChargeForNonUpsCarrier(previousShipment);
+                                        if (prevFrtCharge != null) {
+                                            shipmentsWithPrevFrt.add(prevFrtCharge);
 
-                                    if ((currentFrtChargeTemp != null && prevFrtChargeTemp != null) && (currentFrtChargeTemp.getPickupDate() != null && prevFrtChargeTemp.getPickupDate() != null)) {
-                                        if (currentFrtChargeTemp.getPickupDate().compareTo(prevFrtChargeTemp.getPickupDate()) == 0)
-                                            shipDateSame = true;
+                                        }
                                     }
-                                        List<ParcelAuditDetailsDto> shipmentsWithPrevFrt = new ArrayList<>(shipmentDetails);
+                                }
+                                if (pickUpDateShipmentDeatils != null && pickUpDateShipmentDeatils.size() > 0) {
 
-                                    for (ParcelAuditDetailsDto prevShpCharge : previousShipment) {
-                                        if (prevShpCharge != null) {
-                                            if (shipDateSame && ParcelAuditConstant.ChargeClassificationCode.ACS.name().equalsIgnoreCase(prevShpCharge.getChargeClassificationCode())) {
-                                                shipmentsWithPrevFrt.add(prevShpCharge);
-                                            }
+                                    for (ParcelAuditDetailsDto dto : pickUpDateShipmentDeatils) {
+                                        if (shipmentDetails.get(0).getParentId() > dto.getParentId()
+                                                && shipmentDetails.get(0).getPickupDate().compareTo(dto.getPickupDate()) == 0
+                                                && ParcelAuditConstant.ChargeClassificationCode.ACS.name().equalsIgnoreCase(dto.getChargeClassificationCode())) {
 
-                                            if (!frtFound && ParcelAuditConstant.ChargeClassificationCode.FRT.name().equalsIgnoreCase(prevShpCharge.getChargeClassificationCode())) {
-                                                shipmentsWithPrevFrt.add(prevShpCharge);
+                                            shipmentsWithPrevFrt.add(dto);
+
+
                                             }
                                         }
                                     }
-                                    addNonUpsShipmentEntryIntoQueue(shipmentsWithPrevFrt, ratingInputCriteriaBean, accessorialBeans);
-                                } else {
-                                    addNonUpsShipmentEntryIntoQueue(shipmentDetails, ratingInputCriteriaBean, accessorialBeans);
-                                }
+
+                                addNonUpsShipmentEntryIntoQueue(shipmentsWithPrevFrt, ratingInputCriteriaBean, accessorialBeans);
+
                                 previousShipment = new ArrayList<>(shipmentDetails);
                             }
                         }

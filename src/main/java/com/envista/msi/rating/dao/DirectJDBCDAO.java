@@ -1054,21 +1054,22 @@ public class DirectJDBCDAO {
         return beans;
     }
 
-    public List<RatedChargeDetailsDto> getRatedChargeAmountforNonUPS(Long parentId, String tracking_number) {
+    public List<RatedChargeDetailsDto> getRatedChargeAmountforNonUPS(Long parentId, String tracking_number, String pickUpDate) {
         Connection conn = null;
         CallableStatement cstmt = null;
         ResultSet rs = null;
         List<RatedChargeDetailsDto> ratedChargeDetailsDtoList = null;
         try {
             conn = ServiceLocator.getDatabaseConnection();
-            cstmt = conn.prepareCall("{ call SHP_GET_NON_UPS_RATED_AMT_PRO(?,?,?)}");
+            cstmt = conn.prepareCall("{ call SHP_GET_NON_UPS_RATED_AMT_PRO(?,?,?,?)}");
             cstmt.setLong(1, parentId);
             cstmt.setString(2, tracking_number);
-            cstmt.registerOutParameter(3, OracleTypes.CURSOR);
+            cstmt.setString(3, pickUpDate);
+            cstmt.registerOutParameter(4, OracleTypes.CURSOR);
             cstmt.execute();
 
             ratedChargeDetailsDtoList = new ArrayList<>();
-            rs = (ResultSet) cstmt.getObject(3);
+            rs = (ResultSet) cstmt.getObject(4);
             while (rs.next()) {
                 RatedChargeDetailsDto ratedChargeDetailsDto = new RatedChargeDetailsDto();
                 ratedChargeDetailsDto.setId(rs.getLong("ID"));
@@ -1117,6 +1118,7 @@ public class DirectJDBCDAO {
                 ratedChargeDetailsDtoList.add(ratedChargeDetailsDto);
             }
         } catch (SQLException sqle) {
+            sqle.printStackTrace();
             throw new RuntimeException("Exception in fetching rate details in getRatedChargeAmount -- > " + sqle.getStackTrace());
         } catch (ServiceLocatorException sle) {
             throw new RuntimeException("Exception in getting connection in getRatedChargeAmount -- > " + sle.getStackTrace());

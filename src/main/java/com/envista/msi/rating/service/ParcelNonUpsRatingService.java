@@ -264,9 +264,9 @@ public class ParcelNonUpsRatingService {
         BigDecimal ratedGrossFuel = ParcelRateResponseParser.getRatedGrossFuel(priceSheet);
 
         List<RatedChargeDetailsDto> ratedCharges = null;
-        if (prevShipmentDetails != null && !prevShipmentDetails.isEmpty()) {
-            ratedCharges = getRatedChargeAmountForNonUPS(prevShipmentDetails.get(0).getParentId(), prevShipmentDetails.get(0).getTrackingNumber());
-        }
+
+        ratedCharges = getRatedChargeAmountForNonUPS(parcelAuditDetails.get(0).getParentId(), parcelAuditDetails.get(0).getTrackingNumber(), parcelAuditDetails.get(0).getPickupDate().toString());
+
 
         for(ParcelAuditDetailsDto auditDetails : parcelAuditDetails){
             if(auditDetails != null && auditDetails.getChargeClassificationCode() != null && !auditDetails.getChargeClassificationCode().isEmpty()){
@@ -338,7 +338,7 @@ public class ParcelNonUpsRatingService {
                         BigDecimal prevRatedFscAmt = new BigDecimal("0");
                         BigDecimal fscAmount = new BigDecimal("0");
                         if (ratedCharges != null)
-                            prevRatedFscAmt = ParcelRatingUtil.findRtrAmountByChargeClassificationCode("FSC", ratedCharges, auditDetails.getId());
+                            prevRatedFscAmt = ParcelRatingUtil.findRtrAmountByChargeClassificationCodeAndChargeDescriptionCode(ParcelAuditConstant.ChargeClassificationCode.ACS.name(), "FSC", ratedCharges, auditDetails.getId());
                         fscAmount = charge.getAmount().subtract(prevRatedFscAmt);
                         rateDetails.setRtrAmount(fscAmount);
                         rateDetails.setRtrStatus(rtrStatus.value);
@@ -602,7 +602,7 @@ public class ParcelNonUpsRatingService {
         return new DirectJDBCDAO().getServiceFlagAcessorials(carrierId, moduleName);
     }
 
-    public List<RatedChargeDetailsDto> getRatedChargeAmountForNonUPS(Long parentId, String trackingNumber) {
-        return new DirectJDBCDAO().getRatedChargeAmountforNonUPS(parentId, trackingNumber);
+    public List<RatedChargeDetailsDto> getRatedChargeAmountForNonUPS(Long parentId, String trackingNumber, String pickUpDate) {
+        return new DirectJDBCDAO().getRatedChargeAmountforNonUPS(parentId, trackingNumber, pickUpDate);
     }
 }

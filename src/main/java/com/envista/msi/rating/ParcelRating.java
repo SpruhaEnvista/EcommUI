@@ -21,7 +21,7 @@ public class ParcelRating implements Callable<String> {
 
     private Log m_log = LogFactory.getLog(ParcelRating.class);
 
-    private static final int MAX_THREADS = 5;
+    private static final int MAX_THREADS = 1;
 
     private RatingQueueBean ratingQueueBean = null;
 
