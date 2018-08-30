@@ -36,6 +36,10 @@ public class ParcelRateRequestBuilder {
             ParcelRateRequest.Carrier carrier = new ParcelRateRequest.Carrier();
             carrier.setScac(ratingQueueBean.getScacCode());
             constraints.setCarrier(carrier);
+            if (ratingQueueBean.getReturnFlag() != null)
+                constraints.setReturnFlag(ratingQueueBean.getReturnFlag());
+            else
+                constraints.setReturnFlag("");
 
             constraints.setBillOption(ratingQueueBean.getBillOption());
             constraints.setCurrency(ratingQueueBean.getCurrencyCode());

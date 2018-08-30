@@ -75,6 +75,7 @@ public class RatingQueueBean {
     private String zone;
     private String senderBilledZipCode;
     private String receiverBilledZipCode;
+    private String returnFlag;
 
     public Long getRatingQueueId() {
         return ratingQueueId;
@@ -641,5 +642,13 @@ public class RatingQueueBean {
 
     public void setZone(String zone) {
         this.zone = zone;
+    }
+
+    public String getReturnFlag() {
+        return returnFlag;
+    }
+
+    public void setReturnFlag(String returnFlag) {
+        this.returnFlag = returnFlag;
     }
 }

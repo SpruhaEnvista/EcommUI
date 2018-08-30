@@ -475,8 +475,12 @@ public class ParcelRatingUtil {
 
         //StringJoiner accessorials = new StringJoiner(",");
         JSONArray accJsonArr = new JSONArray();
+        String returnFlag = "N";
         for (ParcelAuditDetailsDto auditDetails : shipmentDetails) {
             if (auditDetails != null) {
+                if (auditDetails.getChargeDescription() != null &&  (auditDetails.getChargeDescription().toUpperCase().startsWith("RETURN")))
+                    returnFlag = "Y";
+
                 if (auditDetails.getChargeClassificationCode() != null && ParcelAuditConstant.ChargeClassificationCode.ACS.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())
                         && !Arrays.asList(ParcelAuditConstant.ChargeDescriptionCode.FSC.name(), ParcelAuditConstant.ChargeDescriptionCode.DSC.name()).contains(auditDetails.getChargeDescriptionCode())) {
                     try {
@@ -525,7 +529,7 @@ public class ParcelRatingUtil {
         ratingQueueBean.setCustomerCode(firstCharge.getCustomerCode());
         ratingQueueBean.setRevenueTier(firstCharge.getRevenueTier());
         ratingQueueBean.setShipperNumber(firstCharge.getShipperNumber());
-
+        ratingQueueBean.setReturnFlag(returnFlag);
 
         ParcelAuditDetailsDto firstBaseCharge = ParcelRatingUtil.getFirstFrightChargeForNonUpsCarrier(shipmentDetails);
         if (firstBaseCharge != null) {
