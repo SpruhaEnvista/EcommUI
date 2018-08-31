@@ -1295,4 +1295,34 @@ public class ParcelRatingUtil {
 
         return zoneLast; // Just use last character, e.g. 102 -> 2
     }
+
+    /**
+     * @param shipmentDetails
+     * @param pickUpDateShipmentDetails
+     * @return
+     */
+    public static ParcelAuditDetailsDto getImmediateFrtInfo(List<ParcelAuditDetailsDto> shipmentDetails
+            , List<ParcelAuditDetailsDto> pickUpDateShipmentDetails) {
+
+        Map<Long, List<ParcelAuditDetailsDto>> listMap = organiseShipmentsByParentId(pickUpDateShipmentDetails);
+        ParcelAuditDetailsDto frtCharged = null;
+        Long frtParentId = null;
+        if (listMap != null) {
+            for (Map.Entry<Long, List<ParcelAuditDetailsDto>> entry : listMap.entrySet()) {
+
+                if (shipmentDetails.get(0).getParentId() > entry.getKey()
+                        && shipmentDetails.get(0).getPickupDate().compareTo(entry.getValue().get(0).getPickupDate()) == 0) {
+                    frtParentId = entry.getKey();
+                }
+
+            }
+            if (frtParentId != null) {
+                List<ParcelAuditDetailsDto> detailsDtos = listMap.get(frtParentId);
+
+                if (detailsDtos != null)
+                    frtCharged = ParcelRatingUtil.findFrtCharge(detailsDtos);
+            }
+        }
+        return frtCharged;
+    }
 }

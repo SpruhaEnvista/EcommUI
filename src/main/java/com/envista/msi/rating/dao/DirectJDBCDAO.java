@@ -15,11 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.CallableStatement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -1140,5 +1136,47 @@ public class DirectJDBCDAO {
             }
         }
         return ratedChargeDetailsDtoList;
+    }
+
+    public void updateRtrStatus(Long carrierId, String trackingNumber, String status, Date pickUpDate) {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        String sqlQuery = "";
+        if (carrierId == 21L) {
+            sqlQuery += " UPDATE SHP_EBILL_UPS_RATES_TB ur SET ur.RTR_STATUS = ?,trunc(Pickup_Date)=? WHERE ur.TRACKING_NUMBER = ? ";
+        } else if (carrierId == 22L) {
+            sqlQuery += " UPDATE SHP_EBILL_FDX_RATES_TB ur SET ur.RTR_STATUS = ?, trunc(Pickup_Date)=? WHERE ur.TRACKING_NUMBER = ? ";
+        }
+
+        try {
+            con = ServiceLocator.getDatabaseConnection();
+            pstmt = con.prepareStatement(sqlQuery);
+            con.setAutoCommit(false);
+
+            pstmt.setString(1, status);
+            pstmt.setString(2, trackingNumber);
+            pstmt.setDate(3, pickUpDate);
+            pstmt.executeUpdate();
+            con.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                con.rollback();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+            throw new DaoException("Exception in updateFedExOtherFieldValues", e);
+        } finally {
+            try {
+                if (pstmt != null)
+                    pstmt.close();
+            } catch (SQLException sqle) {
+            }
+            try {
+                if (con != null)
+                    con.close();
+            } catch (SQLException sqle) {
+            }
+        }
     }
 }

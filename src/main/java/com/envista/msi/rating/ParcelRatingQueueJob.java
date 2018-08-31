@@ -324,17 +324,16 @@ public class ParcelRatingQueueJob {
                 Map.Entry<String,List<ParcelAuditDetailsDto>> parcelAuditEntry = entryIterator.next();
                 if(parcelAuditEntry != null) {
                     String trackingNumber = parcelAuditEntry.getKey();
-                    List<ParcelAuditDetailsDto> pickUpDateShipmentDeatils = null;
+                    List<ParcelAuditDetailsDto> pickUpDateShipmentDetails = null;
                     if (trackingNumber != null && !trackingNumber.isEmpty()) {
                         ParcelAuditDetailsDto dto = parcelAuditEntry.getValue().get(0);
-                        pickUpDateShipmentDeatils = parcelRatingService.getFedExParcelShipmentDetails(ratingInputCriteriaBean.getCustomerId(), null, null, trackingNumber, null, true, false);
+                        pickUpDateShipmentDetails = parcelRatingService.getFedExParcelShipmentDetails(ratingInputCriteriaBean.getCustomerId(), null, null, trackingNumber, null, true, false);
                     }
                     List<ParcelAuditDetailsDto> shipmentRecords = parcelAuditEntry.getValue();
                     if(trackingNumber != null && !trackingNumber.isEmpty()){
                         Map<Long, List<ParcelAuditDetailsDto>> shipments = ParcelRatingUtil.organiseShipmentsByParentId(shipmentRecords);
                         Iterator<Map.Entry<Long, List<ParcelAuditDetailsDto>>> shipmentIterator = shipments.entrySet().iterator();
 
-                        List<ParcelAuditDetailsDto> previousShipment = null;
                         while(shipmentIterator.hasNext()) {
                             Map.Entry<Long, List<ParcelAuditDetailsDto>> shpEntry = shipmentIterator.next();
                             if(shpEntry != null) {
@@ -349,19 +348,18 @@ public class ParcelRatingQueueJob {
 
                                 List<ParcelAuditDetailsDto> shipmentsWithPrevFrt = new ArrayList<>(shipmentDetails);
 
-                                if (!frtFound) {
-                                    if (previousShipment != null && !previousShipment.isEmpty()) {
+                                if (pickUpDateShipmentDetails != null && pickUpDateShipmentDetails.size() > 0) {
 
-                                        ParcelAuditDetailsDto prevFrtCharge = ParcelRatingUtil.getFirstFrightChargeForNonUpsCarrier(previousShipment);
-                                        if (prevFrtCharge != null) {
-                                            shipmentsWithPrevFrt.add(prevFrtCharge);
-
+                                    if (!frtFound) {
+                                        ParcelAuditDetailsDto dto = ParcelRatingUtil.getImmediateFrtInfo(shipmentDetails, pickUpDateShipmentDetails);
+                                        if (dto != null) {
+                                            shipmentsWithPrevFrt.add(dto);
+                                            frtFound = true;
                                         }
                                     }
-                                }
-                                if (pickUpDateShipmentDeatils != null && pickUpDateShipmentDeatils.size() > 0) {
 
-                                    for (ParcelAuditDetailsDto dto : pickUpDateShipmentDeatils) {
+                                    for (ParcelAuditDetailsDto dto : pickUpDateShipmentDetails) {
+
                                         if (shipmentDetails.get(0).getParentId() > dto.getParentId()
                                                 && shipmentDetails.get(0).getPickupDate().compareTo(dto.getPickupDate()) == 0
                                                 && ParcelAuditConstant.ChargeClassificationCode.ACS.name().equalsIgnoreCase(dto.getChargeClassificationCode())) {
@@ -373,9 +371,14 @@ public class ParcelRatingQueueJob {
                                         }
                                     }
 
-                                addNonUpsShipmentEntryIntoQueue(shipmentsWithPrevFrt, ratingInputCriteriaBean, accessorialBeans);
+                                if (frtFound)
+                                    addNonUpsShipmentEntryIntoQueue(shipmentsWithPrevFrt, ratingInputCriteriaBean, accessorialBeans);
+                                else {
+                                    log.warn("FRT is not found for tracking #->" + shipmentDetails.get(0).getTrackingNumber() + " ebill manifest id->" + shipmentDetails.get(0).getParentId());
+                                    System.out.println("FRT is not found for tracking #->" + shipmentDetails.get(0).getTrackingNumber() + " ebill manifest id->" + shipmentDetails.get(0).getParentId());
 
-                                previousShipment = new ArrayList<>(shipmentDetails);
+                                }
+
                             }
                         }
                     }
