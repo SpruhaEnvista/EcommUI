@@ -478,7 +478,7 @@ public class ParcelRatingUtil {
         String returnFlag = "N";
         for (ParcelAuditDetailsDto auditDetails : shipmentDetails) {
             if (auditDetails != null) {
-                if (auditDetails.getChargeDescription() != null &&  (auditDetails.getChargeDescription().toUpperCase().startsWith("RETURN")))
+                if (auditDetails.getChargeDescription() != null && (auditDetails.getChargeDescription().toUpperCase().startsWith("RETURN")))
                     returnFlag = "Y";
 
                 if (auditDetails.getChargeClassificationCode() != null && ParcelAuditConstant.ChargeClassificationCode.ACS.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())

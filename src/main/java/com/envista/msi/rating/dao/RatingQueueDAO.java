@@ -233,8 +233,6 @@ public class RatingQueueDAO {
     }
 
 
-
-
     public void updateRateStatusInQueue(Long ratingQueueId, int statusValue, String queueIds) {
 
         Connection connection = null;

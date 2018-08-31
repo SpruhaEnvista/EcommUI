@@ -288,7 +288,7 @@ public class RatingDAOUtil {
                 ps.setString(60, queueBean.getSenderBilledZipCode());
             } else if("RECEIVER_BILLED_ZIP_CODE".equalsIgnoreCase(columnName)) {
                 ps.setString(61, queueBean.getReceiverBilledZipCode());
-            }else if("RETURN_FLAG".equalsIgnoreCase(columnName)) {
+            } else if ("RETURN_FLAG".equalsIgnoreCase(columnName)) {
                 ps.setString(62, queueBean.getReturnFlag());
             } else {
                 throw new RuntimeException("Column name not mapped");
