@@ -292,7 +292,7 @@ public class RatingDAOUtil {
             }else if("RETURN_FLAG".equalsIgnoreCase(columnName)) {
                 ps.setString(62, queueBean.getReturnFlag());
             } else if ("RESI_FLAG".equalsIgnoreCase(columnName)) {
-                ps.setString(62, queueBean.getReturnFlag());
+                ps.setString(63, queueBean.getResiFlag());
             } else {
                 throw new RuntimeException("Column name not mapped");
             }
