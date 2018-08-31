@@ -79,6 +79,7 @@ public class RatingDAOUtil {
         RATING_QUEUE_COLUMN_NAMES.add("ZONE");
         RATING_QUEUE_COLUMN_NAMES.add("SENDER_BILLED_ZIP_CODE");
         RATING_QUEUE_COLUMN_NAMES.add("RECEIVER_BILLED_ZIP_CODE");
+        RATING_QUEUE_COLUMN_NAMES.add("RETURN_FLAG");
     }
 
     public static String prepareRatingQueueInsertQuery(boolean isHwt) {
@@ -218,7 +219,7 @@ public class RatingDAOUtil {
             } else if("SHIPPER_ZIP".equalsIgnoreCase(columnName)) {
                 ps.setString(35, queueBean.getShipperZip());
             } else if("SHIPPER_COUNTRY".equalsIgnoreCase(columnName)) {
-                ps.setString(36, queueBean.getShipperLocationCode());
+                ps.setString(36, queueBean.getShipperCountry());
             } else if("RECEIVER_LOCATION_CODE".equalsIgnoreCase(columnName)) {
                 ps.setString(37, queueBean.getReceiverLocationCode());
             }  else if("RECEIVER_CITY".equalsIgnoreCase(columnName)) {
@@ -287,6 +288,8 @@ public class RatingDAOUtil {
                 ps.setString(60, queueBean.getSenderBilledZipCode());
             } else if("RECEIVER_BILLED_ZIP_CODE".equalsIgnoreCase(columnName)) {
                 ps.setString(61, queueBean.getReceiverBilledZipCode());
+            }else if("RETURN_FLAG".equalsIgnoreCase(columnName)) {
+                ps.setString(62, queueBean.getReturnFlag());
             } else {
                 throw new RuntimeException("Column name not mapped");
             }
