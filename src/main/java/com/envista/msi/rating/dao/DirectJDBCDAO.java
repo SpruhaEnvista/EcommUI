@@ -1143,9 +1143,9 @@ public class DirectJDBCDAO {
         PreparedStatement pstmt = null;
         String sqlQuery = "";
         if (carrierId == 21L) {
-            sqlQuery += " UPDATE SHP_EBILL_UPS_RATES_TB ur SET ur.RTR_STATUS = ?,trunc(Pickup_Date)=? WHERE ur.TRACKING_NUMBER = ? ";
+            sqlQuery += " UPDATE SHP_EBILL_UPS_RATES_TB ur SET ur.RTR_STATUS = ? WHERE ur.TRACKING_NUMBER = ? and ur.Pickup_Date=? ";
         } else if (carrierId == 22L) {
-            sqlQuery += " UPDATE SHP_EBILL_FDX_RATES_TB ur SET ur.RTR_STATUS = ?, trunc(Pickup_Date)=? WHERE ur.TRACKING_NUMBER = ? ";
+            sqlQuery += " UPDATE SHP_EBILL_FDX_RATES_TB ur SET ur.RTR_STATUS = ? WHERE ur.TRACKING_NUMBER = ? and ur.Pickup_Date=? ";
         }
 
         try {
@@ -1156,6 +1156,7 @@ public class DirectJDBCDAO {
             pstmt.setString(1, status);
             pstmt.setString(2, trackingNumber);
             pstmt.setDate(3, pickUpDate);
+
             pstmt.executeUpdate();
             con.commit();
         } catch (Exception e) {
