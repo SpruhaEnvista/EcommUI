@@ -263,9 +263,7 @@ public class ParcelNonUpsRatingService {
         BigDecimal fuelTablePerc = ParcelRateResponseParser.getFuelTablePercentage(priceSheet);
         BigDecimal ratedGrossFuel = ParcelRateResponseParser.getRatedGrossFuel(priceSheet);
 
-        List<RatedChargeDetailsDto> ratedCharges = null;
-
-        ratedCharges = getRatedChargeAmountForNonUPS(parcelAuditDetails.get(0).getParentId(), parcelAuditDetails.get(0).getTrackingNumber(), parcelAuditDetails.get(0).getPickupDate().toString());
+        List<RatedChargeDetailsDto> ratedCharges = getRatedChargeAmountForNonUPS(parcelAuditDetails.get(0).getParentId(), parcelAuditDetails.get(0).getTrackingNumber(), parcelAuditDetails.get(0).getPickupDate().toString());
 
 
         for(ParcelAuditDetailsDto auditDetails : parcelAuditDetails){
@@ -273,9 +271,8 @@ public class ParcelNonUpsRatingService {
                 ParcelRateResponse.Charge charge = null;
                 if(!frtChargeFound && ParcelAuditConstant.ChargeClassificationCode.FRT.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())
                         && auditDetails.getNetAmount() != null && !auditDetails.getNetAmount().trim().isEmpty()){
-                    double netAmount = Double.parseDouble(auditDetails.getNetAmount());
-                    if(netAmount > 0){
-                        charge = ParcelRateResponseParser.findChargeByType(ParcelRateResponse.ChargeType.ITEM.name(), priceSheet);
+
+                    charge = ParcelRateResponseParser.findChargeByType(ParcelRateResponse.ChargeType.ITEM.name(), priceSheet);
                         if(charge != null){
                             frtChargeFound = true;
 
@@ -320,7 +317,7 @@ public class ParcelNonUpsRatingService {
                             rateDetails.setFlagged(flagged);
                             directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                         }
-                    }
+
                 } else if (ParcelAuditConstant.ChargeClassificationCode.ACS.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())
                         && ParcelAuditConstant.ChargeDescriptionCode.FSC.name().equalsIgnoreCase(auditDetails.getChargeDescriptionCode())) {
                     charge = ParcelRateResponseParser.findChargeByType(ParcelRateResponse.ChargeType.ACCESSORIAL_FUEL.name(), priceSheet);
