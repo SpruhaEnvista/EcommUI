@@ -15,7 +15,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
-import java.sql.*;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -1050,6 +1055,14 @@ public class DirectJDBCDAO {
         return beans;
     }
 
+    /**
+     * This method returns fedex rates information for that parent id.
+     *
+     * @param parentId
+     * @param tracking_number
+     * @param pickUpDate
+     * @return
+     */
     public List<RatedChargeDetailsDto> getRatedChargeAmountforNonUPS(Long parentId, String tracking_number, String pickUpDate) {
         Connection conn = null;
         CallableStatement cstmt = null;
