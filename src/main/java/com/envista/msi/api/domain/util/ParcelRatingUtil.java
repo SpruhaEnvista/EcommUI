@@ -286,6 +286,7 @@ public class ParcelRatingUtil {
         ratingQueueBean.setSenderBilledZipCode(firstCharge.getSenderBilledZipCode());
         ratingQueueBean.setReceiverBilledZipCode(firstCharge.getReceiverBilledZipCode());
         boolean hasRJ5Charge = false;
+        String resiFlag = "N";
         if (shipmentDetails != null && !shipmentDetails.isEmpty()) {
             for (ParcelAuditDetailsDto auditDetails : shipmentDetails) {
                 if (auditDetails != null && auditDetails.getPackageDimension() != null && !auditDetails.getPackageDimension().isEmpty()) {
@@ -324,6 +325,18 @@ public class ParcelRatingUtil {
                 for (ParcelAuditDetailsDto auditDetails : shipmentDetails) {
                     if (auditDetails != null) {
                         try {
+
+                            String[] dwFieldInfo = auditDetails.getDwFieldInformation().split(",");
+                            if (dwFieldInfo != null && dwFieldInfo.length > 0) {
+
+                                if (ParcelAuditConstant.ChargeClassificationCode.ACS.name().equalsIgnoreCase(dwFieldInfo[1].trim())
+                                        && "RES".equalsIgnoreCase(dwFieldInfo[2].trim())) {
+                                    resiFlag = "Y";
+                                }
+
+                            }
+
+
                             if (auditDetails.getChargeClassificationCode() != null
                                     && ParcelAuditConstant.ChargeClassificationCode.ACC.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())) {
                                 if (auditDetails.getChargeDescriptionCode() != null && !auditDetails.getChargeDescriptionCode().isEmpty()
@@ -444,6 +457,7 @@ public class ParcelRatingUtil {
                 ratingQueueBean.setReceiverZip(receiverZipCode);
                 ratingQueueBean.setHwtIdentifier(firstCharge.getMultiWeightNumber());
                 ratingQueueBean.setRateSetName(rateSet);
+                ratingQueueBean.setResiFlag(resiFlag);
             }
         }
         return ratingQueueBean;
@@ -476,6 +490,7 @@ public class ParcelRatingUtil {
         //StringJoiner accessorials = new StringJoiner(",");
         JSONArray accJsonArr = new JSONArray();
         String returnFlag = "N";
+        String resiFlag = "N";
         for (ParcelAuditDetailsDto auditDetails : shipmentDetails) {
             if (auditDetails != null) {
                 if (auditDetails.getChargeDescription() != null &&  (auditDetails.getChargeDescription().toUpperCase().startsWith("RETURN")))
@@ -484,6 +499,10 @@ public class ParcelRatingUtil {
                 if (auditDetails.getChargeClassificationCode() != null && ParcelAuditConstant.ChargeClassificationCode.ACS.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())
                         && !Arrays.asList(ParcelAuditConstant.ChargeDescriptionCode.FSC.name(), ParcelAuditConstant.ChargeDescriptionCode.DSC.name()).contains(auditDetails.getChargeDescriptionCode())) {
                     try {
+
+                        if ("RES".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()))
+                            resiFlag = "Y";
+
                         JSONObject accJson = new JSONObject();
                         accJson.put("netAmount", auditDetails.getNetAmount() != null ? auditDetails.getNetAmount().toString() : "0.00");
                         accJson.put("weight", auditDetails.getPackageWeight() != null ? auditDetails.getPackageWeight().toString() : "0.00");
@@ -530,6 +549,7 @@ public class ParcelRatingUtil {
         ratingQueueBean.setRevenueTier(firstCharge.getRevenueTier());
         ratingQueueBean.setShipperNumber(firstCharge.getShipperNumber());
         ratingQueueBean.setReturnFlag(returnFlag);
+        ratingQueueBean.setResiFlag(resiFlag);
 
         ParcelAuditDetailsDto firstBaseCharge = ParcelRatingUtil.getFirstFrightChargeForNonUpsCarrier(shipmentDetails);
         if (firstBaseCharge != null) {
