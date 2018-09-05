@@ -197,7 +197,7 @@ public class DirectJDBCDAO {
         CallableStatement cstmt = null;
         try{
             conn = ServiceLocator.getDatabaseConnection();
-            cstmt = conn.prepareCall("{ call SHP_SAVE_RATE_DETAILS_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
+            cstmt = conn.prepareCall("{ call SHP_SAVE_RATE_DETAILS_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
             cstmt.setString(1,referenceTableName);
             cstmt.setString(2, entityId);
             cstmt.setString(3,userName);
@@ -221,9 +221,12 @@ public class DirectJDBCDAO {
             cstmt.setString(21, rateDetails != null && rateDetails.getRateSetName() != null ? rateDetails.getRateSetName() : null);
             cstmt.setString(22, rateDetails != null && rateDetails.getFlagged() != null ? rateDetails.getFlagged() : null);
             cstmt.setString(23, rateDetails != null && rateDetails.getZone() != null ? rateDetails.getZone() : null);
+            cstmt.setBigDecimal(24, rateDetails != null && rateDetails.getFscRtrAmt() != null ? rateDetails.getFscRtrAmt() : new BigDecimal("0"));
+
             cstmt.executeUpdate();
 
-        }catch (SQLException sqle) {;
+        } catch (SQLException sqle) {
+            sqle.printStackTrace();
             throw new DaoException("Exception in updateShipmentRateDetails", sqle);
         }  catch (ServiceLocatorException sle) {
             throw new DaoException("Exception in updateShipmentRateDetails", sle);
@@ -258,6 +261,7 @@ public class DirectJDBCDAO {
             cstmt.setString(10, rateDetails != null && rateDetails.getZone() != null ? rateDetails.getZone() : null);
             cstmt.executeUpdate();
         }catch (SQLException sqle) {
+            sqle.printStackTrace();
             throw new DaoException("Exception in updateOtherDiscountShipmentRateDetails", sqle);
         }  catch (ServiceLocatorException sle) {
             throw new DaoException("Exception in updateOtherDiscountShipmentRateDetails", sle);

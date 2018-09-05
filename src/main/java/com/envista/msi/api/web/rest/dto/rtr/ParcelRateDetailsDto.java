@@ -133,6 +133,9 @@ public class ParcelRateDetailsDto implements Serializable {
     @Column(name = "ZONE")
     private String zone;
 
+    @Column(name = "FSC_RTR_AMT")
+    private BigDecimal fscRtrAmt;
+
     @Transient
     private String flagged;
 
@@ -439,5 +442,13 @@ public class ParcelRateDetailsDto implements Serializable {
 
     public void setFlagged(String flagged) {
         this.flagged = flagged;
+    }
+
+    public BigDecimal getFscRtrAmt() {
+        return fscRtrAmt;
+    }
+
+    public void setFscRtrAmt(BigDecimal fscRtrAmt) {
+        this.fscRtrAmt = fscRtrAmt;
     }
 }
