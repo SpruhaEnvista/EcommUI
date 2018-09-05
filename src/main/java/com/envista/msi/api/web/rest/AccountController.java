@@ -5,6 +5,7 @@ import java.util.*;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
+import com.envista.msi.api.web.rest.dto.TogglesDto;
 import com.envista.msi.api.web.rest.dto.UserDetailsDto;
 import com.envista.msi.api.web.rest.dto.i18n.InternationalizationDto;
 import com.envista.msi.api.web.rest.response.CommonResponse;
@@ -86,6 +87,14 @@ public class AccountController {
 			
 		return new ResponseEntity<UserProfileDto>(new UserProfileDto(), HttpStatus.UNAUTHORIZED);
 	}
+
+	@RequestMapping(value = "/user/toggles", method = { RequestMethod.GET, RequestMethod.POST,
+			RequestMethod.OPTIONS }, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<List<TogglesDto>> getTogglesList() {
+		List<TogglesDto> togglesList = userService.getTogglesList();
+		return new ResponseEntity<List<TogglesDto>>(togglesList, HttpStatus.OK);
+	}
+
 	@RequestMapping(value = "/user/validatepassword", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
 	public ResponseEntity<Map<String, Object>> validatePassword(@RequestParam String password, @RequestParam String userId){
 		Map<String, Object> respMap = new HashMap<String, Object>();
