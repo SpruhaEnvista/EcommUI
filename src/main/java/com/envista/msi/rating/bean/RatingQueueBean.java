@@ -77,6 +77,8 @@ public class RatingQueueBean {
     private String receiverBilledZipCode;
     private String returnFlag;
     private String resiFlag;
+    private String WorldeEaseNum;
+    private String comToRes;
 
     public Long getRatingQueueId() {
         return ratingQueueId;
@@ -659,5 +661,21 @@ public class RatingQueueBean {
 
     public void setResiFlag(String resiFlag) {
         this.resiFlag = resiFlag;
+    }
+
+    public String getWorldeEaseNum() {
+        return WorldeEaseNum;
+    }
+
+    public void setWorldeEaseNum(String worldeEaseNum) {
+        WorldeEaseNum = worldeEaseNum;
+    }
+
+    public String getComToRes() {
+        return comToRes;
+    }
+
+    public void setComToRes(String comToRes) {
+        this.comToRes = comToRes;
     }
 }

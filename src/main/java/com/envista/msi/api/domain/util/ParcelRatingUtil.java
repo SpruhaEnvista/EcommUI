@@ -275,7 +275,7 @@ public class ParcelRatingUtil {
         return null;
     }
 
-    public static RatingQueueBean prepareShipmentEntryForUpsShipment(List<ParcelAuditDetailsDto> shipmentDetails, String rateSet, List<ServiceFlagAccessorialBean> accessorialBeans) {
+    public static RatingQueueBean prepareShipmentEntryForUpsShipment(List<ParcelAuditDetailsDto> shipmentDetails, String rateSet, List<ServiceFlagAccessorialBean> accessorialBeans, List<ParcelAuditDetailsDto> trackingNumDetails) {
         RatingQueueBean ratingQueueBean = new RatingQueueBean();
         ParcelAuditDetailsDto firstCharge = shipmentDetails.get(0);
 
@@ -285,9 +285,25 @@ public class ParcelRatingUtil {
         ratingQueueBean.setCarrierId(firstCharge.getCarrierId());
         ratingQueueBean.setSenderBilledZipCode(firstCharge.getSenderBilledZipCode());
         ratingQueueBean.setReceiverBilledZipCode(firstCharge.getReceiverBilledZipCode());
+        ratingQueueBean.setWorldeEaseNum("N");
+        ratingQueueBean.setComToRes("");
         boolean hasRJ5Charge = false;
-        String resiFlag = null;
-        String commFlag = null;
+        String resiFlag = "N";
+
+        if (trackingNumDetails != null && trackingNumDetails.size() > 0) {
+
+            for (ParcelAuditDetailsDto auditDetails : shipmentDetails) {
+
+                if (auditDetails.getActualchargeDescriptionCode() != null && !"N".equalsIgnoreCase(ratingQueueBean.getComToRes())) {
+                    if ("RES".equalsIgnoreCase(auditDetails.getActualchargeDescriptionCode()))
+                        ratingQueueBean.setComToRes("Y");
+                    if ("COM".equalsIgnoreCase(auditDetails.getActualchargeDescriptionCode()))
+                        ratingQueueBean.setComToRes("N");
+                }
+
+            }
+        }
+
 
         if (shipmentDetails != null && !shipmentDetails.isEmpty()) {
             for (ParcelAuditDetailsDto auditDetails : shipmentDetails) {
@@ -327,6 +343,8 @@ public class ParcelRatingUtil {
                 for (ParcelAuditDetailsDto auditDetails : shipmentDetails) {
                     if (auditDetails != null) {
                         try {
+                            if (auditDetails.getWorldeEaseNum() != null && auditDetails.getWorldeEaseNum().isEmpty())
+                                ratingQueueBean.setWorldeEaseNum("Y");
 
                             String[] dwFieldInfo = auditDetails.getDwFieldInformation().split(",");
                             if (dwFieldInfo != null && dwFieldInfo.length > 0) {
@@ -334,10 +352,6 @@ public class ParcelRatingUtil {
                                 if (ParcelAuditConstant.ChargeClassificationCode.ACS.name().equalsIgnoreCase(dwFieldInfo[1].trim())
                                         && "RES".equalsIgnoreCase(dwFieldInfo[2].trim())) {
                                     resiFlag = "Y";
-                                }
-                                if (ParcelAuditConstant.ChargeClassificationCode.ACS.name().equalsIgnoreCase(dwFieldInfo[1].trim())
-                                        && "COMMERCIAL".startsWith(auditDetails.getChargeDescription().toUpperCase())) {
-                                    commFlag = "Y";
                                 }
 
                             }
@@ -463,19 +477,13 @@ public class ParcelRatingUtil {
                 ratingQueueBean.setReceiverZip(receiverZipCode);
                 ratingQueueBean.setHwtIdentifier(firstCharge.getMultiWeightNumber());
                 ratingQueueBean.setRateSetName(rateSet);
-
-                if (resiFlag == null && commFlag == null)
-                    resiFlag = "";
-                else if (resiFlag == null && "Y".equalsIgnoreCase(commFlag))
-                    resiFlag = "N";
-
                 ratingQueueBean.setResiFlag(resiFlag);
             }
         }
         return ratingQueueBean;
     }
 
-    public static RatingQueueBean prepareShipmentEntryForNonUpsShipment(List<ParcelAuditDetailsDto> shipmentDetails, String rateSet, List<ServiceFlagAccessorialBean> accessorialBeans, List<ParcelAuditDetailsDto> pickUpDateShipmentDetails) {
+    public static RatingQueueBean prepareShipmentEntryForNonUpsShipment(List<ParcelAuditDetailsDto> shipmentDetails, String rateSet, List<ServiceFlagAccessorialBean> accessorialBeans) {
         RatingQueueBean ratingQueueBean = new RatingQueueBean();
         ParcelAuditDetailsDto firstCharge = shipmentDetails.get(0);
 
@@ -502,21 +510,7 @@ public class ParcelRatingUtil {
         //StringJoiner accessorials = new StringJoiner(",");
         JSONArray accJsonArr = new JSONArray();
         String returnFlag = "N";
-        String resiFlag = null;
-        String commFlag = null;
-
-        for (ParcelAuditDetailsDto auditDetails : pickUpDateShipmentDetails) {
-
-            if (auditDetails.getChargeClassificationCode() != null && ParcelAuditConstant.ChargeClassificationCode.ACS.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())
-                    && !Arrays.asList(ParcelAuditConstant.ChargeDescriptionCode.FSC.name(), ParcelAuditConstant.ChargeDescriptionCode.DSC.name()).contains(auditDetails.getChargeDescriptionCode())) {
-
-                if ("RES".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()))
-                    commFlag = "N";
-                else if ("COMMERCIAL".startsWith(auditDetails.getChargeDescription().toUpperCase()))
-                    commFlag = "Y";
-
-            }
-        }
+        String resiFlag = "N";
 
         for (ParcelAuditDetailsDto auditDetails : shipmentDetails) {
             if (auditDetails != null) {
@@ -576,11 +570,6 @@ public class ParcelRatingUtil {
         ratingQueueBean.setRevenueTier(firstCharge.getRevenueTier());
         ratingQueueBean.setShipperNumber(firstCharge.getShipperNumber());
         ratingQueueBean.setReturnFlag(returnFlag);
-        if (resiFlag == null && commFlag == null)
-            resiFlag = "";
-        else if (resiFlag == null && "Y".equalsIgnoreCase(commFlag))
-            resiFlag = "N";
-
         ratingQueueBean.setResiFlag(resiFlag);
 
         ParcelAuditDetailsDto firstBaseCharge = ParcelRatingUtil.getFirstFrightChargeForNonUpsCarrier(shipmentDetails);

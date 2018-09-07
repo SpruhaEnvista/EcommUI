@@ -81,6 +81,8 @@ public class RatingDAOUtil {
         RATING_QUEUE_COLUMN_NAMES.add("RECEIVER_BILLED_ZIP_CODE");
         RATING_QUEUE_COLUMN_NAMES.add("RETURN_FLAG");
         RATING_QUEUE_COLUMN_NAMES.add("RESI_FLAG");
+        RATING_QUEUE_COLUMN_NAMES.add("WORLD_EASE_NUM");
+        RATING_QUEUE_COLUMN_NAMES.add("COM_TO_RES");
     }
 
     public static String prepareRatingQueueInsertQuery(boolean isHwt) {
@@ -293,6 +295,10 @@ public class RatingDAOUtil {
                 ps.setString(62, queueBean.getReturnFlag());
             } else if ("RESI_FLAG".equalsIgnoreCase(columnName)) {
                 ps.setString(63, queueBean.getResiFlag());
+            } else if ("WORLD_EASE_NUM".equalsIgnoreCase(columnName)) {
+                ps.setString(64, queueBean.getWorldeEaseNum());
+            } else if ("COM_TO_RES".equalsIgnoreCase(columnName)) {
+                ps.setString(64, queueBean.getComToRes());
             } else {
                 throw new RuntimeException("Column name not mapped");
             }

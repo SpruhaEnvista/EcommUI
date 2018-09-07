@@ -270,6 +270,12 @@ public class ParcelRateRequest implements Serializable {
         @XmlElement(name = "Residential")
         private String resiFlag = "";
 
+        @XmlElement(name = "WorldEaseNumber")
+        private String worldEaseNum = "";
+
+        @XmlElement(name = "ComToRes")
+        private String comToRes = "";
+
         public Contract getContract() {
             return contract;
         }
@@ -363,6 +369,22 @@ public class ParcelRateRequest implements Serializable {
 
         public void setResiFlag(String resiFlag) {
             this.resiFlag = resiFlag;
+        }
+
+        public String getWorldEaseNum() {
+            return worldEaseNum;
+        }
+
+        public void setWorldEaseNum(String worldEaseNum) {
+            this.worldEaseNum = worldEaseNum;
+        }
+
+        public String getComToRes() {
+            return comToRes;
+        }
+
+        public void setComToRes(String comToRes) {
+            this.comToRes = comToRes;
         }
     }
 

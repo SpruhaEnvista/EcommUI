@@ -46,6 +46,16 @@ public class ParcelRateRequestBuilder {
             else
                 constraints.setResiFlag("");
 
+            if (ratingQueueBean.getWorldeEaseNum() != null)
+                constraints.setWorldEaseNum(ratingQueueBean.getWorldeEaseNum());
+            else
+                constraints.setWorldEaseNum("");
+
+            if (ratingQueueBean.getComToRes() != null)
+                constraints.setComToRes(ratingQueueBean.getComToRes());
+            else
+                constraints.setComToRes("");
+
             constraints.setBillOption(ratingQueueBean.getBillOption());
             constraints.setCurrency(ratingQueueBean.getCurrencyCode());
             constraints.setMode(mode);
