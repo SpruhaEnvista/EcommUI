@@ -294,10 +294,10 @@ public class ParcelRatingUtil {
 
             for (ParcelAuditDetailsDto auditDetails : shipmentDetails) {
 
-                if (auditDetails.getActualchargeDescriptionCode() != null && !"N".equalsIgnoreCase(ratingQueueBean.getComToRes())) {
-                    if ("RES".equalsIgnoreCase(auditDetails.getActualchargeDescriptionCode()))
+                if (auditDetails.getChargeDescriptionCode() != null && !"N".equalsIgnoreCase(ratingQueueBean.getComToRes())) {
+                    if ("RES".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()))
                         ratingQueueBean.setComToRes("Y");
-                    if ("COM".equalsIgnoreCase(auditDetails.getActualchargeDescriptionCode()))
+                    if ("COM".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()))
                         ratingQueueBean.setComToRes("N");
                 }
 
