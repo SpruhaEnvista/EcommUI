@@ -298,7 +298,7 @@ public class RatingDAOUtil {
             } else if ("WORLD_EASE_NUM".equalsIgnoreCase(columnName)) {
                 ps.setString(64, queueBean.getWorldeEaseNum());
             } else if ("COM_TO_RES".equalsIgnoreCase(columnName)) {
-                ps.setString(64, queueBean.getComToRes());
+                ps.setString(65, queueBean.getComToRes());
             } else {
                 throw new RuntimeException("Column name not mapped");
             }
