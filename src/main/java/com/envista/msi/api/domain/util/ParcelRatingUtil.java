@@ -493,6 +493,7 @@ public class ParcelRatingUtil {
         ratingQueueBean.setCarrierId(firstCharge.getCarrierId());
         ratingQueueBean.setSenderBilledZipCode(firstCharge.getSenderBilledZipCode());
         ratingQueueBean.setReceiverBilledZipCode(firstCharge.getReceiverBilledZipCode());
+        ratingQueueBean.setPrpFlag("N");
 
         String billOption = (null == firstCharge.getBillOption() ? "" : firstCharge.getBillOption());
         if (billOption.equalsIgnoreCase("Prepaid") || billOption.equals("1") || billOption.equalsIgnoreCase("Outbound")) {
@@ -516,6 +517,9 @@ public class ParcelRatingUtil {
             if (auditDetails != null) {
                 if (auditDetails.getChargeDescription() != null && (auditDetails.getChargeDescription().toUpperCase().startsWith("RETURN")))
                     returnFlag = "Y";
+                if (auditDetails.getChargeDescription() != null && (auditDetails.getChargeDescription().toUpperCase().endsWith("-PRP")
+                        && "RETURN EMAIL LABEL".equalsIgnoreCase(auditDetails.getChargeDescription().toUpperCase())))
+                    ratingQueueBean.setPrpFlag("Y");
 
                 if (auditDetails.getChargeClassificationCode() != null && ParcelAuditConstant.ChargeClassificationCode.ACS.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())
                         && !Arrays.asList(ParcelAuditConstant.ChargeDescriptionCode.FSC.name(), ParcelAuditConstant.ChargeDescriptionCode.DSC.name()).contains(auditDetails.getChargeDescriptionCode())) {

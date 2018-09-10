@@ -56,6 +56,11 @@ public class ParcelRateRequestBuilder {
             else
                 constraints.setComToRes("");
 
+            if (ratingQueueBean.getPrpFlag() != null)
+                constraints.setPrpFlag(ratingQueueBean.getPrpFlag());
+            else
+                constraints.setComToRes("");
+
             constraints.setBillOption(ratingQueueBean.getBillOption());
             constraints.setCurrency(ratingQueueBean.getCurrencyCode());
             constraints.setMode(mode);

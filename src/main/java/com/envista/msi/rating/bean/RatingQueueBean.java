@@ -79,6 +79,7 @@ public class RatingQueueBean {
     private String resiFlag;
     private String WorldeEaseNum;
     private String comToRes;
+    private String prpFlag;
 
     public Long getRatingQueueId() {
         return ratingQueueId;
@@ -677,5 +678,13 @@ public class RatingQueueBean {
 
     public void setComToRes(String comToRes) {
         this.comToRes = comToRes;
+    }
+
+    public String getPrpFlag() {
+        return prpFlag;
+    }
+
+    public void setPrpFlag(String prpFlag) {
+        this.prpFlag = prpFlag;
     }
 }
