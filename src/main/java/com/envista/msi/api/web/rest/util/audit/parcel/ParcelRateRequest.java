@@ -267,6 +267,9 @@ public class ParcelRateRequest implements Serializable {
         @XmlElement(name = "Return")
         private String returnFlag = "";
 
+        @XmlElement(name = "Residential")
+        private String resiFlag = "";
+
         public Contract getContract() {
             return contract;
         }
@@ -352,6 +355,14 @@ public class ParcelRateRequest implements Serializable {
 
         public void setReturnFlag(String returnFlag) {
             this.returnFlag = returnFlag;
+        }
+
+        public String getResiFlag() {
+            return resiFlag;
+        }
+
+        public void setResiFlag(String resiFlag) {
+            this.resiFlag = resiFlag;
         }
     }
 
