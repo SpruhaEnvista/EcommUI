@@ -343,7 +343,7 @@ public class ParcelRatingUtil {
                 for (ParcelAuditDetailsDto auditDetails : shipmentDetails) {
                     if (auditDetails != null) {
                         try {
-                            if (auditDetails.getWorldeEaseNum() != null && auditDetails.getWorldeEaseNum().isEmpty())
+                            if (auditDetails.getWorldeEaseNum() != null && !auditDetails.getWorldeEaseNum().isEmpty())
                                 ratingQueueBean.setWorldeEaseNum("Y");
 
                             String[] dwFieldInfo = auditDetails.getDwFieldInformation().split(",");
