@@ -329,7 +329,9 @@ public class ParcelNonUpsRatingService {
 
                                 charge = ParcelRateResponseParser.findChargeByType(ParcelRateResponse.ChargeType.ACCESSORIAL_FUEL.name(), priceSheet);
 
-                                rateDetails.setFscRtrAmt(charge.getAmount());
+                                if (charge != null)
+                                    rateDetails.setFscRtrAmt(charge.getAmount());
+
                                 rateDetails.setRatedFuelSurchargeDiscount(ParcelRateResponseParser.getRatedSurchargeDiscount(priceSheet));
                                 rateDetails.setRatedCustomFuelSurchargeDiscount(ParcelRateResponseParser.getRatedCustomSurchargeDiscount(priceSheet));
                                 rateDetails.setRatedGrossFuel(ratedGrossFuel);
