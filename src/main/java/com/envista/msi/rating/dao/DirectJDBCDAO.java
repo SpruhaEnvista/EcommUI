@@ -15,11 +15,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
+import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.CallableStatement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -196,7 +197,7 @@ public class DirectJDBCDAO {
         CallableStatement cstmt = null;
         try{
             conn = ServiceLocator.getDatabaseConnection();
-            cstmt = conn.prepareCall("{ call SHP_SAVE_RATE_DETAILS_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
+            cstmt = conn.prepareCall("{ call SHP_SAVE_RATE_DETAILS_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
             cstmt.setString(1,referenceTableName);
             cstmt.setString(2, entityId);
             cstmt.setString(3,userName);
@@ -220,9 +221,12 @@ public class DirectJDBCDAO {
             cstmt.setString(21, rateDetails != null && rateDetails.getRateSetName() != null ? rateDetails.getRateSetName() : null);
             cstmt.setString(22, rateDetails != null && rateDetails.getFlagged() != null ? rateDetails.getFlagged() : null);
             cstmt.setString(23, rateDetails != null && rateDetails.getZone() != null ? rateDetails.getZone() : null);
+            cstmt.setBigDecimal(24, rateDetails != null && rateDetails.getFscRtrAmt() != null ? rateDetails.getFscRtrAmt() : new BigDecimal("0"));
+
             cstmt.executeUpdate();
 
-        }catch (SQLException sqle) {;
+        } catch (SQLException sqle) {
+            sqle.printStackTrace();
             throw new DaoException("Exception in updateShipmentRateDetails", sqle);
         }  catch (ServiceLocatorException sle) {
             throw new DaoException("Exception in updateShipmentRateDetails", sle);
@@ -257,6 +261,7 @@ public class DirectJDBCDAO {
             cstmt.setString(10, rateDetails != null && rateDetails.getZone() != null ? rateDetails.getZone() : null);
             cstmt.executeUpdate();
         }catch (SQLException sqle) {
+            sqle.printStackTrace();
             throw new DaoException("Exception in updateOtherDiscountShipmentRateDetails", sqle);
         }  catch (ServiceLocatorException sle) {
             throw new DaoException("Exception in updateOtherDiscountShipmentRateDetails", sle);
@@ -1054,5 +1059,142 @@ public class DirectJDBCDAO {
         return beans;
     }
 
+    /**
+     * This method returns fedex rates information for that parent id.
+     *
+     * @param parentId
+     * @param tracking_number
+     * @param pickUpDate
+     * @return
+     */
+    public List<RatedChargeDetailsDto> getRatedChargeAmountforNonUPS(Long parentId, String tracking_number, String pickUpDate) {
+        Connection conn = null;
+        CallableStatement cstmt = null;
+        ResultSet rs = null;
+        List<RatedChargeDetailsDto> ratedChargeDetailsDtoList = null;
+        try {
+            conn = ServiceLocator.getDatabaseConnection();
+            cstmt = conn.prepareCall("{ call SHP_GET_NON_UPS_RATED_AMT_PRO(?,?,?,?)}");
+            cstmt.setLong(1, parentId);
+            cstmt.setString(2, tracking_number);
+            cstmt.setString(3, pickUpDate);
+            cstmt.registerOutParameter(4, OracleTypes.CURSOR);
+            cstmt.execute();
 
+            ratedChargeDetailsDtoList = new ArrayList<>();
+            rs = (ResultSet) cstmt.getObject(4);
+            while (rs.next()) {
+                RatedChargeDetailsDto ratedChargeDetailsDto = new RatedChargeDetailsDto();
+                ratedChargeDetailsDto.setId(rs.getLong("ID"));
+                ratedChargeDetailsDto.setChargeClassificationCode(rs.getString("charge_classification_code"));
+                if (ratedChargeDetailsDto.getChargeClassificationCode() != null) {
+                    try {
+                        String[] dwFieldInfo = ratedChargeDetailsDto.getChargeClassificationCode().split(",");
+                        if (dwFieldInfo != null && dwFieldInfo.length > 0) {
+                            ratedChargeDetailsDto.setChargeClassificationCode(dwFieldInfo[1].trim());
+                            ratedChargeDetailsDto.setChargeDescriptionCode(dwFieldInfo[2].trim());
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                //ratedChargeDetailsDto.setChargeDescriptionCode(rs.getString("charge_description_code"));
+                ratedChargeDetailsDto.setBilledAmount(rs.getBigDecimal("net_amount"));
+                ratedChargeDetailsDto.setRatedAmount(rs.getBigDecimal("rtr_amount"));
+                ratedChargeDetailsDto.setDimDivisor(rs.getBigDecimal("DIM_DIVISOR"));
+                ratedChargeDetailsDto.setShipperCategory(rs.getString("SHIPPER_CATEGORY"));
+                ratedChargeDetailsDto.setRatedWeight(rs.getBigDecimal("RATED_WEIGHT"));
+                ratedChargeDetailsDto.setContractName(rs.getString("CONTRACT_NAME"));
+                ratedChargeDetailsDto.setFuelTablePercentage(rs.getBigDecimal("FUEL_TABLE_PERC"));
+                ratedChargeDetailsDto.setRatedBaseDiscount(rs.getBigDecimal("RATED_BASE_DISCOUNT"));
+                ratedChargeDetailsDto.setRatedEarnedDiscount(rs.getBigDecimal("RATED_EARNED_DISCOUNT"));
+                ratedChargeDetailsDto.setRatedMinMaxAdjustment(rs.getBigDecimal("RATED_MIN_MAX_ADJ"));
+                ratedChargeDetailsDto.setRatedFuelSurchargeDiscount(rs.getBigDecimal("RATED_FUEL_SURCHARGE_DISC"));
+                ratedChargeDetailsDto.setRatedCustomFuelSurchargeDiscount(rs.getBigDecimal("RATED_CUST_FUEL_SURCHARGE_DISC"));
+                ratedChargeDetailsDto.setRatedGrossFuel(rs.getBigDecimal("RATED_GROSS_FUEL"));
+                ratedChargeDetailsDto.setResidentialSurchargeDiscount(rs.getBigDecimal("RES_SURCHARGE_DSC"));
+                ratedChargeDetailsDto.setResidentialSurchargeDiscountPercentage(rs.getBigDecimal("RES_SURCHARGE_DSC_PERC"));
+                ratedChargeDetailsDto.setOtherDiscount1(rs.getBigDecimal("OTHER_DSC_1"));
+                ratedChargeDetailsDto.setOtherDiscount2(rs.getBigDecimal("OTHER_DSC_2"));
+                ratedChargeDetailsDto.setOtherDiscount3(rs.getBigDecimal("OTHER_DSC_3"));
+                ratedChargeDetailsDto.setAccessorial1(rs.getBigDecimal("ACCESSORIAL_1"));
+                ratedChargeDetailsDto.setAccessorial2(rs.getBigDecimal("ACCESSORIAL_2"));
+                ratedChargeDetailsDto.setAccessorial3(rs.getBigDecimal("ACCESSORIAL_3"));
+                ratedChargeDetailsDto.setAccessorial4(rs.getBigDecimal("ACCESSORIAL_4"));
+                ratedChargeDetailsDto.setDeliveryAreaSurchargeDiscount(rs.getBigDecimal("RATED_DAS_DSC"));
+                ratedChargeDetailsDto.setAccessorial1Code(rs.getString("ACCESSORIAL_1_CODE"));
+                ratedChargeDetailsDto.setAccessorial2Code(rs.getString("ACCESSORIAL_2_CODE"));
+                ratedChargeDetailsDto.setAccessorial3Code(rs.getString("ACCESSORIAL_3_CODE"));
+                ratedChargeDetailsDto.setAccessorial4Code(rs.getString("ACCESSORIAL_4_CODE"));
+                ratedChargeDetailsDto.setFreightCharge(rs.getBigDecimal("FRT_CHARGE"));
+                ratedChargeDetailsDto.setFuelSurcharge(rs.getBigDecimal("FSC_CHARGE"));
+                ratedChargeDetailsDtoList.add(ratedChargeDetailsDto);
+            }
+        } catch (SQLException sqle) {
+            sqle.printStackTrace();
+            throw new RuntimeException("Exception in fetching rate details in getRatedChargeAmount -- > " + sqle.getStackTrace());
+        } catch (ServiceLocatorException sle) {
+            throw new RuntimeException("Exception in getting connection in getRatedChargeAmount -- > " + sle.getStackTrace());
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (SQLException sqle) {
+            }
+            try {
+                if (cstmt != null)
+                    cstmt.close();
+            } catch (SQLException sqle) {
+            }
+            try {
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException sqle) {
+            }
+        }
+        return ratedChargeDetailsDtoList;
+    }
+
+    public void updateRtrStatus(Long carrierId, String trackingNumber, String status, Date pickUpDate) {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        String sqlQuery = "";
+        if (carrierId == 21L) {
+            sqlQuery += " UPDATE SHP_EBILL_UPS_RATES_TB ur SET ur.RTR_STATUS = ? WHERE ur.TRACKING_NUMBER = ? and ur.Pickup_Date=? ";
+        } else if (carrierId == 22L) {
+            sqlQuery += " UPDATE SHP_EBILL_FDX_RATES_TB ur SET ur.RTR_STATUS = ? WHERE ur.TRACKING_NUMBER = ? and ur.Pickup_Date=? ";
+        }
+
+        try {
+            con = ServiceLocator.getDatabaseConnection();
+            pstmt = con.prepareStatement(sqlQuery);
+            con.setAutoCommit(false);
+
+            pstmt.setString(1, status);
+            pstmt.setString(2, trackingNumber);
+            pstmt.setDate(3, pickUpDate);
+
+            pstmt.executeUpdate();
+            con.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                con.rollback();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+            throw new DaoException("Exception in updateFedExOtherFieldValues", e);
+        } finally {
+            try {
+                if (pstmt != null)
+                    pstmt.close();
+            } catch (SQLException sqle) {
+            }
+            try {
+                if (con != null)
+                    con.close();
+            } catch (SQLException sqle) {
+            }
+        }
+    }
 }

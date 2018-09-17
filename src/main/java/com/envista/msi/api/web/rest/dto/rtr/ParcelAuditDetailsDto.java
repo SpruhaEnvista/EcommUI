@@ -260,6 +260,8 @@ public class ParcelAuditDetailsDto {
 
     private String shipperState;
 
+    private String WorldeEaseNum;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -790,6 +792,14 @@ public class ParcelAuditDetailsDto {
 
     public void setShipperState(String shipperState) {
         this.shipperState = shipperState;
+    }
+
+    public String getWorldeEaseNum() {
+        return WorldeEaseNum;
+    }
+
+    public void setWorldeEaseNum(String worldeEaseNum) {
+        WorldeEaseNum = worldeEaseNum;
     }
 
     public static class Config{
