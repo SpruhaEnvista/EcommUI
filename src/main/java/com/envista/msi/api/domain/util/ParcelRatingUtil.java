@@ -10,6 +10,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.math.BigDecimal;
@@ -378,7 +379,7 @@ public class ParcelRatingUtil {
                                             m_log.info("Service flag accessorial code is not found in look up table:" + auditDetails.getChargeDescriptionCode());
                                             accJson.put("code", auditDetails.getChargeDescriptionCode());
                                         }
-
+                                    checkAccExist(accJsonArr, accJson);
                                     accJsonArr.put(accJson);
                                 }
                             }
@@ -481,6 +482,35 @@ public class ParcelRatingUtil {
             }
         }
         return ratingQueueBean;
+    }
+
+    private static void checkAccExist(JSONArray accJsonArr, JSONObject accJson) {
+
+        BigDecimal accAmount = null;
+        try {
+            for (int i = 0; i < accJsonArr.length(); i++) {
+
+
+                JSONObject jsonObject = (JSONObject) accJsonArr.get(i);
+
+                if (jsonObject.getString("code").equalsIgnoreCase(accJson.getString("code"))) {
+
+                    if (jsonObject.getString("netAmount") != null) {
+                        accAmount = new BigDecimal(jsonObject.getString("netAmount"));
+                        accAmount = accAmount.add(new BigDecimal(accJson.getString("netAmount")));
+                    }
+                }
+            }
+
+            if (accAmount != null) {
+                accJson.remove("netAmount");
+                accJson.put("netAmount", accAmount);
+            }
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     public static RatingQueueBean prepareShipmentEntryForNonUpsShipment(List<ParcelAuditDetailsDto> shipmentDetails, String rateSet, List<ServiceFlagAccessorialBean> accessorialBeans) {
@@ -1398,5 +1428,43 @@ public class ParcelRatingUtil {
             }
         }
         return frtCharged;
+    }
+
+    public static List<ParcelAuditDetailsDto> prepareChargeList(Long key, Map<Long, List<ParcelAuditDetailsDto>> shipments) {
+
+        List<ParcelAuditDetailsDto> shipmentChargeList = new ArrayList<>(shipments.get(key));
+        boolean frtExist = false;
+
+        for (ParcelAuditDetailsDto dto : shipmentChargeList) {
+
+            if ("FRT".equalsIgnoreCase(dto.getChargeClassificationCode())) {
+                frtExist = true;
+                break;
+            }
+        }
+        ParcelAuditDetailsDto frtDto = null;
+        for (Map.Entry<Long, List<ParcelAuditDetailsDto>> entry : shipments.entrySet()) {
+
+            if (key.compareTo(entry.getKey()) > 0) {
+
+                for (ParcelAuditDetailsDto dto : entry.getValue()) {
+
+                    if (!"FRT".equalsIgnoreCase(dto.getChargeClassificationCode())) {
+                        shipmentChargeList.add(dto);
+                    }
+
+                    if (!frtExist && "FRT".equalsIgnoreCase(dto.getChargeClassificationCode())) {
+
+                        frtDto = dto;
+                    }
+                }
+
+            }
+        }
+
+        if (!frtExist && frtDto != null) {
+            shipmentChargeList.add(frtDto);
+        }
+        return shipmentChargeList;
     }
 }
