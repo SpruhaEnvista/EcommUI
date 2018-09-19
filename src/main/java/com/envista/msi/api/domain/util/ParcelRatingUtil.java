@@ -379,8 +379,8 @@ public class ParcelRatingUtil {
                                             m_log.info("Service flag accessorial code is not found in look up table:" + auditDetails.getChargeDescriptionCode());
                                             accJson.put("code", auditDetails.getChargeDescriptionCode());
                                         }
-                                    checkAccExist(accJsonArr, accJson);
-                                    accJsonArr.put(accJson);
+                                    if (!checkAccExist(accJsonArr, accJson))
+                                        accJsonArr.put(accJson);
                                 }
                             }
                         } catch (Exception e) {
@@ -484,7 +484,7 @@ public class ParcelRatingUtil {
         return ratingQueueBean;
     }
 
-    private static void checkAccExist(JSONArray accJsonArr, JSONObject accJson) {
+    private static boolean checkAccExist(JSONArray accJsonArr, JSONObject accJson) {
 
         BigDecimal accAmount = null;
         try {
@@ -498,19 +498,24 @@ public class ParcelRatingUtil {
                     if (jsonObject.getString("netAmount") != null) {
                         accAmount = new BigDecimal(jsonObject.getString("netAmount"));
                         accAmount = accAmount.add(new BigDecimal(accJson.getString("netAmount")));
+
+                        if (accAmount != null) {
+                            jsonObject.remove("netAmount");
+                            jsonObject.put("netAmount", accAmount);
+
+                            return true;
+                        }
+
                     }
                 }
             }
 
-            if (accAmount != null) {
-                accJson.remove("netAmount");
-                accJson.put("netAmount", accAmount);
-            }
 
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        return false;
     }
 
     public static RatingQueueBean prepareShipmentEntryForNonUpsShipment(List<ParcelAuditDetailsDto> shipmentDetails, String rateSet, List<ServiceFlagAccessorialBean> accessorialBeans) {
