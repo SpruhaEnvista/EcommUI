@@ -19,6 +19,8 @@ public class AccessorialDto {
 
     private String code;
 
+    private Long ebillGffId;
+
     public Long getId() {
         return id;
     }
@@ -65,5 +67,13 @@ public class AccessorialDto {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public Long getEbillGffId() {
+        return ebillGffId;
+    }
+
+    public void setEbillGffId(Long ebillGffId) {
+        this.ebillGffId = ebillGffId;
     }
 }

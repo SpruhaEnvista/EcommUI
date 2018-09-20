@@ -139,6 +139,9 @@ public class ParcelRateDetailsDto implements Serializable {
     @Transient
     private String flagged;
 
+    @Column(name = "ACC_CODE")
+    private String accCode;
+
 
     public static ParcelRateDetailsDto getInstance(){
         return new ParcelRateDetailsDto();
@@ -450,5 +453,13 @@ public class ParcelRateDetailsDto implements Serializable {
 
     public void setFscRtrAmt(BigDecimal fscRtrAmt) {
         this.fscRtrAmt = fscRtrAmt;
+    }
+
+    public String getAccCode() {
+        return accCode;
+    }
+
+    public void setAccCode(String accCode) {
+        this.accCode = accCode;
     }
 }

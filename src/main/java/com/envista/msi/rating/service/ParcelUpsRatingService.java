@@ -10,6 +10,7 @@ import com.envista.msi.api.web.rest.util.CommonUtil;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelRateResponse;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelRateResponseParser;
+import com.envista.msi.rating.bean.AccessorialDto;
 import com.envista.msi.rating.bean.RatingQueueBean;
 import com.envista.msi.rating.bean.ServiceFlagAccessorialBean;
 import com.envista.msi.rating.dao.DirectJDBCDAO;
@@ -500,6 +501,7 @@ public class ParcelUpsRatingService {
                                 rateDetails.setHwtIdentifier(auditDetails.getMultiWeightNumber());
                                 rateDetails.setRateSetName(rateSetName);
                                 rateDetails.setFlagged(flagged);
+                                rateDetails.setAccCode("FRT");
 
                                 if (auditDetails.getId().compareTo(auditDetails.getParentId()) == 0)
                                     ParcelRateResponseParser.mapPercentageAndDis(rateDetails, priceSheet, mappedDscChanges);
@@ -542,6 +544,7 @@ public class ParcelUpsRatingService {
                         rateDetails.setHwtIdentifier(auditDetails.getMultiWeightNumber());
                         rateDetails.setRateSetName(rateSetName);
                         rateDetails.setFlagged(flagged);
+                        rateDetails.setAccCode("FSC");
 
                         if (auditDetails.getId().compareTo(auditDetails.getParentId()) == 0)
                             ParcelRateResponseParser.mapPercentageAndDis(rateDetails, priceSheet, mappedDscChanges);
@@ -574,6 +577,8 @@ public class ParcelUpsRatingService {
                         rateDetails.setHwtIdentifier(auditDetails.getMultiWeightNumber());
                         rateDetails.setRateSetName(rateSetName);
                         rateDetails.setFlagged(flagged);
+                        if (bean != null)
+                            rateDetails.setAccCode(bean.getLookUpValue());
 
                         if (auditDetails.getId().compareTo(auditDetails.getParentId()) == 0)
                             ParcelRateResponseParser.mapPercentageAndDis(rateDetails, priceSheet, mappedDscChanges);
@@ -603,23 +608,13 @@ public class ParcelUpsRatingService {
         }
 
 
-        ParcelRateDetailsDto otherDscRateDetails = ParcelRateDetailsDto.getInstance();
-        otherDscRateDetails.setShipperCategory(shipperCategory);
-        otherDscRateDetails.setContractName(contractName);
-        otherDscRateDetails.setHwtIdentifier(parcelAuditDetails.get(0).getMultiWeightNumber());
-        otherDscRateDetails.setRateSetName(rateSetName);
-        otherDscRateDetails.setFlagged(flagged);
-        otherDscRateDetails.setZone(zone);
-        saveOtherDiscountsAppliedForUps(priceSheet, parcelAuditDetails, otherDscRateDetails, mappedDscChanges);
+        List<AccessorialDto> addAccAndDisdtos = new ArrayList<>();
 
-        ParcelRateDetailsDto accessorialRateDetails = ParcelRateDetailsDto.getInstance();
-        accessorialRateDetails.setShipperCategory(shipperCategory);
-        accessorialRateDetails.setContractName(contractName);
-        accessorialRateDetails.setHwtIdentifier(parcelAuditDetails.get(0).getMultiWeightNumber());
-        accessorialRateDetails.setRateSetName(rateSetName);
-        accessorialRateDetails.setFlagged(flagged);
-        accessorialRateDetails.setZone(zone);
-        saveAccessorialForUps(priceSheet, parcelAuditDetails, accessorialRateDetails, mappedAccChanges);
+        prepareAdditionalAccessorialForUps(priceSheet, parcelAuditDetails.get(0).getParentId(), mappedAccChanges, addAccAndDisdtos);
+        prepareAddDiscounts(priceSheet, parcelAuditDetails.get(0).getParentId(), mappedDscChanges, addAccAndDisdtos);
+
+        directJDBCDAO.saveAccInfo(addAccAndDisdtos, parcelAuditDetails.get(0).getParentId());
+
         return rtrStatus.value;
     }
 
@@ -1328,4 +1323,99 @@ public class ParcelUpsRatingService {
 
         return new DirectJDBCDAO().getServiceFlagAcessorials(carrierId, moduleName);
     }
+
+
+    private void prepareAdditionalAccessorialForUps(ParcelRateResponse.PriceSheet priceSheet, Long parentId, List<ParcelRateResponse.Charge> mappedAccChanges, List<AccessorialDto> dtos) {
+
+        List<ParcelRateResponse.Charge> accessorialCharges = ParcelRateResponseParser.getAccessorialChargesForUps(priceSheet);
+
+        if (accessorialCharges != null && !accessorialCharges.isEmpty()) {
+            if (mappedAccChanges != null && !mappedAccChanges.isEmpty()) {
+                Iterator<ParcelRateResponse.Charge> chargeIterator = accessorialCharges.iterator();
+                List<ParcelRateResponse.Charge> tempRemoveList = new ArrayList<>();
+                while (chargeIterator.hasNext()) {
+                    ParcelRateResponse.Charge tempCharge = chargeIterator.next();
+                    for (ParcelRateResponse.Charge mappedChrg : mappedAccChanges) {
+                        if (mappedChrg != null && tempCharge != null
+                                && mappedChrg.getType() != null && tempCharge.getType() != null
+                                && mappedChrg.getType().equalsIgnoreCase(tempCharge.getType())
+                                && mappedChrg.getName() != null && tempCharge.getName() != null
+                                && mappedChrg.getName().equalsIgnoreCase(tempCharge.getName())) {
+                            tempRemoveList.add(tempCharge);
+                        }
+                    }
+                }
+                if (tempRemoveList != null && tempRemoveList.size() > 0) {
+                    accessorialCharges.removeAll(tempRemoveList);
+                    tempRemoveList = null;
+                }
+            }
+        }
+
+
+        if (accessorialCharges != null && accessorialCharges.size() > 0) {
+
+            for (ParcelRateResponse.Charge charge : accessorialCharges) {
+
+                AccessorialDto dto = new AccessorialDto();
+
+                dto.setCode(charge.getEdiCode());
+                dto.setRtrAmount(charge.getAmount());
+                dto.setType("accessorial");
+                dto.setParentId(parentId);
+                dtos.add(dto);
+            }
+
+        }
+
+
+    }
+
+
+    private void prepareAddDiscounts(ParcelRateResponse.PriceSheet priceSheet, Long parentId, List<ParcelRateResponse.Charge> mappedDscChanges, List<AccessorialDto> dtos) {
+
+        List<ParcelRateResponse.Charge> discountCharges = ParcelRateResponseParser.getAllOtherDiscountsForUPSCarrier(priceSheet);
+
+        if (discountCharges != null && !discountCharges.isEmpty()) {
+            if (mappedDscChanges != null && !mappedDscChanges.isEmpty()) {
+                Iterator<ParcelRateResponse.Charge> chargeIterator = mappedDscChanges.iterator();
+                List<ParcelRateResponse.Charge> tempRemoveList = new ArrayList<>();
+                while (chargeIterator.hasNext()) {
+                    ParcelRateResponse.Charge tempCharge = chargeIterator.next();
+                    for (ParcelRateResponse.Charge mappedChrg : mappedDscChanges) {
+                        if (mappedChrg != null && tempCharge != null
+                                && mappedChrg.getType() != null && tempCharge.getType() != null
+                                && mappedChrg.getType().equalsIgnoreCase(tempCharge.getType())
+                                && mappedChrg.getName() != null && tempCharge.getName() != null
+                                && mappedChrg.getName().equalsIgnoreCase(tempCharge.getName())) {
+                            tempRemoveList.add(tempCharge);
+                        }
+                    }
+                }
+                if (tempRemoveList != null && tempRemoveList.size() > 0) {
+                    discountCharges.removeAll(tempRemoveList);
+                    tempRemoveList = null;
+                }
+            }
+        }
+
+        if (discountCharges != null && discountCharges.size() > 0) {
+
+            for (ParcelRateResponse.Charge charge : discountCharges) {
+
+                AccessorialDto dto = new AccessorialDto();
+
+                dto.setCode(charge.getEdiCode());
+                dto.setRtrAmount(charge.getAmount());
+                dto.setType("discount");
+                dto.setParentId(parentId);
+
+                dtos.add(dto);
+            }
+
+        }
+
+    }
+
+
 }

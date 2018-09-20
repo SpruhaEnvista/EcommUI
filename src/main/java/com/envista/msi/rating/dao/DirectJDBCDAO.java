@@ -1297,4 +1297,86 @@ public class DirectJDBCDAO {
         }
     }
 
+    public List<AccessorialDto> getRatesForPrevParentIds(String trackingNumber, Long parentId) {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        String sqlQuery = " select Ebill_Gff_Id, Parent_Id,Rtr_Amount,acc_Code from Shp_Ebill_Ups_Rates_Tb" +
+                " where Tracking_Number? and Parent_Id < ? ";
+
+        List<AccessorialDto> dtos = new ArrayList<>();
+        StringBuilder parentIds = new StringBuilder();
+
+        try {
+            con = ServiceLocator.getDatabaseConnection();
+            pstmt = con.prepareStatement(sqlQuery);
+
+
+            pstmt.setString(1, trackingNumber);
+            pstmt.setLong(2, parentId);
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+
+                AccessorialDto dto = new AccessorialDto();
+
+                dto.setParentId(rs.getLong("Ebill_Gff_Id"));
+                dto.setParentId(rs.getLong("Parent_Id"));
+                dto.setRtrAmount(rs.getBigDecimal("Rtr_Amount"));
+                dto.setCode(rs.getString("acc_Code"));
+
+                dtos.add(dto);
+
+                parentIds.append(dto.getParentId());
+            }
+
+
+            sqlQuery = " select Parent_Id,Acc_Code,Rtr_Amount from SHP_UPS_ACC_AND_DIS_TB where Parent_Id=? ";
+            pstmt = con.prepareStatement(sqlQuery);
+
+            pstmt.setLong(1, parentId);
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+
+                AccessorialDto dto = new AccessorialDto();
+
+                dto.setParentId(rs.getLong("Parent_Id"));
+                dto.setRtrAmount(rs.getBigDecimal("Rtr_Amount"));
+                dto.setCode(rs.getString("Acc_Code"));
+
+                dtos.add(dto);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                con.rollback();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+            throw new DaoException("Exception in getRatesForPrevParentIds ", e);
+        } finally {
+            try {
+                if (pstmt != null)
+                    pstmt.close();
+            } catch (SQLException sqle) {
+                sqle.printStackTrace();
+            }
+            try {
+                if (con != null)
+                    con.close();
+            } catch (SQLException sqle) {
+                sqle.printStackTrace();
+            }
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (SQLException sqle) {
+                sqle.printStackTrace();
+            }
+        }
+        return dtos;
+    }
+
 }
