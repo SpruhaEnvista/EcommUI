@@ -8,6 +8,7 @@ import com.envista.msi.api.web.rest.dto.rtr.RatedChargeDetailsDto;
 import com.envista.msi.api.web.rest.dto.rtr.StoreRatingDetailsDto;
 import com.envista.msi.rating.ServiceLocator;
 import com.envista.msi.rating.ServiceLocatorException;
+import com.envista.msi.rating.bean.AccessorialDto;
 import com.envista.msi.rating.bean.ServiceFlagAccessorialBean;
 import com.envista.msi.rating.entity.ParcelRatingInputCriteriaDto;
 import oracle.jdbc.OracleTypes;
@@ -518,7 +519,7 @@ public class DirectJDBCDAO {
                     liveSqlQuery += " WHERE INVOICE_ID IN (" + invoiceIds + ") ";
                 } else {
                     liveSqlQuery += " SELECT DISTINCT INVOICE_ID FROM SHP_EBILL_MANIFEST_TB ";
-                    liveSqlQuery += " WHERE INVOICE_ID IN ( ";
+                    liveSqlQuery += " WHERE Tracking_Number='1Z2T555T0399903456' and INVOICE_ID IN ( ";
                     liveSqlQuery += " SELECT invoice_id FROM SHP_EBILL_INVOICE_TB ";
                     liveSqlQuery += " WHERE  inv_contract_number IN (SELECT contract_number FROM SHP_EBILL_CONTRACT_TB ";
                     liveSqlQuery += " WHERE customer_id in (" + customerId + ") and carrier_id = 21) and inv_carrier_id = 21) ";
@@ -1197,4 +1198,103 @@ public class DirectJDBCDAO {
             }
         }
     }
+
+    public void saveAccInfo(List<AccessorialDto> dtos, Long parentId) {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        String sqlQuery = " INSERT\n" +
+                "    INTO SHP_UPS_ACC_AND_DIS_TB\n" +
+                "      (\n" +
+                "        SHP_UPS_ACC_AND_DIS_S.NEXTVAL,\n" +
+                "        PARENT_ID,\n" +
+                "        ACC_TYPE,\n" +
+                "        ACC_CODE,\n" +
+                "        RTR_AMOUNT,\n" +
+                "        CREATE_DATE,\n" +
+                "        LAST_UPDATED_DATE\n" +
+                "      )\n" +
+                "      VALUES\n" +
+                "      (\n" +
+                "        ?,\n" +
+                "        ?,\n" +
+                "        ?,\n" +
+                "        ?,\n" +
+                "        ?,\n" +
+                "        sysdate,\n" +
+                "        sysdate\n" +
+                "      ) ";
+
+
+        try {
+            con = ServiceLocator.getDatabaseConnection();
+            pstmt = con.prepareStatement(sqlQuery);
+            con.setAutoCommit(false);
+            for (AccessorialDto dto : dtos) {
+                pstmt.setLong(1, dto.getParentId());
+                pstmt.setString(2, dto.getType());
+                pstmt.setString(3, dto.getCode());
+                pstmt.setBigDecimal(4, dto.getRtrAmount());
+                pstmt.addBatch();
+            }
+
+            pstmt.executeBatch();
+            con.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                con.rollback();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+            throw new DaoException("Exception in saveAccInfo", e);
+        } finally {
+            try {
+                if (pstmt != null)
+                    pstmt.close();
+            } catch (SQLException sqle) {
+            }
+            try {
+                if (con != null)
+                    con.close();
+            } catch (SQLException sqle) {
+            }
+        }
+    }
+
+    public void deleteAccInfoByParentId(Long parentId) {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        String sqlQuery = " DELETE FROM SHP_UPS_ACC_AND_DIS_TB WHERE PARENT_ID=? ";
+
+
+        try {
+            con = ServiceLocator.getDatabaseConnection();
+            pstmt = con.prepareStatement(sqlQuery);
+            con.setAutoCommit(false);
+
+            pstmt.setLong(1, parentId);
+            pstmt.executeQuery();
+            con.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                con.rollback();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+            throw new DaoException("Exception in deleteAccInfoByParentId", e);
+        } finally {
+            try {
+                if (pstmt != null)
+                    pstmt.close();
+            } catch (SQLException sqle) {
+            }
+            try {
+                if (con != null)
+                    con.close();
+            } catch (SQLException sqle) {
+            }
+        }
+    }
+
 }

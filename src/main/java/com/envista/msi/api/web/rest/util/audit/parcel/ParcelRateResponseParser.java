@@ -1,5 +1,7 @@
 package com.envista.msi.api.web.rest.util.audit.parcel;
 
+import com.envista.msi.api.web.rest.dto.rtr.ParcelRateDetailsDto;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import java.io.StringReader;
@@ -340,5 +342,37 @@ public class ParcelRateResponseParser {
             }
         }
         return null;
+    }
+
+    public static void mapPercentageAndDis(ParcelRateDetailsDto rateDetails, ParcelRateResponse.PriceSheet priceSheet,
+                                           List<ParcelRateResponse.Charge> mappedDscChanges) {
+
+        BigDecimal fuelTablePerc = ParcelRateResponseParser.getFuelTablePercentage(priceSheet);
+        BigDecimal ratedGrossFuel = ParcelRateResponseParser.getRatedGrossFuel(priceSheet);
+
+        rateDetails.setFuelTablePercentage(fuelTablePerc);
+        rateDetails.setRatedGrossFuel(ratedGrossFuel);
+
+        rateDetails.setRatedBaseDiscount(ParcelRateResponseParser.getSumOfFreightDiscount(priceSheet));
+        rateDetails.setRatedEarnedDiscount(ParcelRateResponseParser.getSpendDiscount(priceSheet));
+        rateDetails.setRatedMinMaxAdjustment(ParcelRateResponseParser.getMinMaxAdjustment(priceSheet));
+
+        ParcelRateResponse.Charge residentialSurchargeDiscountCharge = ParcelRateResponseParser.getResidentialSurchargeDiscount(priceSheet);
+        if (residentialSurchargeDiscountCharge != null) {
+            mappedDscChanges.add(residentialSurchargeDiscountCharge);
+            rateDetails.setResidentialSurchargeDiscount(residentialSurchargeDiscountCharge.getAmount());
+            rateDetails.setResidentialSurchargeDiscountPercentage(residentialSurchargeDiscountCharge.getRate());
+        }
+
+        ParcelRateResponse.Charge dasDiscount = ParcelRateResponseParser.getRatedDasDiscount(priceSheet);
+        if (dasDiscount != null) {
+            mappedDscChanges.add(dasDiscount);
+            rateDetails.setDeliveryAreaSurchargeDiscount(dasDiscount.getAmount());
+        }
+
+
+        rateDetails.setRatedFuelSurchargeDiscount(ParcelRateResponseParser.getRatedSurchargeDiscount(priceSheet));
+        rateDetails.setRatedCustomFuelSurchargeDiscount(ParcelRateResponseParser.getRatedCustomSurchargeDiscount(priceSheet));
+
     }
 }
