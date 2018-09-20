@@ -501,8 +501,8 @@ public class ParcelUpsRatingService {
                                 rateDetails.setRateSetName(rateSetName);
                                 rateDetails.setFlagged(flagged);
 
-
-                                ParcelRateResponseParser.mapPercentageAndDis(rateDetails, priceSheet, mappedDscChanges);
+                                if (auditDetails.getId().compareTo(auditDetails.getParentId()) == 0)
+                                    ParcelRateResponseParser.mapPercentageAndDis(rateDetails, priceSheet, mappedDscChanges);
 
                                 directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                             }
@@ -519,6 +519,10 @@ public class ParcelUpsRatingService {
                         rateDetails.setHwtIdentifier(auditDetails.getMultiWeightNumber());
                         rateDetails.setRateSetName(rateSetName);
                         rateDetails.setFlagged(flagged);
+
+                        if (auditDetails.getId().compareTo(auditDetails.getParentId()) == 0)
+                            ParcelRateResponseParser.mapPercentageAndDis(rateDetails, priceSheet, mappedDscChanges);
+
                         directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                     }
                 }else if(ParcelAuditConstant.ChargeClassificationCode.FSC.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())){
@@ -538,6 +542,10 @@ public class ParcelUpsRatingService {
                         rateDetails.setHwtIdentifier(auditDetails.getMultiWeightNumber());
                         rateDetails.setRateSetName(rateSetName);
                         rateDetails.setFlagged(flagged);
+
+                        if (auditDetails.getId().compareTo(auditDetails.getParentId()) == 0)
+                            ParcelRateResponseParser.mapPercentageAndDis(rateDetails, priceSheet, mappedDscChanges);
+
                         directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                     }
                 } else{
@@ -566,6 +574,10 @@ public class ParcelUpsRatingService {
                         rateDetails.setHwtIdentifier(auditDetails.getMultiWeightNumber());
                         rateDetails.setRateSetName(rateSetName);
                         rateDetails.setFlagged(flagged);
+
+                        if (auditDetails.getId().compareTo(auditDetails.getParentId()) == 0)
+                            ParcelRateResponseParser.mapPercentageAndDis(rateDetails, priceSheet, mappedDscChanges);
+
                         directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                     }
                 }
@@ -581,6 +593,10 @@ public class ParcelUpsRatingService {
                     rateDetails.setHwtIdentifier(auditDetails.getMultiWeightNumber());
                     rateDetails.setRateSetName(rateSetName);
                     rateDetails.setFlagged(flagged);
+
+                    if (auditDetails.getId().compareTo(auditDetails.getParentId()) == 0)
+                        ParcelRateResponseParser.mapPercentageAndDis(rateDetails, priceSheet, mappedDscChanges);
+
                     directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                 }
             }
