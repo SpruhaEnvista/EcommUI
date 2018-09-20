@@ -520,7 +520,7 @@ public class DirectJDBCDAO {
                     liveSqlQuery += " WHERE INVOICE_ID IN (" + invoiceIds + ") ";
                 } else {
                     liveSqlQuery += " SELECT DISTINCT INVOICE_ID FROM SHP_EBILL_MANIFEST_TB ";
-                    liveSqlQuery += " WHERE Tracking_Number='1Z2T555T0399903456' and INVOICE_ID IN ( ";
+                    liveSqlQuery += " WHERE  INVOICE_ID IN ( ";
                     liveSqlQuery += " SELECT invoice_id FROM SHP_EBILL_INVOICE_TB ";
                     liveSqlQuery += " WHERE  inv_contract_number IN (SELECT contract_number FROM SHP_EBILL_CONTRACT_TB ";
                     liveSqlQuery += " WHERE customer_id in (" + customerId + ") and carrier_id = 21) and inv_carrier_id = 21) ";
