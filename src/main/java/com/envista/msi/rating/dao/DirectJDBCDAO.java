@@ -223,6 +223,7 @@ public class DirectJDBCDAO {
             cstmt.setString(22, rateDetails != null && rateDetails.getFlagged() != null ? rateDetails.getFlagged() : null);
             cstmt.setString(23, rateDetails != null && rateDetails.getZone() != null ? rateDetails.getZone() : null);
             cstmt.setBigDecimal(24, rateDetails != null && rateDetails.getFscRtrAmt() != null ? rateDetails.getFscRtrAmt() : new BigDecimal("0"));
+            cstmt.setString(25, rateDetails != null && rateDetails.getAccCode() != null ? rateDetails.getAccCode() : null);
 
             cstmt.executeUpdate();
 
