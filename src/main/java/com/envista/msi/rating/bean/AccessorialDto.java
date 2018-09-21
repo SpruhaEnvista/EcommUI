@@ -21,6 +21,16 @@ public class AccessorialDto {
 
     private Long ebillGffId;
 
+    private String baseDis;
+
+    private String earnedDis;
+
+    private String minMaxDis;
+
+    private String resDis;
+
+    private String dasDis;
+
     public Long getId() {
         return id;
     }

@@ -198,7 +198,7 @@ public class DirectJDBCDAO {
         CallableStatement cstmt = null;
         try{
             conn = ServiceLocator.getDatabaseConnection();
-            cstmt = conn.prepareCall("{ call SHP_SAVE_RATE_DETAILS_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
+            cstmt = conn.prepareCall("{ call SHP_SAVE_RATE_DETAILS_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
             cstmt.setString(1,referenceTableName);
             cstmt.setString(2, entityId);
             cstmt.setString(3,userName);
@@ -1206,23 +1206,25 @@ public class DirectJDBCDAO {
         String sqlQuery = " INSERT\n" +
                 "    INTO SHP_UPS_ACC_AND_DIS_TB\n" +
                 "      (\n" +
-                "        SHP_UPS_ACC_AND_DIS_S.NEXTVAL,\n" +
+                "        ACC_ID,\n" +
                 "        PARENT_ID,\n" +
                 "        ACC_TYPE,\n" +
                 "        ACC_CODE,\n" +
                 "        RTR_AMOUNT,\n" +
                 "        CREATE_DATE,\n" +
-                "        LAST_UPDATED_DATE\n" +
+                "        LAST_UPDATED_DATE,\n" +
+                "        NAME\n" +
                 "      )\n" +
                 "      VALUES\n" +
                 "      (\n" +
-                "        ?,\n" +
+                "        SHP_UPS_ACC_AND_DIS_S.NEXTVAL,\n" +
                 "        ?,\n" +
                 "        ?,\n" +
                 "        ?,\n" +
                 "        ?,\n" +
                 "        sysdate,\n" +
-                "        sysdate\n" +
+                "        sysdate,\n" +
+                "        ?\n" +
                 "      ) ";
 
 
@@ -1235,6 +1237,7 @@ public class DirectJDBCDAO {
                 pstmt.setString(2, dto.getType());
                 pstmt.setString(3, dto.getCode());
                 pstmt.setBigDecimal(4, dto.getRtrAmount());
+                pstmt.setString(5, dto.getName());
                 pstmt.addBatch();
             }
 
