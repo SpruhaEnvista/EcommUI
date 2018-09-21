@@ -21,15 +21,19 @@ public class AccessorialDto {
 
     private Long ebillGffId;
 
-    private String baseDis;
+    private BigDecimal baseDis;
 
-    private String earnedDis;
+    private BigDecimal earnedDis;
 
-    private String minMaxDis;
+    private BigDecimal minMaxDis;
 
-    private String resDis;
+    private BigDecimal resDis;
 
-    private String dasDis;
+    private BigDecimal dasDis;
+
+    private BigDecimal fuleSurDis;
+
+    private BigDecimal custFuleSurDis;
 
     public Long getId() {
         return id;
@@ -85,5 +89,61 @@ public class AccessorialDto {
 
     public void setEbillGffId(Long ebillGffId) {
         this.ebillGffId = ebillGffId;
+    }
+
+    public BigDecimal getBaseDis() {
+        return baseDis;
+    }
+
+    public void setBaseDis(BigDecimal baseDis) {
+        this.baseDis = baseDis;
+    }
+
+    public BigDecimal getEarnedDis() {
+        return earnedDis;
+    }
+
+    public void setEarnedDis(BigDecimal earnedDis) {
+        this.earnedDis = earnedDis;
+    }
+
+    public BigDecimal getMinMaxDis() {
+        return minMaxDis;
+    }
+
+    public void setMinMaxDis(BigDecimal minMaxDis) {
+        this.minMaxDis = minMaxDis;
+    }
+
+    public BigDecimal getResDis() {
+        return resDis;
+    }
+
+    public void setResDis(BigDecimal resDis) {
+        this.resDis = resDis;
+    }
+
+    public BigDecimal getDasDis() {
+        return dasDis;
+    }
+
+    public void setDasDis(BigDecimal dasDis) {
+        this.dasDis = dasDis;
+    }
+
+    public BigDecimal getFuleSurDis() {
+        return fuleSurDis;
+    }
+
+    public void setFuleSurDis(BigDecimal fuleSurDis) {
+        this.fuleSurDis = fuleSurDis;
+    }
+
+    public BigDecimal getCustFuleSurDis() {
+        return custFuleSurDis;
+    }
+
+    public void setCustFuleSurDis(BigDecimal custFuleSurDis) {
+        this.custFuleSurDis = custFuleSurDis;
     }
 }

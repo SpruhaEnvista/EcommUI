@@ -24,6 +24,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 
 public class DirectJDBCDAO {
 
@@ -1305,11 +1306,13 @@ public class DirectJDBCDAO {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        String sqlQuery = " select Ebill_Gff_Id, Parent_Id,Rtr_Amount,acc_Code from Shp_Ebill_Ups_Rates_Tb" +
+        String sqlQuery = " select Ebill_Gff_Id, Parent_Id,Rtr_Amount,acc_Code,RATED_BASE_DISCOUNT,RATED_EARNED_DISCOUNT" +
+                ",RATED_MIN_MAX_ADJ,RATED_FUEL_SURCHARGE_DISC,RATED_CUST_FUEL_SURCHARGE_DISC,RATED_DAS_DSC,RES_SURCHARGE_DSC" +
+                " from Shp_Ebill_Ups_Rates_Tb" +
                 " where Tracking_Number? and Parent_Id < ? ";
 
         List<AccessorialDto> dtos = new ArrayList<>();
-        StringBuilder parentIds = new StringBuilder();
+        List<String> parentIds = new ArrayList<>();
 
         try {
             con = ServiceLocator.getDatabaseConnection();
@@ -1324,21 +1327,31 @@ public class DirectJDBCDAO {
 
                 AccessorialDto dto = new AccessorialDto();
 
-                dto.setParentId(rs.getLong("Ebill_Gff_Id"));
+                dto.setEbillGffId(rs.getLong("Ebill_Gff_Id"));
+                dto.setParentId(rs.getLong("Parent_Id"));
                 dto.setParentId(rs.getLong("Parent_Id"));
                 dto.setRtrAmount(rs.getBigDecimal("Rtr_Amount"));
                 dto.setCode(rs.getString("acc_Code"));
 
+                if (dto.getEbillGffId().compareTo(dto.getParentId()) == 0) {
+                    dto.setBaseDis(rs.getBigDecimal("RATED_BASE_DISCOUNT"));
+                    dto.setEarnedDis(rs.getBigDecimal("RATED_EARNED_DISCOUNT"));
+                    dto.setMinMaxDis(rs.getBigDecimal("RATED_MIN_MAX_ADJ"));
+                    dto.setFuleSurDis(rs.getBigDecimal("RATED_FUEL_SURCHARGE_DISC"));
+                    dto.setCustFuleSurDis(rs.getBigDecimal("RATED_CUST_FUEL_SURCHARGE_DISC"));
+                    dto.setDasDis(rs.getBigDecimal("RATED_DAS_DSC"));
+                    dto.setResDis(rs.getBigDecimal("RES_SURCHARGE_DSC"));
+                }
                 dtos.add(dto);
 
-                parentIds.append(dto.getParentId());
+                if (!parentIds.contains(dto.getParentId()))
+                    parentIds.add(String.valueOf(dto.getParentId()));
             }
 
-
-            sqlQuery = " select Parent_Id,Acc_Code,Rtr_Amount from SHP_UPS_ACC_AND_DIS_TB where Parent_Id=? ";
+            String parentIdsInResult = String.join(",", parentIds);
+            sqlQuery = " select Parent_Id,Acc_Code,Rtr_Amount from SHP_UPS_ACC_AND_DIS_TB where Parent_Id in (" + parentIdsInResult + ") ";
             pstmt = con.prepareStatement(sqlQuery);
 
-            pstmt.setLong(1, parentId);
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
@@ -1354,11 +1367,7 @@ public class DirectJDBCDAO {
 
         } catch (Exception e) {
             e.printStackTrace();
-            try {
-                con.rollback();
-            } catch (SQLException e1) {
-                e1.printStackTrace();
-            }
+
             throw new DaoException("Exception in getRatesForPrevParentIds ", e);
         } finally {
             try {
