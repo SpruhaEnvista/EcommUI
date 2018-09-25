@@ -1309,7 +1309,7 @@ public class DirectJDBCDAO {
         String sqlQuery = " select Ebill_Gff_Id, Parent_Id,Rtr_Amount,acc_Code,RATED_BASE_DISCOUNT,RATED_EARNED_DISCOUNT" +
                 ",RATED_MIN_MAX_ADJ,RATED_FUEL_SURCHARGE_DISC,RATED_CUST_FUEL_SURCHARGE_DISC,RATED_DAS_DSC,RES_SURCHARGE_DSC" +
                 " from Shp_Ebill_Ups_Rates_Tb" +
-                " where Tracking_Number? and Parent_Id < ? ";
+                " where Tracking_Number=? and Parent_Id < ? ";
 
         List<AccessorialDto> dtos = new ArrayList<>();
         List<String> parentIds = new ArrayList<>();
@@ -1321,6 +1321,7 @@ public class DirectJDBCDAO {
 
             pstmt.setString(1, trackingNumber);
             pstmt.setLong(2, parentId);
+
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
@@ -1349,22 +1350,24 @@ public class DirectJDBCDAO {
             }
 
             String parentIdsInResult = String.join(",", parentIds);
-            sqlQuery = " select Parent_Id,Acc_Code,Rtr_Amount from SHP_UPS_ACC_AND_DIS_TB where Parent_Id in (" + parentIdsInResult + ") ";
-            pstmt = con.prepareStatement(sqlQuery);
+            if (parentIdsInResult != null && parentIdsInResult.length() > 0) {
+                sqlQuery = " select Parent_Id,Acc_Code,Rtr_Amount from SHP_UPS_ACC_AND_DIS_TB where Parent_Id in (" + parentIdsInResult + ") ";
 
-            rs = pstmt.executeQuery();
+                pstmt = con.prepareStatement(sqlQuery);
 
-            while (rs.next()) {
+                rs = pstmt.executeQuery();
 
-                AccessorialDto dto = new AccessorialDto();
+                while (rs.next()) {
 
-                dto.setParentId(rs.getLong("Parent_Id"));
-                dto.setRtrAmount(rs.getBigDecimal("Rtr_Amount"));
-                dto.setCode(rs.getString("Acc_Code"));
+                    AccessorialDto dto = new AccessorialDto();
 
-                dtos.add(dto);
+                    dto.setParentId(rs.getLong("Parent_Id"));
+                    dto.setRtrAmount(rs.getBigDecimal("Rtr_Amount"));
+                    dto.setCode(rs.getString("Acc_Code"));
+
+                    dtos.add(dto);
+                }
             }
-
         } catch (Exception e) {
             e.printStackTrace();
 

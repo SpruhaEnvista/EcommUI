@@ -35,6 +35,16 @@ public class AccessorialDto {
 
     private BigDecimal custFuleSurDis;
 
+    public AccessorialDto() {
+        baseDis = new BigDecimal("0.00");
+        earnedDis = new BigDecimal("0.00");
+        minMaxDis = new BigDecimal("0.00");
+        resDis = new BigDecimal("0.00");
+        dasDis = new BigDecimal("0.00");
+        fuleSurDis = new BigDecimal("0.00");
+        custFuleSurDis = new BigDecimal("0.00");
+    }
+
     public Long getId() {
         return id;
     }

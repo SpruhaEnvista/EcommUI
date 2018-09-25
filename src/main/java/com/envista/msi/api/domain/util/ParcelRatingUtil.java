@@ -4,6 +4,7 @@ import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditDetailsDto;
 import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditRequestResponseLog;
 import com.envista.msi.api.web.rest.dto.rtr.RatedChargeDetailsDto;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant;
+import com.envista.msi.rating.bean.AccessorialDto;
 import com.envista.msi.rating.bean.RatingQueueBean;
 import com.envista.msi.rating.bean.ServiceFlagAccessorialBean;
 import org.apache.commons.lang.StringUtils;
@@ -1471,5 +1472,59 @@ public class ParcelRatingUtil {
             shipmentChargeList.add(frtDto);
         }
         return shipmentChargeList;
+    }
+
+    public static BigDecimal findPrevRateAmtByCode(List<AccessorialDto> prevParentsRatesDtos, String accCode, String accessorialType) {
+
+        BigDecimal rtrAmount = new BigDecimal("0.00");
+
+        for (AccessorialDto dto : prevParentsRatesDtos) {
+
+            if (accessorialType.equalsIgnoreCase(dto.getType()) && accCode.equalsIgnoreCase(dto.getCode())) {
+
+                rtrAmount = rtrAmount.add(dto.getRtrAmount());
+            }
+
+        }
+
+        return rtrAmount;
+    }
+
+    public static BigDecimal findPrevRateAmtByDisName(List<AccessorialDto> prevParentsRatesDtos, String disCountName, String accessorialType) {
+
+        BigDecimal rtrAmount = new BigDecimal("0.00");
+
+        for (AccessorialDto dto : prevParentsRatesDtos) {
+
+            if (accessorialType.equalsIgnoreCase(dto.getType()) && disCountName.equalsIgnoreCase(dto.getName())) {
+
+                rtrAmount = rtrAmount.add(dto.getRtrAmount());
+            }
+
+        }
+
+        return rtrAmount;
+    }
+
+    public static AccessorialDto findPrevRatesForSpecColumns(List<AccessorialDto> prevParentsRatesDtos) {
+
+        AccessorialDto accessorialDto = new AccessorialDto();
+
+        for (AccessorialDto dto : prevParentsRatesDtos) {
+
+            if ((dto.getEbillGffId() != null && dto.getParentId() != null) && (dto.getEbillGffId().compareTo(dto.getParentId()) == 0)) {
+
+                accessorialDto.setBaseDis(accessorialDto.getBaseDis().add(dto.getBaseDis()));
+                accessorialDto.setResDis(accessorialDto.getResDis().add(dto.getResDis()));
+                accessorialDto.setMinMaxDis(accessorialDto.getMinMaxDis().add(dto.getMinMaxDis()));
+                accessorialDto.setDasDis(accessorialDto.getDasDis().add(dto.getDasDis()));
+                accessorialDto.setCustFuleSurDis(accessorialDto.getCustFuleSurDis().add(dto.getCustFuleSurDis()));
+                accessorialDto.setEarnedDis(accessorialDto.getEarnedDis().add(dto.getEarnedDis()));
+                accessorialDto.setFuleSurDis(accessorialDto.getFuleSurDis().add(dto.getFuleSurDis()));
+            }
+
+        }
+
+        return accessorialDto;
     }
 }

@@ -253,9 +253,9 @@ public class ParcelUpsRatingService {
             parcelAuditDetails.add(commercialCharge);
 
         updateUpsOtherFieldValues(parcelAuditDetails);
-        if(status != null && !status.isEmpty()){
+/*        if(status != null && !status.isEmpty()){
             new DirectJDBCDAO().updateRtrStatus(21L, bean.getTrackingNumber(), status);
-        }
+        }*/
         return status;
     }
 
@@ -389,6 +389,7 @@ public class ParcelUpsRatingService {
 
         BigDecimal ratedGrossFuel = ParcelRateResponseParser.getRatedGrossFuel(priceSheet);
 
+        List<AccessorialDto> prevParentsRatesDtos = directJDBCDAO.getRatesForPrevParentIds(parcelAuditDetails.get(0).getTrackingNumber(), parcelAuditDetails.get(0).getParentId());
 
         for(ParcelAuditDetailsDto auditDetails : parcelAuditDetails){
             if(auditDetails != null && auditDetails.getChargeClassificationCode() != null && !auditDetails.getChargeClassificationCode().isEmpty()){
@@ -407,9 +408,9 @@ public class ParcelUpsRatingService {
                                 rateDetails.setDimDivisor(charge.getDimDivisor() == null ? new BigDecimal("0") : charge.getDimDivisor());
                                 rateDetails.setRatedWeight(charge.getWeight() == null ? new BigDecimal("0") : charge.getWeight());
 
+                                BigDecimal prevRtrAmt = ParcelRatingUtil.findPrevRateAmtByCode(prevParentsRatesDtos, "FRT", "accessorial");
 
-
-                                rateDetails.setRtrAmount(charge.getAmount());
+                                rateDetails.setRtrAmount(charge.getAmount().subtract(prevRtrAmt));
                                 rateDetails.setRtrStatus(rtrStatus.value);
                                 rateDetails.setHwtIdentifier(auditDetails.getMultiWeightNumber());
                                 rateDetails.setRateSetName(rateSetName);
@@ -417,7 +418,7 @@ public class ParcelUpsRatingService {
                                 rateDetails.setAccCode("FRT");
 
                                 if (auditDetails.getId().compareTo(auditDetails.getParentId()) == 0)
-                                    ParcelRateResponseParser.mapPercentageAndDis(rateDetails, priceSheet, mappedDscChanges);
+                                    ParcelRateResponseParser.mapPercentageAndDis(rateDetails, priceSheet, mappedDscChanges, prevParentsRatesDtos);
 
                                 directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                             }
@@ -436,7 +437,7 @@ public class ParcelUpsRatingService {
                         rateDetails.setFlagged(flagged);
 
                         if (auditDetails.getId().compareTo(auditDetails.getParentId()) == 0)
-                            ParcelRateResponseParser.mapPercentageAndDis(rateDetails, priceSheet, mappedDscChanges);
+                            ParcelRateResponseParser.mapPercentageAndDis(rateDetails, priceSheet, mappedDscChanges, prevParentsRatesDtos);
 
                         directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                     }
@@ -453,7 +454,8 @@ public class ParcelUpsRatingService {
                         rateDetails.setRatedGrossFuel(ratedGrossFuel);
                         rateDetails.setDimDivisor(charge.getDimDivisor() == null ? new BigDecimal("0") : charge.getDimDivisor());
                         rateDetails.setRatedWeight(charge.getWeight() == null ? new BigDecimal("0") : charge.getWeight());
-                        rateDetails.setRtrAmount(charge.getAmount());
+                        BigDecimal prevRtrAmt = ParcelRatingUtil.findPrevRateAmtByCode(prevParentsRatesDtos, "FRT", "accessorial");
+                        rateDetails.setRtrAmount(charge.getAmount().subtract(prevRtrAmt));
                         rateDetails.setRtrStatus(rtrStatus.value);
                         rateDetails.setHwtIdentifier(auditDetails.getMultiWeightNumber());
                         rateDetails.setRateSetName(rateSetName);
@@ -461,7 +463,7 @@ public class ParcelUpsRatingService {
                         rateDetails.setAccCode("FSC");
 
                         if (auditDetails.getId().compareTo(auditDetails.getParentId()) == 0)
-                            ParcelRateResponseParser.mapPercentageAndDis(rateDetails, priceSheet, mappedDscChanges);
+                            ParcelRateResponseParser.mapPercentageAndDis(rateDetails, priceSheet, mappedDscChanges, prevParentsRatesDtos);
 
                         directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                     }
@@ -486,7 +488,8 @@ public class ParcelUpsRatingService {
                         rateDetails.setZone(zone);
                         rateDetails.setDimDivisor(charge.getDimDivisor() == null ? new BigDecimal("0") : charge.getDimDivisor());
                         rateDetails.setRatedWeight(charge.getWeight() == null ? new BigDecimal("0") : charge.getWeight());
-                        rateDetails.setRtrAmount(charge.getAmount());
+                        BigDecimal prevRtrAmt = ParcelRatingUtil.findPrevRateAmtByCode(prevParentsRatesDtos, "FRT", "accessorial");
+                        rateDetails.setRtrAmount(charge.getAmount().subtract(prevRtrAmt));
                         rateDetails.setRtrStatus(rtrStatus.value);
                         rateDetails.setHwtIdentifier(auditDetails.getMultiWeightNumber());
                         rateDetails.setRateSetName(rateSetName);
@@ -495,7 +498,7 @@ public class ParcelUpsRatingService {
                             rateDetails.setAccCode(bean.getLookUpValue());
 
                         if (auditDetails.getId().compareTo(auditDetails.getParentId()) == 0)
-                            ParcelRateResponseParser.mapPercentageAndDis(rateDetails, priceSheet, mappedDscChanges);
+                            ParcelRateResponseParser.mapPercentageAndDis(rateDetails, priceSheet, mappedDscChanges, prevParentsRatesDtos);
 
                         directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                     }
@@ -514,7 +517,7 @@ public class ParcelUpsRatingService {
                     rateDetails.setFlagged(flagged);
 
                     if (auditDetails.getId().compareTo(auditDetails.getParentId()) == 0)
-                        ParcelRateResponseParser.mapPercentageAndDis(rateDetails, priceSheet, mappedDscChanges);
+                        ParcelRateResponseParser.mapPercentageAndDis(rateDetails, priceSheet, mappedDscChanges, prevParentsRatesDtos);
 
                     directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                 }
@@ -524,8 +527,8 @@ public class ParcelUpsRatingService {
 
         List<AccessorialDto> addAccAndDisdtos = new ArrayList<>();
 
-        prepareAdditionalAccessorialForUps(priceSheet, parcelAuditDetails.get(0).getParentId(), mappedAccChanges, addAccAndDisdtos, frtChargeFound, fscChargeFound);
-        prepareAddDiscounts(priceSheet, parcelAuditDetails.get(0).getParentId(), mappedDscChanges, addAccAndDisdtos);
+        prepareAdditionalAccessorialForUps(priceSheet, parcelAuditDetails.get(0).getParentId(), mappedAccChanges, addAccAndDisdtos, frtChargeFound, fscChargeFound, prevParentsRatesDtos);
+        prepareAddDiscounts(priceSheet, parcelAuditDetails.get(0).getParentId(), mappedDscChanges, addAccAndDisdtos, prevParentsRatesDtos);
 
         directJDBCDAO.saveAccInfo(addAccAndDisdtos, parcelAuditDetails.get(0).getParentId());
 
@@ -1239,7 +1242,7 @@ public class ParcelUpsRatingService {
     }
 
 
-    private void prepareAdditionalAccessorialForUps(ParcelRateResponse.PriceSheet priceSheet, Long parentId, List<ParcelRateResponse.Charge> mappedAccChanges, List<AccessorialDto> dtos, boolean frtChargeFound, boolean fscChargeFound) {
+    private void prepareAdditionalAccessorialForUps(ParcelRateResponse.PriceSheet priceSheet, Long parentId, List<ParcelRateResponse.Charge> mappedAccChanges, List<AccessorialDto> dtos, boolean frtChargeFound, boolean fscChargeFound, List<AccessorialDto> prevParentsRatesDtos) {
 
         List<ParcelRateResponse.Charge> accessorialCharges = ParcelRateResponseParser.getAccessorialChargesForUps(priceSheet);
 
@@ -1274,7 +1277,10 @@ public class ParcelUpsRatingService {
                 AccessorialDto dto = new AccessorialDto();
 
                 dto.setCode(charge.getEdiCode());
-                dto.setRtrAmount(charge.getAmount());
+
+                BigDecimal prevRtrAmt = ParcelRatingUtil.findPrevRateAmtByCode(prevParentsRatesDtos, "FRT", "accessorial");
+
+                dto.setRtrAmount(charge.getAmount().subtract(prevRtrAmt));
                 dto.setType("accessorial");
                 dto.setParentId(parentId);
                 dto.setName(charge.getName());
@@ -1291,7 +1297,8 @@ public class ParcelUpsRatingService {
                 AccessorialDto dto = new AccessorialDto();
 
                 dto.setCode(charge.getEdiCode());
-                dto.setRtrAmount(charge.getAmount());
+                BigDecimal prevRtrAmt = ParcelRatingUtil.findPrevRateAmtByCode(prevParentsRatesDtos, "FRT", "accessorial");
+                dto.setRtrAmount(charge.getAmount().subtract(prevRtrAmt));
                 dto.setType("accessorial");
                 dto.setParentId(parentId);
                 dto.setName(charge.getName());
@@ -1307,7 +1314,8 @@ public class ParcelUpsRatingService {
                 AccessorialDto dto = new AccessorialDto();
 
                 dto.setCode("FRT");
-                dto.setRtrAmount(charge.getAmount());
+                BigDecimal prevRtrAmt = ParcelRatingUtil.findPrevRateAmtByCode(prevParentsRatesDtos, "FRT", "accessorial");
+                dto.setRtrAmount(charge.getAmount().subtract(prevRtrAmt));
                 dto.setType("accessorial");
                 dto.setParentId(parentId);
                 dto.setName(charge.getName());
@@ -1319,7 +1327,7 @@ public class ParcelUpsRatingService {
     }
 
 
-    private void prepareAddDiscounts(ParcelRateResponse.PriceSheet priceSheet, Long parentId, List<ParcelRateResponse.Charge> mappedDscChanges, List<AccessorialDto> dtos) {
+    private void prepareAddDiscounts(ParcelRateResponse.PriceSheet priceSheet, Long parentId, List<ParcelRateResponse.Charge> mappedDscChanges, List<AccessorialDto> addAccAndDisdtos, List<AccessorialDto> prevParentsRatesDtos) {
 
         List<ParcelRateResponse.Charge> discountCharges = ParcelRateResponseParser.getAllOtherDiscountsForUPSCarrier(priceSheet);
 
@@ -1353,12 +1361,13 @@ public class ParcelUpsRatingService {
                 AccessorialDto dto = new AccessorialDto();
 
                 dto.setCode(charge.getEdiCode());
-                dto.setRtrAmount(charge.getAmount());
+                BigDecimal prevRtrAmt = ParcelRatingUtil.findPrevRateAmtByDisName(prevParentsRatesDtos, charge.getName(), "discount");
+                dto.setRtrAmount(charge.getAmount().subtract(prevRtrAmt));
                 dto.setType("discount");
                 dto.setParentId(parentId);
                 dto.setName(charge.getName());
 
-                dtos.add(dto);
+                addAccAndDisdtos.add(dto);
             }
 
         }
