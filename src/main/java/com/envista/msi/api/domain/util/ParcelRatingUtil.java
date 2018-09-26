@@ -292,19 +292,6 @@ public class ParcelRatingUtil {
         boolean hasRJ5Charge = false;
         String resiFlag = "N";
 
-        if (trackingNumDetails != null && trackingNumDetails.size() > 0) {
-
-            for (ParcelAuditDetailsDto auditDetails : shipmentDetails) {
-
-                if (auditDetails.getChargeDescriptionCode() != null && !"N".equalsIgnoreCase(ratingQueueBean.getComToRes())) {
-                    if ("RES".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()))
-                        ratingQueueBean.setComToRes("Y");
-                    if ("COM".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()))
-                        ratingQueueBean.setComToRes("N");
-                }
-
-            }
-        }
 
 
         if (shipmentDetails != null && !shipmentDetails.isEmpty()) {
@@ -345,19 +332,20 @@ public class ParcelRatingUtil {
                 for (ParcelAuditDetailsDto auditDetails : shipmentDetails) {
                     if (auditDetails != null) {
                         try {
-                            if (auditDetails.getWorldeEaseNum() != null && !auditDetails.getWorldeEaseNum().isEmpty())
-                                ratingQueueBean.setWorldeEaseNum("Y");
+                            if (shipmentDetails.get(0).getParentId().compareTo(auditDetails.getParentId()) == 0) {
+                                if (auditDetails.getWorldeEaseNum() != null && !auditDetails.getWorldeEaseNum().isEmpty())
+                                    ratingQueueBean.setWorldeEaseNum("Y");
 
-                            String[] dwFieldInfo = auditDetails.getDwFieldInformation().split(",");
-                            if (dwFieldInfo != null && dwFieldInfo.length > 0) {
+                                String[] dwFieldInfo = auditDetails.getDwFieldInformation().split(",");
+                                if (dwFieldInfo != null && dwFieldInfo.length > 0) {
 
-                                if (ParcelAuditConstant.ChargeClassificationCode.ACS.name().equalsIgnoreCase(dwFieldInfo[1].trim())
-                                        && "RES".equalsIgnoreCase(dwFieldInfo[2].trim())) {
-                                    resiFlag = "Y";
+                                    if (ParcelAuditConstant.ChargeClassificationCode.ACS.name().equalsIgnoreCase(dwFieldInfo[1].trim())
+                                            && "RES".equalsIgnoreCase(dwFieldInfo[2].trim())) {
+                                        resiFlag = "Y";
+                                    }
+
                                 }
-
                             }
-
 
                             if (auditDetails.getChargeClassificationCode() != null
                                     && ParcelAuditConstant.ChargeClassificationCode.ACC.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())) {
@@ -480,6 +468,47 @@ public class ParcelRatingUtil {
                 ratingQueueBean.setHwtIdentifier(firstCharge.getMultiWeightNumber());
                 ratingQueueBean.setRateSetName(rateSet);
                 ratingQueueBean.setResiFlag(resiFlag);
+
+                if (firstCharge.getParentId().compareTo(trackingNumDetails.get(0).getParentId()) == 0)
+                    ratingQueueBean.setComToRes("");
+                else if (trackingNumDetails != null && trackingNumDetails.size() > 0) {
+
+                    for (ParcelAuditDetailsDto auditDetails : trackingNumDetails) {
+
+                        if (auditDetails.getParentId().compareTo(trackingNumDetails.get(0).getParentId()) == 0 && auditDetails.getChargeDescriptionCode() != null) {
+                            if ("RES".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())) {
+                                ratingQueueBean.setComToRes("N");
+                                break;
+                            }
+                            if ("COM".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())) {
+                                ratingQueueBean.setComToRes("Y");
+                                break;
+                            }
+                        }
+
+                    }
+                    if ("Y".equalsIgnoreCase(ratingQueueBean.getComToRes())) {
+
+                        for (ParcelAuditDetailsDto auditDetails : shipmentDetails) {
+                            if (auditDetails.getChargeDescriptionCode() != null && "RES".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())) {
+                                ratingQueueBean.setComToRes("Y");
+                                break;
+                            } else
+                                ratingQueueBean.setComToRes("");
+                        }
+                    } else if ("N".equalsIgnoreCase(ratingQueueBean.getComToRes())) {
+
+                        for (ParcelAuditDetailsDto auditDetails : shipmentDetails) {
+                            if (auditDetails.getChargeDescriptionCode() != null && "COM".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())) {
+                                ratingQueueBean.setComToRes("N");
+                                break;
+                            } else
+                                ratingQueueBean.setComToRes("");
+                        }
+                    }
+
+                }
+
             }
         }
         return ratingQueueBean;
