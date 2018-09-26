@@ -1480,7 +1480,7 @@ public class ParcelRatingUtil {
 
         for (AccessorialDto dto : prevParentsRatesDtos) {
 
-            if (accessorialType.equalsIgnoreCase(dto.getType()) && accCode.equalsIgnoreCase(dto.getCode())) {
+            if ((accessorialType.equalsIgnoreCase(dto.getType()) || dto.getEbillGffId() != null) && accCode.equalsIgnoreCase(dto.getCode())) {
 
                 rtrAmount = rtrAmount.add(dto.getRtrAmount());
             }

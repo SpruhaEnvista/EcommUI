@@ -1351,7 +1351,7 @@ public class DirectJDBCDAO {
 
             String parentIdsInResult = String.join(",", parentIds);
             if (parentIdsInResult != null && parentIdsInResult.length() > 0) {
-                sqlQuery = " select Parent_Id,Acc_Code,Rtr_Amount from SHP_UPS_ACC_AND_DIS_TB where Parent_Id in (" + parentIdsInResult + ") ";
+                sqlQuery = " select Parent_Id,Acc_Code,Rtr_Amount, ACC_TYPE, NAME from SHP_UPS_ACC_AND_DIS_TB where Parent_Id in (" + parentIdsInResult + ") ";
 
                 pstmt = con.prepareStatement(sqlQuery);
 
@@ -1364,7 +1364,8 @@ public class DirectJDBCDAO {
                     dto.setParentId(rs.getLong("Parent_Id"));
                     dto.setRtrAmount(rs.getBigDecimal("Rtr_Amount"));
                     dto.setCode(rs.getString("Acc_Code"));
-
+                    dto.setType(rs.getString("ACC_TYPE"));
+                    dto.setName(rs.getString("NAME"));
                     dtos.add(dto);
                 }
             }

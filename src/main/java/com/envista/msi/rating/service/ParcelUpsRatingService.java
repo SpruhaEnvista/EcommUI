@@ -183,58 +183,6 @@ public class ParcelUpsRatingService {
         String status = "";
         DirectJDBCDAO directJDBCDAO = new DirectJDBCDAO();
 
-        if(commercialCharge != null){
-            if(parcelAuditDetails != null && !parcelAuditDetails.isEmpty()){
-                if(ParcelAuditConstant.COMMERCIAL_ADJUSTMENT_CHARGE_TYPE.equalsIgnoreCase(commercialCharge.getChargeDescription())){
-                    List<ParcelAuditDetailsDto> commercialShipment = new ArrayList<>();
-                    commercialShipment.add(commercialCharge);
-                    if(parcelAuditDetails != null){
-                        for(ParcelAuditDetailsDto commShipment : parcelAuditDetails){
-                            if(commShipment != null && !"RES".equalsIgnoreCase(commShipment.getChargeDescriptionCode())
-                                    && !"RSC".equalsIgnoreCase(commShipment.getChargeDescriptionCode()) && !"FRT".equalsIgnoreCase(commShipment.getChargeClassificationCode())){
-                                commercialShipment.add(commShipment);
-                            }
-                        }
-                    }
-
-                    requestPayload = com.envista.msi.rating.util.ParcelRateRequestBuilder.buildParcelRateRequest(bean, ParcelAuditConstant.AR_RATE_REQUEST_LICENSE_KEY, beans).toXmlString();
-                    response = CommonUtil.connectAndGetResponseAsString(url, requestPayload);
-                    if(response != null && !response.trim().isEmpty()){
-
-                        if (beans != null && beans.size() > 0) {
-                            commercialShipment = ParcelRatingUtil.getLeadShipmentDetails(commercialShipment);
-                            bean = ParcelRatingUtil.getLeadShipmentQueueBean(commercialShipment, beans);
-                        }
-
-                        directJDBCDAO.saveParcelAuditRequestAndResponseLog(ParcelRatingUtil.prepareRequestResponseLog(requestPayload, response, commercialCharge.getParentId(), ParcelAuditConstant.EBILL_GFF_TABLE_NAME));
-                        status = updateRateForUps(ParcelRateResponseParser.parse(response), commercialShipment, commercialCharge, previousShipment, null, (beans != null && beans.size() > 0 ? beans.get(0) : bean), accessorialBeans);
-                    }
-                } else if(ParcelAuditConstant.RESIDENTIAL_ADJUSTMENT_CHARGE_TYPE.equalsIgnoreCase(commercialCharge.getChargeDescription())){
-                    List<ParcelAuditDetailsDto> residentialShipment = new ArrayList<>();
-                    residentialShipment.add(commercialCharge);
-
-                    if(parcelAuditDetails != null) {
-                        for(ParcelAuditDetailsDto commShipment : parcelAuditDetails){
-                            if(commShipment != null && !"FRT".equalsIgnoreCase(commShipment.getChargeClassificationCode())){
-                                residentialShipment.add(commShipment);
-                            }
-                        }
-                    }
-                    requestPayload = com.envista.msi.rating.util.ParcelRateRequestBuilder.buildParcelRateRequest(bean, ParcelAuditConstant.AR_RATE_REQUEST_LICENSE_KEY, beans).toXmlString();
-                    response = CommonUtil.connectAndGetResponseAsString(url, requestPayload);
-                    if(response != null && !response.trim().isEmpty()){
-
-                        if (beans != null && beans.size() > 0) {
-                            residentialShipment = ParcelRatingUtil.getLeadShipmentDetails(residentialShipment);
-                            bean = ParcelRatingUtil.getLeadShipmentQueueBean(residentialShipment, beans);
-                        }
-
-                        directJDBCDAO.saveParcelAuditRequestAndResponseLog(ParcelRatingUtil.prepareRequestResponseLog(requestPayload, response, commercialCharge.getParentId(), ParcelAuditConstant.EBILL_GFF_TABLE_NAME));
-                        status = updateRateForUps(ParcelRateResponseParser.parse(response), residentialShipment, commercialCharge, previousShipment, null, (beans != null && beans.size() > 0 ? beans.get(0) : bean), accessorialBeans);
-                    }
-                }
-            }
-        }else{
             requestPayload = com.envista.msi.rating.util.ParcelRateRequestBuilder.buildParcelRateRequest(bean, ParcelAuditConstant.AR_RATE_REQUEST_LICENSE_KEY, beans).toXmlString();
             response = CommonUtil.connectAndGetResponseAsString(url, requestPayload);
             if (response != null && !response.trim().isEmpty()) {
@@ -248,9 +196,7 @@ public class ParcelUpsRatingService {
                 directJDBCDAO.saveParcelAuditRequestAndResponseLog(ParcelRatingUtil.prepareRequestResponseLog(requestPayload, response, parcelAuditDetails.get(0).getParentId(), ParcelAuditConstant.EBILL_GFF_TABLE_NAME));
                 status = updateRateForUps(ParcelRateResponseParser.parse(response), parcelAuditDetails, previousShipment, hwtNetAmount, bean, accessorialBeans);
             }
-        }
-        if (commercialCharge != null && parcelAuditDetails != null)
-            parcelAuditDetails.add(commercialCharge);
+
 
         updateUpsOtherFieldValues(parcelAuditDetails);
 /*        if(status != null && !status.isEmpty()){
@@ -510,11 +456,19 @@ public class ParcelUpsRatingService {
                     rateDetails.setContractName(contractName);
 
                     rateDetails.setZone(zone);
-                    rateDetails.setRtrAmount(new BigDecimal("0"));
+                    rateDetails.setRtrAmount(new BigDecimal("0.00"));
                     rateDetails.setRtrStatus(rtrStatus.value);
                     rateDetails.setHwtIdentifier(auditDetails.getMultiWeightNumber());
                     rateDetails.setRateSetName(rateSetName);
                     rateDetails.setFlagged(flagged);
+                    ServiceFlagAccessorialBean bean = ParcelRatingUtil.getAccessorialBean(accessorialBeans, auditDetails.getChargeDescription(), auditDetails.getChargeDescriptionCode(), 21L);
+
+                    if (bean != null) {
+                        if ("RSC".equalsIgnoreCase(bean.getLookUpValue()))
+                            bean.setLookUpValue("RSS");
+                        rateDetails.setAccCode(bean.getLookUpValue());
+                    } else
+                        rateDetails.setAccCode("UNKNOWN");
 
                     if (auditDetails.getId().compareTo(auditDetails.getParentId()) == 0)
                         ParcelRateResponseParser.mapPercentageAndDis(rateDetails, priceSheet, mappedDscChanges, prevParentsRatesDtos);
@@ -1278,7 +1232,7 @@ public class ParcelUpsRatingService {
 
                 dto.setCode(charge.getEdiCode());
 
-                BigDecimal prevRtrAmt = ParcelRatingUtil.findPrevRateAmtByCode(prevParentsRatesDtos, "FRT", "accessorial");
+                BigDecimal prevRtrAmt = ParcelRatingUtil.findPrevRateAmtByCode(prevParentsRatesDtos, charge.getEdiCode(), "accessorial");
 
                 dto.setRtrAmount(charge.getAmount().subtract(prevRtrAmt));
                 dto.setType("accessorial");
@@ -1297,7 +1251,7 @@ public class ParcelUpsRatingService {
                 AccessorialDto dto = new AccessorialDto();
 
                 dto.setCode(charge.getEdiCode());
-                BigDecimal prevRtrAmt = ParcelRatingUtil.findPrevRateAmtByCode(prevParentsRatesDtos, "FRT", "accessorial");
+                BigDecimal prevRtrAmt = ParcelRatingUtil.findPrevRateAmtByCode(prevParentsRatesDtos, charge.getEdiCode(), "accessorial");
                 dto.setRtrAmount(charge.getAmount().subtract(prevRtrAmt));
                 dto.setType("accessorial");
                 dto.setParentId(parentId);
