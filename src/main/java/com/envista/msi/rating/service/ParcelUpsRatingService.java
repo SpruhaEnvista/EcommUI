@@ -416,8 +416,8 @@ public class ParcelUpsRatingService {
                 } else{
                     ServiceFlagAccessorialBean bean = ParcelRatingUtil.getAccessorialBean(accessorialBeans, auditDetails.getChargeDescription(), auditDetails.getChargeDescriptionCode(), 21L);
                     if (bean != null) {
-                        if("RSC".equalsIgnoreCase(bean.getLookUpValue()))
-                            bean.setLookUpValue("RSS");
+/*                        if("RSC".equalsIgnoreCase(bean.getLookUpValue()))
+                            bean.setLookUpValue("RSS");*/
 
                         charge = ParcelRateResponseParser.findChargeByEDICodeInResponse(bean.getLookUpValue(), priceSheet);
                     }
@@ -464,8 +464,8 @@ public class ParcelUpsRatingService {
                     ServiceFlagAccessorialBean bean = ParcelRatingUtil.getAccessorialBean(accessorialBeans, auditDetails.getChargeDescription(), auditDetails.getChargeDescriptionCode(), 21L);
 
                     if (bean != null) {
-                        if ("RSC".equalsIgnoreCase(bean.getLookUpValue()))
-                            bean.setLookUpValue("RSS");
+/*                        if ("RSC".equalsIgnoreCase(bean.getLookUpValue()))
+                            bean.setLookUpValue("RSS");*/
                         rateDetails.setAccCode(bean.getLookUpValue());
                     } else
                         rateDetails.setAccCode("UNKNOWN");
@@ -592,7 +592,7 @@ public class ParcelUpsRatingService {
                     ServiceFlagAccessorialBean bean = ParcelRatingUtil.getAccessorialBean(accessorialBeans, auditDetails.getChargeDescription(), auditDetails.getChargeDescriptionCode(), 21L);
 
                     if (bean != null){
-                        if("RSC".equalsIgnoreCase(bean.getLookUpValue())) bean.setLookUpValue("RSS");
+                        /*if("RSC".equalsIgnoreCase(bean.getLookUpValue())) bean.setLookUpValue("RSS");*/
                         charge = ParcelRateResponseParser.findChargeByEDICodeInResponse(bean.getLookUpValue(), priceSheet);
                     }
 
@@ -859,7 +859,7 @@ public class ParcelUpsRatingService {
                 } else {
                     ServiceFlagAccessorialBean bean = ParcelRatingUtil.getAccessorialBean(accessorialBeans, auditDetails.getChargeDescription(), auditDetails.getChargeDescriptionCode(), 21L);
                     if (bean != null){
-                        if("RSC".equalsIgnoreCase(bean.getLookUpValue())) bean.setLookUpValue("RSS");
+                       /* if("RSC".equalsIgnoreCase(bean.getLookUpValue())) bean.setLookUpValue("RSS");*/
                         charge = ParcelRateResponseParser.findChargeByEDICodeInResponse(bean.getLookUpValue(), priceSheet);
                     }
 
