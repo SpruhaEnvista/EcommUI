@@ -468,6 +468,8 @@ public class ParcelRatingUtil {
                 ratingQueueBean.setHwtIdentifier(firstCharge.getMultiWeightNumber());
                 ratingQueueBean.setRateSetName(rateSet);
                 ratingQueueBean.setResiFlag(resiFlag);
+                if (firstCharge.getServiceLevel() != null)
+                    ratingQueueBean.setActualServiceBucket(Long.valueOf(firstCharge.getServiceLevel()));
 
                 if (firstCharge.getParentId().compareTo(trackingNumDetails.get(0).getParentId()) == 0)
                     ratingQueueBean.setComToRes("");

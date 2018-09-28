@@ -199,7 +199,7 @@ public class DirectJDBCDAO {
         CallableStatement cstmt = null;
         try{
             conn = ServiceLocator.getDatabaseConnection();
-            cstmt = conn.prepareCall("{ call SHP_SAVE_RATE_DETAILS_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
+            cstmt = conn.prepareCall("{ call SHP_SAVE_RATE_DETAILS_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
             cstmt.setString(1,referenceTableName);
             cstmt.setString(2, entityId);
             cstmt.setString(3,userName);
@@ -228,6 +228,7 @@ public class DirectJDBCDAO {
             cstmt.setString(26, rateDetails != null && rateDetails.getReturnFlag() != null ? rateDetails.getReturnFlag() : "N");
             cstmt.setString(27, rateDetails != null && rateDetails.getResiFlag() != null ? rateDetails.getResiFlag() : "N");
             cstmt.setString(28, rateDetails != null && rateDetails.getComToRes() != null ? rateDetails.getComToRes() : "");
+            cstmt.setLong(29, rateDetails != null && rateDetails.getActualServiceBucket() != null ? rateDetails.getActualServiceBucket() : -1L);
 
             cstmt.executeUpdate();
 

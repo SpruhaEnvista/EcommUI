@@ -492,6 +492,7 @@ public class ParcelUpsRatingService {
         rateDetails.setShipperCategory(priceSheet.getCategory());
         rateDetails.setContractName(priceSheet.getContractName());
         rateDetails.setZone(priceSheet.getZone());
+        rateDetails.setActualServiceBucket(queueBean.getActualServiceBucket());
 
     }
 

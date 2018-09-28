@@ -80,6 +80,7 @@ public class RatingQueueBean {
     private String WorldeEaseNum;
     private String comToRes;
     private String prpFlag;
+    private Long actualServiceBucket;
 
     public Long getRatingQueueId() {
         return ratingQueueId;
@@ -686,5 +687,13 @@ public class RatingQueueBean {
 
     public void setPrpFlag(String prpFlag) {
         this.prpFlag = prpFlag;
+    }
+
+    public Long getActualServiceBucket() {
+        return actualServiceBucket;
+    }
+
+    public void setActualServiceBucket(Long actualServiceBucket) {
+        this.actualServiceBucket = actualServiceBucket;
     }
 }

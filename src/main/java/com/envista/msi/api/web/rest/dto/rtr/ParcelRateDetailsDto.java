@@ -148,6 +148,8 @@ public class ParcelRateDetailsDto implements Serializable {
 
     private String comToRes;
 
+    private Long actualServiceBucket;
+
 
     public static ParcelRateDetailsDto getInstance(){
         return new ParcelRateDetailsDto();
@@ -491,5 +493,13 @@ public class ParcelRateDetailsDto implements Serializable {
 
     public void setComToRes(String comToRes) {
         this.comToRes = comToRes;
+    }
+
+    public Long getActualServiceBucket() {
+        return actualServiceBucket;
+    }
+
+    public void setActualServiceBucket(Long actualServiceBucket) {
+        this.actualServiceBucket = actualServiceBucket;
     }
 }

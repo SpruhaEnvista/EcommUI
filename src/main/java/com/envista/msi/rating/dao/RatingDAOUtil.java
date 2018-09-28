@@ -84,6 +84,7 @@ public class RatingDAOUtil {
         RATING_QUEUE_COLUMN_NAMES.add("WORLD_EASE_NUM");
         RATING_QUEUE_COLUMN_NAMES.add("COM_TO_RES");
         RATING_QUEUE_COLUMN_NAMES.add("PRP_FLAG");
+        RATING_QUEUE_COLUMN_NAMES.add("ACTUAL_SERVICE_BUCKET");
     }
 
     public static String prepareRatingQueueInsertQuery(boolean isHwt) {
@@ -302,6 +303,8 @@ public class RatingDAOUtil {
                 ps.setString(65, queueBean.getComToRes());
             } else if ("PRP_FLAG".equalsIgnoreCase(columnName)) {
                 ps.setString(66, queueBean.getPrpFlag());
+            } else if ("ACTUAL_SERVICE_BUCKET".equalsIgnoreCase(columnName)) {
+                ps.setLong(67, queueBean.getActualServiceBucket());
             } else {
                 throw new RuntimeException("Column name not mapped");
             }
