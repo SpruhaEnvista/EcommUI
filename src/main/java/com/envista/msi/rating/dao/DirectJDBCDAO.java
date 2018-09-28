@@ -199,7 +199,7 @@ public class DirectJDBCDAO {
         CallableStatement cstmt = null;
         try{
             conn = ServiceLocator.getDatabaseConnection();
-            cstmt = conn.prepareCall("{ call SHP_SAVE_RATE_DETAILS_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
+            cstmt = conn.prepareCall("{ call SHP_SAVE_RATE_DETAILS_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
             cstmt.setString(1,referenceTableName);
             cstmt.setString(2, entityId);
             cstmt.setString(3,userName);
@@ -225,6 +225,9 @@ public class DirectJDBCDAO {
             cstmt.setString(23, rateDetails != null && rateDetails.getZone() != null ? rateDetails.getZone() : null);
             cstmt.setBigDecimal(24, rateDetails != null && rateDetails.getFscRtrAmt() != null ? rateDetails.getFscRtrAmt() : new BigDecimal("0"));
             cstmt.setString(25, rateDetails != null && rateDetails.getAccCode() != null ? rateDetails.getAccCode() : null);
+            cstmt.setString(26, rateDetails != null && rateDetails.getReturnFlag() != null ? rateDetails.getReturnFlag() : "N");
+            cstmt.setString(27, rateDetails != null && rateDetails.getResiFlag() != null ? rateDetails.getResiFlag() : "N");
+            cstmt.setString(28, rateDetails != null && rateDetails.getComToRes() != null ? rateDetails.getComToRes() : "");
 
             cstmt.executeUpdate();
 

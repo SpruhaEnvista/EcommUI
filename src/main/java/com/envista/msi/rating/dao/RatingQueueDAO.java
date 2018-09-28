@@ -207,6 +207,9 @@ public class RatingQueueDAO {
                 ratingQueueBean.setWorldeEaseNum(rs.getString("WORLD_EASE_NUM"));
                 ratingQueueBean.setComToRes(rs.getString("COM_TO_RES"));
                 ratingQueueBean.setPrpFlag(rs.getString("PRP_FLAG"));
+                ratingQueueBean.setReturnFlag(rs.getString("RETURN_FLAG"));
+                ratingQueueBean.setResiFlag(rs.getString("RESI_FLAG"));
+                ratingQueueBean.setComToRes(rs.getString("COM_TO_RES"));
                 beanList.add(ratingQueueBean);
             }
 
