@@ -342,7 +342,7 @@ public class RatingQueueDAO {
             liveQuery += " (select rev.SPEND from Shp_Revenue_Tb rev where  rev.customer_id=c.customer_id and rev.carrier_id=c.carrier_id and rev.carrier_id=21 and (a.SHIPMENT_DATE BETWEEN week_from_date AND week_to_date) and rownum=1 and rev.spend is not null) AS REVENUE_TIER, ";
             liveQuery += " null AS CHARGE_CODE, a.Lead_Shipment_Number AS MULTI_WEIGHT_NUMBER, a.CHARGE_CATEGORY_DETAIL_CODE, ";
             liveQuery += " a.INVOICE_DATE, a.INVOICE_NUMBER,  a.ZONE as ZONE, a.INCENTIVE_AMOUNT, b.CREATE_DATE AS INV_CREATE_DATE, a.SENDER_POSTAL AS SENDER_BILLED_ZIP_CODE, a.RECEIVER_POSTAL AS RECEIVER_BILLED_ZIP_CODE," +
-                    "     f.STATE as shipper_state,f.CITY  as shipper_city,f.ZIPCODE  as shipper_zipCode,f.COUNTRY as shipper_country,a.World_Ease_Number, ";
+                    "     f.STATE as shipper_state,f.CITY  as shipper_city,f.ZIPCODE  as shipper_zipCode,f.COUNTRY as shipper_country,a.World_Ease_Number,a.actual_service_bucket, ";
             if (isHwt) {
                 liveQuery += " 0 as RTR_AMOUNT ,null as rtr_status";
             } else {
@@ -480,6 +480,7 @@ public class RatingQueueDAO {
                 shipmentDetails.setShipperCountry(rs.getString("shipper_country"));
                 shipmentDetails.setShipperZip(rs.getString("shipper_zipCode"));
                 shipmentDetails.setWorldeEaseNum((rs.getString("World_Ease_Number")));
+                shipmentDetails.setActualServiceBucket((rs.getLong("actual_service_bucket")));
 
                 parcelUpsShipments.add(shipmentDetails);
 
