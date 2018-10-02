@@ -18,10 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Sujit kumar on 01/05/2018.
@@ -142,7 +139,7 @@ public class ParcelRatingQueueJob {
                     if(invId != null) {
                         log.info("populating into rating queue table started for invoice id ->" + invId);
                         System.out.println("populating into rating queue table started for invoice id ->" + invId);
-                        allShipmentDetails = new ParcelUpsRatingService().getUpsParcelShipmentDetails(ratingInputCriteriaBean.getCustomerId(), ratingInputCriteriaBean.getFromShipDate(), ratingInputCriteriaBean.getToShipDate(), ratingInputCriteriaBean.getTrackingNumbers(), invId.toString(), isHwt);
+                        allShipmentDetails = new ParcelUpsRatingService().getUpsParcelShipmentDetails(ratingInputCriteriaBean.getCustomerId(), ratingInputCriteriaBean.getFromShipDate(), ratingInputCriteriaBean.getToShipDate(), ratingInputCriteriaBean.getTrackingNumbers(), invId.toString(), null);
 
                         if(allShipmentDetails != null && !allShipmentDetails.isEmpty()){
                             Map<String, List<ParcelAuditDetailsDto>> trackingNumberWiseShipments = ParcelRatingUtil.prepareTrackingNumberWiseAuditDetails(allShipmentDetails);
@@ -177,27 +174,71 @@ public class ParcelRatingQueueJob {
         if(trackingNumberWiseShipments != null) {
             Map<String, List<ParcelAuditDetailsDto>> hwtDetailsMap = ParcelRatingUtil.prepareHwtNumberWiseAuditDetails(trackingNumberWiseShipments);
             Iterator<Map.Entry<String, List<ParcelAuditDetailsDto>>> entryIterator = trackingNumberWiseShipments.entrySet().iterator();
+            List<ParcelAuditDetailsDto> shipmentRecords = null;
             while(entryIterator.hasNext()){
+
+                shipmentRecords = null;
+
                 Map.Entry<String,List<ParcelAuditDetailsDto>> parcelAuditEntry = entryIterator.next();
                 if (parcelAuditEntry != null) {
                     String trackingNumber = parcelAuditEntry.getKey();
-                    List<ParcelAuditDetailsDto> shipmentRecords = null;
-                    if (trackingNumber != null && !trackingNumber.isEmpty()) {
-                        shipmentRecords = new ParcelUpsRatingService().getUpsParcelShipmentDetails(customerIds, trackingNumber, true, false);
+
+                    boolean hwtShipment = false;
+                    if (hwtShipment && (parcelAuditEntry.getValue().get(0).getMultiWeightNumber() != null && !parcelAuditEntry.getValue().get(0).getMultiWeightNumber().isEmpty())) {
+
+                        shipmentRecords = new ParcelUpsRatingService().getUpsParcelShipmentDetails(customerIds, null, true, parcelAuditEntry.getValue().get(0).getMultiWeightNumber());
+                        hwtShipment = ParcelRatingUtil.checkHwtShipment(shipmentRecords);
                     }
 
-                    Map<Long, List<ParcelAuditDetailsDto>> shipments = ParcelRatingUtil.organiseShipmentsByParentId(shipmentRecords);
+                    if (!hwtShipment) {
+                        if (trackingNumber != null && !trackingNumber.isEmpty()) {
+                            shipmentRecords = new ParcelUpsRatingService().getUpsParcelShipmentDetails(customerIds, trackingNumber, true, null);
+                        }
 
-                    if (shipments != null) {
+                        Map<Long, List<ParcelAuditDetailsDto>> shipments = ParcelRatingUtil.organiseShipmentsByParentId(shipmentRecords);
 
-                        for (Map.Entry<Long, List<ParcelAuditDetailsDto>> entry : shipments.entrySet()) {
+                        if (shipments != null) {
 
-                            List<ParcelAuditDetailsDto> shipmentChargeList = ParcelRatingUtil.prepareChargeList(entry.getKey(), shipments);
+                            for (Map.Entry<Long, List<ParcelAuditDetailsDto>> entry : shipments.entrySet()) {
 
-                            addUpsShipmentEntryIntoQueue(shipmentChargeList, ratingInputCriteriaBean, accessorialBeans, shipmentRecords);
+                                List<ParcelAuditDetailsDto> shipmentChargeList = ParcelRatingUtil.prepareChargeList(entry.getKey(), shipments);
+
+                                addUpsShipmentEntryIntoQueue(shipmentChargeList, ratingInputCriteriaBean, accessorialBeans, shipmentRecords, null);
+                            }
+                        }
+                    } else {
+
+                        Map<Date, List<ParcelAuditDetailsDto>> shipments = ParcelRatingUtil.organiseShipmentsByBillDate(shipmentRecords);
+
+                        List<ParcelAuditDetailsDto> leadShipmentDetails = ParcelRatingUtil.getLeadShipmentDetails(shipmentRecords);
+
+                        Map<String, List<ParcelAuditDetailsDto>> LeadTrackingWiseShipments = ParcelRatingUtil.prepareTrackingNumberWiseAuditDetails(shipmentRecords);
+
+
+                        for (Map.Entry<Date, List<ParcelAuditDetailsDto>> entry : shipments.entrySet()) {
+
+                            boolean shipmentExist = parcelRatingService.hwtShipmentExist(leadShipmentDetails.get(0).getTrackingNumber(), entry.getKey());
+
+                            if (!shipmentExist) {
+
+                                Map<String, Long> hwtSequenceInfo = new HashMap<>();
+
+                                ParcelRatingUtil.getMinParentId(entry.getValue(), hwtSequenceInfo);
+
+                                Map<String, List<ParcelAuditDetailsDto>> billDateTrackingWiseShipments = ParcelRatingUtil.prepareTrackingNumberWiseAuditDetails(entry.getValue());
+
+                                ParcelRatingUtil.addMissTrackingInfo(billDateTrackingWiseShipments, LeadTrackingWiseShipments);
+
+                                List<ParcelAuditDetailsDto> shipmentChargeList = ParcelRatingUtil.prepareHwtAccList(billDateTrackingWiseShipments, hwtSequenceInfo);
+                                ratingInputCriteriaBean.setHwt(true);
+                                addUpsShipmentEntryIntoQueue(shipmentChargeList, ratingInputCriteriaBean, accessorialBeans, shipmentRecords, hwtSequenceInfo);
+
+
+                            }
+
+
                         }
                     }
-
 
                     entryIterator.remove();
                 }
@@ -299,10 +340,10 @@ public class ParcelRatingQueueJob {
         }
     }
 
-    private void addUpsShipmentEntryIntoQueue(List<ParcelAuditDetailsDto> shipmentsWithPrevFrt, ParcelRatingInputCriteriaBean ratingInputCriteriaBean, List<ServiceFlagAccessorialBean> accessorialBeans, List<ParcelAuditDetailsDto> trackingNumDetails) {
-        if(!parcelRatingService.shipmentExist(shipmentsWithPrevFrt.get(0).getParentId())) {
+    private void addUpsShipmentEntryIntoQueue(List<ParcelAuditDetailsDto> shipmentsWithPrevFrt, ParcelRatingInputCriteriaBean ratingInputCriteriaBean, List<ServiceFlagAccessorialBean> accessorialBeans, List<ParcelAuditDetailsDto> trackingNumDetails, Map<String, Long> hwtSequenceInfo) {
+        if (ratingInputCriteriaBean.isHwt() || !parcelRatingService.shipmentExist(shipmentsWithPrevFrt.get(0).getParentId())) {
             try{
-                RatingQueueBean ratingQueueBean = ParcelRatingUtil.prepareShipmentEntryForUpsShipment(shipmentsWithPrevFrt, ratingInputCriteriaBean.getRateSetName(), accessorialBeans, trackingNumDetails);
+                RatingQueueBean ratingQueueBean = ParcelRatingUtil.prepareShipmentEntryForUpsShipment(shipmentsWithPrevFrt, ratingInputCriteriaBean.getRateSetName(), accessorialBeans, trackingNumDetails, hwtSequenceInfo);
                 if(ratingQueueBean != null){
                     ratingQueueBean.setTaskId(ratingInputCriteriaBean.getTaskId());
                     ratingQueueBean.setThresholdValue(ratingInputCriteriaBean.getThresholdValue());
@@ -331,7 +372,7 @@ public class ParcelRatingQueueJob {
                     if (StringUtils.equalsIgnoreCase("fedex", rateTo)) {
                         ratingQueueBean = ParcelRatingUtil.prepareShipmentEntryForNonUpsShipment(listEntry.getValue(), ratingInputCriteriaBean.getRateSetName(), accessorialBeans);
                     } else if (StringUtils.equalsIgnoreCase("ups", rateTo)) {
-                        ratingQueueBean = ParcelRatingUtil.prepareShipmentEntryForUpsShipment(listEntry.getValue(), ratingInputCriteriaBean.getRateSetName(), accessorialBeans, null);
+                        ratingQueueBean = ParcelRatingUtil.prepareShipmentEntryForUpsShipment(listEntry.getValue(), ratingInputCriteriaBean.getRateSetName(), accessorialBeans, null, null);
                     }
                     if (ratingQueueBean != null) {
                         ratingQueueBean.setTaskId(ratingInputCriteriaBean.getTaskId());

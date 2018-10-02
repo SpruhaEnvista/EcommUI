@@ -16,12 +16,7 @@ import com.envista.msi.rating.dao.RatingQueueDAO;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.StringJoiner;
+import java.util.*;
 
 /**
  * Created by Sujit kumar on 02/05/2018.
@@ -623,5 +618,10 @@ public class ParcelNonUpsRatingService {
 
     public List<RatedChargeDetailsDto> getRatedChargeAmountForNonUPS(Long parentId, String trackingNumber, String pickUpDate) {
         return new DirectJDBCDAO().getRatedChargeAmountforNonUPS(parentId, trackingNumber, pickUpDate);
+    }
+
+
+    public boolean hwtShipmentExist(String trackingNumber, Date billDate) {
+        return new RatingQueueDAO().hwtShipmentExist(trackingNumber, billDate);
     }
 }

@@ -9,11 +9,9 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class RatingQueueDAO {
@@ -319,7 +317,7 @@ public class RatingQueueDAO {
         }
     }
 
-    public List<ParcelAuditDetailsDto> getUpsParcelShipmentDetails(String customerIds, String fromDate, String toDate, String trackingNumbers, String invoiceIds, boolean ignoreRtrStatus, boolean isHwt) {
+    public List<ParcelAuditDetailsDto> getUpsParcelShipmentDetails(String customerIds, String fromDate, String toDate, String trackingNumbers, String invoiceIds, boolean ignoreRtrStatus, String hwtNumbers) {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -342,25 +340,21 @@ public class RatingQueueDAO {
             liveQuery += " (select rev.SPEND from Shp_Revenue_Tb rev where  rev.customer_id=c.customer_id and rev.carrier_id=c.carrier_id and rev.carrier_id=21 and (a.SHIPMENT_DATE BETWEEN week_from_date AND week_to_date) and rownum=1 and rev.spend is not null) AS REVENUE_TIER, ";
             liveQuery += " null AS CHARGE_CODE, a.Lead_Shipment_Number AS MULTI_WEIGHT_NUMBER, a.CHARGE_CATEGORY_DETAIL_CODE, ";
             liveQuery += " a.INVOICE_DATE, a.INVOICE_NUMBER,  a.ZONE as ZONE, a.INCENTIVE_AMOUNT, b.CREATE_DATE AS INV_CREATE_DATE, a.SENDER_POSTAL AS SENDER_BILLED_ZIP_CODE, a.RECEIVER_POSTAL AS RECEIVER_BILLED_ZIP_CODE," +
-                    "     f.STATE as shipper_state,f.CITY  as shipper_city,f.ZIPCODE  as shipper_zipCode,f.COUNTRY as shipper_country,a.World_Ease_Number,a.actual_service_bucket, ";
-            if (isHwt) {
-                liveQuery += " 0 as RTR_AMOUNT ,null as rtr_status";
-            } else {
-                liveQuery += " ar.RTR_AMOUNT ,ar.rtr_status";
-            }
-            liveQuery += " FROM shp_ebill_gff_tb a, shp_ebill_invoice_tb b, shp_ebill_contract_tb c, shp_customer_profile_tb d, shp_carrier_tb e, shp_shipper_tb f ";
-            if (!isHwt) {
-                liveQuery += ", SHP_EBILL_UPS_RATES_TB ar  ";
-            }
+                    "     f.STATE as shipper_state,f.CITY  as shipper_city,f.ZIPCODE  as shipper_zipCode,f.COUNTRY as shipper_country," +
+                    "a.World_Ease_Number,a.actual_service_bucket,ar.RTR_AMOUNT ,ar.rtr_status ";
+
+            liveQuery += " FROM shp_ebill_gff_tb a, shp_ebill_invoice_tb b, shp_ebill_contract_tb c, shp_customer_profile_tb d," +
+                    " shp_carrier_tb e, shp_shipper_tb f, SHP_EBILL_UPS_RATES_TB ar ";
+
             liveQuery += " WHERE a.invoice_id = b.invoice_id ";
             liveQuery += " AND b.INV_CONTRACT_NUMBER = c.CONTRACT_NUMBER ";
             liveQuery += " AND c.CUSTOMER_ID = d.CUSTOMER_ID ";
             liveQuery += " AND c.CARRIER_ID = e.CARRIER_ID ";
             liveQuery += " AND b.inv_CARRIER_ID = c.CARRIER_ID ";
             liveQuery += " AND b.shipper_code = f.shipper_code ";
-            if (!isHwt) {
-                liveQuery += " AND a.ebill_gff_id = ar.ebill_gff_id(+) ";
-            }
+
+            liveQuery += " AND a.ebill_gff_id = ar.ebill_gff_id(+) ";
+
             liveQuery += " and b.inv_carrier_id = 21 ";
 
             if(fromDate != null && !fromDate.isEmpty() && toDate != null && !toDate.isEmpty()) {
@@ -385,16 +379,18 @@ public class RatingQueueDAO {
                 liveQuery += " AND a.invoice_id IN ( " + invoiceIds + ") ";
             }
 
-            if (!ignoreRtrStatus && !isHwt) {
-                liveQuery += " AND (UPPER(ar.RTR_STATUS) = 'READYFORRATE' OR ar.RTR_STATUS IS NULL) and a.Lead_Shipment_Number is null ";
+            if (!ignoreRtrStatus) {
+                liveQuery += " AND (UPPER(ar.RTR_STATUS) = 'READYFORRATE' OR ar.RTR_STATUS IS NULL)  ";
             }
 
-            if (isHwt) {
-                liveQuery += " and a.Lead_Shipment_Number is not null AND (a.ebill_gff_id,a.Lead_Shipment_Number) in(SELECT EBILL_GFF_ID,Lead_Shipment_Number FROM  shp_ebill_gff_tb " +
-                        " where invoice_id IN ( " + invoiceIds + ") MINUS SELECT a.Gff_Id,a.hwt_identifier FROM  Shp_Rating_Queue_Tb a," +
-                        " shp_ebill_gff_tb b where a.Gff_Id = b.EBILL_GFF_ID and b.invoice_id IN ( " + invoiceIds + "))";
+            if (hwtNumbers != null && !hwtNumbers.isEmpty()) {
 
+                if (StringUtils.containsIgnoreCase(hwtNumbers, ","))
+                    liveQuery += " AND a.Lead_Shipment_Number IN (" + hwtNumbers + ") ";
+                else
+                    liveQuery += " AND a.Lead_Shipment_Number = ('" + hwtNumbers + "') ";
             }
+
 
             String archiveQuery = "";
             archiveQuery = liveQuery.replace("shp_ebill_gff_tb", "arc_ebill_gff_tb");
@@ -906,6 +902,53 @@ public class RatingQueueDAO {
             String sqlQuery = "select count(1) shipment_count from shp_rating_queue_tb where parent_id = ? and rate_status = 0";
             ps = connection.prepareStatement(sqlQuery);
             ps.setLong(1, parentId);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                if (rs.getInt("shipment_count") > 0) {
+                    return true;
+                }
+            }
+        } catch (SQLException sqle) {
+            sqle.printStackTrace();
+            throw new DaoException("Exception in shipmentExist", sqle);
+        } catch (ServiceLocatorException sle) {
+            throw new DaoException("Exception in shipmentExist", sle);
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (SQLException sqle) {
+            }
+            try {
+                if (ps != null)
+                    ps.close();
+            } catch (SQLException sqle) {
+            }
+            try {
+                if (connection != null)
+                    connection.close();
+            } catch (SQLException sqle) {
+            }
+        }
+        return false;
+    }
+
+    public boolean hwtShipmentExist(String trackingNumber, Date billDate) {
+        Connection connection = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            connection = ServiceLocator.getDatabaseConnection();
+            String sqlQuery = "select count(1) shipment_count from shp_rating_queue_tb where tracking_number = ? AND INVOICE_DATE =? and rate_status = 0";
+            ps = connection.prepareStatement(sqlQuery);
+
+            ps.setString(1, trackingNumber);
+            if (billDate != null) {
+                ps.setDate(2, new java.sql.Date(billDate.getTime()));
+            } else {
+                ps.setNull(2, Types.DATE);
+            }
+
             rs = ps.executeQuery();
             if(rs.next()) {
                 if(rs.getInt("shipment_count") > 0) {

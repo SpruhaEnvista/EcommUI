@@ -81,6 +81,7 @@ public class RatingQueueBean {
     private String comToRes;
     private String prpFlag;
     private Long actualServiceBucket;
+    private Date invoiceDate;
 
     public Long getRatingQueueId() {
         return ratingQueueId;
@@ -695,5 +696,13 @@ public class RatingQueueBean {
 
     public void setActualServiceBucket(Long actualServiceBucket) {
         this.actualServiceBucket = actualServiceBucket;
+    }
+
+    public Date getInvoiceDate() {
+        return invoiceDate;
+    }
+
+    public void setInvoiceDate(Date invoiceDate) {
+        this.invoiceDate = invoiceDate;
     }
 }

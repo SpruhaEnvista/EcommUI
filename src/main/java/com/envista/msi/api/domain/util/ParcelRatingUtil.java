@@ -15,17 +15,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by Sujit kumar on 20/04/2018.
@@ -277,9 +267,19 @@ public class ParcelRatingUtil {
         return null;
     }
 
-    public static RatingQueueBean prepareShipmentEntryForUpsShipment(List<ParcelAuditDetailsDto> shipmentDetails, String rateSet, List<ServiceFlagAccessorialBean> accessorialBeans, List<ParcelAuditDetailsDto> trackingNumDetails) {
+    public static RatingQueueBean prepareShipmentEntryForUpsShipment(List<ParcelAuditDetailsDto> shipmentDetails, String rateSet, List<ServiceFlagAccessorialBean> accessorialBeans, List<ParcelAuditDetailsDto> trackingNumDetails, Map<String, Long> hwtSequenceInfo) {
         RatingQueueBean ratingQueueBean = new RatingQueueBean();
-        ParcelAuditDetailsDto firstCharge = shipmentDetails.get(0);
+        ParcelAuditDetailsDto firstCharge;
+        boolean hwt = false;
+        if (hwtSequenceInfo == null) {
+            firstCharge = shipmentDetails.get(0);
+            hwtSequenceInfo = new HashMap<>();
+            hwtSequenceInfo.put(firstCharge.getTrackingNumber(), firstCharge.getParentId());
+        } else {
+            firstCharge = getMinParentChargeForUps(shipmentDetails, hwtSequenceInfo);
+            hwtSequenceInfo.remove("minParentId");
+            hwt = true;
+        }
 
         ratingQueueBean.setGffId(firstCharge.getId());
         ratingQueueBean.setTrackingNumber(firstCharge.getTrackingNumber());
@@ -352,6 +352,10 @@ public class ParcelRatingUtil {
                                 if (auditDetails.getChargeDescriptionCode() != null && !auditDetails.getChargeDescriptionCode().isEmpty()
                                         && !"RJ5".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())) {
                                     JSONObject accJson = new JSONObject();
+
+                                    accJson.put("seq", hwtSequenceInfo.get(auditDetails.getTrackingNumber()));
+
+
                                     accJson.put("netAmount", auditDetails.getNetAmount() != null ? auditDetails.getNetAmount().toString() : "0.00");
                                     accJson.put("weight", auditDetails.getPackageWeight() != null ? auditDetails.getPackageWeight().toString() : "0.00");
                                     if (auditDetails.getWeightUnit() != null && "O".equalsIgnoreCase(auditDetails.getWeightUnit()))
@@ -395,7 +399,12 @@ public class ParcelRatingUtil {
                 ratingQueueBean.setCustomerCode(firstCharge.getCustomerCode());
                 ratingQueueBean.setShipperNumber(shipmentDetails.get(0).getShipperNumber());
                 ratingQueueBean.setRevenueTier(shipmentDetails.get(0).getRevenueTier());
-                ParcelAuditDetailsDto latestFreightCharge = ParcelRatingUtil.getLatestFrightCharge(shipmentDetails);
+
+                for (Map.Entry<String, Long> entry : hwtSequenceInfo.entrySet()) {
+
+
+                    ParcelAuditDetailsDto latestFreightCharge = ParcelRatingUtil.getLatestFrightCharge(shipmentDetails, entry.getKey());
+
                 if (latestFreightCharge != null) {
                     float weight = (null == latestFreightCharge.getPackageWeight() || latestFreightCharge.getPackageWeight().isEmpty() ? 1f : Float.parseFloat(latestFreightCharge.getPackageWeight()));
                     if (latestFreightCharge.getWeightUnit() != null && "O".equalsIgnoreCase(latestFreightCharge.getWeightUnit()))
@@ -425,7 +434,7 @@ public class ParcelRatingUtil {
                 } else {
                     throw new RuntimeException("Freight Item not found");
                 }
-
+                }
                 ratingQueueBean.setShipDate(firstCharge.getPickupDate());
 
                 if ((null == firstCharge.getSenderCountry() || firstCharge.getSenderCountry().isEmpty())
@@ -470,6 +479,8 @@ public class ParcelRatingUtil {
                 ratingQueueBean.setResiFlag(resiFlag);
                 if (firstCharge.getActualServiceBucket() != null)
                     ratingQueueBean.setActualServiceBucket(Long.valueOf(firstCharge.getActualServiceBucket()));
+
+                ratingQueueBean.setInvoiceDate(firstCharge.getInvoiceDate());
 
                 if (firstCharge.getParentId().compareTo(trackingNumDetails.get(0).getParentId()) == 0)
                     ratingQueueBean.setComToRes("");
@@ -516,6 +527,17 @@ public class ParcelRatingUtil {
         return ratingQueueBean;
     }
 
+    private static ParcelAuditDetailsDto getMinParentChargeForUps(List<ParcelAuditDetailsDto> shipmentDetails, Map<String, Long> hwtSequenceInfo) {
+
+        for (ParcelAuditDetailsDto dto : shipmentDetails) {
+
+            if (hwtSequenceInfo.get("minParentId").compareTo(dto.getId()) == 0)
+                return dto;
+        }
+
+        return null;
+    }
+
     private static boolean checkAccExist(JSONArray accJsonArr, JSONObject accJson) {
 
         BigDecimal accAmount = null;
@@ -525,7 +547,7 @@ public class ParcelRatingUtil {
 
                 JSONObject jsonObject = (JSONObject) accJsonArr.get(i);
 
-                if (jsonObject.getString("code").equalsIgnoreCase(accJson.getString("code"))) {
+                if (jsonObject.getString("seq").equalsIgnoreCase(jsonObject.getString("seq")) && jsonObject.getString("code").equalsIgnoreCase(accJson.getString("code"))) {
 
                     if (jsonObject.getString("netAmount") != null) {
                         accAmount = new BigDecimal(jsonObject.getString("netAmount"));
@@ -1557,5 +1579,115 @@ public class ParcelRatingUtil {
         }
 
         return accessorialDto;
+    }
+
+    public static Map<Date, List<ParcelAuditDetailsDto>> organiseShipmentsByBillDate(List<ParcelAuditDetailsDto> shipmentRecords) {
+
+        Map<Date, List<ParcelAuditDetailsDto>> billDateShipments = new HashMap<>();
+
+        for (ParcelAuditDetailsDto dto : shipmentRecords) {
+
+            if (billDateShipments.containsKey(dto.getInvoiceDate())) {
+                billDateShipments.get(dto.getInvoiceDate()).add(dto);
+            } else {
+                billDateShipments.put(dto.getInvoiceDate(), new ArrayList<>(Arrays.asList(dto)));
+            }
+        }
+        return null;
+    }
+
+    public static void addMissTrackingInfo(Map<String, List<ParcelAuditDetailsDto>> billDateTrackingWiseShipments, Map<String, List<ParcelAuditDetailsDto>> leadTrackingWiseShipments) {
+
+        for (Map.Entry<String, List<ParcelAuditDetailsDto>> entry : leadTrackingWiseShipments.entrySet()) {
+
+            if (!billDateTrackingWiseShipments.containsKey(entry.getKey())) {
+                billDateTrackingWiseShipments.put(entry.getKey(), entry.getValue());
+            }
+        }
+    }
+
+    public static List<ParcelAuditDetailsDto> prepareHwtAccList(Map<String, List<ParcelAuditDetailsDto>> billDateTrackingWiseShipments, Map<String, Long> hwtSequenceInfo) {
+
+        List<ParcelAuditDetailsDto> shipmentChargeList = null;
+        for (Map.Entry<String, List<ParcelAuditDetailsDto>> entry : billDateTrackingWiseShipments.entrySet()) {
+
+            Map<Long, List<ParcelAuditDetailsDto>> parentIdShipments = organiseShipmentsByParentId(entry.getValue());
+            Long maxParentId = getMaxParentId(parentIdShipments);
+            hwtSequenceInfo.put(entry.getKey(), maxParentId);
+            if (shipmentChargeList == null)
+                shipmentChargeList = ParcelRatingUtil.prepareChargeList(maxParentId, parentIdShipments);
+            else {
+                shipmentChargeList.addAll(ParcelRatingUtil.prepareChargeList(maxParentId, parentIdShipments));
+            }
+
+
+        }
+
+        return shipmentChargeList;
+    }
+
+    private static Long getMaxParentId(Map<Long, List<ParcelAuditDetailsDto>> parentIdShipments) {
+
+        Long maxParentId = null;
+        for (Map.Entry<Long, List<ParcelAuditDetailsDto>> entry : parentIdShipments.entrySet()) {
+
+            if (maxParentId == null)
+                maxParentId = entry.getKey();
+            else {
+                if (entry.getKey().compareTo(maxParentId) > 0)
+                    maxParentId = entry.getKey();
+            }
+
+        }
+        return maxParentId;
+    }
+
+    public static boolean checkHwtShipment(List<ParcelAuditDetailsDto> shipmentRecords) {
+
+        boolean flag = false;
+
+        List<String> trackingNumberList = new ArrayList<>();
+
+        for (ParcelAuditDetailsDto dto : shipmentRecords) {
+
+            if (!trackingNumberList.contains(dto.getTrackingNumber()))
+                trackingNumberList.add(dto.getTrackingNumber());
+        }
+
+        if (trackingNumberList.size() > 1)
+            flag = true;
+
+        return flag;
+    }
+
+    public static void getMinParentId(List<ParcelAuditDetailsDto> billDateShipments, Map<String, Long> hwtSequenceInfo) {
+
+        Long minValue = billDateShipments.get(0).getParentId();
+        for (ParcelAuditDetailsDto dto : billDateShipments) {
+
+            if (dto.getParentId() < minValue) {
+                minValue = dto.getParentId();
+            }
+
+        }
+
+        hwtSequenceInfo.put("minParentId", minValue);
+    }
+
+    public static ParcelAuditDetailsDto getLatestFrightCharge(List<ParcelAuditDetailsDto> parcelAuditDetails, String trackingNumber) {
+        ParcelAuditDetailsDto parcelAuditDetail = null;
+        Long maxEntityId = 0l;
+        if (parcelAuditDetails != null && !parcelAuditDetails.isEmpty()) {
+            for (ParcelAuditDetailsDto auditDetail : parcelAuditDetails) {
+                if (auditDetail != null && trackingNumber.equalsIgnoreCase(auditDetail.getTrackingNumber())) {
+                    if ("FRT".equalsIgnoreCase(auditDetail.getChargeClassificationCode())) {
+                        if (auditDetail.getId() > maxEntityId) {
+                            parcelAuditDetail = auditDetail;
+                        }
+                    }
+                }
+            }
+        }
+        return parcelAuditDetail;
     }
 }
