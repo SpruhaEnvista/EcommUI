@@ -341,8 +341,10 @@ public class ParcelRatingQueueJob {
     }
 
     private void addUpsShipmentEntryIntoQueue(List<ParcelAuditDetailsDto> shipmentsWithPrevFrt, ParcelRatingInputCriteriaBean ratingInputCriteriaBean, List<ServiceFlagAccessorialBean> accessorialBeans, List<ParcelAuditDetailsDto> trackingNumDetails, Map<String, Long> hwtSequenceInfo) {
-        if (ratingInputCriteriaBean.isHwt() || !parcelRatingService.shipmentExist(shipmentsWithPrevFrt.get(0).getParentId())) {
+        if (!parcelRatingService.shipmentExist(shipmentsWithPrevFrt.get(0).getParentId())) {
             try{
+                log.info("populating into rating queue table started for parent id ->" + shipmentsWithPrevFrt.get(0).getParentId());
+                System.out.println("populating into rating queue table started for parent id ->" + shipmentsWithPrevFrt.get(0).getParentId());
                 RatingQueueBean ratingQueueBean = ParcelRatingUtil.prepareShipmentEntryForUpsShipment(shipmentsWithPrevFrt, ratingInputCriteriaBean.getRateSetName(), accessorialBeans, trackingNumDetails, hwtSequenceInfo);
                 if(ratingQueueBean != null){
                     ratingQueueBean.setTaskId(ratingInputCriteriaBean.getTaskId());
