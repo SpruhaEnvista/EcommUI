@@ -430,7 +430,7 @@ public class ParcelRatingUtil {
                     ratingQueueBean.setDimUnits(dimUnit);
                     ratingQueueBean.setFrtActualWeight(actualWeight);
                     ratingQueueBean.setFrtActualWeightUnits(actualWeightUnit);
-                    ratingQueueBean.setPackageType(latestFreightCharge.getPackageType());
+                    ratingQueueBean.setPackageType(firstCharge.getPackageType());
 
                 } else {
                     throw new RuntimeException("Freight Item not found");
