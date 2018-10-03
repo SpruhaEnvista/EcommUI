@@ -296,13 +296,14 @@ public class ParcelRatingUtil {
 
         if (shipmentDetails != null && !shipmentDetails.isEmpty()) {
             for (ParcelAuditDetailsDto auditDetails : shipmentDetails) {
-                if (auditDetails != null && auditDetails.getPackageDimension() != null && !auditDetails.getPackageDimension().isEmpty()) {
+                if (auditDetails != null && auditDetails.getParentId().compareTo(firstCharge.getParentId()) == 0
+                        && auditDetails.getPackageDimension() != null && !auditDetails.getPackageDimension().isEmpty()) {
                     try {
                         String[] dimension = auditDetails.getPackageDimension().toLowerCase().split("x");
                         if (dimension != null && dimension.length > 0) {
-                            auditDetails.setDimLength(dimension[0] != null ? dimension[0].trim() : "");
-                            auditDetails.setDimWidth(dimension[1] != null ? dimension[1].trim() : "");
-                            auditDetails.setDimHeight(dimension[2] != null ? dimension[2].trim() : "");
+                            firstCharge.setDimLength(dimension[0] != null ? dimension[0].trim() : "");
+                            firstCharge.setDimWidth(dimension[1] != null ? dimension[1].trim() : "");
+                            firstCharge.setDimHeight(dimension[2] != null ? dimension[2].trim() : "");
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -412,10 +413,10 @@ public class ParcelRatingUtil {
                     String weightUnit = (null == latestFreightCharge.getWeightUnit() || latestFreightCharge.getWeightUnit().isEmpty() || "L".equalsIgnoreCase(latestFreightCharge.getWeightUnit()) ? "LBS" : latestFreightCharge.getWeightUnit());
                     long quantity = (null == latestFreightCharge.getItemQuantity() || latestFreightCharge.getItemQuantity().isEmpty() ? 1l : Long.parseLong(latestFreightCharge.getItemQuantity()));
                     String quantityUnit = (null == latestFreightCharge.getQuantityUnit() || latestFreightCharge.getQuantityUnit().isEmpty() ? "PCS" : latestFreightCharge.getQuantityUnit());
-                    float dimLenght = (null == latestFreightCharge.getDimLength() || latestFreightCharge.getDimLength().isEmpty() ? 0.0f : Float.parseFloat(latestFreightCharge.getDimLength()));
-                    float dimWidth = (null == latestFreightCharge.getDimWidth() || latestFreightCharge.getDimWidth().isEmpty() ? 0.0f : Float.parseFloat(latestFreightCharge.getDimWidth()));
-                    float dimHeight = (null == latestFreightCharge.getDimHeight() || latestFreightCharge.getDimHeight().isEmpty() ? 0.0f : Float.parseFloat(latestFreightCharge.getDimHeight()));
-                    String dimUnit = (null == latestFreightCharge.getUnitOfDim() || latestFreightCharge.getUnitOfDim().isEmpty() ? "" : (latestFreightCharge.getUnitOfDim().equalsIgnoreCase("I") ? "in" : latestFreightCharge.getUnitOfDim()));
+                    float dimLenght = (null == firstCharge.getDimLength() || firstCharge.getDimLength().isEmpty() ? 0.0f : Float.parseFloat(firstCharge.getDimLength()));
+                    float dimWidth = (null == firstCharge.getDimWidth() || firstCharge.getDimWidth().isEmpty() ? 0.0f : Float.parseFloat(firstCharge.getDimWidth()));
+                    float dimHeight = (null == firstCharge.getDimHeight() || firstCharge.getDimHeight().isEmpty() ? 0.0f : Float.parseFloat(firstCharge.getDimHeight()));
+                    String dimUnit = (null == firstCharge.getUnitOfDim() || firstCharge.getUnitOfDim().isEmpty() ? "" : (firstCharge.getUnitOfDim().equalsIgnoreCase("I") ? "in" : firstCharge.getUnitOfDim()));
                     float actualWeight = (null == latestFreightCharge.getActualWeight() ? 0.0f : latestFreightCharge.getActualWeight().floatValue());
                     String actualWeightUnit = (null == latestFreightCharge.getActualWeightUnit() || latestFreightCharge.getActualWeightUnit().isEmpty() || "L".equalsIgnoreCase(latestFreightCharge.getActualWeightUnit()) ? "LBS" : latestFreightCharge.getActualWeightUnit());
 
