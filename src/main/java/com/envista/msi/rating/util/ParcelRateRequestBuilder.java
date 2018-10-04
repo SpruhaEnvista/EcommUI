@@ -101,7 +101,7 @@ public class ParcelRateRequestBuilder {
                     prepareItems(serviceFlagList, items, queueBean);
                 }
             }
-
+            placeTpsAccAtLastOne(serviceFlagList);
             constraints.setServiceFlags(serviceFlagList);
             batchShipment.setConstraints(constraints);
             batchShipment.setItems(items);
@@ -156,6 +156,24 @@ public class ParcelRateRequestBuilder {
             parcelRateRequest.getShipments().add(batchShipment);
         }
         return parcelRateRequest;
+    }
+
+    private static void placeTpsAccAtLastOne(List<ParcelRateRequest.ServiceFlag> serviceFlagList) {
+
+        ParcelRateRequest.ServiceFlag tpscAcc = null;
+        for (ParcelRateRequest.ServiceFlag serviceFlag : serviceFlagList) {
+
+            if (serviceFlag.getCode() != null && "TPSC".equalsIgnoreCase(serviceFlag.getCode())) {
+                tpscAcc = serviceFlag;
+                break;
+            }
+        }
+
+        if (tpscAcc != null) {
+            serviceFlagList.remove(tpscAcc);
+            serviceFlagList.add(tpscAcc);
+        }
+
     }
 
     /**

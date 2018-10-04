@@ -21,6 +21,7 @@ public class ParcelRatingInputCriteriaBean {
     private String thresholdValue;
     private String thresholdType;
     private String serviceLevel;
+    private boolean hwt;
 
     public Long getTaskId() {
         return taskId;
@@ -140,5 +141,13 @@ public class ParcelRatingInputCriteriaBean {
 
     public void setServiceLevel(String serviceLevel) {
         this.serviceLevel = serviceLevel;
+    }
+
+    public boolean isHwt() {
+        return hwt;
+    }
+
+    public void setHwt(boolean hwt) {
+        this.hwt = hwt;
     }
 }

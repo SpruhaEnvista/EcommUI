@@ -139,6 +139,17 @@ public class ParcelRateDetailsDto implements Serializable {
     @Transient
     private String flagged;
 
+    @Column(name = "ACC_CODE")
+    private String accCode;
+
+    private String returnFlag;
+
+    private String resiFlag;
+
+    private String comToRes;
+
+    private Long actualServiceBucket;
+
 
     public static ParcelRateDetailsDto getInstance(){
         return new ParcelRateDetailsDto();
@@ -450,5 +461,45 @@ public class ParcelRateDetailsDto implements Serializable {
 
     public void setFscRtrAmt(BigDecimal fscRtrAmt) {
         this.fscRtrAmt = fscRtrAmt;
+    }
+
+    public String getAccCode() {
+        return accCode;
+    }
+
+    public void setAccCode(String accCode) {
+        this.accCode = accCode;
+    }
+
+    public String getReturnFlag() {
+        return returnFlag;
+    }
+
+    public void setReturnFlag(String returnFlag) {
+        this.returnFlag = returnFlag;
+    }
+
+    public String getResiFlag() {
+        return resiFlag;
+    }
+
+    public void setResiFlag(String resiFlag) {
+        this.resiFlag = resiFlag;
+    }
+
+    public String getComToRes() {
+        return comToRes;
+    }
+
+    public void setComToRes(String comToRes) {
+        this.comToRes = comToRes;
+    }
+
+    public Long getActualServiceBucket() {
+        return actualServiceBucket;
+    }
+
+    public void setActualServiceBucket(Long actualServiceBucket) {
+        this.actualServiceBucket = actualServiceBucket;
     }
 }
