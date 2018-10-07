@@ -1311,7 +1311,7 @@ public class DirectJDBCDAO {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         String sqlQuery = " select Ebill_Gff_Id, Parent_Id,Rtr_Amount,acc_Code,RATED_BASE_DISCOUNT,RATED_EARNED_DISCOUNT" +
-                ",RATED_MIN_MAX_ADJ,RATED_FUEL_SURCHARGE_DISC,RATED_CUST_FUEL_SURCHARGE_DISC,RATED_DAS_DSC,RES_SURCHARGE_DSC" +
+                ",RATED_MIN_MAX_ADJ,RATED_FUEL_SURCHARGE_DISC,RATED_CUST_FUEL_SURCHARGE_DISC,RATED_DAS_DSC,RES_SURCHARGE_DSC, RATED_GROSS_FUEL" +
                 " from Shp_Ebill_Ups_Rates_Tb" +
                 " where Tracking_Number=? and Parent_Id < ? ";
 
@@ -1346,6 +1346,7 @@ public class DirectJDBCDAO {
                     dto.setCustFuleSurDis(rs.getBigDecimal("RATED_CUST_FUEL_SURCHARGE_DISC"));
                     dto.setDasDis(rs.getBigDecimal("RATED_DAS_DSC"));
                     dto.setResDis(rs.getBigDecimal("RES_SURCHARGE_DSC"));
+                    dto.setRatedGrossFuel(rs.getBigDecimal("RATED_GROSS_FUEL"));
                 }
                 dtos.add(dto);
 

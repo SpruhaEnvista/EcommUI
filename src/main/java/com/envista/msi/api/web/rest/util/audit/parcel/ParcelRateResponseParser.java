@@ -356,7 +356,7 @@ public class ParcelRateResponseParser {
         BigDecimal ratedGrossFuel = ParcelRateResponseParser.getRatedGrossFuel(priceSheet);
 
         rateDetails.setFuelTablePercentage(fuelTablePerc);
-        rateDetails.setRatedGrossFuel(ratedGrossFuel);
+        rateDetails.setRatedGrossFuel(ratedGrossFuel.subtract(prevRatesdto.getRatedGrossFuel()));
 
         rateDetails.setRatedBaseDiscount(ParcelRateResponseParser.getSumOfFreightDiscount(priceSheet).subtract(prevRatesdto.getBaseDis()));
         rateDetails.setRatedEarnedDiscount(ParcelRateResponseParser.getSpendDiscount(priceSheet).subtract(prevRatesdto.getEarnedDis()));
