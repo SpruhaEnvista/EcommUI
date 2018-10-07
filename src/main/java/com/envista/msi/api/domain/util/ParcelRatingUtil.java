@@ -1588,6 +1588,7 @@ public class ParcelRatingUtil {
                 accessorialDto.setCustFuleSurDis(accessorialDto.getCustFuleSurDis().add(dto.getCustFuleSurDis()));
                 accessorialDto.setEarnedDis(accessorialDto.getEarnedDis().add(dto.getEarnedDis()));
                 accessorialDto.setFuleSurDis(accessorialDto.getFuleSurDis().add(dto.getFuleSurDis()));
+                accessorialDto.setRatedGrossFuel(accessorialDto.getRatedGrossFuel());
             }
 
         }
