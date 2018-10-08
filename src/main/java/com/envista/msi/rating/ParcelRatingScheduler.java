@@ -11,6 +11,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import com.envista.msi.api.domain.util.ParcelRatingUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -29,6 +30,7 @@ public class ParcelRatingScheduler {
         if (args != null && args.length > 0) {
             jobIds = args[0];
         }
+        //ParcelRatingUtil.setLoggerConfiguration("ratinglog");
         File file = new File("ParcelRatingScheduler" + jobIds.replaceAll(",", ""));
         FileChannel channel = new RandomAccessFile(file, "rw").getChannel();
         FileLock lock = null;

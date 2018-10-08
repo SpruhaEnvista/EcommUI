@@ -35,6 +35,8 @@ public class AccessorialDto {
 
     private BigDecimal custFuleSurDis;
 
+    private BigDecimal ratedGrossFuel;
+
     public AccessorialDto() {
         baseDis = new BigDecimal("0.00");
         earnedDis = new BigDecimal("0.00");
@@ -43,6 +45,7 @@ public class AccessorialDto {
         dasDis = new BigDecimal("0.00");
         fuleSurDis = new BigDecimal("0.00");
         custFuleSurDis = new BigDecimal("0.00");
+        ratedGrossFuel = new BigDecimal("0.00");
     }
 
     public Long getId() {
@@ -155,5 +158,13 @@ public class AccessorialDto {
 
     public void setCustFuleSurDis(BigDecimal custFuleSurDis) {
         this.custFuleSurDis = custFuleSurDis;
+    }
+
+    public BigDecimal getRatedGrossFuel() {
+        return ratedGrossFuel;
+    }
+
+    public void setRatedGrossFuel(BigDecimal ratedGrossFuel) {
+        this.ratedGrossFuel = ratedGrossFuel;
     }
 }

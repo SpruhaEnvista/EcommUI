@@ -44,6 +44,7 @@ public class ParcelRatingQueueJob {
         String invoiceIds = null;
         boolean isHwt = false;
         String rateSet = null;
+        // ParcelRatingUtil.setLoggerConfiguration("ratinglog");
         if(args != null && args.length > 0){
             for (String s : args) {
                 String[] array = s.split("=");

@@ -515,7 +515,8 @@ public class ParcelRatingUtil {
                     if ("Y".equalsIgnoreCase(ratingQueueBean.getComToRes())) {
 
                         for (ParcelAuditDetailsDto auditDetails : shipmentDetails) {
-                            if (auditDetails.getChargeDescriptionCode() != null && "RES".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())) {
+                            if ((firstCharge.getParentId().compareTo(auditDetails.getParentId()) == 0) &&
+                                    (auditDetails.getChargeDescriptionCode() != null && "RES".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()))) {
                                 ratingQueueBean.setComToRes("Y");
                                 break;
                             } else
@@ -524,7 +525,8 @@ public class ParcelRatingUtil {
                     } else if ("N".equalsIgnoreCase(ratingQueueBean.getComToRes())) {
 
                         for (ParcelAuditDetailsDto auditDetails : shipmentDetails) {
-                            if (auditDetails.getChargeDescriptionCode() != null && "COM".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())) {
+                            if ((firstCharge.getParentId().compareTo(auditDetails.getParentId()) == 0) &&
+                                    (auditDetails.getChargeDescriptionCode() != null && "COM".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()))) {
                                 ratingQueueBean.setComToRes("N");
                                 break;
                             } else
@@ -1586,6 +1588,7 @@ public class ParcelRatingUtil {
                 accessorialDto.setCustFuleSurDis(accessorialDto.getCustFuleSurDis().add(dto.getCustFuleSurDis()));
                 accessorialDto.setEarnedDis(accessorialDto.getEarnedDis().add(dto.getEarnedDis()));
                 accessorialDto.setFuleSurDis(accessorialDto.getFuleSurDis().add(dto.getFuleSurDis()));
+                accessorialDto.setRatedGrossFuel(accessorialDto.getRatedGrossFuel().add(dto.getRatedGrossFuel()));
             }
 
         }
