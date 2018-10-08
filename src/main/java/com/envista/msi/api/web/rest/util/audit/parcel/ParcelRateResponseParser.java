@@ -1,5 +1,9 @@
 package com.envista.msi.api.web.rest.util.audit.parcel;
 
+import com.envista.msi.api.domain.util.ParcelRatingUtil;
+import com.envista.msi.api.web.rest.dto.rtr.ParcelRateDetailsDto;
+import com.envista.msi.rating.bean.AccessorialDto;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import java.io.StringReader;
@@ -340,5 +344,40 @@ public class ParcelRateResponseParser {
             }
         }
         return null;
+    }
+
+    public static void mapPercentageAndDis(ParcelRateDetailsDto rateDetails, ParcelRateResponse.PriceSheet priceSheet,
+                                           List<ParcelRateResponse.Charge> mappedDscChanges, List<AccessorialDto> prevParentsRatesDtos) {
+
+
+        AccessorialDto prevRatesdto = ParcelRatingUtil.findPrevRatesForSpecColumns(prevParentsRatesDtos);
+
+        BigDecimal fuelTablePerc = ParcelRateResponseParser.getFuelTablePercentage(priceSheet);
+        BigDecimal ratedGrossFuel = ParcelRateResponseParser.getRatedGrossFuel(priceSheet);
+
+        rateDetails.setFuelTablePercentage(fuelTablePerc);
+        rateDetails.setRatedGrossFuel(ratedGrossFuel.subtract(prevRatesdto.getRatedGrossFuel()));
+
+        rateDetails.setRatedBaseDiscount(ParcelRateResponseParser.getSumOfFreightDiscount(priceSheet).subtract(prevRatesdto.getBaseDis()));
+        rateDetails.setRatedEarnedDiscount(ParcelRateResponseParser.getSpendDiscount(priceSheet).subtract(prevRatesdto.getEarnedDis()));
+        rateDetails.setRatedMinMaxAdjustment(ParcelRateResponseParser.getMinMaxAdjustment(priceSheet).subtract(prevRatesdto.getMinMaxDis()));
+
+        ParcelRateResponse.Charge residentialSurchargeDiscountCharge = ParcelRateResponseParser.getResidentialSurchargeDiscount(priceSheet);
+        if (residentialSurchargeDiscountCharge != null) {
+            mappedDscChanges.add(residentialSurchargeDiscountCharge);
+            rateDetails.setResidentialSurchargeDiscount(residentialSurchargeDiscountCharge.getAmount().subtract(prevRatesdto.getResDis()));
+            rateDetails.setResidentialSurchargeDiscountPercentage(residentialSurchargeDiscountCharge.getRate());
+        }
+
+        ParcelRateResponse.Charge dasDiscount = ParcelRateResponseParser.getRatedDasDiscount(priceSheet);
+        if (dasDiscount != null) {
+            mappedDscChanges.add(dasDiscount);
+            rateDetails.setDeliveryAreaSurchargeDiscount(dasDiscount.getAmount().subtract(prevRatesdto.getDasDis()));
+        }
+
+
+        rateDetails.setRatedFuelSurchargeDiscount(ParcelRateResponseParser.getRatedSurchargeDiscount(priceSheet).subtract(prevRatesdto.getFuleSurDis()));
+        rateDetails.setRatedCustomFuelSurchargeDiscount(ParcelRateResponseParser.getRatedCustomSurchargeDiscount(priceSheet).subtract(prevRatesdto.getCustFuleSurDis()));
+
     }
 }

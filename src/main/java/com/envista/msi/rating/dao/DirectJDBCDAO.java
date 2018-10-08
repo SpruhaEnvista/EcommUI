@@ -8,6 +8,7 @@ import com.envista.msi.api.web.rest.dto.rtr.RatedChargeDetailsDto;
 import com.envista.msi.api.web.rest.dto.rtr.StoreRatingDetailsDto;
 import com.envista.msi.rating.ServiceLocator;
 import com.envista.msi.rating.ServiceLocatorException;
+import com.envista.msi.rating.bean.AccessorialDto;
 import com.envista.msi.rating.bean.ServiceFlagAccessorialBean;
 import com.envista.msi.rating.entity.ParcelRatingInputCriteriaDto;
 import oracle.jdbc.OracleTypes;
@@ -23,6 +24,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 
 public class DirectJDBCDAO {
 
@@ -197,7 +199,7 @@ public class DirectJDBCDAO {
         CallableStatement cstmt = null;
         try{
             conn = ServiceLocator.getDatabaseConnection();
-            cstmt = conn.prepareCall("{ call SHP_SAVE_RATE_DETAILS_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
+            cstmt = conn.prepareCall("{ call SHP_SAVE_RATE_DETAILS_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
             cstmt.setString(1,referenceTableName);
             cstmt.setString(2, entityId);
             cstmt.setString(3,userName);
@@ -222,6 +224,11 @@ public class DirectJDBCDAO {
             cstmt.setString(22, rateDetails != null && rateDetails.getFlagged() != null ? rateDetails.getFlagged() : null);
             cstmt.setString(23, rateDetails != null && rateDetails.getZone() != null ? rateDetails.getZone() : null);
             cstmt.setBigDecimal(24, rateDetails != null && rateDetails.getFscRtrAmt() != null ? rateDetails.getFscRtrAmt() : new BigDecimal("0"));
+            cstmt.setString(25, rateDetails != null && rateDetails.getAccCode() != null ? rateDetails.getAccCode() : null);
+            cstmt.setString(26, rateDetails != null && rateDetails.getReturnFlag() != null ? rateDetails.getReturnFlag() : "N");
+            cstmt.setString(27, rateDetails != null && rateDetails.getResiFlag() != null ? rateDetails.getResiFlag() : "N");
+            cstmt.setString(28, rateDetails != null && rateDetails.getComToRes() != null ? rateDetails.getComToRes() : "");
+            cstmt.setLong(29, rateDetails != null && rateDetails.getActualServiceBucket() != null ? rateDetails.getActualServiceBucket() : -1L);
 
             cstmt.executeUpdate();
 
@@ -518,7 +525,7 @@ public class DirectJDBCDAO {
                     liveSqlQuery += " WHERE INVOICE_ID IN (" + invoiceIds + ") ";
                 } else {
                     liveSqlQuery += " SELECT DISTINCT INVOICE_ID FROM SHP_EBILL_MANIFEST_TB ";
-                    liveSqlQuery += " WHERE INVOICE_ID IN ( ";
+                    liveSqlQuery += " WHERE  INVOICE_ID IN ( ";
                     liveSqlQuery += " SELECT invoice_id FROM SHP_EBILL_INVOICE_TB ";
                     liveSqlQuery += " WHERE  inv_contract_number IN (SELECT contract_number FROM SHP_EBILL_CONTRACT_TB ";
                     liveSqlQuery += " WHERE customer_id in (" + customerId + ") and carrier_id = 21) and inv_carrier_id = 21) ";
@@ -1197,4 +1204,201 @@ public class DirectJDBCDAO {
             }
         }
     }
+
+    public void saveAccInfo(List<AccessorialDto> dtos, Long parentId) {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        String sqlQuery = " INSERT\n" +
+                "    INTO SHP_UPS_ACC_AND_DIS_TB\n" +
+                "      (\n" +
+                "        ACC_ID,\n" +
+                "        PARENT_ID,\n" +
+                "        ACC_TYPE,\n" +
+                "        ACC_CODE,\n" +
+                "        RTR_AMOUNT,\n" +
+                "        CREATE_DATE,\n" +
+                "        LAST_UPDATED_DATE,\n" +
+                "        NAME\n" +
+                "      )\n" +
+                "      VALUES\n" +
+                "      (\n" +
+                "        SHP_UPS_ACC_AND_DIS_S.NEXTVAL,\n" +
+                "        ?,\n" +
+                "        ?,\n" +
+                "        ?,\n" +
+                "        ?,\n" +
+                "        sysdate,\n" +
+                "        sysdate,\n" +
+                "        ?\n" +
+                "      ) ";
+
+
+        try {
+            con = ServiceLocator.getDatabaseConnection();
+            pstmt = con.prepareStatement(sqlQuery);
+            con.setAutoCommit(false);
+            for (AccessorialDto dto : dtos) {
+                pstmt.setLong(1, dto.getParentId());
+                pstmt.setString(2, dto.getType());
+                pstmt.setString(3, dto.getCode());
+                pstmt.setBigDecimal(4, dto.getRtrAmount());
+                pstmt.setString(5, dto.getName());
+                pstmt.addBatch();
+            }
+
+            pstmt.executeBatch();
+            con.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                con.rollback();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+            throw new DaoException("Exception in saveAccInfo", e);
+        } finally {
+            try {
+                if (pstmt != null)
+                    pstmt.close();
+            } catch (SQLException sqle) {
+            }
+            try {
+                if (con != null)
+                    con.close();
+            } catch (SQLException sqle) {
+            }
+        }
+    }
+
+    public void deleteAccInfoByParentId(Long parentId) {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        String sqlQuery = " DELETE FROM SHP_UPS_ACC_AND_DIS_TB WHERE PARENT_ID=? ";
+
+
+        try {
+            con = ServiceLocator.getDatabaseConnection();
+            pstmt = con.prepareStatement(sqlQuery);
+            con.setAutoCommit(false);
+
+            pstmt.setLong(1, parentId);
+            pstmt.executeQuery();
+            con.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                con.rollback();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+            throw new DaoException("Exception in deleteAccInfoByParentId", e);
+        } finally {
+            try {
+                if (pstmt != null)
+                    pstmt.close();
+            } catch (SQLException sqle) {
+            }
+            try {
+                if (con != null)
+                    con.close();
+            } catch (SQLException sqle) {
+            }
+        }
+    }
+
+    public List<AccessorialDto> getRatesForPrevParentIds(String trackingNumber, Long parentId) {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        String sqlQuery = " select Ebill_Gff_Id, Parent_Id,Rtr_Amount,acc_Code,RATED_BASE_DISCOUNT,RATED_EARNED_DISCOUNT" +
+                ",RATED_MIN_MAX_ADJ,RATED_FUEL_SURCHARGE_DISC,RATED_CUST_FUEL_SURCHARGE_DISC,RATED_DAS_DSC,RES_SURCHARGE_DSC, RATED_GROSS_FUEL" +
+                " from Shp_Ebill_Ups_Rates_Tb" +
+                " where Tracking_Number=? and Parent_Id < ? ";
+
+        List<AccessorialDto> dtos = new ArrayList<>();
+        List<String> parentIds = new ArrayList<>();
+
+        try {
+            con = ServiceLocator.getDatabaseConnection();
+            pstmt = con.prepareStatement(sqlQuery);
+
+
+            pstmt.setString(1, trackingNumber);
+            pstmt.setLong(2, parentId);
+
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+
+                AccessorialDto dto = new AccessorialDto();
+
+                dto.setEbillGffId(rs.getLong("Ebill_Gff_Id"));
+                dto.setParentId(rs.getLong("Parent_Id"));
+                dto.setParentId(rs.getLong("Parent_Id"));
+                dto.setRtrAmount(rs.getBigDecimal("Rtr_Amount"));
+                dto.setCode(rs.getString("acc_Code"));
+
+                if (dto.getEbillGffId().compareTo(dto.getParentId()) == 0) {
+                    dto.setBaseDis(rs.getBigDecimal("RATED_BASE_DISCOUNT"));
+                    dto.setEarnedDis(rs.getBigDecimal("RATED_EARNED_DISCOUNT"));
+                    dto.setMinMaxDis(rs.getBigDecimal("RATED_MIN_MAX_ADJ"));
+                    dto.setFuleSurDis(rs.getBigDecimal("RATED_FUEL_SURCHARGE_DISC"));
+                    dto.setCustFuleSurDis(rs.getBigDecimal("RATED_CUST_FUEL_SURCHARGE_DISC"));
+                    dto.setDasDis(rs.getBigDecimal("RATED_DAS_DSC"));
+                    dto.setResDis(rs.getBigDecimal("RES_SURCHARGE_DSC"));
+                    dto.setRatedGrossFuel(rs.getBigDecimal("RATED_GROSS_FUEL"));
+                }
+                dtos.add(dto);
+
+                if (!parentIds.contains(dto.getParentId()))
+                    parentIds.add(String.valueOf(dto.getParentId()));
+            }
+
+            String parentIdsInResult = String.join(",", parentIds);
+            if (parentIdsInResult != null && parentIdsInResult.length() > 0) {
+                sqlQuery = " select Parent_Id,Acc_Code,Rtr_Amount, ACC_TYPE, NAME from SHP_UPS_ACC_AND_DIS_TB where Parent_Id in (" + parentIdsInResult + ") ";
+
+                pstmt = con.prepareStatement(sqlQuery);
+
+                rs = pstmt.executeQuery();
+
+                while (rs.next()) {
+
+                    AccessorialDto dto = new AccessorialDto();
+
+                    dto.setParentId(rs.getLong("Parent_Id"));
+                    dto.setRtrAmount(rs.getBigDecimal("Rtr_Amount"));
+                    dto.setCode(rs.getString("Acc_Code"));
+                    dto.setType(rs.getString("ACC_TYPE"));
+                    dto.setName(rs.getString("NAME"));
+                    dtos.add(dto);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            throw new DaoException("Exception in getRatesForPrevParentIds ", e);
+        } finally {
+            try {
+                if (pstmt != null)
+                    pstmt.close();
+            } catch (SQLException sqle) {
+                sqle.printStackTrace();
+            }
+            try {
+                if (con != null)
+                    con.close();
+            } catch (SQLException sqle) {
+                sqle.printStackTrace();
+            }
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (SQLException sqle) {
+                sqle.printStackTrace();
+            }
+        }
+        return dtos;
+    }
+
 }

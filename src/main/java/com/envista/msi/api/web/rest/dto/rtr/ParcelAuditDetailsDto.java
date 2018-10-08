@@ -262,6 +262,8 @@ public class ParcelAuditDetailsDto {
 
     private String WorldeEaseNum;
 
+    private Long actualServiceBucket;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -800,6 +802,14 @@ public class ParcelAuditDetailsDto {
 
     public void setWorldeEaseNum(String worldeEaseNum) {
         WorldeEaseNum = worldeEaseNum;
+    }
+
+    public Long getActualServiceBucket() {
+        return actualServiceBucket;
+    }
+
+    public void setActualServiceBucket(Long actualServiceBucket) {
+        this.actualServiceBucket = actualServiceBucket;
     }
 
     public static class Config{
