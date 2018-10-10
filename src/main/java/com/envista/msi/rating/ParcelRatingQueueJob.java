@@ -190,11 +190,6 @@ public class ParcelRatingQueueJob {
                     String trackingNumber = parcelAuditEntry.getKey();
 
                     boolean hwtShipment = false;
-                    if (hwtShipment && (parcelAuditEntry.getValue().get(0).getMultiWeightNumber() != null && !parcelAuditEntry.getValue().get(0).getMultiWeightNumber().isEmpty())) {
-
-                        shipmentRecords = new ParcelUpsRatingService().getUpsParcelShipmentDetails(customerIds, null, true, parcelAuditEntry.getValue().get(0).getMultiWeightNumber());
-                        hwtShipment = ParcelRatingUtil.checkHwtShipment(shipmentRecords);
-                    }
 
                     if (!hwtShipment) {
                         if (trackingNumber != null && !trackingNumber.isEmpty()) {
@@ -211,38 +206,6 @@ public class ParcelRatingQueueJob {
 
                                 addUpsShipmentEntryIntoQueue(shipmentChargeList, ratingInputCriteriaBean, accessorialBeans, shipmentRecords, null);
                             }
-                        }
-                    } else {
-
-                        Map<Date, List<ParcelAuditDetailsDto>> shipments = ParcelRatingUtil.organiseShipmentsByBillDate(shipmentRecords);
-
-                        List<ParcelAuditDetailsDto> leadShipmentDetails = ParcelRatingUtil.getLeadShipmentDetails(shipmentRecords);
-
-                        Map<String, List<ParcelAuditDetailsDto>> LeadTrackingWiseShipments = ParcelRatingUtil.prepareTrackingNumberWiseAuditDetails(shipmentRecords);
-
-
-                        for (Map.Entry<Date, List<ParcelAuditDetailsDto>> entry : shipments.entrySet()) {
-
-                            boolean shipmentExist = parcelRatingService.hwtShipmentExist(leadShipmentDetails.get(0).getTrackingNumber(), entry.getKey());
-
-                            if (!shipmentExist) {
-
-                                Map<String, Long> hwtSequenceInfo = new HashMap<>();
-
-                                ParcelRatingUtil.getMinParentId(entry.getValue(), hwtSequenceInfo);
-
-                                Map<String, List<ParcelAuditDetailsDto>> billDateTrackingWiseShipments = ParcelRatingUtil.prepareTrackingNumberWiseAuditDetails(entry.getValue());
-
-                                ParcelRatingUtil.addMissTrackingInfo(billDateTrackingWiseShipments, LeadTrackingWiseShipments);
-
-                                List<ParcelAuditDetailsDto> shipmentChargeList = ParcelRatingUtil.prepareHwtAccList(billDateTrackingWiseShipments, hwtSequenceInfo);
-                                ratingInputCriteriaBean.setHwt(true);
-                                addUpsShipmentEntryIntoQueue(shipmentChargeList, ratingInputCriteriaBean, accessorialBeans, shipmentRecords, hwtSequenceInfo);
-
-
-                            }
-
-
                         }
                     }
 
