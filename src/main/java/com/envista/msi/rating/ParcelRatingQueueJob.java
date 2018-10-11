@@ -14,11 +14,14 @@ import com.envista.msi.rating.service.ParcelRatingService;
 import com.envista.msi.rating.service.ParcelUpsRatingService;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
+import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -134,7 +137,7 @@ public class ParcelRatingQueueJob {
         }
     }
 
-    private void processShipments(ParcelRatingInputCriteriaBean ratingInputCriteriaBean, boolean isHwt) throws SQLException {
+    private void processShipments(ParcelRatingInputCriteriaBean ratingInputCriteriaBean, boolean isHwt) throws SQLException, JSONException {
         List<ParcelAuditDetailsDto> allShipmentDetails = null;
         if("ups".equalsIgnoreCase(ratingInputCriteriaBean.getRateTo())){
             List<Long> invoiceList = new DirectJDBCDAO().loadInvoiceIds(ratingInputCriteriaBean.getFromShipDate(), ratingInputCriteriaBean.getToShipDate(), ratingInputCriteriaBean.getCustomerId(), ratingInputCriteriaBean.getInvoiceIds(), 0, "UPS",ratingInputCriteriaBean.getServiceLevel());
@@ -174,7 +177,7 @@ public class ParcelRatingQueueJob {
         }
     }
 
-    private void processUpsShipments(Map<String, List<ParcelAuditDetailsDto>> trackingNumberWiseShipments, String customerIds, ParcelRatingInputCriteriaBean ratingInputCriteriaBean, boolean isHwt, List<ServiceFlagAccessorialBean> accessorialBeans) throws SQLException {
+    private void processUpsShipments(Map<String, List<ParcelAuditDetailsDto>> trackingNumberWiseShipments, String customerIds, ParcelRatingInputCriteriaBean ratingInputCriteriaBean, boolean isHwt, List<ServiceFlagAccessorialBean> accessorialBeans) throws SQLException, JSONException {
         if(trackingNumberWiseShipments != null) {
             Map<String, List<ParcelAuditDetailsDto>> hwtDetailsMap = ParcelRatingUtil.prepareHwtNumberWiseAuditDetails(trackingNumberWiseShipments);
             Iterator<Map.Entry<String, List<ParcelAuditDetailsDto>>> entryIterator = trackingNumberWiseShipments.entrySet().iterator();
@@ -188,6 +191,11 @@ public class ParcelRatingQueueJob {
                     String trackingNumber = parcelAuditEntry.getKey();
 
                     boolean hwtShipment = false;
+                    if ((parcelAuditEntry.getValue().get(0).getMultiWeightNumber() != null && !parcelAuditEntry.getValue().get(0).getMultiWeightNumber().isEmpty())) {
+
+                        shipmentRecords = new ParcelUpsRatingService().getUpsParcelShipmentDetails(customerIds, null, true, parcelAuditEntry.getValue().get(0).getMultiWeightNumber());
+                        hwtShipment = ParcelRatingUtil.checkHwtShipment(shipmentRecords);
+                    }
 
                     if (!hwtShipment) {
                         if (trackingNumber != null && !trackingNumber.isEmpty()) {
@@ -205,6 +213,38 @@ public class ParcelRatingQueueJob {
                                 addUpsShipmentEntryIntoQueue(shipmentChargeList, ratingInputCriteriaBean, accessorialBeans, shipmentRecords, null);
                             }
                         }
+                    } else {
+
+                        Map<Date, List<ParcelAuditDetailsDto>> shipments = ParcelRatingUtil.organiseShipmentsByBillDate(shipmentRecords);
+
+                        List<ParcelAuditDetailsDto> leadShipmentDetails = ParcelRatingUtil.getLeadShipmentDetails(shipmentRecords);
+
+                        Map<String, List<ParcelAuditDetailsDto>> LeadTrackingWiseShipments = ParcelRatingUtil.prepareTrackingNumberWiseAuditDetails(shipmentRecords);
+
+
+                        for (Map.Entry<Date, List<ParcelAuditDetailsDto>> entry : shipments.entrySet()) {
+
+                            boolean shipmentExist = parcelRatingService.hwtShipmentExist(leadShipmentDetails.get(0).getTrackingNumber(), entry.getKey());
+
+                            if (!shipmentExist) {
+
+                                Map<String, Long> hwtSequenceInfo = new HashMap<>();
+
+                                ParcelRatingUtil.getMinParentId(entry.getValue(), hwtSequenceInfo);
+
+                                Map<String, List<ParcelAuditDetailsDto>> billDateTrackingWiseShipments = ParcelRatingUtil.prepareTrackingNumberWiseAuditDetails(entry.getValue());
+
+                                ParcelRatingUtil.addMissTrackingInfo(billDateTrackingWiseShipments, LeadTrackingWiseShipments);
+
+                                List<ParcelAuditDetailsDto> shipmentChargeList = ParcelRatingUtil.prepareHwtAccList(billDateTrackingWiseShipments, hwtSequenceInfo);
+                                ratingInputCriteriaBean.setHwt(true);
+                                addUpsShipmentEntryIntoQueue(shipmentChargeList, ratingInputCriteriaBean, accessorialBeans, shipmentRecords, hwtSequenceInfo);
+
+
+                            }
+
+
+                        }
                     }
 
                     entryIterator.remove();
@@ -216,7 +256,7 @@ public class ParcelRatingQueueJob {
         }
     }
 
-    public void processFedExShipments(Map<String, List<ParcelAuditDetailsDto>> trackingNumberWiseShipments, ParcelRatingInputCriteriaBean ratingInputCriteriaBean, boolean isHwt, List<ServiceFlagAccessorialBean> accessorialBeans, String customerId) throws SQLException {
+    public void processFedExShipments(Map<String, List<ParcelAuditDetailsDto>> trackingNumberWiseShipments, ParcelRatingInputCriteriaBean ratingInputCriteriaBean, boolean isHwt, List<ServiceFlagAccessorialBean> accessorialBeans, String customerId) throws SQLException, JSONException {
         if(trackingNumberWiseShipments != null && !trackingNumberWiseShipments.isEmpty()) {
             Map<String, List<ParcelAuditDetailsDto>> mwtDetailsMap = ParcelRatingUtil.prepareMultiWeightNumberWiseAuditDetails(trackingNumberWiseShipments);
 
@@ -268,9 +308,9 @@ public class ParcelRatingQueueJob {
                                             shipmentsWithPrevFrt.add(dto);
 
 
-                                            }
                                         }
                                     }
+                                }
 
                                 if (frtFound)
                                     addNonUpsShipmentEntryIntoQueue(shipmentsWithPrevFrt, ratingInputCriteriaBean, accessorialBeans);
@@ -327,7 +367,7 @@ public class ParcelRatingQueueJob {
     }
 
 
-    private void addMwtOrHwtShipmentEntryIntoQueue(Map<String, List<ParcelAuditDetailsDto>> mwtDetailsMap, String rateTo, ParcelRatingInputCriteriaBean ratingInputCriteriaBean, List<ServiceFlagAccessorialBean> accessorialBeans) throws SQLException {
+    private void addMwtOrHwtShipmentEntryIntoQueue(Map<String, List<ParcelAuditDetailsDto>> mwtDetailsMap, String rateTo, ParcelRatingInputCriteriaBean ratingInputCriteriaBean, List<ServiceFlagAccessorialBean> accessorialBeans) throws SQLException, JSONException {
 
         List<RatingQueueBean> queueBeanList = null;
         for (Map.Entry<String, List<ParcelAuditDetailsDto>> entry : mwtDetailsMap.entrySet()) {
@@ -346,15 +386,15 @@ public class ParcelRatingQueueJob {
                     if (ratingQueueBean != null) {
                         ratingQueueBean.setTaskId(ratingInputCriteriaBean.getTaskId());
 
-                    if (queueBeanList == null)
-                        queueBeanList = new ArrayList<RatingQueueBean>();
+                        if (queueBeanList == null)
+                            queueBeanList = new ArrayList<RatingQueueBean>();
 
-                ratingQueueBean.setTaskId(ratingInputCriteriaBean.getTaskId());
-                ratingQueueBean.setThresholdValue(ratingInputCriteriaBean.getThresholdValue());
-                ratingQueueBean.setThresholdType(ratingInputCriteriaBean.getThresholdType());
-                ratingQueueBean.setServiceLevel(ratingInputCriteriaBean.getServiceLevel());
+                        ratingQueueBean.setTaskId(ratingInputCriteriaBean.getTaskId());
+                        ratingQueueBean.setThresholdValue(ratingInputCriteriaBean.getThresholdValue());
+                        ratingQueueBean.setThresholdType(ratingInputCriteriaBean.getThresholdType());
+                        ratingQueueBean.setServiceLevel(ratingInputCriteriaBean.getServiceLevel());
 
-                    queueBeanList.add(ratingQueueBean);
+                        queueBeanList.add(ratingQueueBean);
                     }
                 }
             }

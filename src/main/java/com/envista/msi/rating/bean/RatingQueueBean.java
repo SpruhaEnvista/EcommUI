@@ -82,6 +82,8 @@ public class RatingQueueBean {
     private String prpFlag;
     private Long actualServiceBucket;
     private Date invoiceDate;
+    private String itemTagInfo;
+    private Set<ParcelRateRequest.Item> itemTags;
 
     public Long getRatingQueueId() {
         return ratingQueueId;
@@ -531,6 +533,9 @@ public class RatingQueueBean {
                             JSONObject accjson = accJsonArr.getJSONObject(n);
                             if(accjson != null) {
                                 ParcelRateRequest.ServiceFlag serviceFlag = new ParcelRateRequest.ServiceFlag();
+                                if (accjson.has("seq") && accjson.getString("seq") != null) {
+                                    serviceFlag.setSequence(accjson.getLong("seq"));
+                                }
                                 if(accjson.has("code")){
                                     serviceFlag.setCode(accjson.getString("code"));
                                 }
@@ -561,6 +566,7 @@ public class RatingQueueBean {
         }
         return this.accessorials;
     }
+
 
     public String getRevenueTier() {
         return revenueTier;
@@ -704,5 +710,17 @@ public class RatingQueueBean {
 
     public void setInvoiceDate(Date invoiceDate) {
         this.invoiceDate = invoiceDate;
+    }
+
+    public String getItemTagInfo() {
+        return itemTagInfo;
+    }
+
+    public void setItemTagInfo(String itemTagInfo) {
+        this.itemTagInfo = itemTagInfo;
+    }
+
+    public void setItemTags(Set<ParcelRateRequest.Item> itemTags) {
+        this.itemTags = itemTags;
     }
 }
