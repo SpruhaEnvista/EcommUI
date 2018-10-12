@@ -187,7 +187,7 @@ public class ParcelRateRequestBuilder {
     private static void prepareItems(List<ParcelRateRequest.ServiceFlag> serviceFlagList, List<ParcelRateRequest.Item> items, RatingQueueBean ratingQueueBean) {
 
 
-        ParcelRateRequest.Weight weightObj = new ParcelRateRequest.Weight();
+/*        ParcelRateRequest.Weight weightObj = new ParcelRateRequest.Weight();
         if (ratingQueueBean.getFrtWeight() != null) {
             weightObj.setWeight(BigDecimal.valueOf(ratingQueueBean.getFrtWeight()));
         }
@@ -231,7 +231,7 @@ public class ParcelRateRequestBuilder {
         item.setQuantity(quantityObj);
         item.setDimensions(dimensionsObj);
         item.setContainer(ratingQueueBean.getPackageType());
-        items.add(item);
+        items.add(item);*/
 
         try {
             ParcelRatingUtil.getItemTags(items, ratingQueueBean.getItemTagInfo());

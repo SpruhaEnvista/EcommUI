@@ -461,6 +461,7 @@ public class ParcelRatingUtil {
                         throw new RuntimeException("Freight Item not found");
                     }
                 }
+                ratingQueueBean.setItemTagInfo(itemJsonArr != null ? itemJsonArr.toString() : null);
                 ratingQueueBean.setShipDate(firstCharge.getPickupDate());
 
                 if ((null == firstCharge.getSenderCountry() || firstCharge.getSenderCountry().isEmpty())
@@ -1784,7 +1785,12 @@ public class ParcelRatingUtil {
 
                             dimensionsObj.setUnits(accjson.getString("dimUnit"));
                         }
+
                         item.setDimensions(dimensionsObj);
+
+                        if (accjson.has("packageType") && accjson.getString("packageType") != null) {
+                            item.setContainer(accjson.getString("packageType"));
+                        }
 
 
                         items.add(item);

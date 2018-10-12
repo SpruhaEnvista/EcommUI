@@ -83,7 +83,6 @@ public class RatingQueueBean {
     private Long actualServiceBucket;
     private Date invoiceDate;
     private String itemTagInfo;
-    private Set<ParcelRateRequest.Item> itemTags;
 
     public Long getRatingQueueId() {
         return ratingQueueId;
@@ -720,7 +719,4 @@ public class RatingQueueBean {
         this.itemTagInfo = itemTagInfo;
     }
 
-    public void setItemTags(Set<ParcelRateRequest.Item> itemTags) {
-        this.itemTags = itemTags;
-    }
 }

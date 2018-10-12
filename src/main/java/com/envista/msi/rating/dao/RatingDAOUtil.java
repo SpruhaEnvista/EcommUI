@@ -86,6 +86,7 @@ public class RatingDAOUtil {
         RATING_QUEUE_COLUMN_NAMES.add("PRP_FLAG");
         RATING_QUEUE_COLUMN_NAMES.add("ACTUAL_SERVICE_BUCKET");
         RATING_QUEUE_COLUMN_NAMES.add("INVOICE_DATE");
+        RATING_QUEUE_COLUMN_NAMES.add("ITEM_TAGS");
     }
 
     public static String prepareRatingQueueInsertQuery(boolean isHwt) {
@@ -312,6 +313,8 @@ public class RatingDAOUtil {
                 } else {
                     ps.setNull(68, Types.DATE);
                 }
+            } else if ("ITEM_TAGS".equalsIgnoreCase(columnName)) {
+                ps.setString(69, queueBean.getItemTagInfo());
             } else {
                 throw new RuntimeException("Column name not mapped");
             }
