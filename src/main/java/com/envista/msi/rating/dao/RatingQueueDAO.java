@@ -213,6 +213,7 @@ public class RatingQueueDAO {
                 ratingQueueBean.setResiFlag(rs.getString("RESI_FLAG"));
                 ratingQueueBean.setComToRes(rs.getString("COM_TO_RES"));
                 ratingQueueBean.setActualServiceBucket(rs.getLong("ACTUAL_SERVICE_BUCKET"));
+                ratingQueueBean.setItemTagInfo(rs.getString("ITEM_TAGS"));
                 beanList.add(ratingQueueBean);
             }
 
