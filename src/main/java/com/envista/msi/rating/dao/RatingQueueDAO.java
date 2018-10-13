@@ -214,6 +214,8 @@ public class RatingQueueDAO {
                 ratingQueueBean.setComToRes(rs.getString("COM_TO_RES"));
                 ratingQueueBean.setActualServiceBucket(rs.getLong("ACTUAL_SERVICE_BUCKET"));
                 ratingQueueBean.setItemTagInfo(rs.getString("ITEM_TAGS"));
+                ratingQueueBean.setInvoiceDate(rs.getDate("INVOICE_DATE"));
+                ratingQueueBean.setCustomerId(rs.getLong("CUSTOMER_ID"));
                 beanList.add(ratingQueueBean);
             }
 
@@ -359,7 +361,10 @@ public class RatingQueueDAO {
             liveQuery.append(" AND b.inv_CARRIER_ID = c.CARRIER_ID ");
             liveQuery.append(" AND b.shipper_code = f.shipper_code ");
 
-            liveQuery.append(" AND a.ebill_gff_id = ar.ebill_gff_id(+) ");
+            if (hwtNumbers == null)
+                liveQuery.append(" AND a.ebill_gff_id = ar.ebill_gff_id(+) ");
+            else
+                liveQuery.append(" AND a.parent_id = ar.parent_id(+) ");
 
             liveQuery.append(" and b.inv_carrier_id = 21 ");
 

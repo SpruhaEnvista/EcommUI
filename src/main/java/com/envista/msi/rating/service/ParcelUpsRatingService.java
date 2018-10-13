@@ -104,7 +104,7 @@ public class ParcelUpsRatingService {
                     if (bean.getHwtIdentifier() == null || bean.getHwtIdentifier().isEmpty())
                         shipmentRecords = getUpsParcelShipmentDetails(null, trackingNumber, true, null);
                     else {
-                        shipmentRecords = new ParcelUpsRatingService().getUpsParcelShipmentDetails(bean.getCustomerId().toString(), null, true, bean.getHwtIdentifier());
+                        shipmentRecords = new ParcelUpsRatingService().getUpsParcelShipmentDetails(bean.getCustomerId() != null ? bean.getCustomerId().toString() : null, null, true, bean.getHwtIdentifier());
                         shipmentToRate = new ArrayList<>();
                         prevHwtRated = ParcelRatingUtil.isHwtShipmentRated(shipmentRecords, bean.getParentId(), shipmentToRate, bean.getInvoiceDate());
                     }

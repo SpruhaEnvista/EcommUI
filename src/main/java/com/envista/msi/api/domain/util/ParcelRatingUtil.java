@@ -510,6 +510,7 @@ public class ParcelRatingUtil {
                     ratingQueueBean.setActualServiceBucket(Long.valueOf(firstCharge.getActualServiceBucket()));
 
                 ratingQueueBean.setInvoiceDate(firstCharge.getInvoiceDate());
+                ratingQueueBean.setCustomerId(firstCharge.getCustomerId());
 
                 if (firstCharge.getParentId().compareTo(trackingNumDetails.get(0).getParentId()) == 0)
                     ratingQueueBean.setComToRes("");
@@ -1827,12 +1828,14 @@ public class ParcelRatingUtil {
 
             for (Long parentId : parentIds) {
                 detailsDtos = null;
-                if (parentId.compareTo(ratingParentId) < 0) {
-                    detailsDtos = getParentIdCharges(shipmentRecords, ratingParentId);
+                if (ratingParentId.compareTo(parentId) > 0) {
+                    detailsDtos = getParentIdCharges(shipmentRecords, parentId);
                     rated = isShipmentRated(detailsDtos);
                     if (!rated) {
                         rated = true;
                         break;
+                    } else {
+                        rated = false;
                     }
                 }
 
@@ -1987,7 +1990,7 @@ public class ParcelRatingUtil {
         Long minValue = billDateShipments.get(0).getParentId();
         for (ParcelAuditDetailsDto dto : billDateShipments) {
 
-            if (dto.getParentId() < minValue) {
+            if (!(minValue.compareTo(dto.getParentId()) < 0)) {
                 minValue = dto.getParentId();
             }
 
