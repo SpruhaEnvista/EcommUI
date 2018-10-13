@@ -1907,15 +1907,65 @@ public class ParcelRatingUtil {
         if ((existingDto.getPackageWeight() != null && !existingDto.getPackageWeight().isEmpty()) && (dto.getPackageWeight() != null && !dto.getPackageWeight().isEmpty()))
             existingDto.setPackageWeight(String.valueOf(new BigDecimal(existingDto.getPackageWeight()).add(new BigDecimal(dto.getPackageWeight()))));
 
-        if ((existingDto.getDimLength() != null && !existingDto.getDimLength().isEmpty()) && (dto.getDimLength() != null && !dto.getDimLength().isEmpty()))
-            existingDto.setDimLength(String.valueOf(new BigDecimal(existingDto.getDimLength()).add(new BigDecimal(dto.getDimLength()))));
+        if ((existingDto.getPackageDimension() != null && !existingDto.getPackageDimension().isEmpty()) && (dto.getPackageDimension() != null && !dto.getPackageDimension().isEmpty())) {
 
-        if ((existingDto.getDimHeight() != null && !existingDto.getDimHeight().isEmpty()) && (dto.getDimHeight() != null && !dto.getDimHeight().isEmpty()))
-            existingDto.setDimHeight(String.valueOf(new BigDecimal(existingDto.getDimHeight()).add(new BigDecimal(dto.getDimHeight()))));
+            String[] existingDimensions = existingDto.getPackageDimension().split("x");
+            String[] dimensions = existingDto.getPackageDimension().split("x");
 
-        if ((existingDto.getDimWidth() != null && !existingDto.getDimWidth().isEmpty()) && (dto.getDimWidth() != null && !dto.getDimWidth().isEmpty()))
-            existingDto.setDimWidth(String.valueOf(new BigDecimal(existingDto.getDimWidth()).add(new BigDecimal(dto.getDimWidth()))));
+            if (dimensions != null && existingDimensions != null) {
+                BigDecimal firstValue = null;
+                BigDecimal secondValue = null;
+                BigDecimal thirdValue = null;
+                if (dimensions.length > 0) {
+                    if ((dimensions[0] != null && existingDimensions[0] != null) && (StringUtils.isNumeric(dimensions[0].trim()) && StringUtils.isNumeric(existingDimensions[0].trim()))) {
+                        firstValue = new BigDecimal(existingDimensions[0].trim()).add(new BigDecimal(dimensions[0].trim()));
+                    }
+                }
+                if (dimensions.length > 1) {
+                    if ((dimensions[1] != null && existingDimensions[1] != null) && (StringUtils.isNumeric(dimensions[1].trim()) && StringUtils.isNumeric(existingDimensions[1].trim()))) {
+                        secondValue = new BigDecimal(existingDimensions[1].trim()).add(new BigDecimal(dimensions[1].trim()));
+                    }
+                }
+                if (dimensions.length > 2) {
+                    if ((dimensions[2] != null && existingDimensions[2] != null) && (StringUtils.isNumeric(dimensions[2].trim()) && StringUtils.isNumeric(existingDimensions[2].trim()))) {
+                        thirdValue = new BigDecimal(existingDimensions[2].trim()).add(new BigDecimal(dimensions[2].trim()));
+                    }
+                }
+                StringBuilder dimeBuilder = new StringBuilder();
+                if (firstValue != null)
+                    dimeBuilder.append(firstValue);
+                if (secondValue != null)
+                    dimeBuilder.append("x" + secondValue);
+                if (thirdValue != null)
+                    dimeBuilder.append("x" + thirdValue);
 
+                if (dimeBuilder.length() > 0)
+                    existingDto.setPackageDimension(dimeBuilder.toString());
+            }
+        }
+
+        if (existingDto.getIncentiveAmount() != null && dto.getIncentiveAmount() != null)
+            existingDto.setIncentiveAmount(existingDto.getIncentiveAmount().add(dto.getIncentiveAmount()));
+
+        if (existingDto.getPieces() != null && dto.getPieces() != null)
+            existingDto.setPieces(existingDto.getPieces().intValue() + dto.getPieces().intValue());
+
+    }
+
+    private static boolean isNumber(String dimension) {
+
+        try {
+            BigDecimal bigDecimal = new BigDecimal(dimension);
+        } catch (Exception e) {
+            return false;
+        }
+
+
+        return true;
+    }
+
+    public static boolean isNumeric(String strNum) {
+        return strNum.matches("-?\\d+(\\.\\d+)?");
     }
 
     private static List<ParcelAuditDetailsDto> getParentIdCharges(List<ParcelAuditDetailsDto> shipmentRecords, Long ratingParentId) {
