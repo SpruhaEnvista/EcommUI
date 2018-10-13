@@ -87,6 +87,7 @@ public class RatingDAOUtil {
         RATING_QUEUE_COLUMN_NAMES.add("ACTUAL_SERVICE_BUCKET");
         RATING_QUEUE_COLUMN_NAMES.add("INVOICE_DATE");
         RATING_QUEUE_COLUMN_NAMES.add("ITEM_TAGS");
+        RATING_QUEUE_COLUMN_NAMES.add("CUSTOMER_ID");
     }
 
     public static String prepareRatingQueueInsertQuery(boolean isHwt) {
@@ -315,6 +316,12 @@ public class RatingDAOUtil {
                 }
             } else if ("ITEM_TAGS".equalsIgnoreCase(columnName)) {
                 ps.setString(69, queueBean.getItemTagInfo());
+            } else if ("CUSTOMER_ID".equalsIgnoreCase(columnName)) {
+                if (queueBean.getCustomerId() != null) {
+                    ps.setLong(70, queueBean.getCustomerId());
+                } else {
+                    ps.setNull(70, Types.INTEGER);
+                }
             } else {
                 throw new RuntimeException("Column name not mapped");
             }

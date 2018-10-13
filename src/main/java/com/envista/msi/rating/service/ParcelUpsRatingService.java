@@ -96,41 +96,64 @@ public class ParcelUpsRatingService {
 
             String trackingNumber = bean.getTrackingNumber();
             List<ParcelAuditDetailsDto> shipmentRecords = null;
+            List<ParcelAuditDetailsDto> shipmentToRate = null;
+            boolean prevHwtRated = false;
+
             if(trackingNumber != null && !trackingNumber.isEmpty()){
                 try{
-                    shipmentRecords = getUpsParcelShipmentDetails(null, trackingNumber, true, null);
+                    if (bean.getHwtIdentifier() == null || bean.getHwtIdentifier().isEmpty())
+                        shipmentRecords = getUpsParcelShipmentDetails(null, trackingNumber, true, null);
+                    else {
+                        shipmentRecords = new ParcelUpsRatingService().getUpsParcelShipmentDetails(bean.getCustomerId().toString(), null, true, bean.getHwtIdentifier());
+                        shipmentToRate = new ArrayList<>();
+                        prevHwtRated = ParcelRatingUtil.isHwtShipmentRated(shipmentRecords, bean.getParentId(), shipmentToRate, bean.getInvoiceDate());
+                    }
+
+
                     if(shipmentRecords != null && !shipmentRecords.isEmpty()) {
-                        Map<Long, List<ParcelAuditDetailsDto>> shipments = ParcelRatingUtil.organiseShipmentsByParentId(shipmentRecords);
-                        List<ParcelAuditDetailsDto> shipmentToRate = shipments.get(bean.getParentId());
+                        Map<Long, List<ParcelAuditDetailsDto>> shipments = null;
+                        shipments = ParcelRatingUtil.organiseShipmentsByParentId(shipmentRecords);
+                        if (bean.getHwtIdentifier() == null || bean.getHwtIdentifier().isEmpty())
+                            shipmentToRate = shipments.get(bean.getParentId());
 
                         if(shipmentToRate != null && !shipmentToRate.isEmpty()) {
-                            if(ParcelRatingUtil.isFirstShipmentToRate(shipments, bean.getParentId())) {
-                                if(ParcelRatingUtil.isRatedWithException(shipmentToRate)) {
-                                    status = ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value;
-                                } else if(ParcelRatingUtil.isRatedWithEmptyPriceSheet(shipmentToRate)) {
-                                    status = ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET.value;
-                                } else if(!ParcelRatingUtil.isShipmentRated(shipmentToRate)) {
-                                    status = callRTRAndPopulateRates(url, licenseKey, shipmentToRate, null, bean, accessorialBeans);
-                                }
-                            } else {
-                                if(!ParcelRatingUtil.isShipmentRated(shipmentToRate)) {
-                                    List<ParcelAuditDetailsDto> previousShipment = ParcelRatingUtil.getPreviousShipmentDetails(shipments, bean.getParentId());
-                                    if(previousShipment!= null && !previousShipment.isEmpty()){
-                                        if(ParcelRatingUtil.isShipmentRated(previousShipment)){
+                            if (bean.getHwtIdentifier() == null || bean.getHwtIdentifier().isEmpty()) {
+                                if (ParcelRatingUtil.isFirstShipmentToRate(shipments, bean.getParentId())) {
+                                    if (ParcelRatingUtil.isRatedWithException(shipmentToRate)) {
+                                        status = ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value;
+                                    } else if (ParcelRatingUtil.isRatedWithEmptyPriceSheet(shipmentToRate)) {
+                                        status = ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET.value;
+                                    } else if (!ParcelRatingUtil.isShipmentRated(shipmentToRate)) {
+                                        status = callRTRAndPopulateRates(url, licenseKey, shipmentToRate, null, bean, accessorialBeans);
+                                    }
+                                } else {
+                                    if (!ParcelRatingUtil.isShipmentRated(shipmentToRate)) {
+                                        List<ParcelAuditDetailsDto> previousShipment = ParcelRatingUtil.getPreviousShipmentDetails(shipments, bean.getParentId());
+                                        if (previousShipment != null && !previousShipment.isEmpty()) {
+                                            if (ParcelRatingUtil.isShipmentRated(previousShipment)) {
 
 
-                                            if(shipmentToRate != null) {
+                                                if (shipmentToRate != null) {
 
-                                                        status = callRTRAndPopulateRates(url, licenseKey, shipmentToRate, previousShipment, bean, accessorialBeans);
-                                                    }
+                                                    status = callRTRAndPopulateRates(url, licenseKey, shipmentToRate, previousShipment, bean, accessorialBeans);
+                                                }
 
 
-                                        } else if(ParcelRatingUtil.isRatedWithException(previousShipment)) {
-                                            status = ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value;
-                                        } else if(ParcelRatingUtil.isRatedWithEmptyPriceSheet(previousShipment)) {
-                                            status = ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET.value;
+                                            } else if (ParcelRatingUtil.isRatedWithException(previousShipment)) {
+                                                status = ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value;
+                                            } else if (ParcelRatingUtil.isRatedWithEmptyPriceSheet(previousShipment)) {
+                                                status = ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET.value;
+                                            }
                                         }
                                     }
+                                }
+                            } else {
+                                if (ParcelRatingUtil.isRatedWithException(shipmentToRate)) {
+                                    status = ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value;
+                                } else if (ParcelRatingUtil.isRatedWithEmptyPriceSheet(shipmentToRate)) {
+                                    status = ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET.value;
+                                } else if (!prevHwtRated) {
+                                    status = callRTRAndPopulateRates(url, licenseKey, shipmentToRate, null, bean, accessorialBeans);
                                 }
                             }
                         }

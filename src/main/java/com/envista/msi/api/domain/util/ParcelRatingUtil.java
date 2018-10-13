@@ -433,15 +433,15 @@ public class ParcelRatingUtil {
 
                         JSONObject accJson = new JSONObject();
                         accJson.put("seq", entry.getValue());
-                        accJson.put("weight", weight);
+                        accJson.put("weight", String.valueOf(weight));
                         accJson.put("weightUnit", weightUnit);
-                        accJson.put("quantity", quantity);
+                        accJson.put("quantity", String.valueOf(quantity));
                         accJson.put("quantityUnit", quantityUnit);
-                        accJson.put("dimLenght", dimLenght);
-                        accJson.put("dimWidth", dimWidth);
-                        accJson.put("dimHeight", dimHeight);
+                        accJson.put("dimLenght", String.valueOf(dimLenght));
+                        accJson.put("dimWidth", String.valueOf(dimWidth));
+                        accJson.put("dimHeight", String.valueOf(dimHeight));
                         accJson.put("dimUnit", dimUnit);
-                        accJson.put("actualWeight", actualWeight);
+                        accJson.put("actualWeight", String.valueOf(actualWeight));
                         accJson.put("actualWeightUnit", actualWeightUnit);
                         accJson.put("packageType", firstCharge.getPackageType());
                         ratingQueueBean.setFrtWeight(weight);
@@ -501,7 +501,9 @@ public class ParcelRatingUtil {
                 ratingQueueBean.setReceiverState(receiverState);
                 ratingQueueBean.setReceiverCity(receiverCity);
                 ratingQueueBean.setReceiverZip(receiverZipCode);
-                ratingQueueBean.setHwtIdentifier(firstCharge.getMultiWeightNumber());
+                if (hwt)
+                    ratingQueueBean.setHwtIdentifier(firstCharge.getMultiWeightNumber());
+
                 ratingQueueBean.setRateSetName(rateSet);
                 ratingQueueBean.setResiFlag(resiFlag);
                 if (firstCharge.getActualServiceBucket() != null)
@@ -1622,7 +1624,7 @@ public class ParcelRatingUtil {
                 billDateShipments.put(dto.getInvoiceDate(), new ArrayList<>(Arrays.asList(dto)));
             }
         }
-        return null;
+        return billDateShipments;
     }
 
     public static void addMissTrackingInfo(Map<String, List<ParcelAuditDetailsDto>> billDateTrackingWiseShipments, Map<String, List<ParcelAuditDetailsDto>> leadTrackingWiseShipments) {
@@ -1805,4 +1807,94 @@ public class ParcelRatingUtil {
         return items;
     }
 
+    public static boolean isHwtShipmentRated(List<ParcelAuditDetailsDto> shipmentRecords, Long ratingParentId, List<ParcelAuditDetailsDto> shipmentToRate, Date invoiceDate) {
+
+        boolean rated = false;
+        List<ParcelAuditDetailsDto> detailsDtos = getParentIdCharges(shipmentRecords, ratingParentId);
+        rated = isShipmentRated(detailsDtos);
+
+        if (!rated) {
+            Map<Date, List<ParcelAuditDetailsDto>> shipments = organiseShipmentsByBillDate(shipmentRecords);
+
+            List<Long> parentIds = new ArrayList<>();
+
+
+            for (Map.Entry<Date, List<ParcelAuditDetailsDto>> entry : shipments.entrySet()) {
+
+                parentIds.add(getMinParentId(entry.getValue()));
+
+            }
+
+            for (Long parentId : parentIds) {
+                detailsDtos = null;
+                if (parentId.compareTo(ratingParentId) < 0) {
+                    detailsDtos = getParentIdCharges(shipmentRecords, ratingParentId);
+                    rated = isShipmentRated(detailsDtos);
+                    if (!rated) {
+                        rated = true;
+                        break;
+                    }
+                }
+
+            }
+
+            List<ParcelAuditDetailsDto> auditDetailsDtoList = shipments.get(invoiceDate);
+
+            if (auditDetailsDtoList != null) {
+                Map<String, List<ParcelAuditDetailsDto>> trackingWiseShipments = ParcelRatingUtil.prepareTrackingNumberWiseAuditDetails(auditDetailsDtoList);
+                List<ParcelAuditDetailsDto> hwtCarrierCharges = new ArrayList<>();
+                for (Map.Entry<String, List<ParcelAuditDetailsDto>> entry : trackingWiseShipments.entrySet()) {
+
+                    Map<Long, List<ParcelAuditDetailsDto>> parentIdShipments = organiseShipmentsByParentId(entry.getValue());
+                    Long maxParentId = getMaxParentId(parentIdShipments);
+                    hwtCarrierCharges.addAll(parentIdShipments.get(maxParentId));
+                }
+
+                Map<String, ParcelAuditDetailsDto> sumOfHwtAccdetails = new HashMap<>();
+                for (ParcelAuditDetailsDto dto : hwtCarrierCharges) {
+
+                    if ("FRT".equalsIgnoreCase(dto.getChargeClassificationCode())) {
+                        if (sumOfHwtAccdetails.containsKey("FRT")) {
+
+                        } else {
+                            sumOfHwtAccdetails.put("FRT", dto);
+                        }
+                    }
+                }
+            }
+
+
+        }
+
+
+        return rated;
+    }
+
+    private static List<ParcelAuditDetailsDto> getParentIdCharges(List<ParcelAuditDetailsDto> shipmentRecords, Long ratingParentId) {
+
+        List<ParcelAuditDetailsDto> list = new ArrayList<>();
+
+        for (ParcelAuditDetailsDto dto : shipmentRecords) {
+
+            if (dto.getParentId().compareTo(ratingParentId) == 0)
+                list.add(dto);
+        }
+
+
+        return list;
+    }
+
+    public static Long getMinParentId(List<ParcelAuditDetailsDto> billDateShipments) {
+
+        Long minValue = billDateShipments.get(0).getParentId();
+        for (ParcelAuditDetailsDto dto : billDateShipments) {
+
+            if (dto.getParentId() < minValue) {
+                minValue = dto.getParentId();
+            }
+
+        }
+
+        return minValue;
+    }
 }
