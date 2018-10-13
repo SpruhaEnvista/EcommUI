@@ -1855,11 +1855,37 @@ public class ParcelRatingUtil {
 
                     if ("FRT".equalsIgnoreCase(dto.getChargeClassificationCode())) {
                         if (sumOfHwtAccdetails.containsKey("FRT")) {
-
+                            ParcelAuditDetailsDto existingDto = sumOfHwtAccdetails.get("FRT");
+                            sumTheTwoCharges(existingDto, dto);
+                            sumOfHwtAccdetails.replace("FRT", existingDto);
                         } else {
                             sumOfHwtAccdetails.put("FRT", dto);
                         }
+                    } else if ("FSC".equalsIgnoreCase(dto.getChargeClassificationCode())) {
+                        if (sumOfHwtAccdetails.containsKey("FSC")) {
+                            ParcelAuditDetailsDto existingDto = sumOfHwtAccdetails.get("FSC");
+                            sumTheTwoCharges(existingDto, dto);
+                            sumOfHwtAccdetails.replace("FSC", existingDto);
+                        } else {
+                            sumOfHwtAccdetails.put("FSC", dto);
+                        }
+                    } else {
+                        if (sumOfHwtAccdetails.containsKey(dto.getChargeDescriptionCode())) {
+                            ParcelAuditDetailsDto existingDto = sumOfHwtAccdetails.get(dto.getChargeDescriptionCode());
+                            sumTheTwoCharges(existingDto, dto);
+                            sumOfHwtAccdetails.replace(dto.getChargeDescriptionCode(), existingDto);
+                        } else {
+
+                            sumOfHwtAccdetails.put(dto.getChargeDescriptionCode(), dto);
+                        }
                     }
+                }
+
+                for (Map.Entry<String, ParcelAuditDetailsDto> entry : sumOfHwtAccdetails.entrySet()) {
+                    ParcelAuditDetailsDto dto = entry.getValue();
+                    dto.setParentId(ratingParentId);
+                    shipmentToRate.add(dto);
+
                 }
             }
 
@@ -1868,6 +1894,28 @@ public class ParcelRatingUtil {
 
 
         return rated;
+    }
+
+    private static void sumTheTwoCharges(ParcelAuditDetailsDto existingDto, ParcelAuditDetailsDto dto) {
+
+        if ((existingDto.getNetAmount() != null && !existingDto.getNetAmount().isEmpty()) && (dto.getNetAmount() != null && !dto.getNetAmount().isEmpty()))
+            existingDto.setNetAmount(String.valueOf(new BigDecimal(existingDto.getNetAmount()).add(new BigDecimal(dto.getNetAmount()))));
+
+        if (existingDto.getActualWeight() != null && dto.getActualWeight() != null)
+            existingDto.setActualWeight(existingDto.getActualWeight().add(dto.getActualWeight()));
+
+        if ((existingDto.getPackageWeight() != null && !existingDto.getPackageWeight().isEmpty()) && (dto.getPackageWeight() != null && !dto.getPackageWeight().isEmpty()))
+            existingDto.setPackageWeight(String.valueOf(new BigDecimal(existingDto.getPackageWeight()).add(new BigDecimal(dto.getPackageWeight()))));
+
+        if ((existingDto.getDimLength() != null && !existingDto.getDimLength().isEmpty()) && (dto.getDimLength() != null && !dto.getDimLength().isEmpty()))
+            existingDto.setDimLength(String.valueOf(new BigDecimal(existingDto.getDimLength()).add(new BigDecimal(dto.getDimLength()))));
+
+        if ((existingDto.getDimHeight() != null && !existingDto.getDimHeight().isEmpty()) && (dto.getDimHeight() != null && !dto.getDimHeight().isEmpty()))
+            existingDto.setDimHeight(String.valueOf(new BigDecimal(existingDto.getDimHeight()).add(new BigDecimal(dto.getDimHeight()))));
+
+        if ((existingDto.getDimWidth() != null && !existingDto.getDimWidth().isEmpty()) && (dto.getDimWidth() != null && !dto.getDimWidth().isEmpty()))
+            existingDto.setDimWidth(String.valueOf(new BigDecimal(existingDto.getDimWidth()).add(new BigDecimal(dto.getDimWidth()))));
+
     }
 
     private static List<ParcelAuditDetailsDto> getParentIdCharges(List<ParcelAuditDetailsDto> shipmentRecords, Long ratingParentId) {
