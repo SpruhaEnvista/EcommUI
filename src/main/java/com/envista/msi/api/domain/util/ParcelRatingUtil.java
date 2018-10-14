@@ -1854,15 +1854,17 @@ public class ParcelRatingUtil {
                     hwtCarrierCharges.addAll(parentIdShipments.get(maxParentId));
                 }
 
-                Map<String, ParcelAuditDetailsDto> sumOfHwtAccdetails = new HashMap<>();
+                Map<String, ParcelAuditDetailsDto> sumOfHwtAccdetails = new LinkedHashMap<>();
                 for (ParcelAuditDetailsDto dto : hwtCarrierCharges) {
 
                     if ("FRT".equalsIgnoreCase(dto.getChargeClassificationCode())) {
                         if (sumOfHwtAccdetails.containsKey("FRT")) {
                             ParcelAuditDetailsDto existingDto = sumOfHwtAccdetails.get("FRT");
                             sumTheTwoCharges(existingDto, dto);
+                            existingDto.setId(ratingParentId);
                             sumOfHwtAccdetails.replace("FRT", existingDto);
                         } else {
+                            dto.setId(ratingParentId);
                             sumOfHwtAccdetails.put("FRT", dto);
                         }
                     } else if ("FSC".equalsIgnoreCase(dto.getChargeClassificationCode())) {
