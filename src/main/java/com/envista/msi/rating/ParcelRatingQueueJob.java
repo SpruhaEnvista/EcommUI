@@ -234,7 +234,7 @@ public class ParcelRatingQueueJob {
 
                                 Map<String, List<ParcelAuditDetailsDto>> billDateTrackingWiseShipments = ParcelRatingUtil.prepareTrackingNumberWiseAuditDetails(entry.getValue());
 
-                                ParcelRatingUtil.addMissTrackingInfo(billDateTrackingWiseShipments, LeadTrackingWiseShipments);
+                                ParcelRatingUtil.addMissTrackingInfo(billDateTrackingWiseShipments, LeadTrackingWiseShipments, entry.getKey());
 
                                 List<ParcelAuditDetailsDto> shipmentChargeList = ParcelRatingUtil.prepareHwtAccList(billDateTrackingWiseShipments, hwtSequenceInfo);
                                 ratingInputCriteriaBean.setHwt(true);

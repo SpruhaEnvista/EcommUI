@@ -1628,11 +1628,12 @@ public class ParcelRatingUtil {
         return billDateShipments;
     }
 
-    public static void addMissTrackingInfo(Map<String, List<ParcelAuditDetailsDto>> billDateTrackingWiseShipments, Map<String, List<ParcelAuditDetailsDto>> leadTrackingWiseShipments) {
+    public static void addMissTrackingInfo(Map<String, List<ParcelAuditDetailsDto>> billDateTrackingWiseShipments, Map<String, List<ParcelAuditDetailsDto>> leadTrackingWiseShipments, Date invoiceDate) {
 
         for (Map.Entry<String, List<ParcelAuditDetailsDto>> entry : leadTrackingWiseShipments.entrySet()) {
 
-            if (!billDateTrackingWiseShipments.containsKey(entry.getKey())) {
+            if (!billDateTrackingWiseShipments.containsKey(entry.getKey())
+                    && (entry.getValue().get(0).getInvoiceDate() == null || invoiceDate.compareTo(entry.getValue().get(0).getInvoiceDate()) > 0)) {
                 billDateTrackingWiseShipments.put(entry.getKey(), entry.getValue());
             }
         }
