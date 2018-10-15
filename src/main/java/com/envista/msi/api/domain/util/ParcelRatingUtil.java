@@ -307,14 +307,13 @@ public class ParcelRatingUtil {
 
         if (shipmentDetails != null && !shipmentDetails.isEmpty()) {
             for (ParcelAuditDetailsDto auditDetails : shipmentDetails) {
-                if (auditDetails != null && auditDetails.getParentId().compareTo(firstCharge.getParentId()) == 0
-                        && auditDetails.getPackageDimension() != null && !auditDetails.getPackageDimension().isEmpty()) {
+                if (auditDetails != null && auditDetails.getPackageDimension() != null && !auditDetails.getPackageDimension().isEmpty()) {
                     try {
                         String[] dimension = auditDetails.getPackageDimension().toLowerCase().split("x");
-                        if (dimension != null && dimension.length > 0) {
-                            firstCharge.setDimLength(dimension[0] != null ? dimension[0].trim() : "");
-                            firstCharge.setDimWidth(dimension[1] != null ? dimension[1].trim() : "");
-                            firstCharge.setDimHeight(dimension[2] != null ? dimension[2].trim() : "");
+                        if (dimension != null && dimension.length > 2) {
+                            auditDetails.setDimLength(dimension[0] != null ? dimension[0].trim() : "");
+                            auditDetails.setDimWidth(dimension[1] != null ? dimension[1].trim() : "");
+                            auditDetails.setDimHeight(dimension[2] != null ? dimension[2].trim() : "");
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
