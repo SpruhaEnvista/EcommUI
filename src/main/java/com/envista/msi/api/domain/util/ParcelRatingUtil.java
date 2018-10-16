@@ -16,18 +16,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by Sujit kumar on 20/04/2018.
@@ -1850,7 +1839,7 @@ public class ParcelRatingUtil {
 
                     Map<Long, List<ParcelAuditDetailsDto>> parentIdShipments = organiseShipmentsByParentId(entry.getValue());
                     Long maxParentId = getMaxParentId(parentIdShipments);
-                    hwtCarrierCharges.addAll(parentIdShipments.get(maxParentId));
+                    hwtCarrierCharges.addAll(removeOneFrt(parentIdShipments.get(maxParentId)));
                 }
 
                 Map<String, ParcelAuditDetailsDto> sumOfHwtAccdetails = new LinkedHashMap<>();
@@ -1899,6 +1888,18 @@ public class ParcelRatingUtil {
 
 
         return rated;
+    }
+
+    private static List<ParcelAuditDetailsDto> removeOneFrt(List<ParcelAuditDetailsDto> parcelAuditDetailsDtos) {
+
+        List<ParcelAuditDetailsDto> dtos = new ArrayList<>(parcelAuditDetailsDtos);
+        ParcelAuditDetailsDto maxFrtdto =getLatestFrightCharge(parcelAuditDetailsDtos);
+        for(ParcelAuditDetailsDto dto : parcelAuditDetailsDtos){
+            if("FRT".equalsIgnoreCase(dto.getChargeClassificationCode()) && !(maxFrtdto.getId().compareTo(dto.getId()) == 0)){
+                    dtos.remove(dto);
+            }
+        }
+        return dtos;
     }
 
     private static void sumTheTwoCharges(ParcelAuditDetailsDto existingDto, ParcelAuditDetailsDto dto) {

@@ -1208,6 +1208,7 @@ public class DirectJDBCDAO {
     public void saveAccInfo(List<AccessorialDto> dtos, Long parentId) {
         Connection con = null;
         PreparedStatement pstmt = null;
+        deleteAccInfoByParentId(parentId);
         String sqlQuery = " INSERT\n" +
                 "    INTO SHP_UPS_ACC_AND_DIS_TB\n" +
                 "      (\n" +
