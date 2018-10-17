@@ -17,12 +17,7 @@ import com.envista.msi.rating.dao.DirectJDBCDAO;
 import com.envista.msi.rating.dao.RatingQueueDAO;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.StringJoiner;
+import java.util.*;
 
 /**
  * Created by Sujit kumar on 05/05/2018.
@@ -435,7 +430,10 @@ public class ParcelUpsRatingService {
 /*                        if("RSC".equalsIgnoreCase(bean.getLookUpValue()))
                             bean.setLookUpValue("RSS");*/
 
-                        charge = ParcelRateResponseParser.findChargeByEDICodeInResponse(bean.getLookUpValue(), priceSheet);
+                        if (queueBean.getHwtIdentifier() == null && queueBean.getHwtIdentifier().isEmpty())
+                            charge = ParcelRateResponseParser.findChargeByEDICodeInResponse(bean.getLookUpValue(), priceSheet);
+                        else
+                            charge = ParcelRateResponseParser.findChargeByEDICodeInResForHwt(bean.getLookUpValue(), priceSheet);
                     }
                     if(charge != null){
                         mappedAccChanges.add(charge);
@@ -1257,7 +1255,21 @@ public class ParcelUpsRatingService {
 
         if (accessorialCharges != null && accessorialCharges.size() > 0) {
 
+            Map<String, ParcelRateResponse.Charge> disMap = new LinkedHashMap<>();
+
             for (ParcelRateResponse.Charge charge : accessorialCharges) {
+                if (disMap.containsKey(charge.getName())) {
+
+                    disMap.get(charge.getEdiCode()).setAmount(disMap.get(charge.getEdiCode()).getAmount().add(charge.getAmount()));
+                } else {
+                    disMap.put(charge.getEdiCode(), charge);
+                }
+
+            }
+
+            for (Map.Entry<String, ParcelRateResponse.Charge> entry : disMap.entrySet()) {
+
+                ParcelRateResponse.Charge charge = entry.getValue();
 
                 AccessorialDto dto = new AccessorialDto();
 
@@ -1270,6 +1282,7 @@ public class ParcelUpsRatingService {
                 dto.setParentId(parentId);
                 dto.setName(charge.getName());
                 dtos.add(dto);
+
             }
 
         }
@@ -1341,8 +1354,21 @@ public class ParcelUpsRatingService {
 
         if (discountCharges != null && discountCharges.size() > 0) {
 
+            Map<String, ParcelRateResponse.Charge> disMap = new LinkedHashMap<>();
             for (ParcelRateResponse.Charge charge : discountCharges) {
 
+                if (disMap.containsKey(charge.getName())) {
+
+                    disMap.get(charge.getName()).setAmount(disMap.get(charge.getName()).getAmount().add(charge.getAmount()));
+                } else {
+                    disMap.put(charge.getName(), charge);
+                }
+
+            }
+
+            for (Map.Entry<String, ParcelRateResponse.Charge> entry : disMap.entrySet()) {
+
+                ParcelRateResponse.Charge charge = entry.getValue();
                 AccessorialDto dto = new AccessorialDto();
 
                 dto.setCode(charge.getEdiCode());
@@ -1354,6 +1380,7 @@ public class ParcelUpsRatingService {
 
                 addAccAndDisdtos.add(dto);
             }
+
 
         }
 

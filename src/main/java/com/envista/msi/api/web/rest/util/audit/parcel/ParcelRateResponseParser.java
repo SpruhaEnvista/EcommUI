@@ -407,4 +407,27 @@ public class ParcelRateResponseParser {
         }
         return null;
     }
+
+    public static ParcelRateResponse.Charge findChargeByEDICodeInResForHwt(String chargeType, ParcelRateResponse.PriceSheet priceSheet) {
+        ParcelRateResponse.Charge finalCharge = null;
+        BigDecimal netAmount = null;
+        if (priceSheet != null && priceSheet.getCharges() != null) {
+            for (ParcelRateResponse.Charge charge : priceSheet.getCharges()) {
+                if (charge != null && chargeType.equalsIgnoreCase(charge.getEdiCode())) {
+                    finalCharge = charge;
+                    if (netAmount == null)
+                        netAmount = charge.getAmount();
+                    else
+                        netAmount = netAmount.add(charge.getAmount());
+
+                }
+            }
+
+            if (finalCharge != null && netAmount != null)
+                finalCharge.setAmount(netAmount);
+
+        }
+
+        return finalCharge;
+    }
 }
