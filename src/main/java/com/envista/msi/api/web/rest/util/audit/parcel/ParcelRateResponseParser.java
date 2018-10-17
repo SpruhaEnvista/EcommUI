@@ -366,18 +366,27 @@ public class ParcelRateResponseParser {
         getResidentialSurchargeDiscount(priceSheet, resDiscounts);
         for(ParcelRateResponse.Charge charge: resDiscounts  ){
             mappedDscChanges.add(charge);
-            rateDetails.setResidentialSurchargeDiscount(rateDetails.getDeliveryAreaSurchargeDiscount().add(charge.getAmount()));
+            if(rateDetails.getResidentialSurchargeDiscount() == null)
+                rateDetails.setResidentialSurchargeDiscount(charge.getAmount());
+            else
+                rateDetails.setResidentialSurchargeDiscount(rateDetails.getResidentialSurchargeDiscount().add(charge.getAmount()));
+
             rateDetails.setResidentialSurchargeDiscountPercentage(charge.getRate());
         }
-        rateDetails.setResidentialSurchargeDiscount(rateDetails.getResidentialSurchargeDiscount().subtract(prevRatesdto.getResDis()));
+        if(rateDetails.getResidentialSurchargeDiscount() != null)
+            rateDetails.setResidentialSurchargeDiscount(rateDetails.getResidentialSurchargeDiscount().subtract(prevRatesdto.getResDis()));
 
         List<ParcelRateResponse.Charge> dasDiscounts = new ArrayList<>();
        getRatedDasDiscount(priceSheet, dasDiscounts);
         for(ParcelRateResponse.Charge charge: dasDiscounts  ){
             mappedDscChanges.add(charge);
-            rateDetails.setDeliveryAreaSurchargeDiscount(rateDetails.getDeliveryAreaSurchargeDiscount().add(charge.getAmount()));
+            if(rateDetails.getDeliveryAreaSurchargeDiscount() == null)
+                rateDetails.setDeliveryAreaSurchargeDiscount(charge.getAmount());
+            else
+                rateDetails.setDeliveryAreaSurchargeDiscount(rateDetails.getDeliveryAreaSurchargeDiscount().add(charge.getAmount()));
         }
-        rateDetails.setDeliveryAreaSurchargeDiscount(rateDetails.getDeliveryAreaSurchargeDiscount().subtract(prevRatesdto.getDasDis()));
+        if(rateDetails.getDeliveryAreaSurchargeDiscount() != null)
+            rateDetails.setDeliveryAreaSurchargeDiscount(rateDetails.getDeliveryAreaSurchargeDiscount().subtract(prevRatesdto.getDasDis()));
 
 
         rateDetails.setRatedFuelSurchargeDiscount(ParcelRateResponseParser.getRatedSurchargeDiscount(priceSheet).subtract(prevRatesdto.getFuleSurDis()));
