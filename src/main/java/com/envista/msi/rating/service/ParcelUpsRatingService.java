@@ -433,7 +433,7 @@ public class ParcelUpsRatingService {
                         if (queueBean.getHwtIdentifier() == null && queueBean.getHwtIdentifier().isEmpty())
                             charge = ParcelRateResponseParser.findChargeByEDICodeInResponse(bean.getLookUpValue(), priceSheet);
                         else
-                            charge = ParcelRateResponseParser.findChargeByEDICodeInResForHwt(bean.getLookUpValue(), priceSheet);
+                            charge = ParcelRateResponseParser.findChargeByEDICodeInResForHwt(bean.getLookUpValue(), priceSheet, mappedAccChanges);
                     }
                     if(charge != null){
                         mappedAccChanges.add(charge);

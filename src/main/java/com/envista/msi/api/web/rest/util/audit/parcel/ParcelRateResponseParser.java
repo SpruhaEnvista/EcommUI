@@ -417,7 +417,7 @@ public class ParcelRateResponseParser {
         return null;
     }
 
-    public static ParcelRateResponse.Charge findChargeByEDICodeInResForHwt(String chargeType, ParcelRateResponse.PriceSheet priceSheet) {
+    public static ParcelRateResponse.Charge findChargeByEDICodeInResForHwt(String chargeType, ParcelRateResponse.PriceSheet priceSheet, List<ParcelRateResponse.Charge> mappedAccChanges) {
         ParcelRateResponse.Charge finalCharge = null;
         BigDecimal netAmount = null;
         if (priceSheet != null && priceSheet.getCharges() != null) {
@@ -428,6 +428,8 @@ public class ParcelRateResponseParser {
                         netAmount = charge.getAmount();
                     else
                         netAmount = netAmount.add(charge.getAmount());
+
+                    mappedAccChanges.add(charge);
 
                 }
             }
