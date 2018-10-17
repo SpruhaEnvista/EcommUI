@@ -1896,7 +1896,16 @@ public class ParcelRatingUtil {
         ParcelAuditDetailsDto maxFrtdto =getLatestFrightCharge(parcelAuditDetailsDtos);
         for(ParcelAuditDetailsDto dto : parcelAuditDetailsDtos){
             if("FRT".equalsIgnoreCase(dto.getChargeClassificationCode()) && !(maxFrtdto.getId().compareTo(dto.getId()) == 0)){
-                    dtos.remove(dto);
+                maxFrtdto.setNetAmount(String.valueOf(new BigDecimal(maxFrtdto.getNetAmount()).add(new BigDecimal(dto.getNetAmount()))));
+                maxFrtdto.setIncentiveAmount(maxFrtdto.getIncentiveAmount().add(dto.getIncentiveAmount()));
+                dtos.remove(dto);
+            }
+        }
+        for(ParcelAuditDetailsDto dto : dtos){
+            if("FRT".equalsIgnoreCase(dto.getChargeClassificationCode())){
+
+                dto.setNetAmount(maxFrtdto.getNetAmount());
+                dto.setIncentiveAmount(maxFrtdto.getIncentiveAmount());
             }
         }
         return dtos;
@@ -1916,24 +1925,24 @@ public class ParcelRatingUtil {
         if ((existingDto.getPackageDimension() != null && !existingDto.getPackageDimension().isEmpty()) && (dto.getPackageDimension() != null && !dto.getPackageDimension().isEmpty())) {
 
             String[] existingDimensions = existingDto.getPackageDimension().split("x");
-            String[] dimensions = existingDto.getPackageDimension().split("x");
+            String[] dimensions = dto.getPackageDimension().split("x");
 
             if (dimensions != null && existingDimensions != null) {
                 BigDecimal firstValue = null;
                 BigDecimal secondValue = null;
                 BigDecimal thirdValue = null;
                 if (dimensions.length > 0) {
-                    if ((dimensions[0] != null && existingDimensions[0] != null) && (StringUtils.isNumeric(dimensions[0].trim()) && StringUtils.isNumeric(existingDimensions[0].trim()))) {
+                    if ((dimensions[0] != null && existingDimensions[0] != null) && (isBigDecimalNumber(dimensions[0].trim()) && isBigDecimalNumber(existingDimensions[0].trim()))) {
                         firstValue = new BigDecimal(existingDimensions[0].trim()).add(new BigDecimal(dimensions[0].trim()));
                     }
                 }
                 if (dimensions.length > 1) {
-                    if ((dimensions[1] != null && existingDimensions[1] != null) && (StringUtils.isNumeric(dimensions[1].trim()) && StringUtils.isNumeric(existingDimensions[1].trim()))) {
+                    if ((dimensions[1] != null && existingDimensions[1] != null) && (isBigDecimalNumber(dimensions[1].trim()) && isBigDecimalNumber(existingDimensions[1].trim()))) {
                         secondValue = new BigDecimal(existingDimensions[1].trim()).add(new BigDecimal(dimensions[1].trim()));
                     }
                 }
                 if (dimensions.length > 2) {
-                    if ((dimensions[2] != null && existingDimensions[2] != null) && (StringUtils.isNumeric(dimensions[2].trim()) && StringUtils.isNumeric(existingDimensions[2].trim()))) {
+                    if ((dimensions[2] != null && existingDimensions[2] != null) && (isBigDecimalNumber(dimensions[2].trim()) && isBigDecimalNumber(existingDimensions[2].trim()))) {
                         thirdValue = new BigDecimal(existingDimensions[2].trim()).add(new BigDecimal(dimensions[2].trim()));
                     }
                 }
@@ -1958,15 +1967,13 @@ public class ParcelRatingUtil {
 
     }
 
-    private static boolean isNumber(String dimension) {
+    private static boolean isBigDecimalNumber(String value) {
 
         try {
-            BigDecimal bigDecimal = new BigDecimal(dimension);
+            BigDecimal bigDecimal = new BigDecimal(value);
         } catch (Exception e) {
             return false;
         }
-
-
         return true;
     }
 
@@ -2001,4 +2008,6 @@ public class ParcelRatingUtil {
 
         return minValue;
     }
+
+
 }
