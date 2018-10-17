@@ -436,7 +436,9 @@ public class ParcelUpsRatingService {
                             charge = ParcelRateResponseParser.findChargeByEDICodeInResForHwt(bean.getLookUpValue(), priceSheet, mappedAccChanges);
                     }
                     if(charge != null){
-                        mappedAccChanges.add(charge);
+                        if (queueBean.getHwtIdentifier() == null && queueBean.getHwtIdentifier().isEmpty())
+                            mappedAccChanges.add(charge);
+
                         if(charge != null && charge.getType() != null){
                             if(ParcelRateResponse.ChargeType.ACCESSORIAL.name().equalsIgnoreCase(charge.getType())) mappedAccChanges.add(charge);
                             else if(ParcelRateResponse.ChargeType.DISCOUNT.name().equalsIgnoreCase(charge.getType())) mappedDscChanges.add(charge);
@@ -1258,7 +1260,7 @@ public class ParcelUpsRatingService {
             Map<String, ParcelRateResponse.Charge> disMap = new LinkedHashMap<>();
 
             for (ParcelRateResponse.Charge charge : accessorialCharges) {
-                if (disMap.containsKey(charge.getName())) {
+                if (disMap.containsKey(charge.getEdiCode())) {
 
                     disMap.get(charge.getEdiCode()).setAmount(disMap.get(charge.getEdiCode()).getAmount().add(charge.getAmount()));
                 } else {
