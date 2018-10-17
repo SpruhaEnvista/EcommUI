@@ -567,7 +567,7 @@ public class ParcelRatingUtil {
 
                 JSONObject jsonObject = (JSONObject) accJsonArr.get(i);
 
-                if (jsonObject.getString("seq").equalsIgnoreCase(jsonObject.getString("seq")) && jsonObject.getString("code").equalsIgnoreCase(accJson.getString("code"))) {
+                if (jsonObject.getString("seq").equalsIgnoreCase(accJson.getString("seq")) && jsonObject.getString("code").equalsIgnoreCase(accJson.getString("code"))) {
 
                     if (jsonObject.getString("netAmount") != null) {
                         accAmount = new BigDecimal(jsonObject.getString("netAmount"));
@@ -1620,9 +1620,13 @@ public class ParcelRatingUtil {
 
         for (Map.Entry<String, List<ParcelAuditDetailsDto>> entry : leadTrackingWiseShipments.entrySet()) {
 
-            if (!billDateTrackingWiseShipments.containsKey(entry.getKey())
-                    && (entry.getValue().get(0).getInvoiceDate() == null || invoiceDate.compareTo(entry.getValue().get(0).getInvoiceDate()) > 0)) {
-                billDateTrackingWiseShipments.put(entry.getKey(), entry.getValue());
+            if((entry.getValue().get(0).getInvoiceDate() == null || invoiceDate.compareTo(entry.getValue().get(0).getInvoiceDate()) > 0)) {
+                if (!billDateTrackingWiseShipments.containsKey(entry.getKey())){
+                    billDateTrackingWiseShipments.put(entry.getKey(), entry.getValue());
+                } else {
+
+                    billDateTrackingWiseShipments.get(entry.getKey()).addAll(entry.getValue());
+                }
             }
         }
     }
