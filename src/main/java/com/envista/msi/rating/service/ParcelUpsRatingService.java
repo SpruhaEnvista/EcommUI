@@ -429,14 +429,14 @@ public class ParcelUpsRatingService {
                     if (bean != null) {
 /*                        if("RSC".equalsIgnoreCase(bean.getLookUpValue()))
                             bean.setLookUpValue("RSS");*/
-                        System.out.println("queueBean===" + queueBean);
-                        if (queueBean.getHwtIdentifier() == null && queueBean.getHwtIdentifier().isEmpty())
+
+                        if (queueBean.getHwtIdentifier() == null || queueBean.getHwtIdentifier().isEmpty())
                             charge = ParcelRateResponseParser.findChargeByEDICodeInResponse(bean.getLookUpValue(), priceSheet);
                         else
                             charge = ParcelRateResponseParser.findChargeByEDICodeInResForHwt(bean.getLookUpValue(), priceSheet, mappedAccChanges);
                     }
                     if(charge != null){
-                        if (queueBean.getHwtIdentifier() == null && queueBean.getHwtIdentifier().isEmpty())
+                        if (queueBean.getHwtIdentifier() == null || queueBean.getHwtIdentifier().isEmpty())
                             mappedAccChanges.add(charge);
 
                         if(charge != null && charge.getType() != null){
