@@ -1740,7 +1740,7 @@ public class ParcelRatingUtil {
                     if (accjson != null) {
                         ParcelRateRequest.Item item = new ParcelRateRequest.Item();
                         if (accjson.has("seq") && accjson.getString("seq") != null) {
-                            item.setSequence(accjson.getLong("seq"));
+                            item.setSequence(Long.valueOf(accjson.getString("seq")));
                         }
                         if (accjson.has("weight") && accjson.getString("weight") != null) {
 
