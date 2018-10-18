@@ -298,16 +298,16 @@ public class ParcelRateResponseParser {
         return accessorialCharges;
     }
 
-    public static ParcelRateResponse.Charge getRatedDasDiscount(ParcelRateResponse.PriceSheet priceSheet){
+    public static void  getRatedDasDiscount(ParcelRateResponse.PriceSheet priceSheet, List<ParcelRateResponse.Charge> charges){
         if(priceSheet != null && priceSheet.getCharges() != null) {
             for (ParcelRateResponse.Charge charge : priceSheet.getCharges()) {
                 if (charge != null && charge.getType() != null && ParcelRateResponse.ChargeType.DISCOUNT.name().equalsIgnoreCase(charge.getType())
                         && charge.getName() != null && "Delivery Area Surcharge Discount".equalsIgnoreCase(charge.getName())){
-                    return charge;
+                    charges.add(charge);
                 }
             }
         }
-        return null;
+
     }
 
     public static ParcelRateResponse.Charge getLargePachageSurcharge(ParcelRateResponse.PriceSheet priceSheet){
@@ -362,22 +362,83 @@ public class ParcelRateResponseParser {
         rateDetails.setRatedEarnedDiscount(ParcelRateResponseParser.getSpendDiscount(priceSheet).subtract(prevRatesdto.getEarnedDis()));
         rateDetails.setRatedMinMaxAdjustment(ParcelRateResponseParser.getMinMaxAdjustment(priceSheet).subtract(prevRatesdto.getMinMaxDis()));
 
-        ParcelRateResponse.Charge residentialSurchargeDiscountCharge = ParcelRateResponseParser.getResidentialSurchargeDiscount(priceSheet);
-        if (residentialSurchargeDiscountCharge != null) {
-            mappedDscChanges.add(residentialSurchargeDiscountCharge);
-            rateDetails.setResidentialSurchargeDiscount(residentialSurchargeDiscountCharge.getAmount().subtract(prevRatesdto.getResDis()));
-            rateDetails.setResidentialSurchargeDiscountPercentage(residentialSurchargeDiscountCharge.getRate());
-        }
+        List<ParcelRateResponse.Charge> resDiscounts = new ArrayList<>();
+        getResidentialSurchargeDiscount(priceSheet, resDiscounts);
+        for(ParcelRateResponse.Charge charge: resDiscounts  ){
+            mappedDscChanges.add(charge);
+            if(rateDetails.getResidentialSurchargeDiscount() == null)
+                rateDetails.setResidentialSurchargeDiscount(charge.getAmount());
+            else
+                rateDetails.setResidentialSurchargeDiscount(rateDetails.getResidentialSurchargeDiscount().add(charge.getAmount()));
 
-        ParcelRateResponse.Charge dasDiscount = ParcelRateResponseParser.getRatedDasDiscount(priceSheet);
-        if (dasDiscount != null) {
-            mappedDscChanges.add(dasDiscount);
-            rateDetails.setDeliveryAreaSurchargeDiscount(dasDiscount.getAmount().subtract(prevRatesdto.getDasDis()));
+            rateDetails.setResidentialSurchargeDiscountPercentage(charge.getRate());
         }
+        if(rateDetails.getResidentialSurchargeDiscount() != null)
+            rateDetails.setResidentialSurchargeDiscount(rateDetails.getResidentialSurchargeDiscount().subtract(prevRatesdto.getResDis()));
+
+        List<ParcelRateResponse.Charge> dasDiscounts = new ArrayList<>();
+       getRatedDasDiscount(priceSheet, dasDiscounts);
+        for(ParcelRateResponse.Charge charge: dasDiscounts  ){
+            mappedDscChanges.add(charge);
+            if(rateDetails.getDeliveryAreaSurchargeDiscount() == null)
+                rateDetails.setDeliveryAreaSurchargeDiscount(charge.getAmount());
+            else
+                rateDetails.setDeliveryAreaSurchargeDiscount(rateDetails.getDeliveryAreaSurchargeDiscount().add(charge.getAmount()));
+        }
+        if(rateDetails.getDeliveryAreaSurchargeDiscount() != null)
+            rateDetails.setDeliveryAreaSurchargeDiscount(rateDetails.getDeliveryAreaSurchargeDiscount().subtract(prevRatesdto.getDasDis()));
 
 
         rateDetails.setRatedFuelSurchargeDiscount(ParcelRateResponseParser.getRatedSurchargeDiscount(priceSheet).subtract(prevRatesdto.getFuleSurDis()));
         rateDetails.setRatedCustomFuelSurchargeDiscount(ParcelRateResponseParser.getRatedCustomSurchargeDiscount(priceSheet).subtract(prevRatesdto.getCustFuleSurDis()));
 
+    }
+
+    public static void getResidentialSurchargeDiscount(ParcelRateResponse.PriceSheet priceSheet, List<ParcelRateResponse.Charge> resDiscounts){
+        if(priceSheet != null && priceSheet.getCharges() != null){
+            for(ParcelRateResponse.Charge charge : priceSheet.getCharges()){
+                if(charge != null && "DISCOUNT".equalsIgnoreCase(charge.getType())
+                        && charge.getName() != null && "Residential Surcharge Discount".equalsIgnoreCase(charge.getName())){
+                    resDiscounts.add(charge);
+                }
+            }
+        }
+    }
+
+    public static ParcelRateResponse.Charge  getRatedDasDiscount(ParcelRateResponse.PriceSheet priceSheet){
+        if(priceSheet != null && priceSheet.getCharges() != null) {
+            for (ParcelRateResponse.Charge charge : priceSheet.getCharges()) {
+                if (charge != null && charge.getType() != null && ParcelRateResponse.ChargeType.DISCOUNT.name().equalsIgnoreCase(charge.getType())
+                        && charge.getName() != null && "Delivery Area Surcharge Discount".equalsIgnoreCase(charge.getName())){
+                    return  charge;
+                }
+            }
+        }
+        return null;
+    }
+
+    public static ParcelRateResponse.Charge findChargeByEDICodeInResForHwt(String chargeType, ParcelRateResponse.PriceSheet priceSheet, List<ParcelRateResponse.Charge> mappedAccChanges) {
+        ParcelRateResponse.Charge finalCharge = null;
+        BigDecimal netAmount = null;
+        if (priceSheet != null && priceSheet.getCharges() != null) {
+            for (ParcelRateResponse.Charge charge : priceSheet.getCharges()) {
+                if (charge != null && chargeType.equalsIgnoreCase(charge.getEdiCode())) {
+                    finalCharge = charge;
+                    if (netAmount == null)
+                        netAmount = charge.getAmount();
+                    else
+                        netAmount = netAmount.add(charge.getAmount());
+
+                    mappedAccChanges.add(charge);
+
+                }
+            }
+
+            if (finalCharge != null && netAmount != null)
+                finalCharge.setAmount(netAmount);
+
+        }
+
+        return finalCharge;
     }
 }

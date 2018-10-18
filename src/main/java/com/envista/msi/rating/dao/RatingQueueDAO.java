@@ -133,7 +133,7 @@ public class RatingQueueDAO {
         ResultSet rs = null;
 
         java.util.ArrayList<RatingQueueBean> beanList = null;
-        String selectQuery = "select * from SHP_RATING_QUEUE_TB where  RATE_STATUS = 0 and job_id in ( " + jobIds + " ) and rownum <= 30000 ";
+        String selectQuery = "select * from SHP_RATING_QUEUE_TB where   RATE_STATUS = 0 and job_id in ( " + jobIds + " ) and rownum <= 30000 ";
 
         try {
             connection = ServiceLocator.getDatabaseConnection();
@@ -213,6 +213,9 @@ public class RatingQueueDAO {
                 ratingQueueBean.setResiFlag(rs.getString("RESI_FLAG"));
                 ratingQueueBean.setComToRes(rs.getString("COM_TO_RES"));
                 ratingQueueBean.setActualServiceBucket(rs.getLong("ACTUAL_SERVICE_BUCKET"));
+                ratingQueueBean.setItemTagInfo(rs.getString("ITEM_TAGS"));
+                ratingQueueBean.setInvoiceDate(rs.getDate("INVOICE_DATE"));
+                ratingQueueBean.setCustomerId(rs.getLong("CUSTOMER_ID"));
                 beanList.add(ratingQueueBean);
             }
 
@@ -358,7 +361,10 @@ public class RatingQueueDAO {
             liveQuery.append(" AND b.inv_CARRIER_ID = c.CARRIER_ID ");
             liveQuery.append(" AND b.shipper_code = f.shipper_code ");
 
-            liveQuery.append(" AND a.ebill_gff_id = ar.ebill_gff_id(+) ");
+            if (hwtNumbers == null)
+                liveQuery.append(" AND a.ebill_gff_id = ar.ebill_gff_id(+) ");
+            else
+                liveQuery.append(" AND a.parent_id = ar.parent_id(+) ");
 
             liveQuery.append(" and b.inv_carrier_id = 21 ");
 
@@ -404,16 +410,7 @@ public class RatingQueueDAO {
             parcelUpsShipments = new ArrayList<>();
 
             rs = ps.executeQuery();
-            String senderCountry = null;
-            String senderState = null;
-            String senderCity = null;
-            String senderZipCode = null;
 
-            String receiverCountry = null;
-            String receiverState = null;
-            String receiverCity = null;
-            String receiverZipCode = null;
-            String zone = null;
             while(rs.next()){
                 ParcelAuditDetailsDto shipmentDetails = new ParcelAuditDetailsDto();
                 shipmentDetails.setId(rs.getLong("ID"));
@@ -486,89 +483,9 @@ public class RatingQueueDAO {
 
                 parcelUpsShipments.add(shipmentDetails);
 
-                try{
-                    if(senderCountry == null && shipmentDetails.getSenderCountry() != null && !shipmentDetails.getSenderCountry().isEmpty()){
-                        senderCountry = shipmentDetails.getSenderCountry();
-                    }
-                    if(senderState == null && shipmentDetails.getSenderState() != null && !shipmentDetails.getSenderState().isEmpty()){
-                        senderState = shipmentDetails.getSenderState();
-                    }
-                    if(senderCity == null && shipmentDetails.getSenderCity() != null && !shipmentDetails.getSenderCity().isEmpty()){
-                        senderCity = shipmentDetails.getSenderCity();
-                    }
-                    if(senderZipCode == null && shipmentDetails.getSenderZipCode() != null && !shipmentDetails.getSenderZipCode().isEmpty()){
-                        senderZipCode = shipmentDetails.getSenderZipCode();
-                    }
-
-                    if(receiverCountry == null && shipmentDetails.getReceiverCountry() != null && !shipmentDetails.getReceiverCountry().isEmpty()){
-                        receiverCountry = shipmentDetails.getReceiverCountry();
-                    }
-                    if(receiverState == null && shipmentDetails.getReceiverState() != null && !shipmentDetails.getReceiverState().isEmpty()){
-                        receiverState = shipmentDetails.getReceiverState();
-                    }
-                    if(receiverCity == null && shipmentDetails.getReceiverCity() != null && !shipmentDetails.getReceiverCity().isEmpty()){
-                        receiverCity = shipmentDetails.getReceiverCity();
-                    }
-                    if(receiverZipCode == null && shipmentDetails.getReceiverZipCode() != null && !shipmentDetails.getReceiverZipCode().isEmpty()){
-                        receiverZipCode = shipmentDetails.getReceiverZipCode();
-                    }
-
-                    if (zone == null && shipmentDetails.getZone() != null && !shipmentDetails.getZone().isEmpty()) {
-                        zone = shipmentDetails.getZone();
-                    }
-
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
             }
 
-            String finalSenderCountry = senderCountry;
-            String finalSenderState = senderState;
-            String finalSenderCity = senderCity;
-            String finalSenderZipCode = senderZipCode;
-            String finalReceiverCountry = receiverCountry;
-            String finalReceiverState = receiverState;
-            String finalReceiverCity = receiverCity;
-            String finalReceiverZipCode = receiverZipCode;
-            String finalZone = zone;
-            parcelUpsShipments.parallelStream().filter(r -> r != null).forEach(
-                    rate -> {
-                        if(rate.getSenderCountry() == null || rate.getSenderCountry().isEmpty()){
-                            rate.setSenderCountry(finalSenderCountry);
-                        }
-                        if(rate.getSenderState() == null || rate.getSenderState().isEmpty()){
-                            rate.setSenderState(finalSenderState);
-                        }
-                        if(rate.getSenderCity() == null || rate.getSenderCity().isEmpty()){
-                            rate.setSenderCity(finalSenderCity);
-                        }
-                        if(rate.getSenderZipCode() == null || rate.getSenderZipCode().isEmpty()){
-                            rate.setSenderZipCode(finalSenderZipCode);
-                        }
-                        if (rate.getSenderBilledZipCode() == null || rate.getSenderBilledZipCode().isEmpty()) {
-                            rate.setSenderBilledZipCode(finalSenderZipCode);
-                        }
 
-                        if(rate.getReceiverCountry() == null || rate.getReceiverCountry().isEmpty()){
-                            rate.setReceiverCountry(finalReceiverCountry);
-                        }
-                        if(rate.getReceiverState() == null || rate.getReceiverState().isEmpty()){
-                            rate.setReceiverState(finalReceiverState);
-                        }
-                        if(rate.getReceiverCity() == null || rate.getReceiverCity().isEmpty()){
-                            rate.setReceiverCity(finalReceiverCity);
-                        }
-                        if(rate.getReceiverZipCode() == null || rate.getReceiverZipCode().isEmpty()){
-                            rate.setReceiverZipCode(finalReceiverZipCode);
-                        }
-                        if (rate.getReceiverBilledZipCode() == null || rate.getReceiverBilledZipCode().isEmpty()) {
-                            rate.setReceiverBilledZipCode(finalReceiverZipCode);
-                        }
-                        if (rate.getZone() == null || rate.getZone().isEmpty()) {
-                            rate.setZone(finalZone);
-                        }
-                    }
-            );
         }catch (Exception e){
             e.printStackTrace();
             throw new DaoException("Exception in getUpsParcelShipmentDetails", e);
