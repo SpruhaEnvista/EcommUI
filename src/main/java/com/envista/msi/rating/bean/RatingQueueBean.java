@@ -533,7 +533,7 @@ public class RatingQueueBean {
                             JSONObject accjson = accJsonArr.getJSONObject(n);
                             if(accjson != null) {
                                 ParcelRateRequest.ServiceFlag serviceFlag = new ParcelRateRequest.ServiceFlag();
-                                if (accjson.has("seq") && accjson.getString("seq") != null) {
+                                if (accjson.has("seq")) {
                                     serviceFlag.setSequence(accjson.getLong("seq"));
                                 }
                                 if(accjson.has("code")){

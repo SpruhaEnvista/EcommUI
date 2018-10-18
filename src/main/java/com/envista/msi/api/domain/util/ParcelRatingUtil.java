@@ -579,7 +579,7 @@ public class ParcelRatingUtil {
 
                 JSONObject jsonObject = (JSONObject) accJsonArr.get(i);
 
-                if (jsonObject.getString("seq").equalsIgnoreCase(accJson.getString("seq")) && jsonObject.getString("code").equalsIgnoreCase(accJson.getString("code"))) {
+                if (jsonObject.getLong("seq") == accJson.getLong("seq") && jsonObject.getString("code").equalsIgnoreCase(accJson.getString("code"))) {
 
                     if (jsonObject.getString("netAmount") != null) {
                         accAmount = new BigDecimal(jsonObject.getString("netAmount"));
@@ -1739,7 +1739,7 @@ public class ParcelRatingUtil {
                     JSONObject accjson = accJsonArr.getJSONObject(n);
                     if (accjson != null) {
                         ParcelRateRequest.Item item = new ParcelRateRequest.Item();
-                        if (accjson.has("seq") && accjson.getString("seq") != null) {
+                        if (accjson.has("seq")) {
                             item.setSequence(accjson.getLong("seq"));
                         }
                         if (accjson.has("weight") && accjson.getString("weight") != null) {
