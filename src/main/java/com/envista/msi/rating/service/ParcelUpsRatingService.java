@@ -429,7 +429,7 @@ public class ParcelUpsRatingService {
                     if (bean != null) {
 /*                        if("RSC".equalsIgnoreCase(bean.getLookUpValue()))
                             bean.setLookUpValue("RSS");*/
-
+                        System.out.println("queueBean===" + queueBean);
                         if (queueBean.getHwtIdentifier() == null && queueBean.getHwtIdentifier().isEmpty())
                             charge = ParcelRateResponseParser.findChargeByEDICodeInResponse(bean.getLookUpValue(), priceSheet);
                         else
