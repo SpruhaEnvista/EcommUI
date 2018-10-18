@@ -1739,7 +1739,7 @@ public class ParcelRatingUtil {
                     JSONObject accjson = accJsonArr.getJSONObject(n);
                     if (accjson != null) {
                         ParcelRateRequest.Item item = new ParcelRateRequest.Item();
-                        if (accjson.has("seq") && accjson.getJSONObject("seq") != null) {
+                        if (accjson.has("seq")) {
                             item.setSequence(accjson.getLong("seq"));
                         }
                         if (accjson.has("weight") && accjson.getString("weight") != null) {
