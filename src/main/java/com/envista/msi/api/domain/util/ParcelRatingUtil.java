@@ -282,6 +282,7 @@ public class ParcelRatingUtil {
             hwt = true;
         }
 
+        prepareXmlReqAddressInfo(trackingNumDetails, firstCharge);
         ratingQueueBean.setGffId(firstCharge.getId());
         ratingQueueBean.setTrackingNumber(firstCharge.getTrackingNumber());
         ratingQueueBean.setParentId(firstCharge.getParentId());
@@ -2013,5 +2014,60 @@ public class ParcelRatingUtil {
         return minValue;
     }
 
+    /**
+     * @param trackingNumberDetails
+     * @param ratingCharge
+     */
+    public static void prepareXmlReqAddressInfo(List<ParcelAuditDetailsDto> trackingNumberDetails, ParcelAuditDetailsDto ratingCharge) {
 
+        List<ParcelAuditDetailsDto> SortOrderTrackDetails = new ArrayList<>(trackingNumberDetails);
+        SortOrderTrackDetails.sort(Comparator.comparing(ParcelAuditDetailsDto::getId).reversed());
+        for (ParcelAuditDetailsDto dto : SortOrderTrackDetails) {
+
+            if (ratingCharge.getParentId().compareTo(dto.getParentId()) > 0) {
+
+                if ((ratingCharge.getSenderCountry() == null || ratingCharge.getSenderCountry().isEmpty())
+                        && (dto.getSenderCountry() != null && !dto.getSenderCountry().isEmpty())) {
+                    ratingCharge.setSenderCountry(dto.getSenderCountry());
+                }
+                if ((ratingCharge.getSenderState() == null || ratingCharge.getSenderState().isEmpty())
+                        && (dto.getSenderState() != null && !dto.getSenderState().isEmpty())) {
+                    ratingCharge.setSenderState(dto.getSenderState());
+                }
+                if ((ratingCharge.getSenderCity() == null || ratingCharge.getSenderCity().isEmpty())
+                        && (dto.getSenderCity() != null && !dto.getSenderCity().isEmpty())) {
+                    ratingCharge.setSenderCity(dto.getSenderCity());
+                }
+                if ((ratingCharge.getSenderZipCode() == null || ratingCharge.getSenderZipCode().isEmpty())
+                        && (dto.getSenderZipCode() != null && !dto.getSenderZipCode().isEmpty())) {
+                    ratingCharge.setSenderZipCode(dto.getSenderZipCode());
+                    ratingCharge.setSenderBilledZipCode(dto.getSenderZipCode());
+                }
+
+                if ((ratingCharge.getReceiverCountry() == null || ratingCharge.getReceiverCountry().isEmpty())
+                        && (dto.getReceiverCountry() != null && !dto.getReceiverCountry().isEmpty())) {
+                    ratingCharge.setReceiverCountry(dto.getReceiverCountry());
+                }
+                if ((ratingCharge.getReceiverState() == null || ratingCharge.getReceiverState().isEmpty())
+                        && (dto.getReceiverState() != null && !dto.getReceiverState().isEmpty())) {
+                    ratingCharge.setReceiverState(dto.getReceiverState());
+                }
+                if ((ratingCharge.getReceiverCity() == null || ratingCharge.getReceiverCity().isEmpty())
+                        && (dto.getReceiverCity() != null && !dto.getReceiverCity().isEmpty())) {
+                    ratingCharge.setReceiverCity(dto.getReceiverCity());
+                }
+                if ((ratingCharge.getReceiverZipCode() == null || ratingCharge.getReceiverZipCode().isEmpty())
+                        && (dto.getReceiverZipCode() != null && !dto.getReceiverZipCode().isEmpty())) {
+                    ratingCharge.setReceiverZipCode(dto.getReceiverZipCode());
+                    ratingCharge.setReceiverBilledZipCode(dto.getReceiverZipCode());
+                }
+
+                if ((ratingCharge.getZone() == null || ratingCharge.getZone().isEmpty())
+                        && (dto.getZone() != null && !dto.getZone().isEmpty())) {
+                    ratingCharge.setZone(dto.getZone());
+                }
+            }
+
+        }
+    }
 }
