@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
@@ -96,41 +97,64 @@ public class ParcelUpsRatingService {
 
             String trackingNumber = bean.getTrackingNumber();
             List<ParcelAuditDetailsDto> shipmentRecords = null;
+            List<ParcelAuditDetailsDto> shipmentToRate = null;
+            boolean prevHwtRated = false;
+
             if(trackingNumber != null && !trackingNumber.isEmpty()){
                 try{
-                    shipmentRecords = getUpsParcelShipmentDetails(null, trackingNumber, true, null);
+                    if (bean.getHwtIdentifier() == null || bean.getHwtIdentifier().isEmpty())
+                        shipmentRecords = getUpsParcelShipmentDetails(null, trackingNumber, true, null);
+                    else {
+                        shipmentRecords = new ParcelUpsRatingService().getUpsParcelShipmentDetails(bean.getCustomerId() != null ? bean.getCustomerId().toString() : null, null, true, bean.getHwtIdentifier());
+                        shipmentToRate = new ArrayList<>();
+                        prevHwtRated = ParcelRatingUtil.isHwtShipmentRated(shipmentRecords, bean.getParentId(), shipmentToRate, bean.getInvoiceDate());
+                    }
+
+
                     if(shipmentRecords != null && !shipmentRecords.isEmpty()) {
-                        Map<Long, List<ParcelAuditDetailsDto>> shipments = ParcelRatingUtil.organiseShipmentsByParentId(shipmentRecords);
-                        List<ParcelAuditDetailsDto> shipmentToRate = shipments.get(bean.getParentId());
+                        Map<Long, List<ParcelAuditDetailsDto>> shipments = null;
+                        shipments = ParcelRatingUtil.organiseShipmentsByParentId(shipmentRecords);
+                        if (bean.getHwtIdentifier() == null || bean.getHwtIdentifier().isEmpty())
+                            shipmentToRate = shipments.get(bean.getParentId());
 
                         if(shipmentToRate != null && !shipmentToRate.isEmpty()) {
-                            if(ParcelRatingUtil.isFirstShipmentToRate(shipments, bean.getParentId())) {
-                                if(ParcelRatingUtil.isRatedWithException(shipmentToRate)) {
-                                    status = ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value;
-                                } else if(ParcelRatingUtil.isRatedWithEmptyPriceSheet(shipmentToRate)) {
-                                    status = ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET.value;
-                                } else if(!ParcelRatingUtil.isShipmentRated(shipmentToRate)) {
-                                    status = callRTRAndPopulateRates(url, licenseKey, shipmentToRate, null, bean, accessorialBeans);
-                                }
-                            } else {
-                                if(!ParcelRatingUtil.isShipmentRated(shipmentToRate)) {
-                                    List<ParcelAuditDetailsDto> previousShipment = ParcelRatingUtil.getPreviousShipmentDetails(shipments, bean.getParentId());
-                                    if(previousShipment!= null && !previousShipment.isEmpty()){
-                                        if(ParcelRatingUtil.isShipmentRated(previousShipment)){
+                            if (bean.getHwtIdentifier() == null || bean.getHwtIdentifier().isEmpty()) {
+                                if (ParcelRatingUtil.isFirstShipmentToRate(shipments, bean.getParentId())) {
+                                    if (ParcelRatingUtil.isRatedWithException(shipmentToRate)) {
+                                        status = ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value;
+                                    } else if (ParcelRatingUtil.isRatedWithEmptyPriceSheet(shipmentToRate)) {
+                                        status = ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET.value;
+                                    } else if (!ParcelRatingUtil.isShipmentRated(shipmentToRate)) {
+                                        status = callRTRAndPopulateRates(url, licenseKey, shipmentToRate, null, bean, accessorialBeans);
+                                    }
+                                } else {
+                                    if (!ParcelRatingUtil.isShipmentRated(shipmentToRate)) {
+                                        List<ParcelAuditDetailsDto> previousShipment = ParcelRatingUtil.getPreviousShipmentDetails(shipments, bean.getParentId());
+                                        if (previousShipment != null && !previousShipment.isEmpty()) {
+                                            if (ParcelRatingUtil.isShipmentRated(previousShipment)) {
 
 
-                                            if(shipmentToRate != null) {
+                                                if (shipmentToRate != null) {
 
-                                                        status = callRTRAndPopulateRates(url, licenseKey, shipmentToRate, previousShipment, bean, accessorialBeans);
-                                                    }
+                                                    status = callRTRAndPopulateRates(url, licenseKey, shipmentToRate, previousShipment, bean, accessorialBeans);
+                                                }
 
 
-                                        } else if(ParcelRatingUtil.isRatedWithException(previousShipment)) {
-                                            status = ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value;
-                                        } else if(ParcelRatingUtil.isRatedWithEmptyPriceSheet(previousShipment)) {
-                                            status = ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET.value;
+                                            } else if (ParcelRatingUtil.isRatedWithException(previousShipment)) {
+                                                status = ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value;
+                                            } else if (ParcelRatingUtil.isRatedWithEmptyPriceSheet(previousShipment)) {
+                                                status = ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET.value;
+                                            }
                                         }
                                     }
+                                }
+                            } else {
+                                if (ParcelRatingUtil.isRatedWithException(shipmentToRate)) {
+                                    status = ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value;
+                                } else if (ParcelRatingUtil.isRatedWithEmptyPriceSheet(shipmentToRate)) {
+                                    status = ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET.value;
+                                } else if (!prevHwtRated) {
+                                    status = callRTRAndPopulateRates(url, licenseKey, shipmentToRate, null, bean, accessorialBeans);
                                 }
                             }
                         }
@@ -412,10 +436,15 @@ public class ParcelUpsRatingService {
 /*                        if("RSC".equalsIgnoreCase(bean.getLookUpValue()))
                             bean.setLookUpValue("RSS");*/
 
-                        charge = ParcelRateResponseParser.findChargeByEDICodeInResponse(bean.getLookUpValue(), priceSheet);
+                        if (queueBean.getHwtIdentifier() == null || queueBean.getHwtIdentifier().isEmpty())
+                            charge = ParcelRateResponseParser.findChargeByEDICodeInResponse(bean.getLookUpValue(), priceSheet);
+                        else
+                            charge = ParcelRateResponseParser.findChargeByEDICodeInResForHwt(bean.getLookUpValue(), priceSheet, mappedAccChanges);
                     }
                     if(charge != null){
-                        mappedAccChanges.add(charge);
+                        if (queueBean.getHwtIdentifier() == null || queueBean.getHwtIdentifier().isEmpty())
+                            mappedAccChanges.add(charge);
+
                         if(charge != null && charge.getType() != null){
                             if(ParcelRateResponse.ChargeType.ACCESSORIAL.name().equalsIgnoreCase(charge.getType())) mappedAccChanges.add(charge);
                             else if(ParcelRateResponse.ChargeType.DISCOUNT.name().equalsIgnoreCase(charge.getType())) mappedDscChanges.add(charge);
@@ -493,6 +522,7 @@ public class ParcelUpsRatingService {
         rateDetails.setContractName(priceSheet.getContractName());
         rateDetails.setZone(priceSheet.getZone());
         rateDetails.setActualServiceBucket(queueBean.getActualServiceBucket());
+        rateDetails.setHwtIdentifier(queueBean.getHwtIdentifier());
 
     }
 
@@ -1233,7 +1263,21 @@ public class ParcelUpsRatingService {
 
         if (accessorialCharges != null && accessorialCharges.size() > 0) {
 
+            Map<String, ParcelRateResponse.Charge> disMap = new LinkedHashMap<>();
+
             for (ParcelRateResponse.Charge charge : accessorialCharges) {
+                if (disMap.containsKey(charge.getEdiCode())) {
+
+                    disMap.get(charge.getEdiCode()).setAmount(disMap.get(charge.getEdiCode()).getAmount().add(charge.getAmount()));
+                } else {
+                    disMap.put(charge.getEdiCode(), charge);
+                }
+
+            }
+
+            for (Map.Entry<String, ParcelRateResponse.Charge> entry : disMap.entrySet()) {
+
+                ParcelRateResponse.Charge charge = entry.getValue();
 
                 AccessorialDto dto = new AccessorialDto();
 
@@ -1246,6 +1290,7 @@ public class ParcelUpsRatingService {
                 dto.setParentId(parentId);
                 dto.setName(charge.getName());
                 dtos.add(dto);
+
             }
 
         }
@@ -1317,8 +1362,21 @@ public class ParcelUpsRatingService {
 
         if (discountCharges != null && discountCharges.size() > 0) {
 
+            Map<String, ParcelRateResponse.Charge> disMap = new LinkedHashMap<>();
             for (ParcelRateResponse.Charge charge : discountCharges) {
 
+                if (disMap.containsKey(charge.getName())) {
+
+                    disMap.get(charge.getName()).setAmount(disMap.get(charge.getName()).getAmount().add(charge.getAmount()));
+                } else {
+                    disMap.put(charge.getName(), charge);
+                }
+
+            }
+
+            for (Map.Entry<String, ParcelRateResponse.Charge> entry : disMap.entrySet()) {
+
+                ParcelRateResponse.Charge charge = entry.getValue();
                 AccessorialDto dto = new AccessorialDto();
 
                 dto.setCode(charge.getEdiCode());
@@ -1330,6 +1388,7 @@ public class ParcelUpsRatingService {
 
                 addAccAndDisdtos.add(dto);
             }
+
 
         }
 

@@ -1,13 +1,16 @@
 package com.envista.msi.rating.util;
 
+import com.envista.msi.api.domain.util.ParcelRatingUtil;
 import com.envista.msi.api.web.rest.util.DateUtil;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelRateRequest;
 import com.envista.msi.rating.bean.RatingQueueBean;
+import org.json.JSONException;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by Sujit kumar on 02/05/2018.
@@ -184,7 +187,7 @@ public class ParcelRateRequestBuilder {
     private static void prepareItems(List<ParcelRateRequest.ServiceFlag> serviceFlagList, List<ParcelRateRequest.Item> items, RatingQueueBean ratingQueueBean) {
 
 
-        ParcelRateRequest.Weight weightObj = new ParcelRateRequest.Weight();
+/*        ParcelRateRequest.Weight weightObj = new ParcelRateRequest.Weight();
         if (ratingQueueBean.getFrtWeight() != null) {
             weightObj.setWeight(BigDecimal.valueOf(ratingQueueBean.getFrtWeight()));
         }
@@ -228,7 +231,15 @@ public class ParcelRateRequestBuilder {
         item.setQuantity(quantityObj);
         item.setDimensions(dimensionsObj);
         item.setContainer(ratingQueueBean.getPackageType());
-        items.add(item);
+        items.add(item);*/
+
+        try {
+            ParcelRatingUtil.getItemTags(items, ratingQueueBean.getItemTagInfo());
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
 
         if (ratingQueueBean.getAccessorials() != null) {
             serviceFlagList.addAll(ratingQueueBean.getAccessorials());
