@@ -304,7 +304,7 @@ public class ParcelRatingUtil {
         ratingQueueBean.setComToRes("");
         boolean hasRJ5Charge = false;
         String resiFlag = "N";
-
+        String returnFlag = "N";
 
         if (shipmentDetails != null && !shipmentDetails.isEmpty()) {
             for (ParcelAuditDetailsDto auditDetails : shipmentDetails) {
@@ -345,6 +345,11 @@ public class ParcelRatingUtil {
                     if (auditDetails != null) {
                         try {
                             if (shipmentDetails.get(0).getParentId().compareTo(auditDetails.getParentId()) == 0) {
+
+                                if (auditDetails.getChargeDescription() != null &&
+                                        (auditDetails.getChargeDescription().toUpperCase().startsWith("RETURN")))
+                                    returnFlag = "Y";
+
                                 if (auditDetails.getWorldeEaseNum() != null && !auditDetails.getWorldeEaseNum().isEmpty())
                                     ratingQueueBean.setWorldeEaseNum("Y");
 
@@ -511,6 +516,7 @@ public class ParcelRatingUtil {
 
                 ratingQueueBean.setInvoiceDate(firstCharge.getInvoiceDate());
                 ratingQueueBean.setCustomerId(firstCharge.getCustomerId());
+                ratingQueueBean.setReturnFlag(returnFlag);
 
                 if (firstCharge.getParentId().compareTo(trackingNumDetails.get(0).getParentId()) == 0)
                     ratingQueueBean.setComToRes("");
