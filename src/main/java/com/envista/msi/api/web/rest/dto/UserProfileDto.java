@@ -109,6 +109,9 @@ public class UserProfileDto implements Serializable {
 	@Column ( name = "is_invoicing_analyst")
 	private Boolean invoicingAnalyst ;
 
+	@Column ( name = "user_role_name")
+	private String userRoleName;
+
 
 
 	public UserProfileDto() {
@@ -209,4 +212,11 @@ public class UserProfileDto implements Serializable {
 	}
 
 
+	public String getUserRoleName() {
+		return userRoleName;
+	}
+
+	public void setUserRoleName(String userRoleName) {
+		this.userRoleName = userRoleName;
+	}
 }
