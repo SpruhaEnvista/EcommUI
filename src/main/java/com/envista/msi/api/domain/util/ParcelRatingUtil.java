@@ -1240,7 +1240,9 @@ public class ParcelRatingUtil {
         boolean isVoidShipment = false;
         if (shipment != null && !shipment.isEmpty()) {
             for (ParcelAuditDetailsDto shp : shipment) {
-                if (shp != null && shp.getChargeCategoryDetailCode() != null && "VOID".equalsIgnoreCase(shp.getChargeCategoryDetailCode().trim())) {
+                if (shp != null && ((shp.getChargeCategoryDetailCode() != null &&
+                        "VOID".equalsIgnoreCase(shp.getChargeCategoryDetailCode().trim()))
+                        || (shp.getChargeDescription() != null && "VOID".startsWith(shp.getChargeDescription().toUpperCase())))) {
                     isVoidShipment = true;
                     break;
                 }

@@ -173,18 +173,14 @@ public class ParcelUpsRatingService {
     private void checkForVoidShipmentAndUpdate(List<ParcelAuditDetailsDto> shipmentRecords) {
         try{
             if(ParcelRatingUtil.isVoidShipment(shipmentRecords)){
-                BigDecimal totalNetAmount = new BigDecimal("0");
 
                 StringJoiner entityIds = new StringJoiner(",");
                 for(ParcelAuditDetailsDto ship : shipmentRecords){
                     if(ship != null && ship.getId() != null){
-                        if(ship.getNetAmount() != null && !ship.getNetAmount().isEmpty()){
-                            totalNetAmount = totalNetAmount.add(new BigDecimal(ship.getNetAmount()));
-                        }
                         entityIds.add(ship.getId().toString());
                     }
                 }
-                if(totalNetAmount.compareTo(new BigDecimal("0")) == 0) {
+                if (entityIds != null && entityIds.length() > 0) {
                     new DirectJDBCDAO().updateRatingVoidShipmentStatus(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, entityIds.toString(), 1);
                 }
             }
