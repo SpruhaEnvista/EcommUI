@@ -346,9 +346,15 @@ public class ParcelRatingUtil {
                         try {
                             if (shipmentDetails.get(0).getParentId().compareTo(auditDetails.getParentId()) == 0) {
 
-                                if (auditDetails.getChargeDescription() != null &&
-                                        (auditDetails.getChargeDescription().toUpperCase().startsWith("RETURN")))
+
+                                if (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("RTN") || // Standard return
+                                        (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("MIS") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("RS")) || // PRL
+                                        (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("MIS") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("IMP") && auditDetails.getChargeDescriptionCode().equalsIgnoreCase("ALP")) || // Import PRL
+                                        (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("ADJ") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("RTS"))) {
+
                                     returnFlag = "Y";
+                                }
+
 
                                 if (auditDetails.getWorldeEaseNum() != null && !auditDetails.getWorldeEaseNum().isEmpty())
                                     ratingQueueBean.setWorldeEaseNum("Y");

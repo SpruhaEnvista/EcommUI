@@ -349,7 +349,7 @@ public class RatingQueueDAO {
             liveQuery.append(" null AS CHARGE_CODE, a.Lead_Shipment_Number AS MULTI_WEIGHT_NUMBER, a.CHARGE_CATEGORY_DETAIL_CODE, ");
             liveQuery.append(" a.INVOICE_DATE, a.INVOICE_NUMBER,  a.ZONE as ZONE, a.INCENTIVE_AMOUNT, b.CREATE_DATE AS INV_CREATE_DATE, a.SENDER_POSTAL AS SENDER_BILLED_ZIP_CODE, a.RECEIVER_POSTAL AS RECEIVER_BILLED_ZIP_CODE," +
                     "     f.STATE as shipper_state,f.CITY  as shipper_city,f.ZIPCODE  as shipper_zipCode,f.COUNTRY as shipper_country," +
-                    "a.World_Ease_Number,a.actual_service_bucket,ar.RTR_AMOUNT ,ar.rtr_status,a.PACKAGE_QUANTITY ");
+                    "a.World_Ease_Number,a.actual_service_bucket,ar.RTR_AMOUNT ,ar.rtr_status,a.PACKAGE_QUANTITY,a.CHARGE_CATEGORY_CODE ");
 
             liveQuery.append(" FROM shp_ebill_gff_tb a, shp_ebill_invoice_tb b, shp_ebill_contract_tb c, shp_customer_profile_tb d," +
                     " shp_carrier_tb e, shp_shipper_tb f, SHP_EBILL_UPS_RATES_TB ar ");
@@ -480,6 +480,7 @@ public class RatingQueueDAO {
                 shipmentDetails.setWorldeEaseNum((rs.getString("World_Ease_Number")));
                 shipmentDetails.setActualServiceBucket((rs.getLong("actual_service_bucket")));
                 shipmentDetails.setPieces(rs.getInt("PACKAGE_QUANTITY"));
+                shipmentDetails.setChargeCatagoryCode(rs.getString("CHARGE_CATEGORY_CODE"));
 
                 parcelUpsShipments.add(shipmentDetails);
 
