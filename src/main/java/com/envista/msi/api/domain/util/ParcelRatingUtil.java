@@ -302,12 +302,20 @@ public class ParcelRatingUtil {
         ratingQueueBean.setReceiverBilledZipCode(firstCharge.getReceiverBilledZipCode());
         ratingQueueBean.setWorldeEaseNum("N");
         ratingQueueBean.setComToRes("");
+        ratingQueueBean.setReturnFlag("N");
+        ratingQueueBean.setResiFlag("N");
         boolean hasRJ5Charge = false;
-        String resiFlag = "N";
-        String returnFlag = "N";
+        boolean resiSur = false;
 
         if (shipmentDetails != null && !shipmentDetails.isEmpty()) {
             for (ParcelAuditDetailsDto auditDetails : shipmentDetails) {
+
+                if (shipmentDetails.get(0).getParentId().compareTo(auditDetails.getParentId()) == 0) {
+
+                    if (auditDetails.getChargeDescription() != null && "Residential Surcharge".equalsIgnoreCase(auditDetails.getChargeDescription()))
+                        resiSur = true;
+                }
+
                 if (auditDetails != null && auditDetails.getPackageDimension() != null && !auditDetails.getPackageDimension().isEmpty()) {
                     try {
                         String[] dimension = auditDetails.getPackageDimension().toLowerCase().split("x");
@@ -352,21 +360,35 @@ public class ParcelRatingUtil {
                                         (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("MIS") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("IMP") && auditDetails.getChargeDescriptionCode().equalsIgnoreCase("ALP")) || // Import PRL
                                         (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("ADJ") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("RTS"))) {
 
-                                    returnFlag = "Y";
+                                    ratingQueueBean.setReturnFlag("Y");
                                 }
 
 
                                 if (auditDetails.getWorldeEaseNum() != null && !auditDetails.getWorldeEaseNum().isEmpty())
                                     ratingQueueBean.setWorldeEaseNum("Y");
 
-                                String[] dwFieldInfo = auditDetails.getDwFieldInformation().split(",");
-                                if (dwFieldInfo != null && dwFieldInfo.length > 0) {
-
-                                    if (ParcelAuditConstant.ChargeClassificationCode.ACS.name().equalsIgnoreCase(dwFieldInfo[1].trim())
-                                            && "RES".equalsIgnoreCase(dwFieldInfo[2].trim())) {
-                                        resiFlag = "Y";
+                                if (auditDetails.getChargeDescription() != null && auditDetails.getChargeDescriptionCode() != null) {
+                                    if (("RES".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()) || "RS1".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())) && "RESIDENTIAL SURCHARGE".contains(auditDetails.getChargeDescription().toUpperCase())) {
+                                        ratingQueueBean.setResiFlag("Y");
                                     }
-
+                                    if (auditDetails.getChargeCategoryDetailCode() != null) {
+                                        if ("RADJ".equalsIgnoreCase(auditDetails.getChargeCategoryDetailCode()) && "RES".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()) && "RESIDENTIAL ADJUSTMENT".contains(auditDetails.getChargeDescription().toUpperCase())) {
+                                            ratingQueueBean.setResiFlag("Y");
+                                            ratingQueueBean.setComToRes("Y");
+                                        }
+                                        if ("RADJ".equalsIgnoreCase(auditDetails.getChargeCategoryDetailCode()) && "COM".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()) && "COMMERCIAL ADJUSTMENT".contains(auditDetails.getChargeDescription().toUpperCase())) {
+                                            ratingQueueBean.setResiFlag("N");
+                                            ratingQueueBean.setComToRes("N");
+                                        }
+                                        if ("RADJ".equalsIgnoreCase(auditDetails.getChargeCategoryDetailCode()) && "RJ5".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()) && "RESIDENTIAL/COMMERCIAL ADJUSTMENT".contains(auditDetails.getChargeDescription().toUpperCase()) && resiSur) {
+                                            ratingQueueBean.setResiFlag("N");
+                                            ratingQueueBean.setComToRes("N");
+                                        }
+                                        if ("RADJ".equalsIgnoreCase(auditDetails.getChargeCategoryDetailCode()) && "RJ5".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()) && "RESIDENTIAL/COMMERCIAL ADJUSTMENT".contains(auditDetails.getChargeDescription().toUpperCase()) && !resiSur) {
+                                            ratingQueueBean.setResiFlag("Y");
+                                            ratingQueueBean.setComToRes("Y");
+                                        }
+                                    }
                                 }
                             }
 
@@ -516,55 +538,11 @@ public class ParcelRatingUtil {
                     ratingQueueBean.setHwtIdentifier(firstCharge.getMultiWeightNumber());
 
                 ratingQueueBean.setRateSetName(rateSet);
-                ratingQueueBean.setResiFlag(resiFlag);
                 if (firstCharge.getActualServiceBucket() != null)
                     ratingQueueBean.setActualServiceBucket(Long.valueOf(firstCharge.getActualServiceBucket()));
 
                 ratingQueueBean.setInvoiceDate(firstCharge.getInvoiceDate());
                 ratingQueueBean.setCustomerId(firstCharge.getCustomerId());
-                ratingQueueBean.setReturnFlag(returnFlag);
-
-                if (firstCharge.getParentId().compareTo(trackingNumDetails.get(0).getParentId()) == 0)
-                    ratingQueueBean.setComToRes("");
-                else if (trackingNumDetails != null && trackingNumDetails.size() > 0) {
-
-                    for (ParcelAuditDetailsDto auditDetails : trackingNumDetails) {
-
-                        if (auditDetails.getParentId().compareTo(trackingNumDetails.get(0).getParentId()) == 0 && auditDetails.getChargeDescriptionCode() != null) {
-                            if ("RES".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())) {
-                                ratingQueueBean.setComToRes("N");
-                                break;
-                            }
-                            if ("COM".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())) {
-                                ratingQueueBean.setComToRes("Y");
-                                break;
-                            }
-                        }
-
-                    }
-                    if ("Y".equalsIgnoreCase(ratingQueueBean.getComToRes())) {
-
-                        for (ParcelAuditDetailsDto auditDetails : shipmentDetails) {
-                            if ((firstCharge.getParentId().compareTo(auditDetails.getParentId()) == 0) &&
-                                    (auditDetails.getChargeDescriptionCode() != null && "RES".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()))) {
-                                ratingQueueBean.setComToRes("Y");
-                                break;
-                            } else
-                                ratingQueueBean.setComToRes("");
-                        }
-                    } else if ("N".equalsIgnoreCase(ratingQueueBean.getComToRes())) {
-
-                        for (ParcelAuditDetailsDto auditDetails : shipmentDetails) {
-                            if ((firstCharge.getParentId().compareTo(auditDetails.getParentId()) == 0) &&
-                                    (auditDetails.getChargeDescriptionCode() != null && "COM".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()))) {
-                                ratingQueueBean.setComToRes("N");
-                                break;
-                            } else
-                                ratingQueueBean.setComToRes("");
-                        }
-                    }
-
-                }
 
             }
         }
