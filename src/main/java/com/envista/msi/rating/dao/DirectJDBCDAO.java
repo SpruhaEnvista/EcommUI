@@ -1307,14 +1307,14 @@ public class DirectJDBCDAO {
         }
     }
 
-    public List<AccessorialDto> getRatesForPrevParentIds(String trackingNumber, Long parentId) {
+    public List<AccessorialDto> getRatesForPrevParentIds(String trackingNumber, Long parentId, String returnFlag) {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         String sqlQuery = " select Ebill_Gff_Id, Parent_Id,Rtr_Amount,acc_Code,RATED_BASE_DISCOUNT,RATED_EARNED_DISCOUNT" +
                 ",RATED_MIN_MAX_ADJ,RATED_FUEL_SURCHARGE_DISC,RATED_CUST_FUEL_SURCHARGE_DISC,RATED_DAS_DSC,RES_SURCHARGE_DSC, RATED_GROSS_FUEL" +
                 " from Shp_Ebill_Ups_Rates_Tb" +
-                " where Tracking_Number=? and Parent_Id < ? ";
+                " where Tracking_Number=? and Parent_Id < ? and return_flag=? ";
 
         List<AccessorialDto> dtos = new ArrayList<>();
         List<String> parentIds = new ArrayList<>();
@@ -1326,6 +1326,7 @@ public class DirectJDBCDAO {
 
             pstmt.setString(1, trackingNumber);
             pstmt.setLong(2, parentId);
+            pstmt.setString(3, returnFlag);
 
             rs = pstmt.executeQuery();
 

@@ -1515,6 +1515,7 @@ public class ParcelRatingUtil {
     public static List<ParcelAuditDetailsDto> prepareChargeList(Long key, Map<Long, List<ParcelAuditDetailsDto>> shipments) {
 
         List<ParcelAuditDetailsDto> shipmentChargeList = new ArrayList<>(shipments.get(key));
+        boolean returnShipment = isReturnShipment(shipmentChargeList);
         boolean frtExist = false;
 
         for (ParcelAuditDetailsDto dto : shipmentChargeList) {
@@ -1529,18 +1530,19 @@ public class ParcelRatingUtil {
 
             if (key.compareTo(entry.getKey()) > 0) {
 
-                for (ParcelAuditDetailsDto dto : entry.getValue()) {
+                if (!returnShipment || isReturnShipment(entry.getValue())) {
+                    for (ParcelAuditDetailsDto dto : entry.getValue()) {
 
-                    if (!"FRT".equalsIgnoreCase(dto.getChargeClassificationCode())) {
-                        shipmentChargeList.add(dto);
-                    }
+                        if (!"FRT".equalsIgnoreCase(dto.getChargeClassificationCode())) {
+                            shipmentChargeList.add(dto);
+                        }
 
-                    if (!frtExist && "FRT".equalsIgnoreCase(dto.getChargeClassificationCode())) {
+                        if (!frtExist && "FRT".equalsIgnoreCase(dto.getChargeClassificationCode())) {
 
-                        frtDto = dto;
+                            frtDto = dto;
+                        }
                     }
                 }
-
             }
         }
 
@@ -1550,6 +1552,21 @@ public class ParcelRatingUtil {
         }
 
         return shipmentChargeList;
+    }
+
+    private static boolean isReturnShipment(List<ParcelAuditDetailsDto> shipmentChargeList) {
+
+        for (ParcelAuditDetailsDto auditDetails : shipmentChargeList) {
+            if (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("RTN") || // Standard return
+                    (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("MIS") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("RS")) || // PRL
+                    (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("MIS") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("IMP") && auditDetails.getChargeDescriptionCode().equalsIgnoreCase("ALP")) || // Import PRL
+                    (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("ADJ") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("RTS"))) {
+
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public static BigDecimal findPrevRateAmtByCode(List<AccessorialDto> prevParentsRatesDtos, String accCode, String accessorialType) {
@@ -2025,11 +2042,13 @@ public class ParcelRatingUtil {
      */
     public static void prepareXmlReqAddressInfo(List<ParcelAuditDetailsDto> trackingNumberDetails, ParcelAuditDetailsDto ratingCharge) {
 
+        Map<Long, List<ParcelAuditDetailsDto>> shipments = ParcelRatingUtil.organiseShipmentsByParentId(trackingNumberDetails);
+        boolean returnShipment = isReturnShipment(shipments.get(ratingCharge.getParentId()));
         List<ParcelAuditDetailsDto> SortOrderTrackDetails = new ArrayList<>(trackingNumberDetails);
         SortOrderTrackDetails.sort(Comparator.comparing(ParcelAuditDetailsDto::getId).reversed());
         for (ParcelAuditDetailsDto dto : SortOrderTrackDetails) {
 
-            if (ratingCharge.getParentId().compareTo(dto.getParentId()) > 0) {
+            if (ratingCharge.getParentId().compareTo(dto.getParentId()) > 0 && (!returnShipment || isReturnShipment(shipments.get(dto.getParentId())))) {
 
                 if ((ratingCharge.getSenderCountry() == null || ratingCharge.getSenderCountry().isEmpty())
                         && (dto.getSenderCountry() != null && !dto.getSenderCountry().isEmpty())) {
