@@ -1545,8 +1545,10 @@ public class ParcelRatingUtil {
         }
 
         if (!frtExist && frtDto != null) {
+
             shipmentChargeList.add(frtDto);
         }
+
         return shipmentChargeList;
     }
 
@@ -2071,6 +2073,17 @@ public class ParcelRatingUtil {
                 }
             }
 
+        }
+    }
+
+
+    public static void setPrevParentIdShipDate(List<ParcelAuditDetailsDto> toRate, List<ParcelAuditDetailsDto> trackDeatils) {
+
+        ParcelAuditDetailsDto frtDto = getImmediateFrtInfo(toRate, trackDeatils);
+        for (ParcelAuditDetailsDto dto : toRate) {
+            if (dto.getPickupDate() == null && frtDto.getPickupDate() != null) {
+                dto.setPickupDate(frtDto.getPickupDate());
+            }
         }
     }
 }

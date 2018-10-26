@@ -117,6 +117,9 @@ public class ParcelUpsRatingService {
                         if (bean.getHwtIdentifier() == null || bean.getHwtIdentifier().isEmpty())
                             shipmentToRate = shipments.get(bean.getParentId());
 
+                        if (shipmentToRate.get(0).getPickupDate() == null)
+                            ParcelRatingUtil.setPrevParentIdShipDate(shipmentToRate, shipmentRecords);
+
                         if(shipmentToRate != null && !shipmentToRate.isEmpty()) {
                             if (bean.getHwtIdentifier() == null || bean.getHwtIdentifier().isEmpty()) {
                                 if (ParcelRatingUtil.isFirstShipmentToRate(shipments, bean.getParentId())) {
@@ -217,7 +220,6 @@ public class ParcelUpsRatingService {
                 directJDBCDAO.saveParcelAuditRequestAndResponseLog(ParcelRatingUtil.prepareRequestResponseLog(requestPayload, response, parcelAuditDetails.get(0).getParentId(), ParcelAuditConstant.EBILL_GFF_TABLE_NAME));
                 status = updateRateForUps(ParcelRateResponseParser.parse(response), parcelAuditDetails, previousShipment, hwtNetAmount, bean, accessorialBeans);
             }
-
 
         updateUpsOtherFieldValues(parcelAuditDetails);
 /*        if(status != null && !status.isEmpty()){
