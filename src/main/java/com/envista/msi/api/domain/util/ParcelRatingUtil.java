@@ -284,6 +284,8 @@ public class ParcelRatingUtil {
         ParcelAuditDetailsDto firstCharge;
         boolean hwt = false;
         if (hwtSequenceInfo == null) {
+            if(shipmentDetails.get(0).getPickupDate() == null)
+                setPrevParentIdShipDate(shipmentDetails, trackingNumDetails);
             firstCharge = shipmentDetails.get(0);
             hwtSequenceInfo = new HashMap<>();
             hwtSequenceInfo.put(firstCharge.getTrackingNumber(), firstCharge.getParentId());
@@ -496,6 +498,7 @@ public class ParcelRatingUtil {
                     }
                 }
                 ratingQueueBean.setItemTagInfo(itemJsonArr != null ? itemJsonArr.toString() : null);
+
                 ratingQueueBean.setShipDate(firstCharge.getPickupDate());
 
                 if ((null == firstCharge.getSenderCountry() || firstCharge.getSenderCountry().isEmpty())
