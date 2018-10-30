@@ -2100,11 +2100,39 @@ public class ParcelRatingUtil {
 
     public static void setPrevParentIdShipDate(List<ParcelAuditDetailsDto> toRate, List<ParcelAuditDetailsDto> trackDeatils) {
 
-        ParcelAuditDetailsDto frtDto = getImmediateFrtInfo(toRate, trackDeatils);
-        for (ParcelAuditDetailsDto dto : toRate) {
-            if (dto.getPickupDate() == null && frtDto.getPickupDate() != null) {
-                dto.setPickupDate(frtDto.getPickupDate());
+        ParcelAuditDetailsDto frtDto = getImmediateFrtParentId(toRate, trackDeatils);
+       if(frtDto != null) {
+           for (ParcelAuditDetailsDto dto : toRate) {
+               if (dto.getPickupDate() == null && frtDto.getPickupDate() != null) {
+                   dto.setPickupDate(frtDto.getPickupDate());
+               }
+           }
+       }
+    }
+
+    public static ParcelAuditDetailsDto getImmediateFrtParentId(List<ParcelAuditDetailsDto> shipmentDetails
+            , List<ParcelAuditDetailsDto> pickUpDateShipmentDetails) {
+
+        Map<Long, List<ParcelAuditDetailsDto>> listMap = organiseShipmentsByParentId(pickUpDateShipmentDetails);
+        ParcelAuditDetailsDto frtCharged = null;
+        Long frtParentId = null;
+        if (listMap != null) {
+            for (Map.Entry<Long, List<ParcelAuditDetailsDto>> entry : listMap.entrySet()) {
+
+                if (shipmentDetails.get(0).getParentId() > entry.getKey()) {
+                    frtParentId = entry.getKey();
+                }
+
+            }
+            if (frtParentId != null) {
+                List<ParcelAuditDetailsDto> detailsDtos = listMap.get(frtParentId);
+
+                if (detailsDtos != null)
+                    frtCharged = ParcelRatingUtil.findFrtCharge(detailsDtos);
             }
         }
+        return frtCharged;
     }
+
+
 }
