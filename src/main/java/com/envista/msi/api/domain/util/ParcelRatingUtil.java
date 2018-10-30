@@ -358,7 +358,8 @@ public class ParcelRatingUtil {
                                 if (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("RTN") || // Standard return
                                         (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("MIS") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("RS")) || // PRL
                                         (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("MIS") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("IMP") && auditDetails.getChargeDescriptionCode().equalsIgnoreCase("ALP")) || // Import PRL
-                                        (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("ADJ") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("RTS"))) {
+                                        (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("ADJ") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("RTS")) ||
+                                        (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("ADJ") && "RETURN".contains(auditDetails.getChargeDescription().toUpperCase()))) {
 
                                     ratingQueueBean.setReturnFlag("Y");
                                 }
@@ -1560,7 +1561,8 @@ public class ParcelRatingUtil {
             if (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("RTN") || // Standard return
                     (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("MIS") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("RS")) || // PRL
                     (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("MIS") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("IMP") && auditDetails.getChargeDescriptionCode().equalsIgnoreCase("ALP")) || // Import PRL
-                    (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("ADJ") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("RTS"))) {
+                    (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("ADJ") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("RTS")) ||
+                    (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("ADJ") && "RETURN".contains(auditDetails.getChargeDescription().toUpperCase()))) {
 
                 return true;
             }
