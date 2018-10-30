@@ -1498,7 +1498,7 @@ public class ParcelRatingUtil {
             for (Map.Entry<Long, List<ParcelAuditDetailsDto>> entry : listMap.entrySet()) {
 
                 if (shipmentDetails.get(0).getParentId() > entry.getKey()
-                        && shipmentDetails.get(0).getPickupDate().compareTo(entry.getValue().get(0).getPickupDate()) == 0) {
+                        && ((shipmentDetails.get(0).getPickupDate()!=null  && entry.getValue().get(0).getPickupDate()!=null) &&  shipmentDetails.get(0).getPickupDate().compareTo(entry.getValue().get(0).getPickupDate()) == 0)) {
                     frtParentId = entry.getKey();
                 }
 
