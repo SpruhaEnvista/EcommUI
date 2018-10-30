@@ -359,7 +359,7 @@ public class ParcelRatingUtil {
                                         (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("MIS") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("RS")) || // PRL
                                         (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("MIS") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("IMP") && auditDetails.getChargeDescriptionCode().equalsIgnoreCase("ALP")) || // Import PRL
                                         (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("ADJ") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("RTS")) ||
-                                        (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("ADJ") && "RETURN".contains(auditDetails.getChargeDescription().toUpperCase()))) {
+                                        (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("ADJ") && auditDetails.getChargeDescription().toUpperCase().contains("RETURN"))) {
 
                                     ratingQueueBean.setReturnFlag("Y");
                                 }
@@ -369,23 +369,23 @@ public class ParcelRatingUtil {
                                     ratingQueueBean.setWorldeEaseNum("Y");
 
                                 if (auditDetails.getChargeDescription() != null && auditDetails.getChargeDescriptionCode() != null) {
-                                    if (("RES".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()) || "RS1".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())) && "RESIDENTIAL SURCHARGE".contains(auditDetails.getChargeDescription().toUpperCase())) {
+                                    if (("RES".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()) || "RS1".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())) &&  auditDetails.getChargeDescription().toUpperCase().contains("RESIDENTIAL SURCHARGE")) {
                                         ratingQueueBean.setResiFlag("Y");
                                     }
                                     if (auditDetails.getChargeCategoryDetailCode() != null) {
-                                        if ("RADJ".equalsIgnoreCase(auditDetails.getChargeCategoryDetailCode()) && "RES".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()) && "RESIDENTIAL ADJUSTMENT".contains(auditDetails.getChargeDescription().toUpperCase())) {
+                                        if ("RADJ".equalsIgnoreCase(auditDetails.getChargeCategoryDetailCode()) && "RES".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()) && auditDetails.getChargeDescription().toUpperCase().contains("RESIDENTIAL ADJUSTMENT") ){
                                             ratingQueueBean.setResiFlag("Y");
                                             ratingQueueBean.setComToRes("Y");
                                         }
-                                        if ("RADJ".equalsIgnoreCase(auditDetails.getChargeCategoryDetailCode()) && "COM".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()) && "COMMERCIAL ADJUSTMENT".contains(auditDetails.getChargeDescription().toUpperCase())) {
+                                        if ("RADJ".equalsIgnoreCase(auditDetails.getChargeCategoryDetailCode()) && "COM".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()) && auditDetails.getChargeDescription().toUpperCase().contains("COMMERCIAL ADJUSTMENT")) {
                                             ratingQueueBean.setResiFlag("N");
                                             ratingQueueBean.setComToRes("N");
                                         }
-                                        if ("RADJ".equalsIgnoreCase(auditDetails.getChargeCategoryDetailCode()) && "RJ5".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()) && "RESIDENTIAL/COMMERCIAL ADJUSTMENT".contains(auditDetails.getChargeDescription().toUpperCase()) && resiSur) {
+                                        if ("RADJ".equalsIgnoreCase(auditDetails.getChargeCategoryDetailCode()) && "RJ5".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()) && auditDetails.getChargeDescription().toUpperCase().contains("RESIDENTIAL/COMMERCIAL ADJUSTMENT") && resiSur) {
                                             ratingQueueBean.setResiFlag("N");
                                             ratingQueueBean.setComToRes("N");
                                         }
-                                        if ("RADJ".equalsIgnoreCase(auditDetails.getChargeCategoryDetailCode()) && "RJ5".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()) && "RESIDENTIAL/COMMERCIAL ADJUSTMENT".contains(auditDetails.getChargeDescription().toUpperCase()) && !resiSur) {
+                                        if ("RADJ".equalsIgnoreCase(auditDetails.getChargeCategoryDetailCode()) && "RJ5".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()) && auditDetails.getChargeDescription().toUpperCase().contains("RESIDENTIAL/COMMERCIAL ADJUSTMENT") && !resiSur) {
                                             ratingQueueBean.setResiFlag("Y");
                                             ratingQueueBean.setComToRes("Y");
                                         }
@@ -1562,7 +1562,7 @@ public class ParcelRatingUtil {
                     (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("MIS") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("RS")) || // PRL
                     (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("MIS") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("IMP") && auditDetails.getChargeDescriptionCode().equalsIgnoreCase("ALP")) || // Import PRL
                     (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("ADJ") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("RTS")) ||
-                    (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("ADJ") && "RETURN".contains(auditDetails.getChargeDescription().toUpperCase()))) {
+                    (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("ADJ") && auditDetails.getChargeDescription().toUpperCase().contains("RETURN"))) {
 
                 return true;
             }
