@@ -548,9 +548,30 @@ public class ParcelRatingUtil {
                 ratingQueueBean.setInvoiceDate(firstCharge.getInvoiceDate());
                 ratingQueueBean.setCustomerId(firstCharge.getCustomerId());
 
+                if("Y".equalsIgnoreCase(ratingQueueBean.getReturnFlag()))
+                     if(!isReturnFlagAtTrackingLevel(trackingNumDetails))
+                         ratingQueueBean.setReturnFlag("N");
+
             }
         }
         return ratingQueueBean;
+    }
+
+    private static boolean isReturnFlagAtTrackingLevel(List<ParcelAuditDetailsDto> trackingNumDetails) {
+
+        for(ParcelAuditDetailsDto auditDetails : trackingNumDetails){
+
+            if (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("RTN") || // Standard return
+                    (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("MIS") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("RS")) || // PRL
+                    (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("MIS") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("IMP") && auditDetails.getChargeDescriptionCode().equalsIgnoreCase("ALP")) || // Import PRL
+                    (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("ADJ") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("RTS")) ) {
+
+                             return  true;
+            }
+        }
+
+
+        return  false;
     }
 
     private static ParcelAuditDetailsDto getMinParentChargeForUps(List<ParcelAuditDetailsDto> shipmentDetails, Map<String, Long> hwtSequenceInfo) {
