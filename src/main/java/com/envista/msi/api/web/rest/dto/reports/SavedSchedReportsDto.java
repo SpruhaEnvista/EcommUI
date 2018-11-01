@@ -370,7 +370,7 @@ public class SavedSchedReportsDto implements Serializable{
         this.category = category;
     }
 
-    public boolean isSupportsCarriers() {
+    public Boolean getSupportsCarriers() {
         return supportsCarriers;
     }
 
