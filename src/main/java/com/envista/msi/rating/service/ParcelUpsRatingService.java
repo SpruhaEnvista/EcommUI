@@ -117,6 +117,9 @@ public class ParcelUpsRatingService {
                         if (bean.getHwtIdentifier() == null || bean.getHwtIdentifier().isEmpty())
                             shipmentToRate = shipments.get(bean.getParentId());
 
+                        if (shipmentToRate.get(0).getPickupDate() == null)
+                            ParcelRatingUtil.setPrevParentIdShipDate(shipmentToRate, shipmentRecords);
+
                         if(shipmentToRate != null && !shipmentToRate.isEmpty()) {
                             if (bean.getHwtIdentifier() == null || bean.getHwtIdentifier().isEmpty()) {
                                 if (ParcelRatingUtil.isFirstShipmentToRate(shipments, bean.getParentId())) {
@@ -173,18 +176,14 @@ public class ParcelUpsRatingService {
     private void checkForVoidShipmentAndUpdate(List<ParcelAuditDetailsDto> shipmentRecords) {
         try{
             if(ParcelRatingUtil.isVoidShipment(shipmentRecords)){
-                BigDecimal totalNetAmount = new BigDecimal("0");
 
                 StringJoiner entityIds = new StringJoiner(",");
                 for(ParcelAuditDetailsDto ship : shipmentRecords){
                     if(ship != null && ship.getId() != null){
-                        if(ship.getNetAmount() != null && !ship.getNetAmount().isEmpty()){
-                            totalNetAmount = totalNetAmount.add(new BigDecimal(ship.getNetAmount()));
-                        }
                         entityIds.add(ship.getId().toString());
                     }
                 }
-                if(totalNetAmount.compareTo(new BigDecimal("0")) == 0) {
+                if (entityIds != null && entityIds.length() > 0) {
                     new DirectJDBCDAO().updateRatingVoidShipmentStatus(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, entityIds.toString(), 1);
                 }
             }
@@ -221,7 +220,6 @@ public class ParcelUpsRatingService {
                 directJDBCDAO.saveParcelAuditRequestAndResponseLog(ParcelRatingUtil.prepareRequestResponseLog(requestPayload, response, parcelAuditDetails.get(0).getParentId(), ParcelAuditConstant.EBILL_GFF_TABLE_NAME));
                 status = updateRateForUps(ParcelRateResponseParser.parse(response), parcelAuditDetails, previousShipment, hwtNetAmount, bean, accessorialBeans);
             }
-
 
         updateUpsOtherFieldValues(parcelAuditDetails);
 /*        if(status != null && !status.isEmpty()){
@@ -353,7 +351,7 @@ public class ParcelUpsRatingService {
         List<String> mappedAccList = new ArrayList<>();
         BigDecimal ratedGrossFuel = ParcelRateResponseParser.getRatedGrossFuel(priceSheet);
 
-        List<AccessorialDto> prevParentsRatesDtos = directJDBCDAO.getRatesForPrevParentIds(parcelAuditDetails.get(0).getTrackingNumber(), parcelAuditDetails.get(0).getParentId());
+        List<AccessorialDto> prevParentsRatesDtos = directJDBCDAO.getRatesForPrevParentIds(parcelAuditDetails.get(0).getTrackingNumber(), parcelAuditDetails.get(0).getParentId(), queueBean.getReturnFlag());
 
         for(ParcelAuditDetailsDto auditDetails : parcelAuditDetails){
             if(auditDetails != null && auditDetails.getChargeClassificationCode() != null && !auditDetails.getChargeClassificationCode().isEmpty()){

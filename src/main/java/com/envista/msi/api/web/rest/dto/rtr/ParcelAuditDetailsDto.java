@@ -264,6 +264,8 @@ public class ParcelAuditDetailsDto {
 
     private Long actualServiceBucket;
 
+    private String chargeCatagoryCode;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -810,6 +812,14 @@ public class ParcelAuditDetailsDto {
 
     public void setActualServiceBucket(Long actualServiceBucket) {
         this.actualServiceBucket = actualServiceBucket;
+    }
+
+    public String getChargeCatagoryCode() {
+        return chargeCatagoryCode;
+    }
+
+    public void setChargeCatagoryCode(String chargeCatagoryCode) {
+        this.chargeCatagoryCode = chargeCatagoryCode;
     }
 
     public static class Config{
