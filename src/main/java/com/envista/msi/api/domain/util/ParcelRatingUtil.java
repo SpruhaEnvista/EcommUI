@@ -2,9 +2,12 @@ package com.envista.msi.api.domain.util;
 
 import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditDetailsDto;
 import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditRequestResponseLog;
+import com.envista.msi.api.web.rest.dto.rtr.ParcelRateDetailsDto;
 import com.envista.msi.api.web.rest.dto.rtr.RatedChargeDetailsDto;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelRateRequest;
+import com.envista.msi.api.web.rest.util.audit.parcel.ParcelRateResponse;
+import com.envista.msi.api.web.rest.util.audit.parcel.ParcelRateResponseParser;
 import com.envista.msi.rating.bean.AccessorialDto;
 import com.envista.msi.rating.bean.RatingQueueBean;
 import com.envista.msi.rating.bean.ServiceFlagAccessorialBean;
@@ -16,18 +19,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by Sujit kumar on 20/04/2018.
@@ -2167,5 +2159,178 @@ public class ParcelRatingUtil {
         return frtCharged;
     }
 
+    public static void setCommonValues(ParcelRateDetailsDto rateDetails, RatingQueueBean queueBean, ParcelRateResponse.PriceSheet priceSheet) {
+
+        rateDetails.setReturnFlag(queueBean.getReturnFlag());
+        rateDetails.setResiFlag(queueBean.getResiFlag());
+        rateDetails.setComToRes(queueBean.getComToRes());
+        rateDetails.setRateSetName(priceSheet.getRateSet());
+        rateDetails.setShipperCategory(priceSheet.getCategory());
+        rateDetails.setContractName(priceSheet.getContractName());
+        rateDetails.setZone(priceSheet.getZone());
+        rateDetails.setActualServiceBucket(queueBean.getActualServiceBucket());
+        rateDetails.setHwtIdentifier(queueBean.getHwtIdentifier());
+
+    }
+
+    public static void prepareAdditionalAccessorial(ParcelRateResponse.PriceSheet priceSheet, Long parentId, List<ParcelRateResponse.Charge> mappedAccChanges, List<AccessorialDto> dtos, boolean frtChargeFound, boolean fscChargeFound, List<AccessorialDto> prevParentsRatesDtos) {
+
+        List<ParcelRateResponse.Charge> accessorialCharges = ParcelRateResponseParser.getAccessorialCharges(priceSheet);
+
+        if (accessorialCharges != null && !accessorialCharges.isEmpty()) {
+            if (mappedAccChanges != null && !mappedAccChanges.isEmpty()) {
+                Iterator<ParcelRateResponse.Charge> chargeIterator = accessorialCharges.iterator();
+                List<ParcelRateResponse.Charge> tempRemoveList = new ArrayList<>();
+                while (chargeIterator.hasNext()) {
+                    ParcelRateResponse.Charge tempCharge = chargeIterator.next();
+                    for (ParcelRateResponse.Charge mappedChrg : mappedAccChanges) {
+                        if (mappedChrg != null && tempCharge != null
+                                && mappedChrg.getType() != null && tempCharge.getType() != null
+                                && mappedChrg.getType().equalsIgnoreCase(tempCharge.getType())
+                                && mappedChrg.getName() != null && tempCharge.getName() != null
+                                && mappedChrg.getName().equalsIgnoreCase(tempCharge.getName())) {
+                            tempRemoveList.add(tempCharge);
+                        }
+                    }
+                }
+                if (tempRemoveList != null && tempRemoveList.size() > 0) {
+                    accessorialCharges.removeAll(tempRemoveList);
+                    tempRemoveList = null;
+                }
+            }
+        }
+
+
+        if (accessorialCharges != null && accessorialCharges.size() > 0) {
+
+            Map<String, ParcelRateResponse.Charge> disMap = new LinkedHashMap<>();
+
+            for (ParcelRateResponse.Charge charge : accessorialCharges) {
+                if (disMap.containsKey(charge.getEdiCode())) {
+
+                    disMap.get(charge.getEdiCode()).setAmount(disMap.get(charge.getEdiCode()).getAmount().add(charge.getAmount()));
+                } else {
+                    disMap.put(charge.getEdiCode(), charge);
+                }
+
+            }
+
+            for (Map.Entry<String, ParcelRateResponse.Charge> entry : disMap.entrySet()) {
+
+                ParcelRateResponse.Charge charge = entry.getValue();
+
+                AccessorialDto dto = new AccessorialDto();
+
+                dto.setCode(charge.getEdiCode());
+
+                BigDecimal prevRtrAmt = ParcelRatingUtil.findPrevRateAmtByCode(prevParentsRatesDtos, charge.getEdiCode(), "accessorial");
+
+                dto.setRtrAmount(charge.getAmount().subtract(prevRtrAmt));
+                dto.setType("accessorial");
+                dto.setParentId(parentId);
+                dto.setName(charge.getName());
+                dtos.add(dto);
+
+            }
+
+        }
+
+        if (!fscChargeFound) {
+            ParcelRateResponse.Charge charge = ParcelRateResponseParser.findChargeByType(ParcelRateResponse.ChargeType.ACCESSORIAL_FUEL.name(), priceSheet);
+
+            if (charge != null) {
+
+                AccessorialDto dto = new AccessorialDto();
+
+                dto.setCode(charge.getEdiCode());
+                BigDecimal prevRtrAmt = ParcelRatingUtil.findPrevRateAmtByCode(prevParentsRatesDtos, charge.getEdiCode(), "accessorial");
+                dto.setRtrAmount(charge.getAmount().subtract(prevRtrAmt));
+                dto.setType("accessorial");
+                dto.setParentId(parentId);
+                dto.setName(charge.getName());
+                dtos.add(dto);
+            }
+        }
+
+        if (!frtChargeFound) {
+            ParcelRateResponse.Charge charge = ParcelRateResponseParser.findChargeByType(ParcelRateResponse.ChargeType.ITEM.name(), priceSheet);
+
+            if (charge != null) {
+
+                AccessorialDto dto = new AccessorialDto();
+
+                dto.setCode("FRT");
+                BigDecimal prevRtrAmt = ParcelRatingUtil.findPrevRateAmtByCode(prevParentsRatesDtos, "FRT", "accessorial");
+                dto.setRtrAmount(charge.getAmount().subtract(prevRtrAmt));
+                dto.setType("accessorial");
+                dto.setParentId(parentId);
+                dto.setName(charge.getName());
+                dtos.add(dto);
+            }
+        }
+
+
+    }
+
+    public static void prepareAddDiscounts(ParcelRateResponse.PriceSheet priceSheet, Long parentId, List<ParcelRateResponse.Charge> mappedDscChanges, List<AccessorialDto> addAccAndDisdtos, List<AccessorialDto> prevParentsRatesDtos) {
+
+        List<ParcelRateResponse.Charge> discountCharges = ParcelRateResponseParser.getAllOtherDiscounts(priceSheet);
+
+        if (discountCharges != null && !discountCharges.isEmpty()) {
+            if (mappedDscChanges != null && !mappedDscChanges.isEmpty()) {
+                Iterator<ParcelRateResponse.Charge> chargeIterator = mappedDscChanges.iterator();
+                List<ParcelRateResponse.Charge> tempRemoveList = new ArrayList<>();
+                while (chargeIterator.hasNext()) {
+                    ParcelRateResponse.Charge tempCharge = chargeIterator.next();
+                    for (ParcelRateResponse.Charge mappedChrg : mappedDscChanges) {
+                        if (mappedChrg != null && tempCharge != null
+                                && mappedChrg.getType() != null && tempCharge.getType() != null
+                                && mappedChrg.getType().equalsIgnoreCase(tempCharge.getType())
+                                && mappedChrg.getName() != null && tempCharge.getName() != null
+                                && mappedChrg.getName().equalsIgnoreCase(tempCharge.getName())) {
+                            tempRemoveList.add(tempCharge);
+                        }
+                    }
+                }
+                if (tempRemoveList != null && tempRemoveList.size() > 0) {
+                    discountCharges.removeAll(tempRemoveList);
+                    tempRemoveList = null;
+                }
+            }
+        }
+
+        if (discountCharges != null && discountCharges.size() > 0) {
+
+            Map<String, ParcelRateResponse.Charge> disMap = new LinkedHashMap<>();
+            for (ParcelRateResponse.Charge charge : discountCharges) {
+
+                if (disMap.containsKey(charge.getName())) {
+
+                    disMap.get(charge.getName()).setAmount(disMap.get(charge.getName()).getAmount().add(charge.getAmount()));
+                } else {
+                    disMap.put(charge.getName(), charge);
+                }
+
+            }
+
+            for (Map.Entry<String, ParcelRateResponse.Charge> entry : disMap.entrySet()) {
+
+                ParcelRateResponse.Charge charge = entry.getValue();
+                AccessorialDto dto = new AccessorialDto();
+
+                dto.setCode(charge.getEdiCode());
+                BigDecimal prevRtrAmt = ParcelRatingUtil.findPrevRateAmtByDisName(prevParentsRatesDtos, charge.getName(), "discount");
+                dto.setRtrAmount(charge.getAmount().subtract(prevRtrAmt));
+                dto.setType("discount");
+                dto.setParentId(parentId);
+                dto.setName(charge.getName());
+
+                addAccAndDisdtos.add(dto);
+            }
+
+
+        }
+
+    }
 
 }

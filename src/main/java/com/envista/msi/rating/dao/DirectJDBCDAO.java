@@ -24,7 +24,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringJoiner;
 
 public class DirectJDBCDAO {
 
@@ -1205,12 +1204,23 @@ public class DirectJDBCDAO {
         }
     }
 
-    public void saveAccInfo(List<AccessorialDto> dtos, Long parentId) {
+    public void saveAccInfo(List<AccessorialDto> dtos, Long parentId, long carrierId) {
         Connection con = null;
         PreparedStatement pstmt = null;
-        deleteAccInfoByParentId(parentId);
+        String tbName;
+        String seqName;
+        if (carrierId == 21) {
+            tbName = "SHP_UPS_ACC_AND_DIS_TB";
+            seqName = "SHP_UPS_ACC_AND_DIS_S.NEXTVAL";
+        } else {
+            tbName = "SHP_FDX_ACC_AND_DIS_TB";
+            seqName = "SHP_FDX_ACC_AND_DIS_S.NEXTVAL";
+        }
+
+        deleteAccInfoByParentId(parentId, tbName);
+
         String sqlQuery = " INSERT\n" +
-                "    INTO SHP_UPS_ACC_AND_DIS_TB\n" +
+                "    INTO " + tbName + "\n" +
                 "      (\n" +
                 "        ACC_ID,\n" +
                 "        PARENT_ID,\n" +
@@ -1223,7 +1233,7 @@ public class DirectJDBCDAO {
                 "      )\n" +
                 "      VALUES\n" +
                 "      (\n" +
-                "        SHP_UPS_ACC_AND_DIS_S.NEXTVAL,\n" +
+                "        " + seqName + ",\n" +
                 "        ?,\n" +
                 "        ?,\n" +
                 "        ?,\n" +
@@ -1271,10 +1281,10 @@ public class DirectJDBCDAO {
         }
     }
 
-    public void deleteAccInfoByParentId(Long parentId) {
+    public void deleteAccInfoByParentId(Long parentId, String tbName) {
         Connection con = null;
         PreparedStatement pstmt = null;
-        String sqlQuery = " DELETE FROM SHP_UPS_ACC_AND_DIS_TB WHERE PARENT_ID=? ";
+        String sqlQuery = " DELETE FROM " + tbName + " WHERE PARENT_ID=? ";
 
 
         try {
@@ -1307,26 +1317,42 @@ public class DirectJDBCDAO {
         }
     }
 
-    public List<AccessorialDto> getRatesForPrevParentIds(String trackingNumber, Long parentId, String returnFlag) {
+    public List<AccessorialDto> getRatesForPrevParentIds(String trackingNumber, Long parentId, String returnFlag, long carrierId, java.util.Date pickupDate) {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        String sqlQuery = " select Ebill_Gff_Id, Parent_Id,Rtr_Amount,acc_Code,RATED_BASE_DISCOUNT,RATED_EARNED_DISCOUNT" +
+        String ratesTbName;
+        String accTbName;
+        if (carrierId == 21) {
+            ratesTbName = "Shp_Ebill_Ups_Rates_Tb";
+            accTbName = "SHP_UPS_ACC_AND_DIS_TB";
+        } else {
+            ratesTbName = "Shp_Ebill_Fdx_Rates_Tb";
+            accTbName = "SHP_FDX_ACC_AND_DIS_TB";
+        }
+        StringBuilder sqlQuery = new StringBuilder();
+        sqlQuery.append(" select Ebill_Gff_Id, Parent_Id,Rtr_Amount,acc_Code,RATED_BASE_DISCOUNT,RATED_EARNED_DISCOUNT" +
                 ",RATED_MIN_MAX_ADJ,RATED_FUEL_SURCHARGE_DISC,RATED_CUST_FUEL_SURCHARGE_DISC,RATED_DAS_DSC,RES_SURCHARGE_DSC, RATED_GROSS_FUEL" +
-                " from Shp_Ebill_Ups_Rates_Tb" +
-                " where Tracking_Number=? and Parent_Id < ? and return_flag=? ";
+                " from " + ratesTbName + "" +
+                " where Tracking_Number=? and Parent_Id < ? and return_flag=? ");
 
+        if (carrierId == 22 && pickupDate != null) {
+            sqlQuery.append(" and trunc(Pickup_Date) = ? ");
+        }
         List<AccessorialDto> dtos = new ArrayList<>();
         List<String> parentIds = new ArrayList<>();
 
         try {
             con = ServiceLocator.getDatabaseConnection();
-            pstmt = con.prepareStatement(sqlQuery);
+            pstmt = con.prepareStatement(sqlQuery.toString());
 
 
             pstmt.setString(1, trackingNumber);
             pstmt.setLong(2, parentId);
             pstmt.setString(3, returnFlag);
+            if (carrierId == 22 && pickupDate != null) {
+                pstmt.setDate(4, new Date(pickupDate.getTime()));
+            }
 
             rs = pstmt.executeQuery();
 
@@ -1358,9 +1384,10 @@ public class DirectJDBCDAO {
 
             String parentIdsInResult = String.join(",", parentIds);
             if (parentIdsInResult != null && parentIdsInResult.length() > 0) {
-                sqlQuery = " select Parent_Id,Acc_Code,Rtr_Amount, ACC_TYPE, NAME from SHP_UPS_ACC_AND_DIS_TB where Parent_Id in (" + parentIdsInResult + ") ";
+                String sqlAccQuery = " select Parent_Id,Acc_Code,Rtr_Amount, ACC_TYPE, NAME from " + accTbName + " " +
+                        " where Parent_Id in (" + parentIdsInResult + ") ";
 
-                pstmt = con.prepareStatement(sqlQuery);
+                pstmt = con.prepareStatement(sqlAccQuery);
 
                 rs = pstmt.executeQuery();
 
