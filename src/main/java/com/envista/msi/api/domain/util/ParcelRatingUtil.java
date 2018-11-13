@@ -616,9 +616,11 @@ public class ParcelRatingUtil {
         return false;
     }
 
-    public static RatingQueueBean prepareShipmentEntryForNonUpsShipment(List<ParcelAuditDetailsDto> shipmentDetails, String rateSet, List<ServiceFlagAccessorialBean> accessorialBeans) {
+    public static RatingQueueBean prepareShipmentEntryForNonUpsShipment(List<ParcelAuditDetailsDto> shipmentDetails, String rateSet, List<ServiceFlagAccessorialBean> accessorialBeans, List<ParcelAuditDetailsDto> trackingNumDetails) throws JSONException {
         RatingQueueBean ratingQueueBean = new RatingQueueBean();
         ParcelAuditDetailsDto firstCharge = shipmentDetails.get(0);
+
+        prepareXmlReqAddressInfo(trackingNumDetails, firstCharge);
 
         ratingQueueBean.setManiestId(firstCharge.getId());
         ratingQueueBean.setTrackingNumber(firstCharge.getTrackingNumber());
@@ -662,6 +664,7 @@ public class ParcelRatingUtil {
                             resiFlag = "Y";
 
                         JSONObject accJson = new JSONObject();
+                        accJson.put("seq", auditDetails.getParentId());
                         accJson.put("netAmount", auditDetails.getNetAmount() != null ? auditDetails.getNetAmount().toString() : "0.00");
                         accJson.put("weight", auditDetails.getPackageWeight() != null ? auditDetails.getPackageWeight().toString() : "0.00");
                         if (auditDetails.getWeightUnit() != null && "O".equalsIgnoreCase(auditDetails.getWeightUnit()))
@@ -679,8 +682,8 @@ public class ParcelRatingUtil {
                             accJson.put("code", auditDetails.getChargeDescriptionCode());
                         }
 
-
-                        accJsonArr.put(accJson);
+                        if (!checkAccExist(accJsonArr, accJson))
+                            accJsonArr.put(accJson);
 
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -708,7 +711,7 @@ public class ParcelRatingUtil {
         ratingQueueBean.setShipperNumber(firstCharge.getShipperNumber());
         ratingQueueBean.setReturnFlag(returnFlag);
         ratingQueueBean.setResiFlag(resiFlag);
-
+        JSONArray itemJsonArr = new JSONArray();
         ParcelAuditDetailsDto firstBaseCharge = ParcelRatingUtil.getFirstFrightChargeForNonUpsCarrier(shipmentDetails);
         if (firstBaseCharge != null) {
             if (firstBaseCharge.getChargeClassificationCode() != null
@@ -725,6 +728,22 @@ public class ParcelRatingUtil {
                 String dimUnit = (null == firstBaseCharge.getUnitOfDim() || firstBaseCharge.getUnitOfDim().isEmpty() ? "" : firstBaseCharge.getUnitOfDim().equalsIgnoreCase("I") ? "in" : firstBaseCharge.getUnitOfDim());
                 BigDecimal actualWeight = (null == firstBaseCharge.getActualWeight() ? new BigDecimal("0") : firstBaseCharge.getActualWeight());
                 String actualWeightUnit = (null == firstBaseCharge.getActualWeightUnit() || firstBaseCharge.getActualWeightUnit().isEmpty() || "L".equalsIgnoreCase(firstBaseCharge.getActualWeightUnit()) ? "LBS" : firstBaseCharge.getActualWeightUnit());
+
+                JSONObject accJson = new JSONObject();
+                accJson.put("seq", firstBaseCharge.getParentId());
+                accJson.put("weight", String.valueOf(weight));
+                accJson.put("weightUnit", weightUnit);
+                accJson.put("quantity", String.valueOf(quantity));
+                accJson.put("quantityUnit", quantityUnit);
+                accJson.put("dimLenght", String.valueOf(dimLenght));
+                accJson.put("dimWidth", String.valueOf(dimWidth));
+                accJson.put("dimHeight", String.valueOf(dimHeight));
+                accJson.put("dimUnit", dimUnit);
+                accJson.put("actualWeight", String.valueOf(actualWeight));
+                accJson.put("actualWeightUnit", actualWeightUnit);
+                accJson.put("packageType", firstCharge.getPackageType());
+                itemJsonArr.put(accJson);
+                ratingQueueBean.setItemTagInfo(itemJsonArr != null ? itemJsonArr.toString() : null);
 
                 ratingQueueBean.setFrtWeight(weight);
                 ratingQueueBean.setFrtWeightUnits(weightUnit);
@@ -780,6 +799,12 @@ public class ParcelRatingUtil {
         ratingQueueBean.setReceiverZip(receiverZipCode);
         ratingQueueBean.setHwtIdentifier(firstCharge.getMultiWeightNumber());
         ratingQueueBean.setRateSetName(rateSet);
+
+        if (firstCharge.getActualServiceBucket() != null)
+            ratingQueueBean.setActualServiceBucket(Long.valueOf(firstCharge.getActualServiceBucket()));
+
+        ratingQueueBean.setInvoiceDate(firstCharge.getInvoiceDate());
+        ratingQueueBean.setCustomerId(firstCharge.getCustomerId());
 
         return ratingQueueBean;
     }

@@ -266,10 +266,20 @@ public class ParcelRatingQueueJob {
                 if(parcelAuditEntry != null) {
                     String trackingNumber = parcelAuditEntry.getKey();
                     List<ParcelAuditDetailsDto> pickUpDateShipmentDetails = null;
+
+
+                    boolean hwtShipment = false;
+                    if ((parcelAuditEntry.getValue().get(0).getMultiWeightNumber() != null && !parcelAuditEntry.getValue().get(0).getMultiWeightNumber().isEmpty())) {
+
+                        pickUpDateShipmentDetails = new ParcelUpsRatingService().getUpsParcelShipmentDetails(customerId, null, true, parcelAuditEntry.getValue().get(0).getMultiWeightNumber());
+                        hwtShipment = ParcelRatingUtil.checkHwtShipment(pickUpDateShipmentDetails);
+                    }
+
                     if (trackingNumber != null && !trackingNumber.isEmpty()) {
                         ParcelAuditDetailsDto dto = parcelAuditEntry.getValue().get(0);
                         pickUpDateShipmentDetails = parcelRatingService.getFedExParcelShipmentDetails(ratingInputCriteriaBean.getCustomerId(), null, null, trackingNumber, null, true, false);
                     }
+
                     List<ParcelAuditDetailsDto> shipmentRecords = parcelAuditEntry.getValue();
                     if(trackingNumber != null && !trackingNumber.isEmpty()){
                         Map<Long, List<ParcelAuditDetailsDto>> shipments = ParcelRatingUtil.organiseShipmentsByParentId(shipmentRecords);
@@ -313,7 +323,7 @@ public class ParcelRatingQueueJob {
                                 }
 
                                 if (frtFound)
-                                    addNonUpsShipmentEntryIntoQueue(shipmentsWithPrevFrt, ratingInputCriteriaBean, accessorialBeans);
+                                    addNonUpsShipmentEntryIntoQueue(shipmentsWithPrevFrt, ratingInputCriteriaBean, accessorialBeans, pickUpDateShipmentDetails);
                                 else {
                                     log.warn("FRT is not found for tracking #->" + shipmentDetails.get(0).getTrackingNumber() + " ebill manifest id->" + shipmentDetails.get(0).getParentId());
                                     System.out.println("FRT is not found for tracking #->" + shipmentDetails.get(0).getTrackingNumber() + " ebill manifest id->" + shipmentDetails.get(0).getParentId());
@@ -330,10 +340,10 @@ public class ParcelRatingQueueJob {
         }
     }
 
-    private void addNonUpsShipmentEntryIntoQueue(List<ParcelAuditDetailsDto> shipmentsWithPrevFrt, ParcelRatingInputCriteriaBean ratingInputCriteriaBean, List<ServiceFlagAccessorialBean> accessorialBeans) {
+    private void addNonUpsShipmentEntryIntoQueue(List<ParcelAuditDetailsDto> shipmentsWithPrevFrt, ParcelRatingInputCriteriaBean ratingInputCriteriaBean, List<ServiceFlagAccessorialBean> accessorialBeans, List<ParcelAuditDetailsDto> trackingNumDetails) {
         if(!parcelRatingService.shipmentExist(shipmentsWithPrevFrt.get(0).getParentId())) {
             try{
-                RatingQueueBean ratingQueueBean = ParcelRatingUtil.prepareShipmentEntryForNonUpsShipment(shipmentsWithPrevFrt, ratingInputCriteriaBean.getRateSetName(), accessorialBeans);
+                RatingQueueBean ratingQueueBean = ParcelRatingUtil.prepareShipmentEntryForNonUpsShipment(shipmentsWithPrevFrt, ratingInputCriteriaBean.getRateSetName(), accessorialBeans, trackingNumDetails);
                 if(ratingQueueBean != null){
                     ratingQueueBean.setTaskId(ratingInputCriteriaBean.getTaskId());
                     ratingQueueBean.setThresholdValue(ratingInputCriteriaBean.getThresholdValue());
@@ -379,7 +389,7 @@ public class ParcelRatingQueueJob {
                 RatingQueueBean ratingQueueBean = null;
                 if (!parcelRatingService.shipmentExist(listEntry.getValue().get(0).getParentId())) {
                     if (StringUtils.equalsIgnoreCase("fedex", rateTo)) {
-                        ratingQueueBean = ParcelRatingUtil.prepareShipmentEntryForNonUpsShipment(listEntry.getValue(), ratingInputCriteriaBean.getRateSetName(), accessorialBeans);
+                        ratingQueueBean = ParcelRatingUtil.prepareShipmentEntryForNonUpsShipment(listEntry.getValue(), ratingInputCriteriaBean.getRateSetName(), accessorialBeans, null);
                     } else if (StringUtils.equalsIgnoreCase("ups", rateTo)) {
                         ratingQueueBean = ParcelRatingUtil.prepareShipmentEntryForUpsShipment(listEntry.getValue(), ratingInputCriteriaBean.getRateSetName(), accessorialBeans, null, null);
                     }
