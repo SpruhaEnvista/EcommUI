@@ -282,7 +282,7 @@ public class ParcelRatingUtil {
             hwtSequenceInfo = new HashMap<>();
             hwtSequenceInfo.put(firstCharge.getTrackingNumber(), firstCharge.getParentId());
         } else {
-            firstCharge = getMinParentChargeForUps(shipmentDetails, hwtSequenceInfo);
+            firstCharge = getMinParentCharge(shipmentDetails, hwtSequenceInfo);
             hwtSequenceInfo.remove("minParentId");
             hwt = true;
         }
@@ -572,7 +572,7 @@ public class ParcelRatingUtil {
         return  false;
     }
 
-    private static ParcelAuditDetailsDto getMinParentChargeForUps(List<ParcelAuditDetailsDto> shipmentDetails, Map<String, Long> hwtSequenceInfo) {
+    private static ParcelAuditDetailsDto getMinParentCharge(List<ParcelAuditDetailsDto> shipmentDetails, Map<String, Long> hwtSequenceInfo) {
 
         for (ParcelAuditDetailsDto dto : shipmentDetails) {
 
@@ -616,9 +616,25 @@ public class ParcelRatingUtil {
         return false;
     }
 
-    public static RatingQueueBean prepareShipmentEntryForNonUpsShipment(List<ParcelAuditDetailsDto> shipmentDetails, String rateSet, List<ServiceFlagAccessorialBean> accessorialBeans, List<ParcelAuditDetailsDto> trackingNumDetails) throws JSONException {
+    public static RatingQueueBean prepareShipmentEntryForNonUpsShipment(List<ParcelAuditDetailsDto> shipmentDetails, String rateSet, List<ServiceFlagAccessorialBean> accessorialBeans, List<ParcelAuditDetailsDto> trackingNumDetails, Map<String, Long> hwtSequenceInfo) throws JSONException {
+
         RatingQueueBean ratingQueueBean = new RatingQueueBean();
-        ParcelAuditDetailsDto firstCharge = shipmentDetails.get(0);
+
+
+        ParcelAuditDetailsDto firstCharge;
+        boolean hwt = false;
+        if (hwtSequenceInfo == null) {
+            if (shipmentDetails.get(0).getPickupDate() == null)
+                setPrevParentIdShipDate(shipmentDetails, trackingNumDetails);
+
+            firstCharge = shipmentDetails.get(0);
+            hwtSequenceInfo = new HashMap<>();
+            hwtSequenceInfo.put(firstCharge.getTrackingNumber(), firstCharge.getParentId());
+        } else {
+            firstCharge = getMinParentCharge(shipmentDetails, hwtSequenceInfo);
+            hwtSequenceInfo.remove("minParentId");
+            hwt = true;
+        }
 
         prepareXmlReqAddressInfo(trackingNumDetails, firstCharge);
 
@@ -664,7 +680,7 @@ public class ParcelRatingUtil {
                             resiFlag = "Y";
 
                         JSONObject accJson = new JSONObject();
-                        accJson.put("seq", auditDetails.getParentId());
+                        accJson.put("seq", hwtSequenceInfo.get(auditDetails.getTrackingNumber()));
                         accJson.put("netAmount", auditDetails.getNetAmount() != null ? auditDetails.getNetAmount().toString() : "0.00");
                         accJson.put("weight", auditDetails.getPackageWeight() != null ? auditDetails.getPackageWeight().toString() : "0.00");
                         if (auditDetails.getWeightUnit() != null && "O".equalsIgnoreCase(auditDetails.getWeightUnit()))
@@ -712,53 +728,60 @@ public class ParcelRatingUtil {
         ratingQueueBean.setReturnFlag(returnFlag);
         ratingQueueBean.setResiFlag(resiFlag);
         JSONArray itemJsonArr = new JSONArray();
-        ParcelAuditDetailsDto firstBaseCharge = ParcelRatingUtil.getFirstFrightChargeForNonUpsCarrier(shipmentDetails);
-        if (firstBaseCharge != null) {
-            if (firstBaseCharge.getChargeClassificationCode() != null
-                    && ParcelAuditConstant.ChargeClassificationCode.FRT.name().equalsIgnoreCase(firstBaseCharge.getChargeClassificationCode())) {
-                Float weight = (null == firstBaseCharge.getPackageWeight() || firstBaseCharge.getPackageWeight().isEmpty() ? 0.0f : Float.parseFloat(firstBaseCharge.getPackageWeight()));
-                if (firstBaseCharge.getWeightUnit() != null && "O".equalsIgnoreCase(firstBaseCharge.getWeightUnit()))
-                    firstBaseCharge.setWeightUnit("OUNCE");
-                String weightUnit = (null == firstBaseCharge.getWeightUnit() || firstBaseCharge.getWeightUnit().isEmpty() || "L".equalsIgnoreCase(firstBaseCharge.getWeightUnit()) ? "LBS" : firstBaseCharge.getWeightUnit());
-                Long quantity = (null == firstBaseCharge.getItemQuantity() || firstBaseCharge.getItemQuantity().isEmpty() ? 1l : Long.parseLong(firstBaseCharge.getItemQuantity()));
-                String quantityUnit = (null == firstBaseCharge.getQuantityUnit() || firstBaseCharge.getQuantityUnit().isEmpty() ? "PCS" : firstBaseCharge.getQuantityUnit());
-                Float dimLenght = (null == firstBaseCharge.getDimLength() || firstBaseCharge.getDimLength().isEmpty() ? 0.0f : Float.parseFloat(firstBaseCharge.getDimLength()));
-                Float dimWidth = (null == firstBaseCharge.getDimWidth() || firstBaseCharge.getDimWidth().isEmpty() ? 0.0f : Float.parseFloat(firstBaseCharge.getDimWidth()));
-                Float dimHeight = (null == firstBaseCharge.getDimHeight() || firstBaseCharge.getDimHeight().isEmpty() ? 0.0f : Float.parseFloat(firstBaseCharge.getDimHeight()));
-                String dimUnit = (null == firstBaseCharge.getUnitOfDim() || firstBaseCharge.getUnitOfDim().isEmpty() ? "" : firstBaseCharge.getUnitOfDim().equalsIgnoreCase("I") ? "in" : firstBaseCharge.getUnitOfDim());
-                BigDecimal actualWeight = (null == firstBaseCharge.getActualWeight() ? new BigDecimal("0") : firstBaseCharge.getActualWeight());
-                String actualWeightUnit = (null == firstBaseCharge.getActualWeightUnit() || firstBaseCharge.getActualWeightUnit().isEmpty() || "L".equalsIgnoreCase(firstBaseCharge.getActualWeightUnit()) ? "LBS" : firstBaseCharge.getActualWeightUnit());
 
-                JSONObject accJson = new JSONObject();
-                accJson.put("seq", firstBaseCharge.getParentId());
-                accJson.put("weight", String.valueOf(weight));
-                accJson.put("weightUnit", weightUnit);
-                accJson.put("quantity", String.valueOf(quantity));
-                accJson.put("quantityUnit", quantityUnit);
-                accJson.put("dimLenght", String.valueOf(dimLenght));
-                accJson.put("dimWidth", String.valueOf(dimWidth));
-                accJson.put("dimHeight", String.valueOf(dimHeight));
-                accJson.put("dimUnit", dimUnit);
-                accJson.put("actualWeight", String.valueOf(actualWeight));
-                accJson.put("actualWeightUnit", actualWeightUnit);
-                accJson.put("packageType", firstCharge.getPackageType());
-                itemJsonArr.put(accJson);
-                ratingQueueBean.setItemTagInfo(itemJsonArr != null ? itemJsonArr.toString() : null);
+        for (Map.Entry<String, Long> entry : hwtSequenceInfo.entrySet()) {
 
-                ratingQueueBean.setFrtWeight(weight);
-                ratingQueueBean.setFrtWeightUnits(weightUnit);
-                ratingQueueBean.setFrtActualWeight(actualWeight.floatValue());
-                ratingQueueBean.setFrtActualWeightUnits(actualWeightUnit);
-                ratingQueueBean.setFrtQyantity(quantity);
-                ratingQueueBean.setFrtQuantityUnits(quantityUnit);
-                ratingQueueBean.setDimLength(dimLenght);
-                ratingQueueBean.setDimWidth(dimWidth);
-                ratingQueueBean.setDimHeight(dimHeight);
-                ratingQueueBean.setDimUnits(dimUnit);
-                ratingQueueBean.setPackageType(firstBaseCharge.getPackageType());
+
+            ParcelAuditDetailsDto firstBaseCharge = ParcelRatingUtil.getLatestFrightCharge(shipmentDetails, entry.getKey());
+
+            //ParcelAuditDetailsDto firstBaseCharge = ParcelRatingUtil.getFirstFrightChargeForNonUpsCarrier(shipmentDetails);
+            if (firstBaseCharge != null) {
+                if (firstBaseCharge.getChargeClassificationCode() != null
+                        && ParcelAuditConstant.ChargeClassificationCode.FRT.name().equalsIgnoreCase(firstBaseCharge.getChargeClassificationCode())) {
+                    Float weight = (null == firstBaseCharge.getPackageWeight() || firstBaseCharge.getPackageWeight().isEmpty() ? 0.0f : Float.parseFloat(firstBaseCharge.getPackageWeight()));
+                    if (firstBaseCharge.getWeightUnit() != null && "O".equalsIgnoreCase(firstBaseCharge.getWeightUnit()))
+                        firstBaseCharge.setWeightUnit("OUNCE");
+                    String weightUnit = (null == firstBaseCharge.getWeightUnit() || firstBaseCharge.getWeightUnit().isEmpty() || "L".equalsIgnoreCase(firstBaseCharge.getWeightUnit()) ? "LBS" : firstBaseCharge.getWeightUnit());
+                    Long quantity = (null == firstBaseCharge.getItemQuantity() || firstBaseCharge.getItemQuantity().isEmpty() ? 1l : Long.parseLong(firstBaseCharge.getItemQuantity()));
+                    String quantityUnit = (null == firstBaseCharge.getQuantityUnit() || firstBaseCharge.getQuantityUnit().isEmpty() ? "PCS" : firstBaseCharge.getQuantityUnit());
+                    Float dimLenght = (null == firstBaseCharge.getDimLength() || firstBaseCharge.getDimLength().isEmpty() ? 0.0f : Float.parseFloat(firstBaseCharge.getDimLength()));
+                    Float dimWidth = (null == firstBaseCharge.getDimWidth() || firstBaseCharge.getDimWidth().isEmpty() ? 0.0f : Float.parseFloat(firstBaseCharge.getDimWidth()));
+                    Float dimHeight = (null == firstBaseCharge.getDimHeight() || firstBaseCharge.getDimHeight().isEmpty() ? 0.0f : Float.parseFloat(firstBaseCharge.getDimHeight()));
+                    String dimUnit = (null == firstBaseCharge.getUnitOfDim() || firstBaseCharge.getUnitOfDim().isEmpty() ? "" : firstBaseCharge.getUnitOfDim().equalsIgnoreCase("I") ? "in" : firstBaseCharge.getUnitOfDim());
+                    BigDecimal actualWeight = (null == firstBaseCharge.getActualWeight() ? new BigDecimal("0") : firstBaseCharge.getActualWeight());
+                    String actualWeightUnit = (null == firstBaseCharge.getActualWeightUnit() || firstBaseCharge.getActualWeightUnit().isEmpty() || "L".equalsIgnoreCase(firstBaseCharge.getActualWeightUnit()) ? "LBS" : firstBaseCharge.getActualWeightUnit());
+
+                    JSONObject accJson = new JSONObject();
+                    accJson.put("seq", firstBaseCharge.getParentId());
+                    accJson.put("weight", String.valueOf(weight));
+                    accJson.put("weightUnit", weightUnit);
+                    accJson.put("quantity", String.valueOf(quantity));
+                    accJson.put("quantityUnit", quantityUnit);
+                    accJson.put("dimLenght", String.valueOf(dimLenght));
+                    accJson.put("dimWidth", String.valueOf(dimWidth));
+                    accJson.put("dimHeight", String.valueOf(dimHeight));
+                    accJson.put("dimUnit", dimUnit);
+                    accJson.put("actualWeight", String.valueOf(actualWeight));
+                    accJson.put("actualWeightUnit", actualWeightUnit);
+                    accJson.put("packageType", firstCharge.getPackageType());
+                    itemJsonArr.put(accJson);
+
+
+                    ratingQueueBean.setFrtWeight(weight);
+                    ratingQueueBean.setFrtWeightUnits(weightUnit);
+                    ratingQueueBean.setFrtActualWeight(actualWeight.floatValue());
+                    ratingQueueBean.setFrtActualWeightUnits(actualWeightUnit);
+                    ratingQueueBean.setFrtQyantity(quantity);
+                    ratingQueueBean.setFrtQuantityUnits(quantityUnit);
+                    ratingQueueBean.setDimLength(dimLenght);
+                    ratingQueueBean.setDimWidth(dimWidth);
+                    ratingQueueBean.setDimHeight(dimHeight);
+                    ratingQueueBean.setDimUnits(dimUnit);
+                    ratingQueueBean.setPackageType(firstBaseCharge.getPackageType());
+                }
             }
         }
-
+        ratingQueueBean.setItemTagInfo(itemJsonArr != null ? itemJsonArr.toString() : null);
         ratingQueueBean.setShipDate(firstCharge.getPickupDate());
 
         if ((null == firstCharge.getSenderCountry() || firstCharge.getSenderCountry().isEmpty())
@@ -1581,7 +1604,9 @@ public class ParcelRatingUtil {
                 if (!returnShipment || isReturnShipment(entry.getValue())) {
                     for (ParcelAuditDetailsDto dto : entry.getValue()) {
 
-                        if (!"FRT".equalsIgnoreCase(dto.getChargeClassificationCode())) {
+                        if ((dto.getCarrierId() == 21 || (shipments.get(key).get(0).getPickupDate() != null && dto.getPickupDate() != null
+                                && shipments.get(key).get(0).getPickupDate().compareTo(dto.getPickupDate()) == 0))
+                                && !"FRT".equalsIgnoreCase(dto.getChargeClassificationCode())) {
                             shipmentChargeList.add(dto);
                         }
 
@@ -1691,16 +1716,19 @@ public class ParcelRatingUtil {
         return billDateShipments;
     }
 
-    public static void addMissTrackingInfo(Map<String, List<ParcelAuditDetailsDto>> billDateTrackingWiseShipments, Map<String, List<ParcelAuditDetailsDto>> leadTrackingWiseShipments, Date invoiceDate) {
+    public static void addMissTrackingInfo(Map<String, List<ParcelAuditDetailsDto>> billDateTrackingWiseShipments, Map<String, List<ParcelAuditDetailsDto>> leadTrackingWiseShipments, Date invoiceDate, Date pickUpDate) {
+
 
         for (Map.Entry<String, List<ParcelAuditDetailsDto>> entry : leadTrackingWiseShipments.entrySet()) {
 
-            if((entry.getValue().get(0).getInvoiceDate() == null || invoiceDate.compareTo(entry.getValue().get(0).getInvoiceDate()) > 0)) {
-                if (!billDateTrackingWiseShipments.containsKey(entry.getKey())){
-                    billDateTrackingWiseShipments.put(entry.getKey(), entry.getValue());
-                } else {
-
-                    billDateTrackingWiseShipments.get(entry.getKey()).addAll(entry.getValue());
+            if (entry.getValue().get(0).getCarrierId() == 21 || (pickUpDate != null && entry.getValue().get(0).getPickupDate() != null
+                    && pickUpDate.compareTo(entry.getValue().get(0).getPickupDate()) == 0)) {
+                if ((entry.getValue().get(0).getInvoiceDate() == null || invoiceDate.compareTo(entry.getValue().get(0).getInvoiceDate()) > 0)) {
+                    if (!billDateTrackingWiseShipments.containsKey(entry.getKey())) {
+                        billDateTrackingWiseShipments.put(entry.getKey(), entry.getValue());
+                    } else {
+                        billDateTrackingWiseShipments.get(entry.getKey()).addAll(entry.getValue());
+                    }
                 }
             }
         }

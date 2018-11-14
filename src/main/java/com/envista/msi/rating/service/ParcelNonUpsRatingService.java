@@ -81,54 +81,70 @@ public class ParcelNonUpsRatingService {
         }
     }
 
-    public List<ParcelAuditDetailsDto> getFedExParcelShipmentDetails(String customerId, String fromShipDate, String toShipDate, String trackingNumbers, String invoiceIds, boolean ignoreRtrStatus, boolean isHwt) {
-        return new RatingQueueDAO().getNonUpsParcelShipmentDetails(customerId, "22", fromShipDate, toShipDate, trackingNumbers, invoiceIds, ignoreRtrStatus, isHwt);
+    public List<ParcelAuditDetailsDto> getFedExParcelShipmentDetails(String customerId, String fromShipDate, String toShipDate, String trackingNumbers, String invoiceIds, boolean ignoreRtrStatus, String hwtNumbers) {
+        return new RatingQueueDAO().getNonUpsParcelShipmentDetails(customerId, "22", fromShipDate, toShipDate, trackingNumbers, invoiceIds, ignoreRtrStatus, hwtNumbers);
     }
 
-    public List<ParcelAuditDetailsDto> getFedExParcelShipmentDetails(String customerId, String fromShipDate, String toShipDate, String trackingNumbers, String invoiceIds, boolean isHwt) {
-        return new RatingQueueDAO().getNonUpsParcelShipmentDetails(customerId, "22", fromShipDate, toShipDate, trackingNumbers, invoiceIds, false, isHwt);
-    }
 
-    public List<ParcelAuditDetailsDto> getFedExParcelShipmentDetails(String customerId, String fromShipDate, String toShipDate, boolean isHwt) {
-        return getFedExParcelShipmentDetails(customerId, fromShipDate, toShipDate, null, null, isHwt);
-    }
-
-    public List<ParcelAuditDetailsDto> getFedExParcelShipmentDetails(String trackingNumbers, boolean ignoreRtrStatus, boolean isHwt) {
-        return getFedExParcelShipmentDetails(null, null, null, trackingNumbers, null, ignoreRtrStatus, isHwt);
+    public List<ParcelAuditDetailsDto> getFedExParcelShipmentDetails(String trackingNumbers, boolean ignoreRtrStatus) {
+        return getFedExParcelShipmentDetails(null, null, null, trackingNumbers, null, ignoreRtrStatus, null);
     }
 
     public String doRatingForNonUpsShipment(RatingQueueBean bean, List<ServiceFlagAccessorialBean> accessorialBeans) throws Exception {
-        List<ParcelAuditDetailsDto> allShipmentCharges = getFedExParcelShipmentDetails(bean.getTrackingNumber(), true, false);
-        String status = null;
 
+        List<ParcelAuditDetailsDto> allShipmentCharges;
+
+        String status = null;
+        boolean prevHwtRated = false;
+        List<ParcelAuditDetailsDto> shipmentToRate = null;
+        if (bean.getHwtIdentifier() == null || bean.getHwtIdentifier().isEmpty())
+            allShipmentCharges = getFedExParcelShipmentDetails(null, null, null, bean.getTrackingNumber(), null, true, null);
+        else {
+            allShipmentCharges = getFedExParcelShipmentDetails(null, null, null, null, null, true, bean.getHwtIdentifier());
+            shipmentToRate = new ArrayList<>();
+            prevHwtRated = ParcelRatingUtil.isHwtShipmentRated(allShipmentCharges, bean.getParentId(), shipmentToRate, bean.getInvoiceDate());
+        }
         if(allShipmentCharges != null && !allShipmentCharges.isEmpty()) {
             Map<Long, List<ParcelAuditDetailsDto>> shipments = ParcelRatingUtil.organiseShipmentsByParentId(allShipmentCharges);
-            List<ParcelAuditDetailsDto> shipmentToRate = shipments.get(bean.getParentId());
+            shipmentToRate = shipments.get(bean.getParentId());
 
-            if(shipmentToRate != null && !shipmentToRate.isEmpty()) {
-                if(ParcelRatingUtil.isFirstShipmentToRate(shipments, bean.getParentId())) {
-                    if(!ParcelRatingUtil.isShipmentRated(shipmentToRate)) {
-                        status = callRTRAndPopulateRates(shipmentToRate, bean, null, accessorialBeans, null);
-                        updateFedExOtherFieldValues(shipmentToRate);
-                    }
-                } else {
-                    if(!ParcelRatingUtil.isShipmentRated(shipmentToRate)) {
-                        List<ParcelAuditDetailsDto> previousShipment = ParcelRatingUtil.getPreviousShipmentDetails(shipments, bean.getParentId());
-                        if(previousShipment!= null && !previousShipment.isEmpty()) {
-                            if (ParcelRatingUtil.isShipmentRated(previousShipment)) {
-                                if(!ParcelRatingUtil.hasFrtCharge(shipmentToRate)) {
-                                    ParcelAuditDetailsDto prevShipmentFrtCharge = ParcelRatingUtil.getPreviousShipmentBaseChargeDetails(shipments, bean.getParentId());
-                                    if(prevShipmentFrtCharge != null) {
-                                        shipmentToRate.add(prevShipmentFrtCharge);
+            if (bean.getHwtIdentifier() == null || bean.getHwtIdentifier().isEmpty())
+                shipmentToRate = shipments.get(bean.getParentId());
+
+            if (shipmentToRate != null && !shipmentToRate.isEmpty()) {
+                if (bean.getHwtIdentifier() == null || bean.getHwtIdentifier().isEmpty()) {
+                    if (ParcelRatingUtil.isFirstShipmentToRate(shipments, bean.getParentId())) {
+                        if (!ParcelRatingUtil.isShipmentRated(shipmentToRate)) {
+                            status = callRTRAndPopulateRates(shipmentToRate, bean, null, accessorialBeans, null);
+                            updateFedExOtherFieldValues(shipmentToRate);
+                        }
+                    } else {
+                        if (!ParcelRatingUtil.isShipmentRated(shipmentToRate)) {
+                            List<ParcelAuditDetailsDto> previousShipment = ParcelRatingUtil.getPreviousShipmentDetails(shipments, bean.getParentId());
+                            if (previousShipment != null && !previousShipment.isEmpty()) {
+                                if (ParcelRatingUtil.isShipmentRated(previousShipment)) {
+                                    if (!ParcelRatingUtil.hasFrtCharge(shipmentToRate)) {
+                                        ParcelAuditDetailsDto prevShipmentFrtCharge = ParcelRatingUtil.getPreviousShipmentBaseChargeDetails(shipments, bean.getParentId());
+                                        if (prevShipmentFrtCharge != null) {
+                                            shipmentToRate.add(prevShipmentFrtCharge);
+                                            status = callRTRAndPopulateRates(shipmentToRate, bean, null, accessorialBeans, previousShipment);
+                                            updateFedExOtherFieldValues(shipmentToRate);
+                                        }
+                                    } else {
                                         status = callRTRAndPopulateRates(shipmentToRate, bean, null, accessorialBeans, previousShipment);
                                         updateFedExOtherFieldValues(shipmentToRate);
                                     }
-                                }else {
-                                    status = callRTRAndPopulateRates(shipmentToRate, bean, null, accessorialBeans, previousShipment);
-                                    updateFedExOtherFieldValues(shipmentToRate);
                                 }
                             }
                         }
+                    }
+                } else {
+                    if (ParcelRatingUtil.isRatedWithException(shipmentToRate)) {
+                        status = ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value;
+                    } else if (ParcelRatingUtil.isRatedWithEmptyPriceSheet(shipmentToRate)) {
+                        status = ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET.value;
+                    } else if (!prevHwtRated) {
+                        status = callRTRAndPopulateRates(shipmentToRate, bean, null, accessorialBeans, null);
                     }
                 }
             }
@@ -443,28 +459,7 @@ public class ParcelNonUpsRatingService {
     }
 
 
-    /**
-     * @param beans
-     * @return
-     * @throws Exception
-     */
-    public String doRatingForNonUpsShipment(List<RatingQueueBean> beans, List<ServiceFlagAccessorialBean> accessorialBeans) throws Exception {
 
-        String trackingNumbers = ParcelRatingUtil.prepareTrackingNumbersInOperator(beans);
-        String status = null;
-        if (trackingNumbers != null && trackingNumbers.length() > 0) {
-
-            List<ParcelAuditDetailsDto> allShipmentCharges = getFedExParcelShipmentDetails(trackingNumbers, true, false);
-
-
-            if (allShipmentCharges != null && !allShipmentCharges.isEmpty()) {
-                status = callRTRAndPopulateRates(allShipmentCharges, null, beans, accessorialBeans, null);
-            }
-
-        }
-
-        return status;
-    }
 
     public boolean shipmentExist(Long parentId){
         return new RatingQueueDAO().shipmentExist(parentId);

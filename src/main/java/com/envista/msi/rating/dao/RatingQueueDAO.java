@@ -510,7 +510,7 @@ public class RatingQueueDAO {
         return parcelUpsShipments;
     }
 
-    public List<ParcelAuditDetailsDto> getNonUpsParcelShipmentDetails(String customerIds, String carrierIds, String fromDate, String toDate, String trackingNumbers, String invoiceId, boolean ignoreRtrStatus, boolean isHwt) {
+    public List<ParcelAuditDetailsDto> getNonUpsParcelShipmentDetails(String customerIds, String carrierIds, String fromDate, String toDate, String trackingNumbers, String invoiceId, boolean ignoreRtrStatus, String hwtNumbers) {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -533,25 +533,23 @@ public class RatingQueueDAO {
             liveSqlQuery += " null AS PACKAGE_DIMENSION, ebmf.ACT_WEIGHT AS ACTUAL_WEIGHT, ebmf.UNIT_OF_ACTUAL_WEIGHT, ";
             liveSqlQuery += " ebmf.INVOICE_NUMBER, ebmf.ZONE, ebmf.MISCELLANEOUS5, ebmf.PIECES, ebmf.DIM_DIVISOR AS BILLED_DIM_DIVISOR, ebmf.BILL_DATE AS INVOICE_DATE, inv.CREATE_DATE AS INV_CREATE_DATE, ebmf.SENDER_ZIP AS SENDER_BILLED_ZIP_CODE, ebmf.CONSIGNEE_ZIP AS RECEIVER_BILLED_ZIP_CODE," +
                     "  s.STATE as shipper_state,s.CITY  as shipper_city,s.ZIPCODE  as shipper_zipCode,s.COUNTRY as shipper_country , ";
-            if (isHwt) {
-                liveSqlQuery += " 0 as RTR_AMOUNT ,null as rtr_status,";
-            } else {
-                liveSqlQuery += " ar.RTR_AMOUNT ,ar.rtr_status,";
-            }
+
+            liveSqlQuery += " ar.RTR_AMOUNT ,ar.rtr_status,";
+
             liveSqlQuery += " ebmf.REVENUE_TIER AS REVENUE_TIER, ebmf.CHARGE_CODE,DECODE (Ebmf.Bundle_Number,NULL,ebmf.MISCELLANEOUS5, ebmf.Bundle_Number) AS MULTI_WEIGHT_NUMBER, null AS CHARGE_CATEGORY_DETAIL_CODE ";
             liveSqlQuery += " FROM SHP_EBILL_MANIFEST_TB ebmf, SHP_EBILL_CONTRACT_TB ebc, SHP_CUSTOMER_PROFILE_TB cp, SHP_CARRIER_TB c, SHP_SHIPPER_TB s, SHP_EBILL_INVOICE_TB inv ";
-            if (!isHwt) {
+
                 liveSqlQuery += ", SHP_EBILL_FDX_RATES_TB ar  ";
-            }
+
 
             liveSqlQuery += " WHERE ebmf.CONTRACT_NUMBER = ebc.CONTRACT_NUMBER ";
             liveSqlQuery += " AND ebmf.INVOICE_ID = inv.INVOICE_ID ";
             liveSqlQuery += " AND ebc.CUSTOMER_ID = cp.CUSTOMER_ID ";
             liveSqlQuery += " AND ebmf.CARRIER_ID = c.CARRIER_ID ";
             liveSqlQuery += " AND ebmf.SHIPPER_CODE = s.SHIPPER_CODE ";
-            if (!isHwt) {
+
                 liveSqlQuery += " AND ebmf.ebill_manifest_id = ar.ebill_manifest_id(+) ";
-            }
+
             liveSqlQuery += " AND ebmf.CARRIER_ID IN ( " + carrierIds + ") ";
 
             if(fromDate != null && !fromDate.isEmpty() && toDate != null && !toDate.isEmpty()) {
@@ -576,16 +574,18 @@ public class RatingQueueDAO {
                 liveSqlQuery += " AND ebmf.invoice_id IN ( " + invoiceId + ") ";
             }
 
-            if (!ignoreRtrStatus && !isHwt) {
-                liveSqlQuery += " AND (UPPER(ar.RTR_STATUS) = 'READYFORRATE' OR ar.RTR_STATUS IS NULL) and (Ebmf.Bundle_Number is null OR Ebmf.MISCELLANEOUS5 is null)";
+            if (!ignoreRtrStatus) {
+                liveSqlQuery += " AND (UPPER(ar.RTR_STATUS) = 'READYFORRATE' OR ar.RTR_STATUS IS NULL) ";
             }
 
-            if (isHwt) {
-                liveSqlQuery += " and (Ebmf.Bundle_Number IS NOT NULL OR Ebmf.MISCELLANEOUS5 IS NOT NULL) AND (Ebmf.ebill_manifest_id,DECODE (Ebmf.Bundle_Number,NULL,Ebmf.MISCELLANEOUS5,Ebmf.Bundle_Number)) in(SELECT ebill_manifest_id,DECODE (Bundle_Number,NULL,MISCELLANEOUS5,Bundle_Number) FROM  SHP_EBILL_MANIFEST_TB " +
-                        " where invoice_id IN ( " + invoiceId + ") MINUS SELECT a.manifest_id,a.hwt_identifier FROM  Shp_Rating_Queue_Tb a," +
-                        " SHP_EBILL_MANIFEST_TB b where a.manifest_id = b.ebill_manifest_id and b.invoice_id IN ( " + invoiceId + "))";
+            if (hwtNumbers != null && !hwtNumbers.isEmpty()) {
 
+                if (StringUtils.containsIgnoreCase(hwtNumbers, ","))
+                    liveSqlQuery += " AND ( a.Bundle_Number IN (" + hwtNumbers + ") OR a.MISCELLANEOUS5 IN (" + hwtNumbers + ")  )";
+                else
+                    liveSqlQuery += " AND ( a.Bundle_Number = " + hwtNumbers + " OR a.MISCELLANEOUS5 = " + hwtNumbers + "  )";
             }
+
 
             String archiveQuery = liveSqlQuery.replace("SHP_EBILL_MANIFEST_TB", "ARC_EBILL_MANIFEST_TB");
             archiveQuery = archiveQuery.replace("SHP_EBILL_INVOICE_TB", "ARC_EBILL_INVOICE_TB");
