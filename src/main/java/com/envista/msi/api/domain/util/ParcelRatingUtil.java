@@ -559,12 +559,17 @@ public class ParcelRatingUtil {
 
         for(ParcelAuditDetailsDto auditDetails : trackingNumDetails){
 
-            if (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("RTN") || // Standard return
-                    (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("MIS") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("RS")) || // PRL
-                    (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("MIS") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("IMP") && auditDetails.getChargeDescriptionCode().equalsIgnoreCase("ALP")) || // Import PRL
-                    (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("ADJ") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("RTS")) ) {
+            if (auditDetails.getCarrierId() == 21) {
+                if (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("RTN") || // Standard return
+                        (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("MIS") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("RS")) || // PRL
+                        (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("MIS") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("IMP") && auditDetails.getChargeDescriptionCode().equalsIgnoreCase("ALP")) || // Import PRL
+                        (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("ADJ") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("RTS"))) {
 
-                             return  true;
+                    return true;
+                }
+            } else {
+                if (auditDetails.getChargeDescription() != null && (auditDetails.getChargeDescription().toUpperCase().startsWith("RETURN")))
+                    return true;
             }
         }
 
@@ -820,7 +825,7 @@ public class ParcelRatingUtil {
         ratingQueueBean.setReceiverState(receiverState);
         ratingQueueBean.setReceiverCity(receiverCity);
         ratingQueueBean.setReceiverZip(receiverZipCode);
-        ratingQueueBean.setHwtIdentifier(firstCharge.getMultiWeightNumber());
+
         ratingQueueBean.setRateSetName(rateSet);
 
         if (firstCharge.getActualServiceBucket() != null)
@@ -828,6 +833,9 @@ public class ParcelRatingUtil {
 
         ratingQueueBean.setInvoiceDate(firstCharge.getInvoiceDate());
         ratingQueueBean.setCustomerId(firstCharge.getCustomerId());
+
+        if (hwt)
+            ratingQueueBean.setHwtIdentifier(firstCharge.getMultiWeightNumber());
 
         return ratingQueueBean;
     }
@@ -1631,18 +1639,22 @@ public class ParcelRatingUtil {
 
         for (ParcelAuditDetailsDto auditDetails : shipmentChargeList) {
 
-            if (auditDetails.getChargeCatagoryCode() != null) {
-                if (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("RTN") || // Standard return
-                        (auditDetails.getChargeCategoryDetailCode() != null && ((auditDetails.getChargeCatagoryCode().equalsIgnoreCase("MIS") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("RS")) || // PRL
-                                (auditDetails.getChargeDescriptionCode() != null && auditDetails.getChargeCatagoryCode().equalsIgnoreCase("MIS") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("IMP") && auditDetails.getChargeDescriptionCode().equalsIgnoreCase("ALP")) || // Import PRL
-                                (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("ADJ") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("RTS")) ||
-                                (auditDetails.getChargeDescription() != null && auditDetails.getChargeCatagoryCode().equalsIgnoreCase("ADJ") && auditDetails.getChargeDescription().toUpperCase().contains("RETURN"))))) {
+            if (auditDetails.getCarrierId() == 21) {
+                if (auditDetails.getChargeCatagoryCode() != null) {
+                    if (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("RTN") || // Standard return
+                            (auditDetails.getChargeCategoryDetailCode() != null && ((auditDetails.getChargeCatagoryCode().equalsIgnoreCase("MIS") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("RS")) || // PRL
+                                    (auditDetails.getChargeDescriptionCode() != null && auditDetails.getChargeCatagoryCode().equalsIgnoreCase("MIS") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("IMP") && auditDetails.getChargeDescriptionCode().equalsIgnoreCase("ALP")) || // Import PRL
+                                    (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("ADJ") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("RTS")) ||
+                                    (auditDetails.getChargeDescription() != null && auditDetails.getChargeCatagoryCode().equalsIgnoreCase("ADJ") && auditDetails.getChargeDescription().toUpperCase().contains("RETURN"))))) {
 
-                    return true;
+                        return true;
+                    }
                 }
+            } else {
+                if (auditDetails.getChargeDescription() != null && (auditDetails.getChargeDescription().toUpperCase().startsWith("RETURN")))
+                    return true;
             }
         }
-
         return false;
     }
 

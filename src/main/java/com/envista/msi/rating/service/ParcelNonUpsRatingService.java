@@ -98,9 +98,9 @@ public class ParcelNonUpsRatingService {
         boolean prevHwtRated = false;
         List<ParcelAuditDetailsDto> shipmentToRate = null;
         if (bean.getHwtIdentifier() == null || bean.getHwtIdentifier().isEmpty())
-            allShipmentCharges = getFedExParcelShipmentDetails(null, null, null, bean.getTrackingNumber(), null, true, null);
+            allShipmentCharges = getFedExParcelShipmentDetails(bean.getCustomerId().toString(), null, null, bean.getTrackingNumber(), null, true, null);
         else {
-            allShipmentCharges = getFedExParcelShipmentDetails(null, null, null, null, null, true, bean.getHwtIdentifier());
+            allShipmentCharges = getFedExParcelShipmentDetails(bean.getCustomerId().toString(), null, null, null, null, true, bean.getHwtIdentifier());
             shipmentToRate = new ArrayList<>();
             prevHwtRated = ParcelRatingUtil.isHwtShipmentRated(allShipmentCharges, bean.getParentId(), shipmentToRate, bean.getInvoiceDate());
         }
@@ -111,7 +111,12 @@ public class ParcelNonUpsRatingService {
             if (bean.getHwtIdentifier() == null || bean.getHwtIdentifier().isEmpty())
                 shipmentToRate = shipments.get(bean.getParentId());
 
-            if (shipmentToRate != null && !shipmentToRate.isEmpty()) {
+            if (shipmentToRate != null && !shipmentToRate.isEmpty() && shipmentToRate.size() > 0) {
+
+                if (shipmentToRate.get(0).getPickupDate() == null)
+                    ParcelRatingUtil.setPrevParentIdShipDate(shipmentToRate, allShipmentCharges);
+
+
                 if (bean.getHwtIdentifier() == null || bean.getHwtIdentifier().isEmpty()) {
                     if (ParcelRatingUtil.isFirstShipmentToRate(shipments, bean.getParentId())) {
                         if (!ParcelRatingUtil.isShipmentRated(shipmentToRate)) {
