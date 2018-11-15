@@ -1322,15 +1322,18 @@ public class DirectJDBCDAO {
         ResultSet rs = null;
         String ratesTbName;
         String accTbName;
+        String idColumnName;
         if (carrierId == 21) {
             ratesTbName = "Shp_Ebill_Ups_Rates_Tb";
+            idColumnName = " Ebill_Gff_Id ";
             accTbName = "SHP_UPS_ACC_AND_DIS_TB";
         } else {
             ratesTbName = "Shp_Ebill_Fdx_Rates_Tb";
             accTbName = "SHP_FDX_ACC_AND_DIS_TB";
+            idColumnName = " Ebill_Manifest_Id ";
         }
         StringBuilder sqlQuery = new StringBuilder();
-        sqlQuery.append(" select Ebill_Gff_Id, Parent_Id,Rtr_Amount,acc_Code,RATED_BASE_DISCOUNT,RATED_EARNED_DISCOUNT" +
+        sqlQuery.append(" select " + idColumnName + " as id, Parent_Id,Rtr_Amount,acc_Code,RATED_BASE_DISCOUNT,RATED_EARNED_DISCOUNT" +
                 ",RATED_MIN_MAX_ADJ,RATED_FUEL_SURCHARGE_DISC,RATED_CUST_FUEL_SURCHARGE_DISC,RATED_DAS_DSC,RES_SURCHARGE_DSC, RATED_GROSS_FUEL" +
                 " from " + ratesTbName + "" +
                 " where Tracking_Number=? and Parent_Id < ? and return_flag=? ");
@@ -1359,7 +1362,7 @@ public class DirectJDBCDAO {
 
                 AccessorialDto dto = new AccessorialDto();
 
-                dto.setEbillGffId(rs.getLong("Ebill_Gff_Id"));
+                dto.setEbillGffId(rs.getLong("id"));
                 dto.setParentId(rs.getLong("Parent_Id"));
                 dto.setParentId(rs.getLong("Parent_Id"));
                 dto.setRtrAmount(rs.getBigDecimal("Rtr_Amount"));
