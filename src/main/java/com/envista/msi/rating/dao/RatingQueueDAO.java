@@ -133,7 +133,7 @@ public class RatingQueueDAO {
         ResultSet rs = null;
 
         java.util.ArrayList<RatingQueueBean> beanList = null;
-        String selectQuery = "select * from SHP_RATING_QUEUE_TB where   RATE_STATUS = 0 and job_id in ( " + jobIds + " ) and rownum <= 30000 ";
+        String selectQuery = "select * from SHP_RATING_QUEUE_TB where Tracking_Number='787651842511' and  RATE_STATUS = 0 and job_id in ( " + jobIds + " ) and rownum <= 30000 ";
 
         try {
             connection = ServiceLocator.getDatabaseConnection();
@@ -532,7 +532,7 @@ public class RatingQueueDAO {
             liveSqlQuery += " ebmf.SHIPPER_CODE AS SHIPPER_NUMBER, ebmf.PARENT_ID, DECODE (ebmf.bill_weight, 0, 'Letter', 'PKG') package_type, ";
             liveSqlQuery += " null AS PACKAGE_DIMENSION, ebmf.ACT_WEIGHT AS ACTUAL_WEIGHT, ebmf.UNIT_OF_ACTUAL_WEIGHT, ";
             liveSqlQuery += " ebmf.INVOICE_NUMBER, ebmf.ZONE, ebmf.MISCELLANEOUS5, ebmf.PIECES, ebmf.DIM_DIVISOR AS BILLED_DIM_DIVISOR, ebmf.BILL_DATE AS INVOICE_DATE, inv.CREATE_DATE AS INV_CREATE_DATE, ebmf.SENDER_ZIP AS SENDER_BILLED_ZIP_CODE, ebmf.CONSIGNEE_ZIP AS RECEIVER_BILLED_ZIP_CODE," +
-                    "  s.STATE as shipper_state,s.CITY  as shipper_city,s.ZIPCODE  as shipper_zipCode,s.COUNTRY as shipper_country ,ebmf.Actual_Service_Bucket, ";
+                    "  s.STATE as shipper_state,s.CITY  as shipper_city,s.ZIPCODE  as shipper_zipCode,s.COUNTRY as shipper_country ,ebmf.Service_Bucket, ";
 
             liveSqlQuery += " ar.RTR_AMOUNT ,ar.rtr_status,";
 
@@ -671,7 +671,7 @@ public class RatingQueueDAO {
                 shipmentDetails.setShipperState(rs.getString("shipper_state"));
                 shipmentDetails.setShipperCountry(rs.getString("shipper_country"));
                 shipmentDetails.setShipperZip(rs.getString("shipper_zipCode"));
-                shipmentDetails.setActualServiceBucket(rs.getLong("Actual_Service_Bucket"));
+                shipmentDetails.setActualServiceBucket(rs.getLong("Service_Bucket"));
 
                 parcelUpsShipments.add(shipmentDetails);
             }
