@@ -105,11 +105,13 @@ public class ParcelNonUpsRatingService {
             prevHwtRated = ParcelRatingUtil.isHwtShipmentRated(allShipmentCharges, bean.getParentId(), shipmentToRate, bean.getInvoiceDate());
         }
         if(allShipmentCharges != null && !allShipmentCharges.isEmpty()) {
-            Map<Long, List<ParcelAuditDetailsDto>> shipments = ParcelRatingUtil.organiseShipmentsByParentId(allShipmentCharges);
-            shipmentToRate = shipments.get(bean.getParentId());
 
-            if (bean.getHwtIdentifier() == null || bean.getHwtIdentifier().isEmpty())
+
+            Map<Long, List<ParcelAuditDetailsDto>> shipments = null;
+            if (bean.getHwtIdentifier() == null || bean.getHwtIdentifier().isEmpty()) {
+                shipments = ParcelRatingUtil.organiseShipmentsByParentId(allShipmentCharges);
                 shipmentToRate = shipments.get(bean.getParentId());
+            }
 
             if (shipmentToRate != null && !shipmentToRate.isEmpty() && shipmentToRate.size() > 0) {
 
@@ -177,7 +179,7 @@ public class ParcelNonUpsRatingService {
 
             new DirectJDBCDAO().saveParcelAuditRequestAndResponseLog(ParcelRatingUtil.prepareRequestResponseLog(requestPayload, response, bean.getParentId(), ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME));
 
-            status = updateRateForNonUpsCarrier(ParcelRateResponseParser.parse(response), shipmentToRate, bean, accessorialBeans, prevShipmentDetails);
+            status = updateRateForNonUpsCarrier(ParcelRateResponseParser.parse(response), shipmentToRate, bean, accessorialBeans);
             updateFedExOtherFieldValues(shipmentToRate);
             if(status != null && !status.isEmpty()){
                 new DirectJDBCDAO().updateRtrStatus(22L, bean.getTrackingNumber(), status, new java.sql.Date(bean.getShipDate().getTime()));
@@ -186,18 +188,14 @@ public class ParcelNonUpsRatingService {
         return status;
     }
 
-    public String updateRateForNonUpsCarrier(ParcelRateResponse parcelRateResponse, List<ParcelAuditDetailsDto> parcelAuditDetails, RatingQueueBean bean, List<ServiceFlagAccessorialBean> accessorialBeans, List<ParcelAuditDetailsDto> prevShipmentDetails) throws Exception {
+    public String updateRateForNonUpsCarrier(ParcelRateResponse parcelRateResponse, List<ParcelAuditDetailsDto> parcelAuditDetails, RatingQueueBean bean, List<ServiceFlagAccessorialBean> accessorialBeans) throws Exception {
         String status = "";
         if(parcelRateResponse != null){
             if(parcelRateResponse.getStatusCode().equals(0)){
                 if(parcelRateResponse.getPriceSheets() != null && !parcelRateResponse.getPriceSheets().isEmpty()){
                     //Taking the first price sheet, as per the discussion we finalised that the first price sheet will be be correct and rated based on the latest contract.
                     ParcelRateResponse.PriceSheet firstPriceSheet = parcelRateResponse.getPriceSheets().get(0);
-                    BigDecimal sumOfNetAmount = null;
-                    if (bean.getHwtIdentifier() != null)
-                        sumOfNetAmount = bean.getNetAmount();
-                    else
-                        sumOfNetAmount = ParcelRatingUtil.findSumOfNetAmount(parcelAuditDetails);
+                    BigDecimal sumOfNetAmount = ParcelRatingUtil.findSumOfNetAmount(parcelAuditDetails);
                     BigDecimal totalRateAmount = firstPriceSheet.getTotal().setScale(2, BigDecimal.ROUND_HALF_EVEN);
 
                     String flagged = null;
@@ -239,12 +237,12 @@ public class ParcelNonUpsRatingService {
                     BigDecimal toleranceUpperBound = sumOfNetAmount.multiply(new BigDecimal("1.005"));
 
                     if(sumOfNetAmount.compareTo(totalRateAmount) == 0 || (totalRateAmount.compareTo(toleranceLowerBound) >= 0 && totalRateAmount.compareTo(toleranceUpperBound) <= 0)){
-                        status = updateAmountWithRTRResponseChargesForNonUpsCarrier(firstPriceSheet, parcelAuditDetails, ParcelAuditConstant.RTRStatus.CLOSED, flagged, accessorialBeans, prevShipmentDetails, bean);
+                        status = updateAmountWithRTRResponseChargesForNonUpsCarrier(firstPriceSheet, parcelAuditDetails, ParcelAuditConstant.RTRStatus.CLOSED, flagged, accessorialBeans, bean);
                     } else{
                         if(sumOfNetAmount.compareTo(totalRateAmount) < 0){
-                            status = updateAmountWithRTRResponseChargesForNonUpsCarrier(firstPriceSheet, parcelAuditDetails, ParcelAuditConstant.RTRStatus.UNDER_CHARGED, flagged, accessorialBeans, prevShipmentDetails, bean);
+                            status = updateAmountWithRTRResponseChargesForNonUpsCarrier(firstPriceSheet, parcelAuditDetails, ParcelAuditConstant.RTRStatus.UNDER_CHARGED, flagged, accessorialBeans, bean);
                         } else if(sumOfNetAmount.compareTo(totalRateAmount) > 0){
-                            status = updateAmountWithRTRResponseChargesForNonUpsCarrier(firstPriceSheet, parcelAuditDetails, ParcelAuditConstant.RTRStatus.OVER_CHARGED, flagged, accessorialBeans, prevShipmentDetails, bean);
+                            status = updateAmountWithRTRResponseChargesForNonUpsCarrier(firstPriceSheet, parcelAuditDetails, ParcelAuditConstant.RTRStatus.OVER_CHARGED, flagged, accessorialBeans, bean);
                         }
                     }
                 }else{
@@ -274,7 +272,7 @@ public class ParcelNonUpsRatingService {
      * @return
      * @throws Exception
      */
-    private String updateAmountWithRTRResponseChargesForNonUpsCarrier(ParcelRateResponse.PriceSheet priceSheet, List<ParcelAuditDetailsDto> parcelAuditDetails, ParcelAuditConstant.RTRStatus rtrStatus, String flagged, List<ServiceFlagAccessorialBean> accessorialBeans, List<ParcelAuditDetailsDto> prevShipmentDetails, RatingQueueBean queueBean) throws Exception {
+    private String updateAmountWithRTRResponseChargesForNonUpsCarrier(ParcelRateResponse.PriceSheet priceSheet, List<ParcelAuditDetailsDto> parcelAuditDetails, ParcelAuditConstant.RTRStatus rtrStatus, String flagged, List<ServiceFlagAccessorialBean> accessorialBeans, RatingQueueBean queueBean) throws Exception {
         DirectJDBCDAO directJDBCDAO = new DirectJDBCDAO();
         boolean frtChargeFound = false;
         boolean fscChargeFound = false;

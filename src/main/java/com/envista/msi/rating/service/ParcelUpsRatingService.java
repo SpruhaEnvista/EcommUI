@@ -115,10 +115,11 @@ public class ParcelUpsRatingService {
                         if (bean.getHwtIdentifier() == null || bean.getHwtIdentifier().isEmpty())
                             shipmentToRate = shipments.get(bean.getParentId());
 
-                        if (shipmentToRate.get(0).getPickupDate() == null)
-                            ParcelRatingUtil.setPrevParentIdShipDate(shipmentToRate, shipmentRecords);
+                        if (shipmentToRate != null && !shipmentToRate.isEmpty() && shipmentToRate.size() > 0) {
 
-                        if(shipmentToRate != null && !shipmentToRate.isEmpty()) {
+                            if (shipmentToRate.get(0).getPickupDate() == null)
+                                ParcelRatingUtil.setPrevParentIdShipDate(shipmentToRate, shipmentRecords);
+
                             if (bean.getHwtIdentifier() == null || bean.getHwtIdentifier().isEmpty()) {
                                 if (ParcelRatingUtil.isFirstShipmentToRate(shipments, bean.getParentId())) {
                                     if (ParcelRatingUtil.isRatedWithException(shipmentToRate)) {

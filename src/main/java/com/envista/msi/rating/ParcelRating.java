@@ -79,32 +79,38 @@ public class ParcelRating implements Callable<String> {
         processParcelRating(this.ratingQueueBean);
         return "Success";
     }
-    public void processParcelRating(RatingQueueBean bean) throws Exception {
+
+    public void processParcelRating(RatingQueueBean bean) {
         ParcelUpsRatingService parcelUpsRatingService = new ParcelUpsRatingService();
         ParcelNonUpsRatingService nonUpsRatingService = new ParcelNonUpsRatingService();
         String status = null;
 
-        if(bean.getCarrierId() == 21){
-            System.out.println("rating started for tracking number ->" + bean.getTrackingNumber() + " ebill manifest id->" + bean.getGffId());
-            m_log.info("rating started for tracking number ->" + bean.getTrackingNumber() + " ebill manifest id->" + bean.getGffId());
-            status = parcelUpsRatingService.doParcelRatingForUpsCarrier(bean, upsAccessorialBeans);
-            m_log.info("Rating : " + bean.getTrackingNumber() + " : Status : " + status + ":gff id->" + bean.getGffId());
-        } else if(bean.getCarrierId() == 22) {
-            System.out.println("rating started for tracking number ->" + bean.getTrackingNumber() + " ebill manifest id->" + bean.getManiestId());
-            m_log.info("rating started for tracking number ->" + bean.getTrackingNumber() + " ebill manifest id->" + bean.getManiestId());
-            status = nonUpsRatingService.doRatingForNonUpsShipment(bean, fedexAccessorialBeans);
-            m_log.info("Rating : " + bean.getTrackingNumber() + " : Status : " + status);
-        }
-
-        if (status != null && !status.isEmpty()) {
-            RatingQueueDAO ratingQueueDAO = new RatingQueueDAO();
-            if (ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value.equalsIgnoreCase(status)) {
-                ratingQueueDAO.updateRateStatusInQueue(bean.getRatingQueueId(), ParcelAuditConstant.ParcelRatingQueueRateStatus.RATING_EXCEPTION.value, null);
-            } else if (ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET.value.equalsIgnoreCase(status)) {
-                ratingQueueDAO.updateRateStatusInQueue(bean.getRatingQueueId(), ParcelAuditConstant.ParcelRatingQueueRateStatus.EMPTY_PRICE_SHEET.value, null);
-            } else if (ParcelRatingUtil.isRatingDone(status)) {
-                ratingQueueDAO.updateRateStatusInQueue(bean.getRatingQueueId(), ParcelAuditConstant.ParcelRatingQueueRateStatus.DONE.value, null);
+        try {
+            if (bean.getCarrierId() == 21) {
+                System.out.println("rating started for tracking number ->" + bean.getTrackingNumber() + " ebill manifest id->" + bean.getGffId());
+                m_log.info("rating started for tracking number ->" + bean.getTrackingNumber() + " ebill manifest id->" + bean.getGffId());
+                status = parcelUpsRatingService.doParcelRatingForUpsCarrier(bean, upsAccessorialBeans);
+                m_log.info("Rating : " + bean.getTrackingNumber() + " : Status : " + status + ":gff id->" + bean.getGffId());
+            } else if (bean.getCarrierId() == 22) {
+                System.out.println("rating started for tracking number ->" + bean.getTrackingNumber() + " ebill manifest id->" + bean.getManiestId());
+                m_log.info("rating started for tracking number ->" + bean.getTrackingNumber() + " ebill manifest id->" + bean.getManiestId());
+                status = nonUpsRatingService.doRatingForNonUpsShipment(bean, fedexAccessorialBeans);
+                m_log.info("Rating : " + bean.getTrackingNumber() + " : Status : " + status);
             }
+
+            if (status != null && !status.isEmpty()) {
+                RatingQueueDAO ratingQueueDAO = new RatingQueueDAO();
+                if (ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value.equalsIgnoreCase(status)) {
+                    ratingQueueDAO.updateRateStatusInQueue(bean.getRatingQueueId(), ParcelAuditConstant.ParcelRatingQueueRateStatus.RATING_EXCEPTION.value, null);
+                } else if (ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET.value.equalsIgnoreCase(status)) {
+                    ratingQueueDAO.updateRateStatusInQueue(bean.getRatingQueueId(), ParcelAuditConstant.ParcelRatingQueueRateStatus.EMPTY_PRICE_SHEET.value, null);
+                } else if (ParcelRatingUtil.isRatingDone(status)) {
+                    ratingQueueDAO.updateRateStatusInQueue(bean.getRatingQueueId(), ParcelAuditConstant.ParcelRatingQueueRateStatus.DONE.value, null);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            m_log.error(e.getMessage() + " Parent Id" + bean.getParentId());
         }
     }
 }
