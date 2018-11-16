@@ -518,80 +518,80 @@ public class RatingQueueDAO {
 
         try {
             conn = ServiceLocator.getDatabaseConnection();
+            StringBuilder liveSqlQuery = new StringBuilder();
+            liveSqlQuery.append(" SELECT ebmf.EBILL_MANIFEST_ID AS ID, cp.CUSTOMER_ID, cp.CUSTOMER_CODE, c.CARRIER_ID, ebmf.CONTRACT_NUMBER, ");
+            liveSqlQuery.append(" ebmf.BILL_OPT AS BILL_OPTION_CODE, c.RTR_SCAC_CODE, c.SCAC_CODE, ebmf.TRAN_CODE, ");
+            liveSqlQuery.append(" null AS CHARGE_CLASSIFICATION_CODE, ebmf.CHARGE_CODE AS CHARGE_DESCRIPTION_CODE, ebmf.SERVICE AS CHARGE_DESCRIPTION, ");
+            liveSqlQuery.append(" ebmf.BILL_WEIGHT AS PACKAGE_WEIGHT, ebmf.TRACKING_NUMBER, ebmf.PICKUP_DATE, ebmf.TRAN_CODE AS RESIDENTIAL_INDICATOR, ");
+            liveSqlQuery.append(" ebmf.DELIVERY_DATE, ebmf.SENDER_COUNTRY AS SENDER_COUNTRY, ebmf.SENDER_ST AS SENDER_STATE, ");
+            liveSqlQuery.append(" ebmf.SENDER_CITY AS SENDER_CITY, ebmf.SENDER_ZIP AS SENDER_ZIP_CODE, ebmf.CONSIGNEE_COUNTRY AS RECEIVER_COUNTRY, ");
+            liveSqlQuery.append(" ebmf.CONSIGNEE_ST AS RECEIVER_STATE, ebmf.CONSIGNEE_CITY AS RECEIVER_CITY, ebmf.CONSIGNEE_ZIP AS RECEIVER_ZIP_CODE, ebmf.NET_CHARGES AS NET_AMOUNT, ");
+            liveSqlQuery.append(" ebmf.QTY AS ITEM_QUANTITY, null AS  QUANTITY_UNIT, ebmf.UNIT_OF_BILL_WEIGHT AS WEIGHT_UNIT, ebmf.DIM_LENGTH, ebmf.HEIGHT AS DIM_HEIGHT, ");
+            liveSqlQuery.append(" ebmf.WIDTH AS DIM_WIDTH, ebmf.UNIT_OF_DIM, ebmf.INVOICE_BILLING_CURRENCY_CODE AS CURRENCY, ebmf.INVOICE_ID, ");
+            liveSqlQuery.append(" (select custom_defined_9 from shp_lookup_tb where lookup_id = ebmf.service_bucket) AS SERVICE_LEVEL, ebmf.DW_FIELD_INFORMATION, ");
+            liveSqlQuery.append(" ebmf.SHIPPER_CODE AS SHIPPER_NUMBER, ebmf.PARENT_ID,  ");
+            liveSqlQuery.append("  shp_get_fedex_package_type_fn(nvl(ebmf.carrier_custom_14,'abc') , ebmf.bill_Weight)  as package_type , ");
+            liveSqlQuery.append(" null AS PACKAGE_DIMENSION, ebmf.ACT_WEIGHT AS ACTUAL_WEIGHT, ebmf.UNIT_OF_ACTUAL_WEIGHT, ");
+            liveSqlQuery.append(" ebmf.INVOICE_NUMBER, ebmf.ZONE, ebmf.MISCELLANEOUS5, ebmf.PIECES, ebmf.DIM_DIVISOR AS BILLED_DIM_DIVISOR, ebmf.BILL_DATE AS INVOICE_DATE, inv.CREATE_DATE AS INV_CREATE_DATE, ebmf.SENDER_ZIP AS SENDER_BILLED_ZIP_CODE, ebmf.CONSIGNEE_ZIP AS RECEIVER_BILLED_ZIP_CODE," +
+                    "  s.STATE as shipper_state,s.CITY  as shipper_city,s.ZIPCODE  as shipper_zipCode,s.COUNTRY as shipper_country ,ebmf.Service_Bucket, ");
 
-            String liveSqlQuery = " SELECT ebmf.EBILL_MANIFEST_ID AS ID, cp.CUSTOMER_ID, cp.CUSTOMER_CODE, c.CARRIER_ID, ebmf.CONTRACT_NUMBER, ";
-            liveSqlQuery += " ebmf.BILL_OPT AS BILL_OPTION_CODE, c.RTR_SCAC_CODE, c.SCAC_CODE, ebmf.TRAN_CODE, ";
-            liveSqlQuery += " null AS CHARGE_CLASSIFICATION_CODE, ebmf.CHARGE_CODE AS CHARGE_DESCRIPTION_CODE, ebmf.SERVICE AS CHARGE_DESCRIPTION, ";
-            liveSqlQuery += " ebmf.BILL_WEIGHT AS PACKAGE_WEIGHT, ebmf.TRACKING_NUMBER, ebmf.PICKUP_DATE, ebmf.TRAN_CODE AS RESIDENTIAL_INDICATOR, ";
-            liveSqlQuery += " ebmf.DELIVERY_DATE, ebmf.SENDER_COUNTRY AS SENDER_COUNTRY, ebmf.SENDER_ST AS SENDER_STATE, ";
-            liveSqlQuery += " ebmf.SENDER_CITY AS SENDER_CITY, ebmf.SENDER_ZIP AS SENDER_ZIP_CODE, ebmf.CONSIGNEE_COUNTRY AS RECEIVER_COUNTRY, ";
-            liveSqlQuery += " ebmf.CONSIGNEE_ST AS RECEIVER_STATE, ebmf.CONSIGNEE_CITY AS RECEIVER_CITY, ebmf.CONSIGNEE_ZIP AS RECEIVER_ZIP_CODE, ebmf.NET_CHARGES AS NET_AMOUNT, ";
-            liveSqlQuery += " ebmf.QTY AS ITEM_QUANTITY, null AS  QUANTITY_UNIT, ebmf.UNIT_OF_BILL_WEIGHT AS WEIGHT_UNIT, ebmf.DIM_LENGTH, ebmf.HEIGHT AS DIM_HEIGHT, ";
-            liveSqlQuery += " ebmf.WIDTH AS DIM_WIDTH, ebmf.UNIT_OF_DIM, ebmf.INVOICE_BILLING_CURRENCY_CODE AS CURRENCY, ebmf.INVOICE_ID, ";
-            liveSqlQuery += " (select custom_defined_9 from shp_lookup_tb where lookup_id = ebmf.service_bucket) AS SERVICE_LEVEL, ebmf.DW_FIELD_INFORMATION, ";
-            liveSqlQuery += " ebmf.SHIPPER_CODE AS SHIPPER_NUMBER, ebmf.PARENT_ID,  ";
-            liveSqlQuery += "  shp_get_fedex_package_type_fn(nvl(ebmf.carrier_custom_14,'abc') , ebmf.bill_Weight)  as package_type , ";
-            liveSqlQuery += " null AS PACKAGE_DIMENSION, ebmf.ACT_WEIGHT AS ACTUAL_WEIGHT, ebmf.UNIT_OF_ACTUAL_WEIGHT, ";
-            liveSqlQuery += " ebmf.INVOICE_NUMBER, ebmf.ZONE, ebmf.MISCELLANEOUS5, ebmf.PIECES, ebmf.DIM_DIVISOR AS BILLED_DIM_DIVISOR, ebmf.BILL_DATE AS INVOICE_DATE, inv.CREATE_DATE AS INV_CREATE_DATE, ebmf.SENDER_ZIP AS SENDER_BILLED_ZIP_CODE, ebmf.CONSIGNEE_ZIP AS RECEIVER_BILLED_ZIP_CODE," +
-                    "  s.STATE as shipper_state,s.CITY  as shipper_city,s.ZIPCODE  as shipper_zipCode,s.COUNTRY as shipper_country ,ebmf.Service_Bucket, ";
+            liveSqlQuery.append(" ar.RTR_AMOUNT ,ar.rtr_status,");
 
-            liveSqlQuery += " ar.RTR_AMOUNT ,ar.rtr_status,";
+            liveSqlQuery.append(" ebmf.REVENUE_TIER AS REVENUE_TIER, ebmf.CHARGE_CODE,DECODE (Ebmf.Bundle_Number,NULL,ebmf.MISCELLANEOUS5, ebmf.Bundle_Number) AS MULTI_WEIGHT_NUMBER, null AS CHARGE_CATEGORY_DETAIL_CODE ");
+            liveSqlQuery.append(" FROM SHP_EBILL_MANIFEST_TB ebmf, SHP_EBILL_CONTRACT_TB ebc, SHP_CUSTOMER_PROFILE_TB cp, SHP_CARRIER_TB c, SHP_SHIPPER_TB s, SHP_EBILL_INVOICE_TB inv ");
 
-            liveSqlQuery += " ebmf.REVENUE_TIER AS REVENUE_TIER, ebmf.CHARGE_CODE,DECODE (Ebmf.Bundle_Number,NULL,ebmf.MISCELLANEOUS5, ebmf.Bundle_Number) AS MULTI_WEIGHT_NUMBER, null AS CHARGE_CATEGORY_DETAIL_CODE ";
-            liveSqlQuery += " FROM SHP_EBILL_MANIFEST_TB ebmf, SHP_EBILL_CONTRACT_TB ebc, SHP_CUSTOMER_PROFILE_TB cp, SHP_CARRIER_TB c, SHP_SHIPPER_TB s, SHP_EBILL_INVOICE_TB inv ";
-
-                liveSqlQuery += ", SHP_EBILL_FDX_RATES_TB ar  ";
+            liveSqlQuery.append(", SHP_EBILL_FDX_RATES_TB ar  ");
 
 
-            liveSqlQuery += " WHERE ebmf.CONTRACT_NUMBER = ebc.CONTRACT_NUMBER ";
-            liveSqlQuery += " AND ebmf.INVOICE_ID = inv.INVOICE_ID ";
-            liveSqlQuery += " AND ebc.CUSTOMER_ID = cp.CUSTOMER_ID ";
-            liveSqlQuery += " AND ebmf.CARRIER_ID = c.CARRIER_ID ";
-            liveSqlQuery += " AND ebmf.SHIPPER_CODE = s.SHIPPER_CODE ";
+            liveSqlQuery.append(" WHERE ebmf.CONTRACT_NUMBER = ebc.CONTRACT_NUMBER ");
+            liveSqlQuery.append(" AND ebmf.INVOICE_ID = inv.INVOICE_ID ");
+            liveSqlQuery.append(" AND ebc.CUSTOMER_ID = cp.CUSTOMER_ID ");
+            liveSqlQuery.append(" AND ebmf.CARRIER_ID = c.CARRIER_ID ");
+            liveSqlQuery.append(" AND ebmf.SHIPPER_CODE = s.SHIPPER_CODE ");
 
-                liveSqlQuery += " AND ebmf.ebill_manifest_id = ar.ebill_manifest_id(+) ";
+            liveSqlQuery.append(" AND ebmf.ebill_manifest_id = ar.ebill_manifest_id(+) ");
 
-            liveSqlQuery += " AND ebmf.CARRIER_ID IN ( " + carrierIds + ") ";
+            liveSqlQuery.append(" AND ebmf.CARRIER_ID IN ( " + carrierIds + ") ");
 
             if(fromDate != null && !fromDate.isEmpty() && toDate != null && !toDate.isEmpty()) {
-                liveSqlQuery += " AND TRUNC(ebmf.PICKUP_DATE) BETWEEN  '" + fromDate + "' AND '" + toDate + "'  ";
+                liveSqlQuery.append(" AND TRUNC(ebmf.PICKUP_DATE) BETWEEN  '" + fromDate + "' AND '" + toDate + "'  ");
             }
 
-            liveSqlQuery += " AND ebmf.DW_FIELD_INFORMATION IS NOT NULL ";
+            liveSqlQuery.append(" AND ebmf.DW_FIELD_INFORMATION IS NOT NULL ");
 
             if(customerIds != null && !customerIds.isEmpty()) {
-                liveSqlQuery += " AND cp.CUSTOMER_ID IN( " + customerIds + ") ";
+                liveSqlQuery.append(" AND cp.CUSTOMER_ID IN( " + customerIds + ") ");
             }
 
             if(trackingNumbers != null && !trackingNumbers.isEmpty()) {
 
                 if (StringUtils.containsIgnoreCase(trackingNumbers, ","))
-                    liveSqlQuery += " AND ebmf.tracking_number IN (" + trackingNumbers + ") ";
+                    liveSqlQuery.append(" AND ebmf.tracking_number IN (" + trackingNumbers + ") ");
                 else
-                    liveSqlQuery += " AND ebmf.tracking_number IN ('" + trackingNumbers + "') ";
+                    liveSqlQuery.append(" AND ebmf.tracking_number IN ('" + trackingNumbers + "') ");
             }
 
             if(invoiceId != null && !invoiceId.isEmpty()) {
-                liveSqlQuery += " AND ebmf.invoice_id IN ( " + invoiceId + ") ";
+                liveSqlQuery.append(" AND ebmf.invoice_id IN ( " + invoiceId + ") ");
             }
 
             if (!ignoreRtrStatus) {
-                liveSqlQuery += " AND (UPPER(ar.RTR_STATUS) = 'READYFORRATE' OR ar.RTR_STATUS IS NULL) ";
+                liveSqlQuery.append(" AND (UPPER(ar.RTR_STATUS) = 'READYFORRATE' OR ar.RTR_STATUS IS NULL) ");
             }
 
             if (hwtNumbers != null && !hwtNumbers.isEmpty()) {
 
                 if (StringUtils.containsIgnoreCase(hwtNumbers, ","))
-                    liveSqlQuery += " AND ( ebmf.Bundle_Number IN (" + hwtNumbers + ") OR ebmf.MISCELLANEOUS5 IN (" + hwtNumbers + ")  )";
+                    liveSqlQuery.append(" AND ( ebmf.Bundle_Number IN (" + hwtNumbers + ") OR ebmf.MISCELLANEOUS5 IN (" + hwtNumbers + ")  )");
                 else
-                    liveSqlQuery += " AND ( ebmf.Bundle_Number = " + hwtNumbers + " OR ebmf.MISCELLANEOUS5 = " + hwtNumbers + "  )";
+                    liveSqlQuery.append(" AND ( ebmf.Bundle_Number = " + hwtNumbers + " OR ebmf.MISCELLANEOUS5 = " + hwtNumbers + "  )");
             }
 
 
-            String archiveQuery = liveSqlQuery.replace("SHP_EBILL_MANIFEST_TB", "ARC_EBILL_MANIFEST_TB");
+            String archiveQuery = liveSqlQuery.toString().replace("SHP_EBILL_MANIFEST_TB", "ARC_EBILL_MANIFEST_TB");
             archiveQuery = archiveQuery.replace("SHP_EBILL_INVOICE_TB", "ARC_EBILL_INVOICE_TB");
 
-            ps = conn.prepareStatement(liveSqlQuery + " UNION " + archiveQuery);
+            ps = conn.prepareStatement(liveSqlQuery.toString() + " UNION " + archiveQuery);
             parcelUpsShipments = new ArrayList<>();
 
             rs = ps.executeQuery();
