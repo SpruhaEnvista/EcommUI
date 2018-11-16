@@ -133,7 +133,7 @@ public class RatingQueueDAO {
         ResultSet rs = null;
 
         java.util.ArrayList<RatingQueueBean> beanList = null;
-        String selectQuery = "select * from SHP_RATING_QUEUE_TB where Tracking_Number='787651842511' and  RATE_STATUS = 0 and job_id in ( " + jobIds + " ) and rownum <= 30000 ";
+        String selectQuery = "select * from SHP_RATING_QUEUE_TB where  RATE_STATUS = 0 and job_id in ( " + jobIds + " ) and rownum <= 30000 ";
 
         try {
             connection = ServiceLocator.getDatabaseConnection();
@@ -529,7 +529,8 @@ public class RatingQueueDAO {
             liveSqlQuery += " ebmf.QTY AS ITEM_QUANTITY, null AS  QUANTITY_UNIT, ebmf.UNIT_OF_BILL_WEIGHT AS WEIGHT_UNIT, ebmf.DIM_LENGTH, ebmf.HEIGHT AS DIM_HEIGHT, ";
             liveSqlQuery += " ebmf.WIDTH AS DIM_WIDTH, ebmf.UNIT_OF_DIM, ebmf.INVOICE_BILLING_CURRENCY_CODE AS CURRENCY, ebmf.INVOICE_ID, ";
             liveSqlQuery += " (select custom_defined_9 from shp_lookup_tb where lookup_id = ebmf.service_bucket) AS SERVICE_LEVEL, ebmf.DW_FIELD_INFORMATION, ";
-            liveSqlQuery += " ebmf.SHIPPER_CODE AS SHIPPER_NUMBER, ebmf.PARENT_ID, DECODE (ebmf.bill_weight, 0, 'Letter', 'PKG') package_type, ";
+            liveSqlQuery += " ebmf.SHIPPER_CODE AS SHIPPER_NUMBER, ebmf.PARENT_ID,  ";
+            liveSqlQuery += "  shp_get_fedex_package_type_fn(nvl(ebmf.carrier_custom_14,'abc') , ebmf.bill_Weight)  as package_type , ";
             liveSqlQuery += " null AS PACKAGE_DIMENSION, ebmf.ACT_WEIGHT AS ACTUAL_WEIGHT, ebmf.UNIT_OF_ACTUAL_WEIGHT, ";
             liveSqlQuery += " ebmf.INVOICE_NUMBER, ebmf.ZONE, ebmf.MISCELLANEOUS5, ebmf.PIECES, ebmf.DIM_DIVISOR AS BILLED_DIM_DIVISOR, ebmf.BILL_DATE AS INVOICE_DATE, inv.CREATE_DATE AS INV_CREATE_DATE, ebmf.SENDER_ZIP AS SENDER_BILLED_ZIP_CODE, ebmf.CONSIGNEE_ZIP AS RECEIVER_BILLED_ZIP_CODE," +
                     "  s.STATE as shipper_state,s.CITY  as shipper_city,s.ZIPCODE  as shipper_zipCode,s.COUNTRY as shipper_country ,ebmf.Service_Bucket, ";
@@ -581,9 +582,9 @@ public class RatingQueueDAO {
             if (hwtNumbers != null && !hwtNumbers.isEmpty()) {
 
                 if (StringUtils.containsIgnoreCase(hwtNumbers, ","))
-                    liveSqlQuery += " AND ( a.Bundle_Number IN (" + hwtNumbers + ") OR a.MISCELLANEOUS5 IN (" + hwtNumbers + ")  )";
+                    liveSqlQuery += " AND ( ebmf.Bundle_Number IN (" + hwtNumbers + ") OR ebmf.MISCELLANEOUS5 IN (" + hwtNumbers + ")  )";
                 else
-                    liveSqlQuery += " AND ( a.Bundle_Number = " + hwtNumbers + " OR a.MISCELLANEOUS5 = " + hwtNumbers + "  )";
+                    liveSqlQuery += " AND ( ebmf.Bundle_Number = " + hwtNumbers + " OR ebmf.MISCELLANEOUS5 = " + hwtNumbers + "  )";
             }
 
 
