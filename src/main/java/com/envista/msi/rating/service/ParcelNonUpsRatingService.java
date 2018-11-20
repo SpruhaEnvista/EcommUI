@@ -181,9 +181,9 @@ public class ParcelNonUpsRatingService {
 
             status = updateRateForNonUpsCarrier(ParcelRateResponseParser.parse(response), shipmentToRate, bean, accessorialBeans);
             updateFedExOtherFieldValues(shipmentToRate);
-            if(status != null && !status.isEmpty()){
+  /*          if(status != null && !status.isEmpty()){
                 new DirectJDBCDAO().updateRtrStatus(22L, bean.getTrackingNumber(), status, new java.sql.Date(bean.getShipDate().getTime()));
-            }
+            }*/
         }
         return status;
     }
