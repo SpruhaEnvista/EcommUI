@@ -206,6 +206,8 @@ public class ParcelRatingQueueJob {
 
                         if (shipments != null) {
 
+                            ParcelRatingUtil.setAddressCorrectionAsAccessorial(shipmentRecords);
+
                             for (Map.Entry<Long, List<ParcelAuditDetailsDto>> entry : shipments.entrySet()) {
 
                                 List<ParcelAuditDetailsDto> shipmentChargeList = ParcelRatingUtil.prepareChargeList(entry.getKey(), shipments);

@@ -2193,4 +2193,13 @@ public class ParcelRatingUtil {
     }
 
 
+    public static void setAddressCorrectionAsAccessorial(List<ParcelAuditDetailsDto> shipmentRecords) {
+
+        for (ParcelAuditDetailsDto dto : shipmentRecords) {
+
+            if ("FRT".equalsIgnoreCase(dto.getChargeClassificationCode()) && "ADC".equalsIgnoreCase(dto.getChargeCategoryDetailCode())) {
+                dto.setChargeClassificationCode("ACC");
+            }
+        }
+    }
 }
