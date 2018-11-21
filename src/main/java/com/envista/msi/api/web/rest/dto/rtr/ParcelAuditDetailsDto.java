@@ -266,6 +266,10 @@ public class ParcelAuditDetailsDto {
 
     private String chargeCatagoryCode;
 
+    private String resiFlag;
+
+    private String comToResFlag;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -820,6 +824,22 @@ public class ParcelAuditDetailsDto {
 
     public void setChargeCatagoryCode(String chargeCatagoryCode) {
         this.chargeCatagoryCode = chargeCatagoryCode;
+    }
+
+    public String getResiFlag() {
+        return resiFlag;
+    }
+
+    public void setResiFlag(String resiFlag) {
+        this.resiFlag = resiFlag;
+    }
+
+    public String getComToResFlag() {
+        return comToResFlag;
+    }
+
+    public void setComToResFlag(String comToResFlag) {
+        this.comToResFlag = comToResFlag;
     }
 
     public static class Config{

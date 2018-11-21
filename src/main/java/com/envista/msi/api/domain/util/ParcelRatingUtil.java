@@ -309,15 +309,10 @@ public class ParcelRatingUtil {
         boolean hasRJ5Charge = false;
         boolean resiSur = false;
         boolean resiFlagSet = false;
+        boolean comToResSet = false;
 
         if (shipmentDetails != null && !shipmentDetails.isEmpty()) {
             for (ParcelAuditDetailsDto auditDetails : shipmentDetails) {
-
-                if (shipmentDetails.get(0).getParentId().compareTo(auditDetails.getParentId()) == 0) {
-
-                    if (auditDetails.getChargeDescription() != null && "Residential Surcharge".equalsIgnoreCase(auditDetails.getChargeDescription()))
-                        resiSur = true;
-                }
 
                 if (auditDetails != null && auditDetails.getPackageDimension() != null && !auditDetails.getPackageDimension().isEmpty()) {
                     try {
@@ -372,33 +367,8 @@ public class ParcelRatingUtil {
                                 if (auditDetails.getWorldeEaseNum() != null && !auditDetails.getWorldeEaseNum().isEmpty())
                                     ratingQueueBean.setWorldeEaseNum("Y");
 
-                                if (auditDetails.getChargeDescription() != null && auditDetails.getChargeDescriptionCode() != null) {
-                                    if (!resiFlagSet &&  (("RES".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()) || "RS1".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())) &&  auditDetails.getChargeDescription().toUpperCase().contains("RESIDENTIAL SURCHARGE"))) {
-                                        ratingQueueBean.setResiFlag("Y");
-                                    }
-                                    if (auditDetails.getChargeCategoryDetailCode() != null) {
-                                        if ("RADJ".equalsIgnoreCase(auditDetails.getChargeCategoryDetailCode()) && "RES".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()) && auditDetails.getChargeDescription().toUpperCase().contains("RESIDENTIAL ADJUSTMENT") ){
-                                            ratingQueueBean.setResiFlag("Y");
-                                            ratingQueueBean.setComToRes("Y");
-                                            resiFlagSet = true;
-                                        }
-                                        if ("RADJ".equalsIgnoreCase(auditDetails.getChargeCategoryDetailCode()) && "COM".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()) && auditDetails.getChargeDescription().toUpperCase().contains("COMMERCIAL ADJUSTMENT")) {
-                                            ratingQueueBean.setResiFlag("N");
-                                            ratingQueueBean.setComToRes("N");
-                                            resiFlagSet = true;
-                                        }
-                                        if ("RADJ".equalsIgnoreCase(auditDetails.getChargeCategoryDetailCode()) && "RJ5".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()) && auditDetails.getChargeDescription().toUpperCase().contains("RESIDENTIAL/COMMERCIAL ADJ") && resiSur) {
-                                            ratingQueueBean.setResiFlag("N");
-                                            ratingQueueBean.setComToRes("N");
-                                            resiFlagSet = true;
-                                        }
-                                        if ("RADJ".equalsIgnoreCase(auditDetails.getChargeCategoryDetailCode()) && "RJ5".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()) && auditDetails.getChargeDescription().toUpperCase().contains("RESIDENTIAL/COMMERCIAL ADJ") && !resiSur) {
-                                            ratingQueueBean.setResiFlag("Y");
-                                            ratingQueueBean.setComToRes("Y");
-                                            resiFlagSet = true;
-                                        }
-                                    }
-                                }
+
+                                setComToResVal(ratingQueueBean, auditDetails, resiSur, resiFlagSet, comToResSet);
                             }
 
                             if (auditDetails.getChargeClassificationCode() != null
@@ -558,9 +528,64 @@ public class ParcelRatingUtil {
                      if(!isReturnFlagAtTrackingLevel(trackingNumDetails))
                          ratingQueueBean.setReturnFlag("N");
 
+                if ("".equalsIgnoreCase(ratingQueueBean.getComToRes()) && "N".equalsIgnoreCase(ratingQueueBean.getResiFlag())) {
+
+                    for (ParcelAuditDetailsDto dto : trackingNumDetails) {
+
+                        if (firstCharge.getParentId().compareTo(dto.getParentId()) > 0) {
+
+                            if (dto.getComToResFlag() != null && dto.getResiFlag() != null) {
+
+                                ratingQueueBean.setResiFlag(dto.getResiFlag());
+                            }
+                        }
+                    }
+                }
+
             }
         }
         return ratingQueueBean;
+    }
+
+    private static void setComToResVal(RatingQueueBean ratingQueueBean, ParcelAuditDetailsDto auditDetails, boolean resiSur, boolean resiFlagSet, boolean comToResSet) {
+
+
+        if (auditDetails.getChargeDescription() != null && auditDetails.getChargeDescriptionCode() != null) {
+
+            if (auditDetails.getChargeDescription() != null && "Residential Surcharge".equalsIgnoreCase(auditDetails.getChargeDescription()))
+                resiSur = true;
+
+            if (!resiFlagSet && (("RES".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()) || "RS1".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())) && auditDetails.getChargeDescription().toUpperCase().contains("RESIDENTIAL SURCHARGE"))) {
+                ratingQueueBean.setResiFlag("Y");
+            }
+            if (auditDetails.getChargeCategoryDetailCode() != null) {
+                if ("RADJ".equalsIgnoreCase(auditDetails.getChargeCategoryDetailCode()) && "RES".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()) && auditDetails.getChargeDescription().toUpperCase().contains("RESIDENTIAL ADJUSTMENT")) {
+                    ratingQueueBean.setResiFlag("Y");
+                    ratingQueueBean.setComToRes("Y");
+                    resiFlagSet = true;
+                }
+                if ("RADJ".equalsIgnoreCase(auditDetails.getChargeCategoryDetailCode()) && "COM".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()) && auditDetails.getChargeDescription().toUpperCase().contains("COMMERCIAL ADJUSTMENT")) {
+                    ratingQueueBean.setResiFlag("N");
+                    ratingQueueBean.setComToRes("N");
+                    resiFlagSet = true;
+                }
+                if (!comToResSet) {
+                    if ("RADJ".equalsIgnoreCase(auditDetails.getChargeCategoryDetailCode()) && "RJ5".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()) && auditDetails.getChargeDescription().toUpperCase().contains("RESIDENTIAL/COMMERCIAL ADJ") && resiSur) {
+                        ratingQueueBean.setResiFlag("N");
+                        ratingQueueBean.setComToRes("N");
+                        comToResSet = true;
+                        resiFlagSet = true;
+                    }
+                    if ("RADJ".equalsIgnoreCase(auditDetails.getChargeCategoryDetailCode()) && "RJ5".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()) && auditDetails.getChargeDescription().toUpperCase().contains("RESIDENTIAL/COMMERCIAL ADJ") && !resiSur) {
+                        ratingQueueBean.setResiFlag("Y");
+                        ratingQueueBean.setComToRes("Y");
+                        comToResSet = true;
+                        resiFlagSet = true;
+                    }
+                }
+
+            }
+        }
     }
 
     private static boolean isReturnFlagAtTrackingLevel(List<ParcelAuditDetailsDto> trackingNumDetails) {
