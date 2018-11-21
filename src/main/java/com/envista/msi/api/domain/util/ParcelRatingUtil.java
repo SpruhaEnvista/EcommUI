@@ -524,9 +524,6 @@ public class ParcelRatingUtil {
                 ratingQueueBean.setInvoiceDate(firstCharge.getInvoiceDate());
                 ratingQueueBean.setCustomerId(firstCharge.getCustomerId());
 
-                if("Y".equalsIgnoreCase(ratingQueueBean.getReturnFlag()))
-                     if(!isReturnFlagAtTrackingLevel(trackingNumDetails))
-                         ratingQueueBean.setReturnFlag("N");
 
                 if ("".equalsIgnoreCase(ratingQueueBean.getComToRes()) && "N".equalsIgnoreCase(ratingQueueBean.getResiFlag())) {
 
@@ -542,9 +539,21 @@ public class ParcelRatingUtil {
                     }
                 }
 
+     /*           if("N".equalsIgnoreCase(ratingQueueBean.getReturnFlag()) && ("FRT".equalsIgnoreCase(firstCharge.getChargeClassificationCode()) && "SCC".equalsIgnoreCase(firstCharge.getChargeCategoryDetailCode()) )){
+                    checkImmediateParentIdReturnFlag(ratingQueueBean, shipmentDetails, trackingNumDetails);
+                }*/
+
             }
         }
         return ratingQueueBean;
+    }
+
+    private static void checkImmediateParentIdReturnFlag(RatingQueueBean ratingQueueBean, List<ParcelAuditDetailsDto> shipmentDetails, List<ParcelAuditDetailsDto> trackingNumDetails) {
+
+        ParcelAuditDetailsDto dto = getImmediateFrtParentId(shipmentDetails, trackingNumDetails);
+
+        if ("Y".equalsIgnoreCase(dto.getReturnFlag()))
+            ratingQueueBean.setReturnFlag("Y");
     }
 
     private static void setComToResVal(RatingQueueBean ratingQueueBean, ParcelAuditDetailsDto auditDetails, boolean resiSur, boolean resiFlagSet, boolean comToResSet) {

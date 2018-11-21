@@ -270,6 +270,8 @@ public class ParcelAuditDetailsDto {
 
     private String comToResFlag;
 
+    private String returnFlag;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -840,6 +842,14 @@ public class ParcelAuditDetailsDto {
 
     public void setComToResFlag(String comToResFlag) {
         this.comToResFlag = comToResFlag;
+    }
+
+    public String getReturnFlag() {
+        return returnFlag;
+    }
+
+    public void setReturnFlag(String returnFlag) {
+        this.returnFlag = returnFlag;
     }
 
     public static class Config{
