@@ -150,6 +150,8 @@ public class ParcelRateDetailsDto implements Serializable {
 
     private Long actualServiceBucket;
 
+    private String packageType;
+
 
     public static ParcelRateDetailsDto getInstance(){
         return new ParcelRateDetailsDto();
@@ -501,5 +503,13 @@ public class ParcelRateDetailsDto implements Serializable {
 
     public void setActualServiceBucket(Long actualServiceBucket) {
         this.actualServiceBucket = actualServiceBucket;
+    }
+
+    public String getPackageType() {
+        return packageType;
+    }
+
+    public void setPackageType(String packageType) {
+        this.packageType = packageType;
     }
 }

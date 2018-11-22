@@ -452,7 +452,6 @@ public class RatingQueueDAO {
                 shipmentDetails.setDwFieldInformation(rs.getString("DW_FIELD_INFORMATION"));
                 shipmentDetails.setShipperNumber(rs.getString("SHIPPER_NUMBER"));
                 shipmentDetails.setParentId(rs.getLong("PARENT_ID"));
-                shipmentDetails.setPackageType(rs.getString("package_type"));
                 shipmentDetails.setPackageDimension(rs.getString("PACKAGE_DIMENSION"));
                 shipmentDetails.setActualWeight(rs.getBigDecimal("ACTUAL_WEIGHT"));
                 shipmentDetails.setActualWeightUnit(rs.getString("UNIT_OF_ACTUAL_WEIGHT"));

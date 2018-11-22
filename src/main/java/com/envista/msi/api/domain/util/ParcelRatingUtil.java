@@ -782,7 +782,6 @@ public class ParcelRatingUtil {
                     ratingQueueBean.setDimWidth(dimWidth);
                     ratingQueueBean.setDimHeight(dimHeight);
                     ratingQueueBean.setDimUnits(dimUnit);
-                    ratingQueueBean.setPackageType(firstBaseCharge.getPackageType());
                 }
             }
         }
@@ -833,6 +832,7 @@ public class ParcelRatingUtil {
 
         ratingQueueBean.setInvoiceDate(firstCharge.getInvoiceDate());
         ratingQueueBean.setCustomerId(firstCharge.getCustomerId());
+        ratingQueueBean.setPackageType(firstCharge.getPackageType());
 
         if (hwt)
             ratingQueueBean.setHwtIdentifier(firstCharge.getMultiWeightNumber());
@@ -2235,6 +2235,7 @@ public class ParcelRatingUtil {
         rateDetails.setZone(priceSheet.getZone());
         rateDetails.setActualServiceBucket(queueBean.getActualServiceBucket());
         rateDetails.setHwtIdentifier(queueBean.getHwtIdentifier());
+        rateDetails.setPackageType(queueBean.getPackageType());
 
     }
 

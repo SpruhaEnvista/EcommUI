@@ -227,6 +227,7 @@ public class DirectJDBCDAO {
             cstmt.setString(26, rateDetails != null && rateDetails.getResiFlag() != null ? rateDetails.getResiFlag() : "N");
             cstmt.setString(27, rateDetails != null && rateDetails.getComToRes() != null ? rateDetails.getComToRes() : "");
             cstmt.setLong(28, rateDetails != null && rateDetails.getActualServiceBucket() != null ? rateDetails.getActualServiceBucket() : -1L);
+            cstmt.setString(29, rateDetails != null && rateDetails.getPackageType() != null ? rateDetails.getPackageType() : null);
 
             cstmt.executeUpdate();
 
