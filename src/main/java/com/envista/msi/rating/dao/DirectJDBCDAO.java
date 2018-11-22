@@ -1403,4 +1403,57 @@ public class DirectJDBCDAO {
         return dtos;
     }
 
+    public String getratingQueueInfoByParentId(String trackingNumber, Long parentId) {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        String sqlQuery = " select Resi_Flag,Com_To_Res from shp_rating_queue_tb " +
+                " where Tracking_Number=? and Parent_Id=? ";
+
+        String resiFlag = null;
+
+        try {
+            con = ServiceLocator.getDatabaseConnection();
+            pstmt = con.prepareStatement(sqlQuery);
+
+
+            pstmt.setString(1, trackingNumber);
+            pstmt.setLong(2, parentId);
+
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+
+                if (rs.getString("Com_To_Res") != null) {
+                    resiFlag = rs.getString("Resi_Flag");
+                }
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            throw new DaoException("Exception in getRatesForPrevParentIds ", e);
+        } finally {
+            try {
+                if (pstmt != null)
+                    pstmt.close();
+            } catch (SQLException sqle) {
+                sqle.printStackTrace();
+            }
+            try {
+                if (con != null)
+                    con.close();
+            } catch (SQLException sqle) {
+                sqle.printStackTrace();
+            }
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (SQLException sqle) {
+                sqle.printStackTrace();
+            }
+        }
+        return resiFlag;
+    }
+
 }
