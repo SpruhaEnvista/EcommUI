@@ -29,6 +29,20 @@ public class DirectJDBCDAO {
 
     private static final Logger log = LoggerFactory.getLogger(DirectJDBCDAO.class);
 
+
+    private static DirectJDBCDAO instance = null;
+
+    private DirectJDBCDAO() {
+        // Exists only to defeat instantiation.
+    }
+
+    public static DirectJDBCDAO getInstance() {
+        if (instance == null) {
+            instance = new DirectJDBCDAO();
+        }
+        return instance;
+    }
+
     @Deprecated
     public void updateRTRInvoiceAmount(Long id, String userName, BigDecimal rtrAmount, String rtrStatus, Long carrierId){
         Connection con = null;
@@ -198,7 +212,7 @@ public class DirectJDBCDAO {
         CallableStatement cstmt = null;
         try{
             conn = ServiceLocator.getDatabaseConnection();
-            cstmt = conn.prepareCall("{ call SHP_SAVE_RATE_DETAILS_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
+            cstmt = conn.prepareCall("{ call SHP_SAVE_RATE_DETAILS_PROC_TMP(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
             cstmt.setString(1,referenceTableName);
             cstmt.setString(2, entityId);
             cstmt.setString(3,userName);
@@ -1431,6 +1445,59 @@ public class DirectJDBCDAO {
             }
         }
         return dtos;
+    }
+
+    public String getratingQueueInfoByParentId(String trackingNumber, Long parentId) {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        String sqlQuery = " select Resi_Flag,Com_To_Res from shp_rating_queue_tb " +
+                " where Tracking_Number=? and Parent_Id=? ";
+
+        String resiFlag = null;
+
+        try {
+            con = ServiceLocator.getDatabaseConnection();
+            pstmt = con.prepareStatement(sqlQuery);
+
+
+            pstmt.setString(1, trackingNumber);
+            pstmt.setLong(2, parentId);
+
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+
+                if (rs.getString("Com_To_Res") != null) {
+                    resiFlag = rs.getString("Resi_Flag");
+                }
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            throw new DaoException("Exception in getRatesForPrevParentIds ", e);
+        } finally {
+            try {
+                if (pstmt != null)
+                    pstmt.close();
+            } catch (SQLException sqle) {
+                sqle.printStackTrace();
+            }
+            try {
+                if (con != null)
+                    con.close();
+            } catch (SQLException sqle) {
+                sqle.printStackTrace();
+            }
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (SQLException sqle) {
+                sqle.printStackTrace();
+            }
+        }
+        return resiFlag;
     }
 
 }

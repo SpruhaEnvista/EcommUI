@@ -15,10 +15,14 @@ import com.envista.msi.rating.bean.RatingQueueBean;
 import com.envista.msi.rating.bean.ServiceFlagAccessorialBean;
 import com.envista.msi.rating.dao.DirectJDBCDAO;
 import com.envista.msi.rating.dao.RatingQueueDAO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
@@ -27,10 +31,24 @@ import java.util.StringJoiner;
  * Created by Sujit kumar on 05/05/2018.
  */
 public class ParcelUpsRatingService {
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ParcelUpsRatingService.class);
+
+    private static final Logger log = LoggerFactory.getLogger(ParcelUpsRatingService.class);
+
+    private static ParcelUpsRatingService instance = null;
+
+    private ParcelUpsRatingService() {
+        // Exists only to defeat instantiation.
+    }
+
+    public static ParcelUpsRatingService getInstance() {
+        if (instance == null) {
+            instance = new ParcelUpsRatingService();
+        }
+        return instance;
+    }
 
     public List<ParcelAuditDetailsDto> getUpsParcelShipmentDetails(String customerId, String fromShipDate, String toShipDate, String trackingNumbers, String invoiceIds, boolean ignoreRtrStatus, String hwtNumbers) {
-        return new RatingQueueDAO().getUpsParcelShipmentDetails(customerId, fromShipDate, toShipDate, trackingNumbers, invoiceIds, ignoreRtrStatus, hwtNumbers);
+        return RatingQueueDAO.getInstance().getUpsParcelShipmentDetails(customerId, fromShipDate, toShipDate, trackingNumbers, invoiceIds, ignoreRtrStatus, hwtNumbers);
     }
 
     public List<ParcelAuditDetailsDto> getUpsParcelShipmentDetails(String customerId, String fromShipDate, String toShipDate, String trackingNumbers, String invoiceIds, String hwtNumbers) {
@@ -51,7 +69,7 @@ public class ParcelUpsRatingService {
 
     public Map<String, String> getMappedDASChargeCodes(){
         Map<String, String> chargeCodeMap = null;
-        List<ParcelARChargeCodeMappingDto> mappedChargeCodes = new DirectJDBCDAO().loadMappedARChargeCodes(ParcelAuditConstant.MSI_AR_CHARGE_CODE_MAPPING_MODELE_NAME, ParcelAuditConstant.MSI_AR_DAS_CHARGE_CODE_NAME);
+        List<ParcelARChargeCodeMappingDto> mappedChargeCodes = DirectJDBCDAO.getInstance().loadMappedARChargeCodes(ParcelAuditConstant.MSI_AR_CHARGE_CODE_MAPPING_MODELE_NAME, ParcelAuditConstant.MSI_AR_DAS_CHARGE_CODE_NAME);
         if(mappedChargeCodes != null && !mappedChargeCodes.isEmpty()){
             chargeCodeMap = prepareChargeCodeMap(mappedChargeCodes);
         }
@@ -60,7 +78,7 @@ public class ParcelUpsRatingService {
 
     public Map<String, String> getMappedLPSChargeCodes(){
         Map<String, String> chargeCodeMap = null;
-        List<ParcelARChargeCodeMappingDto> mappedChargeCodes = new DirectJDBCDAO().loadMappedARChargeCodes(ParcelAuditConstant.MSI_AR_CHARGE_CODE_MAPPING_MODELE_NAME, ParcelAuditConstant.MSI_AR_LPS_CHARGE_CODE_NAME);
+        List<ParcelARChargeCodeMappingDto> mappedChargeCodes = DirectJDBCDAO.getInstance().loadMappedARChargeCodes(ParcelAuditConstant.MSI_AR_CHARGE_CODE_MAPPING_MODELE_NAME, ParcelAuditConstant.MSI_AR_LPS_CHARGE_CODE_NAME);
         if(mappedChargeCodes != null && !mappedChargeCodes.isEmpty()){
             chargeCodeMap = prepareChargeCodeMap(mappedChargeCodes);
         }
@@ -103,7 +121,7 @@ public class ParcelUpsRatingService {
                     if (bean.getHwtIdentifier() == null || bean.getHwtIdentifier().isEmpty())
                         shipmentRecords = getUpsParcelShipmentDetails(null, trackingNumber, true, null);
                     else {
-                        shipmentRecords = new ParcelUpsRatingService().getUpsParcelShipmentDetails(bean.getCustomerId() != null ? bean.getCustomerId().toString() : null, null, true, bean.getHwtIdentifier());
+                        shipmentRecords = getUpsParcelShipmentDetails(bean.getCustomerId() != null ? bean.getCustomerId().toString() : null, null, true, bean.getHwtIdentifier());
                         shipmentToRate = new ArrayList<>();
                         prevHwtRated = ParcelRatingUtil.isHwtShipmentRated(shipmentRecords, bean.getParentId(), shipmentToRate, bean.getInvoiceDate());
                     }
@@ -183,7 +201,7 @@ public class ParcelUpsRatingService {
                     }
                 }
                 if (entityIds != null && entityIds.length() > 0) {
-                    new DirectJDBCDAO().updateRatingVoidShipmentStatus(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, entityIds.toString(), 1);
+                    DirectJDBCDAO.getInstance().updateRatingVoidShipmentStatus(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, entityIds.toString(), 1);
                 }
             }
         }catch (Exception e){
@@ -204,7 +222,7 @@ public class ParcelUpsRatingService {
         String requestPayload = "";
         String response = "";
         String status = "";
-        DirectJDBCDAO directJDBCDAO = new DirectJDBCDAO();
+        DirectJDBCDAO directJDBCDAO = DirectJDBCDAO.getInstance();
 
             requestPayload = com.envista.msi.rating.util.ParcelRateRequestBuilder.buildParcelRateRequest(bean, ParcelAuditConstant.AR_RATE_REQUEST_LICENSE_KEY, beans).toXmlString();
             response = CommonUtil.connectAndGetResponseAsString(url, requestPayload);
@@ -222,7 +240,7 @@ public class ParcelUpsRatingService {
 
         updateUpsOtherFieldValues(parcelAuditDetails);
 /*        if(status != null && !status.isEmpty()){
-            new DirectJDBCDAO().updateRtrStatus(21L, bean.getTrackingNumber(), status);
+            DirectJDBCDAO.getInstance().updateRtrStatus(21L, bean.getTrackingNumber(), status);
         }*/
         return status;
     }
@@ -335,14 +353,14 @@ public class ParcelUpsRatingService {
                 }
             }
             if(entityIds.length() > 0){
-                new DirectJDBCDAO().updateRtrStatusByIds(entityIds.toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rtrStatus.value, parcelAuditDetails.get(0).getCarrierId());
+                DirectJDBCDAO.getInstance().updateRtrStatusByIds(entityIds.toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rtrStatus.value, parcelAuditDetails.get(0).getCarrierId());
             }
         }
     }
 
 
     private String updateAmountWithRTRResponseChargesForUps(ParcelRateResponse.PriceSheet priceSheet, List<ParcelAuditDetailsDto> parcelAuditDetails, ParcelAuditConstant.RTRStatus rtrStatus, String flagged, List<ServiceFlagAccessorialBean> accessorialBeans, RatingQueueBean queueBean) throws Exception {
-        DirectJDBCDAO directJDBCDAO = new DirectJDBCDAO();
+        DirectJDBCDAO directJDBCDAO = DirectJDBCDAO.getInstance();
         boolean frtChargeFound = false;
         boolean fscChargeFound = false;
         List<ParcelRateResponse.Charge> mappedAccChanges = new ArrayList<>();
@@ -538,7 +556,7 @@ public class ParcelUpsRatingService {
     }
 
     public List<RatedChargeDetailsDto> getRatedChargeAmount(Long parentId, String trackingNumber){
-        return new DirectJDBCDAO().getRatedChargeAmount(parentId, trackingNumber);
+        return DirectJDBCDAO.getInstance().getRatedChargeAmount(parentId, trackingNumber);
     }
 
     public String doParcelRatingForUpsCarrier(List<RatingQueueBean> beans, List<ServiceFlagAccessorialBean> accessorialBeans) {
@@ -568,7 +586,7 @@ public class ParcelUpsRatingService {
 
     public void updateUpsOtherFieldValues(List<ParcelAuditDetailsDto> rateDetailsList) {
         try{
-            new DirectJDBCDAO().updateUpsOtherFieldValues(rateDetailsList);
+            DirectJDBCDAO.getInstance().updateUpsOtherFieldValues(rateDetailsList);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -583,7 +601,7 @@ public class ParcelUpsRatingService {
      */
     public List<ServiceFlagAccessorialBean> getServiceFlagAcessorials(Long carrierId, String moduleName) {
 
-        return new DirectJDBCDAO().getServiceFlagAcessorials(carrierId, moduleName);
+        return DirectJDBCDAO.getInstance().getServiceFlagAcessorials(carrierId, moduleName);
     }
 
 

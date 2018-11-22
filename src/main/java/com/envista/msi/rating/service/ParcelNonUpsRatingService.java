@@ -14,6 +14,8 @@ import com.envista.msi.rating.bean.RatingQueueBean;
 import com.envista.msi.rating.bean.ServiceFlagAccessorialBean;
 import com.envista.msi.rating.dao.DirectJDBCDAO;
 import com.envista.msi.rating.dao.RatingQueueDAO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -30,9 +32,24 @@ import java.util.StringJoiner;
  */
 public class ParcelNonUpsRatingService {
 
+    private static final Logger log = LoggerFactory.getLogger(ParcelNonUpsRatingService.class);
+
+    private static ParcelNonUpsRatingService instance = null;
+
+    private ParcelNonUpsRatingService() {
+        // Exists only to defeat instantiation.
+    }
+
+    public static ParcelNonUpsRatingService getInstance() {
+        if (instance == null) {
+            instance = new ParcelNonUpsRatingService();
+        }
+        return instance;
+    }
+
     public Map<String, String> getMappedDASChargeCodes(){
         Map<String, String> chargeCodeMap = null;
-        List<ParcelARChargeCodeMappingDto> mappedChargeCodes = new DirectJDBCDAO().loadMappedARChargeCodes(ParcelAuditConstant.MSI_AR_CHARGE_CODE_MAPPING_MODELE_NAME, ParcelAuditConstant.MSI_AR_DAS_CHARGE_CODE_NAME);
+        List<ParcelARChargeCodeMappingDto> mappedChargeCodes = DirectJDBCDAO.getInstance().loadMappedARChargeCodes(ParcelAuditConstant.MSI_AR_CHARGE_CODE_MAPPING_MODELE_NAME, ParcelAuditConstant.MSI_AR_DAS_CHARGE_CODE_NAME);
         if(mappedChargeCodes != null && !mappedChargeCodes.isEmpty()){
             chargeCodeMap =  prepareChargeCodeMap(mappedChargeCodes);
         }
@@ -41,7 +58,7 @@ public class ParcelNonUpsRatingService {
 
     public Map<String, String> getMappedLPSChargeCodes(){
         Map<String, String> chargeCodeMap = null;
-        List<ParcelARChargeCodeMappingDto> mappedChargeCodes = new DirectJDBCDAO().loadMappedARChargeCodes(ParcelAuditConstant.MSI_AR_CHARGE_CODE_MAPPING_MODELE_NAME, ParcelAuditConstant.MSI_AR_LPS_CHARGE_CODE_NAME);
+        List<ParcelARChargeCodeMappingDto> mappedChargeCodes = DirectJDBCDAO.getInstance().loadMappedARChargeCodes(ParcelAuditConstant.MSI_AR_CHARGE_CODE_MAPPING_MODELE_NAME, ParcelAuditConstant.MSI_AR_LPS_CHARGE_CODE_NAME);
         if(mappedChargeCodes != null && !mappedChargeCodes.isEmpty()){
             chargeCodeMap =  prepareChargeCodeMap(mappedChargeCodes);
         }
@@ -54,7 +71,7 @@ public class ParcelNonUpsRatingService {
 
     public Map<String, String> getMappedARChargeCode(String chargeType){
         Map<String, String> chargeCodeMap = null;
-        List<ParcelARChargeCodeMappingDto> mappedChargeCodes = new DirectJDBCDAO().loadMappedARChargeCodes(ParcelAuditConstant.MSI_AR_CHARGE_CODE_MAPPING_MODELE_NAME, chargeType);
+        List<ParcelARChargeCodeMappingDto> mappedChargeCodes = DirectJDBCDAO.getInstance().loadMappedARChargeCodes(ParcelAuditConstant.MSI_AR_CHARGE_CODE_MAPPING_MODELE_NAME, chargeType);
         if(mappedChargeCodes != null && !mappedChargeCodes.isEmpty()){
             chargeCodeMap =  prepareChargeCodeMap(mappedChargeCodes);
         }
@@ -77,12 +94,12 @@ public class ParcelNonUpsRatingService {
 
     public void saveRatingQueueBean(RatingQueueBean ratingQueueBean){
         if(ratingQueueBean != null){
-            new RatingQueueDAO().saveRatingQueueBean(ratingQueueBean);
+            RatingQueueDAO.getInstance().saveRatingQueueBean(ratingQueueBean);
         }
     }
 
     public List<ParcelAuditDetailsDto> getFedExParcelShipmentDetails(String customerId, String fromShipDate, String toShipDate, String trackingNumbers, String invoiceIds, boolean ignoreRtrStatus, String hwtNumbers) {
-        return new RatingQueueDAO().getNonUpsParcelShipmentDetails(customerId, "22", fromShipDate, toShipDate, trackingNumbers, invoiceIds, ignoreRtrStatus, hwtNumbers);
+        return RatingQueueDAO.getInstance().getNonUpsParcelShipmentDetails(customerId, "22", fromShipDate, toShipDate, trackingNumbers, invoiceIds, ignoreRtrStatus, hwtNumbers);
     }
 
 
@@ -177,12 +194,12 @@ public class ParcelNonUpsRatingService {
                     bean.setNetAmount(sumOfNetAmount);
             }
 
-            new DirectJDBCDAO().saveParcelAuditRequestAndResponseLog(ParcelRatingUtil.prepareRequestResponseLog(requestPayload, response, bean.getParentId(), ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME));
+            DirectJDBCDAO.getInstance().saveParcelAuditRequestAndResponseLog(ParcelRatingUtil.prepareRequestResponseLog(requestPayload, response, bean.getParentId(), ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME));
 
             status = updateRateForNonUpsCarrier(ParcelRateResponseParser.parse(response), shipmentToRate, bean, accessorialBeans);
             updateFedExOtherFieldValues(shipmentToRate);
   /*          if(status != null && !status.isEmpty()){
-                new DirectJDBCDAO().updateRtrStatus(22L, bean.getTrackingNumber(), status, new java.sql.Date(bean.getShipDate().getTime()));
+                DirectJDBCDAO.getInstance().updateRtrStatus(22L, bean.getTrackingNumber(), status, new java.sql.Date(bean.getShipDate().getTime()));
             }*/
         }
         return status;
@@ -273,7 +290,7 @@ public class ParcelNonUpsRatingService {
      * @throws Exception
      */
     private String updateAmountWithRTRResponseChargesForNonUpsCarrier(ParcelRateResponse.PriceSheet priceSheet, List<ParcelAuditDetailsDto> parcelAuditDetails, ParcelAuditConstant.RTRStatus rtrStatus, String flagged, List<ServiceFlagAccessorialBean> accessorialBeans, RatingQueueBean queueBean) throws Exception {
-        DirectJDBCDAO directJDBCDAO = new DirectJDBCDAO();
+        DirectJDBCDAO directJDBCDAO = DirectJDBCDAO.getInstance();
         boolean frtChargeFound = false;
         boolean fscChargeFound = false;
         List<ParcelRateResponse.Charge> mappedAccChanges = new ArrayList<>();
@@ -450,14 +467,14 @@ public class ParcelNonUpsRatingService {
                 }
             }
             if(entityIds.length() > 0){
-                new DirectJDBCDAO().updateRtrStatusByIds(entityIds.toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rtrStatus.value, parcelAuditDetails.get(0).getCarrierId());
+                DirectJDBCDAO.getInstance().updateRtrStatusByIds(entityIds.toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rtrStatus.value, parcelAuditDetails.get(0).getCarrierId());
             }
         }
     }
 
     public void saveRatingQueueBean(List<RatingQueueBean> queueBeanList) throws SQLException {
         if (queueBeanList != null) {
-            new RatingQueueDAO().saveRatingQueueBean(queueBeanList);
+            RatingQueueDAO.getInstance().saveRatingQueueBean(queueBeanList);
         }
     }
 
@@ -465,12 +482,12 @@ public class ParcelNonUpsRatingService {
 
 
     public boolean shipmentExist(Long parentId){
-        return new RatingQueueDAO().shipmentExist(parentId);
+        return RatingQueueDAO.getInstance().shipmentExist(parentId);
     }
 
     public void updateFedExOtherFieldValues(List<ParcelAuditDetailsDto> rateDetailsList) {
         try{
-            new DirectJDBCDAO().updateFedExOtherFieldValues(rateDetailsList);
+            DirectJDBCDAO.getInstance().updateFedExOtherFieldValues(rateDetailsList);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -485,15 +502,15 @@ public class ParcelNonUpsRatingService {
      */
     public static List<ServiceFlagAccessorialBean> getServiceFlagAcessorials(Long carrierId, String moduleName) {
 
-        return new DirectJDBCDAO().getServiceFlagAcessorials(carrierId, moduleName);
+        return DirectJDBCDAO.getInstance().getServiceFlagAcessorials(carrierId, moduleName);
     }
 
     public List<RatedChargeDetailsDto> getRatedChargeAmountForNonUPS(Long parentId, String trackingNumber, String pickUpDate) {
-        return new DirectJDBCDAO().getRatedChargeAmountforNonUPS(parentId, trackingNumber, pickUpDate);
+        return DirectJDBCDAO.getInstance().getRatedChargeAmountforNonUPS(parentId, trackingNumber, pickUpDate);
     }
 
 
     public boolean hwtShipmentExist(String trackingNumber, Date billDate) {
-        return new RatingQueueDAO().hwtShipmentExist(trackingNumber, billDate);
+        return RatingQueueDAO.getInstance().hwtShipmentExist(trackingNumber, billDate);
     }
 }

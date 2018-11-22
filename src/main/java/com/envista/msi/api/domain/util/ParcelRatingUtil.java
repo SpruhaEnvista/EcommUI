@@ -11,6 +11,7 @@ import com.envista.msi.api.web.rest.util.audit.parcel.ParcelRateResponseParser;
 import com.envista.msi.rating.bean.AccessorialDto;
 import com.envista.msi.rating.bean.RatingQueueBean;
 import com.envista.msi.rating.bean.ServiceFlagAccessorialBean;
+import com.envista.msi.rating.dao.DirectJDBCDAO;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -276,7 +277,7 @@ public class ParcelRatingUtil {
         ParcelAuditDetailsDto firstCharge;
         boolean hwt = false;
         if (hwtSequenceInfo == null) {
-            if(shipmentDetails.get(0).getPickupDate() == null)
+            if (shipmentDetails.get(0).getPickupDate() == null)
                 setPrevParentIdShipDate(shipmentDetails, trackingNumDetails);
             firstCharge = shipmentDetails.get(0);
             hwtSequenceInfo = new HashMap<>();
@@ -299,17 +300,10 @@ public class ParcelRatingUtil {
         ratingQueueBean.setReturnFlag("N");
         ratingQueueBean.setResiFlag("N");
         boolean hasRJ5Charge = false;
-        boolean resiSur = false;
-        boolean resiFlagSet = false;
+
 
         if (shipmentDetails != null && !shipmentDetails.isEmpty()) {
             for (ParcelAuditDetailsDto auditDetails : shipmentDetails) {
-
-                if (shipmentDetails.get(0).getParentId().compareTo(auditDetails.getParentId()) == 0) {
-
-                    if (auditDetails.getChargeDescription() != null && "Residential Surcharge".equalsIgnoreCase(auditDetails.getChargeDescription()))
-                        resiSur = true;
-                }
 
                 if (auditDetails != null && auditDetails.getPackageDimension() != null && !auditDetails.getPackageDimension().isEmpty()) {
                     try {
@@ -354,7 +348,8 @@ public class ParcelRatingUtil {
                                     if (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("RTN") || // Standard return
                                             (auditDetails.getChargeCategoryDetailCode() != null && ((auditDetails.getChargeCatagoryCode().equalsIgnoreCase("MIS") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("RS")) || // PRL
                                                     (auditDetails.getChargeDescriptionCode() != null && auditDetails.getChargeCatagoryCode().equalsIgnoreCase("MIS") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("IMP") && auditDetails.getChargeDescriptionCode().equalsIgnoreCase("ALP")) || // Import PRL
-                                                    (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("ADJ") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("RTS"))))) {
+                                                    (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("ADJ") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("RTS")) ||
+                                                    (auditDetails.getChargeDescription() != null && auditDetails.getChargeCatagoryCode().equalsIgnoreCase("ADJ") && auditDetails.getChargeDescription().toUpperCase().contains("RETURN"))))) {
 
                                         ratingQueueBean.setReturnFlag("Y");
                                     }
@@ -364,33 +359,8 @@ public class ParcelRatingUtil {
                                 if (auditDetails.getWorldeEaseNum() != null && !auditDetails.getWorldeEaseNum().isEmpty())
                                     ratingQueueBean.setWorldeEaseNum("Y");
 
-                                if (auditDetails.getChargeDescription() != null && auditDetails.getChargeDescriptionCode() != null) {
-                                    if (!resiFlagSet &&  (("RES".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()) || "RS1".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())) &&  auditDetails.getChargeDescription().toUpperCase().contains("RESIDENTIAL SURCHARGE"))) {
-                                        ratingQueueBean.setResiFlag("Y");
-                                    }
-                                    if (auditDetails.getChargeCategoryDetailCode() != null) {
-                                        if ("RADJ".equalsIgnoreCase(auditDetails.getChargeCategoryDetailCode()) && "RES".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()) && auditDetails.getChargeDescription().toUpperCase().contains("RESIDENTIAL ADJUSTMENT") ){
-                                            ratingQueueBean.setResiFlag("Y");
-                                            ratingQueueBean.setComToRes("Y");
-                                            resiFlagSet = true;
-                                        }
-                                        if ("RADJ".equalsIgnoreCase(auditDetails.getChargeCategoryDetailCode()) && "COM".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()) && auditDetails.getChargeDescription().toUpperCase().contains("COMMERCIAL ADJUSTMENT")) {
-                                            ratingQueueBean.setResiFlag("N");
-                                            ratingQueueBean.setComToRes("N");
-                                            resiFlagSet = true;
-                                        }
-                                        if ("RADJ".equalsIgnoreCase(auditDetails.getChargeCategoryDetailCode()) && "RJ5".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()) && auditDetails.getChargeDescription().toUpperCase().contains("RESIDENTIAL/COMMERCIAL ADJ") && resiSur) {
-                                            ratingQueueBean.setResiFlag("N");
-                                            ratingQueueBean.setComToRes("N");
-                                            resiFlagSet = true;
-                                        }
-                                        if ("RADJ".equalsIgnoreCase(auditDetails.getChargeCategoryDetailCode()) && "RJ5".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()) && auditDetails.getChargeDescription().toUpperCase().contains("RESIDENTIAL/COMMERCIAL ADJ") && !resiSur) {
-                                            ratingQueueBean.setResiFlag("Y");
-                                            ratingQueueBean.setComToRes("Y");
-                                            resiFlagSet = true;
-                                        }
-                                    }
-                                }
+
+                                setComToResVal(ratingQueueBean, shipmentDetails);
                             }
 
                             if (auditDetails.getChargeClassificationCode() != null
@@ -546,13 +516,90 @@ public class ParcelRatingUtil {
                 ratingQueueBean.setInvoiceDate(firstCharge.getInvoiceDate());
                 ratingQueueBean.setCustomerId(firstCharge.getCustomerId());
 
-                if("Y".equalsIgnoreCase(ratingQueueBean.getReturnFlag()))
-                     if(!isReturnFlagAtTrackingLevel(trackingNumDetails))
-                         ratingQueueBean.setReturnFlag("N");
+
+                if ("".equalsIgnoreCase(ratingQueueBean.getComToRes()) && "N".equalsIgnoreCase(ratingQueueBean.getResiFlag())) {
+
+                    Map<Long, List<ParcelAuditDetailsDto>> parentIdWiseShipments = ParcelRatingUtil.organiseShipmentsByParentId(trackingNumDetails);
+
+                    if (parentIdWiseShipments != null && parentIdWiseShipments.size() > 1) {
+
+                        List<ParcelAuditDetailsDto> immediateParentIdInfo = getImmediateParentIdInfo(firstCharge.getParentId(), parentIdWiseShipments);
+
+                        if (immediateParentIdInfo != null && immediateParentIdInfo.size() > 0) {
+                            String resiFlag = DirectJDBCDAO.getInstance().getratingQueueInfoByParentId
+                                    (immediateParentIdInfo.get(0).getTrackingNumber(), immediateParentIdInfo.get(0).getParentId());
+                            if (resiFlag != null) {
+                                ratingQueueBean.setResiFlag(resiFlag);
+                            }
+                        }
+                    }
+
+                }
+
+     /*           if("N".equalsIgnoreCase(ratingQueueBean.getReturnFlag()) && ("FRT".equalsIgnoreCase(firstCharge.getChargeClassificationCode()) && "SCC".equalsIgnoreCase(firstCharge.getChargeCategoryDetailCode()) )){
+                    checkImmediateParentIdReturnFlag(ratingQueueBean, shipmentDetails, trackingNumDetails);
+                }*/
 
             }
         }
         return ratingQueueBean;
+    }
+
+    private static void checkImmediateParentIdReturnFlag(RatingQueueBean ratingQueueBean, List<ParcelAuditDetailsDto> shipmentDetails, List<ParcelAuditDetailsDto> trackingNumDetails) {
+
+        ParcelAuditDetailsDto dto = getImmediateFrtParentId(shipmentDetails, trackingNumDetails);
+
+        if ("Y".equalsIgnoreCase(dto.getReturnFlag()))
+            ratingQueueBean.setReturnFlag("Y");
+    }
+
+    private static void setComToResVal(RatingQueueBean ratingQueueBean, List<ParcelAuditDetailsDto> shipmentDetails) {
+
+        boolean resiSur = false;
+        boolean resiFlagSet = false;
+        boolean comToResSet = false;
+
+        for (ParcelAuditDetailsDto auditDetails : shipmentDetails) {
+
+            if (auditDetails != null && shipmentDetails.get(0).getParentId().compareTo(auditDetails.getParentId()) == 0) {
+                if (auditDetails.getChargeDescription() != null && auditDetails.getChargeDescriptionCode() != null) {
+
+                    if (auditDetails.getChargeDescription() != null && "Residential Surcharge".equalsIgnoreCase(auditDetails.getChargeDescription()))
+                        resiSur = true;
+
+                    if (!resiFlagSet && (("RES".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()) || "RS1".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())) && auditDetails.getChargeDescription().toUpperCase().contains("RESIDENTIAL SURCHARGE"))) {
+                        ratingQueueBean.setResiFlag("Y");
+                    }
+                    if (auditDetails.getChargeCategoryDetailCode() != null) {
+                        if ("RADJ".equalsIgnoreCase(auditDetails.getChargeCategoryDetailCode()) && "RES".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()) && auditDetails.getChargeDescription().toUpperCase().contains("RESIDENTIAL ADJUSTMENT")) {
+                            ratingQueueBean.setResiFlag("Y");
+                            ratingQueueBean.setComToRes("Y");
+                            resiFlagSet = true;
+                        }
+                        if ("RADJ".equalsIgnoreCase(auditDetails.getChargeCategoryDetailCode()) && "COM".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()) && auditDetails.getChargeDescription().toUpperCase().contains("COMMERCIAL ADJUSTMENT")) {
+                            ratingQueueBean.setResiFlag("N");
+                            ratingQueueBean.setComToRes("N");
+                            resiFlagSet = true;
+                        }
+                        if (!comToResSet) {
+                            if ("RADJ".equalsIgnoreCase(auditDetails.getChargeCategoryDetailCode()) && "RJ5".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()) && auditDetails.getChargeDescription().toUpperCase().contains("RESIDENTIAL/COMMERCIAL ADJ") && resiSur) {
+                                ratingQueueBean.setResiFlag("N");
+                                ratingQueueBean.setComToRes("N");
+                                comToResSet = true;
+                                resiFlagSet = true;
+                            }
+                            if ("RADJ".equalsIgnoreCase(auditDetails.getChargeCategoryDetailCode()) && "RJ5".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()) && auditDetails.getChargeDescription().toUpperCase().contains("RESIDENTIAL/COMMERCIAL ADJ") && !resiSur) {
+                                ratingQueueBean.setResiFlag("Y");
+                                ratingQueueBean.setComToRes("Y");
+                                comToResSet = true;
+                                resiFlagSet = true;
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
     }
 
     private static boolean isReturnFlagAtTrackingLevel(List<ParcelAuditDetailsDto> trackingNumDetails) {
@@ -1575,7 +1622,7 @@ public class ParcelRatingUtil {
         if (listMap != null) {
             for (Map.Entry<Long, List<ParcelAuditDetailsDto>> entry : listMap.entrySet()) {
 
-                if (shipmentDetails.get(0).getParentId() > entry.getKey()
+                if (shipmentDetails.get(0).getParentId().compareTo(entry.getKey()) > 0
                         && ((shipmentDetails.get(0).getPickupDate()!=null  && entry.getValue().get(0).getPickupDate()!=null) &&  shipmentDetails.get(0).getPickupDate().compareTo(entry.getValue().get(0).getPickupDate()) == 0)) {
                     frtParentId = entry.getKey();
                 }
@@ -2209,7 +2256,7 @@ public class ParcelRatingUtil {
         if (listMap != null) {
             for (Map.Entry<Long, List<ParcelAuditDetailsDto>> entry : listMap.entrySet()) {
 
-                if (shipmentDetails.get(0).getParentId() > entry.getKey()) {
+                if (shipmentDetails.get(0).getParentId().compareTo(entry.getKey()) > 0) {
                     frtParentId = entry.getKey();
                 }
 
@@ -2399,4 +2446,34 @@ public class ParcelRatingUtil {
 
     }
 
+    public static void setAddressCorrectionAsAccessorial(List<ParcelAuditDetailsDto> shipmentRecords) {
+
+        for (ParcelAuditDetailsDto dto : shipmentRecords) {
+
+            if ("FRT".equalsIgnoreCase(dto.getChargeClassificationCode()) && "ADC".equalsIgnoreCase(dto.getChargeCategoryDetailCode())) {
+                dto.setChargeClassificationCode("ACC");
+            }
+        }
+    }
+
+
+    public static List<ParcelAuditDetailsDto> getImmediateParentIdInfo(Long ParentId, Map<Long, List<ParcelAuditDetailsDto>> listMap) {
+
+        List<ParcelAuditDetailsDto> detailsDtos = null;
+        Long frtParentId = null;
+        if (listMap != null) {
+            for (Map.Entry<Long, List<ParcelAuditDetailsDto>> entry : listMap.entrySet()) {
+
+                if (ParentId.compareTo(entry.getKey()) > 0) {
+                    frtParentId = entry.getKey();
+                }
+
+            }
+            if (frtParentId != null) {
+                detailsDtos = listMap.get(frtParentId);
+
+            }
+        }
+        return detailsDtos;
+    }
 }

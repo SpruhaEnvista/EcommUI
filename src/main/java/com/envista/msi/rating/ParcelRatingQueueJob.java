@@ -34,7 +34,8 @@ public class ParcelRatingQueueJob {
     private static final Logger log = LoggerFactory.getLogger(ParcelRatingQueueJob.class);
 
     public static ParcelRatingQueueJob getInstance(){return new ParcelRatingQueueJob();}
-    ParcelNonUpsRatingService parcelRatingService = new ParcelNonUpsRatingService();
+
+    ParcelNonUpsRatingService parcelRatingService = ParcelNonUpsRatingService.getInstance();
 
     public static void main(String[] args) {
         String customerId = null;
@@ -140,13 +141,13 @@ public class ParcelRatingQueueJob {
     private void processShipments(ParcelRatingInputCriteriaBean ratingInputCriteriaBean, boolean isHwt) throws SQLException, JSONException {
         List<ParcelAuditDetailsDto> allShipmentDetails = null;
         if("ups".equalsIgnoreCase(ratingInputCriteriaBean.getRateTo())){
-            List<Long> invoiceList = new DirectJDBCDAO().loadInvoiceIds(ratingInputCriteriaBean.getFromShipDate(), ratingInputCriteriaBean.getToShipDate(), ratingInputCriteriaBean.getCustomerId(), ratingInputCriteriaBean.getInvoiceIds(), 0, "UPS",ratingInputCriteriaBean.getServiceLevel());
+            List<Long> invoiceList = DirectJDBCDAO.getInstance().loadInvoiceIds(ratingInputCriteriaBean.getFromShipDate(), ratingInputCriteriaBean.getToShipDate(), ratingInputCriteriaBean.getCustomerId(), ratingInputCriteriaBean.getInvoiceIds(), 0, "UPS", ratingInputCriteriaBean.getServiceLevel());
             if(invoiceList != null && !invoiceList.isEmpty()) {
                 for(Long invId : invoiceList){
                     if(invId != null) {
                         log.info("populating into rating queue table started for invoice id ->" + invId);
                         System.out.println("populating into rating queue table started for invoice id ->" + invId);
-                        allShipmentDetails = new ParcelUpsRatingService().getUpsParcelShipmentDetails(ratingInputCriteriaBean.getCustomerId(), ratingInputCriteriaBean.getFromShipDate(), ratingInputCriteriaBean.getToShipDate(), ratingInputCriteriaBean.getTrackingNumbers(), invId.toString(), null);
+                        allShipmentDetails = ParcelUpsRatingService.getInstance().getUpsParcelShipmentDetails(ratingInputCriteriaBean.getCustomerId(), ratingInputCriteriaBean.getFromShipDate(), ratingInputCriteriaBean.getToShipDate(), ratingInputCriteriaBean.getTrackingNumbers(), invId.toString(), null);
 
                         if(allShipmentDetails != null && !allShipmentDetails.isEmpty()){
                             Map<String, List<ParcelAuditDetailsDto>> trackingNumberWiseShipments = ParcelRatingUtil.prepareTrackingNumberWiseAuditDetails(allShipmentDetails);
@@ -158,7 +159,7 @@ public class ParcelRatingQueueJob {
             }
 
         } else if("fedex".equalsIgnoreCase(ratingInputCriteriaBean.getRateTo())) {
-            List<Long> invoiceList = new DirectJDBCDAO().loadInvoiceIds(ratingInputCriteriaBean.getFromShipDate(), ratingInputCriteriaBean.getToShipDate(), ratingInputCriteriaBean.getCustomerId(), ratingInputCriteriaBean.getInvoiceIds(), 0, "FEDEX",ratingInputCriteriaBean.getServiceLevel());
+            List<Long> invoiceList = DirectJDBCDAO.getInstance().loadInvoiceIds(ratingInputCriteriaBean.getFromShipDate(), ratingInputCriteriaBean.getToShipDate(), ratingInputCriteriaBean.getCustomerId(), ratingInputCriteriaBean.getInvoiceIds(), 0, "FEDEX", ratingInputCriteriaBean.getServiceLevel());
             if(invoiceList != null && !invoiceList.isEmpty()) {
                 for (Long invId : invoiceList) {
                     if (invId != null) {
@@ -193,19 +194,21 @@ public class ParcelRatingQueueJob {
                     boolean hwtShipment = false;
                     if ((parcelAuditEntry.getValue().get(0).getMultiWeightNumber() != null && !parcelAuditEntry.getValue().get(0).getMultiWeightNumber().isEmpty())) {
 
-                        shipmentRecords = new ParcelUpsRatingService().getUpsParcelShipmentDetails(customerIds, null, true, parcelAuditEntry.getValue().get(0).getMultiWeightNumber());
+                        shipmentRecords = ParcelUpsRatingService.getInstance().getUpsParcelShipmentDetails(customerIds, null, true, parcelAuditEntry.getValue().get(0).getMultiWeightNumber());
                         hwtShipment = ParcelRatingUtil.checkHwtShipment(shipmentRecords);
                     }
 
                     if (!hwtShipment) {
                         ratingInputCriteriaBean.setHwt(false);
                         if (trackingNumber != null && !trackingNumber.isEmpty()) {
-                            shipmentRecords = new ParcelUpsRatingService().getUpsParcelShipmentDetails(customerIds, trackingNumber, true, null);
+                            shipmentRecords = ParcelUpsRatingService.getInstance().getUpsParcelShipmentDetails(customerIds, trackingNumber, true, null);
                         }
 
                         Map<Long, List<ParcelAuditDetailsDto>> shipments = ParcelRatingUtil.organiseShipmentsByParentId(shipmentRecords);
 
                         if (shipments != null) {
+
+                            ParcelRatingUtil.setAddressCorrectionAsAccessorial(shipmentRecords);
 
                             for (Map.Entry<Long, List<ParcelAuditDetailsDto>> entry : shipments.entrySet()) {
 

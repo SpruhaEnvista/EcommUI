@@ -8,10 +8,10 @@ import com.envista.msi.rating.entity.ParcelRatingInputCriteriaDto;
  */
 public class ParcelRatingService {
     public ParcelRatingInputCriteriaDto getRatingInputCriteria(String status) {
-        return new DirectJDBCDAO().getRatingInputCriteria(status);
+        return DirectJDBCDAO.getInstance().getRatingInputCriteria(status);
     }
 
     public void updateRatingInputCriteriaStatus(Long id, String status) {
-        new DirectJDBCDAO().updateRatingInputCriteriaStatus(id, status);
+        DirectJDBCDAO.getInstance().updateRatingInputCriteriaStatus(id, status);
     }
 }

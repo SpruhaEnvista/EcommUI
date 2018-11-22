@@ -5,6 +5,7 @@ import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditDetailsDto;
 import com.envista.msi.rating.ServiceLocator;
 import com.envista.msi.rating.ServiceLocatorException;
 import com.envista.msi.rating.bean.RatingQueueBean;
+import com.envista.msi.rating.service.ParcelUpsRatingService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +21,20 @@ import java.util.List;
 
 public class RatingQueueDAO {
 
-    private final Logger log = LoggerFactory.getLogger(RatingQueueDAO.class);
+    private static final Logger log = LoggerFactory.getLogger(RatingQueueDAO.class);
+
+    private static RatingQueueDAO instance = null;
+
+    private RatingQueueDAO() {
+        // Exists only to defeat instantiation.
+    }
+
+    public static RatingQueueDAO getInstance() {
+        if (instance == null) {
+            instance = new RatingQueueDAO();
+        }
+        return instance;
+    }
 
     public RatingQueueBean getRatingBeanById(Long ratingQueueId) {
         RatingQueueBean ratingQBean = null;
@@ -349,7 +363,7 @@ public class RatingQueueDAO {
             liveQuery.append(" null AS CHARGE_CODE, a.Lead_Shipment_Number AS MULTI_WEIGHT_NUMBER, a.CHARGE_CATEGORY_DETAIL_CODE, ");
             liveQuery.append(" a.INVOICE_DATE, a.INVOICE_NUMBER,  a.ZONE as ZONE, a.INCENTIVE_AMOUNT, b.CREATE_DATE AS INV_CREATE_DATE, a.SENDER_POSTAL AS SENDER_BILLED_ZIP_CODE, a.RECEIVER_POSTAL AS RECEIVER_BILLED_ZIP_CODE," +
                     "     f.STATE as shipper_state,f.CITY  as shipper_city,f.ZIPCODE  as shipper_zipCode,f.COUNTRY as shipper_country," +
-                    "a.World_Ease_Number,a.actual_service_bucket,ar.RTR_AMOUNT ,ar.rtr_status,a.PACKAGE_QUANTITY,a.CHARGE_CATEGORY_CODE ");
+                    "a.World_Ease_Number,a.actual_service_bucket,ar.RTR_AMOUNT ,ar.rtr_status,a.PACKAGE_QUANTITY,a.CHARGE_CATEGORY_CODE,ar.Resi_Flag,ar.Com_To_Res,ar.RETURN_FLAG ");
 
             liveQuery.append(" FROM shp_ebill_gff_tb a, shp_ebill_invoice_tb b, shp_ebill_contract_tb c, shp_customer_profile_tb d," +
                     " shp_carrier_tb e, shp_shipper_tb f, SHP_EBILL_UPS_RATES_TB ar ");
@@ -480,6 +494,9 @@ public class RatingQueueDAO {
                 shipmentDetails.setActualServiceBucket((rs.getLong("actual_service_bucket")));
                 shipmentDetails.setPieces(rs.getInt("PACKAGE_QUANTITY"));
                 shipmentDetails.setChargeCatagoryCode(rs.getString("CHARGE_CATEGORY_CODE"));
+                shipmentDetails.setResiFlag(rs.getString("RESI_FLAG"));
+                shipmentDetails.setComToResFlag(rs.getString("COM_TO_RES"));
+                shipmentDetails.setReturnFlag(rs.getString("RETURN_FLAG"));
 
                 parcelUpsShipments.add(shipmentDetails);
 
