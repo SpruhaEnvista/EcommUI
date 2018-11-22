@@ -80,9 +80,6 @@ public class ParcelRating implements Callable<String> {
         return "Success";
     }
 
-    public void processParcelRating(RatingQueueBean bean) {
-        ParcelUpsRatingService parcelUpsRatingService = new ParcelUpsRatingService();
-        ParcelNonUpsRatingService nonUpsRatingService = new ParcelNonUpsRatingService();
     public void processParcelRating(RatingQueueBean bean) throws Exception {
         ParcelUpsRatingService parcelUpsRatingService = ParcelUpsRatingService.getInstance();
         ParcelNonUpsRatingService nonUpsRatingService = ParcelNonUpsRatingService.getInstance();
