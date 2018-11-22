@@ -533,7 +533,7 @@ public class ParcelRatingUtil {
                         List<ParcelAuditDetailsDto> immediateParentIdInfo = getImmediateParentIdInfo(firstCharge.getParentId(), parentIdWiseShipments);
 
                         if (immediateParentIdInfo != null && immediateParentIdInfo.size() > 0) {
-                            String resiFlag = new DirectJDBCDAO().getratingQueueInfoByParentId
+                            String resiFlag = DirectJDBCDAO.getInstance().getratingQueueInfoByParentId
                                     (immediateParentIdInfo.get(0).getTrackingNumber(), immediateParentIdInfo.get(0).getParentId());
                             if (resiFlag != null) {
                                 ratingQueueBean.setResiFlag(resiFlag);

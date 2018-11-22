@@ -5,6 +5,7 @@ import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditDetailsDto;
 import com.envista.msi.rating.ServiceLocator;
 import com.envista.msi.rating.ServiceLocatorException;
 import com.envista.msi.rating.bean.RatingQueueBean;
+import com.envista.msi.rating.service.ParcelUpsRatingService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +21,20 @@ import java.util.List;
 
 public class RatingQueueDAO {
 
-    private final Logger log = LoggerFactory.getLogger(RatingQueueDAO.class);
+    private static final Logger log = LoggerFactory.getLogger(RatingQueueDAO.class);
+
+    private static RatingQueueDAO instance = null;
+
+    private RatingQueueDAO() {
+        // Exists only to defeat instantiation.
+    }
+
+    public static RatingQueueDAO getInstance() {
+        if (instance == null) {
+            instance = RatingQueueDAO.getInstance();
+        }
+        return instance;
+    }
 
     public RatingQueueBean getRatingBeanById(Long ratingQueueId) {
         RatingQueueBean ratingQBean = null;

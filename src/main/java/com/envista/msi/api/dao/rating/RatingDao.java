@@ -58,7 +58,7 @@ public class RatingDao {
     }
 
     public List<StoreRatingDetailsDto> getRatingJobsList(Long customerId){
-        return new DirectJDBCDAO().getRatingJobsByCustomer(customerId);
+        return DirectJDBCDAO.getInstance().getRatingJobsByCustomer(customerId);
     }
 
     public List<ViewLogDto> getViewLog(Long jobId){

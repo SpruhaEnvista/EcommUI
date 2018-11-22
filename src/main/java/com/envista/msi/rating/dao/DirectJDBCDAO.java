@@ -30,6 +30,20 @@ public class DirectJDBCDAO {
 
     private static final Logger log = LoggerFactory.getLogger(DirectJDBCDAO.class);
 
+
+    private static DirectJDBCDAO instance = null;
+
+    private DirectJDBCDAO() {
+        // Exists only to defeat instantiation.
+    }
+
+    public static DirectJDBCDAO getInstance() {
+        if (instance == null) {
+            instance = new DirectJDBCDAO();
+        }
+        return instance;
+    }
+
     @Deprecated
     public void updateRTRInvoiceAmount(Long id, String userName, BigDecimal rtrAmount, String rtrStatus, Long carrierId){
         Connection con = null;

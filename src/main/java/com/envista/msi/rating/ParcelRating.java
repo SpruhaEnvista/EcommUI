@@ -51,7 +51,7 @@ public class ParcelRating implements Callable<String> {
 
     public void processRating(String jobIds) throws Exception{
 
-        RatingQueueDAO ratingQueueDao = new RatingQueueDAO();
+        RatingQueueDAO ratingQueueDao = RatingQueueDAO.getInstance();
         ArrayList<RatingQueueBean> beanList = ratingQueueDao.getRatingQueueByJobId(jobIds);
 
 
@@ -80,8 +80,8 @@ public class ParcelRating implements Callable<String> {
         return "Success";
     }
     public void processParcelRating(RatingQueueBean bean) throws Exception {
-        ParcelUpsRatingService parcelUpsRatingService = new ParcelUpsRatingService();
-        ParcelNonUpsRatingService nonUpsRatingService = new ParcelNonUpsRatingService();
+        ParcelUpsRatingService parcelUpsRatingService = ParcelUpsRatingService.getInstance();
+        ParcelNonUpsRatingService nonUpsRatingService = ParcelNonUpsRatingService.getInstance();
         String status = null;
 
         if(bean.getCarrierId() == 21){
@@ -97,7 +97,7 @@ public class ParcelRating implements Callable<String> {
         }
 
         if (status != null && !status.isEmpty()) {
-            RatingQueueDAO ratingQueueDAO = new RatingQueueDAO();
+            RatingQueueDAO ratingQueueDAO = RatingQueueDAO.getInstance();
             if (ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value.equalsIgnoreCase(status)) {
                 ratingQueueDAO.updateRateStatusInQueue(bean.getRatingQueueId(), ParcelAuditConstant.ParcelRatingQueueRateStatus.RATING_EXCEPTION.value, null);
             } else if (ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET.value.equalsIgnoreCase(status)) {
