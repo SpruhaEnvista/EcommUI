@@ -135,6 +135,8 @@ public class ParcelUpsRatingService {
 
                         if (shipmentToRate != null && !shipmentToRate.isEmpty() && shipmentToRate.size() > 0) {
 
+                            ParcelRatingUtil.setAddressCorrectionAsAccessorial(shipmentToRate);
+
                             if (shipmentToRate.get(0).getPickupDate() == null)
                                 ParcelRatingUtil.setPrevParentIdShipDate(shipmentToRate, shipmentRecords);
 
