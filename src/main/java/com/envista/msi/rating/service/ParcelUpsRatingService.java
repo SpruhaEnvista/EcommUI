@@ -368,6 +368,7 @@ public class ParcelUpsRatingService {
         List<ParcelRateResponse.Charge> mappedAccChanges = new ArrayList<>();
         List<ParcelRateResponse.Charge> mappedDscChanges = new ArrayList<>();
         List<String> mappedAccList = new ArrayList<>();
+        BigDecimal ratedWeight = new BigDecimal("0");
 
         List<AccessorialDto> prevParentsRatesDtos = directJDBCDAO.getRatesForPrevParentIds(parcelAuditDetails.get(0).getTrackingNumber(), parcelAuditDetails.get(0).getParentId(), queueBean.getReturnFlag(), 21, parcelAuditDetails.get(0).getPickupDate());
 
@@ -383,6 +384,8 @@ public class ParcelUpsRatingService {
 
                                 rateDetails.setDimDivisor(charge.getDimDivisor() == null ? new BigDecimal("0") : charge.getDimDivisor());
                                 rateDetails.setRatedWeight(charge.getWeight() == null ? new BigDecimal("0") : charge.getWeight());
+
+                                ratedWeight = rateDetails.getRatedWeight();
 
                                 BigDecimal prevRtrAmt = ParcelRatingUtil.findPrevRateAmtByCode(prevParentsRatesDtos, "FRT", "accessorial");
                                 if (!mappedAccList.contains("FRT"))
@@ -497,7 +500,7 @@ public class ParcelUpsRatingService {
                     rateDetails.setRtrAmount(new BigDecimal("0.00"));
                     rateDetails.setRtrStatus(rtrStatus.value);
                     rateDetails.setHwtIdentifier(auditDetails.getMultiWeightNumber());
-
+                    rateDetails.setRatedWeight(ratedWeight);
                     rateDetails.setFlagged(flagged);
                     ServiceFlagAccessorialBean bean = ParcelRatingUtil.getAccessorialBean(accessorialBeans, auditDetails.getChargeDescription(), auditDetails.getChargeDescriptionCode(), 21L);
 
