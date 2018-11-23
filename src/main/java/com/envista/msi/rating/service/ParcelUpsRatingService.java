@@ -368,11 +368,15 @@ public class ParcelUpsRatingService {
         List<ParcelRateResponse.Charge> mappedAccChanges = new ArrayList<>();
         List<ParcelRateResponse.Charge> mappedDscChanges = new ArrayList<>();
         List<String> mappedAccList = new ArrayList<>();
-        BigDecimal ratedWeight = new BigDecimal("0");
+
+        ParcelRateResponse.Charge frtCharge = ParcelRateResponseParser.findChargeByType(ParcelRateResponse.ChargeType.ITEM.name(), priceSheet);
+
+        BigDecimal ratedWeight = frtCharge.getWeight() == null ? new BigDecimal("0") : frtCharge.getWeight();
 
         List<AccessorialDto> prevParentsRatesDtos = directJDBCDAO.getRatesForPrevParentIds(parcelAuditDetails.get(0).getTrackingNumber(), parcelAuditDetails.get(0).getParentId(), queueBean.getReturnFlag(), 21, parcelAuditDetails.get(0).getPickupDate());
 
         for(ParcelAuditDetailsDto auditDetails : parcelAuditDetails){
+
             if(auditDetails != null && auditDetails.getChargeClassificationCode() != null && !auditDetails.getChargeClassificationCode().isEmpty()){
                 ParcelRateResponse.Charge charge = null;
                 if(ParcelAuditConstant.ChargeClassificationCode.FRT.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())){
