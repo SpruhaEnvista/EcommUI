@@ -382,6 +382,15 @@ public class ParcelRatingUtil {
 
                                     ServiceFlagAccessorialBean bean = getAccessorialBean(accessorialBeans, auditDetails.getChargeDescription(), auditDetails.getChargeDescriptionCode(), 21L);
 
+                                    if (auditDetails.getChargeDescription() != null &&
+                                            "REMOTE AREA SURCHARGE".equalsIgnoreCase(auditDetails.getChargeDescription())) {
+
+                                        if ("AK".equalsIgnoreCase(auditDetails.getReceiverState()))
+                                            bean.setLookUpValue("RASAK");
+                                        if ("HI".equalsIgnoreCase(auditDetails.getReceiverState()))
+                                            bean.setLookUpValue("RASHI");
+                                    }
+
                                     if (bean != null) {
                                         accJson.put("code", bean.getLookUpValue());
                                     } else {
