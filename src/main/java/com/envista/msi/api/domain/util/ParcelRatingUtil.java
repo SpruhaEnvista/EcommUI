@@ -1667,9 +1667,21 @@ public class ParcelRatingUtil {
 
             if ("FRT".equalsIgnoreCase(dto.getChargeClassificationCode())) {
                 frtExist = true;
+                if (((dto.getPackageWeight() != null && new BigDecimal(dto.getPackageWeight()).compareTo(BigDecimal.ZERO) == 0)
+                        && (dto.getActualWeight() != null && dto.getActualWeight().compareTo(BigDecimal.ZERO) == 0))) {
+
+                    List<ParcelAuditDetailsDto> prevParentIdInfo = getImmediateParentIdInfo(key, shipments);
+                    ParcelAuditDetailsDto frtDto = getLatestFrightCharge(prevParentIdInfo);
+                    if (frtDto.getActualWeight() != null)
+                        dto.setActualWeight(frtDto.getActualWeight());
+                    if (frtDto.getPackageWeight() != null)
+                        dto.setPackageWeight(frtDto.getPackageWeight());
+                }
                 break;
             }
         }
+
+
         ParcelAuditDetailsDto frtDto = null;
         for (Map.Entry<Long, List<ParcelAuditDetailsDto>> entry : shipments.entrySet()) {
 
@@ -1700,6 +1712,7 @@ public class ParcelRatingUtil {
 
         return shipmentChargeList;
     }
+
 
     private static boolean isReturnShipment(List<ParcelAuditDetailsDto> shipmentChargeList) {
 
