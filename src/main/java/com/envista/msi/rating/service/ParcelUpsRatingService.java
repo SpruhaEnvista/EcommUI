@@ -456,8 +456,12 @@ public class ParcelUpsRatingService {
                 } else{
                     ServiceFlagAccessorialBean bean = ParcelRatingUtil.getAccessorialBean(accessorialBeans, auditDetails.getChargeDescription(), auditDetails.getChargeDescriptionCode(), 21L);
                     if (bean != null) {
-/*                        if("RSC".equalsIgnoreCase(bean.getLookUpValue()))
-                            bean.setLookUpValue("RSS");*/
+                        if ("RDELSC".equalsIgnoreCase(bean.getLookUpValue()) && (auditDetails.getReceiverState() != null
+                                && "AK".equalsIgnoreCase(auditDetails.getReceiverState())))
+                            bean.setLookUpValue("RASAK");
+                        if ("RDELSC".equalsIgnoreCase(bean.getLookUpValue()) && (auditDetails.getReceiverState() != null
+                                && "HI".equalsIgnoreCase(auditDetails.getReceiverState())))
+                            bean.setLookUpValue("RASHI");
 
                         if (queueBean.getHwtIdentifier() == null || queueBean.getHwtIdentifier().isEmpty())
                             charge = ParcelRateResponseParser.findChargeByEDICodeInResponse(bean.getLookUpValue(), priceSheet);
