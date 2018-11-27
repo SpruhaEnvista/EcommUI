@@ -15,14 +15,14 @@ import com.envista.msi.rating.bean.RatingQueueBean;
 import com.envista.msi.rating.bean.ServiceFlagAccessorialBean;
 import com.envista.msi.rating.dao.DirectJDBCDAO;
 import com.envista.msi.rating.dao.RatingQueueDAO;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
@@ -226,6 +226,7 @@ public class ParcelUpsRatingService {
         String status = "";
         DirectJDBCDAO directJDBCDAO = DirectJDBCDAO.getInstance();
 
+            setWeightsFromPreviousShipment(previousShipment, bean);
             requestPayload = com.envista.msi.rating.util.ParcelRateRequestBuilder.buildParcelRateRequest(bean, ParcelAuditConstant.AR_RATE_REQUEST_LICENSE_KEY, beans).toXmlString();
             response = CommonUtil.connectAndGetResponseAsString(url, requestPayload);
             if (response != null && !response.trim().isEmpty()) {
@@ -613,7 +614,44 @@ public class ParcelUpsRatingService {
         return DirectJDBCDAO.getInstance().getServiceFlagAcessorials(carrierId, moduleName);
     }
 
+    private void setWeightsFromPreviousShipment(List<ParcelAuditDetailsDto> previousShipment, RatingQueueBean bean) throws Exception {
 
+        if (  bean.getItemTagInfo() != null ) {
+            JSONArray itemsTagJsonArray = new JSONArray(bean.getItemTagInfo());
+            for (int n = 0; n < itemsTagJsonArray.length(); n++) {
+                JSONObject itemTagObj = itemsTagJsonArray.getJSONObject(n);
+
+                if (itemTagObj != null) {
+
+                    double billedWeight =  0.0;
+                    double actualWeight = 0.0;
+
+
+                    if (itemTagObj.has("weight") && itemTagObj.getString("weight") != null) {
+
+                        billedWeight =   new Double( itemTagObj.getString("weight").toString());
+                    }
+
+                    if (itemTagObj.has("actualWeight") && itemTagObj.getString("actualWeight") != null) {
+
+                        actualWeight =   new Double( itemTagObj.getString("actualWeight").toString());
+                    }
+
+                    if ( billedWeight == 0.0 && actualWeight == 0.0 ) {
+                        for ( ParcelAuditDetailsDto auditDetailsDto :  previousShipment ) {
+
+                            if ( "FRT".equalsIgnoreCase(auditDetailsDto.getChargeClassificationCode() ) ) {
+                                itemTagObj.put("actualWeight" , auditDetailsDto.getActualWeight().toString() );
+                                itemTagObj.put("weight" , auditDetailsDto.getPackageWeight().toString() );
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            bean.setItemTagInfo(itemsTagJsonArray.toString());
+        }
+    }
 
 
 }
