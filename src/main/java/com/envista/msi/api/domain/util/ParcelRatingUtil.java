@@ -360,7 +360,7 @@ public class ParcelRatingUtil {
                                     ratingQueueBean.setWorldeEaseNum("Y");
 
 
-                                setComToResVal(ratingQueueBean, shipmentDetails);
+                                setComToResVal(ratingQueueBean, shipmentDetails, trackingNumDetails);
                             }
 
                             if (auditDetails.getChargeClassificationCode() != null
@@ -553,11 +553,21 @@ public class ParcelRatingUtil {
             ratingQueueBean.setReturnFlag("Y");
     }
 
-    private static void setComToResVal(RatingQueueBean ratingQueueBean, List<ParcelAuditDetailsDto> shipmentDetails) {
+    private static void setComToResVal(RatingQueueBean ratingQueueBean, List<ParcelAuditDetailsDto> shipmentDetails, List<ParcelAuditDetailsDto> trackingNumDetails) {
 
         boolean resiSur = false;
         boolean resiFlagSet = false;
         boolean comToResSet = false;
+
+        for (ParcelAuditDetailsDto auditDetails : trackingNumDetails) {
+
+            if (auditDetails != null && shipmentDetails.get(0).getParentId().compareTo(auditDetails.getParentId()) > 0) {
+
+                if (auditDetails.getChargeDescription() != null && "Residential Surcharge".equalsIgnoreCase(auditDetails.getChargeDescription()))
+                    resiSur = true;
+
+            }
+        }
 
         for (ParcelAuditDetailsDto auditDetails : shipmentDetails) {
 
