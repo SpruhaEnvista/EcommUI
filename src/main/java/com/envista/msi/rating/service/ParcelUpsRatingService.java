@@ -226,7 +226,6 @@ public class ParcelUpsRatingService {
         String status = "";
         DirectJDBCDAO directJDBCDAO = DirectJDBCDAO.getInstance();
 
-            setWeightsFromPreviousShipment(previousShipment, bean);
             requestPayload = com.envista.msi.rating.util.ParcelRateRequestBuilder.buildParcelRateRequest(bean, ParcelAuditConstant.AR_RATE_REQUEST_LICENSE_KEY, beans).toXmlString();
             response = CommonUtil.connectAndGetResponseAsString(url, requestPayload);
             if (response != null && !response.trim().isEmpty()) {
@@ -613,45 +612,5 @@ public class ParcelUpsRatingService {
 
         return DirectJDBCDAO.getInstance().getServiceFlagAcessorials(carrierId, moduleName);
     }
-
-    private void setWeightsFromPreviousShipment(List<ParcelAuditDetailsDto> previousShipment, RatingQueueBean bean) throws Exception {
-
-        if (  bean.getItemTagInfo() != null ) {
-            JSONArray itemsTagJsonArray = new JSONArray(bean.getItemTagInfo());
-            for (int n = 0; n < itemsTagJsonArray.length(); n++) {
-                JSONObject itemTagObj = itemsTagJsonArray.getJSONObject(n);
-
-                if (itemTagObj != null) {
-
-                    double billedWeight =  0.0;
-                    double actualWeight = 0.0;
-
-
-                    if (itemTagObj.has("weight") && itemTagObj.getString("weight") != null) {
-
-                        billedWeight =   new Double( itemTagObj.getString("weight").toString());
-                    }
-
-                    if (itemTagObj.has("actualWeight") && itemTagObj.getString("actualWeight") != null) {
-
-                        actualWeight =   new Double( itemTagObj.getString("actualWeight").toString());
-                    }
-
-                    if ( billedWeight == 0.0 && actualWeight == 0.0 ) {
-                        for ( ParcelAuditDetailsDto auditDetailsDto :  previousShipment ) {
-
-                            if ( "FRT".equalsIgnoreCase(auditDetailsDto.getChargeClassificationCode() ) ) {
-                                itemTagObj.put("actualWeight" , auditDetailsDto.getActualWeight().toString() );
-                                itemTagObj.put("weight" , auditDetailsDto.getPackageWeight().toString() );
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-            bean.setItemTagInfo(itemsTagJsonArray.toString());
-        }
-    }
-
 
 }
