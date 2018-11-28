@@ -14,8 +14,6 @@ import com.envista.msi.rating.bean.RatingQueueBean;
 import com.envista.msi.rating.bean.ServiceFlagAccessorialBean;
 import com.envista.msi.rating.dao.DirectJDBCDAO;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,14 +21,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 /**
  * Created by Sujit kumar on 20/04/2018.
  */
 public class ParcelRatingUtil {
 
-    private static final Logger m_log = LoggerFactory.getLogger(ParcelRatingQueueJob.class);
+    private static final Logger m_log = LoggerFactory.getLogger(ParcelRatingUtil.class);
 
     public static ParcelAuditDetailsDto getLatestFrightCharge(List<ParcelAuditDetailsDto> parcelAuditDetails) {
         ParcelAuditDetailsDto parcelAuditDetail = null;
@@ -678,7 +688,7 @@ public class ParcelRatingUtil {
 
                         if (accAmount != null) {
                             jsonObject.remove("netAmount");
-                            jsonObject.put("netAmount", accAmount);
+                            jsonObject.put("netAmount", accAmount.toString());
 
                             return true;
                         }
