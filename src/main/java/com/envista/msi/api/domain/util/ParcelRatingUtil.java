@@ -398,7 +398,7 @@ public class ParcelRatingUtil {
                                     if (bean != null) {
                                         accJson.put("code", bean.getLookUpValue());
                                     } else {
-                                        m_log.warn("Service flag accessorial code is not found in look up table:" + auditDetails.getChargeDescriptionCode());
+                                        m_log.warn("Service flag accessorial code is not found in look up table: Charge Desription Code->" + auditDetails.getChargeDescriptionCode() + "--Charge Desription->" + auditDetails.getChargeDescription() + "--Parent Id->" + auditDetails.getParentId());
                                         accJson.put("code", auditDetails.getChargeDescriptionCode());
                                     }
                                     if (!checkAccExist(accJsonArr, accJson))
@@ -421,7 +421,7 @@ public class ParcelRatingUtil {
                 String serviceLevel = findServiceLevel(shipmentDetails);
                 if (serviceLevel == null || serviceLevel.trim().isEmpty()) {
                     // System.out.println("Invalid Service Level for " + shipmentDetails.get(0).getTrackingNumber());
-                    m_log.warn("Invalid Service Level for " + shipmentDetails.get(0).getTrackingNumber());
+                    m_log.warn("Invalid OR Empty Service Level for " + firstCharge.getTrackingNumber() + "--Parent Id->" + firstCharge.getParentId() + "");
                     return null;
                 } else {
                     ratingQueueBean.setService(serviceLevel);
@@ -773,7 +773,7 @@ public class ParcelRatingUtil {
                         if (bean != null) {
                             accJson.put("code", bean.getLookUpValue());
                         } else {
-                            m_log.info("Service flag accessorial code is not found in the look up table:" + auditDetails.getActualchargeDescriptionCode() + ": Tracking Number " + auditDetails.getTrackingNumber() + ": charge description ->" + auditDetails.getChargeDescription());
+                            m_log.warn("Service flag accessorial code is not found in look up table: Charge Desription Code->" + auditDetails.getChargeDescriptionCode() + "--Charge Desription->" + auditDetails.getChargeDescription() + "--Parent Id->" + auditDetails.getParentId());
                             accJson.put("code", auditDetails.getChargeDescriptionCode());
                         }
 
@@ -797,7 +797,7 @@ public class ParcelRatingUtil {
         String serviceLevel = findServiceLevel(shipmentDetails);
         if (serviceLevel == null || serviceLevel.trim().isEmpty()) {
             // System.out.println("Invalid Service Level for " + firstCharge.getTrackingNumber());
-            m_log.warn("Invalid Service Level for " + firstCharge.getTrackingNumber());
+            m_log.warn("Invalid OR Empty Service Level for " + firstCharge.getTrackingNumber() + "--Parent Id->" + firstCharge.getParentId() + "");
             return null;
         }
 

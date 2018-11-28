@@ -328,7 +328,7 @@ public class ParcelRatingQueueJob {
                                     if (frtFound)
                                         addNonUpsShipmentEntryIntoQueue(shipmentDetails, ratingInputCriteriaBean, accessorialBeans, trackingNumberDetails, null);
                                     else {
-                                        log.warn("FRT is not found for tracking #->" + shipmentDetails.get(0).getTrackingNumber() + " ebill manifest id->" + shipmentDetails.get(0).getParentId());
+                                        log.warn("FRT is not found for tracking #->" + shipmentDetails.get(0).getTrackingNumber() + " Parent Id->" + shipmentDetails.get(0).getParentId());
                                         // System.out.println("FRT is not found for tracking #->" + shipmentDetails.get(0).getTrackingNumber() + " ebill manifest id->" + shipmentDetails.get(0).getParentId());
 
                                     }
