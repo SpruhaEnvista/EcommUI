@@ -53,7 +53,7 @@ public class ParcelHwtRating implements Callable<String> {
 
     public void processRating(String jobIds) throws Exception {
 
-        RatingQueueDAO ratingQueueDao = new RatingQueueDAO();
+        RatingQueueDAO ratingQueueDao = RatingQueueDAO.getInstance();
         ArrayList<RatingQueueBean> beanList = ratingQueueDao.getRatingQueueByJobId(jobIds);
 
         Map<String, List<RatingQueueBean>> shipmentWiseInfo = ParcelRatingUtil.prepareHwtShipmentWiseInfo(beanList);
@@ -85,8 +85,8 @@ public class ParcelHwtRating implements Callable<String> {
     }
 
     public void processParcelRating(List<RatingQueueBean> queueBeans) throws Exception {
-        ParcelUpsRatingService parcelUpsRatingService = new ParcelUpsRatingService();
-        ParcelNonUpsRatingService nonUpsRatingService = new ParcelNonUpsRatingService();
+        ParcelUpsRatingService parcelUpsRatingService = ParcelUpsRatingService.getInstance();
+        ParcelNonUpsRatingService nonUpsRatingService = ParcelNonUpsRatingService.getInstance();
         String status = null;
         if (queueBeans != null && queueBeans.size() > 0)
             if (queueBeans.get(0).getCarrierId() == 21) {
@@ -96,12 +96,12 @@ public class ParcelHwtRating implements Callable<String> {
             } else if (queueBeans.get(0).getCarrierId() == 22) {
                 System.out.println("rating started for hwt identifier ->" + queueBeans.get(0).getHwtIdentifier());
                 m_log.info("rating started for hwt identifier ->" + queueBeans.get(0).getHwtIdentifier());
-                status = nonUpsRatingService.doRatingForNonUpsShipment(queueBeans, fedexAccessorialBeans);
+                status = nonUpsRatingService.doRatingForNonUpsShipment(queueBeans.get(0), fedexAccessorialBeans);
             }
         String queueIds = ParcelRatingUtil.prepareQueueIdsInOperator(queueBeans);
 
         if (status != null && !status.isEmpty()) {
-            RatingQueueDAO ratingQueueDAO = new RatingQueueDAO();
+            RatingQueueDAO ratingQueueDAO = RatingQueueDAO.getInstance();
             if (ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value.equalsIgnoreCase(status)) {
                 ratingQueueDAO.updateRateStatusInQueue(null, ParcelAuditConstant.ParcelRatingQueueRateStatus.RATING_EXCEPTION.value, queueIds);
             } else if (ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET.value.equalsIgnoreCase(status)) {

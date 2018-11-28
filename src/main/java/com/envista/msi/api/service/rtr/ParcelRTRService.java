@@ -1102,7 +1102,7 @@ public class ParcelRTRService{
 
         try{
             if(priceSheet != null){
-                List<ParcelRateResponse.Charge> accessorialCharges = ParcelRateResponseParser.getAccessorialChargesForUps(priceSheet);
+                List<ParcelRateResponse.Charge> accessorialCharges = ParcelRateResponseParser.getAccessorialCharges(priceSheet);
 
                 if(accessorialCharges != null && !accessorialCharges.isEmpty()){
                     if(mappedAccChanges != null && !mappedAccChanges.isEmpty()){
@@ -1447,7 +1447,7 @@ public class ParcelRTRService{
                 parcelAuditDetails.forEach(auditDetail -> {
                     entityIds.add(auditDetail.getId().toString());
                 });
-                List<ParcelRateResponse.Charge> accessorialCharges = ParcelRateResponseParser.getAccessorialChargesForUps(priceSheet);
+                List<ParcelRateResponse.Charge> accessorialCharges = ParcelRateResponseParser.getAccessorialCharges(priceSheet);
 
                 if(accessorialCharges != null && !accessorialCharges.isEmpty()){
                     if(mappedAccChanges != null && !mappedAccChanges.isEmpty()){
@@ -1611,7 +1611,7 @@ public class ParcelRTRService{
                 parcelAuditDetails.forEach(auditDetail -> {
                     entityIds.add(auditDetail.getId().toString());
                 });
-                List<ParcelRateResponse.Charge> accessorialCharges = ParcelRateResponseParser.getAccessorialChargesForFedEx(priceSheet);
+                List<ParcelRateResponse.Charge> accessorialCharges = ParcelRateResponseParser.getAccessorialCharges(priceSheet);
                 if(accessorialCharges != null && !accessorialCharges.isEmpty()){
                     if(mappedAccChanges != null && !mappedAccChanges.isEmpty()){
                         Iterator<ParcelRateResponse.Charge> chargeIterator = accessorialCharges.iterator();
@@ -1667,7 +1667,7 @@ public class ParcelRTRService{
                 parcelAuditDetails.forEach(auditDetail -> {
                     entityIds.add(auditDetail.getId().toString());
                 });
-                List<ParcelRateResponse.Charge> discountCharges = ParcelRateResponseParser.getAllOtherDiscountsForUPSCarrier(priceSheet);
+                List<ParcelRateResponse.Charge> discountCharges = ParcelRateResponseParser.getAllOtherDiscounts(priceSheet);
                 if(discountCharges != null && !discountCharges.isEmpty()){
                     if(mappedDscChanges != null && !mappedDscChanges.isEmpty()){
                         Iterator<ParcelRateResponse.Charge> chargeIterator = mappedDscChanges.iterator();
@@ -1708,7 +1708,7 @@ public class ParcelRTRService{
                 parcelAuditDetails.forEach(auditDetail -> {
                     entityIds.add(auditDetail.getId().toString());
                 });
-                List<ParcelRateResponse.Charge> discountCharges = ParcelRateResponseParser.getAllOtherDiscountsForUPSCarrier(priceSheet);
+                List<ParcelRateResponse.Charge> discountCharges = ParcelRateResponseParser.getAllOtherDiscounts(priceSheet);
                 if(discountCharges != null && !discountCharges.isEmpty()){
                     if(mappedDscChanges != null && !mappedDscChanges.isEmpty()){
                         Iterator<ParcelRateResponse.Charge> chargeIterator = mappedDscChanges.iterator();
