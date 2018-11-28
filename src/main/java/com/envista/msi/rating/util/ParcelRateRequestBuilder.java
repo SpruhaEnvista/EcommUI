@@ -243,7 +243,7 @@ public class ParcelRateRequestBuilder {
                 serviceFlagList.addAll(ratingQueueBean.getAccessorials());
             }
 
-        } catch (JSONException e) {
+        } catch (Exception e) {
             m_log.error("ERROR - ", e.getMessage() + "--Parent Id->" + ratingQueueBean.getParentId());
             e.printStackTrace();
         }
