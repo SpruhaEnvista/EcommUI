@@ -131,6 +131,7 @@ public class ParcelRatingQueueJob {
 
                     ratingService.updateRatingInputCriteriaStatus(ratingInputCriteria.getId(), ParcelAuditConstant.ParcelRatingInputProcessStatus.COMPLETED.value);
                 } catch (Exception e) {
+                    log.error("ERROR - ", e.getMessage());
                     e.printStackTrace();
                     ratingService.updateRatingInputCriteriaStatus(ratingInputCriteria.getId(), ParcelAuditConstant.ParcelRatingInputProcessStatus.EXCEPTION.value);
                 }
@@ -146,7 +147,7 @@ public class ParcelRatingQueueJob {
                 for(Long invId : invoiceList){
                     if(invId != null) {
                         log.info("populating into rating queue table started for invoice id ->" + invId);
-                        System.out.println("populating into rating queue table started for invoice id ->" + invId);
+                        // System.out.println("populating into rating queue table started for invoice id ->" + invId);
                         allShipmentDetails = ParcelUpsRatingService.getInstance().getUpsParcelShipmentDetails(ratingInputCriteriaBean.getCustomerId(), ratingInputCriteriaBean.getFromShipDate(), ratingInputCriteriaBean.getToShipDate(), ratingInputCriteriaBean.getTrackingNumbers(), invId.toString(), null);
 
                         if(allShipmentDetails != null && !allShipmentDetails.isEmpty()){
@@ -164,7 +165,7 @@ public class ParcelRatingQueueJob {
                 for (Long invId : invoiceList) {
                     if (invId != null) {
                         log.info("populating into rating queue table started for invoice id ->" + invId);
-                        System.out.println("populating into rating queue table started for invoice id ->" + invId);
+                        //System.out.println("populating into rating queue table started for invoice id ->" + invId);
                         allShipmentDetails = parcelRatingService.getFedExParcelShipmentDetails(ratingInputCriteriaBean.getCustomerId(), ratingInputCriteriaBean.getFromShipDate(), ratingInputCriteriaBean.getToShipDate(), ratingInputCriteriaBean.getTrackingNumbers(), invId.toString(), false, null);
 
                         if(allShipmentDetails != null && !allShipmentDetails.isEmpty()){
@@ -328,7 +329,7 @@ public class ParcelRatingQueueJob {
                                         addNonUpsShipmentEntryIntoQueue(shipmentDetails, ratingInputCriteriaBean, accessorialBeans, trackingNumberDetails, null);
                                     else {
                                         log.warn("FRT is not found for tracking #->" + shipmentDetails.get(0).getTrackingNumber() + " ebill manifest id->" + shipmentDetails.get(0).getParentId());
-                                        System.out.println("FRT is not found for tracking #->" + shipmentDetails.get(0).getTrackingNumber() + " ebill manifest id->" + shipmentDetails.get(0).getParentId());
+                                        // System.out.println("FRT is not found for tracking #->" + shipmentDetails.get(0).getTrackingNumber() + " ebill manifest id->" + shipmentDetails.get(0).getParentId());
 
                                     }
 
@@ -390,6 +391,7 @@ public class ParcelRatingQueueJob {
                     parcelRatingService.saveRatingQueueBean(ratingQueueBean);
                 }
             } catch (Exception e){
+                log.error("ERROR - ", e.getMessage() + "--Parent Id->" + shipments.get(0).getParentId());
                 e.printStackTrace();
             }
         }
@@ -399,7 +401,7 @@ public class ParcelRatingQueueJob {
         if (ratingInputCriteriaBean.isHwt() || !parcelRatingService.shipmentExist(shipmentsWithPrevFrt.get(0).getParentId())) {
             try{
                 log.info("populating into rating queue table started for parent id ->" + shipmentsWithPrevFrt.get(0).getParentId());
-                System.out.println("populating into rating queue table started for parent id ->" + shipmentsWithPrevFrt.get(0).getParentId());
+                // System.out.println("populating into rating queue table started for parent id ->" + shipmentsWithPrevFrt.get(0).getParentId());
                 RatingQueueBean ratingQueueBean = ParcelRatingUtil.prepareShipmentEntryForUpsShipment(shipmentsWithPrevFrt, ratingInputCriteriaBean.getRateSetName(), accessorialBeans, trackingNumDetails, hwtSequenceInfo);
                 if(ratingQueueBean != null){
                     ratingQueueBean.setTaskId(ratingInputCriteriaBean.getTaskId());
@@ -409,6 +411,7 @@ public class ParcelRatingQueueJob {
                     parcelRatingService.saveRatingQueueBean(ratingQueueBean);
                 }
             }catch (Exception e) {
+                log.error("ERROR - ", e.getMessage() + "--Parent Id->" + shipmentsWithPrevFrt.get(0).getParentId());
                 e.printStackTrace();
             }
         }

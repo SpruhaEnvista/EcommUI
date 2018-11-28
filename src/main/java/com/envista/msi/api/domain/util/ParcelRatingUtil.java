@@ -8,6 +8,7 @@ import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelRateRequest;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelRateResponse;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelRateResponseParser;
+import com.envista.msi.rating.ParcelRatingQueueJob;
 import com.envista.msi.rating.bean.AccessorialDto;
 import com.envista.msi.rating.bean.RatingQueueBean;
 import com.envista.msi.rating.bean.ServiceFlagAccessorialBean;
@@ -18,6 +19,8 @@ import org.apache.commons.logging.LogFactory;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -27,7 +30,7 @@ import java.util.*;
  */
 public class ParcelRatingUtil {
 
-    private static Log m_log = LogFactory.getLog(ParcelRatingUtil.class);
+    private static final Logger m_log = LoggerFactory.getLogger(ParcelRatingQueueJob.class);
 
     public static ParcelAuditDetailsDto getLatestFrightCharge(List<ParcelAuditDetailsDto> parcelAuditDetails) {
         ParcelAuditDetailsDto parcelAuditDetail = null;
@@ -314,6 +317,7 @@ public class ParcelRatingUtil {
                             auditDetails.setDimHeight(dimension[2] != null ? dimension[2].trim() : "");
                         }
                     } catch (Exception e) {
+                        m_log.error("ERROR - ", e.getMessage() + "--Parent Id->" + shipmentDetails.get(0).getParentId());
                         e.printStackTrace();
                     }
                 }
@@ -394,7 +398,7 @@ public class ParcelRatingUtil {
                                     if (bean != null) {
                                         accJson.put("code", bean.getLookUpValue());
                                     } else {
-                                        m_log.info("Service flag accessorial code is not found in look up table:" + auditDetails.getChargeDescriptionCode());
+                                        m_log.warn("Service flag accessorial code is not found in look up table:" + auditDetails.getChargeDescriptionCode());
                                         accJson.put("code", auditDetails.getChargeDescriptionCode());
                                     }
                                     if (!checkAccExist(accJsonArr, accJson))
@@ -402,6 +406,7 @@ public class ParcelRatingUtil {
                                 }
                             }
                         } catch (Exception e) {
+                            m_log.error("ERROR - ", e.getMessage() + "--Parent Id->" + ratingQueueBean.getParentId());
                             e.printStackTrace();
                         }
                     }
@@ -415,7 +420,7 @@ public class ParcelRatingUtil {
 
                 String serviceLevel = findServiceLevel(shipmentDetails);
                 if (serviceLevel == null || serviceLevel.trim().isEmpty()) {
-                    System.out.println("Invalid Service Level for " + shipmentDetails.get(0).getTrackingNumber());
+                    // System.out.println("Invalid Service Level for " + shipmentDetails.get(0).getTrackingNumber());
                     m_log.warn("Invalid Service Level for " + shipmentDetails.get(0).getTrackingNumber());
                     return null;
                 } else {
@@ -684,6 +689,7 @@ public class ParcelRatingUtil {
 
 
         } catch (JSONException e) {
+            m_log.error("ERROR - ", e.getMessage());
             e.printStackTrace();
         }
         return false;
@@ -775,6 +781,7 @@ public class ParcelRatingUtil {
                             accJsonArr.put(accJson);
 
                     } catch (Exception e) {
+                        m_log.error("ERROR - ", e.getMessage() + "--Parent Id->" + ratingQueueBean.getParentId());
                         e.printStackTrace();
                     }
                 }
@@ -789,7 +796,7 @@ public class ParcelRatingUtil {
 
         String serviceLevel = findServiceLevel(shipmentDetails);
         if (serviceLevel == null || serviceLevel.trim().isEmpty()) {
-            System.out.println("Invalid Service Level for " + firstCharge.getTrackingNumber());
+            // System.out.println("Invalid Service Level for " + firstCharge.getTrackingNumber());
             m_log.warn("Invalid Service Level for " + firstCharge.getTrackingNumber());
             return null;
         }
@@ -1009,6 +1016,7 @@ public class ParcelRatingUtil {
                     try {
                         sumOfNetAmount = sumOfNetAmount.add(new BigDecimal(parcelAuditDetails.getNetAmount()));
                     } catch (Exception e) {
+                        m_log.error("ERROR - ", e.getMessage() + "--Parent Id->" + parcelAuditDetailsList.get(0).getParentId());
                         e.printStackTrace();
                     }
                 }
@@ -2173,6 +2181,7 @@ public class ParcelRatingUtil {
         try {
             BigDecimal bigDecimal = new BigDecimal(value);
         } catch (Exception e) {
+            m_log.error("ERROR - ", e.getMessage());
             return false;
         }
         return true;
