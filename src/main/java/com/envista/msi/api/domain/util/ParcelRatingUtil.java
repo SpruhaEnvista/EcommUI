@@ -515,8 +515,10 @@ public class ParcelRatingUtil {
                 ratingQueueBean.setReceiverState(receiverState);
                 ratingQueueBean.setReceiverCity(receiverCity);
                 ratingQueueBean.setReceiverZip(receiverZipCode);
-                if (hwt)
+                if (hwt) {
                     ratingQueueBean.setHwtIdentifier(firstCharge.getMultiWeightNumber());
+                    ratingQueueBean.setTrackingNumber(firstCharge.getMultiWeightNumber());
+                }
 
                 ratingQueueBean.setRateSetName(rateSet);
                 if (firstCharge.getActualServiceBucket() != null)
@@ -2076,6 +2078,7 @@ public class ParcelRatingUtil {
                 for (Map.Entry<String, ParcelAuditDetailsDto> entry : sumOfHwtAccdetails.entrySet()) {
                     ParcelAuditDetailsDto dto = entry.getValue();
                     dto.setParentId(ratingParentId);
+                    dto.setTrackingNumber(dto.getMultiWeightNumber());
                     shipmentToRate.add(dto);
 
                 }
