@@ -755,7 +755,7 @@ public class RatingQueueDAO {
         ResultSet rs = null;
         try {
             connection = ServiceLocator.getDatabaseConnection();
-            String sqlQuery = "select count(1) shipment_count from shp_rating_queue_tb where parent_id = ? and rate_status = 0";
+            String sqlQuery = "select count(1) shipment_count from shp_rating_queue_tb where parent_id = ? and rate_status in (0,1)";
             ps = connection.prepareStatement(sqlQuery);
             ps.setLong(1, parentId);
             rs = ps.executeQuery();
