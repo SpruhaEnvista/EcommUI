@@ -179,16 +179,17 @@ public class ParcelRatingQueueJob {
         }
     }
 
-    private void processUpsShipments(Map<String, List<ParcelAuditDetailsDto>> trackingNumberWiseShipments, String customerIds, ParcelRatingInputCriteriaBean ratingInputCriteriaBean, boolean isHwt, List<ServiceFlagAccessorialBean> accessorialBeans) throws SQLException, JSONException {
+    private void processUpsShipments(Map<String, List<ParcelAuditDetailsDto>> trackingNumberWiseShipments, String customerIds, ParcelRatingInputCriteriaBean ratingInputCriteriaBean, boolean isHwt, List<ServiceFlagAccessorialBean> accessorialBeans) {
         if(trackingNumberWiseShipments != null) {
             // Map<String, List<ParcelAuditDetailsDto>> hwtDetailsMap = ParcelRatingUtil.prepareHwtNumberWiseAuditDetails(trackingNumberWiseShipments);
             Iterator<Map.Entry<String, List<ParcelAuditDetailsDto>>> entryIterator = trackingNumberWiseShipments.entrySet().iterator();
             List<ParcelAuditDetailsDto> shipmentRecords = null;
-            while(entryIterator.hasNext()){
+            try {
+                while (entryIterator.hasNext()) {
 
                 shipmentRecords = null;
 
-                Map.Entry<String,List<ParcelAuditDetailsDto>> parcelAuditEntry = entryIterator.next();
+                    Map.Entry<String, List<ParcelAuditDetailsDto>> parcelAuditEntry = entryIterator.next();
                 if (parcelAuditEntry != null) {
                     String trackingNumber = parcelAuditEntry.getKey();
 
@@ -255,7 +256,10 @@ public class ParcelRatingQueueJob {
                     entryIterator.remove();
                 }
             }
-
+            } catch (Exception e) {
+                log.error("ERROR - ", e.getMessage() + "--Parent Id->" + shipmentRecords.get(0).getParentId());
+                e.printStackTrace();
+            }
             //addMwtOrHwtShipmentEntryIntoQueue(hwtDetailsMap, "ups", ratingInputCriteriaBean, accessorialBeans);
 
         }

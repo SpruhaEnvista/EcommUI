@@ -1692,10 +1692,12 @@ public class ParcelRatingUtil {
 
                     List<ParcelAuditDetailsDto> prevParentIdInfo = getImmediateParentIdInfo(key, shipments);
                     ParcelAuditDetailsDto frtDto = getLatestFrightCharge(prevParentIdInfo);
-                    if (frtDto.getActualWeight() != null)
-                        dto.setActualWeight(frtDto.getActualWeight());
-                    if (frtDto.getPackageWeight() != null)
-                        dto.setPackageWeight(frtDto.getPackageWeight());
+                    if (frtDto != null) {
+                        if (frtDto.getActualWeight() != null)
+                            dto.setActualWeight(frtDto.getActualWeight());
+                        if (frtDto.getPackageWeight() != null)
+                            dto.setPackageWeight(frtDto.getPackageWeight());
+                    }
                 }
                 break;
             }
