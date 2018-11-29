@@ -2246,7 +2246,7 @@ public class ParcelRatingUtil {
         SortOrderTrackDetails.sort(Comparator.comparing(ParcelAuditDetailsDto::getId).reversed());
         for (ParcelAuditDetailsDto dto : SortOrderTrackDetails) {
 
-            if (ratingCharge.getParentId().compareTo(dto.getParentId()) > 0 && (!returnShipment || isReturnShipment(shipments.get(dto.getParentId())))) {
+            if (ratingCharge != null && ratingCharge.getParentId().compareTo(dto.getParentId()) > 0 && (!returnShipment || (shipments != null && isReturnShipment(shipments.get(dto.getParentId()))))) {
 
                 if ((ratingCharge.getSenderCountry() == null || ratingCharge.getSenderCountry().isEmpty())
                         && (dto.getSenderCountry() != null && !dto.getSenderCountry().isEmpty())) {
