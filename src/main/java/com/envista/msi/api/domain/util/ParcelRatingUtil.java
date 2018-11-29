@@ -549,15 +549,15 @@ public class ParcelRatingUtil {
 
                     if (parentIdWiseShipments != null && parentIdWiseShipments.size() > 1) {
 
-                        List<ParcelAuditDetailsDto> immediateParentIdInfo = getImmediateParentIdInfo(firstCharge.getParentId(), parentIdWiseShipments);
+                        //List<ParcelAuditDetailsDto> immediateParentIdInfo = getImmediateParentIdInfo(firstCharge.getParentId(), parentIdWiseShipments);
 
-                        if (immediateParentIdInfo != null && immediateParentIdInfo.size() > 0) {
+
                             String resiFlag = DirectJDBCDAO.getInstance().getratingQueueInfoByParentId
-                                    (immediateParentIdInfo.get(0).getTrackingNumber(), immediateParentIdInfo.get(0).getParentId());
+                                    (firstCharge.getTrackingNumber(), firstCharge.getParentId(), ratingQueueBean.getReturnFlag());
                             if (resiFlag != null) {
                                 ratingQueueBean.setResiFlag(resiFlag);
                             }
-                        }
+
                     }
 
                 }

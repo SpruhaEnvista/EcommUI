@@ -1447,12 +1447,12 @@ public class DirectJDBCDAO {
         return dtos;
     }
 
-    public String getratingQueueInfoByParentId(String trackingNumber, Long parentId) {
+    public String getratingQueueInfoByParentId(String trackingNumber, Long parentId, String returnFlag) {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         String sqlQuery = " select Resi_Flag,Com_To_Res from shp_rating_queue_tb " +
-                " where Tracking_Number=? and Parent_Id=? ";
+                " where Tracking_Number=? and Parent_Id<? and return_flag=? ";
 
         String resiFlag = null;
 
@@ -1463,6 +1463,7 @@ public class DirectJDBCDAO {
 
             pstmt.setString(1, trackingNumber);
             pstmt.setLong(2, parentId);
+            pstmt.setString(3, returnFlag);
 
             rs = pstmt.executeQuery();
 
