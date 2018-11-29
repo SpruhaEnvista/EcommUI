@@ -2238,7 +2238,10 @@ public class ParcelRatingUtil {
     public static void prepareXmlReqAddressInfo(List<ParcelAuditDetailsDto> trackingNumberDetails, ParcelAuditDetailsDto ratingCharge) {
 
         Map<Long, List<ParcelAuditDetailsDto>> shipments = ParcelRatingUtil.organiseShipmentsByParentId(trackingNumberDetails);
-        boolean returnShipment = isReturnShipment(shipments.get(ratingCharge.getParentId()));
+        boolean returnShipment = false;
+        if (shipments != null && ratingCharge != null && ratingCharge.getParentId() != null)
+            returnShipment = isReturnShipment(shipments.get(ratingCharge.getParentId()));
+
         List<ParcelAuditDetailsDto> SortOrderTrackDetails = new ArrayList<>(trackingNumberDetails);
         SortOrderTrackDetails.sort(Comparator.comparing(ParcelAuditDetailsDto::getId).reversed());
         for (ParcelAuditDetailsDto dto : SortOrderTrackDetails) {
