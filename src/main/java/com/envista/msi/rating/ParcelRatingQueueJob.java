@@ -415,7 +415,10 @@ public class ParcelRatingQueueJob {
                     parcelRatingService.saveRatingQueueBean(ratingQueueBean);
                 }
             }catch (Exception e) {
-                log.error("ERROR - " + e.getMessage() + "--Parent Id->" + shipmentsWithPrevFrt.get(0).getParentId());
+                if (shipmentsWithPrevFrt != null && shipmentsWithPrevFrt.size() > 0)
+                    log.error("ERROR - " + e.getMessage() + "--Parent Id->" + shipmentsWithPrevFrt.get(0).getParentId());
+                else
+                    log.error("ERROR - " + e.getStackTrace());
                 e.printStackTrace();
             }
         }

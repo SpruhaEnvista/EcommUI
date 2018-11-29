@@ -185,7 +185,7 @@ public class ParcelUpsRatingService {
                         checkForVoidShipmentAndUpdate(shipmentRecords);
                     }
                 }catch (Exception e){
-                    log.error("ERROR - " + e.getMessage() + "--Parent Id->" + bean.getParentId());
+                    log.error("ERROR - " + e.getStackTrace() + "--Parent Id->" + bean.getParentId());
                     e.printStackTrace();
                 }
             }
@@ -209,7 +209,7 @@ public class ParcelUpsRatingService {
             }
         }catch (Exception e){
             e.printStackTrace();
-            log.error("ERROR in checkForVoidShipmentAndUpdate", e.getMessage() + "--Parent Id->" + shipmentRecords.get(0).getParentId());
+            log.error("ERROR in checkForVoidShipmentAndUpdate", e.getStackTrace() + "--Parent Id->" + shipmentRecords.get(0).getParentId());
         }
     }
 
@@ -293,7 +293,7 @@ public class ParcelUpsRatingService {
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
-                            log.error("ERROR - " + e.getMessage() + "--Parent Id->" + bean.getParentId());
+                            log.error("ERROR - " + e.getStackTrace() + "--Parent Id->" + bean.getParentId());
                         }
 
                         if( thresholdLowerBound != null && thresholdUpperBound != null ) {
@@ -594,7 +594,7 @@ public class ParcelUpsRatingService {
 
                     }
                 } catch (Exception e) {
-                    log.error("ERROR - " + e.getMessage() + "--Parent Id->" + beans.get(0).getParentId());
+                    log.error("ERROR - " + e.getStackTrace() + "--Parent Id->" + beans.get(0).getParentId());
                     e.printStackTrace();
                 }
             }
@@ -606,7 +606,7 @@ public class ParcelUpsRatingService {
         try{
             DirectJDBCDAO.getInstance().updateUpsOtherFieldValues(rateDetailsList);
         }catch (Exception e){
-            log.error("ERROR - " + e.getMessage() + "--Parent Id->" + rateDetailsList.get(0).getParentId());
+            log.error("ERROR - " + e.getStackTrace() + "--Parent Id->" + rateDetailsList.get(0).getParentId());
             e.printStackTrace();
         }
     }
