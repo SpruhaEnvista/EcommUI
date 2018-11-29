@@ -94,7 +94,7 @@ public class ParcelRatingQueueJob {
                 ParcelRatingQueueJob.getInstance().processShipments(ratingInputCriteriaBean, isHwt);
             } catch (Exception e) {
                 e.printStackTrace();
-                log.error("ERROR - ", e.getMessage());
+                log.error("ERROR - " + e.getMessage());
             }
         } else {
             ParcelRatingService ratingService = new ParcelRatingService();
@@ -131,7 +131,7 @@ public class ParcelRatingQueueJob {
 
                     ratingService.updateRatingInputCriteriaStatus(ratingInputCriteria.getId(), ParcelAuditConstant.ParcelRatingInputProcessStatus.COMPLETED.value);
                 } catch (Exception e) {
-                    log.error("ERROR - ", e.getMessage());
+                    log.error("ERROR - " + e.getMessage());
                     e.printStackTrace();
                     ratingService.updateRatingInputCriteriaStatus(ratingInputCriteria.getId(), ParcelAuditConstant.ParcelRatingInputProcessStatus.EXCEPTION.value);
                 }
@@ -257,7 +257,7 @@ public class ParcelRatingQueueJob {
                 }
             }
             } catch (Exception e) {
-                log.error("ERROR - ", e.getMessage() + "--Parent Id->" + shipmentRecords.get(0).getParentId());
+                log.error("ERROR - " + e.getMessage() + "--Parent Id->" + shipmentRecords.get(0).getParentId());
                 e.printStackTrace();
             }
             //addMwtOrHwtShipmentEntryIntoQueue(hwtDetailsMap, "ups", ratingInputCriteriaBean, accessorialBeans);
@@ -395,7 +395,7 @@ public class ParcelRatingQueueJob {
                     parcelRatingService.saveRatingQueueBean(ratingQueueBean);
                 }
             } catch (Exception e){
-                log.error("ERROR - ", e.getMessage() + "--Parent Id->" + shipments.get(0).getParentId());
+                log.error("ERROR - " + e.getMessage() + "--Parent Id->" + shipments.get(0).getParentId());
                 e.printStackTrace();
             }
         }
@@ -415,7 +415,7 @@ public class ParcelRatingQueueJob {
                     parcelRatingService.saveRatingQueueBean(ratingQueueBean);
                 }
             }catch (Exception e) {
-                log.error("ERROR - ", e.getMessage() + "--Parent Id->" + shipmentsWithPrevFrt.get(0).getParentId());
+                log.error("ERROR - " + e.getMessage() + "--Parent Id->" + shipmentsWithPrevFrt.get(0).getParentId());
                 e.printStackTrace();
             }
         }

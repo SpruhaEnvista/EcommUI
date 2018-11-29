@@ -244,7 +244,7 @@ public class ParcelRateRequestBuilder {
             }
 
         } catch (Exception e) {
-            m_log.error("ERROR - ", e.getMessage() + "--Parent Id->" + ratingQueueBean.getParentId());
+            m_log.error("ERROR - " + e.getMessage() + "--Parent Id->" + ratingQueueBean.getParentId());
             e.printStackTrace();
         }
 

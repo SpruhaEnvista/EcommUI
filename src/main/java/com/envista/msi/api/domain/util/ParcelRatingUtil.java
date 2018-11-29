@@ -327,7 +327,7 @@ public class ParcelRatingUtil {
                             auditDetails.setDimHeight(dimension[2] != null ? dimension[2].trim() : "");
                         }
                     } catch (Exception e) {
-                        m_log.error("ERROR - ", e.getMessage() + "--Parent Id->" + shipmentDetails.get(0).getParentId());
+                        m_log.error("ERROR - " + e.getMessage() + "--Parent Id->" + shipmentDetails.get(0).getParentId());
                         e.printStackTrace();
                     }
                 }
@@ -416,7 +416,7 @@ public class ParcelRatingUtil {
                                 }
                             }
                         } catch (Exception e) {
-                            m_log.error("ERROR - ", e.getMessage() + "--Parent Id->" + ratingQueueBean.getParentId());
+                            m_log.error("ERROR - " + e.getMessage() + "--Parent Id->" + ratingQueueBean.getParentId());
                             e.printStackTrace();
                         }
                     }
@@ -699,7 +699,7 @@ public class ParcelRatingUtil {
 
 
         } catch (JSONException e) {
-            m_log.error("ERROR - ", e.getMessage());
+            m_log.error("ERROR - " + e.getMessage());
             e.printStackTrace();
         }
         return false;
@@ -791,7 +791,7 @@ public class ParcelRatingUtil {
                             accJsonArr.put(accJson);
 
                     } catch (Exception e) {
-                        m_log.error("ERROR - ", e.getMessage() + "--Parent Id->" + ratingQueueBean.getParentId());
+                        m_log.error("ERROR - " + e.getMessage() + "--Parent Id->" + ratingQueueBean.getParentId());
                         e.printStackTrace();
                     }
                 }
@@ -1026,7 +1026,7 @@ public class ParcelRatingUtil {
                     try {
                         sumOfNetAmount = sumOfNetAmount.add(new BigDecimal(parcelAuditDetails.getNetAmount()));
                     } catch (Exception e) {
-                        m_log.error("ERROR - ", e.getMessage() + "--Parent Id->" + parcelAuditDetailsList.get(0).getParentId());
+                        m_log.error("ERROR - " + e.getMessage() + "--Parent Id->" + parcelAuditDetailsList.get(0).getParentId());
                         e.printStackTrace();
                     }
                 }
@@ -2193,7 +2193,7 @@ public class ParcelRatingUtil {
         try {
             BigDecimal bigDecimal = new BigDecimal(value);
         } catch (Exception e) {
-            m_log.error("ERROR - ", e.getMessage());
+            m_log.error("ERROR - " + e.getMessage());
             return false;
         }
         return true;
