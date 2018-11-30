@@ -2158,12 +2158,12 @@ public class ParcelRatingUtil {
                         firstValue = new BigDecimal(existingDimensions[0].trim()).add(new BigDecimal(dimensions[0].trim()));
                     }
                 }
-                if (dimensions.length > 1) {
+                if (dimensions.length > 2) {
                     if ((dimensions[1] != null && existingDimensions[1] != null) && (isBigDecimalNumber(dimensions[1].trim()) && isBigDecimalNumber(existingDimensions[1].trim()))) {
                         secondValue = new BigDecimal(existingDimensions[1].trim()).add(new BigDecimal(dimensions[1].trim()));
                     }
                 }
-                if (dimensions.length > 2) {
+                if (dimensions.length > 3) {
                     if ((dimensions[2] != null && existingDimensions[2] != null) && (isBigDecimalNumber(dimensions[2].trim()) && isBigDecimalNumber(existingDimensions[2].trim()))) {
                         thirdValue = new BigDecimal(existingDimensions[2].trim()).add(new BigDecimal(dimensions[2].trim()));
                     }
