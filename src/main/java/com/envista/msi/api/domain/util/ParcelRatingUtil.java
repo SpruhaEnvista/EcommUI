@@ -938,7 +938,7 @@ public class ParcelRatingUtil {
             }
             if (rateStatusList != null && !rateStatusList.isEmpty()) {
                 if (rateStatusList.contains(ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET.value) || rateStatusList.contains(ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value)) {
-                    rated = false;
+                    rated = true;
                 } else if (rateStatusList.contains(ParcelAuditConstant.RTRStatus.CLOSED.value) || rateStatusList.contains(ParcelAuditConstant.RTRStatus.UNDER_CHARGED.value)
                         || rateStatusList.contains(ParcelAuditConstant.RTRStatus.OVER_CHARGED.value)) {
                     rated = true;
