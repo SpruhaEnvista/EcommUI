@@ -256,6 +256,7 @@ public class ParcelUpsRatingService {
 
     private String updateRateForUps(ParcelRateResponse parcelRateResponse, List<ParcelAuditDetailsDto> parcelAuditDetails, ParcelAuditDetailsDto commercialAdjCharge, List<ParcelAuditDetailsDto> previousShipment, BigDecimal hwtNetAmount, RatingQueueBean bean, List<ServiceFlagAccessorialBean> accessorialBeans) throws Exception {
         String status = "";
+        DirectJDBCDAO directJDBCDAO = DirectJDBCDAO.getInstance();
         if(parcelRateResponse != null){
             if(parcelRateResponse.getStatusCode() != null && parcelRateResponse.getStatusCode().equals(0)){
                 if(parcelRateResponse.getPriceSheets() != null && !parcelRateResponse.getPriceSheets().isEmpty()){
@@ -331,16 +332,35 @@ public class ParcelUpsRatingService {
                         }
                     }
                 }else{
-                    updateRTRAmountAndStatus(parcelAuditDetails, ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET);
+
+         /*           ParcelRateDetailsDto rateDetails = new ParcelRateDetailsDto();
+                    rateDetails.setRtrStatus(ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET.value);
+                    ParcelRatingUtil.setCommonValues(rateDetails, bean, null);
+                    directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, parcelAuditDetails.get(0).getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
+                    //updateRTRAmountAndStatus(parcelAuditDetails, ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET);*/
                     status = ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET.value;
                 }
             }else{
-                updateRTRAmountAndStatus(parcelAuditDetails, ParcelAuditConstant.RTRStatus.RATING_EXCEPTION);
+                //updateRTRAmountAndStatus(parcelAuditDetails, ParcelAuditConstant.RTRStatus.RATING_EXCEPTION);
                 status = ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value;
             }
         }else{
-            updateRTRAmountAndStatus(parcelAuditDetails, ParcelAuditConstant.RTRStatus.RATING_EXCEPTION);
+            //updateRTRAmountAndStatus(parcelAuditDetails, ParcelAuditConstant.RTRStatus.RATING_EXCEPTION);
             status = ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value;
+        }
+
+        if (ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET.value.equalsIgnoreCase(status) ||
+                ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value.equalsIgnoreCase(status)) {
+            if (parcelAuditDetails != null) {
+                for (ParcelAuditDetailsDto dto : parcelAuditDetails) {
+                    if (dto != null && dto.getId() != null) {
+                        ParcelRateDetailsDto rateDetails = new ParcelRateDetailsDto();
+                        rateDetails.setRtrStatus(status);
+                        ParcelRatingUtil.setCommonValues(rateDetails, bean, null);
+                        directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, dto.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
+                    }
+                }
+            }
         }
         return status;
     }

@@ -2336,13 +2336,15 @@ public class ParcelRatingUtil {
         rateDetails.setReturnFlag(queueBean.getReturnFlag());
         rateDetails.setResiFlag(queueBean.getResiFlag());
         rateDetails.setComToRes(queueBean.getComToRes());
-        rateDetails.setRateSetName(priceSheet.getRateSet());
-        rateDetails.setShipperCategory(priceSheet.getCategory());
-        rateDetails.setContractName(priceSheet.getContractName());
-        rateDetails.setZone(priceSheet.getZone());
         rateDetails.setActualServiceBucket(queueBean.getActualServiceBucket());
         rateDetails.setHwtIdentifier(queueBean.getHwtIdentifier());
         rateDetails.setPackageType(queueBean.getPackageType());
+        if (priceSheet != null) {
+            rateDetails.setRateSetName(priceSheet.getRateSet());
+            rateDetails.setShipperCategory(priceSheet.getCategory());
+            rateDetails.setContractName(priceSheet.getContractName());
+            rateDetails.setZone(priceSheet.getZone());
+        }
 
     }
 
