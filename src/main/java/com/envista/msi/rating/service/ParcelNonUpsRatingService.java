@@ -276,27 +276,27 @@ public class ParcelNonUpsRatingService {
             DirectJDBCDAO directJDBCDAO = DirectJDBCDAO.getInstance();
             if (parcelAuditDetails != null) {
 
-                Connection conn = null;
+                //Connection conn = null;
                 try {
-                    conn = ServiceLocator.getDatabaseConnection();
-                    conn.setAutoCommit(false);
+                    //conn = ServiceLocator.getDatabaseConnection();
+                    //conn.setAutoCommit(false);
                     for (ParcelAuditDetailsDto dto : parcelAuditDetails) {
                         if (dto != null && dto.getId() != null) {
                             ParcelRateDetailsDto rateDetails = new ParcelRateDetailsDto();
                             rateDetails.setRtrStatus(status);
                             ParcelRatingUtil.setCommonValues(rateDetails, bean, null);
-                            directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME, dto.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails, conn);
+                            directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME, dto.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                         }
                     }
 
-                    updateFedExOtherFieldValues(parcelAuditDetails, conn);
-                    conn.commit();
+                    updateFedExOtherFieldValues(parcelAuditDetails);
+                    //conn.commit();
                 } catch (Exception e) {
-                    conn.rollback();
+                    // conn.rollback();
                     log.error("ERROR - " + e.getMessage() + "--Parent Id->" + parcelAuditDetails.get(0).getParentId());
                     e.printStackTrace();
                 } finally {
-                    ParcelRatingUtil.closeConnection(conn);
+                    //ParcelRatingUtil.closeConnection(conn);
                 }
             }
         }
@@ -326,10 +326,10 @@ public class ParcelNonUpsRatingService {
 
         List<AccessorialDto> prevParentsRatesDtos = directJDBCDAO.getRatesForPrevParentIds(parcelAuditDetails.get(0).getTrackingNumber(), parcelAuditDetails.get(0).getParentId(), queueBean.getReturnFlag(), 22, parcelAuditDetails.get(0).getPickupDate());
 
-        Connection conn = null;
+        //Connection conn = null;
         try {
 
-            conn = ServiceLocator.getDatabaseConnection();
+            //conn = ServiceLocator.getDatabaseConnection();
 
             //conn.setAutoCommit(false);
 
@@ -367,7 +367,7 @@ public class ParcelNonUpsRatingService {
                             if (auditDetails.getId().compareTo(auditDetails.getParentId()) == 0)
                                 ParcelRateResponseParser.mapPercentageAndDis(rateDetails, priceSheet, mappedDscChanges, prevParentsRatesDtos);
 
-                            directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails, conn);
+                            directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                         }
 
                     } else if (ParcelAuditConstant.ChargeClassificationCode.ACS.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())
@@ -396,7 +396,7 @@ public class ParcelNonUpsRatingService {
                             if (auditDetails.getId().compareTo(auditDetails.getParentId()) == 0)
                                 ParcelRateResponseParser.mapPercentageAndDis(rateDetails, priceSheet, mappedDscChanges, prevParentsRatesDtos);
 
-                            directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails, conn);
+                            directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                         }
                     } else {
                         //need to clarify this step, whether it is required for NonUPS Carrier or not.
@@ -442,7 +442,7 @@ public class ParcelNonUpsRatingService {
                             if (auditDetails.getId().compareTo(auditDetails.getParentId()) == 0)
                                 ParcelRateResponseParser.mapPercentageAndDis(rateDetails, priceSheet, mappedDscChanges, prevParentsRatesDtos);
 
-                            directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails, conn);
+                            directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                         }
                     }
 
@@ -469,7 +469,7 @@ public class ParcelNonUpsRatingService {
                             ParcelRateResponseParser.mapPercentageAndDis(rateDetails, priceSheet, mappedDscChanges, prevParentsRatesDtos);
 
 
-                        directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails, conn);
+                        directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                     }
                 }
             }
@@ -480,17 +480,17 @@ public class ParcelNonUpsRatingService {
             ParcelRatingUtil.prepareAdditionalAccessorial(priceSheet, parcelAuditDetails.get(0).getParentId(), mappedAccChanges, addAccAndDisdtos, frtChargeFound, fscChargeFound, prevParentsRatesDtos);
             ParcelRatingUtil.prepareAddDiscounts(priceSheet, parcelAuditDetails.get(0).getParentId(), mappedDscChanges, addAccAndDisdtos, prevParentsRatesDtos);
 
-            directJDBCDAO.saveAccInfo(addAccAndDisdtos, parcelAuditDetails.get(0).getParentId(), 22, conn);
+            directJDBCDAO.saveAccInfo(addAccAndDisdtos, parcelAuditDetails.get(0).getParentId(), 22);
 
-            updateFedExOtherFieldValues(parcelAuditDetails, conn);
+            updateFedExOtherFieldValues(parcelAuditDetails);
 
-            conn.commit();
+            //conn.commit();
         } catch (Exception e) {
-            conn.rollback();
+            //conn.rollback();
             log.error("ERROR - " + e.getMessage() + "--Parent Id->" + parcelAuditDetails.get(0).getParentId());
             e.printStackTrace();
         } finally {
-            ParcelRatingUtil.closeConnection(conn);
+            //ParcelRatingUtil.closeConnection(conn);
         }
 
         return rtrStatus.value;
@@ -530,9 +530,9 @@ public class ParcelNonUpsRatingService {
         return RatingQueueDAO.getInstance().shipmentExist(parentId);
     }
 
-    public void updateFedExOtherFieldValues(List<ParcelAuditDetailsDto> rateDetailsList, Connection conn) throws Exception {
+    public void updateFedExOtherFieldValues(List<ParcelAuditDetailsDto> rateDetailsList) throws Exception {
 
-        DirectJDBCDAO.getInstance().updateFedExOtherFieldValues(rateDetailsList, conn);
+        DirectJDBCDAO.getInstance().updateFedExOtherFieldValues(rateDetailsList);
 
     }
 

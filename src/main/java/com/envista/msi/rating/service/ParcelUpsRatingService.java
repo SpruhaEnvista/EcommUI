@@ -346,26 +346,26 @@ public class ParcelUpsRatingService {
         if (ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET.value.equalsIgnoreCase(status) ||
                 ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value.equalsIgnoreCase(status)) {
             if (parcelAuditDetails != null) {
-                Connection conn = null;
+                // Connection conn = null;
                 try {
-                    conn = ServiceLocator.getDatabaseConnection();
-                    conn.setAutoCommit(false);
+                    // conn = ServiceLocator.getDatabaseConnection();
+                    // conn.setAutoCommit(false);
                     for (ParcelAuditDetailsDto dto : parcelAuditDetails) {
                         if (dto != null && dto.getId() != null) {
                             ParcelRateDetailsDto rateDetails = new ParcelRateDetailsDto();
                             rateDetails.setRtrStatus(status);
                             ParcelRatingUtil.setCommonValues(rateDetails, bean, null);
-                            directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, dto.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails, conn);
+                            directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, dto.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                         }
                     }
-                    updateUpsOtherFieldValues(parcelAuditDetails, conn);
-                    conn.commit();
+                    updateUpsOtherFieldValues(parcelAuditDetails);
+                    // conn.commit();
                 } catch (Exception e) {
-                    conn.rollback();
+                    // conn.rollback();
                     log.error("ERROR - " + e.getStackTrace() + "--Parent Id->" + parcelAuditDetails.get(0).getParentId());
                     e.printStackTrace();
                 } finally {
-                    ParcelRatingUtil.closeConnection(conn);
+                    //  ParcelRatingUtil.closeConnection(conn);
                 }
             }
         }
@@ -409,11 +409,11 @@ public class ParcelUpsRatingService {
 
         List<AccessorialDto> prevParentsRatesDtos = directJDBCDAO.getRatesForPrevParentIds(parcelAuditDetails.get(0).getTrackingNumber(), parcelAuditDetails.get(0).getParentId(), queueBean.getReturnFlag(), 21, parcelAuditDetails.get(0).getPickupDate());
 
-        Connection conn = null;
+        // Connection conn = null;
 
         try {
-            conn = ServiceLocator.getDatabaseConnection();
-            conn.setAutoCommit(false);
+            // conn = ServiceLocator.getDatabaseConnection();
+            // conn.setAutoCommit(false);
 
             for(ParcelAuditDetailsDto auditDetails : parcelAuditDetails){
 
@@ -450,7 +450,7 @@ public class ParcelUpsRatingService {
                                 if (auditDetails.getId().compareTo(auditDetails.getParentId()) == 0)
                                     ParcelRateResponseParser.mapPercentageAndDis(rateDetails, priceSheet, mappedDscChanges, prevParentsRatesDtos);
 
-                                directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails, conn);
+                                directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                             }
                             frtChargeFound = true;
 
@@ -464,7 +464,7 @@ public class ParcelUpsRatingService {
                             if (auditDetails.getId().compareTo(auditDetails.getParentId()) == 0)
                                 ParcelRateResponseParser.mapPercentageAndDis(rateDetails, priceSheet, mappedDscChanges, prevParentsRatesDtos);
 
-                            directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails, conn);
+                            directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                         }
                     }else if(ParcelAuditConstant.ChargeClassificationCode.FSC.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())){
                         fscChargeFound = true;
@@ -491,7 +491,7 @@ public class ParcelUpsRatingService {
                             if (auditDetails.getId().compareTo(auditDetails.getParentId()) == 0)
                                 ParcelRateResponseParser.mapPercentageAndDis(rateDetails, priceSheet, mappedDscChanges, prevParentsRatesDtos);
 
-                            directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails, conn);
+                            directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                         }
                     } else{
                         ServiceFlagAccessorialBean bean = ParcelRatingUtil.getAccessorialBean(accessorialBeans, auditDetails.getChargeDescription(), auditDetails.getChargeDescriptionCode(), 21L);
@@ -538,7 +538,7 @@ public class ParcelUpsRatingService {
                             if (auditDetails.getId().compareTo(auditDetails.getParentId()) == 0)
                                 ParcelRateResponseParser.mapPercentageAndDis(rateDetails, priceSheet, mappedDscChanges, prevParentsRatesDtos);
 
-                            directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails, conn);
+                            directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                         }
                     }
 
@@ -564,7 +564,7 @@ public class ParcelUpsRatingService {
                         if (auditDetails.getId().compareTo(auditDetails.getParentId()) == 0)
                             ParcelRateResponseParser.mapPercentageAndDis(rateDetails, priceSheet, mappedDscChanges, prevParentsRatesDtos);
 
-                        directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails, conn);
+                        directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, auditDetails.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                     }
                 }
             }
@@ -575,17 +575,17 @@ public class ParcelUpsRatingService {
             ParcelRatingUtil.prepareAdditionalAccessorial(priceSheet, parcelAuditDetails.get(0).getParentId(), mappedAccChanges, addAccAndDisdtos, frtChargeFound, fscChargeFound, prevParentsRatesDtos);
             ParcelRatingUtil.prepareAddDiscounts(priceSheet, parcelAuditDetails.get(0).getParentId(), mappedDscChanges, addAccAndDisdtos, prevParentsRatesDtos);
 
-            directJDBCDAO.saveAccInfo(addAccAndDisdtos, parcelAuditDetails.get(0).getParentId(), 21, conn);
+            directJDBCDAO.saveAccInfo(addAccAndDisdtos, parcelAuditDetails.get(0).getParentId(), 21);
 
-            updateUpsOtherFieldValues(parcelAuditDetails, conn);
+            updateUpsOtherFieldValues(parcelAuditDetails);
 
-            conn.commit();
+            // conn.commit();
         } catch (Exception e) {
-            conn.rollback();
+            //conn.rollback();
             log.error("ERROR - " + e.getStackTrace() + "--Parent Id->" + parcelAuditDetails.get(0).getParentId());
             e.printStackTrace();
         } finally {
-            ParcelRatingUtil.closeConnection(conn);
+            // ParcelRatingUtil.closeConnection(conn);
         }
 
         return rtrStatus.value;
@@ -649,9 +649,9 @@ public class ParcelUpsRatingService {
         return status;
     }
 
-    public void updateUpsOtherFieldValues(List<ParcelAuditDetailsDto> rateDetailsList, Connection conn) throws Exception {
+    public void updateUpsOtherFieldValues(List<ParcelAuditDetailsDto> rateDetailsList) throws Exception {
 
-        DirectJDBCDAO.getInstance().updateUpsOtherFieldValues(rateDetailsList, conn);
+        DirectJDBCDAO.getInstance().updateUpsOtherFieldValues(rateDetailsList);
 
     }
 
