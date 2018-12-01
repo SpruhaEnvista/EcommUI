@@ -2031,6 +2031,10 @@ public class ParcelRatingUtil {
 
         boolean rated = false;
         List<ParcelAuditDetailsDto> detailsDtos = getParentIdCharges(shipmentRecords, ratingParentId);
+
+        if (invoiceDate == null && (detailsDtos != null && detailsDtos.size() > 0))
+            invoiceDate = detailsDtos.get(0).getInvoiceDate();
+
         rated = isShipmentRated(detailsDtos);
 
         if (!rated) {

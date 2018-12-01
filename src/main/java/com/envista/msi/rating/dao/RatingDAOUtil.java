@@ -309,7 +309,7 @@ public class RatingDAOUtil {
             } else if ("ACTUAL_SERVICE_BUCKET".equalsIgnoreCase(columnName)) {
                 ps.setLong(67, queueBean.getActualServiceBucket());
             } else if ("INVOICE_DATE".equalsIgnoreCase(columnName)) {
-                if (queueBean.getShipDate() != null) {
+                if (queueBean.getInvoiceDate() != null) {
                     ps.setDate(68, new java.sql.Date(queueBean.getInvoiceDate().getTime()));
                 } else {
                     ps.setNull(68, Types.DATE);

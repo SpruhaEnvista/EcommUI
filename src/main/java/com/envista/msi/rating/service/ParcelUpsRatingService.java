@@ -354,7 +354,7 @@ public class ParcelUpsRatingService {
                             ParcelRateDetailsDto rateDetails = new ParcelRateDetailsDto();
                             rateDetails.setRtrStatus(status);
                             ParcelRatingUtil.setCommonValues(rateDetails, bean, null);
-                            directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME, dto.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails, conn);
+                            directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, dto.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails, conn);
                         }
                     }
                     updateUpsOtherFieldValues(parcelAuditDetails, conn);
