@@ -279,6 +279,7 @@ public class ParcelNonUpsRatingService {
                 Connection conn = null;
                 try {
                     conn = ServiceLocator.getDatabaseConnection();
+                    conn.setAutoCommit(false);
                     for (ParcelAuditDetailsDto dto : parcelAuditDetails) {
                         if (dto != null && dto.getId() != null) {
                             ParcelRateDetailsDto rateDetails = new ParcelRateDetailsDto();
