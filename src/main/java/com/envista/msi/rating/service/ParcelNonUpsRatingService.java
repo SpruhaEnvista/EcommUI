@@ -140,7 +140,7 @@ public class ParcelNonUpsRatingService {
                     if (ParcelRatingUtil.isFirstShipmentToRate(shipments, bean.getParentId())) {
                         if (!ParcelRatingUtil.isShipmentRated(shipmentToRate)) {
                             status = callRTRAndPopulateRates(shipmentToRate, bean, null, accessorialBeans, null);
-                            updateFedExOtherFieldValues(shipmentToRate);
+                            //updateFedExOtherFieldValues(shipmentToRate);
                         }
                     } else {
                         if (!ParcelRatingUtil.isShipmentRated(shipmentToRate)) {
@@ -152,22 +152,19 @@ public class ParcelNonUpsRatingService {
                                         if (prevShipmentFrtCharge != null) {
                                             shipmentToRate.add(prevShipmentFrtCharge);
                                             status = callRTRAndPopulateRates(shipmentToRate, bean, null, accessorialBeans, previousShipment);
-                                            updateFedExOtherFieldValues(shipmentToRate);
+                                            //updateFedExOtherFieldValues(shipmentToRate);
                                         }
                                     } else {
                                         status = callRTRAndPopulateRates(shipmentToRate, bean, null, accessorialBeans, previousShipment);
-                                        updateFedExOtherFieldValues(shipmentToRate);
+                                        //updateFedExOtherFieldValues(shipmentToRate);
                                     }
                                 }
                             }
                         }
                     }
                 } else {
-                    if (ParcelRatingUtil.isRatedWithException(shipmentToRate)) {
-                        status = ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value;
-                    } else if (ParcelRatingUtil.isRatedWithEmptyPriceSheet(shipmentToRate)) {
-                        status = ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET.value;
-                    } else if (!prevHwtRated) {
+
+                    if (!prevHwtRated) {
                         status = callRTRAndPopulateRates(shipmentToRate, bean, null, accessorialBeans, null);
                     }
                 }
@@ -198,9 +195,7 @@ public class ParcelNonUpsRatingService {
 
             status = updateRateForNonUpsCarrier(ParcelRateResponseParser.parse(response), shipmentToRate, bean, accessorialBeans);
             updateFedExOtherFieldValues(shipmentToRate);
-  /*          if(status != null && !status.isEmpty()){
-                DirectJDBCDAO.getInstance().updateRtrStatus(22L, bean.getTrackingNumber(), status, new java.sql.Date(bean.getShipDate().getTime()));
-            }*/
+
         }
         return status;
     }
@@ -263,17 +258,33 @@ public class ParcelNonUpsRatingService {
                         }
                     }
                 }else{
-                    updateRTRAmountAndStatus(parcelAuditDetails, ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET);
+
                     status = ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET.value;
                 }
             }else{
-                updateRTRAmountAndStatus(parcelAuditDetails, ParcelAuditConstant.RTRStatus.RATING_EXCEPTION);
+
                 status = ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value;
             }
         }else{
-            updateRTRAmountAndStatus(parcelAuditDetails, ParcelAuditConstant.RTRStatus.RATING_EXCEPTION);
+
             status = ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value;
         }
+
+        if (ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET.value.equalsIgnoreCase(status) ||
+                ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value.equalsIgnoreCase(status)) {
+            DirectJDBCDAO directJDBCDAO = DirectJDBCDAO.getInstance();
+            if (parcelAuditDetails != null) {
+                for (ParcelAuditDetailsDto dto : parcelAuditDetails) {
+                    if (dto != null && dto.getId() != null) {
+                        ParcelRateDetailsDto rateDetails = new ParcelRateDetailsDto();
+                        rateDetails.setRtrStatus(status);
+                        ParcelRatingUtil.setCommonValues(rateDetails, bean, null);
+                        directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME, dto.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
+                    }
+                }
+            }
+        }
+
         return status;
     }
 
