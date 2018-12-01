@@ -207,11 +207,11 @@ public class DirectJDBCDAO {
         }
     }
 
-    public void updateShipmentRateDetails(String referenceTableName, String entityId, String userName, ParcelRateDetailsDto rateDetails) {
-        Connection conn = null;
+    public void updateShipmentRateDetails(String referenceTableName, String entityId, String userName, ParcelRateDetailsDto rateDetails, Connection conn) throws Exception {
+
         CallableStatement cstmt = null;
         try{
-            conn = ServiceLocator.getDatabaseConnection();
+
             cstmt = conn.prepareCall("{ call SHP_SAVE_RATE_DETAILS_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
             cstmt.setString(1,referenceTableName);
             cstmt.setString(2, entityId);
@@ -245,22 +245,16 @@ public class DirectJDBCDAO {
 
             cstmt.executeUpdate();
 
-        } catch (SQLException sqle) {
+        } catch (Exception sqle) {
             sqle.printStackTrace();
             throw new DaoException("Exception in updateShipmentRateDetails", sqle);
-        }  catch (ServiceLocatorException sle) {
-            throw new DaoException("Exception in updateShipmentRateDetails", sle);
         }finally {
             try {
                 if (cstmt != null)
                     cstmt.close();
             } catch (SQLException sqle) {
             }
-            try {
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException sqle) {
-            }
+
         }
     }
     public void updateOtherDiscountShipmentRateDetails(String referenceTableName, String entityIds, String userName, ParcelRateDetailsDto rateDetails){
@@ -731,8 +725,8 @@ public class DirectJDBCDAO {
         }
     }
 
-    public void updateUpsOtherFieldValues(List<ParcelAuditDetailsDto> rateDetailsList) {
-        Connection con = null;
+    public void updateUpsOtherFieldValues(List<ParcelAuditDetailsDto> rateDetailsList, Connection conn) throws Exception {
+
         PreparedStatement pstmt = null;
         String sqlQuery = " UPDATE SHP_EBILL_UPS_RATES_TB ur SET ur.SENDER_COUNTRY = ?, ";
         sqlQuery += " ur.RECEIVER_COUNTRY = ?, ur.SENDER_STATE = ?, ur.RECEIVER_STATE = ?, ur.SHIPMENT_DATE = ?, ur.INVOICE_DATE = ?, ur.INVOICE_NUMBER = ?, ";
@@ -743,9 +737,7 @@ public class DirectJDBCDAO {
         sqlQuery += " WHERE ur.EBILL_GFF_ID = ? ";
 
         try {
-            con = ServiceLocator.getDatabaseConnection();
-            pstmt = con.prepareStatement(sqlQuery);
-            con.setAutoCommit(false);
+            pstmt = conn.prepareStatement(sqlQuery);
 
             for(ParcelAuditDetailsDto rateDetails : rateDetailsList){
                 pstmt.setString(1, rateDetails.getSenderCountry());
@@ -798,14 +790,10 @@ public class DirectJDBCDAO {
             }
 
             pstmt.executeBatch();
-            con.commit();
+
         } catch (Exception e) {
             e.printStackTrace();
-            try {
-                con.rollback();
-            } catch (SQLException e1) {
-                e1.printStackTrace();
-            }
+
             throw new DaoException("Exception in updateUpsOtherFieldValues", e);
         }finally {
             try {
@@ -813,16 +801,12 @@ public class DirectJDBCDAO {
                     pstmt.close();
             } catch (SQLException sqle) {
             }
-            try {
-                if (con != null)
-                    con.close();
-            } catch (SQLException sqle) {
-            }
+
         }
     }
 
-    public void updateFedExOtherFieldValues(List<ParcelAuditDetailsDto> rateDetailsList) {
-        Connection con = null;
+    public void updateFedExOtherFieldValues(List<ParcelAuditDetailsDto> rateDetailsList, Connection conn) throws Exception {
+
         PreparedStatement pstmt = null;
         String sqlQuery = " UPDATE SHP_EBILL_FDX_RATES_TB ur SET ur.SENDER_COUNTRY = ?, ";
         sqlQuery += " ur.CONSIGNEE_COUNTRY = ?, ur.SENDER_ST = ?, ur.CONSIGNEE_ST = ?, ur.DW_FIELD_INFORMATION = ?, ur.INVOICE_ID = ?, ur.SHIPPER_CODE = ?, ur.INVOICE_NUMBER = ?, ";
@@ -832,9 +816,8 @@ public class DirectJDBCDAO {
         sqlQuery += " WHERE ur.EBILL_MANIFEST_ID = ? ";
 
         try {
-            con = ServiceLocator.getDatabaseConnection();
-            pstmt = con.prepareStatement(sqlQuery);
-            con.setAutoCommit(false);
+            conn = ServiceLocator.getDatabaseConnection();
+            pstmt = conn.prepareStatement(sqlQuery);
 
             for(ParcelAuditDetailsDto rateDetails : rateDetailsList){
                 pstmt.setString(1, rateDetails.getSenderCountry());
@@ -888,26 +871,18 @@ public class DirectJDBCDAO {
             }
 
             pstmt.executeBatch();
-            con.commit();
+
         } catch (Exception e) {
             e.printStackTrace();
-            try {
-                con.rollback();
-            } catch (SQLException e1) {
-                e1.printStackTrace();
-            }
             throw new DaoException("Exception in updateFedExOtherFieldValues", e);
         }finally {
             try {
                 if (pstmt != null)
                     pstmt.close();
             } catch (SQLException sqle) {
+                sqle.printStackTrace();
             }
-            try {
-                if (con != null)
-                    con.close();
-            } catch (SQLException sqle) {
-            }
+
         }
     }
 
@@ -1218,8 +1193,8 @@ public class DirectJDBCDAO {
         }
     }
 
-    public void saveAccInfo(List<AccessorialDto> dtos, Long parentId, long carrierId) {
-        Connection con = null;
+    public void saveAccInfo(List<AccessorialDto> dtos, Long parentId, long carrierId, Connection conn) throws Exception {
+
         PreparedStatement pstmt = null;
         String tbName;
         String seqName;
@@ -1231,7 +1206,7 @@ public class DirectJDBCDAO {
             seqName = "SHP_FDX_ACC_AND_DIS_S.NEXTVAL";
         }
 
-        deleteAccInfoByParentId(parentId, tbName);
+        deleteAccInfoByParentId(parentId, tbName, conn);
 
         String sqlQuery = " INSERT\n" +
                 "    INTO " + tbName + "\n" +
@@ -1259,9 +1234,9 @@ public class DirectJDBCDAO {
 
 
         try {
-            con = ServiceLocator.getDatabaseConnection();
-            pstmt = con.prepareStatement(sqlQuery);
-            con.setAutoCommit(false);
+
+            pstmt = conn.prepareStatement(sqlQuery);
+
             for (AccessorialDto dto : dtos) {
                 pstmt.setLong(1, dto.getParentId());
                 pstmt.setString(2, dto.getType());
@@ -1272,14 +1247,9 @@ public class DirectJDBCDAO {
             }
 
             pstmt.executeBatch();
-            con.commit();
+
         } catch (Exception e) {
             e.printStackTrace();
-            try {
-                con.rollback();
-            } catch (SQLException e1) {
-                e1.printStackTrace();
-            }
             throw new DaoException("Exception in saveAccInfo", e);
         } finally {
             try {
@@ -1287,45 +1257,28 @@ public class DirectJDBCDAO {
                     pstmt.close();
             } catch (SQLException sqle) {
             }
-            try {
-                if (con != null)
-                    con.close();
-            } catch (SQLException sqle) {
-            }
         }
     }
 
-    public void deleteAccInfoByParentId(Long parentId, String tbName) {
-        Connection con = null;
+    public void deleteAccInfoByParentId(Long parentId, String tbName, Connection conn) throws Exception {
+
         PreparedStatement pstmt = null;
         String sqlQuery = " DELETE FROM " + tbName + " WHERE PARENT_ID=? ";
 
 
         try {
-            con = ServiceLocator.getDatabaseConnection();
-            pstmt = con.prepareStatement(sqlQuery);
-            con.setAutoCommit(false);
 
+            pstmt = conn.prepareStatement(sqlQuery);
             pstmt.setLong(1, parentId);
             pstmt.executeQuery();
-            con.commit();
+
         } catch (Exception e) {
             e.printStackTrace();
-            try {
-                con.rollback();
-            } catch (SQLException e1) {
-                e1.printStackTrace();
-            }
             throw new DaoException("Exception in deleteAccInfoByParentId", e);
         } finally {
             try {
                 if (pstmt != null)
                     pstmt.close();
-            } catch (SQLException sqle) {
-            }
-            try {
-                if (con != null)
-                    con.close();
             } catch (SQLException sqle) {
             }
         }

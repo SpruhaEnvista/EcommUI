@@ -21,6 +21,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -2557,5 +2559,15 @@ public class ParcelRatingUtil {
             }
         }
         return detailsDtos;
+    }
+
+    public static void closeConnection(Connection conn) {
+
+        try {
+            if (conn != null)
+                conn.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
