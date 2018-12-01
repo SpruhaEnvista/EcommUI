@@ -141,7 +141,7 @@ public class ParcelNonUpsRatingService {
                     if (ParcelRatingUtil.isFirstShipmentToRate(shipments, bean.getParentId())) {
                         if (!ParcelRatingUtil.isShipmentRated(shipmentToRate)) {
                             status = callRTRAndPopulateRates(shipmentToRate, bean, null, accessorialBeans, null);
-                            //updateFedExOtherFieldValues(shipmentToRate);
+
                         }
                     } else {
                         if (!ParcelRatingUtil.isShipmentRated(shipmentToRate)) {
@@ -153,11 +153,11 @@ public class ParcelNonUpsRatingService {
                                         if (prevShipmentFrtCharge != null) {
                                             shipmentToRate.add(prevShipmentFrtCharge);
                                             status = callRTRAndPopulateRates(shipmentToRate, bean, null, accessorialBeans, previousShipment);
-                                            //updateFedExOtherFieldValues(shipmentToRate);
+
                                         }
                                     } else {
                                         status = callRTRAndPopulateRates(shipmentToRate, bean, null, accessorialBeans, previousShipment);
-                                        //updateFedExOtherFieldValues(shipmentToRate);
+
                                     }
                                 }
                             }
