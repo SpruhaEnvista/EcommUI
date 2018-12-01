@@ -331,7 +331,7 @@ public class ParcelNonUpsRatingService {
 
             conn = ServiceLocator.getDatabaseConnection();
 
-            conn.setAutoCommit(false);
+            //conn.setAutoCommit(false);
 
             for (ParcelAuditDetailsDto auditDetails : parcelAuditDetails) {
                 if (auditDetails != null && auditDetails.getChargeClassificationCode() != null && !auditDetails.getChargeClassificationCode().isEmpty()) {

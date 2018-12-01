@@ -1478,7 +1478,8 @@ public class DirectJDBCDAO {
 
                 String sqlQuery = " INSERT INTO SHP_LOOKUP_TB (LOOKUP_ID, MODULE_NAME,COLUMN_NAME,LOOKUP_CODE,CUSTOM_DEFINED_1," +
                         "CUSTOM_DEFINED_2,CREATE_DATE,CREATE_USER, CUSTOM_DEFINED_3,CUSTOM_DEFINED_4)\n" +
-                        " VALUES(SHP_LOOKUP_S.NEXTVAL,'Parcel_Rating_MSI_AR_Code_UNKNOWN_Mapping','SERVICE FLAG CODE',?,?,?,SYSDATE,'PRAPROGRAM',?,?); ";
+                        " VALUES(SHP_LOOKUP_S.NEXTVAL,'Parcel_Rating_MSI_AR_Code_UNKNOWN_Mapping','SERVICE FLAG CODE',?,?,?," +
+                        "SYSDATE,'PRAPROGRAM',?,?) ";
 
 
                 pstmt = con.prepareStatement(sqlQuery);
