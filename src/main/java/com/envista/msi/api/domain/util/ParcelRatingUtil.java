@@ -407,6 +407,7 @@ public class ParcelRatingUtil {
                                         if (bean != null) {
                                             accJson.put("code", bean.getLookUpValue());
                                         } else {
+                                            DirectJDBCDAO.getInstance().insertUnknownMappingCode(auditDetails);
                                             m_log.warn("Service flag accessorial code is not found in look up table: Charge Desription Code->" + auditDetails.getChargeDescriptionCode() + "--Charge Desription->" + auditDetails.getChargeDescription() + "--Parent Id->" + auditDetails.getParentId());
                                             accJson.put("code", auditDetails.getChargeDescriptionCode());
                                         }
@@ -792,6 +793,7 @@ public class ParcelRatingUtil {
                             if (bean != null) {
                                 accJson.put("code", bean.getLookUpValue());
                             } else {
+                                DirectJDBCDAO.getInstance().insertUnknownMappingCode(auditDetails);
                                 m_log.warn("Service flag accessorial code is not found in look up table: Charge Desription Code->" + auditDetails.getChargeDescriptionCode() + "--Charge Desription->" + auditDetails.getChargeDescription() + "--Parent Id->" + auditDetails.getParentId());
                                 accJson.put("code", auditDetails.getChargeDescriptionCode());
                             }
@@ -816,6 +818,7 @@ public class ParcelRatingUtil {
             String serviceLevel = findServiceLevel(shipmentDetails);
             if (serviceLevel == null || serviceLevel.trim().isEmpty()) {
                 // System.out.println("Invalid Service Level for " + firstCharge.getTrackingNumber());
+
                 m_log.warn("Invalid OR Empty Service Level for " + firstCharge.getTrackingNumber() + "--Parent Id->" + firstCharge.getParentId() + "");
                 return null;
             }
