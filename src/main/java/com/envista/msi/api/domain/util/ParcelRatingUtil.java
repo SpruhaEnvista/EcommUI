@@ -272,16 +272,23 @@ public class ParcelRatingUtil {
     }
 
     public static String findServiceLevel(List<ParcelAuditDetailsDto> parcelAuditDetails) {
+        String serviceLevel = null;
         if (parcelAuditDetails != null && !parcelAuditDetails.isEmpty()) {
             for (ParcelAuditDetailsDto auditDetails : parcelAuditDetails) {
                 if (auditDetails != null && auditDetails.getChargeClassificationCode() != null
                         && ParcelAuditConstant.ChargeClassificationCode.FRT.name().equals(auditDetails.getChargeClassificationCode())
                         && auditDetails.getNetAmount() != null && !auditDetails.getNetAmount().isEmpty()) {
-                    return auditDetails.getServiceLevel();
+                    serviceLevel = auditDetails.getServiceLevel();
+                    break;
+                } else if (auditDetails != null && auditDetails.getChargeClassificationCode() != null
+                        && ParcelAuditConstant.ChargeClassificationCode.ACS.name().equals(auditDetails.getChargeClassificationCode())
+                        && auditDetails.getNetAmount() != null && !auditDetails.getNetAmount().isEmpty()) {
+                    serviceLevel = auditDetails.getServiceLevel();
                 }
+
             }
         }
-        return null;
+        return serviceLevel;
     }
 
     public static RatingQueueBean prepareShipmentEntryForUpsShipment(List<ParcelAuditDetailsDto> shipmentDetails, String rateSet, List<ServiceFlagAccessorialBean> accessorialBeans, List<ParcelAuditDetailsDto> trackingNumDetails, Map<String, Long> hwtSequenceInfo) throws JSONException {
