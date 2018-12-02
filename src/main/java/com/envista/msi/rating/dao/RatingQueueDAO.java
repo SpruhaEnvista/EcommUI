@@ -795,7 +795,7 @@ public class RatingQueueDAO {
         ResultSet rs = null;
         try {
             connection = ServiceLocator.getDatabaseConnection();
-            String sqlQuery = "select count(1) shipment_count from shp_rating_queue_tb where tracking_number = ? AND INVOICE_DATE =? and rate_status = 0";
+            String sqlQuery = "select count(1) shipment_count from shp_rating_queue_tb where tracking_number = ? AND INVOICE_DATE =? and rate_status IN (0,1,2,3)";
             ps = connection.prepareStatement(sqlQuery);
 
             ps.setString(1, trackingNumber);
