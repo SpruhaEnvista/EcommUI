@@ -18,6 +18,7 @@ import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -307,6 +308,23 @@ public class ParcelRatingQueueJob {
                                         for (ParcelAuditDetailsDto auditDetails : shipmentDetails) {
                                             if (auditDetails != null && "FRT".equalsIgnoreCase(auditDetails.getChargeClassificationCode())) {
                                                 frtFound = true;
+
+                                                if (((auditDetails.getPackageWeight() != null && new BigDecimal(auditDetails.getPackageWeight()).compareTo(BigDecimal.ZERO) == 0)
+                                                        && (auditDetails.getActualWeight() != null && auditDetails.getActualWeight().compareTo(BigDecimal.ZERO) == 0))) {
+
+                                                    List<ParcelAuditDetailsDto> prevParentIdInfo = ParcelRatingUtil.getImmediateParentIdInfo(auditDetails.getParentId(), shipments);
+                                                    if ( prevParentIdInfo != null && prevParentIdInfo.size() > 0 ) {
+                                                    ParcelAuditDetailsDto frtDto = ParcelRatingUtil.getLatestFrightCharge(prevParentIdInfo);
+                                                    if (frtDto != null) {
+                                                        if (frtDto.getActualWeight() != null)
+                                                            auditDetails.setActualWeight(frtDto.getActualWeight());
+                                                        if (frtDto.getPackageWeight() != null)
+                                                            auditDetails.setPackageWeight(frtDto.getPackageWeight());
+                                                    }
+
+                                                }
+                                                }
+
                                                 break;
                                             }
                                         }
