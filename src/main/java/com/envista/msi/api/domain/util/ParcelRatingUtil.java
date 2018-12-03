@@ -972,69 +972,15 @@ public class ParcelRatingUtil {
         requestResponseLog.setEntityIds(entityId.toString());
         requestResponseLog.setCreateUser(ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME);
         requestResponseLog.setTableName(tableName);
-        int length;
+
         if (requestPayload != null && !requestPayload.isEmpty()) {
-            int requestLength = requestPayload.length();
-            if (requestLength <= 4000) {
-                requestResponseLog.setRequestXml1(requestPayload);
-            } else {
-                requestResponseLog.setRequestXml1(requestPayload.substring(0, 3999));
-                if (requestLength <= 8000) {
-                    requestResponseLog.setRequestXml2(requestPayload.substring(4000, requestLength));
-                } else {
-                    requestResponseLog.setRequestXml2(requestPayload.substring(4000, 7999));
-                    if (requestLength > 8000) {
-
-                        length = requestLength - 8000;
-
-                        if (length >= 4000)
-                            length = 3999;
-
-                        requestResponseLog.setRequestXml3(requestPayload.substring(8000, 8000 + length));
-
-                        if (length >= 4000) {
-                            m_log.error("The request xml is more than 12000 characters, So log table could to able to store request beyond 12000 characters. Request is***" + requestPayload);
-                        }
-
-
-                    }
-                }
-            }
+            requestResponseLog.setRequestXml(requestPayload);
 
             if (response != null && !response.isEmpty()) {
-                int respLength = response.length();
-                length = 0;
-                if (respLength <= 4000) {
-                    requestResponseLog.setResponseXml1(response);
-                } else {
-                    requestResponseLog.setResponseXml1(response.substring(0, 3999));
-                    if (respLength <= 8000) {
-                        requestResponseLog.setResponseXml2(response.substring(4000, respLength));
-                    } else {
-                        if (respLength <= 12000) {
-                            requestResponseLog.setResponseXml2(response.substring(4000, 7999));
-                            requestResponseLog.setResponseXml3(response.substring(8000, respLength));
-                        } else {
-                            requestResponseLog.setResponseXml2(response.substring(4000, 7999));
-
-                            if (respLength > 12000) {
-
-                                length = respLength - 8000;
-
-                                if (length >= 4000)
-                                    length = 3999;
-
-                                requestResponseLog.setResponseXml3(response.substring(8000, 8000 + length));
-                            }
-                            if (length >= 4000) {
-                                m_log.error("The response xml is more than 12000 characters, So log table could to able to store response beyond 12000 characters. Response is***" + response);
-                            }
-
-                        }
-                    }
-                }
+                requestResponseLog.setResponseXml( response);
             }
         }
+
         return requestResponseLog;
     }
 
