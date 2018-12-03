@@ -272,6 +272,9 @@ public class ParcelAuditDetailsDto {
 
     private String returnFlag;
 
+
+    private Long ratesParentId;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -850,6 +853,14 @@ public class ParcelAuditDetailsDto {
 
     public void setReturnFlag(String returnFlag) {
         this.returnFlag = returnFlag;
+    }
+
+    public Long getRatesParentId() {
+        return ratesParentId;
+    }
+
+    public void setRatesParentId(Long ratesParentId) {
+        this.ratesParentId = ratesParentId;
     }
 
     public static class Config{
