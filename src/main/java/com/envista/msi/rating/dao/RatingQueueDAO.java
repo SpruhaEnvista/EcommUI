@@ -363,7 +363,7 @@ public class RatingQueueDAO {
             liveQuery.append(" null AS CHARGE_CODE, a.Lead_Shipment_Number AS MULTI_WEIGHT_NUMBER, a.CHARGE_CATEGORY_DETAIL_CODE, ");
             liveQuery.append(" a.INVOICE_DATE, a.INVOICE_NUMBER,  a.ZONE as ZONE, a.INCENTIVE_AMOUNT, b.CREATE_DATE AS INV_CREATE_DATE, a.SENDER_POSTAL AS SENDER_BILLED_ZIP_CODE, a.RECEIVER_POSTAL AS RECEIVER_BILLED_ZIP_CODE," +
                     "     f.STATE as shipper_state,f.CITY  as shipper_city,f.ZIPCODE  as shipper_zipCode,f.COUNTRY as shipper_country," +
-                    "a.World_Ease_Number,a.actual_service_bucket,ar.RTR_AMOUNT ,ar.rtr_status,a.PACKAGE_QUANTITY,a.CHARGE_CATEGORY_CODE,ar.Resi_Flag,ar.Com_To_Res,ar.RETURN_FLAG ");
+                    "a.World_Ease_Number,a.actual_service_bucket,ar.RTR_AMOUNT ,ar.rtr_status,ar.parent_id as rates_parent_id,a.PACKAGE_QUANTITY,a.CHARGE_CATEGORY_CODE,ar.Resi_Flag,ar.Com_To_Res,ar.RETURN_FLAG ");
 
             liveQuery.append(" FROM shp_ebill_gff_tb a, shp_ebill_invoice_tb b, shp_ebill_contract_tb c, shp_customer_profile_tb d," +
                     " shp_carrier_tb e, shp_shipper_tb f, SHP_EBILL_UPS_RATES_TB ar ");
@@ -497,6 +497,7 @@ public class RatingQueueDAO {
                 shipmentDetails.setResiFlag(rs.getString("RESI_FLAG"));
                 shipmentDetails.setComToResFlag(rs.getString("COM_TO_RES"));
                 shipmentDetails.setReturnFlag(rs.getString("RETURN_FLAG"));
+                shipmentDetails.setRatesParentId(rs.getLong("rates_parent_id"));
 
                 parcelUpsShipments.add(shipmentDetails);
 
@@ -551,7 +552,7 @@ public class RatingQueueDAO {
             liveSqlQuery.append(" ebmf.INVOICE_NUMBER, ebmf.ZONE, ebmf.MISCELLANEOUS5, ebmf.PIECES, ebmf.DIM_DIVISOR AS BILLED_DIM_DIVISOR, ebmf.BILL_DATE AS INVOICE_DATE, inv.CREATE_DATE AS INV_CREATE_DATE, ebmf.SENDER_ZIP AS SENDER_BILLED_ZIP_CODE, ebmf.CONSIGNEE_ZIP AS RECEIVER_BILLED_ZIP_CODE," +
                     "  s.STATE as shipper_state,s.CITY  as shipper_city,s.ZIPCODE  as shipper_zipCode,s.COUNTRY as shipper_country ,ebmf.Service_Bucket, ");
 
-            liveSqlQuery.append(" ar.RTR_AMOUNT ,ar.rtr_status,");
+            liveSqlQuery.append(" ar.RTR_AMOUNT ,ar.rtr_status,ar.parent_id as rates_parent_id, ");
 
             liveSqlQuery.append(" ebmf.REVENUE_TIER AS REVENUE_TIER, ebmf.CHARGE_CODE,DECODE (Ebmf.Bundle_Number,NULL,ebmf.MISCELLANEOUS5, ebmf.Bundle_Number) AS MULTI_WEIGHT_NUMBER, null AS CHARGE_CATEGORY_DETAIL_CODE ");
             liveSqlQuery.append(" FROM SHP_EBILL_MANIFEST_TB ebmf, SHP_EBILL_CONTRACT_TB ebc, SHP_CUSTOMER_PROFILE_TB cp, SHP_CARRIER_TB c, SHP_SHIPPER_TB s, SHP_EBILL_INVOICE_TB inv ");
@@ -689,6 +690,7 @@ public class RatingQueueDAO {
                 shipmentDetails.setShipperCountry(rs.getString("shipper_country"));
                 shipmentDetails.setShipperZip(rs.getString("shipper_zipCode"));
                 shipmentDetails.setActualServiceBucket(rs.getLong("Service_Bucket"));
+                shipmentDetails.setRatesParentId(rs.getLong("rates_parent_id"));
 
                 parcelUpsShipments.add(shipmentDetails);
             }
