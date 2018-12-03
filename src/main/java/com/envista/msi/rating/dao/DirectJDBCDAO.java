@@ -207,7 +207,8 @@ public class DirectJDBCDAO {
         }
     }
 
-    public void updateShipmentRateDetails(String referenceTableName, String entityId, String userName, ParcelRateDetailsDto rateDetails) {
+    public void updateShipmentRateDetails(String referenceTableName, String entityId, String userName, ParcelRateDetailsDto rateDetails) throws Exception {
+
         Connection conn = null;
         CallableStatement cstmt = null;
         try{
@@ -248,7 +249,7 @@ public class DirectJDBCDAO {
         } catch (SQLException sqle) {
             sqle.printStackTrace();
             throw new DaoException("Exception in updateShipmentRateDetails", sqle);
-        }  catch (ServiceLocatorException sle) {
+        } catch (ServiceLocatorException sle) {
             throw new DaoException("Exception in updateShipmentRateDetails", sle);
         }finally {
             try {
@@ -261,6 +262,7 @@ public class DirectJDBCDAO {
                     conn.close();
             } catch (SQLException sqle) {
             }
+
         }
     }
     public void updateOtherDiscountShipmentRateDetails(String referenceTableName, String entityIds, String userName, ParcelRateDetailsDto rateDetails){
@@ -731,7 +733,7 @@ public class DirectJDBCDAO {
         }
     }
 
-    public void updateUpsOtherFieldValues(List<ParcelAuditDetailsDto> rateDetailsList) {
+    public void updateUpsOtherFieldValues(List<ParcelAuditDetailsDto> rateDetailsList) throws Exception {
         Connection con = null;
         PreparedStatement pstmt = null;
         String sqlQuery = " UPDATE SHP_EBILL_UPS_RATES_TB ur SET ur.SENDER_COUNTRY = ?, ";
@@ -818,6 +820,7 @@ public class DirectJDBCDAO {
                     con.close();
             } catch (SQLException sqle) {
             }
+
         }
     }
 
@@ -908,6 +911,7 @@ public class DirectJDBCDAO {
                     con.close();
             } catch (SQLException sqle) {
             }
+
         }
     }
 
@@ -1218,7 +1222,8 @@ public class DirectJDBCDAO {
         }
     }
 
-    public void saveAccInfo(List<AccessorialDto> dtos, Long parentId, long carrierId) {
+    public void saveAccInfo(List<AccessorialDto> dtos, Long parentId, long carrierId) throws Exception {
+
         Connection con = null;
         PreparedStatement pstmt = null;
         String tbName;
@@ -1295,7 +1300,8 @@ public class DirectJDBCDAO {
         }
     }
 
-    public void deleteAccInfoByParentId(Long parentId, String tbName) {
+    public void deleteAccInfoByParentId(Long parentId, String tbName) throws Exception {
+
         Connection con = null;
         PreparedStatement pstmt = null;
         String sqlQuery = " DELETE FROM " + tbName + " WHERE PARENT_ID=? ";
@@ -1447,12 +1453,12 @@ public class DirectJDBCDAO {
         return dtos;
     }
 
-    public String getratingQueueInfoByParentId(String trackingNumber, Long parentId) {
+    public String getratingQueueInfoByParentId(String trackingNumber, Long parentId, String returnFlag) {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         String sqlQuery = " select Resi_Flag,Com_To_Res from shp_rating_queue_tb " +
-                " where Tracking_Number=? and Parent_Id=? ";
+                " where Tracking_Number=? and Parent_Id<? and return_flag=? ";
 
         String resiFlag = null;
 
@@ -1463,6 +1469,7 @@ public class DirectJDBCDAO {
 
             pstmt.setString(1, trackingNumber);
             pstmt.setLong(2, parentId);
+            pstmt.setString(3, returnFlag);
 
             rs = pstmt.executeQuery();
 
@@ -1500,4 +1507,64 @@ public class DirectJDBCDAO {
         return resiFlag;
     }
 
+    public void insertUnknownMappingCode(ParcelAuditDetailsDto auditDetails) {
+
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet resultSet = null;
+        try {
+            con = ServiceLocator.getDatabaseConnection();
+
+
+            String selectQuery = " select * from SHP_LOOKUP_TB  where MODULE_NAME ='Parcel_Rating_MSI_AR_Code_UNKNOWN_Mapping'" +
+                    "  and Lookup_Code=?\n" +
+                    "        and  CUSTOM_DEFINED_1=? and Custom_Defined_2=? ";
+
+            pstmt = con.prepareStatement(selectQuery);
+            pstmt.setString(1, auditDetails.getChargeDescriptionCode());
+            pstmt.setString(2, auditDetails.getChargeDescription());
+            pstmt.setLong(3, auditDetails.getCarrierId());
+
+            resultSet = pstmt.executeQuery();
+
+            if (!resultSet.next()) {
+
+                String sqlQuery = " INSERT INTO SHP_LOOKUP_TB (LOOKUP_ID, MODULE_NAME,COLUMN_NAME,LOOKUP_CODE,CUSTOM_DEFINED_1," +
+                        "CUSTOM_DEFINED_2,CREATE_DATE,CREATE_USER, CUSTOM_DEFINED_3,CUSTOM_DEFINED_4)\n" +
+                        " VALUES(SHP_LOOKUP_S.NEXTVAL,'Parcel_Rating_MSI_AR_Code_UNKNOWN_Mapping','SERVICE FLAG CODE',?,?,?," +
+                        "SYSDATE,'PRAPROGRAM',?,?) ";
+
+
+                pstmt = con.prepareStatement(sqlQuery);
+
+                pstmt.setString(1, auditDetails.getChargeDescriptionCode());
+                pstmt.setString(2, auditDetails.getChargeDescription());
+                pstmt.setLong(3, auditDetails.getCarrierId());
+                pstmt.setString(4, auditDetails.getTrackingNumber());
+                pstmt.setLong(5, auditDetails.getParentId());
+
+                pstmt.executeUpdate();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            throw new DaoException("Exception in updateFedExOtherFieldValues", e);
+        } finally {
+            try {
+                if (resultSet != null)
+                    resultSet.close();
+
+                if (pstmt != null)
+                    pstmt.close();
+
+            } catch (SQLException sqle) {
+            }
+            try {
+                if (con != null)
+                    con.close();
+            } catch (SQLException sqle) {
+            }
+        }
+
+    }
 }

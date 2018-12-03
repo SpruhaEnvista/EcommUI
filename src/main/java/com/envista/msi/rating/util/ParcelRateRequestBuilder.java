@@ -5,17 +5,20 @@ import com.envista.msi.api.web.rest.util.DateUtil;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelRateRequest;
 import com.envista.msi.rating.bean.RatingQueueBean;
 import org.json.JSONException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by Sujit kumar on 02/05/2018.
  */
 public class ParcelRateRequestBuilder {
+
+    private static final Logger m_log = LoggerFactory.getLogger(ParcelRateRequestBuilder.class);
+
     private static final String RATE_REQUEST_EVENT_DATE_FORMAT = "MM/dd/yyyy hh:mm";
 
     public static ParcelRateRequest buildParcelRateRequest(RatingQueueBean ratingQueueBean, String licenseKey, List<RatingQueueBean> queueBeans) {
@@ -236,13 +239,15 @@ public class ParcelRateRequestBuilder {
         try {
             ParcelRatingUtil.getItemTags(items, ratingQueueBean.getItemTagInfo());
 
-        } catch (JSONException e) {
+            if (ratingQueueBean.getAccessorials() != null) {
+                serviceFlagList.addAll(ratingQueueBean.getAccessorials());
+            }
+
+        } catch (Exception e) {
+            m_log.error("ERROR - " + e.getMessage() + "--Parent Id->" + ratingQueueBean.getParentId());
             e.printStackTrace();
         }
 
 
-        if (ratingQueueBean.getAccessorials() != null) {
-            serviceFlagList.addAll(ratingQueueBean.getAccessorials());
-        }
     }
 }

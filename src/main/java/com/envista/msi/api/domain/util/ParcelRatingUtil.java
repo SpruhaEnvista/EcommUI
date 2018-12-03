@@ -8,29 +8,38 @@ import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelRateRequest;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelRateResponse;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelRateResponseParser;
-import com.envista.msi.rating.ParcelRatingQueueJob;
 import com.envista.msi.rating.bean.AccessorialDto;
 import com.envista.msi.rating.bean.RatingQueueBean;
 import com.envista.msi.rating.bean.ServiceFlagAccessorialBean;
 import com.envista.msi.rating.dao.DirectJDBCDAO;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.math.BigDecimal;
-import java.util.*;
+import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 /**
  * Created by Sujit kumar on 20/04/2018.
  */
 public class ParcelRatingUtil {
 
-    private static final Logger m_log = LoggerFactory.getLogger(ParcelRatingQueueJob.class);
+    private static final Logger m_log = LoggerFactory.getLogger(ParcelRatingUtil.class);
 
     public static ParcelAuditDetailsDto getLatestFrightCharge(List<ParcelAuditDetailsDto> parcelAuditDetails) {
         ParcelAuditDetailsDto parcelAuditDetail = null;
@@ -263,16 +272,23 @@ public class ParcelRatingUtil {
     }
 
     public static String findServiceLevel(List<ParcelAuditDetailsDto> parcelAuditDetails) {
+        String serviceLevel = null;
         if (parcelAuditDetails != null && !parcelAuditDetails.isEmpty()) {
             for (ParcelAuditDetailsDto auditDetails : parcelAuditDetails) {
                 if (auditDetails != null && auditDetails.getChargeClassificationCode() != null
                         && ParcelAuditConstant.ChargeClassificationCode.FRT.name().equals(auditDetails.getChargeClassificationCode())
                         && auditDetails.getNetAmount() != null && !auditDetails.getNetAmount().isEmpty()) {
-                    return auditDetails.getServiceLevel();
+                    serviceLevel = auditDetails.getServiceLevel();
+                    break;
+                } else if (auditDetails != null && auditDetails.getChargeClassificationCode() != null
+                        && ParcelAuditConstant.ChargeClassificationCode.ACS.name().equals(auditDetails.getChargeClassificationCode())
+                        && auditDetails.getNetAmount() != null && !auditDetails.getNetAmount().isEmpty()) {
+                    serviceLevel = auditDetails.getServiceLevel();
                 }
+
             }
         }
-        return null;
+        return serviceLevel;
     }
 
     public static RatingQueueBean prepareShipmentEntryForUpsShipment(List<ParcelAuditDetailsDto> shipmentDetails, String rateSet, List<ServiceFlagAccessorialBean> accessorialBeans, List<ParcelAuditDetailsDto> trackingNumDetails, Map<String, Long> hwtSequenceInfo) throws JSONException {
@@ -290,272 +306,274 @@ public class ParcelRatingUtil {
             hwtSequenceInfo.remove("minParentId");
             hwt = true;
         }
+        if (firstCharge != null) {
+            prepareXmlReqAddressInfo(trackingNumDetails, firstCharge);
+            ratingQueueBean.setGffId(firstCharge.getId());
+            ratingQueueBean.setTrackingNumber(firstCharge.getTrackingNumber());
+            ratingQueueBean.setParentId(firstCharge.getParentId());
+            ratingQueueBean.setCarrierId(firstCharge.getCarrierId());
+            ratingQueueBean.setSenderBilledZipCode(firstCharge.getSenderBilledZipCode());
+            ratingQueueBean.setReceiverBilledZipCode(firstCharge.getReceiverBilledZipCode());
+            ratingQueueBean.setWorldeEaseNum("N");
+            ratingQueueBean.setComToRes("");
+            ratingQueueBean.setReturnFlag("N");
+            ratingQueueBean.setResiFlag("N");
+            boolean hasRJ5Charge = false;
 
-        prepareXmlReqAddressInfo(trackingNumDetails, firstCharge);
-        ratingQueueBean.setGffId(firstCharge.getId());
-        ratingQueueBean.setTrackingNumber(firstCharge.getTrackingNumber());
-        ratingQueueBean.setParentId(firstCharge.getParentId());
-        ratingQueueBean.setCarrierId(firstCharge.getCarrierId());
-        ratingQueueBean.setSenderBilledZipCode(firstCharge.getSenderBilledZipCode());
-        ratingQueueBean.setReceiverBilledZipCode(firstCharge.getReceiverBilledZipCode());
-        ratingQueueBean.setWorldeEaseNum("N");
-        ratingQueueBean.setComToRes("");
-        ratingQueueBean.setReturnFlag("N");
-        ratingQueueBean.setResiFlag("N");
-        boolean hasRJ5Charge = false;
 
-
-        if (shipmentDetails != null && !shipmentDetails.isEmpty()) {
-            for (ParcelAuditDetailsDto auditDetails : shipmentDetails) {
-
-                if (auditDetails != null && auditDetails.getPackageDimension() != null && !auditDetails.getPackageDimension().isEmpty()) {
-                    try {
-                        String[] dimension = auditDetails.getPackageDimension().toLowerCase().split("x");
-                        if (dimension != null && dimension.length > 2) {
-                            auditDetails.setDimLength(dimension[0] != null ? dimension[0].trim() : "");
-                            auditDetails.setDimWidth(dimension[1] != null ? dimension[1].trim() : "");
-                            auditDetails.setDimHeight(dimension[2] != null ? dimension[2].trim() : "");
-                        }
-                    } catch (Exception e) {
-                        m_log.error("ERROR - ", e.getMessage() + "--Parent Id->" + shipmentDetails.get(0).getParentId());
-                        e.printStackTrace();
-                    }
-                }
-                if ("RJ5".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())) {
-                    hasRJ5Charge = true;
-                }
-            }
-
-            if (firstCharge != null) {
-                String billOption = (null == firstCharge.getBillOption() ? "" : firstCharge.getBillOption());
-                if (billOption.equalsIgnoreCase("Prepaid") || billOption.equals("1") || billOption.equalsIgnoreCase("Outbound")) {
-                    billOption = "PP";
-                } else if (billOption.equalsIgnoreCase("Collect") || billOption.equals("2")) {
-                    billOption = "FC";
-                } else if (billOption.equalsIgnoreCase("Third Party") || billOption.equals("3")) {
-                    billOption = "TP";
-                }
-
-                ratingQueueBean.setBillOption(billOption);
-                if (ratingQueueBean.getZone() == null && firstCharge.getZone() != null) {
-                    ratingQueueBean.setZone(firstCharge.getZone());
-                }
-
-                JSONArray accJsonArr = new JSONArray();
+            if (shipmentDetails != null && !shipmentDetails.isEmpty()) {
                 for (ParcelAuditDetailsDto auditDetails : shipmentDetails) {
-                    if (auditDetails != null) {
+
+                    if (auditDetails != null && auditDetails.getPackageDimension() != null && !auditDetails.getPackageDimension().isEmpty()) {
                         try {
-                            if (shipmentDetails.get(0).getParentId().compareTo(auditDetails.getParentId()) == 0) {
-
-
-                                if (auditDetails.getChargeCatagoryCode() != null) {
-                                    if (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("RTN") || // Standard return
-                                            (auditDetails.getChargeCategoryDetailCode() != null && ((auditDetails.getChargeCatagoryCode().equalsIgnoreCase("MIS") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("RS")) || // PRL
-                                                    (auditDetails.getChargeDescriptionCode() != null && auditDetails.getChargeCatagoryCode().equalsIgnoreCase("MIS") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("IMP") && auditDetails.getChargeDescriptionCode().equalsIgnoreCase("ALP")) || // Import PRL
-                                                    (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("ADJ") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("RTS")) ||
-                                                    (auditDetails.getChargeDescription() != null && auditDetails.getChargeCatagoryCode().equalsIgnoreCase("ADJ") && auditDetails.getChargeDescription().toUpperCase().contains("RETURN"))))) {
-
-                                        ratingQueueBean.setReturnFlag("Y");
-                                    }
-                                }
-
-
-                                if (auditDetails.getWorldeEaseNum() != null && !auditDetails.getWorldeEaseNum().isEmpty())
-                                    ratingQueueBean.setWorldeEaseNum("Y");
-
-
-                                setComToResVal(ratingQueueBean, shipmentDetails, trackingNumDetails);
-                            }
-
-                            if (auditDetails.getChargeClassificationCode() != null
-                                    && ParcelAuditConstant.ChargeClassificationCode.ACC.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())) {
-                                if (auditDetails.getChargeDescriptionCode() != null && !auditDetails.getChargeDescriptionCode().isEmpty()
-                                        && !"RJ5".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())) {
-                                    JSONObject accJson = new JSONObject();
-
-                                    accJson.put("seq", hwtSequenceInfo.get(auditDetails.getTrackingNumber()));
-
-
-                                    accJson.put("netAmount", auditDetails.getNetAmount() != null ? auditDetails.getNetAmount().toString() : "0.00");
-                                    accJson.put("weight", auditDetails.getPackageWeight() != null ? auditDetails.getPackageWeight().toString() : "0.00");
-                                    if (auditDetails.getWeightUnit() != null && "O".equalsIgnoreCase(auditDetails.getWeightUnit()))
-                                        auditDetails.setWeightUnit("OUNCE");
-                                    accJson.put("weightUnit", (null == auditDetails.getWeightUnit() || auditDetails.getWeightUnit().isEmpty() || "L".equalsIgnoreCase(auditDetails.getWeightUnit()) ? "LBS" : auditDetails.getWeightUnit()));
-                                    accJson.put("quantity", (null == auditDetails.getItemQuantity() || auditDetails.getItemQuantity().isEmpty() ? 1l : Long.parseLong(auditDetails.getItemQuantity())));
-                                    accJson.put("quantityUnit", (null == auditDetails.getQuantityUnit() || auditDetails.getQuantityUnit().isEmpty() ? "PCS" : auditDetails.getQuantityUnit()));
-
-                                    ServiceFlagAccessorialBean bean = getAccessorialBean(accessorialBeans, auditDetails.getChargeDescription(), auditDetails.getChargeDescriptionCode(), 21L);
-
-                                    if (auditDetails.getChargeDescription() != null &&
-                                            "REMOTE AREA SURCHARGE".equalsIgnoreCase(auditDetails.getChargeDescription())) {
-
-                                        if ("AK".equalsIgnoreCase(auditDetails.getReceiverState()))
-                                            bean.setLookUpValue("RASAK");
-                                        if ("HI".equalsIgnoreCase(auditDetails.getReceiverState()))
-                                            bean.setLookUpValue("RASHI");
-                                    }
-
-                                    if (bean != null) {
-                                        accJson.put("code", bean.getLookUpValue());
-                                    } else {
-                                        m_log.warn("Service flag accessorial code is not found in look up table:" + auditDetails.getChargeDescriptionCode());
-                                        accJson.put("code", auditDetails.getChargeDescriptionCode());
-                                    }
-                                    if (!checkAccExist(accJsonArr, accJson))
-                                        accJsonArr.put(accJson);
-                                }
+                            String[] dimension = auditDetails.getPackageDimension().toLowerCase().split("x");
+                            if (dimension != null && dimension.length > 2) {
+                                auditDetails.setDimLength(dimension[0] != null ? dimension[0].trim() : "");
+                                auditDetails.setDimWidth(dimension[1] != null ? dimension[1].trim() : "");
+                                auditDetails.setDimHeight(dimension[2] != null ? dimension[2].trim() : "");
                             }
                         } catch (Exception e) {
-                            m_log.error("ERROR - ", e.getMessage() + "--Parent Id->" + ratingQueueBean.getParentId());
+                            m_log.error("ERROR - " + e.getStackTrace() + "--Parent Id->" + shipmentDetails.get(0).getParentId());
                             e.printStackTrace();
                         }
                     }
-                }
-                ratingQueueBean.setAccessorialInfo(accJsonArr != null && accJsonArr.length() > 0 ? accJsonArr.toString() : null);
-                String scacCode = (null == firstCharge.getRtrScacCode() ? "" : "FDEG".equals(firstCharge.getRtrScacCode()) ? "FDE" : firstCharge.getRtrScacCode());
-                ratingQueueBean.setScacCode(scacCode);
-
-                String currency = (null == firstCharge.getCurrency() || firstCharge.getCurrency().isEmpty() ? "USD" : firstCharge.getCurrency());
-                ratingQueueBean.setCurrencyCode(currency);
-
-                String serviceLevel = findServiceLevel(shipmentDetails);
-                if (serviceLevel == null || serviceLevel.trim().isEmpty()) {
-                    // System.out.println("Invalid Service Level for " + shipmentDetails.get(0).getTrackingNumber());
-                    m_log.warn("Invalid Service Level for " + shipmentDetails.get(0).getTrackingNumber());
-                    return null;
-                } else {
-                    ratingQueueBean.setService(serviceLevel);
-                }
-                ratingQueueBean.setCustomerCode(firstCharge.getCustomerCode());
-                ratingQueueBean.setShipperNumber(shipmentDetails.get(0).getShipperNumber());
-                ratingQueueBean.setRevenueTier(shipmentDetails.get(0).getRevenueTier());
-                JSONArray itemJsonArr = new JSONArray();
-                for (Map.Entry<String, Long> entry : hwtSequenceInfo.entrySet()) {
-
-
-                    ParcelAuditDetailsDto latestFreightCharge = ParcelRatingUtil.getLatestFrightCharge(shipmentDetails, entry.getKey());
-
-                    if (latestFreightCharge != null) {
-                        float weight = (null == latestFreightCharge.getPackageWeight() || latestFreightCharge.getPackageWeight().isEmpty() ? 1f : Float.parseFloat(latestFreightCharge.getPackageWeight()));
-                        if (latestFreightCharge.getWeightUnit() != null && "O".equalsIgnoreCase(latestFreightCharge.getWeightUnit()))
-                            latestFreightCharge.setWeightUnit("OUNCE");
-                        String weightUnit = (null == latestFreightCharge.getWeightUnit() || latestFreightCharge.getWeightUnit().isEmpty() || "L".equalsIgnoreCase(latestFreightCharge.getWeightUnit()) ? "LBS" : latestFreightCharge.getWeightUnit());
-                        long quantity = (null == latestFreightCharge.getItemQuantity() || latestFreightCharge.getItemQuantity().isEmpty() ? 1l : Long.parseLong(latestFreightCharge.getItemQuantity()));
-                        String quantityUnit = (null == latestFreightCharge.getQuantityUnit() || latestFreightCharge.getQuantityUnit().isEmpty() ? "PCS" : latestFreightCharge.getQuantityUnit());
-                        float dimLenght = (null == latestFreightCharge.getDimLength() || latestFreightCharge.getDimLength().isEmpty() ? 0.0f : Float.parseFloat(latestFreightCharge.getDimLength()));
-                        float dimWidth = (null == latestFreightCharge.getDimWidth() || latestFreightCharge.getDimWidth().isEmpty() ? 0.0f : Float.parseFloat(latestFreightCharge.getDimWidth()));
-                        float dimHeight = (null == latestFreightCharge.getDimHeight() || latestFreightCharge.getDimHeight().isEmpty() ? 0.0f : Float.parseFloat(latestFreightCharge.getDimHeight()));
-                        String dimUnit = (null == latestFreightCharge.getUnitOfDim() || latestFreightCharge.getUnitOfDim().isEmpty() ? "" : (latestFreightCharge.getUnitOfDim().equalsIgnoreCase("I") ? "in" : latestFreightCharge.getUnitOfDim()));
-                        float actualWeight = (null == latestFreightCharge.getActualWeight() ? 0.0f : latestFreightCharge.getActualWeight().floatValue());
-                        String actualWeightUnit = (null == latestFreightCharge.getActualWeightUnit() || latestFreightCharge.getActualWeightUnit().isEmpty() || "L".equalsIgnoreCase(latestFreightCharge.getActualWeightUnit()) ? "LBS" : latestFreightCharge.getActualWeightUnit());
-
-                        JSONObject accJson = new JSONObject();
-                        accJson.put("seq", entry.getValue());
-                        accJson.put("weight", String.valueOf(weight));
-                        accJson.put("weightUnit", weightUnit);
-                        accJson.put("quantity", String.valueOf(quantity));
-                        accJson.put("quantityUnit", quantityUnit);
-                        accJson.put("dimLenght", String.valueOf(dimLenght));
-                        accJson.put("dimWidth", String.valueOf(dimWidth));
-                        accJson.put("dimHeight", String.valueOf(dimHeight));
-                        accJson.put("dimUnit", dimUnit);
-                        accJson.put("actualWeight", String.valueOf(actualWeight));
-                        accJson.put("actualWeightUnit", actualWeightUnit);
-                        accJson.put("packageType", firstCharge.getPackageType());
-                        ratingQueueBean.setFrtWeight(weight);
-                        ratingQueueBean.setFrtWeightUnits(weightUnit);
-                        ratingQueueBean.setFrtQyantity(quantity);
-                        ratingQueueBean.setFrtQuantityUnits(quantityUnit);
-                        ratingQueueBean.setDimLength(dimLenght);
-                        ratingQueueBean.setDimWidth(dimWidth);
-                        ratingQueueBean.setDimHeight(dimHeight);
-                        ratingQueueBean.setDimUnits(dimUnit);
-                        ratingQueueBean.setFrtActualWeight(actualWeight);
-                        ratingQueueBean.setFrtActualWeightUnits(actualWeightUnit);
-                        ratingQueueBean.setPackageType(firstCharge.getPackageType());
-                        itemJsonArr.put(accJson);
-
-                    } else {
-                        throw new RuntimeException("Freight Item not found");
+                    if ("RJ5".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())) {
+                        hasRJ5Charge = true;
                     }
                 }
-                ratingQueueBean.setItemTagInfo(itemJsonArr != null ? itemJsonArr.toString() : null);
 
-                ratingQueueBean.setShipDate(firstCharge.getPickupDate());
+                if (firstCharge != null) {
+                    String billOption = (null == firstCharge.getBillOption() ? "" : firstCharge.getBillOption());
+                    if (billOption.equalsIgnoreCase("Prepaid") || billOption.equals("1") || billOption.equalsIgnoreCase("Outbound")) {
+                        billOption = "PP";
+                    } else if (billOption.equalsIgnoreCase("Collect") || billOption.equals("2")) {
+                        billOption = "FC";
+                    } else if (billOption.equalsIgnoreCase("Third Party") || billOption.equals("3")) {
+                        billOption = "TP";
+                    }
 
-                if ((null == firstCharge.getSenderCountry() || firstCharge.getSenderCountry().isEmpty())
-                        && (null == firstCharge.getSenderState() || firstCharge.getSenderState().isEmpty())
-                        && (null == firstCharge.getSenderCity() || firstCharge.getSenderCity().isEmpty())
-                        && (null == firstCharge.getSenderZipCode() || firstCharge.getSenderZipCode().isEmpty())) {
+                    ratingQueueBean.setBillOption(billOption);
+                    if (ratingQueueBean.getZone() == null && firstCharge.getZone() != null) {
+                        ratingQueueBean.setZone(firstCharge.getZone());
+                    }
 
-                    firstCharge.setSenderCity(firstCharge.getShipperCity());
-                    firstCharge.setSenderState(firstCharge.getShipperState());
-                    firstCharge.setSenderCountry(firstCharge.getShipperCountry());
-                    firstCharge.setSenderZipCode(firstCharge.getShipperZip());
-
-                }
-
-                String senderCountry = (null == firstCharge.getSenderCountry() || firstCharge.getSenderCountry().isEmpty() ? "US" : firstCharge.getSenderCountry());
-                String senderState = (null == firstCharge.getSenderState() ? "" : firstCharge.getSenderState());
-                String senderCity = (null == firstCharge.getSenderCity() ? "" : firstCharge.getSenderCity());
-                String senderZipCode = (null == firstCharge.getSenderZipCode() ? "" : firstCharge.getSenderZipCode());
-
-
-                ratingQueueBean.setShipperCountry(senderCountry);
-                ratingQueueBean.setShipperState(senderState);
-                ratingQueueBean.setShipperCity(senderCity);
-                ratingQueueBean.setShipperZip(senderZipCode);
-
-                if (firstCharge.getDeliveryDate() != null) {
-                    ratingQueueBean.setDeliveryDate(firstCharge.getDeliveryDate());
-                } else {
-                    ratingQueueBean.setDeliveryDate(firstCharge.getPickupDate());
-                }
-                String receiverCountry = (null == firstCharge.getReceiverCountry() || firstCharge.getReceiverCountry().isEmpty() ? "US" : firstCharge.getReceiverCountry());
-                String receiverState = (null == firstCharge.getReceiverState() ? "" : firstCharge.getReceiverState());
-                String receiverCity = (null == firstCharge.getReceiverCity() ? "" : firstCharge.getReceiverCity());
-                String receiverZipCode = (null == firstCharge.getReceiverZipCode() ? "" : firstCharge.getReceiverZipCode());
-
-                ratingQueueBean.setReceiverCountry(receiverCountry);
-                ratingQueueBean.setReceiverState(receiverState);
-                ratingQueueBean.setReceiverCity(receiverCity);
-                ratingQueueBean.setReceiverZip(receiverZipCode);
-                if (hwt) {
-                    ratingQueueBean.setHwtIdentifier(firstCharge.getMultiWeightNumber());
-                    ratingQueueBean.setTrackingNumber(firstCharge.getMultiWeightNumber());
-                }
-
-                ratingQueueBean.setRateSetName(rateSet);
-                if (firstCharge.getActualServiceBucket() != null)
-                    ratingQueueBean.setActualServiceBucket(Long.valueOf(firstCharge.getActualServiceBucket()));
-
-                ratingQueueBean.setInvoiceDate(firstCharge.getInvoiceDate());
-                ratingQueueBean.setCustomerId(firstCharge.getCustomerId());
+                    JSONArray accJsonArr = new JSONArray();
+                    for (ParcelAuditDetailsDto auditDetails : shipmentDetails) {
+                        if (auditDetails != null) {
+                            try {
+                                if (shipmentDetails.get(0).getParentId().compareTo(auditDetails.getParentId()) == 0) {
 
 
-                if ("".equalsIgnoreCase(ratingQueueBean.getComToRes()) && "N".equalsIgnoreCase(ratingQueueBean.getResiFlag())) {
+                                    if (auditDetails.getChargeCatagoryCode() != null) {
+                                        if (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("RTN") || // Standard return
+                                                (auditDetails.getChargeCategoryDetailCode() != null && ((auditDetails.getChargeCatagoryCode().equalsIgnoreCase("MIS") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("RS")) || // PRL
+                                                        (auditDetails.getChargeDescriptionCode() != null && auditDetails.getChargeCatagoryCode().equalsIgnoreCase("MIS") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("IMP") && auditDetails.getChargeDescriptionCode().equalsIgnoreCase("ALP")) || // Import PRL
+                                                        (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("ADJ") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("RTS")) ||
+                                                        (auditDetails.getChargeDescription() != null && auditDetails.getChargeCatagoryCode().equalsIgnoreCase("ADJ") && auditDetails.getChargeDescription().toUpperCase().contains("RETURN"))))) {
 
-                    Map<Long, List<ParcelAuditDetailsDto>> parentIdWiseShipments = ParcelRatingUtil.organiseShipmentsByParentId(trackingNumDetails);
+                                            ratingQueueBean.setReturnFlag("Y");
+                                        }
+                                    }
 
-                    if (parentIdWiseShipments != null && parentIdWiseShipments.size() > 1) {
 
-                        List<ParcelAuditDetailsDto> immediateParentIdInfo = getImmediateParentIdInfo(firstCharge.getParentId(), parentIdWiseShipments);
+                                    if (auditDetails.getWorldeEaseNum() != null && !auditDetails.getWorldeEaseNum().isEmpty())
+                                        ratingQueueBean.setWorldeEaseNum("Y");
 
-                        if (immediateParentIdInfo != null && immediateParentIdInfo.size() > 0) {
-                            String resiFlag = DirectJDBCDAO.getInstance().getratingQueueInfoByParentId
-                                    (immediateParentIdInfo.get(0).getTrackingNumber(), immediateParentIdInfo.get(0).getParentId());
-                            if (resiFlag != null) {
-                                ratingQueueBean.setResiFlag(resiFlag);
+
+                                    setComToResVal(ratingQueueBean, shipmentDetails, trackingNumDetails);
+                                }
+
+                                if (auditDetails.getChargeClassificationCode() != null
+                                        && ParcelAuditConstant.ChargeClassificationCode.ACC.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())) {
+                                    if (auditDetails.getChargeDescriptionCode() != null && !auditDetails.getChargeDescriptionCode().isEmpty()
+                                            && !"RJ5".equalsIgnoreCase(auditDetails.getChargeDescriptionCode())) {
+                                        JSONObject accJson = new JSONObject();
+
+                                        accJson.put("seq", hwtSequenceInfo.get(auditDetails.getTrackingNumber()));
+
+
+                                        accJson.put("netAmount", auditDetails.getNetAmount() != null ? auditDetails.getNetAmount().toString() : "0.00");
+                                        accJson.put("weight", auditDetails.getPackageWeight() != null ? auditDetails.getPackageWeight().toString() : "0.00");
+                                        if (auditDetails.getWeightUnit() != null && "O".equalsIgnoreCase(auditDetails.getWeightUnit()))
+                                            auditDetails.setWeightUnit("OUNCE");
+                                        accJson.put("weightUnit", (null == auditDetails.getWeightUnit() || auditDetails.getWeightUnit().isEmpty() || "L".equalsIgnoreCase(auditDetails.getWeightUnit()) ? "LBS" : auditDetails.getWeightUnit()));
+                                        accJson.put("quantity", (null == auditDetails.getItemQuantity() || auditDetails.getItemQuantity().isEmpty() ? 1l : Long.parseLong(auditDetails.getItemQuantity())));
+                                        accJson.put("quantityUnit", (null == auditDetails.getQuantityUnit() || auditDetails.getQuantityUnit().isEmpty() ? "PCS" : auditDetails.getQuantityUnit()));
+
+                                        ServiceFlagAccessorialBean bean = getAccessorialBean(accessorialBeans, auditDetails.getChargeDescription(), auditDetails.getChargeDescriptionCode(), 21L);
+
+                                        if (auditDetails.getChargeDescription() != null &&
+                                                "REMOTE AREA SURCHARGE".equalsIgnoreCase(auditDetails.getChargeDescription())) {
+
+                                            if ("AK".equalsIgnoreCase(auditDetails.getReceiverState()))
+                                                bean.setLookUpValue("RASAK");
+                                            if ("HI".equalsIgnoreCase(auditDetails.getReceiverState()))
+                                                bean.setLookUpValue("RASHI");
+                                        }
+
+                                        if (bean != null) {
+                                            accJson.put("code", bean.getLookUpValue());
+                                        } else {
+                                            DirectJDBCDAO.getInstance().insertUnknownMappingCode(auditDetails);
+                                            m_log.warn("Service flag accessorial code is not found in look up table: Charge Desription Code->" + auditDetails.getChargeDescriptionCode() + "--Charge Desription->" + auditDetails.getChargeDescription() + "--Parent Id->" + auditDetails.getParentId());
+                                            accJson.put("code", auditDetails.getChargeDescriptionCode());
+                                        }
+                                        if (!checkAccExist(accJsonArr, accJson))
+                                            accJsonArr.put(accJson);
+                                    }
+                                }
+                            } catch (Exception e) {
+                                m_log.error("ERROR - " + e.getStackTrace() + "--Parent Id->" + ratingQueueBean.getParentId());
+                                e.printStackTrace();
                             }
                         }
                     }
+                    ratingQueueBean.setAccessorialInfo(accJsonArr != null && accJsonArr.length() > 0 ? accJsonArr.toString() : null);
+                    String scacCode = (null == firstCharge.getRtrScacCode() ? "" : "FDEG".equals(firstCharge.getRtrScacCode()) ? "FDE" : firstCharge.getRtrScacCode());
+                    ratingQueueBean.setScacCode(scacCode);
 
-                }
+                    String currency = (null == firstCharge.getCurrency() || firstCharge.getCurrency().isEmpty() ? "USD" : firstCharge.getCurrency());
+                    ratingQueueBean.setCurrencyCode(currency);
+
+                    String serviceLevel = findServiceLevel(shipmentDetails);
+                    if (serviceLevel == null || serviceLevel.trim().isEmpty()) {
+                        // System.out.println("Invalid Service Level for " + shipmentDetails.get(0).getTrackingNumber());
+                        m_log.warn("Invalid OR Empty Service Level for " + firstCharge.getTrackingNumber() + "--Parent Id->" + firstCharge.getParentId() + "");
+                        return null;
+                    } else {
+                        ratingQueueBean.setService(serviceLevel);
+                    }
+                    ratingQueueBean.setCustomerCode(firstCharge.getCustomerCode());
+                    ratingQueueBean.setShipperNumber(shipmentDetails.get(0).getShipperNumber());
+                    ratingQueueBean.setRevenueTier(shipmentDetails.get(0).getRevenueTier());
+                    JSONArray itemJsonArr = new JSONArray();
+                    for (Map.Entry<String, Long> entry : hwtSequenceInfo.entrySet()) {
+
+
+                        ParcelAuditDetailsDto latestFreightCharge = ParcelRatingUtil.getLatestFrightCharge(shipmentDetails, entry.getKey());
+
+                        if (latestFreightCharge != null) {
+                            float weight = (null == latestFreightCharge.getPackageWeight() || latestFreightCharge.getPackageWeight().isEmpty() ? 1f : Float.parseFloat(latestFreightCharge.getPackageWeight()));
+                            if (latestFreightCharge.getWeightUnit() != null && "O".equalsIgnoreCase(latestFreightCharge.getWeightUnit()))
+                                latestFreightCharge.setWeightUnit("OUNCE");
+                            String weightUnit = (null == latestFreightCharge.getWeightUnit() || latestFreightCharge.getWeightUnit().isEmpty() || "L".equalsIgnoreCase(latestFreightCharge.getWeightUnit()) ? "LBS" : latestFreightCharge.getWeightUnit());
+                            long quantity = (null == latestFreightCharge.getItemQuantity() || latestFreightCharge.getItemQuantity().isEmpty() ? 1l : Long.parseLong(latestFreightCharge.getItemQuantity()));
+                            String quantityUnit = (null == latestFreightCharge.getQuantityUnit() || latestFreightCharge.getQuantityUnit().isEmpty() ? "PCS" : latestFreightCharge.getQuantityUnit());
+                            float dimLenght = (null == latestFreightCharge.getDimLength() || latestFreightCharge.getDimLength().isEmpty() ? 0.0f : Float.parseFloat(latestFreightCharge.getDimLength()));
+                            float dimWidth = (null == latestFreightCharge.getDimWidth() || latestFreightCharge.getDimWidth().isEmpty() ? 0.0f : Float.parseFloat(latestFreightCharge.getDimWidth()));
+                            float dimHeight = (null == latestFreightCharge.getDimHeight() || latestFreightCharge.getDimHeight().isEmpty() ? 0.0f : Float.parseFloat(latestFreightCharge.getDimHeight()));
+                            String dimUnit = (null == latestFreightCharge.getUnitOfDim() || latestFreightCharge.getUnitOfDim().isEmpty() ? "" : (latestFreightCharge.getUnitOfDim().equalsIgnoreCase("I") ? "in" : latestFreightCharge.getUnitOfDim()));
+                            float actualWeight = (null == latestFreightCharge.getActualWeight() ? 0.0f : latestFreightCharge.getActualWeight().floatValue());
+                            String actualWeightUnit = (null == latestFreightCharge.getActualWeightUnit() || latestFreightCharge.getActualWeightUnit().isEmpty() || "L".equalsIgnoreCase(latestFreightCharge.getActualWeightUnit()) ? "LBS" : latestFreightCharge.getActualWeightUnit());
+
+                            JSONObject accJson = new JSONObject();
+                            accJson.put("seq", entry.getValue());
+                            accJson.put("weight", String.valueOf(weight));
+                            accJson.put("weightUnit", weightUnit);
+                            accJson.put("quantity", String.valueOf(quantity));
+                            accJson.put("quantityUnit", quantityUnit);
+                            accJson.put("dimLenght", String.valueOf(dimLenght));
+                            accJson.put("dimWidth", String.valueOf(dimWidth));
+                            accJson.put("dimHeight", String.valueOf(dimHeight));
+                            accJson.put("dimUnit", dimUnit);
+                            accJson.put("actualWeight", String.valueOf(actualWeight));
+                            accJson.put("actualWeightUnit", actualWeightUnit);
+                            accJson.put("packageType", firstCharge.getPackageType());
+                            ratingQueueBean.setFrtWeight(weight);
+                            ratingQueueBean.setFrtWeightUnits(weightUnit);
+                            ratingQueueBean.setFrtQyantity(quantity);
+                            ratingQueueBean.setFrtQuantityUnits(quantityUnit);
+                            ratingQueueBean.setDimLength(dimLenght);
+                            ratingQueueBean.setDimWidth(dimWidth);
+                            ratingQueueBean.setDimHeight(dimHeight);
+                            ratingQueueBean.setDimUnits(dimUnit);
+                            ratingQueueBean.setFrtActualWeight(actualWeight);
+                            ratingQueueBean.setFrtActualWeightUnits(actualWeightUnit);
+                            ratingQueueBean.setPackageType(firstCharge.getPackageType());
+                            itemJsonArr.put(accJson);
+
+                        } else {
+                            throw new RuntimeException("Freight Item not found");
+                        }
+                    }
+                    ratingQueueBean.setItemTagInfo(itemJsonArr != null ? itemJsonArr.toString() : null);
+
+                    ratingQueueBean.setShipDate(firstCharge.getPickupDate());
+
+                    if ((null == firstCharge.getSenderCountry() || firstCharge.getSenderCountry().isEmpty())
+                            && (null == firstCharge.getSenderState() || firstCharge.getSenderState().isEmpty())
+                            && (null == firstCharge.getSenderCity() || firstCharge.getSenderCity().isEmpty())
+                            && (null == firstCharge.getSenderZipCode() || firstCharge.getSenderZipCode().isEmpty())) {
+
+                        firstCharge.setSenderCity(firstCharge.getShipperCity());
+                        firstCharge.setSenderState(firstCharge.getShipperState());
+                        firstCharge.setSenderCountry(firstCharge.getShipperCountry());
+                        firstCharge.setSenderZipCode(firstCharge.getShipperZip());
+
+                    }
+
+                    String senderCountry = (null == firstCharge.getSenderCountry() || firstCharge.getSenderCountry().isEmpty() ? "US" : firstCharge.getSenderCountry());
+                    String senderState = (null == firstCharge.getSenderState() ? "" : firstCharge.getSenderState());
+                    String senderCity = (null == firstCharge.getSenderCity() ? "" : firstCharge.getSenderCity());
+                    String senderZipCode = (null == firstCharge.getSenderZipCode() ? "" : firstCharge.getSenderZipCode());
+
+
+                    ratingQueueBean.setShipperCountry(senderCountry);
+                    ratingQueueBean.setShipperState(senderState);
+                    ratingQueueBean.setShipperCity(senderCity);
+                    ratingQueueBean.setShipperZip(senderZipCode);
+
+                    if (firstCharge.getDeliveryDate() != null) {
+                        ratingQueueBean.setDeliveryDate(firstCharge.getDeliveryDate());
+                    } else {
+                        ratingQueueBean.setDeliveryDate(firstCharge.getPickupDate());
+                    }
+                    String receiverCountry = (null == firstCharge.getReceiverCountry() || firstCharge.getReceiverCountry().isEmpty() ? "US" : firstCharge.getReceiverCountry());
+                    String receiverState = (null == firstCharge.getReceiverState() ? "" : firstCharge.getReceiverState());
+                    String receiverCity = (null == firstCharge.getReceiverCity() ? "" : firstCharge.getReceiverCity());
+                    String receiverZipCode = (null == firstCharge.getReceiverZipCode() ? "" : firstCharge.getReceiverZipCode());
+
+                    ratingQueueBean.setReceiverCountry(receiverCountry);
+                    ratingQueueBean.setReceiverState(receiverState);
+                    ratingQueueBean.setReceiverCity(receiverCity);
+                    ratingQueueBean.setReceiverZip(receiverZipCode);
+                    if (hwt) {
+                        ratingQueueBean.setHwtIdentifier(firstCharge.getMultiWeightNumber());
+                        ratingQueueBean.setTrackingNumber(firstCharge.getMultiWeightNumber());
+                    }
+
+                    ratingQueueBean.setRateSetName(rateSet);
+                    if (firstCharge.getActualServiceBucket() != null)
+                        ratingQueueBean.setActualServiceBucket(Long.valueOf(firstCharge.getActualServiceBucket()));
+
+                    ratingQueueBean.setInvoiceDate(firstCharge.getInvoiceDate());
+                    ratingQueueBean.setCustomerId(firstCharge.getCustomerId());
+
+
+                    if ("".equalsIgnoreCase(ratingQueueBean.getComToRes()) && "N".equalsIgnoreCase(ratingQueueBean.getResiFlag())) {
+
+                        Map<Long, List<ParcelAuditDetailsDto>> parentIdWiseShipments = ParcelRatingUtil.organiseShipmentsByParentId(trackingNumDetails);
+
+                        if (parentIdWiseShipments != null && parentIdWiseShipments.size() > 1) {
+
+                            //List<ParcelAuditDetailsDto> immediateParentIdInfo = getImmediateParentIdInfo(firstCharge.getParentId(), parentIdWiseShipments);
+
+
+                            String resiFlag = DirectJDBCDAO.getInstance().getratingQueueInfoByParentId
+                                    (firstCharge.getTrackingNumber(), firstCharge.getParentId(), ratingQueueBean.getReturnFlag());
+                            if (resiFlag != null) {
+                                ratingQueueBean.setResiFlag(resiFlag);
+                            }
+
+                        }
+
+                    }
 
      /*           if("N".equalsIgnoreCase(ratingQueueBean.getReturnFlag()) && ("FRT".equalsIgnoreCase(firstCharge.getChargeClassificationCode()) && "SCC".equalsIgnoreCase(firstCharge.getChargeCategoryDetailCode()) )){
                     checkImmediateParentIdReturnFlag(ratingQueueBean, shipmentDetails, trackingNumDetails);
                 }*/
 
+                }
             }
         }
         return ratingQueueBean;
@@ -678,7 +696,7 @@ public class ParcelRatingUtil {
 
                         if (accAmount != null) {
                             jsonObject.remove("netAmount");
-                            jsonObject.put("netAmount", accAmount);
+                            jsonObject.put("netAmount", accAmount.toString());
 
                             return true;
                         }
@@ -689,7 +707,7 @@ public class ParcelRatingUtil {
 
 
         } catch (JSONException e) {
-            m_log.error("ERROR - ", e.getMessage());
+            m_log.error("ERROR - " + e.getStackTrace());
             e.printStackTrace();
         }
         return false;
@@ -715,203 +733,215 @@ public class ParcelRatingUtil {
             hwt = true;
         }
 
-        prepareXmlReqAddressInfo(trackingNumDetails, firstCharge);
+        if (firstCharge != null) {
 
-        ratingQueueBean.setManiestId(firstCharge.getId());
-        ratingQueueBean.setTrackingNumber(firstCharge.getTrackingNumber());
-        ratingQueueBean.setParentId(firstCharge.getParentId());
-        ratingQueueBean.setCarrierId(firstCharge.getCarrierId());
-        ratingQueueBean.setSenderBilledZipCode(firstCharge.getSenderBilledZipCode());
-        ratingQueueBean.setReceiverBilledZipCode(firstCharge.getReceiverBilledZipCode());
-        ratingQueueBean.setPrpFlag("N");
+            List<ParcelAuditDetailsDto> leadShipmentDetails = ParcelRatingUtil.getLeadShipmentDetails(trackingNumDetails);
 
-        String billOption = (null == firstCharge.getBillOption() ? "" : firstCharge.getBillOption());
-        if (billOption.equalsIgnoreCase("Prepaid") || billOption.equals("1") || billOption.equalsIgnoreCase("Outbound")) {
-            billOption = "PP";
-        } else if (billOption.equalsIgnoreCase("Collect") || billOption.equals("2")) {
-            billOption = "FC";
-        } else if (billOption.equalsIgnoreCase("Third Party") || billOption.equals("3")) {
-            billOption = "TP";
-        }
-        ratingQueueBean.setBillOption(billOption);
-        if (ratingQueueBean.getZone() == null && firstCharge.getZone() != null) {
-            ratingQueueBean.setZone(firstCharge.getZone());
-        }
+            prepareXmlReqAddressInfo(trackingNumDetails, firstCharge);
 
-        //StringJoiner accessorials = new StringJoiner(",");
-        JSONArray accJsonArr = new JSONArray();
-        String returnFlag = "N";
-        String resiFlag = "N";
+            ratingQueueBean.setManiestId(firstCharge.getId());
 
-        for (ParcelAuditDetailsDto auditDetails : shipmentDetails) {
-            if (auditDetails != null) {
-                if (auditDetails.getChargeDescription() != null && (auditDetails.getChargeDescription().toUpperCase().startsWith("RETURN")))
-                    returnFlag = "Y";
-                if (auditDetails.getChargeDescription() != null && (auditDetails.getChargeDescription().toUpperCase().endsWith("-PRP")
-                        || "RETURN EMAIL LABEL".equalsIgnoreCase(auditDetails.getChargeDescription().toUpperCase())))
-                    ratingQueueBean.setPrpFlag("Y");
+            if (leadShipmentDetails != null && leadShipmentDetails.size() > 0)
+                ratingQueueBean.setTrackingNumber(leadShipmentDetails.get(0).getTrackingNumber());
+            else
+                ratingQueueBean.setTrackingNumber(firstCharge.getTrackingNumber());
 
-                if (auditDetails.getChargeClassificationCode() != null && ParcelAuditConstant.ChargeClassificationCode.ACS.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())
-                        && !Arrays.asList(ParcelAuditConstant.ChargeDescriptionCode.FSC.name(), ParcelAuditConstant.ChargeDescriptionCode.DSC.name()).contains(auditDetails.getChargeDescriptionCode())) {
-                    try {
+            ratingQueueBean.setParentId(firstCharge.getParentId());
+            ratingQueueBean.setCarrierId(firstCharge.getCarrierId());
+            ratingQueueBean.setSenderBilledZipCode(firstCharge.getSenderBilledZipCode());
+            ratingQueueBean.setReceiverBilledZipCode(firstCharge.getReceiverBilledZipCode());
+            ratingQueueBean.setPrpFlag("N");
 
-                        if ("RES".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()))
-                            resiFlag = "Y";
+            String billOption = (null == firstCharge.getBillOption() ? "" : firstCharge.getBillOption());
+            if (billOption.equalsIgnoreCase("Prepaid") || billOption.equals("1") || billOption.equalsIgnoreCase("Outbound")) {
+                billOption = "PP";
+            } else if (billOption.equalsIgnoreCase("Collect") || billOption.equals("2")) {
+                billOption = "FC";
+            } else if (billOption.equalsIgnoreCase("Third Party") || billOption.equals("3")) {
+                billOption = "TP";
+            }
+            ratingQueueBean.setBillOption(billOption);
+            if (ratingQueueBean.getZone() == null && firstCharge.getZone() != null) {
+                ratingQueueBean.setZone(firstCharge.getZone());
+            }
 
-                        JSONObject accJson = new JSONObject();
-                        accJson.put("seq", hwtSequenceInfo.get(auditDetails.getTrackingNumber()));
-                        accJson.put("netAmount", auditDetails.getNetAmount() != null ? auditDetails.getNetAmount().toString() : "0.00");
-                        accJson.put("weight", auditDetails.getPackageWeight() != null ? auditDetails.getPackageWeight().toString() : "0.00");
-                        if (auditDetails.getWeightUnit() != null && "O".equalsIgnoreCase(auditDetails.getWeightUnit()))
-                            auditDetails.setWeightUnit("OUNCE");
-                        accJson.put("weightUnit", (null == auditDetails.getWeightUnit() || auditDetails.getWeightUnit().isEmpty() || "L".equalsIgnoreCase(auditDetails.getWeightUnit()) ? "LBS" : auditDetails.getWeightUnit()));
-                        accJson.put("quantity", (null == auditDetails.getItemQuantity() || auditDetails.getItemQuantity().isEmpty() ? 1l : Long.parseLong(auditDetails.getItemQuantity())));
-                        accJson.put("quantityUnit", (null == auditDetails.getQuantityUnit() || auditDetails.getQuantityUnit().isEmpty() ? "PCS" : auditDetails.getQuantityUnit()));
+            //StringJoiner accessorials = new StringJoiner(",");
+            JSONArray accJsonArr = new JSONArray();
+            String returnFlag = "N";
+            String resiFlag = "N";
 
-                        ServiceFlagAccessorialBean bean = getAccessorialBean(accessorialBeans, auditDetails.getChargeDescription(), auditDetails.getActualchargeDescriptionCode(), 22L);
+            for (ParcelAuditDetailsDto auditDetails : shipmentDetails) {
+                if (auditDetails != null) {
+                    if (auditDetails.getChargeDescription() != null && (auditDetails.getChargeDescription().toUpperCase().startsWith("RETURN")))
+                        returnFlag = "Y";
+                    if (auditDetails.getChargeDescription() != null && (auditDetails.getChargeDescription().toUpperCase().endsWith("-PRP")
+                            || "RETURN EMAIL LABEL".equalsIgnoreCase(auditDetails.getChargeDescription().toUpperCase())))
+                        ratingQueueBean.setPrpFlag("Y");
 
-                        if (bean != null) {
-                            accJson.put("code", bean.getLookUpValue());
-                        } else {
-                            m_log.info("Service flag accessorial code is not found in the look up table:" + auditDetails.getActualchargeDescriptionCode() + ": Tracking Number " + auditDetails.getTrackingNumber() + ": charge description ->" + auditDetails.getChargeDescription());
-                            accJson.put("code", auditDetails.getChargeDescriptionCode());
+                    if (auditDetails.getChargeClassificationCode() != null && ParcelAuditConstant.ChargeClassificationCode.ACS.name().equalsIgnoreCase(auditDetails.getChargeClassificationCode())
+                            && !Arrays.asList(ParcelAuditConstant.ChargeDescriptionCode.FSC.name(), ParcelAuditConstant.ChargeDescriptionCode.DSC.name()).contains(auditDetails.getChargeDescriptionCode())) {
+                        try {
+
+                            if ("RES".equalsIgnoreCase(auditDetails.getChargeDescriptionCode()))
+                                resiFlag = "Y";
+
+                            JSONObject accJson = new JSONObject();
+                            accJson.put("seq", hwtSequenceInfo.get(auditDetails.getTrackingNumber()));
+                            accJson.put("netAmount", auditDetails.getNetAmount() != null ? auditDetails.getNetAmount().toString() : "0.00");
+                            accJson.put("weight", auditDetails.getPackageWeight() != null ? auditDetails.getPackageWeight().toString() : "0.00");
+                            if (auditDetails.getWeightUnit() != null && "O".equalsIgnoreCase(auditDetails.getWeightUnit()))
+                                auditDetails.setWeightUnit("OUNCE");
+                            accJson.put("weightUnit", (null == auditDetails.getWeightUnit() || auditDetails.getWeightUnit().isEmpty() || "L".equalsIgnoreCase(auditDetails.getWeightUnit()) ? "LBS" : auditDetails.getWeightUnit()));
+                            accJson.put("quantity", (null == auditDetails.getItemQuantity() || auditDetails.getItemQuantity().isEmpty() ? 1l : Long.parseLong(auditDetails.getItemQuantity())));
+                            accJson.put("quantityUnit", (null == auditDetails.getQuantityUnit() || auditDetails.getQuantityUnit().isEmpty() ? "PCS" : auditDetails.getQuantityUnit()));
+
+                            ServiceFlagAccessorialBean bean = getAccessorialBean(accessorialBeans, auditDetails.getChargeDescription(), auditDetails.getActualchargeDescriptionCode(), 22L);
+
+                            if (bean != null) {
+                                accJson.put("code", bean.getLookUpValue());
+                            } else {
+                                DirectJDBCDAO.getInstance().insertUnknownMappingCode(auditDetails);
+                                m_log.warn("Service flag accessorial code is not found in look up table: Charge Desription Code->" + auditDetails.getChargeDescriptionCode() + "--Charge Desription->" + auditDetails.getChargeDescription() + "--Parent Id->" + auditDetails.getParentId());
+                                accJson.put("code", auditDetails.getChargeDescriptionCode());
+                            }
+
+                            if (!checkAccExist(accJsonArr, accJson))
+                                accJsonArr.put(accJson);
+
+                        } catch (Exception e) {
+                            m_log.error("ERROR - " + e.getStackTrace() + "--Parent Id->" + ratingQueueBean.getParentId());
+                            e.printStackTrace();
                         }
-
-                        if (!checkAccExist(accJsonArr, accJson))
-                            accJsonArr.put(accJson);
-
-                    } catch (Exception e) {
-                        m_log.error("ERROR - ", e.getMessage() + "--Parent Id->" + ratingQueueBean.getParentId());
-                        e.printStackTrace();
                     }
                 }
             }
-        }
-        ratingQueueBean.setAccessorialInfo(accJsonArr.length() > 0 ? accJsonArr.toString() : null);
+            ratingQueueBean.setAccessorialInfo(accJsonArr.length() > 0 ? accJsonArr.toString() : null);
 
-        String rtrScacCode = (null == firstCharge.getRtrScacCode() ? "" : "FDEG".equals(firstCharge.getRtrScacCode()) ? "FDE" : firstCharge.getRtrScacCode());
-        String currency = (null == firstCharge.getCurrency() || firstCharge.getCurrency().isEmpty() ? "USD" : firstCharge.getCurrency());
-        ratingQueueBean.setScacCode(rtrScacCode);
-        ratingQueueBean.setCurrencyCode(currency);
+            String rtrScacCode = (null == firstCharge.getRtrScacCode() ? "" : "FDEG".equals(firstCharge.getRtrScacCode()) ? "FDE" : firstCharge.getRtrScacCode());
+            String currency = (null == firstCharge.getCurrency() || firstCharge.getCurrency().isEmpty() ? "USD" : firstCharge.getCurrency());
+            ratingQueueBean.setScacCode(rtrScacCode);
+            ratingQueueBean.setCurrencyCode(currency);
 
-        String serviceLevel = findServiceLevel(shipmentDetails);
-        if (serviceLevel == null || serviceLevel.trim().isEmpty()) {
-            // System.out.println("Invalid Service Level for " + firstCharge.getTrackingNumber());
-            m_log.warn("Invalid Service Level for " + firstCharge.getTrackingNumber());
-            return null;
-        }
+            String serviceLevel = findServiceLevel(shipmentDetails);
+            if (serviceLevel == null || serviceLevel.trim().isEmpty()) {
+                // System.out.println("Invalid Service Level for " + firstCharge.getTrackingNumber());
 
-        ratingQueueBean.setService(serviceLevel);
-        ratingQueueBean.setCustomerCode(firstCharge.getCustomerCode());
-        ratingQueueBean.setRevenueTier(firstCharge.getRevenueTier());
-        ratingQueueBean.setShipperNumber(firstCharge.getShipperNumber());
-        ratingQueueBean.setReturnFlag(returnFlag);
-        ratingQueueBean.setResiFlag(resiFlag);
-        JSONArray itemJsonArr = new JSONArray();
+                m_log.warn("Invalid OR Empty Service Level for " + firstCharge.getTrackingNumber() + "--Parent Id->" + firstCharge.getParentId() + "");
+                return null;
+            }
 
-        for (Map.Entry<String, Long> entry : hwtSequenceInfo.entrySet()) {
+            ratingQueueBean.setService(serviceLevel);
+            ratingQueueBean.setCustomerCode(firstCharge.getCustomerCode());
+            ratingQueueBean.setRevenueTier(firstCharge.getRevenueTier());
+            ratingQueueBean.setShipperNumber(firstCharge.getShipperNumber());
+            ratingQueueBean.setReturnFlag(returnFlag);
+            ratingQueueBean.setResiFlag(resiFlag);
+            JSONArray itemJsonArr = new JSONArray();
 
-
-            ParcelAuditDetailsDto firstBaseCharge = ParcelRatingUtil.getLatestFrightCharge(shipmentDetails, entry.getKey());
-
-            //ParcelAuditDetailsDto firstBaseCharge = ParcelRatingUtil.getFirstFrightChargeForNonUpsCarrier(shipmentDetails);
-            if (firstBaseCharge != null) {
-                if (firstBaseCharge.getChargeClassificationCode() != null
-                        && ParcelAuditConstant.ChargeClassificationCode.FRT.name().equalsIgnoreCase(firstBaseCharge.getChargeClassificationCode())) {
-                    Float weight = (null == firstBaseCharge.getPackageWeight() || firstBaseCharge.getPackageWeight().isEmpty() ? 0.0f : Float.parseFloat(firstBaseCharge.getPackageWeight()));
-                    if (firstBaseCharge.getWeightUnit() != null && "O".equalsIgnoreCase(firstBaseCharge.getWeightUnit()))
-                        firstBaseCharge.setWeightUnit("OUNCE");
-                    String weightUnit = (null == firstBaseCharge.getWeightUnit() || firstBaseCharge.getWeightUnit().isEmpty() || "L".equalsIgnoreCase(firstBaseCharge.getWeightUnit()) ? "LBS" : firstBaseCharge.getWeightUnit());
-                    Long quantity = (null == firstBaseCharge.getItemQuantity() || firstBaseCharge.getItemQuantity().isEmpty() ? 1l : Long.parseLong(firstBaseCharge.getItemQuantity()));
-                    String quantityUnit = (null == firstBaseCharge.getQuantityUnit() || firstBaseCharge.getQuantityUnit().isEmpty() ? "PCS" : firstBaseCharge.getQuantityUnit());
-                    Float dimLenght = (null == firstBaseCharge.getDimLength() || firstBaseCharge.getDimLength().isEmpty() ? 0.0f : Float.parseFloat(firstBaseCharge.getDimLength()));
-                    Float dimWidth = (null == firstBaseCharge.getDimWidth() || firstBaseCharge.getDimWidth().isEmpty() ? 0.0f : Float.parseFloat(firstBaseCharge.getDimWidth()));
-                    Float dimHeight = (null == firstBaseCharge.getDimHeight() || firstBaseCharge.getDimHeight().isEmpty() ? 0.0f : Float.parseFloat(firstBaseCharge.getDimHeight()));
-                    String dimUnit = (null == firstBaseCharge.getUnitOfDim() || firstBaseCharge.getUnitOfDim().isEmpty() ? "" : firstBaseCharge.getUnitOfDim().equalsIgnoreCase("I") ? "in" : firstBaseCharge.getUnitOfDim());
-                    BigDecimal actualWeight = (null == firstBaseCharge.getActualWeight() ? new BigDecimal("0") : firstBaseCharge.getActualWeight());
-                    String actualWeightUnit = (null == firstBaseCharge.getActualWeightUnit() || firstBaseCharge.getActualWeightUnit().isEmpty() || "L".equalsIgnoreCase(firstBaseCharge.getActualWeightUnit()) ? "LBS" : firstBaseCharge.getActualWeightUnit());
-
-                    JSONObject accJson = new JSONObject();
-                    accJson.put("seq", firstBaseCharge.getParentId());
-                    accJson.put("weight", String.valueOf(weight));
-                    accJson.put("weightUnit", weightUnit);
-                    accJson.put("quantity", String.valueOf(quantity));
-                    accJson.put("quantityUnit", quantityUnit);
-                    accJson.put("dimLenght", String.valueOf(dimLenght));
-                    accJson.put("dimWidth", String.valueOf(dimWidth));
-                    accJson.put("dimHeight", String.valueOf(dimHeight));
-                    accJson.put("dimUnit", dimUnit);
-                    accJson.put("actualWeight", String.valueOf(actualWeight));
-                    accJson.put("actualWeightUnit", actualWeightUnit);
-                    accJson.put("packageType", firstCharge.getPackageType());
-                    itemJsonArr.put(accJson);
+            for (Map.Entry<String, Long> entry : hwtSequenceInfo.entrySet()) {
 
 
-                    ratingQueueBean.setFrtWeight(weight);
-                    ratingQueueBean.setFrtWeightUnits(weightUnit);
-                    ratingQueueBean.setFrtActualWeight(actualWeight.floatValue());
-                    ratingQueueBean.setFrtActualWeightUnits(actualWeightUnit);
-                    ratingQueueBean.setFrtQyantity(quantity);
-                    ratingQueueBean.setFrtQuantityUnits(quantityUnit);
-                    ratingQueueBean.setDimLength(dimLenght);
-                    ratingQueueBean.setDimWidth(dimWidth);
-                    ratingQueueBean.setDimHeight(dimHeight);
-                    ratingQueueBean.setDimUnits(dimUnit);
+                ParcelAuditDetailsDto firstBaseCharge = ParcelRatingUtil.getLatestFrightCharge(shipmentDetails, entry.getKey());
+
+                //ParcelAuditDetailsDto firstBaseCharge = ParcelRatingUtil.getFirstFrightChargeForNonUpsCarrier(shipmentDetails);
+                if (firstBaseCharge != null) {
+                    if (firstBaseCharge.getChargeClassificationCode() != null
+                            && ParcelAuditConstant.ChargeClassificationCode.FRT.name().equalsIgnoreCase(firstBaseCharge.getChargeClassificationCode())) {
+                        Float weight = (null == firstBaseCharge.getPackageWeight() || firstBaseCharge.getPackageWeight().isEmpty() ? 0.0f : Float.parseFloat(firstBaseCharge.getPackageWeight()));
+                        if (firstBaseCharge.getWeightUnit() != null && "O".equalsIgnoreCase(firstBaseCharge.getWeightUnit()))
+                            firstBaseCharge.setWeightUnit("OUNCE");
+                        String weightUnit = (null == firstBaseCharge.getWeightUnit() || firstBaseCharge.getWeightUnit().isEmpty() || "L".equalsIgnoreCase(firstBaseCharge.getWeightUnit()) ? "LBS" : firstBaseCharge.getWeightUnit());
+                        Long quantity = (null == firstBaseCharge.getItemQuantity() || firstBaseCharge.getItemQuantity().isEmpty() ? 1l : Long.parseLong(firstBaseCharge.getItemQuantity()));
+                        String quantityUnit = (null == firstBaseCharge.getQuantityUnit() || firstBaseCharge.getQuantityUnit().isEmpty() ? "PCS" : firstBaseCharge.getQuantityUnit());
+                        Float dimLenght = (null == firstBaseCharge.getDimLength() || firstBaseCharge.getDimLength().isEmpty() ? 0.0f : Float.parseFloat(firstBaseCharge.getDimLength()));
+                        Float dimWidth = (null == firstBaseCharge.getDimWidth() || firstBaseCharge.getDimWidth().isEmpty() ? 0.0f : Float.parseFloat(firstBaseCharge.getDimWidth()));
+                        Float dimHeight = (null == firstBaseCharge.getDimHeight() || firstBaseCharge.getDimHeight().isEmpty() ? 0.0f : Float.parseFloat(firstBaseCharge.getDimHeight()));
+                        String dimUnit = (null == firstBaseCharge.getUnitOfDim() || firstBaseCharge.getUnitOfDim().isEmpty() ? "" : firstBaseCharge.getUnitOfDim().equalsIgnoreCase("I") ? "in" : firstBaseCharge.getUnitOfDim());
+                        BigDecimal actualWeight = (null == firstBaseCharge.getActualWeight() ? new BigDecimal("0") : firstBaseCharge.getActualWeight());
+                        String actualWeightUnit = (null == firstBaseCharge.getActualWeightUnit() || firstBaseCharge.getActualWeightUnit().isEmpty() || "L".equalsIgnoreCase(firstBaseCharge.getActualWeightUnit()) ? "LBS" : firstBaseCharge.getActualWeightUnit());
+
+                        JSONObject accJson = new JSONObject();
+                        accJson.put("seq", firstBaseCharge.getParentId());
+                        accJson.put("weight", String.valueOf(weight));
+                        accJson.put("weightUnit", weightUnit);
+                        accJson.put("quantity", String.valueOf(quantity));
+                        accJson.put("quantityUnit", quantityUnit);
+                        accJson.put("dimLenght", String.valueOf(dimLenght));
+                        accJson.put("dimWidth", String.valueOf(dimWidth));
+                        accJson.put("dimHeight", String.valueOf(dimHeight));
+                        accJson.put("dimUnit", dimUnit);
+                        accJson.put("actualWeight", String.valueOf(actualWeight));
+                        accJson.put("actualWeightUnit", actualWeightUnit);
+                        accJson.put("packageType", firstCharge.getPackageType());
+                        itemJsonArr.put(accJson);
+
+
+                        ratingQueueBean.setFrtWeight(weight);
+                        ratingQueueBean.setFrtWeightUnits(weightUnit);
+                        ratingQueueBean.setFrtActualWeight(actualWeight.floatValue());
+                        ratingQueueBean.setFrtActualWeightUnits(actualWeightUnit);
+                        ratingQueueBean.setFrtQyantity(quantity);
+                        ratingQueueBean.setFrtQuantityUnits(quantityUnit);
+                        ratingQueueBean.setDimLength(dimLenght);
+                        ratingQueueBean.setDimWidth(dimWidth);
+                        ratingQueueBean.setDimHeight(dimHeight);
+                        ratingQueueBean.setDimUnits(dimUnit);
+                    }
                 }
             }
+            ratingQueueBean.setItemTagInfo(itemJsonArr != null ? itemJsonArr.toString() : null);
+            ratingQueueBean.setShipDate(firstCharge.getPickupDate());
+
+            if ((null == firstCharge.getSenderCountry() || firstCharge.getSenderCountry().isEmpty())
+                    && (null == firstCharge.getSenderState() || firstCharge.getSenderState().isEmpty())
+                    && (null == firstCharge.getSenderCity() || firstCharge.getSenderCity().isEmpty())
+                    && (null == firstCharge.getSenderZipCode() || firstCharge.getSenderZipCode().isEmpty())) {
+
+                firstCharge.setSenderCity(firstCharge.getShipperCity());
+                firstCharge.setSenderState(firstCharge.getShipperState());
+                firstCharge.setSenderCountry(firstCharge.getShipperCountry());
+                firstCharge.setSenderZipCode(firstCharge.getShipperZip());
+
+            }
+
+            String senderCountry = (null == firstCharge.getSenderCountry() || firstCharge.getSenderCountry().isEmpty() ? "US" : firstCharge.getSenderCountry());
+            String senderState = (null == firstCharge.getSenderState() ? "" : firstCharge.getSenderState());
+            String senderCity = (null == firstCharge.getSenderCity() ? "" : firstCharge.getSenderCity());
+            String senderZipCode = (null == firstCharge.getSenderZipCode() ? "" : firstCharge.getSenderZipCode());
+
+            ratingQueueBean.setShipperCountry(senderCountry);
+            ratingQueueBean.setShipperState(senderState);
+            ratingQueueBean.setShipperCity(senderCity);
+            ratingQueueBean.setShipperZip(senderZipCode);
+
+            if (firstCharge.getDeliveryDate() != null) {
+                ratingQueueBean.setDeliveryDate(firstCharge.getDeliveryDate());
+            } else {
+                ratingQueueBean.setDeliveryDate(firstCharge.getPickupDate());
+            }
+            String receiverCountry = (null == firstCharge.getReceiverCountry() || firstCharge.getReceiverCountry().isEmpty() ? "US" : firstCharge.getReceiverCountry());
+            String receiverState = (null == firstCharge.getReceiverState() ? "" : firstCharge.getReceiverState());
+            String receiverCity = (null == firstCharge.getReceiverCity() ? "" : firstCharge.getReceiverCity());
+            String receiverZipCode = (null == firstCharge.getReceiverZipCode() ? "" : firstCharge.getReceiverZipCode());
+
+            ratingQueueBean.setReceiverCountry(receiverCountry);
+            ratingQueueBean.setReceiverState(receiverState);
+            ratingQueueBean.setReceiverCity(receiverCity);
+            ratingQueueBean.setReceiverZip(receiverZipCode);
+
+            ratingQueueBean.setRateSetName(rateSet);
+
+            if (firstCharge.getActualServiceBucket() != null)
+                ratingQueueBean.setActualServiceBucket(Long.valueOf(firstCharge.getActualServiceBucket()));
+
+            ratingQueueBean.setInvoiceDate(firstCharge.getInvoiceDate());
+            ratingQueueBean.setCustomerId(firstCharge.getCustomerId());
+            ratingQueueBean.setPackageType(firstCharge.getPackageType());
+
+            if (hwt)
+                ratingQueueBean.setHwtIdentifier(firstCharge.getMultiWeightNumber());
+
         }
-        ratingQueueBean.setItemTagInfo(itemJsonArr != null ? itemJsonArr.toString() : null);
-        ratingQueueBean.setShipDate(firstCharge.getPickupDate());
-
-        if ((null == firstCharge.getSenderCountry() || firstCharge.getSenderCountry().isEmpty())
-                && (null == firstCharge.getSenderState() || firstCharge.getSenderState().isEmpty())
-                && (null == firstCharge.getSenderCity() || firstCharge.getSenderCity().isEmpty())
-                && (null == firstCharge.getSenderZipCode() || firstCharge.getSenderZipCode().isEmpty())) {
-
-            firstCharge.setSenderCity(firstCharge.getShipperCity());
-            firstCharge.setSenderState(firstCharge.getShipperState());
-            firstCharge.setSenderCountry(firstCharge.getShipperCountry());
-            firstCharge.setSenderZipCode(firstCharge.getShipperZip());
-
-        }
-
-        String senderCountry = (null == firstCharge.getSenderCountry() || firstCharge.getSenderCountry().isEmpty() ? "US" : firstCharge.getSenderCountry());
-        String senderState = (null == firstCharge.getSenderState() ? "" : firstCharge.getSenderState());
-        String senderCity = (null == firstCharge.getSenderCity() ? "" : firstCharge.getSenderCity());
-        String senderZipCode = (null == firstCharge.getSenderZipCode() ? "" : firstCharge.getSenderZipCode());
-
-        ratingQueueBean.setShipperCountry(senderCountry);
-        ratingQueueBean.setShipperState(senderState);
-        ratingQueueBean.setShipperCity(senderCity);
-        ratingQueueBean.setShipperZip(senderZipCode);
-
-        if (firstCharge.getDeliveryDate() != null) {
-            ratingQueueBean.setDeliveryDate(firstCharge.getDeliveryDate());
-        } else {
-            ratingQueueBean.setDeliveryDate(firstCharge.getPickupDate());
-        }
-        String receiverCountry = (null == firstCharge.getReceiverCountry() || firstCharge.getReceiverCountry().isEmpty() ? "US" : firstCharge.getReceiverCountry());
-        String receiverState = (null == firstCharge.getReceiverState() ? "" : firstCharge.getReceiverState());
-        String receiverCity = (null == firstCharge.getReceiverCity() ? "" : firstCharge.getReceiverCity());
-        String receiverZipCode = (null == firstCharge.getReceiverZipCode() ? "" : firstCharge.getReceiverZipCode());
-
-        ratingQueueBean.setReceiverCountry(receiverCountry);
-        ratingQueueBean.setReceiverState(receiverState);
-        ratingQueueBean.setReceiverCity(receiverCity);
-        ratingQueueBean.setReceiverZip(receiverZipCode);
-
-        ratingQueueBean.setRateSetName(rateSet);
-
-        if (firstCharge.getActualServiceBucket() != null)
-            ratingQueueBean.setActualServiceBucket(Long.valueOf(firstCharge.getActualServiceBucket()));
-
-        ratingQueueBean.setInvoiceDate(firstCharge.getInvoiceDate());
-        ratingQueueBean.setCustomerId(firstCharge.getCustomerId());
-        ratingQueueBean.setPackageType(firstCharge.getPackageType());
-
-        if (hwt)
-            ratingQueueBean.setHwtIdentifier(firstCharge.getMultiWeightNumber());
-
         return ratingQueueBean;
     }
 
@@ -927,7 +957,7 @@ public class ParcelRatingUtil {
             }
             if (rateStatusList != null && !rateStatusList.isEmpty()) {
                 if (rateStatusList.contains(ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET.value) || rateStatusList.contains(ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value)) {
-                    rated = false;
+                    rated = true;
                 } else if (rateStatusList.contains(ParcelAuditConstant.RTRStatus.CLOSED.value) || rateStatusList.contains(ParcelAuditConstant.RTRStatus.UNDER_CHARGED.value)
                         || rateStatusList.contains(ParcelAuditConstant.RTRStatus.OVER_CHARGED.value)) {
                     rated = true;
@@ -1016,7 +1046,7 @@ public class ParcelRatingUtil {
                     try {
                         sumOfNetAmount = sumOfNetAmount.add(new BigDecimal(parcelAuditDetails.getNetAmount()));
                     } catch (Exception e) {
-                        m_log.error("ERROR - ", e.getMessage() + "--Parent Id->" + parcelAuditDetailsList.get(0).getParentId());
+                        m_log.error("ERROR - " + e.getStackTrace() + "--Parent Id->" + parcelAuditDetailsList.get(0).getParentId());
                         e.printStackTrace();
                     }
                 }
@@ -1682,10 +1712,12 @@ public class ParcelRatingUtil {
 
                     List<ParcelAuditDetailsDto> prevParentIdInfo = getImmediateParentIdInfo(key, shipments);
                     ParcelAuditDetailsDto frtDto = getLatestFrightCharge(prevParentIdInfo);
-                    if (frtDto.getActualWeight() != null)
-                        dto.setActualWeight(frtDto.getActualWeight());
-                    if (frtDto.getPackageWeight() != null)
-                        dto.setPackageWeight(frtDto.getPackageWeight());
+                    if (frtDto != null) {
+                        if (frtDto.getActualWeight() != null)
+                            dto.setActualWeight(frtDto.getActualWeight());
+                        if (frtDto.getPackageWeight() != null)
+                            dto.setPackageWeight(frtDto.getPackageWeight());
+                    }
                 }
                 break;
             }
@@ -2009,6 +2041,10 @@ public class ParcelRatingUtil {
 
         boolean rated = false;
         List<ParcelAuditDetailsDto> detailsDtos = getParentIdCharges(shipmentRecords, ratingParentId);
+
+        if (invoiceDate == null && (detailsDtos != null && detailsDtos.size() > 0))
+            invoiceDate = detailsDtos.get(0).getInvoiceDate();
+
         rated = isShipmentRated(detailsDtos);
 
         if (!rated) {
@@ -2083,12 +2119,19 @@ public class ParcelRatingUtil {
                     }
                 }
 
+                List<ParcelAuditDetailsDto> leadShipmentDetails = ParcelRatingUtil.getLeadShipmentDetails(shipmentRecords);
+
                 for (Map.Entry<String, ParcelAuditDetailsDto> entry : sumOfHwtAccdetails.entrySet()) {
                     ParcelAuditDetailsDto dto = entry.getValue();
-                    dto.setParentId(ratingParentId);
-                    dto.setTrackingNumber(dto.getMultiWeightNumber());
-                    shipmentToRate.add(dto);
-
+                    if (dto != null) {
+                        dto.setParentId(ratingParentId);
+                        if (dto.getCarrierId() != null && dto.getCarrierId().compareTo(21L) == 0) {
+                            dto.setTrackingNumber(dto.getMultiWeightNumber());
+                        } else if (leadShipmentDetails != null && leadShipmentDetails.size() > 0) {
+                            dto.setTrackingNumber(leadShipmentDetails.get(0).getTrackingNumber());
+                        }
+                        shipmentToRate.add(dto);
+                    }
                 }
             }
 
@@ -2140,17 +2183,17 @@ public class ParcelRatingUtil {
                 BigDecimal firstValue = null;
                 BigDecimal secondValue = null;
                 BigDecimal thirdValue = null;
-                if (dimensions.length > 0) {
+                if (dimensions.length > 0 && existingDimensions.length > 0) {
                     if ((dimensions[0] != null && existingDimensions[0] != null) && (isBigDecimalNumber(dimensions[0].trim()) && isBigDecimalNumber(existingDimensions[0].trim()))) {
                         firstValue = new BigDecimal(existingDimensions[0].trim()).add(new BigDecimal(dimensions[0].trim()));
                     }
                 }
-                if (dimensions.length > 1) {
+                if (dimensions.length > 1 && existingDimensions.length > 1) {
                     if ((dimensions[1] != null && existingDimensions[1] != null) && (isBigDecimalNumber(dimensions[1].trim()) && isBigDecimalNumber(existingDimensions[1].trim()))) {
                         secondValue = new BigDecimal(existingDimensions[1].trim()).add(new BigDecimal(dimensions[1].trim()));
                     }
                 }
-                if (dimensions.length > 2) {
+                if (dimensions.length > 2 && existingDimensions.length > 2) {
                     if ((dimensions[2] != null && existingDimensions[2] != null) && (isBigDecimalNumber(dimensions[2].trim()) && isBigDecimalNumber(existingDimensions[2].trim()))) {
                         thirdValue = new BigDecimal(existingDimensions[2].trim()).add(new BigDecimal(dimensions[2].trim()));
                     }
@@ -2181,7 +2224,7 @@ public class ParcelRatingUtil {
         try {
             BigDecimal bigDecimal = new BigDecimal(value);
         } catch (Exception e) {
-            m_log.error("ERROR - ", e.getMessage());
+            m_log.error("ERROR - " + e.getStackTrace());
             return false;
         }
         return true;
@@ -2226,12 +2269,15 @@ public class ParcelRatingUtil {
     public static void prepareXmlReqAddressInfo(List<ParcelAuditDetailsDto> trackingNumberDetails, ParcelAuditDetailsDto ratingCharge) {
 
         Map<Long, List<ParcelAuditDetailsDto>> shipments = ParcelRatingUtil.organiseShipmentsByParentId(trackingNumberDetails);
-        boolean returnShipment = isReturnShipment(shipments.get(ratingCharge.getParentId()));
+        boolean returnShipment = false;
+        if (shipments != null && ratingCharge != null && ratingCharge.getParentId() != null)
+            returnShipment = isReturnShipment(shipments.get(ratingCharge.getParentId()));
+
         List<ParcelAuditDetailsDto> SortOrderTrackDetails = new ArrayList<>(trackingNumberDetails);
         SortOrderTrackDetails.sort(Comparator.comparing(ParcelAuditDetailsDto::getId).reversed());
         for (ParcelAuditDetailsDto dto : SortOrderTrackDetails) {
 
-            if (ratingCharge.getParentId().compareTo(dto.getParentId()) > 0 && (!returnShipment || isReturnShipment(shipments.get(dto.getParentId())))) {
+            if (ratingCharge != null && ratingCharge.getParentId().compareTo(dto.getParentId()) > 0 && (!returnShipment || (shipments != null && isReturnShipment(shipments.get(dto.getParentId()))))) {
 
                 if ((ratingCharge.getSenderCountry() == null || ratingCharge.getSenderCountry().isEmpty())
                         && (dto.getSenderCountry() != null && !dto.getSenderCountry().isEmpty())) {
@@ -2320,13 +2366,18 @@ public class ParcelRatingUtil {
         rateDetails.setReturnFlag(queueBean.getReturnFlag());
         rateDetails.setResiFlag(queueBean.getResiFlag());
         rateDetails.setComToRes(queueBean.getComToRes());
-        rateDetails.setRateSetName(priceSheet.getRateSet());
-        rateDetails.setShipperCategory(priceSheet.getCategory());
-        rateDetails.setContractName(priceSheet.getContractName());
-        rateDetails.setZone(priceSheet.getZone());
         rateDetails.setActualServiceBucket(queueBean.getActualServiceBucket());
         rateDetails.setHwtIdentifier(queueBean.getHwtIdentifier());
         rateDetails.setPackageType(queueBean.getPackageType());
+        if (priceSheet != null) {
+            rateDetails.setRateSetName(priceSheet.getRateSet());
+            rateDetails.setShipperCategory(priceSheet.getCategory());
+            rateDetails.setContractName(priceSheet.getContractName());
+            rateDetails.setZone(priceSheet.getZone());
+        } else {
+            rateDetails.setRateSetName(queueBean.getRateSetName());
+        }
+
 
     }
 
@@ -2519,5 +2570,15 @@ public class ParcelRatingUtil {
             }
         }
         return detailsDtos;
+    }
+
+    public static void closeConnection(Connection conn) {
+
+        try {
+            if (conn != null)
+                conn.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -2,13 +2,19 @@ package com.envista.msi.rating.bean;
 
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelRateRequest;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 public class RatingQueueBean {
 
+    private static final Logger m_log = LoggerFactory.getLogger(RatingQueueBean.class);
     private Long ratingQueueId;
     private Long maniestId;
     private Long gffId;
@@ -521,7 +527,7 @@ public class RatingQueueBean {
         this.receiverBilledZipCode = receiverBilledZipCode;
     }
 
-    public Set<ParcelRateRequest.ServiceFlag> getAccessorials(){
+    public Set<ParcelRateRequest.ServiceFlag> getAccessorials() throws Exception {
         Set<ParcelRateRequest.ServiceFlag> serviceFlags = null;
         try{
             if(this.accessorials == null){
@@ -563,6 +569,8 @@ public class RatingQueueBean {
             }
         }catch (Exception e){
             e.printStackTrace();
+            throw e;
+
         }
         return this.accessorials;
     }

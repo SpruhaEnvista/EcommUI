@@ -110,7 +110,7 @@ public class ParcelRating implements Callable<String> {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            m_log.error(e.getMessage() + " Parent Id" + bean.getParentId());
+            m_log.error(e.getStackTrace() + " Parent Id" + bean.getParentId() + "--Carrier Id->" + bean.getCarrierId());
         }
     }
 }
