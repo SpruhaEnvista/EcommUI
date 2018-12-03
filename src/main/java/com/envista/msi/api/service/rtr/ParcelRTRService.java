@@ -423,27 +423,11 @@ public class ParcelRTRService{
         requestResponseLog.setCreateUser(ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME);
         requestResponseLog.setTableName(tableName);
         if(requestPayload != null && !requestPayload.isEmpty()){
-            int requestLength = requestPayload.length();
-            if (requestLength <= 4000) {
-                requestResponseLog.setRequestXml1(requestPayload);
-            } else {
-                requestResponseLog.setRequestXml1(requestPayload.substring(0, 3999));
-                requestResponseLog.setRequestXml2(requestPayload.substring(4000, requestLength));
-            }
+            requestResponseLog.setResponseXml( requestPayload);
         }
 
         if(response != null && !response.isEmpty()){
-            int respLength = response.length();
-            if (respLength <= 4000) {
-                requestResponseLog.setResponseXml1(response);
-            } else {
-                requestResponseLog.setResponseXml1(response.substring(0, 3999));
-                if(respLength >= 4000 && respLength < 8000){
-                    requestResponseLog.setResponseXml2(response.substring(3999, respLength));
-                }else{
-                    try{  requestResponseLog.setResponseXml2(response.substring(3999, 7999));}catch (Exception e){}
-                }
-            }
+            requestResponseLog.setResponseXml( response);
         }
         parcelRTRDao.saveParcelAuditRequestAndResponseLog(requestResponseLog);
     }

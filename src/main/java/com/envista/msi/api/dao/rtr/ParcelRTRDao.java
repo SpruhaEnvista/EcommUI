@@ -146,13 +146,10 @@ public class ParcelRTRDao {
         try{
             QueryParameter queryParameter = StoredProcedureParameter.withPosition(1, ParameterMode.IN, String.class, requestResponseLog.getTableName())
                     .andPosition(2, ParameterMode.IN, String.class, requestResponseLog.getEntityIds())
-                    .andPosition(3, ParameterMode.IN, String.class, requestResponseLog.getRequestXml1())
-                    .andPosition(4, ParameterMode.IN, String.class, requestResponseLog.getRequestXml2())
-                    .andPosition(5, ParameterMode.IN, String.class, requestResponseLog.getResponseXml1())
-                    .andPosition(6, ParameterMode.IN, String.class, requestResponseLog.getResponseXml2())
-                    .andPosition(7, ParameterMode.IN, String.class, requestResponseLog.getResponseXml3())
-                    .andPosition(8, ParameterMode.IN, String.class, requestResponseLog.getCreateUser());
-            persistentContext.executeStoredProcedure("SHP_FRT_SAVE_XML_RATING_PROC", queryParameter);
+                    .andPosition(3, ParameterMode.IN, String.class, requestResponseLog.getRequestXml())
+                    .andPosition(4, ParameterMode.IN, String.class, requestResponseLog.getResponseXml())
+                    .andPosition(5, ParameterMode.IN, String.class, requestResponseLog.getCreateUser());
+            persistentContext.executeStoredProcedure("SHP_PRA_SAVE_RATING_LOG_PROC", queryParameter);
         }catch (Exception e){
             e.printStackTrace();
             throw new DaoException("Error while saving request and response xml", e);
