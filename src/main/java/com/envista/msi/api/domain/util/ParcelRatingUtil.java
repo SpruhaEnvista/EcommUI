@@ -951,7 +951,8 @@ public class ParcelRatingUtil {
         if (shipment != null && !shipment.isEmpty()) {
             rateStatusList = new ArrayList<>();
             for (ParcelAuditDetailsDto shipmentCharge : shipment) {
-                if (shipmentCharge != null && shipmentCharge.getRtrStatus() != null && !shipmentCharge.getRtrStatus().isEmpty()) {
+                if (shipmentCharge != null && shipmentCharge.getRtrStatus() != null && !shipmentCharge.getRtrStatus().isEmpty()
+                        && shipmentCharge.getRatesParentId() != null) {
                     rateStatusList.add(shipmentCharge.getRtrStatus());
                 }
             }
