@@ -545,7 +545,12 @@ public class ParcelUpsRatingService {
                     if(null == charge){
                         ParcelRateDetailsDto rateDetails = ParcelRateDetailsDto.getInstance();
 
-                        rateDetails.setRtrAmount(new BigDecimal("0.00"));
+                        if ((auditDetails.getChargeCatagoryCode() != null && auditDetails.getChargeCategoryDetailCode() != null) &&
+                                ("ADJ".equalsIgnoreCase(auditDetails.getChargeCatagoryCode()) && "CADJ".equalsIgnoreCase(auditDetails.getChargeCategoryDetailCode()))) {
+                            rateDetails.setRtrAmount(auditDetails.getNetAmount() != null ? new BigDecimal(auditDetails.getNetAmount()) : new BigDecimal("0.00"));
+                        } else
+                            rateDetails.setRtrAmount(new BigDecimal("0.00"));
+
                         rateDetails.setRtrStatus(rtrStatus.value);
                         rateDetails.setHwtIdentifier(auditDetails.getMultiWeightNumber());
                         rateDetails.setRatedWeight(ratedWeight);
