@@ -1454,9 +1454,10 @@ public class DirectJDBCDAO {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         String sqlQuery = " select Resi_Flag,Com_To_Res from shp_rating_queue_tb " +
-                " where Tracking_Number=? and Parent_Id<? and return_flag=? ";
+                " where Tracking_Number=? and Parent_Id<? and return_flag=? ORDER BY gff_id";
 
         String resiFlag = null;
+        List<String> list = new ArrayList();
 
         try {
             con = ServiceLocator.getDatabaseConnection();
@@ -1471,8 +1472,39 @@ public class DirectJDBCDAO {
 
             while (rs.next()) {
 
-                if (rs.getString("Com_To_Res") != null) {
+                list.add(rs.getString("Com_To_Res")+";"+rs.getString("Resi_Flag"));
+
+
+               /* if (rs.getString("Com_To_Res") != null) {
                     resiFlag = rs.getString("Resi_Flag");
+                }
+*/
+            }
+            for(String str : list){
+
+                if(str != null && str.contains(";")){
+                    String [] strArr = str.split(";");
+                    if(strArr != null){
+                        if(strArr.length > 1){
+                            if(strArr[0] != null)
+                                resiFlag = strArr[1];
+                        }
+                    }
+                }
+            }
+
+            if(resiFlag == null){
+
+                for(String str : list){
+
+                    if(str != null && str.contains(";")){
+                        String [] strArr = str.split(";");
+                        if(strArr != null){
+                            if(strArr.length > 1){
+                                    resiFlag = strArr[1];
+                            }
+                        }
+                    }
                 }
 
             }
