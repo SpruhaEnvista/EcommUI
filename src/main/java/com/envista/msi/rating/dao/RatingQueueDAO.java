@@ -350,7 +350,7 @@ public class RatingQueueDAO {
             liveQuery.append(" SELECT a.EBILL_GFF_ID AS ID, d.CUSTOMER_ID, d.CUSTOMER_CODE, c.CARRIER_ID, c.CONTRACT_NUMBER, ");
             liveQuery.append(" DECODE(a.BILL_OPTION_CODE, 'F/C', 'FC', 'F/D', 'FD', 'P/P', 'PP', 'C/B', 'CB', 'T/P', 'TP', a.BILL_OPTION_CODE) AS BILL_OPTION_CODE, ");
             liveQuery.append(" e.rtr_scac_code, e.scac_code, null AS TRAN_CODE, a.CHARGE_CLASSIFICATION_CODE, a.CHARGE_DESCRIPTION_CODE, ");
-            liveQuery.append(" a.CHARGE_DESCRIPTION, a.BILLED_WEIGHT AS PACKAGE_WEIGHT, a.TRACKING_NUMBER, a.SHIPMENT_DATE AS PICKUP_DATE, ");
+            liveQuery.append(" a.CHARGE_DESCRIPTION, a.BILLED_WEIGHT AS PACKAGE_WEIGHT, a.TRACKING_NUMBER, nvl(a.actual_ship_date, nvl( a.shipment_date , a.transaction_date) ) AS PICKUP_DATE, ");
             liveQuery.append(" DECODE(a.CHARGE_DESCRIPTION_CODE, '001', 'MAN', '002', 'MAN', '003', 'MAN', a.CHARGE_DESCRIPTION_CODE) AS RESIDENTIAL_INDICATOR, ");
             liveQuery.append(" a.DELIVERY_DATE,a.SENDER_COUNTRY AS SENDER_COUNTRY, a.SENDER_STATE AS SENDER_STATE, a.SENDER_CITY AS SENDER_CITY, ");
             liveQuery.append(" a.SENDER_POSTAL AS SENDER_ZIP_CODE, a.RECEIVER_COUNTRY, a.RECEIVER_STATE, a.RECEIVER_CITY, a.RECEIVER_POSTAL AS RECEIVER_ZIP_CODE, ");
