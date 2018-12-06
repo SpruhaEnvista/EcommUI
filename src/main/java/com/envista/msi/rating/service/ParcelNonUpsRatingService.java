@@ -192,7 +192,7 @@ public class ParcelNonUpsRatingService {
                     bean.setNetAmount(sumOfNetAmount);
             }
 
-            DirectJDBCDAO.getInstance().saveParcelAuditRequestAndResponseLog(ParcelRatingUtil.prepareRequestResponseLog(requestPayload, response, bean.getParentId(), ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME));
+            DirectJDBCDAO.getInstance().saveParcelAuditRequestAndResponseLog(ParcelRatingUtil.prepareRequestResponseLog(requestPayload, response, bean.getParentId(), bean.getCarrierId()  ));
 
             status = updateRateForNonUpsCarrier(ParcelRateResponseParser.parse(response), shipmentToRate, bean, accessorialBeans);
 

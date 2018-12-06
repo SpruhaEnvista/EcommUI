@@ -239,7 +239,7 @@ public class ParcelUpsRatingService {
                     bean = ParcelRatingUtil.getLeadShipmentQueueBean(parcelAuditDetails, beans);
                 }
 
-                directJDBCDAO.saveParcelAuditRequestAndResponseLog(ParcelRatingUtil.prepareRequestResponseLog(requestPayload, response, parcelAuditDetails.get(0).getParentId(), ParcelAuditConstant.EBILL_GFF_TABLE_NAME));
+                directJDBCDAO.saveParcelAuditRequestAndResponseLog(ParcelRatingUtil.prepareRequestResponseLog(requestPayload, response, parcelAuditDetails.get(0).getParentId(),  bean.getCarrierId() ));
                 status = updateRateForUps(ParcelRateResponseParser.parse(response), parcelAuditDetails, previousShipment, hwtNetAmount, bean, accessorialBeans);
             }
 

@@ -451,7 +451,7 @@ public class ParcelRatingUtil {
 
 
                         ParcelAuditDetailsDto latestFreightCharge = ParcelRatingUtil.getLatestFrightCharge(shipmentDetails, entry.getKey());
-
+                        //TODO--SArvesh    prepareItems(trackingNumDetails, latestFreightCharge);
                         if (latestFreightCharge != null) {
                             float weight = (null == latestFreightCharge.getPackageWeight() || latestFreightCharge.getPackageWeight().isEmpty() ? 1f : Float.parseFloat(latestFreightCharge.getPackageWeight()));
                             if (latestFreightCharge.getWeightUnit() != null && "O".equalsIgnoreCase(latestFreightCharge.getWeightUnit()))
@@ -968,11 +968,11 @@ public class ParcelRatingUtil {
         return rated;
     }
 
-    public static ParcelAuditRequestResponseLog prepareRequestResponseLog(String requestPayload, String response, Long entityId, String tableName) {
+    public static ParcelAuditRequestResponseLog prepareRequestResponseLog(String requestPayload, String response, Long entityId, long carrierId) {
         ParcelAuditRequestResponseLog requestResponseLog = new ParcelAuditRequestResponseLog();
         requestResponseLog.setEntityIds(entityId.toString());
         requestResponseLog.setCreateUser(ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME);
-        requestResponseLog.setTableName(tableName);
+        requestResponseLog.setCarrierId(carrierId);
 
         if (requestPayload != null && !requestPayload.isEmpty()) {
             requestResponseLog.setRequestXml(requestPayload);

@@ -127,25 +127,48 @@ public class DirectJDBCDAO {
     }
     public void saveParcelAuditRequestAndResponseLog(ParcelAuditRequestResponseLog requestResponseLog){
         Connection conn = null;
-        CallableStatement cstmt =null;
+        PreparedStatement pstmt =null;
+        String  logTableName = null;
+        String  sequenceName = null;
+        String  primaryKeyColumn = null;
+        String  referalKeyColumn = null;
+
         try{
             conn = ServiceLocator.getDatabaseConnection();
-            cstmt = conn.prepareCall("{ call SHP_PRA_SAVE_RATING_LOG_PROC(?,?,?,?,?)}");
-            cstmt.setString(1, requestResponseLog.getTableName());
-            cstmt.setString(2, requestResponseLog.getEntityIds());
-            cstmt.setString(3, requestResponseLog.getRequestXml());
-            cstmt.setString(4, requestResponseLog.getResponseXml());
-            cstmt.setString(5, requestResponseLog.getCreateUser());
-            cstmt.executeUpdate();
 
-        }catch (SQLException sqle) {
+            if ( requestResponseLog.getCarrierId() == 21 ) {
+                logTableName = "SHP_UPS_RATE_REQ_RESP_LOG_TB";
+                primaryKeyColumn = "UPS_RATE_REQ_RESP_ID";
+                referalKeyColumn = "EBILL_GFF_ID";
+                sequenceName = "SHP_UPS_RATE_REQ_RESP_LOG_S.nextval";
+            } else if ( requestResponseLog.getCarrierId() == 22 ) {
+
+                logTableName = "SHP_FDX_RATE_REQ_RESP_LOG_TB";
+                primaryKeyColumn = "FDX_RATE_REQ_RESP_ID";
+                referalKeyColumn = "EBILL_MANIFEST_ID";
+                sequenceName = "SHP_FDX_RATE_REQ_RESP_LOG_S.nextval";
+
+            }
+
+            String insertQuery = " INSERT INTO "+logTableName+"  ( "+ primaryKeyColumn+",   "+referalKeyColumn+",   REQUEST,  RESPONSE, CREATE_USER, " +
+                                            " CREATE_DATE,  LAST_UPDATE_USER, LAST_UPDATE_DATE ) VALUES ( " + sequenceName+" , " +
+                                            " ?,  ? , ? , ? , SYSDATE, ? , SYSDATE  ) ";
+
+            pstmt = conn.prepareCall(insertQuery);
+
+            pstmt.setLong(1, Long.parseLong(requestResponseLog.getEntityIds() ) );
+            pstmt.setString(2, requestResponseLog.getRequestXml() );
+            pstmt.setString(3, requestResponseLog.getResponseXml() );
+            pstmt.setString(4, requestResponseLog.getCreateUser());
+            pstmt.setString(5, requestResponseLog.getCreateUser());
+
+            pstmt.executeUpdate();
+        }catch (Exception sqle) {
             throw new DaoException("Exception in saveParcelAuditRequestAndResponseLog", sqle);
-        }  catch (ServiceLocatorException sle) {
-            throw new DaoException("Exception in saveParcelAuditRequestAndResponseLog", sle);
-        }finally {
+        }  finally {
             try {
-                if (cstmt != null)
-                    cstmt.close();
+                if (pstmt != null)
+                    pstmt.close();
             } catch (SQLException sqle) {
             }
             try {
