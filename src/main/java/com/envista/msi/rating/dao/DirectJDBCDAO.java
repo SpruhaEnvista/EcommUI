@@ -232,7 +232,7 @@ public class DirectJDBCDAO {
         CallableStatement cstmt = null;
         try{
             conn = ServiceLocator.getDatabaseConnection();
-            cstmt = conn.prepareCall("{ call SHP_SAVE_RATE_DETAILS_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
+            cstmt = conn.prepareCall("{ call SHP_SAVE_RATE_DETAILS_PROC(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
             cstmt.setString(1,referenceTableName);
             cstmt.setString(2, entityId);
             cstmt.setString(3,userName);
@@ -262,6 +262,7 @@ public class DirectJDBCDAO {
             cstmt.setString(27, rateDetails != null && rateDetails.getComToRes() != null ? rateDetails.getComToRes() : "");
             cstmt.setLong(28, rateDetails != null && rateDetails.getActualServiceBucket() != null ? rateDetails.getActualServiceBucket() : -1L);
             cstmt.setString(29, rateDetails != null && rateDetails.getPackageType() != null ? rateDetails.getPackageType() : null);
+            cstmt.setInt(30, rateDetails.getExcludeRating());
 
             cstmt.executeUpdate();
 
@@ -1356,14 +1357,14 @@ public class DirectJDBCDAO {
         }
     }
 
-    public List<AccessorialDto> getRatesForPrevParentIds(String trackingNumber, Long parentId, String returnFlag, long carrierId, java.util.Date pickupDate) {
+    public List<AccessorialDto> getRatesForPrevParentIds(ParcelAuditDetailsDto detailsDto) {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         String ratesTbName;
         String accTbName;
         String idColumnName;
-        if (carrierId == 21) {
+        if (detailsDto.getCarrierId().compareTo(21L) == 0) {
             ratesTbName = "Shp_Ebill_Ups_Rates_Tb";
             idColumnName = " Ebill_Gff_Id ";
             accTbName = "SHP_UPS_ACC_AND_DIS_TB";
@@ -1376,9 +1377,9 @@ public class DirectJDBCDAO {
         sqlQuery.append(" select " + idColumnName + " as id, Parent_Id,Rtr_Amount,acc_Code,RATED_BASE_DISCOUNT,RATED_EARNED_DISCOUNT" +
                 ",RATED_MIN_MAX_ADJ,RATED_FUEL_SURCHARGE_DISC,RATED_CUST_FUEL_SURCHARGE_DISC,RATED_DAS_DSC,RES_SURCHARGE_DSC, RATED_GROSS_FUEL" +
                 " from " + ratesTbName + "" +
-                " where Tracking_Number=? and Parent_Id < ? and return_flag=? ");
+                " where Tracking_Number=? and Parent_Id < ? and return_flag=? and EXCLUDE_RATING!=1 ");
 
-        if (carrierId == 22 && pickupDate != null) {
+        if (detailsDto.getCarrierId().compareTo(22L) == 0 && detailsDto.getPickupDate() != null) {
             sqlQuery.append(" and trunc(Pickup_Date) = ? ");
         }
         List<AccessorialDto> dtos = new ArrayList<>();
@@ -1389,11 +1390,11 @@ public class DirectJDBCDAO {
             pstmt = con.prepareStatement(sqlQuery.toString());
 
 
-            pstmt.setString(1, trackingNumber);
-            pstmt.setLong(2, parentId);
-            pstmt.setString(3, returnFlag);
-            if (carrierId == 22 && pickupDate != null) {
-                pstmt.setDate(4, new Date(pickupDate.getTime()));
+            pstmt.setString(1, detailsDto.getTrackingNumber());
+            pstmt.setLong(2, detailsDto.getParentId());
+            pstmt.setString(3, detailsDto.getReturnFlag());
+            if (detailsDto.getCarrierId().compareTo(22L) == 0 && detailsDto.getPickupDate() != null) {
+                pstmt.setDate(4, new Date(detailsDto.getPickupDate().getTime()));
             }
 
             rs = pstmt.executeQuery();
@@ -1604,6 +1605,95 @@ public class DirectJDBCDAO {
             try {
                 if (resultSet != null)
                     resultSet.close();
+
+                if (pstmt != null)
+                    pstmt.close();
+
+            } catch (SQLException sqle) {
+            }
+            try {
+                if (con != null)
+                    con.close();
+            } catch (SQLException sqle) {
+            }
+        }
+
+    }
+
+    public void insertUnknownMappingCodeADJ(String customerCode, String fromDate, String toDate, String isLive) {
+
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet resultSet = null;
+        ResultSet resultSet1 = null;
+        String gffTb = "ARC_Ebill_Gff_Tb";
+        String invTb = "ARC_Ebill_Invoice_Tb";
+        if ("live".equalsIgnoreCase(isLive)) {
+            gffTb = "SHP_Ebill_Gff_Tb";
+            invTb = "SHP_Ebill_Invoice_Tb";
+        }
+
+        try {
+            con = ServiceLocator.getDatabaseConnection();
+
+
+            String selectQuery = " select  A.Charge_Description,A.Charge_Description_Code,A.Charge_Classification_Code,A.Charge_Category_Code,\n" +
+                    "A.Charge_Category_Detail_Code from " + gffTb + " a, " + invTb + " b, Shp_Ebill_Contract_Tb c, Shp_Customer_Profile_Tb d\n" +
+                    "where A.Invoice_Id=B.Invoice_Id AND A.Ebill_Gff_Id=A.Parent_Id and B.Inv_Contract_Number=C.Contract_Number " +
+                    "and D.Customer_Code='" + customerCode + "' AND A.Net_Amount < 0\n" +
+                    " and upper(A.Charge_Description) not like 'BILLING ADJUSTMENT%'\n" +
+                    " AND trunc(B.Create_Date) BETWEEN '" + fromDate + "' AND '" + toDate + "' \n" +
+                    "  GROUP BY A.Charge_Description,A.Charge_Description_Code,A.Charge_Classification_Code,A.Charge_Category_Code,\n" +
+                    "A.Charge_Category_Detail_Code ";
+
+            pstmt = con.prepareStatement(selectQuery);
+
+
+            resultSet = pstmt.executeQuery();
+
+            while (resultSet.next()) {
+
+                String selectQuery1 = " select * from SHP_LOOKUP_TB  where MODULE_NAME ='Parcel_Rating_MSI_AR_Code_ADJ_CREDITS_TEMP'" +
+                        "        and  CUSTOM_DEFINED_1=? and Custom_Defined_2=? and Custom_Defined_3=? " +
+                        "and Custom_Defined_4=? and Custom_Defined_5=? ";
+
+                pstmt = con.prepareStatement(selectQuery1);
+                pstmt.setString(1, resultSet.getString("Charge_Description"));
+                pstmt.setString(2, resultSet.getString("Charge_Description_Code"));
+                pstmt.setString(3, resultSet.getString("Charge_Classification_Code"));
+                pstmt.setString(4, resultSet.getString("Charge_Category_Code"));
+                pstmt.setString(5, resultSet.getString("Charge_Category_Detail_Code"));
+                resultSet1 = pstmt.executeQuery();
+
+                if (!resultSet1.next()) {
+
+                    String sqlQuery = " INSERT INTO SHP_LOOKUP_TB (LOOKUP_ID, MODULE_NAME,CUSTOM_DEFINED_1," +
+                            "CUSTOM_DEFINED_2,CUSTOM_DEFINED_3,CUSTOM_DEFINED_4,CUSTOM_DEFINED_5,CREATE_DATE,CREATE_USER)\n" +
+                            " VALUES(SHP_LOOKUP_S.NEXTVAL,'Parcel_Rating_MSI_AR_Code_ADJ_CREDITS_TEMP',?,?,?,?,?,SYSDATE,'ADJCREDITS') ";
+
+
+                    pstmt = con.prepareStatement(sqlQuery);
+
+                    pstmt.setString(1, resultSet.getString("Charge_Description"));
+                    pstmt.setString(2, resultSet.getString("Charge_Description_Code"));
+                    pstmt.setString(3, resultSet.getString("Charge_Classification_Code"));
+                    pstmt.setString(4, resultSet.getString("Charge_Category_Code"));
+                    pstmt.setString(5, resultSet.getString("Charge_Category_Detail_Code"));
+
+
+                    pstmt.executeUpdate();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            throw new DaoException("Exception in updateFedExOtherFieldValues", e);
+        } finally {
+            try {
+                if (resultSet != null)
+                    resultSet.close();
+                if (resultSet1 != null)
+                    resultSet1.close();
 
                 if (pstmt != null)
                     pstmt.close();

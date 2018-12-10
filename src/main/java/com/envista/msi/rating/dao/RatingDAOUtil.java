@@ -88,6 +88,7 @@ public class RatingDAOUtil {
         RATING_QUEUE_COLUMN_NAMES.add("INVOICE_DATE");
         RATING_QUEUE_COLUMN_NAMES.add("ITEM_TAGS");
         RATING_QUEUE_COLUMN_NAMES.add("CUSTOMER_ID");
+        RATING_QUEUE_COLUMN_NAMES.add("EXCLUDE_RATING");
     }
 
     public static String prepareRatingQueueInsertQuery(boolean isHwt) {
@@ -322,7 +323,9 @@ public class RatingDAOUtil {
                 } else {
                     ps.setNull(70, Types.INTEGER);
                 }
-            } else {
+            } else if ("EXCLUDE_RATING".equalsIgnoreCase(columnName))
+                ps.setInt(71, queueBean.getExcludeRating());
+            else {
                 throw new RuntimeException("Column name not mapped");
             }
         }

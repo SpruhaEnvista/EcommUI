@@ -1,5 +1,8 @@
 package com.envista.msi.api.web.rest.util.audit.parcel;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * This class represents all the constants used in Parcel Audit.
  * Created by Sujit kumar on 10/07/2017.
@@ -116,4 +119,6 @@ public class ParcelAuditConstant {
             this.value = value;
         }
     }
+
+    public static final List<String> EXCLUDE_RATING_ADJUSTMENT_LIST = Arrays.asList("TAX VARIANCE ADJUSTMENT", "BILLING ADJUSTMENT");
 }

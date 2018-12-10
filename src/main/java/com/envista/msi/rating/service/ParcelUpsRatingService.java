@@ -341,13 +341,16 @@ public class ParcelUpsRatingService {
 
                 status = ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value;
             }
-        }else{
+        } else if (bean.getExcludeRating() == 1) {
+
+            status = ParcelAuditConstant.RTRStatus.CLOSED.value;
+        } else {
 
             status = ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value;
         }
 
         if (ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET.value.equalsIgnoreCase(status) ||
-                ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value.equalsIgnoreCase(status)) {
+                ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value.equalsIgnoreCase(status) || bean.getExcludeRating() == 1) {
             if (parcelAuditDetails != null) {
                 // Connection conn = null;
                 try {
@@ -359,6 +362,10 @@ public class ParcelUpsRatingService {
                             rateDetails.setRtrStatus(status);
                             dto.setPieces(bean.getPiecesCount());
                             ParcelRatingUtil.setCommonValues(rateDetails, bean, null);
+                            rateDetails.setExcludeRating(bean.getExcludeRating());
+                            if (rateDetails.getExcludeRating() == 1) {
+                                rateDetails.setRtrAmount(dto.getNetAmount() != null ? new BigDecimal(dto.getNetAmount()) : BigDecimal.ZERO);
+                            }
                             directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, dto.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                         }
                     }
@@ -411,7 +418,7 @@ public class ParcelUpsRatingService {
 
         BigDecimal ratedWeight = frtCharge.getWeight() == null ? new BigDecimal("0") : frtCharge.getWeight();
 
-        List<AccessorialDto> prevParentsRatesDtos = directJDBCDAO.getRatesForPrevParentIds(parcelAuditDetails.get(0).getTrackingNumber(), parcelAuditDetails.get(0).getParentId(), queueBean.getReturnFlag(), 21, parcelAuditDetails.get(0).getPickupDate());
+        List<AccessorialDto> prevParentsRatesDtos = directJDBCDAO.getRatesForPrevParentIds(parcelAuditDetails.get(0));
 
         // Connection conn = null;
 

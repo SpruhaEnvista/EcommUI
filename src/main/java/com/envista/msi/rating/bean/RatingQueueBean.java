@@ -91,6 +91,7 @@ public class RatingQueueBean {
     private String itemTagInfo;
     private Long customerId;
     private int piecesCount;
+    private int excludeRating;
 
     public Long getRatingQueueId() {
         return ratingQueueId;
@@ -743,5 +744,13 @@ public class RatingQueueBean {
 
     public void setPiecesCount(int piecesCount) {
         this.piecesCount = piecesCount;
+    }
+
+    public int getExcludeRating() {
+        return excludeRating;
+    }
+
+    public void setExcludeRating(int excludeRating) {
+        this.excludeRating = excludeRating;
     }
 }

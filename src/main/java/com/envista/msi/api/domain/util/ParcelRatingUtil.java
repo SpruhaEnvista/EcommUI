@@ -295,6 +295,11 @@ public class ParcelRatingUtil {
         RatingQueueBean ratingQueueBean = new RatingQueueBean();
         ParcelAuditDetailsDto firstCharge;
         boolean hwt = false;
+        boolean excludeRating = checkCarrierCreditsToExcludeRating(shipmentDetails);
+
+        if (excludeRating)
+            ratingQueueBean.setExcludeRating(1);
+
         if (hwtSequenceInfo == null) {
             if (shipmentDetails.get(0).getPickupDate() == null)
                 setPrevParentIdShipDate(shipmentDetails, trackingNumDetails);
@@ -577,6 +582,23 @@ public class ParcelRatingUtil {
             }
         }
         return ratingQueueBean;
+    }
+
+    private static boolean checkCarrierCreditsToExcludeRating(List<ParcelAuditDetailsDto> shipmentDetails) {
+
+        for (ParcelAuditDetailsDto dto : shipmentDetails) {
+
+            if (dto.getChargeDescription() != null && (dto.getId().compareTo(dto.getParentId()) == 0 && new BigDecimal(dto.getNetAmount()).signum() == -1) &&
+                    (dto.getChargeCatagoryCode() != null && "ADJ".equalsIgnoreCase(dto.getChargeCatagoryCode()))) {
+
+                for (String desc : ParcelAuditConstant.EXCLUDE_RATING_ADJUSTMENT_LIST) {
+
+                    if (dto.getChargeDescription().toUpperCase().contains(desc))
+                        return true;
+                }
+            }
+        }
+        return false;
     }
 
     private static void checkImmediateParentIdReturnFlag(RatingQueueBean ratingQueueBean, List<ParcelAuditDetailsDto> shipmentDetails, List<ParcelAuditDetailsDto> trackingNumDetails) {
@@ -2324,7 +2346,6 @@ public class ParcelRatingUtil {
         } else {
             rateDetails.setRateSetName(queueBean.getRateSetName());
         }
-
 
     }
 
