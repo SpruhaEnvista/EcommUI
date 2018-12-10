@@ -145,13 +145,9 @@ public class ParcelUpsRatingService {
 
                             if (bean.getHwtIdentifier() == null || bean.getHwtIdentifier().isEmpty()) {
                                 if (ParcelRatingUtil.isFirstShipmentToRate(shipments, bean.getParentId())) {
-                                /*    if (ParcelRatingUtil.isRatedWithException(shipmentToRate)) {
-                                        status = ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value;
-                                    } else if (ParcelRatingUtil.isRatedWithEmptyPriceSheet(shipmentToRate)) {
-                                        status = ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET.value;
-                                    } else*/
+
                                     if (!ParcelRatingUtil.isShipmentRated(shipmentToRate)) {
-                                        status = callRTRAndPopulateRates(url, licenseKey, shipmentToRate, null, bean, accessorialBeans);
+                                        status = callRTRAndPopulateRates(url, licenseKey, shipmentToRate, bean, accessorialBeans);
                                     }
                                 } else {
                                     if (!ParcelRatingUtil.isShipmentRated(shipmentToRate)) {
@@ -162,26 +158,18 @@ public class ParcelUpsRatingService {
 
                                                 if (shipmentToRate != null) {
 
-                                                    status = callRTRAndPopulateRates(url, licenseKey, shipmentToRate, previousShipment, bean, accessorialBeans);
+                                                    status = callRTRAndPopulateRates(url, licenseKey, shipmentToRate, bean, accessorialBeans);
                                                 }
 
 
-                                            } /*else if (ParcelRatingUtil.isRatedWithException(previousShipment)) {
-                                                status = ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value;
-                                            } else if (ParcelRatingUtil.isRatedWithEmptyPriceSheet(previousShipment)) {
-                                                status = ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET.value;
-                                            }*/
+                                            }
                                         }
                                     }
                                 }
                             } else {
-                              /*  if (ParcelRatingUtil.isRatedWithException(shipmentToRate)) {
-                                    status = ParcelAuditConstant.RTRStatus.RATING_EXCEPTION.value;
-                                } else if (ParcelRatingUtil.isRatedWithEmptyPriceSheet(shipmentToRate)) {
-                                    status = ParcelAuditConstant.RTRStatus.NO_PRICE_SHEET.value;
-                                } else*/
+
                                 if (!prevHwtRated) {
-                                    status = callRTRAndPopulateRates(url, licenseKey, shipmentToRate, null, bean, accessorialBeans);
+                                    status = callRTRAndPopulateRates(url, licenseKey, shipmentToRate, bean, accessorialBeans);
                                 }
                             }
                         }
@@ -218,45 +206,32 @@ public class ParcelUpsRatingService {
         }
     }
 
-    private String callRTRAndPopulateRates(String url, String licenseKey, List<ParcelAuditDetailsDto> parcelAuditDetails, List<ParcelAuditDetailsDto> previousShipment, RatingQueueBean bean, List<ServiceFlagAccessorialBean> accessorialBeans) throws Exception {
-        return callRTRAndPopulateRates(url, licenseKey, parcelAuditDetails, null, previousShipment, bean, null, accessorialBeans);
-    }
-
-    private String callRTRAndPopulateRates(String url, String licenseKey, List<ParcelAuditDetailsDto> parcelAuditDetails, List<ParcelAuditDetailsDto> previousShipment, RatingQueueBean bean, List<RatingQueueBean> beans, List<ServiceFlagAccessorialBean> accessorialBeans) throws Exception {
-        return callRTRAndPopulateRates(url, licenseKey, parcelAuditDetails, null, previousShipment, bean, beans, accessorialBeans);
-    }
-
-    private String callRTRAndPopulateRates(String url, String licenseKey, List<ParcelAuditDetailsDto> parcelAuditDetails, ParcelAuditDetailsDto commercialCharge, List<ParcelAuditDetailsDto> previousShipment, RatingQueueBean bean, List<RatingQueueBean> beans, List<ServiceFlagAccessorialBean> accessorialBeans) throws Exception {
+    private String callRTRAndPopulateRates(String url, String licenseKey, List<ParcelAuditDetailsDto> parcelAuditDetails, RatingQueueBean bean, List<ServiceFlagAccessorialBean> accessorialBeans) throws Exception {
         String requestPayload = "";
         String response = "";
         String status = "";
         DirectJDBCDAO directJDBCDAO = DirectJDBCDAO.getInstance();
 
-            requestPayload = com.envista.msi.rating.util.ParcelRateRequestBuilder.buildParcelRateRequest(bean, ParcelAuditConstant.AR_RATE_REQUEST_LICENSE_KEY, beans).toXmlString();
+        if (bean.getExcludeRating() != 1) {
+            requestPayload = com.envista.msi.rating.util.ParcelRateRequestBuilder.buildParcelRateRequest(bean, ParcelAuditConstant.AR_RATE_REQUEST_LICENSE_KEY).toXmlString();
             response = CommonUtil.connectAndGetResponseAsString(url, requestPayload);
             if (response != null && !response.trim().isEmpty()) {
-                BigDecimal hwtNetAmount = null;
-                if (beans != null && beans.size() > 0) {
-                    hwtNetAmount = ParcelRatingUtil.findSumOfNetAmount(parcelAuditDetails);
-                    parcelAuditDetails = ParcelRatingUtil.updateWeightAndNetChargesForHwt(parcelAuditDetails);
-                    bean = ParcelRatingUtil.getLeadShipmentQueueBean(parcelAuditDetails, beans);
-                }
 
-                directJDBCDAO.saveParcelAuditRequestAndResponseLog(ParcelRatingUtil.prepareRequestResponseLog(requestPayload, response, parcelAuditDetails.get(0).getParentId(),  bean.getCarrierId() ));
-                status = updateRateForUps(ParcelRateResponseParser.parse(response), parcelAuditDetails, previousShipment, hwtNetAmount, bean, accessorialBeans);
+
+                directJDBCDAO.saveParcelAuditRequestAndResponseLog(ParcelRatingUtil.prepareRequestResponseLog(requestPayload, response, parcelAuditDetails.get(0).getParentId(), bean.getCarrierId()));
             }
+        }
+        status = updateRateForUps(ParcelRateResponseParser.parse(response), parcelAuditDetails, bean, accessorialBeans);
 
-/*        if(status != null && !status.isEmpty()){
-            DirectJDBCDAO.getInstance().updateRtrStatus(21L, bean.getTrackingNumber(), status);
-        }*/
+
         return status;
     }
 
-    private String updateRateForUps(ParcelRateResponse parcelRateResponse, List<ParcelAuditDetailsDto> parcelAuditDetails, List<ParcelAuditDetailsDto> previousShipment, BigDecimal hwtNetAmount, RatingQueueBean bean, List<ServiceFlagAccessorialBean> accessorialBeans) throws Exception {
-        return updateRateForUps(parcelRateResponse, parcelAuditDetails, null, previousShipment, hwtNetAmount, bean, accessorialBeans);
+    private String updateRateForUps(ParcelRateResponse parcelRateResponse, List<ParcelAuditDetailsDto> parcelAuditDetails, RatingQueueBean bean, List<ServiceFlagAccessorialBean> accessorialBeans) throws Exception {
+        return updateRateForUps(parcelRateResponse, parcelAuditDetails, null, bean, accessorialBeans);
     }
 
-    private String updateRateForUps(ParcelRateResponse parcelRateResponse, List<ParcelAuditDetailsDto> parcelAuditDetails, ParcelAuditDetailsDto commercialAdjCharge, List<ParcelAuditDetailsDto> previousShipment, BigDecimal hwtNetAmount, RatingQueueBean bean, List<ServiceFlagAccessorialBean> accessorialBeans) throws Exception {
+    private String updateRateForUps(ParcelRateResponse parcelRateResponse, List<ParcelAuditDetailsDto> parcelAuditDetails, ParcelAuditDetailsDto commercialAdjCharge, RatingQueueBean bean, List<ServiceFlagAccessorialBean> accessorialBeans) throws Exception {
         String status = "";
         DirectJDBCDAO directJDBCDAO = DirectJDBCDAO.getInstance();
         if(parcelRateResponse != null){
@@ -264,11 +239,8 @@ public class ParcelUpsRatingService {
                 if(parcelRateResponse.getPriceSheets() != null && !parcelRateResponse.getPriceSheets().isEmpty()){
                     //Taking the first price sheet, as per the discussion we finalised that the first price sheet will be be correct and rated based on the latest contract.
                     ParcelRateResponse.PriceSheet firstPriceSheet = parcelRateResponse.getPriceSheets().get(0);
-                    BigDecimal sumOfNetAmount = null;
-                    if (hwtNetAmount != null)
-                        sumOfNetAmount = hwtNetAmount;
-                    else
-                        sumOfNetAmount = ParcelRatingUtil.findSumOfNetAmount(parcelAuditDetails);
+
+                    BigDecimal sumOfNetAmount = ParcelRatingUtil.findSumOfNetAmount(parcelAuditDetails);
 
                     BigDecimal totalRateAmount = firstPriceSheet.getTotal().setScale(2, BigDecimal.ROUND_HALF_EVEN);
 
@@ -647,31 +619,6 @@ public class ParcelUpsRatingService {
         return DirectJDBCDAO.getInstance().getRatedChargeAmount(parentId, trackingNumber);
     }
 
-    public String doParcelRatingForUpsCarrier(List<RatingQueueBean> beans, List<ServiceFlagAccessorialBean> accessorialBeans) {
-        String status = null;
-        if (beans != null) {
-            String url = ParcelAuditConstant.AR_RATE_REQUEST_PROTOCOL + "://" + ParcelAuditConstant.AR_RATE_REQUEST_HOST_NAME + "/" + ParcelAuditConstant.AR_RATE_REQUEST_URI_PATH;
-            String licenseKey = ParcelAuditConstant.AR_RATE_REQUEST_LICENSE_KEY;
-
-            String trackingNumbers = ParcelRatingUtil.prepareTrackingNumbersInOperator(beans);
-            List<ParcelAuditDetailsDto> shipmentRecords = null;
-            if (trackingNumbers != null && !trackingNumbers.isEmpty()) {
-                try {
-                    shipmentRecords = getUpsParcelShipmentDetails(null, trackingNumbers, true, null);
-                    if (shipmentRecords != null && !shipmentRecords.isEmpty()) {
-
-                        status = callRTRAndPopulateRates(url, licenseKey, shipmentRecords, null, null, beans, accessorialBeans);
-
-
-                    }
-                } catch (Exception e) {
-                    log.error("ERROR - " + e.getStackTrace() + "--Parent Id->" + beans.get(0).getParentId());
-                    e.printStackTrace();
-                }
-            }
-        }
-        return status;
-    }
 
     public void updateUpsOtherFieldValues(List<ParcelAuditDetailsDto> rateDetailsList) throws Exception {
 
