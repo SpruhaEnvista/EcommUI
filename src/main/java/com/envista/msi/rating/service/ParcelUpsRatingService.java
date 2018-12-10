@@ -118,11 +118,14 @@ public class ParcelUpsRatingService {
 
             if(trackingNumber != null && !trackingNumber.isEmpty()){
                 try{
-                    if (bean.getHwtIdentifier() == null || bean.getHwtIdentifier().isEmpty())
+                    if (bean.getHwtIdentifier() == null || bean.getHwtIdentifier().isEmpty()) {
                         shipmentRecords = getUpsParcelShipmentDetails(null, trackingNumber, true, null);
+                        bean.setPiecesCount(1);
+                    }
                     else {
                         shipmentRecords = getUpsParcelShipmentDetails(bean.getCustomerId() != null ? bean.getCustomerId().toString() : null, null, true, bean.getHwtIdentifier());
                         shipmentToRate = new ArrayList<>();
+                        bean.setPiecesCount(ParcelRatingUtil.getPiecesCount(shipmentRecords));
                         prevHwtRated = ParcelRatingUtil.isHwtShipmentRated(shipmentRecords, bean.getParentId(), shipmentToRate, bean.getInvoiceDate());
                     }
 
@@ -354,6 +357,7 @@ public class ParcelUpsRatingService {
                         if (dto != null && dto.getId() != null) {
                             ParcelRateDetailsDto rateDetails = new ParcelRateDetailsDto();
                             rateDetails.setRtrStatus(status);
+                            dto.setPieces(bean.getPiecesCount());
                             ParcelRatingUtil.setCommonValues(rateDetails, bean, null);
                             directJDBCDAO.updateShipmentRateDetails(ParcelAuditConstant.EBILL_GFF_TABLE_NAME, dto.getId().toString(), ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME, rateDetails);
                         }
@@ -416,6 +420,8 @@ public class ParcelUpsRatingService {
             // conn.setAutoCommit(false);
 
             for(ParcelAuditDetailsDto auditDetails : parcelAuditDetails){
+
+                auditDetails.setPieces(queueBean.getPiecesCount());
 
                 if(auditDetails != null && auditDetails.getChargeClassificationCode() != null && !auditDetails.getChargeClassificationCode().isEmpty()){
                     ParcelRateResponse.Charge charge = null;

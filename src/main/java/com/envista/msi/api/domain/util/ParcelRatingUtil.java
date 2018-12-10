@@ -2528,4 +2528,17 @@ public class ParcelRatingUtil {
             e.printStackTrace();
         }
     }
+
+    public static int getPiecesCount(List<ParcelAuditDetailsDto> shipmentRecords) {
+
+        Set<String> trakingNumsSet = new HashSet<>();
+        for (ParcelAuditDetailsDto dto : shipmentRecords) {
+
+            if (!trakingNumsSet.contains(dto.getTrackingNumber())) {
+                trakingNumsSet.add(dto.getTrackingNumber());
+            }
+        }
+
+        return trakingNumsSet.size();
+    }
 }

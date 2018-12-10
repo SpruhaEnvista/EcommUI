@@ -90,6 +90,7 @@ public class RatingQueueBean {
     private Date invoiceDate;
     private String itemTagInfo;
     private Long customerId;
+    private int piecesCount;
 
     public Long getRatingQueueId() {
         return ratingQueueId;
@@ -734,5 +735,13 @@ public class RatingQueueBean {
 
     public void setCustomerId(Long customerId) {
         this.customerId = customerId;
+    }
+
+    public int getPiecesCount() {
+        return piecesCount;
+    }
+
+    public void setPiecesCount(int piecesCount) {
+        this.piecesCount = piecesCount;
     }
 }
