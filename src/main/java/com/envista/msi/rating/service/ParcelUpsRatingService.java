@@ -1,16 +1,11 @@
 package com.envista.msi.rating.service;
 
 import com.envista.msi.api.domain.util.ParcelRatingUtil;
-import com.envista.msi.api.web.rest.dto.rtr.MsiARChargeCodesDto;
-import com.envista.msi.api.web.rest.dto.rtr.ParcelARChargeCodeMappingDto;
-import com.envista.msi.api.web.rest.dto.rtr.ParcelAuditDetailsDto;
-import com.envista.msi.api.web.rest.dto.rtr.ParcelRateDetailsDto;
-import com.envista.msi.api.web.rest.dto.rtr.RatedChargeDetailsDto;
+import com.envista.msi.api.web.rest.dto.rtr.*;
 import com.envista.msi.api.web.rest.util.CommonUtil;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelAuditConstant;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelRateResponse;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelRateResponseParser;
-import com.envista.msi.rating.ServiceLocator;
 import com.envista.msi.rating.bean.AccessorialDto;
 import com.envista.msi.rating.bean.RatingQueueBean;
 import com.envista.msi.rating.bean.ServiceFlagAccessorialBean;
@@ -20,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
