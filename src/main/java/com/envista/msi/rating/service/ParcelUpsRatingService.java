@@ -551,10 +551,10 @@ public class ParcelUpsRatingService {
                     if(null == charge){
                         ParcelRateDetailsDto rateDetails = ParcelRateDetailsDto.getInstance();
 
-                        if ((auditDetails.getChargeCatagoryCode() != null && auditDetails.getChargeCategoryDetailCode() != null) &&
+/*                        if ((auditDetails.getChargeCatagoryCode() != null && auditDetails.getChargeCategoryDetailCode() != null) &&
                                 ("ADJ".equalsIgnoreCase(auditDetails.getChargeCatagoryCode()) && "CADJ".equalsIgnoreCase(auditDetails.getChargeCategoryDetailCode()))) {
                             rateDetails.setRtrAmount(auditDetails.getNetAmount() != null ? new BigDecimal(auditDetails.getNetAmount()) : new BigDecimal("0.00"));
-                        } else
+                        } else*/
                             rateDetails.setRtrAmount(new BigDecimal("0.00"));
 
                         rateDetails.setRtrStatus(rtrStatus.value);
@@ -564,13 +564,19 @@ public class ParcelUpsRatingService {
                         ServiceFlagAccessorialBean bean = ParcelRatingUtil.getAccessorialBean(accessorialBeans, auditDetails.getChargeDescription(), auditDetails.getChargeDescriptionCode(), 21L);
 
                         if (bean != null) {
-/*                        if ("RSC".equalsIgnoreCase(bean.getLookUpValue()))
-                            bean.setLookUpValue("RSS");*/
                             rateDetails.setAccCode(bean.getLookUpValue());
+
+                            BigDecimal prevRtrAmt = ParcelRatingUtil.findPrevRateAmtByCode(prevParentsRatesDtos, bean.getLookUpValue(), "accessorial");
+                            if (bean != null && prevRtrAmt != null && !mappedAccList.contains(bean.getLookUpValue()))
+                                rateDetails.setRtrAmount(rateDetails.getRtrAmount().subtract(prevRtrAmt));
+
+                            mappedAccList.add(bean.getLookUpValue());
+
                         } else
                             rateDetails.setAccCode("UNKNOWN");
 
                         ParcelRatingUtil.setCommonValues(rateDetails, queueBean, priceSheet);
+
 
                         if (auditDetails.getId().compareTo(auditDetails.getParentId()) == 0)
                             ParcelRateResponseParser.mapPercentageAndDis(rateDetails, priceSheet, mappedDscChanges, prevParentsRatesDtos);
@@ -583,7 +589,7 @@ public class ParcelUpsRatingService {
 
             List<AccessorialDto> addAccAndDisdtos = new ArrayList<>();
 
-            ParcelRatingUtil.prepareAdditionalAccessorial(priceSheet, parcelAuditDetails.get(0).getParentId(), mappedAccChanges, addAccAndDisdtos, frtChargeFound, fscChargeFound, prevParentsRatesDtos);
+            ParcelRatingUtil.prepareAdditionalAccessorial(priceSheet, parcelAuditDetails.get(0).getParentId(), mappedAccChanges, addAccAndDisdtos, frtChargeFound, fscChargeFound, prevParentsRatesDtos, queueBean);
             ParcelRatingUtil.prepareAddDiscounts(priceSheet, parcelAuditDetails.get(0).getParentId(), mappedDscChanges, addAccAndDisdtos, prevParentsRatesDtos);
 
             directJDBCDAO.saveAccInfo(addAccAndDisdtos, parcelAuditDetails.get(0).getParentId(), 21);

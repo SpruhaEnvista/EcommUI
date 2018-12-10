@@ -2328,9 +2328,10 @@ public class ParcelRatingUtil {
 
     }
 
-    public static void prepareAdditionalAccessorial(ParcelRateResponse.PriceSheet priceSheet, Long parentId, List<ParcelRateResponse.Charge> mappedAccChanges, List<AccessorialDto> dtos, boolean frtChargeFound, boolean fscChargeFound, List<AccessorialDto> prevParentsRatesDtos) {
+    public static void prepareAdditionalAccessorial(ParcelRateResponse.PriceSheet priceSheet, Long parentId, List<ParcelRateResponse.Charge> mappedAccChanges, List<AccessorialDto> dtos, boolean frtChargeFound, boolean fscChargeFound, List<AccessorialDto> prevParentsRatesDtos, RatingQueueBean ratingQueueBean) throws Exception {
 
         List<ParcelRateResponse.Charge> accessorialCharges = ParcelRateResponseParser.getAccessorialCharges(priceSheet);
+        checkAnyAccMissing(accessorialCharges, ratingQueueBean);
 
         if (accessorialCharges != null && !accessorialCharges.isEmpty()) {
             if (mappedAccChanges != null && !mappedAccChanges.isEmpty()) {
@@ -2425,6 +2426,45 @@ public class ParcelRatingUtil {
         }
 
 
+    }
+
+    private static void checkAnyAccMissing(List<ParcelRateResponse.Charge> accessorialCharges, RatingQueueBean ratingQueueBean) throws Exception {
+
+        boolean chargeFound = false;
+        int count = 0;
+        Set<ParcelRateResponse.Charge> missingCharges = null;
+        if (ratingQueueBean.getAccessorials() != null && accessorialCharges != null) {
+            Set<ParcelRateRequest.ServiceFlag> serviceFlags = ratingQueueBean.getAccessorials();
+            if (serviceFlags != null && serviceFlags.size() > 0) {
+                for (ParcelRateRequest.ServiceFlag serviceFlag : serviceFlags) {
+                    count = 0;
+                    chargeFound = false;
+                    for (ParcelRateResponse.Charge charge : accessorialCharges) {
+                        count++;
+                        if (serviceFlag.getCode() != null && charge.getEdiCode() != null) {
+                            if (serviceFlag.getCode().equalsIgnoreCase(charge.getEdiCode())) {
+                                chargeFound = true;
+                                break;
+                            }
+                        }
+                        if (!chargeFound && count == accessorialCharges.size()) {
+                            ParcelRateResponse.Charge newCharge = new ParcelRateResponse.Charge();
+                            newCharge.setEdiCode(serviceFlag.getCode());
+                            newCharge.setType("ACCESSORIAL");
+                            newCharge.setName("ACCESSORIAL");
+                            newCharge.setAmount(new BigDecimal("0.00"));
+                            newCharge.setRate(new BigDecimal("0.00"));
+                            if (missingCharges == null)
+                                missingCharges = new HashSet<>();
+
+                            missingCharges.add(newCharge);
+                        }
+                    }
+                }
+            }
+        }
+        if (missingCharges != null && missingCharges.size() > 0)
+            accessorialCharges.addAll(missingCharges);
     }
 
     public static void prepareAddDiscounts(ParcelRateResponse.PriceSheet priceSheet, Long parentId, List<ParcelRateResponse.Charge> mappedDscChanges, List<AccessorialDto> addAccAndDisdtos, List<AccessorialDto> prevParentsRatesDtos) {
