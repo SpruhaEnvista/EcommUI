@@ -1624,6 +1624,7 @@ public class DirectJDBCDAO {
 
         Connection con = null;
         PreparedStatement pstmt = null;
+        PreparedStatement pstmtInsert = null;
         ResultSet resultSet = null;
         ResultSet resultSet1 = null;
         String gffTb = "ARC_Ebill_Gff_Tb";
@@ -1635,7 +1636,6 @@ public class DirectJDBCDAO {
 
         try {
             con = ServiceLocator.getDatabaseConnection();
-
 
             String selectQuery = " select  A.Charge_Description,A.Charge_Description_Code,A.Charge_Classification_Code,A.Charge_Category_Code,\n" +
                     "A.Charge_Category_Detail_Code from " + gffTb + " a, " + invTb + " b, Shp_Ebill_Contract_Tb c, Shp_Customer_Profile_Tb d\n" +
@@ -1651,13 +1651,21 @@ public class DirectJDBCDAO {
 
             resultSet = pstmt.executeQuery();
 
+            String selectQuery1 = " select * from SHP_LOOKUP_TB  where MODULE_NAME ='Parcel_Rating_MSI_AR_Code_ADJ_CREDITS_TEMP'" +
+                    "        and  CUSTOM_DEFINED_1=? and Custom_Defined_2=? and Custom_Defined_3=? " +
+                    "and Custom_Defined_4=? and Custom_Defined_5=? ";
+
+            pstmt = con.prepareStatement(selectQuery1);
+
+            String sqlQueryInsert = " INSERT INTO SHP_LOOKUP_TB (LOOKUP_ID, MODULE_NAME,CUSTOM_DEFINED_1," +
+                    "CUSTOM_DEFINED_2,CUSTOM_DEFINED_3,CUSTOM_DEFINED_4,CUSTOM_DEFINED_5,CREATE_DATE,CREATE_USER)\n" +
+                    " VALUES(SHP_LOOKUP_S.NEXTVAL,'Parcel_Rating_MSI_AR_Code_ADJ_CREDITS_TEMP',?,?,?,?,?,SYSDATE,'ADJCREDITS') ";
+
+
+            pstmtInsert = con.prepareStatement(sqlQueryInsert);
+
             while (resultSet.next()) {
 
-                String selectQuery1 = " select * from SHP_LOOKUP_TB  where MODULE_NAME ='Parcel_Rating_MSI_AR_Code_ADJ_CREDITS_TEMP'" +
-                        "        and  CUSTOM_DEFINED_1=? and Custom_Defined_2=? and Custom_Defined_3=? " +
-                        "and Custom_Defined_4=? and Custom_Defined_5=? ";
-
-                pstmt = con.prepareStatement(selectQuery1);
                 pstmt.setString(1, resultSet.getString("Charge_Description"));
                 pstmt.setString(2, resultSet.getString("Charge_Description_Code"));
                 pstmt.setString(3, resultSet.getString("Charge_Classification_Code"));
@@ -1667,21 +1675,15 @@ public class DirectJDBCDAO {
 
                 if (!resultSet1.next()) {
 
-                    String sqlQuery = " INSERT INTO SHP_LOOKUP_TB (LOOKUP_ID, MODULE_NAME,CUSTOM_DEFINED_1," +
-                            "CUSTOM_DEFINED_2,CUSTOM_DEFINED_3,CUSTOM_DEFINED_4,CUSTOM_DEFINED_5,CREATE_DATE,CREATE_USER)\n" +
-                            " VALUES(SHP_LOOKUP_S.NEXTVAL,'Parcel_Rating_MSI_AR_Code_ADJ_CREDITS_TEMP',?,?,?,?,?,SYSDATE,'ADJCREDITS') ";
+
+                    pstmtInsert.setString(1, resultSet.getString("Charge_Description"));
+                    pstmtInsert.setString(2, resultSet.getString("Charge_Description_Code"));
+                    pstmtInsert.setString(3, resultSet.getString("Charge_Classification_Code"));
+                    pstmtInsert.setString(4, resultSet.getString("Charge_Category_Code"));
+                    pstmtInsert.setString(5, resultSet.getString("Charge_Category_Detail_Code"));
 
 
-                    pstmt = con.prepareStatement(sqlQuery);
-
-                    pstmt.setString(1, resultSet.getString("Charge_Description"));
-                    pstmt.setString(2, resultSet.getString("Charge_Description_Code"));
-                    pstmt.setString(3, resultSet.getString("Charge_Classification_Code"));
-                    pstmt.setString(4, resultSet.getString("Charge_Category_Code"));
-                    pstmt.setString(5, resultSet.getString("Charge_Category_Detail_Code"));
-
-
-                    pstmt.executeUpdate();
+                    pstmtInsert.executeUpdate();
                 }
             }
         } catch (Exception e) {
@@ -1697,6 +1699,8 @@ public class DirectJDBCDAO {
 
                 if (pstmt != null)
                     pstmt.close();
+                if (pstmtInsert != null)
+                    pstmtInsert.close();
 
             } catch (SQLException sqle) {
             }
