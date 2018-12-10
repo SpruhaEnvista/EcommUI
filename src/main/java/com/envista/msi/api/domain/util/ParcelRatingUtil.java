@@ -2216,7 +2216,10 @@ public class ParcelRatingUtil {
     public static void prepareXmlReqAddressInfo(List<ParcelAuditDetailsDto> trackingNumberDetails, ParcelAuditDetailsDto ratingCharge) {
 
         Map<Long, List<ParcelAuditDetailsDto>> shipments = ParcelRatingUtil.organiseShipmentsByParentId(trackingNumberDetails);
+
         boolean returnShipment = false;
+        String  maxQuantity = "1";
+
         if (shipments != null && ratingCharge != null && ratingCharge.getParentId() != null)
             returnShipment = isReturnShipment(shipments.get(ratingCharge.getParentId()));
 
@@ -2293,11 +2296,11 @@ public class ParcelRatingUtil {
 
                 if ( (ratingCharge.getItemQuantity () == null || new BigDecimal(ratingCharge.getItemQuantity()).compareTo(BigDecimal.ZERO) == 0 )
                         && ( dto.getItemQuantity() !=null && new BigDecimal(dto.getItemQuantity()).compareTo(BigDecimal.ZERO) != 0 ) ) {
-                    ratingCharge.setItemQuantity( dto.getItemQuantity() );
-                }
 
-                if ( (ratingCharge.getItemQuantity () == null || new BigDecimal(ratingCharge.getItemQuantity()).compareTo(BigDecimal.ZERO) == 0 ) ) {
-                    ratingCharge.setItemQuantity( "1" );
+                    if ( new BigDecimal(dto.getItemQuantity()).compareTo(new BigDecimal(maxQuantity) ) == 1 ) {
+                        maxQuantity = dto.getItemQuantity();
+                    }
+
                 }
 
                 if ( (ratingCharge.getQuantityUnit() == null || ratingCharge.getQuantityUnit().isEmpty() )
@@ -2326,11 +2329,10 @@ public class ParcelRatingUtil {
                 }
 
             }
+        }
 
-            if ( (ratingCharge.getItemQuantity () == null || new BigDecimal(ratingCharge.getItemQuantity()).compareTo(BigDecimal.ZERO) == 0 ) ) {
-                ratingCharge.setItemQuantity( "1" );
-            }
-
+        if ( (ratingCharge.getItemQuantity () == null || new BigDecimal(ratingCharge.getItemQuantity()).compareTo(BigDecimal.ZERO) == 0 ) ) {
+            ratingCharge.setItemQuantity( maxQuantity);
         }
     }
 
