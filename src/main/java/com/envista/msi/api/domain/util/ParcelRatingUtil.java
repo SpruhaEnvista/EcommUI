@@ -588,7 +588,7 @@ public class ParcelRatingUtil {
 
         for (ParcelAuditDetailsDto dto : shipmentDetails) {
 
-            if (dto.getChargeDescription() != null && (dto.getId().compareTo(dto.getParentId()) == 0 && new BigDecimal(dto.getNetAmount()).signum() == -1) &&
+            if (dto.getChargeDescription() != null && (dto.getId().compareTo(shipmentDetails.get(0).getParentId()) == 0 && new BigDecimal(dto.getNetAmount()).signum() == -1) &&
                     (dto.getChargeCatagoryCode() != null && "ADJ".equalsIgnoreCase(dto.getChargeCatagoryCode()))) {
 
                 for (String desc : ParcelAuditConstant.EXCLUDE_RATING_ADJUSTMENT_LIST) {
@@ -739,6 +739,9 @@ public class ParcelRatingUtil {
 
         RatingQueueBean ratingQueueBean = new RatingQueueBean();
 
+        boolean excludeRating = checkCarrierCreditsToExcludeRating(shipmentDetails);
+        if (excludeRating)
+            ratingQueueBean.setExcludeRating(1);
 
         ParcelAuditDetailsDto firstCharge;
         boolean hwt = false;
@@ -1696,7 +1699,7 @@ public class ParcelRatingUtil {
         ParcelAuditDetailsDto frtDto = null;
         for (Map.Entry<Long, List<ParcelAuditDetailsDto>> entry : shipments.entrySet()) {
 
-            if (key.compareTo(entry.getKey()) > 0) {
+            if (key.compareTo(entry.getKey()) > 0 && !checkCarrierCreditsToExcludeRating(entry.getValue())) {
 
                 if (!returnShipment || isReturnShipment(entry.getValue())) {
                     for (ParcelAuditDetailsDto dto : entry.getValue()) {
