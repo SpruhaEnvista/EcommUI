@@ -451,7 +451,7 @@ public class ParcelRatingUtil {
 
 
                         ParcelAuditDetailsDto latestFreightCharge = ParcelRatingUtil.getLatestFrightCharge(shipmentDetails, entry.getKey());
-                        //TODO--SArvesh    prepareItems(trackingNumDetails, latestFreightCharge);
+
                         if (latestFreightCharge != null) {
                             float weight = (null == latestFreightCharge.getPackageWeight() || latestFreightCharge.getPackageWeight().isEmpty() ? 1f : Float.parseFloat(latestFreightCharge.getPackageWeight()));
                             if (latestFreightCharge.getWeightUnit() != null && "O".equalsIgnoreCase(latestFreightCharge.getWeightUnit()))
@@ -2266,6 +2266,69 @@ public class ParcelRatingUtil {
                         && (dto.getZone() != null && !dto.getZone().isEmpty())) {
                     ratingCharge.setZone(dto.getZone());
                 }
+                if ( (ratingCharge.getPackageType() == null || ratingCharge.getPackageType().isEmpty() )
+                        && ( dto.getPackageType() !=null && !dto.getPackageType().isEmpty() ) ) {
+                    ratingCharge.setPackageType( dto.getPackageType() );
+                }
+
+                if ( (ratingCharge.getPackageWeight () == null || new BigDecimal(ratingCharge.getPackageWeight()).compareTo(BigDecimal.ZERO) == 0 )
+                        && ( dto.getPackageWeight() !=null && new BigDecimal(dto.getPackageWeight()).compareTo(BigDecimal.ZERO) != 0 ) ) {
+                    ratingCharge.setPackageWeight( dto.getPackageWeight() );
+                }
+
+                if ( (ratingCharge.getActualWeight () == null || ratingCharge.getActualWeight().compareTo(BigDecimal.ZERO) == 0 )
+                        && ( dto.getActualWeight() !=null && dto.getActualWeight().compareTo(BigDecimal.ZERO) != 0 ) ) {
+                    ratingCharge.setActualWeight( dto.getActualWeight() );
+                }
+
+                if ( (ratingCharge.getWeightUnit() == null || ratingCharge.getWeightUnit().isEmpty() )
+                        && ( dto.getWeightUnit() !=null && !dto.getWeightUnit().isEmpty() ) ) {
+                    ratingCharge.setWeightUnit( dto.getWeightUnit() );
+                }
+
+                if ( (ratingCharge.getActualWeightUnit() == null || ratingCharge.getActualWeightUnit().isEmpty() )
+                        && ( dto.getActualWeightUnit() !=null && !dto.getActualWeightUnit().isEmpty() ) ) {
+                    ratingCharge.setActualWeightUnit( dto.getActualWeightUnit() );
+                }
+
+                if ( (ratingCharge.getItemQuantity () == null || new BigDecimal(ratingCharge.getItemQuantity()).compareTo(BigDecimal.ZERO) == 0 )
+                        && ( dto.getItemQuantity() !=null && new BigDecimal(dto.getItemQuantity()).compareTo(BigDecimal.ZERO) != 0 ) ) {
+                    ratingCharge.setItemQuantity( dto.getItemQuantity() );
+                }
+
+                if ( (ratingCharge.getItemQuantity () == null || new BigDecimal(ratingCharge.getItemQuantity()).compareTo(BigDecimal.ZERO) == 0 ) ) {
+                    ratingCharge.setItemQuantity( "1" );
+                }
+
+                if ( (ratingCharge.getQuantityUnit() == null || ratingCharge.getQuantityUnit().isEmpty() )
+                        && ( dto.getQuantityUnit() !=null && !dto.getQuantityUnit().isEmpty() ) ) {
+                    ratingCharge.setQuantityUnit( dto.getQuantityUnit() );
+                }
+
+                if ( (ratingCharge.getDimLength () == null || new BigDecimal(ratingCharge.getDimLength()).compareTo(BigDecimal.ZERO) == 0 )
+                        && ( dto.getDimLength() !=null && new BigDecimal(dto.getDimLength()).compareTo(BigDecimal.ZERO) != 0 ) ) {
+                    ratingCharge.setDimLength( dto.getDimLength() );
+                }
+
+                if ( (ratingCharge.getDimWidth () == null || new BigDecimal(ratingCharge.getDimWidth()).compareTo(BigDecimal.ZERO) == 0 )
+                        && ( dto.getDimWidth() !=null && new BigDecimal(dto.getDimWidth()).compareTo(BigDecimal.ZERO) != 0 ) ) {
+                    ratingCharge.setDimWidth( dto.getDimWidth() );
+                }
+
+                if ( (ratingCharge.getDimHeight () == null || new BigDecimal(ratingCharge.getDimHeight()).compareTo(BigDecimal.ZERO) == 0 )
+                        && ( dto.getDimHeight() !=null && new BigDecimal(dto.getDimHeight()).compareTo(BigDecimal.ZERO) != 0 ) ) {
+                    ratingCharge.setDimHeight( dto.getDimHeight() );
+                }
+
+                if ( (ratingCharge.getUnitOfDim() == null || ratingCharge.getUnitOfDim().isEmpty() )
+                        && ( dto.getUnitOfDim() !=null && !dto.getUnitOfDim().isEmpty() ) ) {
+                    ratingCharge.setUnitOfDim( dto.getUnitOfDim() );
+                }
+
+            }
+
+            if ( (ratingCharge.getItemQuantity () == null || new BigDecimal(ratingCharge.getItemQuantity()).compareTo(BigDecimal.ZERO) == 0 ) ) {
+                ratingCharge.setItemQuantity( "1" );
             }
 
         }
