@@ -384,7 +384,7 @@ public class ParcelUpsRatingService {
 
         BigDecimal ratedWeight = frtCharge.getWeight() == null ? new BigDecimal("0") : frtCharge.getWeight();
 
-        List<AccessorialDto> prevParentsRatesDtos = directJDBCDAO.getRatesForPrevParentIds(parcelAuditDetails.get(0));
+        List<AccessorialDto> prevParentsRatesDtos = directJDBCDAO.getRatesForPrevParentIds(parcelAuditDetails.get(0), queueBean.getReturnFlag());
 
         // Connection conn = null;
 

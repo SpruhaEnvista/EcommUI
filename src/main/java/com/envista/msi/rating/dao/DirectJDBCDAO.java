@@ -1357,7 +1357,7 @@ public class DirectJDBCDAO {
         }
     }
 
-    public List<AccessorialDto> getRatesForPrevParentIds(ParcelAuditDetailsDto detailsDto) {
+    public List<AccessorialDto> getRatesForPrevParentIds(ParcelAuditDetailsDto detailsDto, String returnFlag) {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -1392,7 +1392,7 @@ public class DirectJDBCDAO {
 
             pstmt.setString(1, detailsDto.getTrackingNumber());
             pstmt.setLong(2, detailsDto.getParentId());
-            pstmt.setString(3, detailsDto.getReturnFlag());
+            pstmt.setString(3, returnFlag);
             if (detailsDto.getCarrierId().compareTo(22L) == 0 && detailsDto.getPickupDate() != null) {
                 pstmt.setDate(4, new Date(detailsDto.getPickupDate().getTime()));
             }

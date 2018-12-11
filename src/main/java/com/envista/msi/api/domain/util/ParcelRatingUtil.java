@@ -2524,19 +2524,22 @@ public class ParcelRatingUtil {
                                 break;
                             }
                         }
-                        if (!chargeFound && count == accessorialCharges.size()) {
-                            ParcelRateResponse.Charge newCharge = new ParcelRateResponse.Charge();
-                            newCharge.setEdiCode(serviceFlag.getCode());
-                            newCharge.setType("ACCESSORIAL");
-                            newCharge.setName("ACCESSORIAL");
-                            newCharge.setAmount(new BigDecimal("0.00"));
-                            newCharge.setRate(new BigDecimal("0.00"));
-                            if (missingCharges == null)
-                                missingCharges = new HashSet<>();
-
-                            missingCharges.add(newCharge);
-                        }
                     }
+
+                    if (!chargeFound && count == accessorialCharges.size()) {
+                        ParcelRateResponse.Charge newCharge = new ParcelRateResponse.Charge();
+                        newCharge.setEdiCode(serviceFlag.getCode());
+                        newCharge.setType("ACCESSORIAL");
+                        newCharge.setName(serviceFlag.getCode()+" ACCESSORIAL");
+                        newCharge.setAmount(new BigDecimal("0.00"));
+                        newCharge.setRate(new BigDecimal("0.00"));
+                        if (missingCharges == null)
+                            missingCharges = new HashSet<>();
+
+                        missingCharges.add(newCharge);
+                    }
+
+
                 }
             }
         }
