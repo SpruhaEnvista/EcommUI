@@ -210,6 +210,7 @@ public class RatingQueueDAO {
                 ratingQueueBean.setItemTagInfo(rs.getString("ITEM_TAGS"));
                 ratingQueueBean.setInvoiceDate(rs.getDate("INVOICE_DATE"));
                 ratingQueueBean.setCustomerId(rs.getLong("CUSTOMER_ID"));
+                ratingQueueBean.setExcludeRating(rs.getInt("EXCLUDE_RATING"));
                 beanList.add(ratingQueueBean);
             }
 

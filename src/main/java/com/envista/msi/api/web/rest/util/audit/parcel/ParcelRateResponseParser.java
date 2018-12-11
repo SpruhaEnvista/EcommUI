@@ -26,7 +26,7 @@ public class ParcelRateResponseParser {
      */
     public static ParcelRateResponse parse(String xmlString) throws JAXBException {
 
-        if (xmlString != null) {
+        if (xmlString != null && xmlString.length() > 0) {
             JAXBContext jaxbContext = JAXBContext.newInstance(ParcelRateResponse.class);
             return (ParcelRateResponse) jaxbContext.createUnmarshaller().unmarshal(new StringReader(xmlString));
         }
