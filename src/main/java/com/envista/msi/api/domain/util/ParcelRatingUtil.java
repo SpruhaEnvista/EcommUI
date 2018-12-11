@@ -484,16 +484,7 @@ public class ParcelRatingUtil {
                             accJson.put("actualWeight", String.valueOf(actualWeight));
                             accJson.put("actualWeightUnit", actualWeightUnit);
                             accJson.put("packageType", firstCharge.getPackageType());
-                            ratingQueueBean.setFrtWeight(weight);
-                            ratingQueueBean.setFrtWeightUnits(weightUnit);
-                            ratingQueueBean.setFrtQyantity(quantity);
-                            ratingQueueBean.setFrtQuantityUnits(quantityUnit);
-                            ratingQueueBean.setDimLength(dimLenght);
-                            ratingQueueBean.setDimWidth(dimWidth);
-                            ratingQueueBean.setDimHeight(dimHeight);
-                            ratingQueueBean.setDimUnits(dimUnit);
-                            ratingQueueBean.setFrtActualWeight(actualWeight);
-                            ratingQueueBean.setFrtActualWeightUnits(actualWeightUnit);
+
                             ratingQueueBean.setPackageType(firstCharge.getPackageType());
                             itemJsonArr.put(accJson);
 
@@ -900,17 +891,6 @@ public class ParcelRatingUtil {
                         accJson.put("packageType", firstCharge.getPackageType());
                         itemJsonArr.put(accJson);
 
-
-                        ratingQueueBean.setFrtWeight(weight);
-                        ratingQueueBean.setFrtWeightUnits(weightUnit);
-                        ratingQueueBean.setFrtActualWeight(actualWeight.floatValue());
-                        ratingQueueBean.setFrtActualWeightUnits(actualWeightUnit);
-                        ratingQueueBean.setFrtQyantity(quantity);
-                        ratingQueueBean.setFrtQuantityUnits(quantityUnit);
-                        ratingQueueBean.setDimLength(dimLenght);
-                        ratingQueueBean.setDimWidth(dimWidth);
-                        ratingQueueBean.setDimHeight(dimHeight);
-                        ratingQueueBean.setDimUnits(dimUnit);
                     }
                 }
             }
