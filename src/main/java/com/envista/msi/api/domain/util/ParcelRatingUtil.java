@@ -577,27 +577,21 @@ public class ParcelRatingUtil {
 
     private static boolean checkCarrierCreditsToExcludeRating(List<ParcelAuditDetailsDto> shipmentDetails) {
 
-        List<String> excludeRatingList = null;
+
         if (shipmentDetails != null && shipmentDetails.size() > 0) {
-            if (shipmentDetails.get(0).getCarrierId().compareTo(21L) == 0)
-                excludeRatingList = ParcelAuditConstant.UPS_EXCLUDE_RATING_ADJUSTMENT_LIST;
-            else
-                excludeRatingList = ParcelAuditConstant.FDX_EXCLUDE_RATING_ADJUSTMENT_LIST;
 
-            if (excludeRatingList != null && excludeRatingList.size() > 0) {
-                for (ParcelAuditDetailsDto dto : shipmentDetails) {
+            for (ParcelAuditDetailsDto dto : shipmentDetails) {
 
-                    if (dto.getChargeDescription() != null && (dto.getId().compareTo(shipmentDetails.get(0).getParentId()) == 0 && new BigDecimal(dto.getNetAmount()).signum() == -1) &&
-                            (dto.getChargeCatagoryCode() != null && "ADJ".equalsIgnoreCase(dto.getChargeCatagoryCode()))) {
+                if ((dto.getId().compareTo(shipmentDetails.get(0).getParentId()) == 0) &&
+                        ((dto.getChargeCategoryDetailCode() != null && ParcelAuditConstant.UPS_EXCLUDE_RATING_CATDC_LIST.contains
+                                (dto.getChargeCategoryDetailCode().toUpperCase())) ||
+                                (dto.getChargeDescription() != null && ParcelAuditConstant.UPS_EXCLUDE_RATING_ADJUSTMENT_LIST.contains
+                                        (dto.getChargeDescription().toUpperCase())))) {
 
-                        for (String desc : excludeRatingList) {
-
-                            if (dto.getChargeDescription().toUpperCase().contains(desc))
-                                return true;
-                        }
-                    }
+                    return true;
                 }
             }
+
         }
         return false;
     }
@@ -740,9 +734,6 @@ public class ParcelRatingUtil {
 
         RatingQueueBean ratingQueueBean = new RatingQueueBean();
 
-        boolean excludeRating = checkCarrierCreditsToExcludeRating(shipmentDetails);
-        if (excludeRating)
-            ratingQueueBean.setExcludeRating(1);
 
         ParcelAuditDetailsDto firstCharge;
         boolean hwt = false;
@@ -1677,7 +1668,7 @@ public class ParcelRatingUtil {
         ParcelAuditDetailsDto frtDto = null;
         for (Map.Entry<Long, List<ParcelAuditDetailsDto>> entry : shipments.entrySet()) {
 
-            if (key.compareTo(entry.getKey()) > 0 && !checkCarrierCreditsToExcludeRating(entry.getValue())) {
+            if (key.compareTo(entry.getKey()) > 0 && (shipmentChargeList.get(0).getCarrierId().compareTo(21L) != 0 || !checkCarrierCreditsToExcludeRating(entry.getValue()))) {
 
                 if (!returnShipment || isReturnShipment(entry.getValue())) {
                     for (ParcelAuditDetailsDto dto : entry.getValue()) {
