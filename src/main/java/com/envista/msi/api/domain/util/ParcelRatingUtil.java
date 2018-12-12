@@ -577,15 +577,25 @@ public class ParcelRatingUtil {
 
     private static boolean checkCarrierCreditsToExcludeRating(List<ParcelAuditDetailsDto> shipmentDetails) {
 
-        for (ParcelAuditDetailsDto dto : shipmentDetails) {
+        List<String> excludeRatingList = null;
+        if (shipmentDetails != null && shipmentDetails.size() > 0) {
+            if (shipmentDetails.get(0).getCarrierId().compareTo(21L) == 0)
+                excludeRatingList = ParcelAuditConstant.UPS_EXCLUDE_RATING_ADJUSTMENT_LIST;
+            else
+                excludeRatingList = ParcelAuditConstant.FDX_EXCLUDE_RATING_ADJUSTMENT_LIST;
 
-            if (dto.getChargeDescription() != null && (dto.getId().compareTo(shipmentDetails.get(0).getParentId()) == 0 && new BigDecimal(dto.getNetAmount()).signum() == -1) &&
-                    (dto.getChargeCatagoryCode() != null && "ADJ".equalsIgnoreCase(dto.getChargeCatagoryCode()))) {
+            if (excludeRatingList != null && excludeRatingList.size() > 0) {
+                for (ParcelAuditDetailsDto dto : shipmentDetails) {
 
-                for (String desc : ParcelAuditConstant.EXCLUDE_RATING_ADJUSTMENT_LIST) {
+                    if (dto.getChargeDescription() != null && (dto.getId().compareTo(shipmentDetails.get(0).getParentId()) == 0 && new BigDecimal(dto.getNetAmount()).signum() == -1) &&
+                            (dto.getChargeCatagoryCode() != null && "ADJ".equalsIgnoreCase(dto.getChargeCatagoryCode()))) {
 
-                    if (dto.getChargeDescription().toUpperCase().contains(desc))
-                        return true;
+                        for (String desc : excludeRatingList) {
+
+                            if (dto.getChargeDescription().toUpperCase().contains(desc))
+                                return true;
+                        }
+                    }
                 }
             }
         }

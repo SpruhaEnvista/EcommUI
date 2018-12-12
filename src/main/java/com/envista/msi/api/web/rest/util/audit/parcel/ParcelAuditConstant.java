@@ -120,5 +120,6 @@ public class ParcelAuditConstant {
         }
     }
 
-    public static final List<String> EXCLUDE_RATING_ADJUSTMENT_LIST = Arrays.asList("TAX VARIANCE ADJUSTMENT", "BILLING ADJUSTMENT");
+    public static final List<String> UPS_EXCLUDE_RATING_ADJUSTMENT_LIST = Arrays.asList("TAX VARIANCE ADJUSTMENT", "BILLING ADJUSTMENT");
+    public static final List<String> FDX_EXCLUDE_RATING_ADJUSTMENT_LIST = Arrays.asList("");
 }
