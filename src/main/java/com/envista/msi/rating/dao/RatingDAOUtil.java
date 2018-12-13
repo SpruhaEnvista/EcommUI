@@ -258,7 +258,11 @@ public class RatingDAOUtil {
             } else if ("PRP_FLAG".equalsIgnoreCase(columnName)) {
                 ps.setString(56, queueBean.getPrpFlag());
             } else if ("ACTUAL_SERVICE_BUCKET".equalsIgnoreCase(columnName)) {
-                ps.setLong(57, queueBean.getActualServiceBucket());
+                if (queueBean.getActualServiceBucket() != null) {
+                    ps.setLong(57, queueBean.getActualServiceBucket());
+                } else {
+                    ps.setNull(57, Types.INTEGER);
+                }
             } else if ("INVOICE_DATE".equalsIgnoreCase(columnName)) {
                 if (queueBean.getInvoiceDate() != null) {
                     ps.setDate(58, new java.sql.Date(queueBean.getInvoiceDate().getTime()));
