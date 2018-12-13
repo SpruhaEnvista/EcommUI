@@ -37,16 +37,6 @@ public class RatingDAOUtil {
         RATING_QUEUE_COLUMN_NAMES.add("TOTAL_ACTUAL_WEIGHT");
         RATING_QUEUE_COLUMN_NAMES.add("TOTAL_QUANTITY");
         RATING_QUEUE_COLUMN_NAMES.add("BILLED_MILES");
-        RATING_QUEUE_COLUMN_NAMES.add("FRT_WEIGHT");
-        RATING_QUEUE_COLUMN_NAMES.add("FRT_WEIGHT_UNITS");
-        RATING_QUEUE_COLUMN_NAMES.add("FRT_ACTUAL_WEIGHT");
-        RATING_QUEUE_COLUMN_NAMES.add("FRT_ACTUAL_WEIGHT_UNITS");
-        RATING_QUEUE_COLUMN_NAMES.add("FRT_QUANTITY");
-        RATING_QUEUE_COLUMN_NAMES.add("FRT_QUANTITY_UNITS");
-        RATING_QUEUE_COLUMN_NAMES.add("DIM_UNITS");
-        RATING_QUEUE_COLUMN_NAMES.add("DIM_LENGTH");
-        RATING_QUEUE_COLUMN_NAMES.add("DIM_WIDTH");
-        RATING_QUEUE_COLUMN_NAMES.add("DIM_HEIGHT");
         RATING_QUEUE_COLUMN_NAMES.add("SHIP_DATE");
         RATING_QUEUE_COLUMN_NAMES.add("SHIPPER_LOCATION_CODE");
         RATING_QUEUE_COLUMN_NAMES.add("SHIPPER_CITY");
@@ -88,6 +78,7 @@ public class RatingDAOUtil {
         RATING_QUEUE_COLUMN_NAMES.add("INVOICE_DATE");
         RATING_QUEUE_COLUMN_NAMES.add("ITEM_TAGS");
         RATING_QUEUE_COLUMN_NAMES.add("CUSTOMER_ID");
+        RATING_QUEUE_COLUMN_NAMES.add("EXCLUDE_RATING");
     }
 
     public static String prepareRatingQueueInsertQuery(boolean isHwt) {
@@ -172,157 +163,119 @@ public class RatingDAOUtil {
                     ps.setNull(20, Types.FLOAT);
                 }
 
-            } else if("FRT_WEIGHT".equalsIgnoreCase(columnName)) {
-                ps.setFloat(21, queueBean.getFrtWeight());
-            } else if("FRT_WEIGHT_UNITS".equalsIgnoreCase(columnName)) {
-                ps.setString(22, queueBean.getFrtWeightUnits());
-            } else if("FRT_ACTUAL_WEIGHT".equalsIgnoreCase(columnName)) {
-                if(queueBean.getFrtActualWeight() != null){
-                    ps.setFloat(23, queueBean.getFrtActualWeight());
-                } else {
-                    ps.setNull(23, Types.FLOAT);
-                }
-            } else if("FRT_ACTUAL_WEIGHT_UNITS".equalsIgnoreCase(columnName)) {
-                ps.setString(24, queueBean.getFrtActualWeightUnits());
-            } else if("FRT_QUANTITY".equalsIgnoreCase(columnName)) {
-                if(queueBean.getFrtQyantity() != null){
-                    ps.setFloat(25, queueBean.getFrtQyantity());
-                } else {
-                    ps.setNull(25, Types.INTEGER);
-                }
-            } else if("FRT_QUANTITY_UNITS".equalsIgnoreCase(columnName)) {
-                ps.setString(26, queueBean.getFrtQuantityUnits());
-            } else if("DIM_UNITS".equalsIgnoreCase(columnName)) {
-                ps.setString(27, queueBean.getDimUnits());
-            } else if("DIM_LENGTH".equalsIgnoreCase(columnName)) {
-                if(queueBean.getDimLength() != null){
-                    ps.setFloat(28, queueBean.getDimLength());
-                } else {
-                    ps.setNull(28, Types.FLOAT);
-                }
-            } else if("DIM_WIDTH".equalsIgnoreCase(columnName)) {
-                if(queueBean.getDimWidth() != null){
-                    ps.setFloat(29, queueBean.getDimWidth());
-                } else {
-                    ps.setNull(29, Types.FLOAT);
-                }
-            } else if("DIM_HEIGHT".equalsIgnoreCase(columnName)) {
-                if(queueBean.getDimHeight() != null){
-                    ps.setFloat(30, queueBean.getDimHeight());
-                } else {
-                    ps.setNull(30, Types.FLOAT);
-                }
             } else if("SHIP_DATE".equalsIgnoreCase(columnName)) {
                 if(queueBean.getShipDate() != null){
-                    ps.setDate(31, new java.sql.Date(queueBean.getShipDate().getTime()));
+                    ps.setDate(21, new java.sql.Date(queueBean.getShipDate().getTime()));
                 } else {
-                    ps.setNull(31, Types.DATE);
+                    ps.setNull(21, Types.DATE);
                 }
             } else if("SHIPPER_LOCATION_CODE".equalsIgnoreCase(columnName)) {
-                ps.setString(32, queueBean.getShipperLocationCode());
+                ps.setString( 22, queueBean.getShipperLocationCode());
             } else if("SHIPPER_CITY".equalsIgnoreCase(columnName)) {
-                ps.setString(33, queueBean.getShipperCity());
+                ps.setString( 23, queueBean.getShipperCity());
             } else if("SHIPPER_STATE".equalsIgnoreCase(columnName)) {
-                ps.setString(34, queueBean.getShipperState());
+                ps.setString( 24, queueBean.getShipperState());
             } else if("SHIPPER_ZIP".equalsIgnoreCase(columnName)) {
-                ps.setString(35, queueBean.getShipperZip());
+                ps.setString( 25, queueBean.getShipperZip());
             } else if("SHIPPER_COUNTRY".equalsIgnoreCase(columnName)) {
-                ps.setString(36, queueBean.getShipperCountry());
+                ps.setString( 26, queueBean.getShipperCountry());
             } else if("RECEIVER_LOCATION_CODE".equalsIgnoreCase(columnName)) {
-                ps.setString(37, queueBean.getReceiverLocationCode());
+                ps.setString( 27, queueBean.getReceiverLocationCode());
             }  else if("RECEIVER_CITY".equalsIgnoreCase(columnName)) {
-                ps.setString(38, queueBean.getReceiverCity());
+                ps.setString( 28, queueBean.getReceiverCity());
             } else if("RECEIVER_STATE".equalsIgnoreCase(columnName)) {
-                ps.setString(39, queueBean.getReceiverState());
+                ps.setString( 29, queueBean.getReceiverState());
             } else if("RECEIVER_ZIP".equalsIgnoreCase(columnName)) {
-                ps.setString(40, queueBean.getReceiverZip());
+                ps.setString(30, queueBean.getReceiverZip());
             } else if("RECEIVER_COUNTRY".equalsIgnoreCase(columnName)) {
-                ps.setString(41, queueBean.getReceiverCountry());
+                ps.setString(31, queueBean.getReceiverCountry());
             } else if("IS_HUNDRED_WEIGHT".equalsIgnoreCase(columnName)) {
-                ps.setInt(42, queueBean.getHundredWeight() != null && queueBean.getHundredWeight() ? 1 : 0);
+                ps.setInt(32, queueBean.getHundredWeight() != null && queueBean.getHundredWeight() ? 1 : 0);
             } else if("JOB_ID".equalsIgnoreCase(columnName)) {
                 ;
             } else if("CREATE_USER".equalsIgnoreCase(columnName)) {
-                ps.setString(43, queueBean.getCreateUser());
+                ps.setString(33, queueBean.getCreateUser());
             } else if("CREATE_DATE".equalsIgnoreCase(columnName)) {
-                ps.setDate(44, new java.sql.Date(System.currentTimeMillis()));
+                ps.setDate(34, new java.sql.Date(System.currentTimeMillis()));
             } else if("CARRIER_ID".equalsIgnoreCase(columnName)) {
                 if(queueBean.getCarrierId() != null) {
-                    ps.setLong(45, queueBean.getCarrierId());
+                    ps.setLong(35, queueBean.getCarrierId());
                 } else {
-                    ps.setNull(45, Types.INTEGER);
+                    ps.setNull(35, Types.INTEGER);
                 }
             } else if("PARENT_ID".equalsIgnoreCase(columnName)) {
                 if(queueBean.getParentId() != null) {
-                    ps.setLong(46, queueBean.getParentId());
+                    ps.setLong(36, queueBean.getParentId());
                 } else {
-                    ps.setNull(46, Types.INTEGER);
+                    ps.setNull(36, Types.INTEGER);
                 }
             } else if("RATE_STATUS".equalsIgnoreCase(columnName)) {
-                ps.setInt(47, queueBean.getRateStatus() != null ? queueBean.getRateStatus() : 0);
+                ps.setInt(37, queueBean.getRateStatus() != null ? queueBean.getRateStatus() : 0);
             } else if("ACCESSORIAL_INFO".equalsIgnoreCase(columnName)) {
-                ps.setString(48, queueBean.getAccessorialInfo());
+                ps.setString(38, queueBean.getAccessorialInfo());
             } else if("DALIVERY_DATE".equalsIgnoreCase(columnName)) {
                 if(queueBean.getDeliveryDate() != null) {
-                    ps.setDate(49, new java.sql.Date(queueBean.getDeliveryDate().getTime()));
+                    ps.setDate(39, new java.sql.Date(queueBean.getDeliveryDate().getTime()));
                 } else {
-                    ps.setNull(49, Types.DATE);
+                    ps.setNull(39, Types.DATE);
                 }
             } else if("TRACKING_NUMBER".equalsIgnoreCase(columnName)) {
-                ps.setString(50, queueBean.getTrackingNumber());
+                ps.setString(40, queueBean.getTrackingNumber());
             } else if("REVENUE_TIER".equalsIgnoreCase(columnName)) {
-                ps.setString(51, queueBean.getRevenueTier());
+                ps.setString(41, queueBean.getRevenueTier());
             } else if("PACKAGE_TYPE".equalsIgnoreCase(columnName)) {
-                ps.setString(52, queueBean.getPackageType());
+                ps.setString(42, queueBean.getPackageType());
             } else if ("HWT_IDENTIFIER".equalsIgnoreCase(columnName)) {
-                ps.setString(53, queueBean.getHwtIdentifier());
+                ps.setString(43, queueBean.getHwtIdentifier());
             } else if("RATE_SET_NAME".equalsIgnoreCase(columnName)){
-                ps.setString(54, queueBean.getRateSetName());
+                ps.setString(44, queueBean.getRateSetName());
             } else if("TASK_ID".equalsIgnoreCase(columnName)){
                 if(queueBean.getTaskId() != null){
-                    ps.setLong(55, queueBean.getTaskId());
+                    ps.setLong(45, queueBean.getTaskId());
                 } else {
-                    ps.setNull(55, Types.INTEGER);
+                    ps.setNull(45, Types.INTEGER);
                 }
             } else if ("THRESHOLD_VALUE".equalsIgnoreCase(columnName)){
-                ps.setString(56, queueBean.getThresholdValue());
+                ps.setString(46, queueBean.getThresholdValue());
             } else if("THRESHOLD_TYPE".equalsIgnoreCase(columnName)) {
-                ps.setString(57, queueBean.getThresholdType());
+                ps.setString(47, queueBean.getThresholdType());
             } else if("SERVICE_LEVELS_ID".equalsIgnoreCase(columnName)) {
-                ps.setString(58,queueBean.getServiceLevel());
+                ps.setString(48,queueBean.getServiceLevel());
             } else if("ZONE".equalsIgnoreCase(columnName)) {
-                ps.setString(59, queueBean.getZone());
+                ps.setString(49, queueBean.getZone());
             } else if("SENDER_BILLED_ZIP_CODE".equalsIgnoreCase(columnName)) {
-                ps.setString(60, queueBean.getSenderBilledZipCode());
+                ps.setString(50, queueBean.getSenderBilledZipCode());
             } else if("RECEIVER_BILLED_ZIP_CODE".equalsIgnoreCase(columnName)) {
-                ps.setString(61, queueBean.getReceiverBilledZipCode());
+                ps.setString(51, queueBean.getReceiverBilledZipCode());
             } else if ("RETURN_FLAG".equalsIgnoreCase(columnName)) {
-                ps.setString(62, queueBean.getReturnFlag());
+                ps.setString(52, queueBean.getReturnFlag());
             } else if ("RESI_FLAG".equalsIgnoreCase(columnName)) {
-                ps.setString(63, queueBean.getResiFlag());
+                ps.setString(53, queueBean.getResiFlag());
             } else if ("WORLD_EASE_NUM".equalsIgnoreCase(columnName)) {
-                ps.setString(64, queueBean.getWorldeEaseNum());
+                ps.setString(54, queueBean.getWorldeEaseNum());
             } else if ("COM_TO_RES".equalsIgnoreCase(columnName)) {
-                ps.setString(65, queueBean.getComToRes());
+                ps.setString(55, queueBean.getComToRes());
             } else if ("PRP_FLAG".equalsIgnoreCase(columnName)) {
-                ps.setString(66, queueBean.getPrpFlag());
+                ps.setString(56, queueBean.getPrpFlag());
             } else if ("ACTUAL_SERVICE_BUCKET".equalsIgnoreCase(columnName)) {
-                ps.setLong(67, queueBean.getActualServiceBucket());
+                ps.setLong(57, queueBean.getActualServiceBucket());
             } else if ("INVOICE_DATE".equalsIgnoreCase(columnName)) {
                 if (queueBean.getInvoiceDate() != null) {
-                    ps.setDate(68, new java.sql.Date(queueBean.getInvoiceDate().getTime()));
+                    ps.setDate(58, new java.sql.Date(queueBean.getInvoiceDate().getTime()));
                 } else {
-                    ps.setNull(68, Types.DATE);
+                    ps.setNull(58, Types.DATE);
                 }
             } else if ("ITEM_TAGS".equalsIgnoreCase(columnName)) {
-                ps.setString(69, queueBean.getItemTagInfo());
+                ps.setString(59, queueBean.getItemTagInfo());
             } else if ("CUSTOMER_ID".equalsIgnoreCase(columnName)) {
                 if (queueBean.getCustomerId() != null) {
-                    ps.setLong(70, queueBean.getCustomerId());
+                    ps.setLong(60, queueBean.getCustomerId());
                 } else {
-                    ps.setNull(70, Types.INTEGER);
+                    ps.setNull(60, Types.INTEGER);
                 }
-            } else {
+            } else if ("EXCLUDE_RATING".equalsIgnoreCase(columnName))
+                ps.setInt(61, queueBean.getExcludeRating());
+            else {
                 throw new RuntimeException("Column name not mapped");
             }
         }

@@ -152,6 +152,8 @@ public class ParcelRateDetailsDto implements Serializable {
 
     private String packageType;
 
+    private int excludeRating;
+
 
     public static ParcelRateDetailsDto getInstance(){
         return new ParcelRateDetailsDto();
@@ -511,5 +513,13 @@ public class ParcelRateDetailsDto implements Serializable {
 
     public void setPackageType(String packageType) {
         this.packageType = packageType;
+    }
+
+    public int getExcludeRating() {
+        return excludeRating;
+    }
+
+    public void setExcludeRating(int excludeRating) {
+        this.excludeRating = excludeRating;
     }
 }

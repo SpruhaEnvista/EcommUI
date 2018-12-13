@@ -421,7 +421,11 @@ public class ParcelRTRService{
         ParcelAuditRequestResponseLog requestResponseLog = new ParcelAuditRequestResponseLog();
         requestResponseLog.setEntityIds(entityId.toString());
         requestResponseLog.setCreateUser(ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME);
-        requestResponseLog.setTableName(tableName);
+        if ( ParcelAuditConstant.EBILL_GFF_TABLE_NAME.equalsIgnoreCase( tableName) ) {
+            requestResponseLog.setCarrierId(21);
+        } else if ( ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME.equalsIgnoreCase( tableName) ) {
+            requestResponseLog.setCarrierId(22);
+        }
         if(requestPayload != null && !requestPayload.isEmpty()){
             requestResponseLog.setResponseXml( requestPayload);
         }

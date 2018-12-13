@@ -72,16 +72,6 @@ public class RatingQueueDAO {
                 ratingQBean.setTotalActualWeight(rss.getFloat("TOTAL_ACTUAL_WEIGHT"));
                 ratingQBean.setTotalQuantity(rss.getFloat("TOTAL_QUANTITY"));
                 ratingQBean.setBilledMiles(rss.getFloat("BILLED_MILES"));
-                ratingQBean.setFrtWeight(rss.getFloat("FRT_WEIGHT"));
-                ratingQBean.setFrtWeightUnits(rss.getString("FRT_WEIGHT_UNITS"));
-                ratingQBean.setFrtActualWeight(rss.getFloat("FRT_ACTUAL_WEIGHT"));
-                ratingQBean.setFrtActualWeightUnits(rss.getString("FRT_ACTUAL_WEIGHT_UNITS"));
-                ratingQBean.setFrtQyantity(rss.getLong("FRT_QUANTITY"));
-                ratingQBean.setFrtQuantityUnits(rss.getString("FRT_QUANTITY_UNITS"));
-                ratingQBean.setDimUnits(rss.getString("DIM_UNITS"));
-                ratingQBean.setDimLength(rss.getFloat("DIM_LENGTH"));
-                ratingQBean.setDimWidth(rss.getFloat("DIM_WIDTH"));
-                ratingQBean.setDimHeight(rss.getFloat("DIM_HEIGHT"));
                 ratingQBean.setShipDate(rss.getDate("SHIP_DATE"));
                 ratingQBean.setDeliveryDate(rss.getDate("DALIVERY_DATE"));
                 ratingQBean.setShipperLocationCode(rss.getString("SHIPPER_LOCATION_CODE"));
@@ -177,16 +167,6 @@ public class RatingQueueDAO {
                 ratingQueueBean.setTotalActualWeight(rs.getFloat("TOTAL_ACTUAL_WEIGHT"));
                 ratingQueueBean.setTotalQuantity(rs.getFloat("TOTAL_QUANTITY"));
                 ratingQueueBean.setBilledMiles(rs.getFloat("BILLED_MILES"));
-                ratingQueueBean.setFrtWeight(rs.getFloat("FRT_WEIGHT"));
-                ratingQueueBean.setFrtWeightUnits(rs.getString("FRT_WEIGHT_UNITS"));
-                ratingQueueBean.setFrtActualWeight(rs.getFloat("FRT_ACTUAL_WEIGHT"));
-                ratingQueueBean.setFrtActualWeightUnits(rs.getString("FRT_ACTUAL_WEIGHT_UNITS"));
-                ratingQueueBean.setFrtQyantity(rs.getLong("FRT_QUANTITY"));
-                ratingQueueBean.setFrtQuantityUnits(rs.getString("FRT_QUANTITY_UNITS"));
-                ratingQueueBean.setDimUnits(rs.getString("DIM_UNITS"));
-                ratingQueueBean.setDimLength(rs.getFloat("DIM_LENGTH"));
-                ratingQueueBean.setDimWidth(rs.getFloat("DIM_WIDTH"));
-                ratingQueueBean.setDimHeight(rs.getFloat("DIM_HEIGHT"));
                 ratingQueueBean.setShipDate(rs.getDate("SHIP_DATE"));
                 ratingQueueBean.setDeliveryDate(rs.getDate("DALIVERY_DATE"));
                 ratingQueueBean.setShipperLocationCode(rs.getString("SHIPPER_LOCATION_CODE"));
@@ -230,6 +210,7 @@ public class RatingQueueDAO {
                 ratingQueueBean.setItemTagInfo(rs.getString("ITEM_TAGS"));
                 ratingQueueBean.setInvoiceDate(rs.getDate("INVOICE_DATE"));
                 ratingQueueBean.setCustomerId(rs.getLong("CUSTOMER_ID"));
+                ratingQueueBean.setExcludeRating(rs.getInt("EXCLUDE_RATING"));
                 beanList.add(ratingQueueBean);
             }
 
@@ -350,7 +331,7 @@ public class RatingQueueDAO {
             liveQuery.append(" SELECT a.EBILL_GFF_ID AS ID, d.CUSTOMER_ID, d.CUSTOMER_CODE, c.CARRIER_ID, c.CONTRACT_NUMBER, ");
             liveQuery.append(" DECODE(a.BILL_OPTION_CODE, 'F/C', 'FC', 'F/D', 'FD', 'P/P', 'PP', 'C/B', 'CB', 'T/P', 'TP', a.BILL_OPTION_CODE) AS BILL_OPTION_CODE, ");
             liveQuery.append(" e.rtr_scac_code, e.scac_code, null AS TRAN_CODE, a.CHARGE_CLASSIFICATION_CODE, a.CHARGE_DESCRIPTION_CODE, ");
-            liveQuery.append(" a.CHARGE_DESCRIPTION, a.BILLED_WEIGHT AS PACKAGE_WEIGHT, a.TRACKING_NUMBER, a.SHIPMENT_DATE AS PICKUP_DATE, ");
+            liveQuery.append(" a.CHARGE_DESCRIPTION, a.BILLED_WEIGHT AS PACKAGE_WEIGHT, a.TRACKING_NUMBER, nvl(a.actual_ship_date, nvl( a.shipment_date , a.transaction_date) ) AS PICKUP_DATE, ");
             liveQuery.append(" DECODE(a.CHARGE_DESCRIPTION_CODE, '001', 'MAN', '002', 'MAN', '003', 'MAN', a.CHARGE_DESCRIPTION_CODE) AS RESIDENTIAL_INDICATOR, ");
             liveQuery.append(" a.DELIVERY_DATE,a.SENDER_COUNTRY AS SENDER_COUNTRY, a.SENDER_STATE AS SENDER_STATE, a.SENDER_CITY AS SENDER_CITY, ");
             liveQuery.append(" a.SENDER_POSTAL AS SENDER_ZIP_CODE, a.RECEIVER_COUNTRY, a.RECEIVER_STATE, a.RECEIVER_CITY, a.RECEIVER_POSTAL AS RECEIVER_ZIP_CODE, ");

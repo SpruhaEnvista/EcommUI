@@ -4,7 +4,6 @@ import com.envista.msi.api.domain.util.ParcelRatingUtil;
 import com.envista.msi.api.web.rest.util.DateUtil;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelRateRequest;
 import com.envista.msi.rating.bean.RatingQueueBean;
-import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,12 +20,10 @@ public class ParcelRateRequestBuilder {
 
     private static final String RATE_REQUEST_EVENT_DATE_FORMAT = "MM/dd/yyyy hh:mm";
 
-    public static ParcelRateRequest buildParcelRateRequest(RatingQueueBean ratingQueueBean, String licenseKey, List<RatingQueueBean> queueBeans) {
+    public static ParcelRateRequest buildParcelRateRequest(RatingQueueBean ratingQueueBean, String licenseKey) {
         ParcelRateRequest parcelRateRequest = new ParcelRateRequest();
         parcelRateRequest.setLicenseKey(licenseKey);
 
-        if ((ratingQueueBean == null && queueBeans != null) && queueBeans.size() > 0)
-            ratingQueueBean = queueBeans.get(0);
 
         if(ratingQueueBean != null){
             ParcelRateRequest.BatchShipment batchShipment = new ParcelRateRequest.BatchShipment();
@@ -98,15 +95,9 @@ public class ParcelRateRequestBuilder {
 
             List<ParcelRateRequest.Item> items = new ArrayList<>();
             List<ParcelRateRequest.ServiceFlag> serviceFlagList = new ArrayList<>();
-            if (queueBeans == null) {
 
-                prepareItems(serviceFlagList, items, ratingQueueBean);
-            } else {
-                for (RatingQueueBean queueBean : queueBeans) {
+            prepareItems(serviceFlagList, items, ratingQueueBean);
 
-                    prepareItems(serviceFlagList, items, queueBean);
-                }
-            }
             placeTpsAccAtLastOne(serviceFlagList);
             constraints.setServiceFlags(serviceFlagList);
             batchShipment.setConstraints(constraints);

@@ -12,6 +12,7 @@ public class ParcelAuditRequestResponseLog implements Serializable {
     private String createUser;
     private String requestXml;
     private String responseXml;
+    private long carrierId;
 
     public Long getId() {
         return id;
@@ -59,5 +60,13 @@ public class ParcelAuditRequestResponseLog implements Serializable {
 
     public void setResponseXml(String responseXml) {
         this.responseXml = responseXml;
+    }
+
+    public long getCarrierId() {
+        return carrierId;
+    }
+
+    public void setCarrierId(long carrierId) {
+        this.carrierId = carrierId;
     }
 }

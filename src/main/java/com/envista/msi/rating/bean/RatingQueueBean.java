@@ -36,16 +36,6 @@ public class RatingQueueBean {
     private float totalActualWeight;
     private float totalQuantity;
     private Float billedMiles;
-    private Float frtWeight;
-    private String frtWeightUnits;
-    private Float frtActualWeight;
-    private String frtActualWeightUnits;
-    private Long frtQyantity;
-    private String frtQuantityUnits;
-    private String dimUnits;
-    private Float dimLength;
-    private Float dimWidth;
-    private Float dimHeight;
     private Date shipDate;
     private Date deliveryDate;
     private String shipperLocationCode;
@@ -90,6 +80,8 @@ public class RatingQueueBean {
     private Date invoiceDate;
     private String itemTagInfo;
     private Long customerId;
+    private int piecesCount;
+    private int excludeRating;
 
     public Long getRatingQueueId() {
         return ratingQueueId;
@@ -259,85 +251,6 @@ public class RatingQueueBean {
         this.billedMiles = billedMiles;
     }
 
-    public Float getFrtWeight() {
-        return frtWeight;
-    }
-
-    public void setFrtWeight(Float frtWeight) {
-        this.frtWeight = frtWeight;
-    }
-
-    public String getFrtWeightUnits() {
-        return frtWeightUnits;
-    }
-
-    public void setFrtWeightUnits(String frtWeightUnits) {
-        this.frtWeightUnits = frtWeightUnits;
-    }
-
-    public Float getFrtActualWeight() {
-        return frtActualWeight;
-    }
-
-    public void setFrtActualWeight(Float frtActualWeight) {
-        this.frtActualWeight = frtActualWeight;
-    }
-
-    public String getFrtActualWeightUnits() {
-        return frtActualWeightUnits;
-    }
-
-    public void setFrtActualWeightUnits(String frtActualWeightUnits) {
-        this.frtActualWeightUnits = frtActualWeightUnits;
-    }
-
-    public Long getFrtQyantity() {
-        return frtQyantity;
-    }
-
-    public void setFrtQyantity(Long frtQyantity) {
-        this.frtQyantity = frtQyantity;
-    }
-
-    public String getFrtQuantityUnits() {
-        return frtQuantityUnits;
-    }
-
-    public void setFrtQuantityUnits(String frtQuantityUnits) {
-        this.frtQuantityUnits = frtQuantityUnits;
-    }
-
-    public String getDimUnits() {
-        return dimUnits;
-    }
-
-    public void setDimUnits(String dimUnits) {
-        this.dimUnits = dimUnits;
-    }
-
-    public Float getDimLength() {
-        return dimLength;
-    }
-
-    public void setDimLength(Float dimLength) {
-        this.dimLength = dimLength;
-    }
-
-    public Float getDimWidth() {
-        return dimWidth;
-    }
-
-    public void setDimWidth(Float dimWidth) {
-        this.dimWidth = dimWidth;
-    }
-
-    public Float getDimHeight() {
-        return dimHeight;
-    }
-
-    public void setDimHeight(Float dimHeight) {
-        this.dimHeight = dimHeight;
-    }
 
     public void setAccessorialArray(Set<ParcelRateRequest.ServiceFlag> serviceFlag) {
         this.accessorials = accessorials;
@@ -734,5 +647,21 @@ public class RatingQueueBean {
 
     public void setCustomerId(Long customerId) {
         this.customerId = customerId;
+    }
+
+    public int getPiecesCount() {
+        return piecesCount;
+    }
+
+    public void setPiecesCount(int piecesCount) {
+        this.piecesCount = piecesCount;
+    }
+
+    public int getExcludeRating() {
+        return excludeRating;
+    }
+
+    public void setExcludeRating(int excludeRating) {
+        this.excludeRating = excludeRating;
     }
 }
