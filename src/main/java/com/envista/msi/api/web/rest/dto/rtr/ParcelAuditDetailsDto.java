@@ -266,6 +266,15 @@ public class ParcelAuditDetailsDto {
 
     private String chargeCatagoryCode;
 
+    private String resiFlag;
+
+    private String comToResFlag;
+
+    private String returnFlag;
+
+
+    private Long ratesParentId;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -820,6 +829,38 @@ public class ParcelAuditDetailsDto {
 
     public void setChargeCatagoryCode(String chargeCatagoryCode) {
         this.chargeCatagoryCode = chargeCatagoryCode;
+    }
+
+    public String getResiFlag() {
+        return resiFlag;
+    }
+
+    public void setResiFlag(String resiFlag) {
+        this.resiFlag = resiFlag;
+    }
+
+    public String getComToResFlag() {
+        return comToResFlag;
+    }
+
+    public void setComToResFlag(String comToResFlag) {
+        this.comToResFlag = comToResFlag;
+    }
+
+    public String getReturnFlag() {
+        return returnFlag;
+    }
+
+    public void setReturnFlag(String returnFlag) {
+        this.returnFlag = returnFlag;
+    }
+
+    public Long getRatesParentId() {
+        return ratesParentId;
+    }
+
+    public void setRatesParentId(Long ratesParentId) {
+        this.ratesParentId = ratesParentId;
     }
 
     public static class Config{

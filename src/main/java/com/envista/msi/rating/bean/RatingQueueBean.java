@@ -2,13 +2,19 @@ package com.envista.msi.rating.bean;
 
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelRateRequest;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 public class RatingQueueBean {
 
+    private static final Logger m_log = LoggerFactory.getLogger(RatingQueueBean.class);
     private Long ratingQueueId;
     private Long maniestId;
     private Long gffId;
@@ -30,16 +36,6 @@ public class RatingQueueBean {
     private float totalActualWeight;
     private float totalQuantity;
     private Float billedMiles;
-    private Float frtWeight;
-    private String frtWeightUnits;
-    private Float frtActualWeight;
-    private String frtActualWeightUnits;
-    private Long frtQyantity;
-    private String frtQuantityUnits;
-    private String dimUnits;
-    private Float dimLength;
-    private Float dimWidth;
-    private Float dimHeight;
     private Date shipDate;
     private Date deliveryDate;
     private String shipperLocationCode;
@@ -84,6 +80,8 @@ public class RatingQueueBean {
     private Date invoiceDate;
     private String itemTagInfo;
     private Long customerId;
+    private int piecesCount;
+    private int excludeRating;
 
     public Long getRatingQueueId() {
         return ratingQueueId;
@@ -253,85 +251,6 @@ public class RatingQueueBean {
         this.billedMiles = billedMiles;
     }
 
-    public Float getFrtWeight() {
-        return frtWeight;
-    }
-
-    public void setFrtWeight(Float frtWeight) {
-        this.frtWeight = frtWeight;
-    }
-
-    public String getFrtWeightUnits() {
-        return frtWeightUnits;
-    }
-
-    public void setFrtWeightUnits(String frtWeightUnits) {
-        this.frtWeightUnits = frtWeightUnits;
-    }
-
-    public Float getFrtActualWeight() {
-        return frtActualWeight;
-    }
-
-    public void setFrtActualWeight(Float frtActualWeight) {
-        this.frtActualWeight = frtActualWeight;
-    }
-
-    public String getFrtActualWeightUnits() {
-        return frtActualWeightUnits;
-    }
-
-    public void setFrtActualWeightUnits(String frtActualWeightUnits) {
-        this.frtActualWeightUnits = frtActualWeightUnits;
-    }
-
-    public Long getFrtQyantity() {
-        return frtQyantity;
-    }
-
-    public void setFrtQyantity(Long frtQyantity) {
-        this.frtQyantity = frtQyantity;
-    }
-
-    public String getFrtQuantityUnits() {
-        return frtQuantityUnits;
-    }
-
-    public void setFrtQuantityUnits(String frtQuantityUnits) {
-        this.frtQuantityUnits = frtQuantityUnits;
-    }
-
-    public String getDimUnits() {
-        return dimUnits;
-    }
-
-    public void setDimUnits(String dimUnits) {
-        this.dimUnits = dimUnits;
-    }
-
-    public Float getDimLength() {
-        return dimLength;
-    }
-
-    public void setDimLength(Float dimLength) {
-        this.dimLength = dimLength;
-    }
-
-    public Float getDimWidth() {
-        return dimWidth;
-    }
-
-    public void setDimWidth(Float dimWidth) {
-        this.dimWidth = dimWidth;
-    }
-
-    public Float getDimHeight() {
-        return dimHeight;
-    }
-
-    public void setDimHeight(Float dimHeight) {
-        this.dimHeight = dimHeight;
-    }
 
     public void setAccessorialArray(Set<ParcelRateRequest.ServiceFlag> serviceFlag) {
         this.accessorials = accessorials;
@@ -521,7 +440,7 @@ public class RatingQueueBean {
         this.receiverBilledZipCode = receiverBilledZipCode;
     }
 
-    public Set<ParcelRateRequest.ServiceFlag> getAccessorials(){
+    public Set<ParcelRateRequest.ServiceFlag> getAccessorials() throws Exception {
         Set<ParcelRateRequest.ServiceFlag> serviceFlags = null;
         try{
             if(this.accessorials == null){
@@ -563,6 +482,8 @@ public class RatingQueueBean {
             }
         }catch (Exception e){
             e.printStackTrace();
+            throw e;
+
         }
         return this.accessorials;
     }
@@ -726,5 +647,21 @@ public class RatingQueueBean {
 
     public void setCustomerId(Long customerId) {
         this.customerId = customerId;
+    }
+
+    public int getPiecesCount() {
+        return piecesCount;
+    }
+
+    public void setPiecesCount(int piecesCount) {
+        this.piecesCount = piecesCount;
+    }
+
+    public int getExcludeRating() {
+        return excludeRating;
+    }
+
+    public void setExcludeRating(int excludeRating) {
+        this.excludeRating = excludeRating;
     }
 }

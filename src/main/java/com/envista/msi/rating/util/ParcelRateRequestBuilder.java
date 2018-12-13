@@ -4,26 +4,26 @@ import com.envista.msi.api.domain.util.ParcelRatingUtil;
 import com.envista.msi.api.web.rest.util.DateUtil;
 import com.envista.msi.api.web.rest.util.audit.parcel.ParcelRateRequest;
 import com.envista.msi.rating.bean.RatingQueueBean;
-import org.json.JSONException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by Sujit kumar on 02/05/2018.
  */
 public class ParcelRateRequestBuilder {
+
+    private static final Logger m_log = LoggerFactory.getLogger(ParcelRateRequestBuilder.class);
+
     private static final String RATE_REQUEST_EVENT_DATE_FORMAT = "MM/dd/yyyy hh:mm";
 
-    public static ParcelRateRequest buildParcelRateRequest(RatingQueueBean ratingQueueBean, String licenseKey, List<RatingQueueBean> queueBeans) {
+    public static ParcelRateRequest buildParcelRateRequest(RatingQueueBean ratingQueueBean, String licenseKey) {
         ParcelRateRequest parcelRateRequest = new ParcelRateRequest();
         parcelRateRequest.setLicenseKey(licenseKey);
 
-        if ((ratingQueueBean == null && queueBeans != null) && queueBeans.size() > 0)
-            ratingQueueBean = queueBeans.get(0);
 
         if(ratingQueueBean != null){
             ParcelRateRequest.BatchShipment batchShipment = new ParcelRateRequest.BatchShipment();
@@ -95,15 +95,9 @@ public class ParcelRateRequestBuilder {
 
             List<ParcelRateRequest.Item> items = new ArrayList<>();
             List<ParcelRateRequest.ServiceFlag> serviceFlagList = new ArrayList<>();
-            if (queueBeans == null) {
 
-                prepareItems(serviceFlagList, items, ratingQueueBean);
-            } else {
-                for (RatingQueueBean queueBean : queueBeans) {
+            prepareItems(serviceFlagList, items, ratingQueueBean);
 
-                    prepareItems(serviceFlagList, items, queueBean);
-                }
-            }
             placeTpsAccAtLastOne(serviceFlagList);
             constraints.setServiceFlags(serviceFlagList);
             batchShipment.setConstraints(constraints);
@@ -236,13 +230,15 @@ public class ParcelRateRequestBuilder {
         try {
             ParcelRatingUtil.getItemTags(items, ratingQueueBean.getItemTagInfo());
 
-        } catch (JSONException e) {
+            if (ratingQueueBean.getAccessorials() != null) {
+                serviceFlagList.addAll(ratingQueueBean.getAccessorials());
+            }
+
+        } catch (Exception e) {
+            m_log.error("ERROR - " + e.getMessage() + "--Parent Id->" + ratingQueueBean.getParentId());
             e.printStackTrace();
         }
 
 
-        if (ratingQueueBean.getAccessorials() != null) {
-            serviceFlagList.addAll(ratingQueueBean.getAccessorials());
-        }
     }
 }

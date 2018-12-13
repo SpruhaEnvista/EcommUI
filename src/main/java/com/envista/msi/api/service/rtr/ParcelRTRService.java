@@ -421,29 +421,17 @@ public class ParcelRTRService{
         ParcelAuditRequestResponseLog requestResponseLog = new ParcelAuditRequestResponseLog();
         requestResponseLog.setEntityIds(entityId.toString());
         requestResponseLog.setCreateUser(ParcelAuditConstant.PARCEL_RTR_RATING_USER_NAME);
-        requestResponseLog.setTableName(tableName);
+        if ( ParcelAuditConstant.EBILL_GFF_TABLE_NAME.equalsIgnoreCase( tableName) ) {
+            requestResponseLog.setCarrierId(21);
+        } else if ( ParcelAuditConstant.EBILL_MANIFEST_TABLE_NAME.equalsIgnoreCase( tableName) ) {
+            requestResponseLog.setCarrierId(22);
+        }
         if(requestPayload != null && !requestPayload.isEmpty()){
-            int requestLength = requestPayload.length();
-            if (requestLength <= 4000) {
-                requestResponseLog.setRequestXml1(requestPayload);
-            } else {
-                requestResponseLog.setRequestXml1(requestPayload.substring(0, 3999));
-                requestResponseLog.setRequestXml2(requestPayload.substring(4000, requestLength));
-            }
+            requestResponseLog.setResponseXml( requestPayload);
         }
 
         if(response != null && !response.isEmpty()){
-            int respLength = response.length();
-            if (respLength <= 4000) {
-                requestResponseLog.setResponseXml1(response);
-            } else {
-                requestResponseLog.setResponseXml1(response.substring(0, 3999));
-                if(respLength >= 4000 && respLength < 8000){
-                    requestResponseLog.setResponseXml2(response.substring(3999, respLength));
-                }else{
-                    try{  requestResponseLog.setResponseXml2(response.substring(3999, 7999));}catch (Exception e){}
-                }
-            }
+            requestResponseLog.setResponseXml( response);
         }
         parcelRTRDao.saveParcelAuditRequestAndResponseLog(requestResponseLog);
     }
@@ -1102,7 +1090,7 @@ public class ParcelRTRService{
 
         try{
             if(priceSheet != null){
-                List<ParcelRateResponse.Charge> accessorialCharges = ParcelRateResponseParser.getAccessorialChargesForUps(priceSheet);
+                List<ParcelRateResponse.Charge> accessorialCharges = ParcelRateResponseParser.getAccessorialCharges(priceSheet);
 
                 if(accessorialCharges != null && !accessorialCharges.isEmpty()){
                     if(mappedAccChanges != null && !mappedAccChanges.isEmpty()){
@@ -1447,7 +1435,7 @@ public class ParcelRTRService{
                 parcelAuditDetails.forEach(auditDetail -> {
                     entityIds.add(auditDetail.getId().toString());
                 });
-                List<ParcelRateResponse.Charge> accessorialCharges = ParcelRateResponseParser.getAccessorialChargesForUps(priceSheet);
+                List<ParcelRateResponse.Charge> accessorialCharges = ParcelRateResponseParser.getAccessorialCharges(priceSheet);
 
                 if(accessorialCharges != null && !accessorialCharges.isEmpty()){
                     if(mappedAccChanges != null && !mappedAccChanges.isEmpty()){
@@ -1611,7 +1599,7 @@ public class ParcelRTRService{
                 parcelAuditDetails.forEach(auditDetail -> {
                     entityIds.add(auditDetail.getId().toString());
                 });
-                List<ParcelRateResponse.Charge> accessorialCharges = ParcelRateResponseParser.getAccessorialChargesForFedEx(priceSheet);
+                List<ParcelRateResponse.Charge> accessorialCharges = ParcelRateResponseParser.getAccessorialCharges(priceSheet);
                 if(accessorialCharges != null && !accessorialCharges.isEmpty()){
                     if(mappedAccChanges != null && !mappedAccChanges.isEmpty()){
                         Iterator<ParcelRateResponse.Charge> chargeIterator = accessorialCharges.iterator();
@@ -1667,7 +1655,7 @@ public class ParcelRTRService{
                 parcelAuditDetails.forEach(auditDetail -> {
                     entityIds.add(auditDetail.getId().toString());
                 });
-                List<ParcelRateResponse.Charge> discountCharges = ParcelRateResponseParser.getAllOtherDiscountsForUPSCarrier(priceSheet);
+                List<ParcelRateResponse.Charge> discountCharges = ParcelRateResponseParser.getAllOtherDiscounts(priceSheet);
                 if(discountCharges != null && !discountCharges.isEmpty()){
                     if(mappedDscChanges != null && !mappedDscChanges.isEmpty()){
                         Iterator<ParcelRateResponse.Charge> chargeIterator = mappedDscChanges.iterator();
@@ -1708,7 +1696,7 @@ public class ParcelRTRService{
                 parcelAuditDetails.forEach(auditDetail -> {
                     entityIds.add(auditDetail.getId().toString());
                 });
-                List<ParcelRateResponse.Charge> discountCharges = ParcelRateResponseParser.getAllOtherDiscountsForUPSCarrier(priceSheet);
+                List<ParcelRateResponse.Charge> discountCharges = ParcelRateResponseParser.getAllOtherDiscounts(priceSheet);
                 if(discountCharges != null && !discountCharges.isEmpty()){
                     if(mappedDscChanges != null && !mappedDscChanges.isEmpty()){
                         Iterator<ParcelRateResponse.Charge> chargeIterator = mappedDscChanges.iterator();

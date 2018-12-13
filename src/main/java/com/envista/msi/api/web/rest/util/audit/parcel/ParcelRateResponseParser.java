@@ -25,8 +25,12 @@ public class ParcelRateResponseParser {
      * @throws JAXBException
      */
     public static ParcelRateResponse parse(String xmlString) throws JAXBException {
-        JAXBContext jaxbContext = JAXBContext.newInstance(ParcelRateResponse.class);
-        return (ParcelRateResponse) jaxbContext.createUnmarshaller().unmarshal(new StringReader(xmlString));
+
+        if (xmlString != null && xmlString.length() > 0) {
+            JAXBContext jaxbContext = JAXBContext.newInstance(ParcelRateResponse.class);
+            return (ParcelRateResponse) jaxbContext.createUnmarshaller().unmarshal(new StringReader(xmlString));
+        }
+        return null;
     }
 
     /**
@@ -90,24 +94,6 @@ public class ParcelRateResponseParser {
         return ratedDiscounts;
     }
 
-    public static List<ParcelRateResponse.Charge> getRatedDiscountForFedEx(ParcelRateResponse.PriceSheet priceSheet){
-        List<ParcelRateResponse.Charge> ratedDiscounts = null;
-        if(priceSheet != null && priceSheet.getCharges() != null){
-            ratedDiscounts = new ArrayList<>();
-            for(ParcelRateResponse.Charge charge : priceSheet.getCharges()){
-                if(charge != null && ParcelRateResponse.ChargeType.DISCOUNT.name().equalsIgnoreCase(charge.getType())
-                        && !"Residential Surcharge Discount".equalsIgnoreCase(charge.getName())
-                        && !"Fuel Surcharge Discount".equalsIgnoreCase(charge.getName())
-                        && !"Custom Fuel Surcharge Discount".equalsIgnoreCase(charge.getName())
-                        && !"Spend Discount".equalsIgnoreCase(charge.getName())
-                        && !"Custom Net Rate Discount".equalsIgnoreCase(charge.getName())
-                        && !charge.getName().contains("Base")){
-                    ratedDiscounts.add(charge);
-                }
-            }
-        }
-        return ratedDiscounts;
-    }
 
     public static BigDecimal getRatedSurchargeDiscount(ParcelRateResponse.PriceSheet priceSheet){
         BigDecimal ratedSurchargeDiscount =new BigDecimal("0.000");
@@ -240,7 +226,7 @@ public class ParcelRateResponseParser {
         return null;
     }
 
-    public static List<ParcelRateResponse.Charge> getAllOtherDiscountsForUPSCarrier(ParcelRateResponse.PriceSheet priceSheet){
+    public static List<ParcelRateResponse.Charge> getAllOtherDiscounts(ParcelRateResponse.PriceSheet priceSheet) {
         List<ParcelRateResponse.Charge> discountCharges = null;
         if(priceSheet != null && priceSheet.getCharges() != null){
             discountCharges = new ArrayList<>();
@@ -272,7 +258,7 @@ public class ParcelRateResponseParser {
         return null;
     }
 
-    public static List<ParcelRateResponse.Charge> getAccessorialChargesForUps(ParcelRateResponse.PriceSheet priceSheet){
+    public static List<ParcelRateResponse.Charge> getAccessorialCharges(ParcelRateResponse.PriceSheet priceSheet) {
         List<ParcelRateResponse.Charge> accessorialCharges = null;
         if(priceSheet != null && priceSheet.getCharges() != null) {
             accessorialCharges = new ArrayList<>();
@@ -285,18 +271,6 @@ public class ParcelRateResponseParser {
         return accessorialCharges;
     }
 
-    public static List<ParcelRateResponse.Charge> getAccessorialChargesForFedEx(ParcelRateResponse.PriceSheet priceSheet){
-        List<ParcelRateResponse.Charge> accessorialCharges = null;
-        if(priceSheet != null && priceSheet.getCharges() != null) {
-            accessorialCharges = new ArrayList<>();
-            for (ParcelRateResponse.Charge charge : priceSheet.getCharges()) {
-                if(charge != null && charge.getType() != null && ParcelRateResponse.ChargeType.ACCESSORIAL.name().equalsIgnoreCase(charge.getType())){
-                    accessorialCharges.add(charge);
-                }
-            }
-        }
-        return accessorialCharges;
-    }
 
     public static void  getRatedDasDiscount(ParcelRateResponse.PriceSheet priceSheet, List<ParcelRateResponse.Charge> charges){
         if(priceSheet != null && priceSheet.getCharges() != null) {
