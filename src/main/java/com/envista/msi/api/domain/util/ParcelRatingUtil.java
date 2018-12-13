@@ -2347,7 +2347,7 @@ public class ParcelRatingUtil {
             }
         }
 
-        if ((ratingCharge.getItemQuantity() == null || new BigDecimal(ratingCharge.getItemQuantity()).compareTo(BigDecimal.ZERO) == 0)) {
+        if ((ratingCharge.getItemQuantity() == null || ratingCharge.getItemQuantity().trim().isEmpty() || new BigDecimal(ratingCharge.getItemQuantity().trim()).compareTo(BigDecimal.ZERO) == 0)) {
             ratingCharge.setItemQuantity(maxQuantity);
         }
     }
