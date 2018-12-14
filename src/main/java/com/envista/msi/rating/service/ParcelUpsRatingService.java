@@ -113,7 +113,7 @@ public class ParcelUpsRatingService {
             if(trackingNumber != null && !trackingNumber.isEmpty()){
                 try{
                     if (bean.getHwtIdentifier() == null || bean.getHwtIdentifier().isEmpty()) {
-                        shipmentRecords = getUpsParcelShipmentDetails(null, trackingNumber, true, null);
+                        shipmentRecords = getUpsParcelShipmentDetails(bean.getCustomerId() != null ? bean.getCustomerId().toString() : null, trackingNumber, true, null);
                         bean.setPiecesCount(1);
                     }
                     else {

@@ -324,7 +324,7 @@ public class ParcelRatingUtil {
             ratingQueueBean.setReceiverBilledZipCode(firstCharge.getReceiverBilledZipCode());
             ratingQueueBean.setWorldeEaseNum("N");
             ratingQueueBean.setComToRes("");
-            ratingQueueBean.setReturnFlag("N");
+            ratingQueueBean.setReturnFlag(isReturnShipment(ratingShipmentDetails) == true ? "Y" : "N");
             ratingQueueBean.setResiFlag("N");
             boolean hasRJ5Charge = false;
 
@@ -370,18 +370,6 @@ public class ParcelRatingUtil {
                         if (auditDetails != null) {
                             try {
                                 if (shipmentDetails.get(0).getParentId().compareTo(auditDetails.getParentId()) == 0) {
-
-
-                                    if (auditDetails.getChargeCatagoryCode() != null) {
-                                        if (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("RTN") || // Standard return
-                                                (auditDetails.getChargeCategoryDetailCode() != null && ((auditDetails.getChargeCatagoryCode().equalsIgnoreCase("MIS") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("RS")) || // PRL
-                                                        (auditDetails.getChargeDescriptionCode() != null && auditDetails.getChargeCatagoryCode().equalsIgnoreCase("MIS") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("IMP") && auditDetails.getChargeDescriptionCode().equalsIgnoreCase("ALP")) || // Import PRL
-                                                        (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("ADJ") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("RTS")) ||
-                                                        (auditDetails.getChargeDescription() != null && auditDetails.getChargeCatagoryCode().equalsIgnoreCase("ADJ") && auditDetails.getChargeDescription().toUpperCase().contains("RETURN"))))) {
-
-                                            ratingQueueBean.setReturnFlag("Y");
-                                        }
-                                    }
 
 
                                     if (auditDetails.getWorldeEaseNum() != null && !auditDetails.getWorldeEaseNum().isEmpty())
@@ -664,28 +652,6 @@ public class ParcelRatingUtil {
         }
     }
 
-    private static boolean isReturnFlagAtTrackingLevel(List<ParcelAuditDetailsDto> trackingNumDetails) {
-
-        for(ParcelAuditDetailsDto auditDetails : trackingNumDetails){
-
-            if (auditDetails.getCarrierId() == 21) {
-                if (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("RTN") || // Standard return
-                        (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("MIS") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("RS")) || // PRL
-                        (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("MIS") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("IMP") && auditDetails.getChargeDescriptionCode().equalsIgnoreCase("ALP")) || // Import PRL
-                        (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("ADJ") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("RTS"))) {
-
-                    return true;
-                }
-            } else {
-                if (auditDetails.getChargeDescription() != null && (auditDetails.getChargeDescription().toUpperCase().startsWith("RETURN")))
-                    return true;
-            }
-        }
-
-
-        return  false;
-    }
-
     private static ParcelAuditDetailsDto getMinParentCharge(List<ParcelAuditDetailsDto> shipmentDetails, Map<String, Long> hwtSequenceInfo) {
 
         for (ParcelAuditDetailsDto dto : shipmentDetails) {
@@ -757,6 +723,10 @@ public class ParcelRatingUtil {
 
             prepareXmlReqAddressInfo(trackingNumDetails, firstCharge);
 
+            List<ParcelAuditDetailsDto> ratingShipmentDetails = getParentIdCharges(trackingNumDetails, shipmentDetails.get(0).getParentId());
+
+            ratingQueueBean.setReturnFlag(isReturnShipment(ratingShipmentDetails) == true ? "Y" : "N");
+
             ratingQueueBean.setManiestId(firstCharge.getId());
 
             if (leadShipmentDetails != null && leadShipmentDetails.size() > 0)
@@ -785,13 +755,10 @@ public class ParcelRatingUtil {
 
             //StringJoiner accessorials = new StringJoiner(",");
             JSONArray accJsonArr = new JSONArray();
-            String returnFlag = "N";
             String resiFlag = "N";
 
             for (ParcelAuditDetailsDto auditDetails : shipmentDetails) {
                 if (auditDetails != null) {
-                    if (auditDetails.getChargeDescription() != null && (auditDetails.getChargeDescription().toUpperCase().startsWith("RETURN")))
-                        returnFlag = "Y";
                     if (auditDetails.getChargeDescription() != null && (auditDetails.getChargeDescription().toUpperCase().endsWith("-PRP")
                             || "RETURN EMAIL LABEL".equalsIgnoreCase(auditDetails.getChargeDescription().toUpperCase())))
                         ratingQueueBean.setPrpFlag("Y");
@@ -852,7 +819,6 @@ public class ParcelRatingUtil {
             ratingQueueBean.setCustomerCode(firstCharge.getCustomerCode());
             ratingQueueBean.setRevenueTier(firstCharge.getRevenueTier());
             ratingQueueBean.setShipperNumber(firstCharge.getShipperNumber());
-            ratingQueueBean.setReturnFlag(returnFlag);
             ratingQueueBean.setResiFlag(resiFlag);
             JSONArray itemJsonArr = new JSONArray();
 
@@ -1671,7 +1637,7 @@ public class ParcelRatingUtil {
 
             if (key.compareTo(entry.getKey()) > 0 && (shipmentChargeList.get(0).getCarrierId().compareTo(21L) != 0 || !checkCarrierCreditsToExcludeRating(entry.getValue()))) {
 
-                if (!returnShipment || isReturnShipment(entry.getValue())) {
+                if (isReturnShipment(entry.getValue(), returnShipment)) {
                     for (ParcelAuditDetailsDto dto : entry.getValue()) {
 
                         if ((dto.getCarrierId() == 21 || (shipments.get(key).get(0).getPickupDate() != null && dto.getPickupDate() != null
@@ -1697,28 +1663,50 @@ public class ParcelRatingUtil {
         return shipmentChargeList;
     }
 
-
     private static boolean isReturnShipment(List<ParcelAuditDetailsDto> shipmentChargeList) {
 
-        for (ParcelAuditDetailsDto auditDetails : shipmentChargeList) {
+        boolean returnValue = getReturnShipmentVal(shipmentChargeList);
 
-            if (auditDetails.getCarrierId() == 21) {
-                if (auditDetails.getChargeCatagoryCode() != null) {
-                    if (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("RTN") || // Standard return
-                            (auditDetails.getChargeCategoryDetailCode() != null && ((auditDetails.getChargeCatagoryCode().equalsIgnoreCase("MIS") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("RS")) || // PRL
-                                    (auditDetails.getChargeDescriptionCode() != null && auditDetails.getChargeCatagoryCode().equalsIgnoreCase("MIS") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("IMP") && auditDetails.getChargeDescriptionCode().equalsIgnoreCase("ALP")) || // Import PRL
-                                    (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("ADJ") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("RTS")) ||
-                                    (auditDetails.getChargeDescription() != null && auditDetails.getChargeCatagoryCode().equalsIgnoreCase("ADJ") && auditDetails.getChargeDescription().toUpperCase().contains("RETURN"))))) {
+        return returnValue;
+    }
 
-                        return true;
+    private static boolean isReturnShipment(List<ParcelAuditDetailsDto> shipmentChargeList, boolean ratingParentIdReturnVal) {
+
+        boolean returnValue = getReturnShipmentVal(shipmentChargeList);
+
+        if (ratingParentIdReturnVal == returnValue) {
+            returnValue = true;
+        } else
+            returnValue = false;
+
+        return returnValue;
+    }
+
+    private static boolean getReturnShipmentVal(List<ParcelAuditDetailsDto> shipmentChargeList) {
+
+        boolean returnValue = false;
+        if (shipmentChargeList != null && shipmentChargeList.size() > 0) {
+            for (ParcelAuditDetailsDto auditDetails : shipmentChargeList) {
+
+                if (auditDetails.getCarrierId() == 21) {
+                    if (auditDetails.getChargeCatagoryCode() != null) {
+                        if (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("RTN") || // Standard return
+                                (auditDetails.getChargeCategoryDetailCode() != null && ((auditDetails.getChargeCatagoryCode().equalsIgnoreCase("MIS") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("RS")) || // PRL
+                                        (auditDetails.getChargeDescriptionCode() != null && auditDetails.getChargeCatagoryCode().equalsIgnoreCase("MIS") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("IMP") && auditDetails.getChargeDescriptionCode().equalsIgnoreCase("ALP")) || // Import PRL
+                                        (auditDetails.getChargeCatagoryCode().equalsIgnoreCase("ADJ") && auditDetails.getChargeCategoryDetailCode().equalsIgnoreCase("RTS")) ||
+                                        (auditDetails.getChargeDescription() != null && auditDetails.getChargeCatagoryCode().equalsIgnoreCase("ADJ") && auditDetails.getChargeDescription().toUpperCase().contains("RETURN"))))) {
+
+                            returnValue = true;
+                        }
                     }
+                } else {
+                    if (auditDetails.getChargeDescription() != null && (auditDetails.getChargeDescription().toUpperCase().startsWith("RETURN")))
+                        returnValue = true;
                 }
-            } else {
-                if (auditDetails.getChargeDescription() != null && (auditDetails.getChargeDescription().toUpperCase().startsWith("RETURN")))
-                    return true;
             }
         }
-        return false;
+
+        return returnValue;
     }
 
     public static BigDecimal findPrevRateAmtByCode(List<AccessorialDto> prevParentsRatesDtos, String accCode, String accessorialType) {
@@ -2222,7 +2210,7 @@ public class ParcelRatingUtil {
         SortOrderTrackDetails.sort(Comparator.comparing(ParcelAuditDetailsDto::getId).reversed());
         for (ParcelAuditDetailsDto dto : SortOrderTrackDetails) {
 
-            if (ratingCharge != null && ratingCharge.getParentId().compareTo(dto.getParentId()) > 0 && (!returnShipment || (shipments != null && isReturnShipment(shipments.get(dto.getParentId()))))) {
+            if (ratingCharge != null && ratingCharge.getParentId().compareTo(dto.getParentId()) > 0 && (shipments != null && isReturnShipment(shipments.get(dto.getParentId()), returnShipment))) {
 
                 if ((ratingCharge.getSenderCountry() == null || ratingCharge.getSenderCountry().isEmpty())
                         && (dto.getSenderCountry() != null && !dto.getSenderCountry().isEmpty())) {
@@ -2290,7 +2278,7 @@ public class ParcelRatingUtil {
         SortOrderTrackDetails.sort(Comparator.comparing(ParcelAuditDetailsDto::getId).reversed());
         for (ParcelAuditDetailsDto dto : SortOrderTrackDetails) {
 
-            if (ratingCharge != null && ratingCharge.getParentId().compareTo(dto.getParentId()) > 0 && (!returnShipment || (shipments != null && isReturnShipment(shipments.get(dto.getParentId()))))) {
+            if (ratingCharge != null && ratingCharge.getParentId().compareTo(dto.getParentId()) > 0 && (shipments != null && isReturnShipment(shipments.get(dto.getParentId()), returnShipment))) {
 
 
                 if ((ratingCharge.getPackageWeight() == null || new BigDecimal(ratingCharge.getPackageWeight()).compareTo(BigDecimal.ZERO) == 0)
