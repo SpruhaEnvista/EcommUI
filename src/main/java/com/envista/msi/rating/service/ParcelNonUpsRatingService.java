@@ -114,11 +114,11 @@ public class ParcelNonUpsRatingService {
         boolean prevHwtRated = false;
         List<ParcelAuditDetailsDto> shipmentToRate = null;
         if (bean.getHwtIdentifier() == null || bean.getHwtIdentifier().isEmpty()) {
-            allShipmentCharges = getFedExParcelShipmentDetails(bean.getCustomerId().toString(), null, null, bean.getTrackingNumber(), null, true, null);
+            allShipmentCharges = getFedExParcelShipmentDetails(bean.getCustomerId() != null ? bean.getCustomerId().toString() : null, null, null, bean.getTrackingNumber(), null, true, null);
             bean.setPiecesCount(1);
         }
         else {
-            allShipmentCharges = getFedExParcelShipmentDetails(bean.getCustomerId().toString(), null, null, null, null, true, bean.getHwtIdentifier());
+            allShipmentCharges = getFedExParcelShipmentDetails(bean.getCustomerId() != null ? bean.getCustomerId().toString() : null, null, null, null, null, true, bean.getHwtIdentifier());
             bean.setPiecesCount(ParcelRatingUtil.getPiecesCount(allShipmentCharges));
             shipmentToRate = new ArrayList<>();
             prevHwtRated = ParcelRatingUtil.isHwtShipmentRated(allShipmentCharges, bean.getParentId(), shipmentToRate, bean.getInvoiceDate());
