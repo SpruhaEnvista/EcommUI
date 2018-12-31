@@ -24,6 +24,7 @@ import java.io.Serializable;
                                 @ColumnResult(name = "category", type = Integer.class),
                                 @ColumnResult(name = "isconsolidated", type = Integer.class),
                                 @ColumnResult(name = "rpt_grp_id", type = Integer.class),
+                                @ColumnResult(name = "new_rpt_grp_id", type = Integer.class),
                                 @ColumnResult(name = "group_name", type = String.class),
                                 @ColumnResult(name = "group_under", type = Integer.class),
                                 @ColumnResult(name = "is_supports_carriers", type = Boolean.class),
@@ -56,6 +57,9 @@ public class ReportModesDto implements Serializable {
     @Column(name = "rpt_grp_id")
     private Integer reportGroupId;
 
+    @Column(name = "new_rpt_grp_id")
+    private Integer newRptGrpId;
+
     @Column(name = "group_name")
     private String groupName;
 
@@ -84,13 +88,14 @@ public class ReportModesDto implements Serializable {
 
     public ReportModesDto() {  }
 
-    public ReportModesDto(Long rptId, String reportFileName, Integer category, Integer isConsolidated, Integer reportGroupId, String groupName,
+    public ReportModesDto(Long rptId, String reportFileName, Integer category, Integer isConsolidated, Integer reportGroupId,Integer newRptGrpId,String groupName,
                              Integer groupUnder,Boolean isSupportsCarriers, String groupUnderName,String reportDescr, Boolean isFavourite,Boolean isPopularReport) {
         this.rptId = rptId;
         this.reportFileName = reportFileName;
         this.category = category;
         this.isConsolidated = isConsolidated;
         this.reportGroupId = reportGroupId;
+        this.newRptGrpId = newRptGrpId;
         this.groupName = groupName;
         this.groupUnder = groupUnder;
         this.isSupportsCarriers = isSupportsCarriers;
@@ -101,7 +106,7 @@ public class ReportModesDto implements Serializable {
 
     }
 
-    public ReportModesDto(Long rptId, String reportFileName, Integer category, Integer isConsolidated, Integer reportGroupId, String groupName,
+    public ReportModesDto(Long rptId, String reportFileName, Integer category, Integer isConsolidated, Integer reportGroupId,Integer newRptGrpId,String groupName,
                           Integer groupUnder,Boolean isSupportsCarriers, String groupUnderName,String reportDescr, Boolean isFavourite,
                           Boolean isPopularReport,Integer showCriteriaTab) {
         this.rptId = rptId;
@@ -109,6 +114,7 @@ public class ReportModesDto implements Serializable {
         this.category = category;
         this.isConsolidated = isConsolidated;
         this.reportGroupId = reportGroupId;
+        this.newRptGrpId = newRptGrpId;
         this.groupName = groupName;
         this.groupUnder = groupUnder;
         this.isSupportsCarriers = isSupportsCarriers;
@@ -202,7 +208,17 @@ public class ReportModesDto implements Serializable {
 
     public String getReportDescr() { return reportDescr; }
 
+
+
     public void setReportDescr(String reportDescr) { this.reportDescr = reportDescr; }
+
+    public Integer getNewRptGrpId() {
+        return newRptGrpId;
+    }
+
+    public void setNewRptGrpId(Integer newRptGrpId) {
+        this.newRptGrpId = newRptGrpId;
+    }
 
     public boolean isFavourite() {
         return isFavourite;
