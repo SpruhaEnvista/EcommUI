@@ -2943,13 +2943,18 @@ public class JSONUtil {
         JSONArray allModesJsonArr = new JSONArray();
         JSONArray freightJsonArr = new JSONArray();
 
-        JSONArray auditParcelJsonArr = new JSONArray();
+        JSONArray shipmentLevelDetailJsonArr = new JSONArray();
         JSONArray deliveryParcelJsonArr = new JSONArray();
-        JSONArray invoiceParcelJsonArr = new JSONArray();
+        JSONArray parcelSpendOptimizationJsonArr = new JSONArray();
+        JSONArray parcelChargeLevelDetailJsonArr = new JSONArray();
 
         JSONArray allModesCustRepJsonArr = new JSONArray();
         JSONArray freightCustRepJsonArr = new JSONArray();
         JSONArray parcelCustRepJsonArr = new JSONArray();
+        JSONArray internalReportJsonArr = new JSONArray();
+        JSONArray paymentSummaryReportsJsonArr = new JSONArray();
+        JSONArray legacyReportsJsonArr = new JSONArray();
+        JSONArray archivedReportsJsonArr = new JSONArray();
 
 
         if (reportModeDtoList != null && !reportModeDtoList.isEmpty()) {
@@ -2971,23 +2976,44 @@ public class JSONUtil {
                              parcelCustRepJsonArr.put(reportModesDto);
 
                      } else if("Parcel".equalsIgnoreCase(reportModesDto.getGroupUnderName())) {
-                         if("Audit".equalsIgnoreCase(reportModesDto.getGroupName()))
-                             auditParcelJsonArr.put(reportModesDto);
+                         if("Shipment Level Detail".equalsIgnoreCase(reportModesDto.getGroupName()))
+                             shipmentLevelDetailJsonArr.put(reportModesDto);
                          else if("Delivery & Tracking".equalsIgnoreCase(reportModesDto.getGroupName()))
                              deliveryParcelJsonArr.put(reportModesDto);
-                         else if("Invoice & GL Coding".equalsIgnoreCase(reportModesDto.getGroupName()))
-                             invoiceParcelJsonArr.put(reportModesDto);
+                         else if("Spend Optimization".equalsIgnoreCase(reportModesDto.getGroupName()))
+                             parcelSpendOptimizationJsonArr.put(reportModesDto);
+                         else if("Charge Level Detail".equalsIgnoreCase(reportModesDto.getGroupName()))
+                             parcelChargeLevelDetailJsonArr.put(reportModesDto);
 
                      }
+
+                      else if("Internal Reports".equalsIgnoreCase(reportModesDto.getGroupName())) {
+                          internalReportJsonArr.put(reportModesDto);
+
+                      }
+                      else if("Payment Summary Reports".equalsIgnoreCase(reportModesDto.getGroupName())) {
+                          paymentSummaryReportsJsonArr.put(reportModesDto);
+
+                      }
+                      else if("Archived".equalsIgnoreCase(reportModesDto.getGroupName())) {
+                          archivedReportsJsonArr.put(reportModesDto);
+
+                      }
+                      else if("Legacy Reports".equalsIgnoreCase(reportModesDto.getGroupName())) {
+                          legacyReportsJsonArr.put(reportModesDto);
+
+                      }
 
                 }
 
             } // List For End
 
         }
-        parcelJSON.put("audit",auditParcelJsonArr);
+        parcelJSON.put("shipmentLevelDetail",shipmentLevelDetailJsonArr);
         parcelJSON.put("delivery",deliveryParcelJsonArr);
-        parcelJSON.put("invoice",invoiceParcelJsonArr);
+        parcelJSON.put("parcelSpendOptimization",parcelSpendOptimizationJsonArr);
+        parcelJSON.put("parcelChargeLevelDetail",parcelChargeLevelDetailJsonArr);
+
 
         customReportJSON.put("allModes",allModesCustRepJsonArr);
         customReportJSON.put("freight",freightCustRepJsonArr);
@@ -2997,6 +3023,10 @@ public class JSONUtil {
         reportModesJSON.put("freight",freightJsonArr);
         reportModesJSON.put("parcel",parcelJSON);
         reportModesJSON.put("customReports",customReportJSON);
+        reportModesJSON.put("internalReports",internalReportJsonArr);
+        reportModesJSON.put("paymentSummaryReports",paymentSummaryReportsJsonArr);
+        reportModesJSON.put("legacyReports",legacyReportsJsonArr);
+        reportModesJSON.put("archivedReports",archivedReportsJsonArr);
 
 
         return reportModesJSON;
