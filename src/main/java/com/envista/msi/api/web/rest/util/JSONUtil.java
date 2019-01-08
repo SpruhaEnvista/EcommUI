@@ -3018,6 +3018,11 @@ public class JSONUtil {
         customReportJSON.put("allModes",allModesCustRepJsonArr);
         customReportJSON.put("freight",freightCustRepJsonArr);
         customReportJSON.put("parcel",parcelCustRepJsonArr);
+        customReportJSON.put("internalReports",internalReportJsonArr);
+        customReportJSON.put("paymentSummaryReports",paymentSummaryReportsJsonArr);
+        customReportJSON.put("archivedReports",archivedReportsJsonArr);
+
+
 
         reportModesJSON.put("allModes",allModesJsonArr);
         reportModesJSON.put("freight",freightJsonArr);
