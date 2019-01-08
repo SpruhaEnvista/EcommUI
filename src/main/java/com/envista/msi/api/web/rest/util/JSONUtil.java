@@ -2951,6 +2951,11 @@ public class JSONUtil {
         JSONArray allModesCustRepJsonArr = new JSONArray();
         JSONArray freightCustRepJsonArr = new JSONArray();
         JSONArray parcelCustRepJsonArr = new JSONArray();
+        JSONArray paymentSummaryCustRepJsonArr = new JSONArray();
+        JSONArray archivedReportsCustRepJsonArr = new JSONArray();
+        JSONArray internalReportCustRepJsonArr = new JSONArray();
+
+
         JSONArray internalReportJsonArr = new JSONArray();
         JSONArray paymentSummaryReportsJsonArr = new JSONArray();
         JSONArray legacyReportsJsonArr = new JSONArray();
@@ -3018,9 +3023,9 @@ public class JSONUtil {
         customReportJSON.put("allModes",allModesCustRepJsonArr);
         customReportJSON.put("freight",freightCustRepJsonArr);
         customReportJSON.put("parcel",parcelCustRepJsonArr);
-        customReportJSON.put("internalReports",internalReportJsonArr);
-        customReportJSON.put("paymentSummaryReports",paymentSummaryReportsJsonArr);
-        customReportJSON.put("archivedReports",archivedReportsJsonArr);
+        customReportJSON.put("internalReports",internalReportCustRepJsonArr);
+        customReportJSON.put("paymentSummaryReports",paymentSummaryCustRepJsonArr);
+        customReportJSON.put("archivedReports",archivedReportsCustRepJsonArr);
 
 
 
